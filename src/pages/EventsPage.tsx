@@ -59,7 +59,7 @@ export default function EventsPage() {
     setIsTimelineModalOpen(false);
   };
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
 
   return (
     <PageLayout className="py-8 min-h-screen mt-(--content-top-spacing)">

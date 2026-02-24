@@ -18,6 +18,7 @@ export { default as Levels } from './Levels';
 export { default as CoverPic } from './CoverPic';
 export { default as InteractCount } from './InteractCount';
 export { default as ScoreCount } from './ScoreCount';
+export { default as MMFCScoreCount } from './MMFCScoreCount';
 export { default as LanguageSelector } from './LanguageSelector';
 export { default as TagManageWidget, TagManageTagLauncher } from './TagManageWidget';
 

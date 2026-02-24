@@ -252,5 +252,7 @@
   "MMFCRankingTitle": "MMFC Challenge Ranking",
   "MMFCRankingDescription": "Shows participants' total scores for playing mmfc_bot's charts",
   "NoMMFCRankingData": "No ranking data available. Please add participants first",
+  "MMFCRankingListTitle": "Challenge Rankings",
+  "MMFCRankingListDescription": "Total scores ranking of participants playing mmfc_bot's charts",
   "Rankings": "Rankings"
 }

@@ -252,5 +252,7 @@
   "MMFCRankingTitle": "MMFCチャレンジランキング",
   "MMFCRankingDescription": "参加者のmmfc_bot譜面プレイ総合スコアランキング",
   "NoMMFCRankingData": "ランキングデータがありません。まず参加者を追加してください",
+  "MMFCRankingListTitle": "チャレンジランキング",
+  "MMFCRankingListDescription": "参加者のmmfc_bot譜面プレイ総合スコアランキング",
   "Rankings": "ランキング"
 }

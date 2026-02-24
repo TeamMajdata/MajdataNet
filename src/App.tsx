@@ -7,6 +7,8 @@ import RegisterPage from './pages/RegisterPage';
 import EditPage from './pages/EditPage';
 import EventsPage from './pages/EventsPage';
 import RankingPage from './pages/RankingPage';
+import UserRankingPage from './pages/UserRankingPage';
+import MMFCRankingPage from './pages/MMFCRankingPage';
 import SongPage from './pages/SongPage';
 import SpacePage from './pages/SpacePage';
 import EventTagPage from './pages/EventTagPage';
@@ -28,6 +30,8 @@ function App() {
           <Route path="/edit" element={<EditPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/ranking" element={<RankingPage />} />
+          <Route path="/user-ranking" element={<UserRankingPage />} />
+          <Route path="/mmfc-ranking" element={<MMFCRankingPage />} />
           <Route path="/song" element={<SongPage />} />
           <Route path="/space" element={<SpacePage />} />
           <Route path="/eventTag" element={<EventTagPage />} />

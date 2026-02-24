@@ -5,27 +5,14 @@
 
 import React, { memo, useMemo } from 'react';
 import { IoChevronUpOutline } from 'react-icons/io5';
-import { useLoc } from '@/hooks';
 import EnhancedDescription from './EnhancedDescription';
 import type { EventBannerProps } from '@/types';
+import { getCategoryTranslation } from '@/utils/eventsData';
 
 const EventBanner: React.FC<EventBannerProps> = memo(({ event }) => {
-  // 使用响应式的 loc hook
-  const loc = useLoc();
-  
   // 使用useMemo缓存计算结果，避免重复计算
-  const { categoryTranslation, timeAgo } = useMemo(() => {
+  const { timeAgo } = useMemo(() => {
     if (!event) return { categoryTranslation: '', timeAgo: '' };
-
-    // 获取category的翻译
-    const categoryMap: Record<string, string> = {
-      '高校赛事': loc('EventCategoryUniversity'),
-      '大型赛事': loc('EventCategoryMajor'),
-      '私立企划': loc('EventCategoryPrivateProject'),
-      '私立赛事': loc('EventCategoryPrivateContest'),
-      'Maj企划': 'Maj企划',
-    };
-    const categoryResult = categoryMap[event.category] || event.category;
 
     // 计算创建时间的"xx天前"格式
     const getTimeAgo = (dateString: string) => {
@@ -52,10 +39,9 @@ const EventBanner: React.FC<EventBannerProps> = memo(({ event }) => {
     const createTimeAgo = getTimeAgo(event.createDate);
 
     return {
-      categoryTranslation: categoryResult,
       timeAgo: createTimeAgo,
     };
-  }, [event, loc]); // 添加 loc 作为依赖，确保语言变化时重新计算
+  }, [event]); // 添加 loc 作为依赖，确保语言变化时重新计算
 
   if (!event) return null;
 
@@ -89,7 +75,7 @@ const EventBanner: React.FC<EventBannerProps> = memo(({ event }) => {
             />
             <div className="flex flex-wrap items-center gap-2 md:gap-3 text-white/80 text-xs md:text-sm" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
               <span className="font-medium whitespace-nowrap">
-                {categoryTranslation}
+                {getCategoryTranslation(event.category)}
               </span>
               <span className="whitespace-nowrap">
                 • {timeAgo}
