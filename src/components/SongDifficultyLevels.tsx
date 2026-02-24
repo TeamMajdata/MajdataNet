@@ -5,10 +5,12 @@
 
 import React from 'react';
 import { renderLevel } from '@/utils/renderLevel';
+import { apiroot3 } from '@/config/api';
 import type { SongDifficultyLevelsProps } from '@/types';
 
 export default function SongDifficultyLevels({ 
-  levels, 
+  levels,
+  songid,
   isPlayer = false 
 }: SongDifficultyLevelsProps) {
   // 处理空值
@@ -27,7 +29,21 @@ export default function SongDifficultyLevels({
     
     // 使用全局的 window.unitySendMessage (Majdata组件会设置)
     if (window.unitySendMessage) {
-      window.unitySendMessage('HandleJSMessages', 'ReceiveMessage', 'changeDifficulty\n' + id);
+      const httpprefix = location.protocol + '//' + location.host;
+      let root = apiroot3;
+      if (!root.startsWith('http')) {
+        root = httpprefix + root;
+      }
+      const maichart = root + '/maichart/' + songid;
+      const maidata = maichart + '/chart';
+      const track = maichart + '/track';
+      const bg = maichart + '/image?fullImage=true';
+      const mv = maichart + '/video';
+      window.unitySendMessage(
+        'HandleJSMessages',
+        'ReceiveMessage',
+        `${maidata}\n${track}\n${bg}\n${mv}\n${id}`
+      );
     }
   };
 

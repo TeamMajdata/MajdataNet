@@ -242,7 +242,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 bg-white/[0.08] shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
+          <div className="flex flex-col gap-2 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
             <button
               className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
               onClick={OnDownloadClick({ id: o.id, title: o.title })}
@@ -285,7 +285,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
           </div>
 
           {/* ID/HASH/点赞面板 */}
-          <div className="relative flex flex-col bg-white/[0.08] shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl overflow-hidden transition-all duration-300">
+          <div className="relative flex flex-col bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl overflow-hidden transition-all duration-300">
             <div className="gap-y-3 grid grid-cols-[80px_1fr] text-sm">
               <span className="text-white/40">ID</span>
               <code
@@ -380,6 +380,7 @@ function MajdataView({ id }: { id: string }) {
       break;
     }
   }
+  console.log(firstNonEmptyIndex)
 
   return (
     <div className="w-full">
