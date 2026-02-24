@@ -8,6 +8,7 @@ import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout, SongList } from '@/components';
 import { apiroot3 } from '@/config/api';
+import type { RankingSectionProps } from '@/types';
 
 export default function RankingPage() {
   const loc = useLoc();
@@ -60,13 +61,6 @@ export default function RankingPage() {
       </div>
     </PageLayout>
   );
-}
-
-interface RankingSectionProps {
-  title: string;
-  subtitle: string;
-  sortType: string;
-  delay?: string;
 }
 
 function RankingSection({ title, subtitle, sortType, delay = '' }: RankingSectionProps) {

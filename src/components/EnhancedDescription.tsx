@@ -3,12 +3,8 @@
  * 迁移自 legacy/src/app/widgets/EnhancedDescription.jsx
  */
 
+import type { EnhancedDescriptionProps } from '@/types';
 import React from 'react';
-
-interface EnhancedDescriptionProps {
-  text: string;
-  className?: string;
-}
 
 const EnhancedDescription: React.FC<EnhancedDescriptionProps> = ({ text, className = '' }) => {
   if (!text) return null;

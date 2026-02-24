@@ -12,23 +12,8 @@ import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
+import type { Song, SongListProps } from '@/types';
 
-interface Song {
-  id: string;
-  title: string;
-  artist: string;
-  uploader: string;
-  designer: string;
-  levels: string[];
-}
-
-interface SongListProps {
-  url: string;
-  setMax?: (page: number) => void;
-  page?: number;
-  isRanking?: boolean;
-  isManage?: boolean;
-}
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());

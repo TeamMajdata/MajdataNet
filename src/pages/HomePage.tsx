@@ -25,6 +25,7 @@ import {
   getTimeAgo,
   getCategoryTranslation,
 } from '@/utils/eventsData';
+import type { SearchBarProps } from '@/types';
 
 export default function HomePage() {
   const [ready, setReady] = useState(false);
@@ -278,13 +279,6 @@ function MobileEventsSwiper() {
       </div>
     </section>
   );
-}
-
-interface SearchBarProps {
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  initS: string;
-  sortType: number;
-  onSortChange: (val: number) => void;
 }
 
 function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) {
@@ -559,7 +553,6 @@ function MainComp() {
   );
 }
 
-// Simplified version of integrated search bar
 function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
   const loc = useLoc();
   const [currentType, setCurrentType] = useState(() => {
@@ -573,7 +566,6 @@ function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
     localStorage.setItem('DownloadType', newtype);
     setCurrentType(newtype);
 
-    // Display succession of saving
     setJustChanged(true);
     setTimeout(() => setJustChanged(false), 2000);
   };

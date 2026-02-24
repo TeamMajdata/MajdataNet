@@ -9,23 +9,8 @@ import LazyLoad from 'react-lazy-load';
 import { CoverPic, Level } from '@/components';
 import { getComboState } from '@/utils';
 import { useLoc } from '@/hooks';
+import type { RecentPlayedWidgetProps, RecentPlayedData } from '@/types';
 
-interface RecentPlayedData {
-  chartId: string;
-  title: string;
-  artist: string;
-  uploader: string;
-  designer: string;
-  level: string;
-  difficulty: string;
-  acc: number;
-  comboState: number;
-}
-
-export interface RecentPlayedWidgetProps {
-  /** 用户名 */
-  username: string;
-}
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());

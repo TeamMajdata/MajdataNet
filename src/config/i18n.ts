@@ -1,21 +1,8 @@
 /**
- * 国际化配置和类型
+ * 国际化配置
  */
 
-// 支持的语言列表
-export const SUPPORTED_LANGUAGES = ['en', 'zh', 'ja', 'ko'] as const;
-
-export type Language = (typeof SUPPORTED_LANGUAGES)[number];
-
-// 语言缓存接口
-export interface LanguageCache {
-  [key: string]: TranslationDictionary;
-}
-
-// 翻译字典接口
-export interface TranslationDictionary {
-  [key: string]: string;
-}
+import { SUPPORTED_LANGUAGES, type Language } from '@/types/i18n';
 
 // 语言配置
 export const LANGUAGE_CONFIG = {
@@ -30,3 +17,6 @@ export const DEFAULT_LANGUAGE: Language = 'en';
 
 // 本地存储键
 export const LANGUAGE_STORAGE_KEY = 'language';
+
+// 重新导出类型供其他模块使用
+export { SUPPORTED_LANGUAGES, type Language };

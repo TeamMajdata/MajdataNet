@@ -4,15 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiroot3 } from '@/config/api';
-import type { UserInfo } from '@/types';
-
-interface UseUserResult {
-  user: UserInfo | null;
-  username: string;
-  isLoading: boolean;
-  error: Error | null;
-  refetch: () => void;
-}
+import type { UserInfo, UseUserResult } from '@/types';
 
 /**
  * 获取用户信息的 Hook

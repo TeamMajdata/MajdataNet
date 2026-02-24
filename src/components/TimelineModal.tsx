@@ -6,49 +6,15 @@
 import { useEffect, useState } from 'react';
 import { getActiveEvents, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
 import { useLoc } from '@/hooks';
-import type { Event } from '@/types';
+import type { 
+  Event, 
+  TimelineModalProps, 
+  TimelineSegment, 
+  TimelineEvent, 
+  TimeScale, 
+  TimelineData 
+} from '@/types';
 
-interface TimelineModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-interface TimelineSegment {
-  start: Date;
-  end: Date;
-  startPosition: number;
-  endPosition: number;
-  compressed: boolean;
-  density: number;
-  days: number;
-}
-
-interface TimelineEvent extends Event {
-  startOffset: number;
-  width: number;
-  duration: number;
-  isOngoing: boolean;
-  isUpcoming: boolean;
-  row: number;
-}
-
-interface TimeScale {
-  date: Date;
-  position: number;
-  isMonth: boolean;
-  isWeek: boolean;
-  compressed: boolean;
-}
-
-interface TimelineData {
-  startDate: Date | null;
-  endDate: Date | null;
-  totalDays: number;
-  events: TimelineEvent[];
-  timeScale: TimeScale[];
-  segments?: TimelineSegment[];
-  isCompressed?: boolean;
-}
 
 const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
   const loc = useLoc();

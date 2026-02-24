@@ -13,12 +13,7 @@ import { apiroot3 } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import 'github-markdown-css/github-markdown-dark.css';
-
-interface IntroductionData {
-  username: string;
-  joinDate: string;
-  introduction?: string;
-}
+import type { IntroductionData } from '@/types';
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());

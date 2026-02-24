@@ -10,15 +10,12 @@ import { toast } from 'react-toastify';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import { useLoc } from '@/hooks';
 import { getComboState, getLevelName } from '@/utils';
+import type { Score, ScoreListProps, LikeSenderProps } from '@/types';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
 // ======================== Like Sender ========================
-interface LikeSenderProps {
-  songid: string;
-}
-
 export function LikeSender({ songid }: LikeSenderProps) {
   const loc = useLoc();
   const [isLikeLoading, setIsLikeLoading] = useState(false);
@@ -220,18 +217,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
   );
 }
 
-// ======================== Score List ========================
-interface Score {
-  player: {
-    username: string;
-  };
-  acc: number;
-  comboState: number;
-}
 
-interface ScoreListProps {
-  songid: string;
-}
 
 export function ScoreList({ songid }: ScoreListProps) {
   const loc = useLoc();

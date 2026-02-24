@@ -6,12 +6,7 @@
 import { Unity, useUnityContext } from 'react-unity-webgl';
 import { useEffect, useRef } from 'react';
 import sleep from '@/utils/sleep';
-
-interface MajdataProps {
-  songid: string;
-  apiroot: string;
-  level: number;
-}
+import type { MajdataProps } from '@/types';
 
 // 扩展 window 对象类型
 declare global {

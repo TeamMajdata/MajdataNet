@@ -2,13 +2,7 @@ import { useState } from 'react';
 import { apiroot3 } from '@/config/api';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
-
-export interface CoverPicProps {
-  /** 谱面ID */
-  id: string | number;
-  /** 可选的显示文本（通常是ID） */
-  display?: string;
-}
+import type { CoverPicProps } from '@/types';
 
 /**
  * 谱面封面图片组件

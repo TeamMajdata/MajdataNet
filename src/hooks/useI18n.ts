@@ -3,9 +3,8 @@
  */
 import { useState, useEffect, useCallback, useContext } from 'react';
 import { setLanguage, getCurrentLanguage, initializeLanguage, getTranslatedString, loc } from '../utils/i18n';
-import type { Language } from '../config/i18n';
+import type { Language, I18nContextValue } from '@/types/i18n';
 import { I18nContext } from '../contexts/i18nContextDef';
-import type { I18nContextValue } from '../contexts/i18nContextDef';
 
 /**
  * 使用国际化的Hook

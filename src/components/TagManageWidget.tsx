@@ -19,17 +19,14 @@ import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import { useLoc } from '@/hooks';
 import sleep from '@/utils/sleep';
-
-interface TagManageWidgetProps {
-  songid: string;
-  newClassName?: string;
-}
-
-export interface TagManageWidgetRef {
-  toggleWindow: () => void;
-  openWindow: () => void;
-  closeWindow: () => void;
-}
+import type {
+  TagManageWidgetProps,
+  TagManageWidgetRef,
+  TagManageTagLauncherProps,
+  TagManageButtonProps,
+  TagManageTagProps,
+  TagManageWindowProps
+} from '@/types';
 
 const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
   function TagManageWidget({ songid, newClassName = '' }, ref) {
@@ -67,17 +64,8 @@ const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
 
 export default TagManageWidget;
 
-interface TagManageTagLauncherProps {
-  onClick: () => void;
-}
-
 export function TagManageTagLauncher({ onClick }: TagManageTagLauncherProps) {
   return <TagManageTag onClick={onClick} />;
-}
-
-interface TagManageButtonProps {
-  onClick: () => void;
-  newClassName?: string;
 }
 
 const TagManageButton = forwardRef<HTMLDivElement, TagManageButtonProps>(
@@ -97,10 +85,6 @@ const TagManageButton = forwardRef<HTMLDivElement, TagManageButtonProps>(
     );
   }
 );
-
-interface TagManageTagProps {
-  onClick: () => void;
-}
 
 const TagManageTag = forwardRef<HTMLButtonElement, TagManageTagProps>(
   function TagManageTag({ onClick }, ref) {
@@ -126,12 +110,6 @@ const TagManageTag = forwardRef<HTMLButtonElement, TagManageTagProps>(
     );
   }
 );
-
-interface TagManageWindowProps {
-  onClose: () => void;
-  buttonRef: React.RefObject<HTMLDivElement | null>;
-  songid: string;
-}
 
 interface SongSummary {
   tags?: string[];

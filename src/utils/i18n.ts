@@ -1,7 +1,7 @@
 /**
  * 国际化工具函数
  */
-import type { Language, LanguageCache, TranslationDictionary } from '../config/i18n';
+import type { Language, LanguageCache, TranslationDictionary } from '@/types/i18n';
 import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES } from '../config/i18n';
 
 // 语言缓存

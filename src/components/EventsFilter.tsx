@@ -4,13 +4,7 @@
  */
 
 import { useLoc } from '@/hooks';
-import type { EventCategory } from '@/types';
-
-interface EventsFilterProps {
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
-  categories: EventCategory[];
-}
+import type { EventCategory, EventsFilterProps } from '@/types';
 
 const EventsFilter: React.FC<EventsFilterProps> = ({ 
   selectedCategory, 
@@ -33,7 +27,7 @@ const EventsFilter: React.FC<EventsFilterProps> = ({
   const allText = loc("FilterAll", "全部");
 
   return (
-    <div className="mx-auto my-8 px-4 max-w-[var(--container-max-width)] text-center">
+    <div className="mx-auto my-8 px-4 max-w-(--container-max-width) text-center">
       <div className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] mb-4 font-semibold text-white/90 text-base">
         {loc("FilterEventTypes", "活动类型")}
       </div>

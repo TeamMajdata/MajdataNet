@@ -1,20 +1,9 @@
-import React from 'react';
 import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
+import type { InteractCountProps, InteractData } from '@/types';
 
 const fetcher = async (...args: [RequestInfo, RequestInit?]) =>
   await fetch(...args).then(async (res) => res.json());
-
-export interface InteractCountProps {
-  /** 歌曲ID */
-  songid: string | number;
-}
-
-interface InteractData {
-  comments: number;
-  likes: number;
-  plays: number;
-}
 
 /**
  * 互动计数组件

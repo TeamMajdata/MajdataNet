@@ -5,12 +5,7 @@
 
 import React from 'react';
 import { renderLevel } from '@/utils/renderLevel';
-
-interface SongDifficultyLevelsProps {
-  levels: (string | null)[];
-  songid: string;
-  isPlayer?: boolean;
-}
+import type { SongDifficultyLevelsProps } from '@/types';
 
 export default function SongDifficultyLevels({ 
   levels, 

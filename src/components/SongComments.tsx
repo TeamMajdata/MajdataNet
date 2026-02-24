@@ -3,7 +3,7 @@
  * 迁移自 legacy/src/app/song/page.jsx
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
@@ -13,15 +13,19 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { useLoc } from '@/hooks';
+import type { 
+  Comment, 
+  CommentCardProps, 
+  CommentComposerProps, 
+  MarkdownCommentContentProps,
+  CommentSenderProps,
+  CommentThreadProps,
+  CommentListProps
+} from '@/types';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
-// ======================== Markdown Comment Content ========================
-interface MarkdownCommentContentProps {
-  content: string;
-  comment?: Comment;
-}
 
 function MarkdownCommentContent({ content, comment }: MarkdownCommentContentProps) {
   let processedContent = '';
@@ -106,17 +110,6 @@ function MarkdownCommentContent({ content, comment }: MarkdownCommentContentProp
   );
 }
 
-// ======================== Comment Composer ========================
-interface CommentComposerProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: () => void;
-  onCancel?: () => void;
-  placeholder: string;
-  autoFocus?: boolean;
-  isReply?: boolean;
-  isSubmitting?: boolean;
-}
 
 export function CommentComposer({
   value,
@@ -205,11 +198,6 @@ export function CommentComposer({
   );
 }
 
-// ======================== Comment Sender ========================
-interface CommentSenderProps {
-  songid: string;
-}
-
 export function CommentSender({ songid }: CommentSenderProps) {
   const loc = useLoc();
   const [comment, setComment] = useState('');
@@ -277,29 +265,6 @@ export function CommentSender({ songid }: CommentSenderProps) {
   );
 }
 
-// ======================== Comment Card ========================
-interface Comment {
-  id: string;
-  sender: string;
-  content: string;
-  timestamp: string;
-  replies?: Comment[];
-  replyTo?: string;
-  contentPrefix?: string;
-  contentBody?: string;
-}
-
-interface CommentCardProps {
-  comment: Comment;
-  currentUser: string | null;
-  onReply?: (comment: Comment, parentComment?: Comment) => void;
-  onDelete: (comment: Comment) => void;
-  isPending: string | null;
-  isReply?: boolean;
-  onToggleReplies?: () => void;
-  isRepliesExpanded?: boolean;
-  replyCount?: number;
-}
 
 function CommentCard({
   comment,
@@ -419,18 +384,6 @@ function CommentCard({
 }
 
 // ======================== Comment Thread ========================
-interface CommentThreadProps {
-  comment: Comment;
-  currentUser: string | null;
-  onReply: (comment: Comment, parentComment?: Comment) => void;
-  onDelete: (comment: Comment) => void;
-  isPending: string | null;
-  isSubmittingReply: boolean;
-  isExpanded: boolean;
-  onToggleReplies: () => void;
-  replyComposer?: React.ReactNode;
-}
-
 function CommentThread({
   comment,
   currentUser,
@@ -443,7 +396,7 @@ function CommentThread({
   replyComposer,
 }: CommentThreadProps) {
   const loc = useLoc();
-  
+
   function flattenComments(comments: Comment[] | undefined, parentId: string) {
     const result: Comment[] = [];
     if (!comments) {
@@ -612,10 +565,6 @@ function CommentThread({
 }
 
 // ======================== Comment List ========================
-interface CommentListProps {
-  songid: string;
-}
-
 export function CommentList({ songid }: CommentListProps) {
   const loc = useLoc();
   const [replyTargetId, setReplyTargetId] = useState<string | null>(null);

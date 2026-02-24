@@ -25,6 +25,7 @@ import {
   ScoreList,
 } from '@/components';
 import { downloadSong } from '@/utils/download';
+import type { SongDetailsContainerProps, SongSummary } from '@/types';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -67,12 +68,6 @@ export default function SongPage() {
   );
 }
 
-// ======================== Song Details Container ========================
-interface SongDetailsContainerProps {
-  id: string;
-  tippy: ReturnType<typeof useSingleton>[1];
-}
-
 function SongDetailsContainer({ id, tippy }: SongDetailsContainerProps) {
   return (
     <div className="song-details-main-container">
@@ -81,19 +76,6 @@ function SongDetailsContainer({ id, tippy }: SongDetailsContainerProps) {
   );
 }
 
-// ======================== Song Info ========================
-interface SongSummary {
-  id: string;
-  title: string;
-  artist: string;
-  uploader: string;
-  designer: string;
-  levels: (string | null)[];
-  tags: string[];
-  publicTags: string[];
-  hash: string;
-  timestamp: string;
-}
 
 function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingleton>[1] }) {
   const loc = useLoc();

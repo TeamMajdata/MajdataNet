@@ -7,12 +7,7 @@ import { apiroot3 } from '@/config/api';
 import JSZip from 'jszip';
 import axios from 'axios';
 import type { Id, toast as toastType } from 'react-toastify';
-
-interface FetchFileParams {
-  url: string;
-  fileName: string;
-  toast: typeof toastType;
-}
+import type { DownloadSongParams } from '@/types/download';
 
 async function fetchFile(
   url: string,
@@ -49,12 +44,6 @@ function downloadFile(url: string, fileName: string): void {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-}
-
-interface DownloadSongParams {
-  id: string;
-  title: string;
-  toast: typeof toastType;
 }
 
 export async function downloadSong(props: DownloadSongParams): Promise<void> {

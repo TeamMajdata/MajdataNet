@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -7,16 +6,8 @@ import AmbientBackground from './AmbientBackground';
 import AdComponent from './AdComponent';
 import FloatingButtons from './FloatingButtons';
 import UnifiedHeader from './UnifiedHeader';
+import type { PageLayoutProps } from '@/types';
 
-interface PageLayoutProps {
-  children: ReactNode;
-  showAds?: boolean;
-  showFooter?: boolean;
-  showBackToHome?: boolean;
-  title?: string | null;
-  className?: string;
-  useAmbientBackground?: boolean;
-}
 
 /**
  * 页面布局组件

@@ -7,11 +7,7 @@ import React, { memo, useMemo } from 'react';
 import { IoChevronUpOutline } from 'react-icons/io5';
 import { useLoc } from '@/hooks';
 import EnhancedDescription from './EnhancedDescription';
-import type { Event } from '@/types';
-
-interface EventBannerProps {
-  event: Event | null;
-}
+import type { EventBannerProps } from '@/types';
 
 const EventBanner: React.FC<EventBannerProps> = memo(({ event }) => {
   // 使用响应式的 loc hook

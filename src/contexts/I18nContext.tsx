@@ -3,9 +3,8 @@
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import { setLanguage, getCurrentLanguage, initializeLanguage, getTranslatedString } from '../utils/i18n';
-import type { Language } from '../config/i18n';
+import type { Language, I18nContextValue } from '@/types/i18n';
 import { I18nContext } from './i18nContextDef';
-import type { I18nContextValue } from './i18nContextDef';
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(getCurrentLanguage());

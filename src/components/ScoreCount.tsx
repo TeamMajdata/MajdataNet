@@ -1,20 +1,8 @@
 import { apiroot3 } from '@/config/api';
 import useSWR from 'swr';
 import { useLoc } from '@/hooks';
+import type { ScoreCardProps, ScoreCountProps, ScoreData } from '@/types';
 
-export interface ScoreCountProps {
-  /** 上传者用户名 */
-  uploader: string;
-  /** 页码（从0开始） */
-  page?: number;
-  /** 每页数量 */
-  pageSize?: number;
-}
-
-interface ScoreData {
-  username: string;
-  dxAccSum: number;
-}
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -60,12 +48,6 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
       </div>
     </div>
   );
-}
-
-interface ScoreCardProps {
-  username: string;
-  scoresum: number;
-  maxscore: number;
 }
 
 /**

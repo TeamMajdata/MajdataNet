@@ -102,7 +102,7 @@ export default function EventsPage() {
                     loading="lazy"
                     decoding="async"
                   />
-                  <div className="absolute inset-0 flex flex-col justify-center bg-gradient-to-b from-black/40 via-black/20 to-black/80 opacity-0 hover:opacity-100 px-6 py-2 transition-all translate-y-2.5 hover:translate-y-0 duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-[opacity,transform]">
+                  <div className="absolute inset-0 flex flex-col justify-center bg-linear-to-b from-black/40 via-black/20 to-black/80 opacity-0 hover:opacity-100 px-6 py-2 transition-all translate-y-2.5 hover:translate-y-0 duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-[opacity,transform]">
                     <div className="text-left">
                       <h3 className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] m-0 mb-3 font-bold text-white text-2xl leading-tight">
                         {event.title}

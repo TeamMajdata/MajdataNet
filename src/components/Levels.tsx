@@ -1,14 +1,6 @@
 import { makeLevelClickCallback } from '@/utils/scrollUtils';
 import { renderLevel } from '@/utils/renderLevel';
-
-export interface LevelsProps {
-  /** 难度等级数组，索引对应：[Easy, Basic, Advanced, Expert, Master, ReMaster, Utage] */
-  levels: (string | null | undefined)[];
-  /** 歌曲ID */
-  songid: string;
-  /** 是否为玩家页面 */
-  isPlayer?: boolean;
-}
+import type { LevelsProps } from '@/types';
 
 /**
  * 多难度等级列表组件
