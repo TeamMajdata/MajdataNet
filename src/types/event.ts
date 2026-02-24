@@ -2,8 +2,26 @@
  * 活动相关类型定义
  */
 
-// 活动类别类型
-export type EventCategory = '高校赛事' | '大型赛事' | '私立企划' | '私立赛事';
+// 活动类别枚举常量
+export const EventCategory = {
+  All: 0,
+  University: 1,
+  Major: 2,
+  PrivateProject: 3,
+  PrivateContest: 4,
+} as const;
+
+// 活动类别类型（从值中提取类型）
+export type EventCategory = typeof EventCategory[keyof typeof EventCategory];
+
+// 活动类别国际化 key 映射数组
+export const EVENT_CATEGORY_I18N_KEYS = [
+  'FilterAll',
+  'EventCategoryUniversity',
+  'EventCategoryMajor',
+  'EventCategoryPrivateProject',
+  'EventCategoryPrivateContest',
+] as const;
 
 // 活动接口
 export interface Event {

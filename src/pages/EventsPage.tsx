@@ -15,18 +15,17 @@ import {
   getEventsWithTimeAgo,
   getCategoryTranslation,
 } from '@/utils/eventsData';
-import type { EventCategory } from '@/types';
+import { EventCategory } from '@/types';
 
 export default function EventsPage() {
   const loc = useLoc();
   const [ready, setReady] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<EventCategory>(EventCategory.All);
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
 
   useEffect(() => {
     setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
       setReady(true);
-      setSelectedCategory(loc('FilterAll', '全部'));
     });
   }, []);
 
@@ -36,16 +35,16 @@ export default function EventsPage() {
   }, []);
 
   const categories = useMemo(() => {
-    return [...new Set(allEvents.map(event => event.category))];
-  }, [allEvents]);
+    return Object.values(EventCategory);
+  }, []);
 
   const filteredEvents = useMemo(() => {
-    return selectedCategory === loc('FilterAll', '全部')
+    return selectedCategory === EventCategory.All
       ? allEvents
       : allEvents.filter(event => event.category === selectedCategory);
   }, [allEvents, selectedCategory]);
 
-  const handleCategoryChange = (category: string) => {
+  const handleCategoryChange = (category: EventCategory) => {
     setSelectedCategory(category);
   };
 
@@ -136,7 +135,6 @@ export default function EventsPage() {
                     </div>
                   </div>
                 </div>
-              </a>
             </div>
           ))}
         </div>

@@ -5,6 +5,7 @@
 import eventsDataRaw from '@/assets/data/events.json';
 import { loc } from './i18n';
 import type { Event, EventWithTimeInfo, CarouselEventsResult, EventCategory } from '@/types';
+import { EVENT_CATEGORY_I18N_KEYS } from '@/types/event';
 
 // 类型断言确保导入的数据符合类型
 const eventsData: Event[] = eventsDataRaw as Event[];
@@ -322,13 +323,12 @@ export function getEventStatusClass(event: Event): string {
  * 获取活动类型的翻译（支持多语言）
  */
 export function getCategoryTranslation(category: EventCategory): string {
-  const categoryMap: Record<EventCategory, string> = {
-    高校赛事: loc('EventCategoryUniversity', '高校赛事'),
-    大型赛事: loc('EventCategoryMajor', '大型赛事'),
-    私立企划: loc('EventCategoryPrivateProject', '私立企划'),
-    私立赛事: loc('EventCategoryPrivateContest', '私立赛事'),
-  };
-  return categoryMap[category] || category;
+  const i18nKey = EVENT_CATEGORY_I18N_KEYS[category];
+  if (!i18nKey) return '';
+  
+  // 默认值映射
+  const defaultValues = ['高校赛事', '大型赛事', '私立企划', '私立赛事', '全部'];
+  return loc(i18nKey, defaultValues[category] || '');
 }
 
 // 预构建搜索关键词到活动的映射表（性能优化）

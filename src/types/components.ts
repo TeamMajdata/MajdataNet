@@ -31,8 +31,8 @@ export interface EventBannerProps {
 }
 
 export interface EventsFilterProps {
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
+  selectedCategory: EventCategory;
+  onCategoryChange: (category: EventCategory) => void;
   categories: EventCategory[];
 }
 
