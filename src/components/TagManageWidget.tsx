@@ -7,6 +7,7 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useReducer,
   useRef,
   useState,
 } from 'react';
@@ -137,6 +138,30 @@ interface SongSummary {
   publicTags?: string[];
 }
 
+type TagsAction = 
+  | { type: 'INIT_TAGS'; payload: string[] }
+  | { type: 'ADD_TAG'; payload: string }
+  | { type: 'REMOVE_TAG'; payload: number }
+  | { type: 'SET_TAGS'; payload: string[] };
+
+function tagsReducer(state: string[], action: TagsAction): string[] {
+  switch (action.type) {
+    case 'INIT_TAGS':
+      return action.payload;
+    case 'ADD_TAG':
+      return [...state, action.payload];
+    case 'REMOVE_TAG': {
+      const newTags = [...state];
+      newTags.splice(action.payload, 1);
+      return newTags;
+    }
+    case 'SET_TAGS':
+      return action.payload;
+    default:
+      return state;
+  }
+}
+
 const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
   function TagManageWindow({ onClose, buttonRef, songid }, ref) {
     const loc = useLoc();
@@ -148,8 +173,9 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [newTag, setNewTag] = useState('');
     const [activeCategory, setActiveCategory] = useState('曲库来源');
-    const [tags, setTags] = useState<string[]>([]);
+    const [tags, dispatch] = useReducer(tagsReducer, []);
     const isInPrivatePage = window.location.pathname === '/user/charts';
+    const initializedRef = useRef(false);
 
     useEffect(() => {
       const handleClickOutside = (e: MouseEvent) => {
@@ -216,25 +242,24 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       fetcher
     );
 
-    // 初始化tags状态 - 从服务器数据加载
     useEffect(() => {
-      if (!data) {
-        return;
-      }
-      if (isInPrivatePage) {
-        if (data.tags !== undefined) {
-          setTags(data.tags);
+      if (data && !initializedRef.current) {
+        if (isInPrivatePage) {
+          if (data.tags !== undefined) {
+            dispatch({ type: 'INIT_TAGS', payload: data.tags });
+            initializedRef.current = true;
+          } else {
+            toast.error('没有Tags字段');
+          }
         } else {
-          toast.error('没有Tags字段');
-        }
-      } else {
-        if (data.publicTags !== undefined) {
-          setTags(data.publicTags);
-        } else {
-          toast.error('没有publicTags字段');
+          if (data.publicTags !== undefined) {
+            dispatch({ type: 'INIT_TAGS', payload: data.publicTags });
+            initializedRef.current = true;
+          } else {
+            toast.error('没有publicTags字段');
+          }
         }
       }
-      console.log(data.tags || data.publicTags);
     }, [data, isInPrivatePage]);
 
     const uploadTags = async () => {
@@ -371,9 +396,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                     <span
                       className={isInPrivatePage ? 'tag' : 'tagPublic'}
                       onClick={() => {
-                        const newTags = [...tags];
-                        newTags.splice(index, 1);
-                        setTags(newTags);
+                        dispatch({ type: 'REMOVE_TAG', payload: index });
                       }}
                     >
                       {tag}
@@ -403,7 +426,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
               onClick={() => {
                 const trimmed = newTag.trim();
                 if (trimmed !== '') {
-                  setTags([...tags, trimmed]); // 添加标签
+                  dispatch({ type: 'ADD_TAG', payload: trimmed });
                   setNewTag(''); // 清空输入框
                 }
               }}
@@ -450,9 +473,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                   className="tag"
                   key={tag}
                   onClick={() => {
-                    const newTags = [...tags];
-                    newTags.push(tag);
-                    setTags(newTags);
+                    dispatch({ type: 'ADD_TAG', payload: tag });
                   }}
                 >
                   {tag}

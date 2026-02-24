@@ -42,8 +42,6 @@ export default function RecentPlayedWidget({ username }: RecentPlayedWidgetProps
     fetcher
   );
 
-  console.log(`${apiroot3}/account/Recent?username=${username}`);
-
   if (error) return <div className="notReady">{loc('ServerError', '服务器错误')}</div>;
 
   if (isLoading) {

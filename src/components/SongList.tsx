@@ -40,8 +40,6 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
     revalidateOnFocus: false,
   });
 
-  console.log(url);
-
   if (error) return <div className="notReady">{loc('ServerError', '服务器错误')}</div>;
   if (isLoading) {
     return (
