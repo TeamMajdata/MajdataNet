@@ -25,7 +25,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
     revalidateOnFocus: false,
   });
 
-  if (error) return <div className="notReady">{loc('ServerError', '服务器错误')}</div>;
+  if (error) return <div className="m-auto w-full text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
   if (isLoading) {
     return (
       <>
@@ -49,7 +49,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
   }
 
   if (!data || !Array.isArray(data) || data.length === 0) {
-    return <div className="notReady">{loc('EmptyData', '暂无数据')}</div>;
+    return <div className="m-auto w-full text-[50px] text-center">{loc('EmptyData', '暂无数据')}</div>;
   }
 
   const list = data.map((o, index) => (
@@ -57,7 +57,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
       key={o.id}
       id={o.id}
       onClick={() => SavePosition({ id: o.id, page: page })}
-      className="songCardWrapper"
+      className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
     >
       <LazyLoad height={165} width={352} offset={300}>
         <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-[20rem] h-40 overflow-hidden transition-transform hover:-translate-y-1.25 duration-250 ease-in-out">
@@ -69,22 +69,22 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
 
           <div className="ml-[8.9rem]">
             <Tippy content={o.title}>
-              <div className="songTitle" id={o.id}>
+              <div className="mb-1.25 font-bold text-base truncate" id={o.id}>
                 <a href={'/song?id=' + o.id}>{o.title}</a>
               </div>
             </Tippy>
             <Tippy content={o.artist}>
-              <div className="songArtist">
+              <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
                 <a href={'/song?id=' + o.id}>
                   {o.artist === '' || o.artist == null ? '-' : o.artist}
                 </a>
               </div>
             </Tippy>
             <Tippy content={o.uploader + '@' + o.designer}>
-              <div className="songDesigner">
+              <div className="mb-2 text-[0.8rem] truncate">
                 <a href={'/space?id=' + o.uploader}>
                   <img
-                    className="smallIcon"
+                    className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
                     src={apiroot3 + '/account/Icon?username=' + o.uploader}
                     loading="lazy"
                     decoding="async"
@@ -97,7 +97,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
               <>
                 {' '}
                 <Delbutton songid={o.id} />
-                <TagManageWidget newClassName="songLevelMarginTop" songid={o.id} />
+                <TagManageWidget newClassName="mt-[0.1rem]" songid={o.id} />
               </>
             ) : (
               <Levels levels={o.levels} songid={o.id} isPlayer={false} />

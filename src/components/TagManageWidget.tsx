@@ -459,7 +459,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
               ))}
           </div>
           <br />
-          <div className="hr-solid" />
+          <div className="relative bg-[linear-gradient(90deg,transparent_0%,rgb(255_255_255/20%)*15%,rgb(255_255_255*/_40%)*30%,rgb(255_255_255*/_60%)*50%,rgb(255_255_255*/_40%)*70%,rgb(255_255_255*/_20%)_85%,transparent_100%)] mx-auto my-8 max-[480px]:my-5 max-[768px]:my-6 border-0 w-[70%] max-[480px]:w-[90%] max-[768px]:w-[80%] h-[1px]" />
           <div
             style={{
               display: 'flex',

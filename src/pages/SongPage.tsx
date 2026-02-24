@@ -250,7 +250,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
             >
               <span className="inline-flex justify-center items-center gap-2 w-full">
                 <svg
-                  className="action-icon"
+                  className="fill-current transition-transform duration-300 ease-in-out"
                   xmlns="http://www.w3.org/2000/svg"
                   height="20"
                   viewBox="0 -960 960 960"
@@ -268,7 +268,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
             >
               <span className="inline-flex justify-center items-center gap-2 w-full">
                 <svg
-                  className="action-icon"
+                  className="fill-current transition-transform duration-300 ease-in-out"
                   xmlns="http://www.w3.org/2000/svg"
                   height="20"
                   viewBox="0 -960 960 960"

@@ -181,7 +181,7 @@ export default function UnifiedHeader() {
         {/* 移动端中间Logo */}
         <div className="hidden md:hidden max-md:flex justify-center items-center w-full">
           <Link to="/">
-            <img className="xxlb" src="../../../salt.webp" alt="xxlb" />
+            <img className="inline-block m-auto rounded-[5px] max-[500px]:w-10 h-10 max-[500px]:h-10" src="../../../salt.webp" alt="xxlb" />
           </Link>
         </div>
 

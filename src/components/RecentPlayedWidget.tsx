@@ -27,7 +27,7 @@ export default function RecentPlayedWidget({ username }: RecentPlayedWidgetProps
     fetcher
   );
 
-  if (error) return <div className="notReady">{loc('ServerError', '服务器错误')}</div>;
+  if (error) return <div className="m-auto w-full text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
 
   if (isLoading) {
     return (
@@ -40,25 +40,25 @@ export default function RecentPlayedWidget({ username }: RecentPlayedWidgetProps
   if (!data || data.length === 0) return <p>{loc('NoRecentRecords', '暂无最近游玩记录')}</p>;
 
   const list = data.map((o) => (
-    <div key={o.chartId} id={o.chartId} className="songCardWrapper">
+    <div key={o.chartId} id={o.chartId} className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full">
       <LazyLoad height={165} width={352} offset={300}>
         <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-[20rem] h-40 overflow-hidden transition-transform hover:-translate-y-1.25 duration-250 ease-in-out">
           <CoverPic id={o.chartId} />
           <div className="ml-[8.9rem]">
-            <div className="songTitle" id={o.chartId}>
+            <div className="mb-1.25 font-bold text-base truncate" id={o.chartId}>
               <a href={'/song?id=' + o.chartId}>{o.title}</a>
             </div>
 
-            <div className="songArtist">
+            <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
               <a href={'/song?id=' + o.chartId}>
                 {o.artist === '' || o.artist == null ? '-' : o.artist}
               </a>
             </div>
 
-            <div className="songDesigner">
+            <div className="mb-2 text-[0.8rem] truncate">
               <a href={'/space?id=' + o.uploader}>
                 <img
-                  className="smallIcon"
+                  className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
                   src={apiroot3 + '/account/Icon?username=' + o.uploader}
                   alt={o.uploader}
                 />
@@ -71,11 +71,13 @@ export default function RecentPlayedWidget({ username }: RecentPlayedWidgetProps
               songid={o.chartId}
               isPlayer={false}
             />
-            <div className="songAcc" style={{ color: 'yellow' }}>
+            <div className="float-left shadow-[1px_1px_gray] m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none" style={{ color: 'yellow' }}>
               {o.acc.toFixed(4)}
             </div>
             <br />
-            <div className="songAcc">{getComboState(o.comboState)}</div>
+            <div className="float-left shadow-[1px_1px_gray] m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none">
+              {getComboState(o.comboState)}
+            </div>
           </div>
         </div>
       </LazyLoad>

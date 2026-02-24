@@ -20,7 +20,7 @@ export default function Logout() {
   };
 
   return (
-    <div className="linkContent" onClick={handleLogout}>
+    <div className="hover:bg-[rgb(46,46,46)] hover:shadow-[2px_2px_5px_gray] m-[10px] p-[5px] border border-transparent hover:border-[whitesmoke] rounded-[10px] text-[gainsboro] hover:text-white transition-all duration-200" onClick={handleLogout}>
       {loc('Logout')}
     </div>
   );

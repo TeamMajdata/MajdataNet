@@ -14,7 +14,7 @@ export default function CoverPic({ id, display }: CoverPicProps) {
   const url = `${apiroot3}/maichart/${id}/image`;
   const urlfull = `${apiroot3}/maichart/${id}/image?fullImage=true`;
 
-  const idDisplay = display ? <div className="songId">{display}</div> : null;
+  const idDisplay = display ? <div className="z-1 absolute bg-black/80 pr-1 pl-0.75 rounded-tl-[10px] rounded-br-[10px] select-none">{display}</div> : null;
 
   return (
     <>
