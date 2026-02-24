@@ -10,7 +10,8 @@ const md5 = (md5Module as any).default || md5Module;
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { loc, setLanguage } from '@/utils/i18n';
+import { setLanguage } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import { PageLayout } from '@/components';
 import * as retCode from '@/config/apiRetCode';
 
@@ -33,6 +34,7 @@ export default function RegisterPage() {
 }
 
 function Register() {
+  const loc = useLoc();
   const [isPosting, setIsPosting] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {

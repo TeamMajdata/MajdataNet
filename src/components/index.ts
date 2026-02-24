@@ -17,8 +17,7 @@ export { default as CoverPic } from './CoverPic';
 export { default as InteractCount } from './InteractCount';
 export { default as ScoreCount } from './ScoreCount';
 export { default as LanguageSelector } from './LanguageSelector';
-export { default as I18nDemo } from './I18nDemo';
-export { default as UtilsDemo } from './UtilsDemo';
+export { default as TagManageWidget, TagManageTagLauncher } from './TagManageWidget';
 
 // 列表和展示组件
 export { default as SongList } from './SongList';
@@ -30,4 +29,9 @@ export { default as EventBanner } from './EventBanner';
 export { default as EnhancedDescription } from './EnhancedDescription';
 export { default as EventsFilter } from './EventsFilter';
 export { default as TimelineModal } from './TimelineModal';
+
+// 歌曲详情页组件
+export { default as SongDifficultyLevels } from './SongDifficultyLevels';
+export { CommentSender, CommentList } from './SongComments';
+export { LikeSender, ScoreList } from './SongInteraction';
 

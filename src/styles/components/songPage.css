@@ -1,0 +1,407 @@
+/**
+ * SongPage 优化样式 - Tailwind 优先
+ * 仅保留复杂的渐变、动画、伪元素等无法用 Tailwind 实现的样式
+ */
+
+/* ===== CSS 变量定义 ===== */
+:root {
+  --song-glass-bg: rgb(255 255 255 / 12%);
+  --song-glass-bg-hover: rgb(255 255 255 / 20%);
+  --song-glass-border: rgb(255 255 255 / 10%);
+  --song-shadow-default: 0 4px 15px rgb(0 0 0 / 20%), 0 2px 8px rgb(0 0 0 / 10%);
+  --song-shadow-hover: 0 8px 25px rgb(0 0 0 / 30%), 0 4px 12px rgb(0 0 0 / 20%);
+}
+
+/* ===== 背景模糊效果 ===== */
+.song-page .song-bg {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: left top;
+  filter: blur(20px) brightness(0.3);
+  z-index: -1;
+}
+
+/* ===== Glassmorphism 容器 - 复杂效果保留 ===== */
+.song-details-main-container {
+  background: var(--song-glass-bg);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 35%), inset 0 1px 0 rgb(255 255 255 / 25%);
+  transition: all 0.3s ease;
+}
+
+.song-details-main-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 60px rgb(0 0 0 / 35%), inset 0 1px 0 rgb(255 255 255 / 28%);
+}
+
+/* ===== Hero 封面样式 ===== */
+.hero-cover {
+  box-shadow: 0 25px 50px rgb(0 0 0 / 45%);
+  transition: transform 0.3s ease;
+}
+
+.hero-cover:hover {
+  transform: scale(1.03);
+}
+
+/* ===== 可点击标题/艺术家 - 带伪元素的悬停效果 ===== */
+.clickable-title:hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  z-index: -1;
+}
+
+
+/* ===== 难度等级 - 渐变背景样式 ===== */
+.difficulty-level-item.level-easy {
+  background: linear-gradient(90deg, rgb(59 130 246 / 60%), rgb(59 130 246 / 40%));
+}
+
+.difficulty-level-item.level-basic {
+  background: linear-gradient(90deg, rgb(34 197 94 / 60%), rgb(34 197 94 / 40%));
+}
+
+.difficulty-level-item.level-advanced {
+  background: linear-gradient(90deg, rgb(234 179 8 / 60%), rgb(234 179 8 / 40%));
+}
+
+.difficulty-level-item.level-expert {
+  background: linear-gradient(90deg, rgb(239 68 68 / 60%), rgb(239 68 68 / 40%));
+}
+
+.difficulty-level-item.level-master {
+  background: linear-gradient(90deg, rgb(168 85 247 / 60%), rgb(168 85 247 / 40%));
+}
+
+.difficulty-level-item.level-remaster {
+  background: linear-gradient(90deg, rgb(192 38 211 / 60%), rgb(192 38 211 / 40%));
+}
+
+.difficulty-level-item.level-utage {
+  background: linear-gradient(90deg, rgb(139 92 246 / 60%), rgb(139 92 246 / 40%));
+}
+
+
+/* ===== Sidebar 设计师面板特殊布局 ===== */
+.song-info-sidebar>.glass-panel:has(.designer-link) {
+  padding: 0;
+  overflow: hidden;
+}
+
+.song-info-sidebar>.glass-panel:has(.designer-link) .designer-link {
+  display: flex;
+  width: 100%;
+  padding: 1.25rem;
+  background: transparent;
+  backdrop-filter: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.song-info-sidebar>.glass-panel:has(.designer-link) .designer-link:hover {
+  background: rgb(255 255 255 / 8%);
+  transform: none;
+  box-shadow: none;
+}
+
+.sidebar-designer-panel .designer-link {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+  background: transparent;
+  backdrop-filter: none;
+  border: none;
+  box-shadow: none;
+}
+
+.sidebar-designer-panel .designer-link:hover {
+  background: rgb(255 255 255 / 8%);
+  transform: none;
+  box-shadow: none;
+}
+
+
+/* ===== 标签样式 - 渐变背景 ===== */
+.tag-chip {
+  transition: all 0.3s ease;
+}
+
+.tag-private {
+  background: linear-gradient(135deg, rgb(139 69 19 / 30%), rgb(101 67 33 / 20%));
+  color: rgb(255 215 0 / 90%);
+  border-color: rgb(139 69 19 / 40%);
+}
+
+.tag-private:hover {
+  background: linear-gradient(135deg, rgb(139 69 19 / 50%), rgb(101 67 33 / 40%));
+  color: #ffd700;
+  border-color: rgb(139 69 19 / 70%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgb(139 69 19 / 30%);
+}
+
+.tag-public {
+  background: linear-gradient(135deg, rgb(34 197 94 / 30%), rgb(22 163 74 / 20%));
+  color: rgb(74 222 128 / 90%);
+  border-color: rgb(34 197 94 / 40%);
+}
+
+.tag-public:hover {
+  background: linear-gradient(135deg, rgb(34 197 94 / 50%), rgb(22 163 74 / 40%));
+  color: #4ade80;
+  border-color: rgb(34 197 94 / 70%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgb(34 197 94 / 30%);
+}
+
+
+/* ===== 交互按钮组 - 复杂背景和边框 ===== */
+.compact-interaction-btn {
+  background: rgb(255 255 255 / 14%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 22%);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.compact-interaction-btn:hover {
+  background: rgb(255 255 255 / 20%);
+  border-color: rgb(255 255 255 / 35%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgb(0 0 0 / 25%), 0 2px 8px rgb(0 0 0 / 15%);
+}
+
+/* ===== 点赞用户头像 - 动画和悬停效果 ===== */
+.liked-user-avatar {
+  animation: fadeInUp 0.6s ease-out both;
+  transition: all 0.3s ease;
+}
+
+.liked-user-avatar:hover {
+  transform: translateY(-4px) scale(1.1);
+  z-index: 10;
+}
+
+.liked-user-avatar:hover .user-avatar-img,
+.liked-user-avatar:hover .more-likes {
+  border-color: rgb(59 130 246 / 60%);
+  box-shadow: 0 8px 25px rgb(59 130 246 / 30%), 0 0 0 2px rgb(59 130 246 / 20%);
+}
+
+
+/* ===== 分数卡片 - 渐变背景和特殊效果 ===== */
+.score-card {
+  background: linear-gradient(135deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 5%));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(255 255 255 / 10%);
+  transition: all 0.3s ease;
+  box-shadow: var(--song-shadow-default);
+}
+
+.score-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--song-shadow-hover);
+  border-color: rgb(255 255 255 / 20%);
+}
+
+.score-card.score-card-fc {
+  border: 1.5px solid rgb(59 130 246 / 45%) !important;
+  box-shadow:
+    0 2px 8px rgb(0 0 0 / 12%),
+    0 0 10px 2px rgb(59 130 246 / 32%),
+    0 0 6px 1px rgb(59 130 246 / 22%),
+    inset 0 0 8px 1px rgb(59 130 246 / 18%) !important;
+}
+
+.score-card.score-card-fc:hover {
+  transform: translateY(-2px);
+  border-color: rgb(59 130 246 / 65%) !important;
+  box-shadow:
+    0 4px 16px rgb(0 0 0 / 18%),
+    0 0 16px 3px rgb(59 130 246 / 45%),
+    0 0 10px 2px rgb(59 130 246 / 32%),
+    inset 0 0 12px 2px rgb(59 130 246 / 22%) !important;
+}
+
+.score-card.score-card-ap {
+  border: 1.5px solid rgb(251 191 36 / 45%) !important;
+  box-shadow:
+    0 2px 8px rgb(0 0 0 / 12%),
+    0 0 10px 2px rgb(251 191 36 / 32%),
+    0 0 6px 1px rgb(251 191 36 / 22%),
+    inset 0 0 8px 1px rgb(251 191 36 / 18%) !important;
+}
+
+.score-card.score-card-ap:hover {
+  transform: translateY(-2px);
+  border-color: rgb(251 191 36 / 65%) !important;
+  box-shadow:
+    0 4px 16px rgb(0 0 0 / 18%),
+    0 0 16px 3px rgb(251 191 36 / 45%),
+    0 0 10px 2px rgb(251 191 36 / 32%),
+    inset 0 0 12px 2px rgb(251 191 36 / 22%) !important;
+}
+
+/* 分数准确率渐变文字 */
+.score-accuracy-fc {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.score-accuracy-ap {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 排名前三渐变文字 */
+.rank-number.top-three {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+
+/* ===== 评论卡片 ===== */
+.comment-card {
+  background: linear-gradient(135deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 4%));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(255 255 255 / 10%);
+  transition: all 0.3s ease;
+  box-shadow: var(--song-shadow-default);
+}
+
+.comment-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 25%), 0 3px 10px rgb(0 0 0 / 15%);
+  border-color: rgb(255 255 255 / 15%);
+}
+
+/* 评论内容折叠效果 */
+.comment-content-collapsed::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(20, 20, 30, 0.4) 30%,
+    rgba(20, 20, 30, 0.95) 90%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 评论提及样式 */
+.comment-mention {
+  color: #5c9ff6;
+  background: rgba(92, 190, 246, 0.08);
+  transition: all 0.2s ease;
+}
+
+.comment-mention:hover {
+  color: #5c9ff6;
+  background: rgba(106, 173, 255, 0.15);
+  text-decoration: none;
+}
+
+/* 回复列表 - 连接线效果 */
+.comment-reply-list::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
+}
+
+.comment-card--reply {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.comment-card--reply:hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+
+/* ===== Markdown 输入框和预览 ===== */
+.modern-textarea {
+  background: linear-gradient(135deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 4%));
+  backdrop-filter: blur(15px);
+  border: 1px solid rgb(255 255 255 / 20%);
+  box-shadow: 0 4px 15px rgb(0 0 0 / 15%), inset 0 1px 0 rgb(255 255 255 / 10%);
+  transition: all 0.3s ease;
+}
+
+.modern-textarea:focus {
+  outline: none;
+  border-color: rgb(59 130 246 / 40%);
+  background: linear-gradient(135deg, rgb(255 255 255 / 12%), rgb(255 255 255 / 6%));
+  box-shadow:
+    0 6px 20px rgb(0 0 0 / 20%),
+    0 0 0 2px rgb(59 130 246 / 20%),
+    inset 0 1px 0 rgb(255 255 255 / 15%);
+  transform: translateY(-1px);
+}
+
+/* ===== 交互按钮  ===== */
+.modern-interaction-btn {
+  background: linear-gradient(135deg, rgb(59 130 246 / 20%), rgb(37 99 235 / 30%));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(59 130 246 / 30%);
+  transition: all 0.3s ease;
+}
+
+.modern-interaction-btn:hover {
+  background: linear-gradient(135deg, rgb(59 130 246 / 30%), rgb(37 99 235 / 40%));
+  border-color: rgb(59 130 246 / 50%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgb(59 130 246 / 20%), 0 4px 12px rgb(0 0 0 / 30%);
+}
+
+/* ===== 动画 ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-icon-spin {
+  animation: spin 1s linear infinite;
+}
+

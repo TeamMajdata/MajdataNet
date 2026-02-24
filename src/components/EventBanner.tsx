@@ -5,7 +5,7 @@
 
 import React, { memo, useMemo } from 'react';
 import { IoChevronUpOutline } from 'react-icons/io5';
-import { loc } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import EnhancedDescription from './EnhancedDescription';
 import type { Event } from '@/types';
 
@@ -14,6 +14,9 @@ interface EventBannerProps {
 }
 
 const EventBanner: React.FC<EventBannerProps> = memo(({ event }) => {
+  // 使用响应式的 loc hook
+  const loc = useLoc();
+  
   // 使用useMemo缓存计算结果，避免重复计算
   const { categoryTranslation, timeAgo } = useMemo(() => {
     if (!event) return { categoryTranslation: '', timeAgo: '' };
@@ -56,7 +59,7 @@ const EventBanner: React.FC<EventBannerProps> = memo(({ event }) => {
       categoryTranslation: categoryResult,
       timeAgo: createTimeAgo,
     };
-  }, [event]);
+  }, [event, loc]); // 添加 loc 作为依赖，确保语言变化时重新计算
 
   if (!event) return null;
 

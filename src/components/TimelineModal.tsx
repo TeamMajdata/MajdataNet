@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { getActiveEvents, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
-import { loc } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import type { Event } from '@/types';
 
 interface TimelineModalProps {
@@ -51,6 +51,7 @@ interface TimelineData {
 }
 
 const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
+  const loc = useLoc();
   const [ongoingEvents, setOngoingEvents] = useState<Event[]>([]);
   const [timelineData, setTimelineData] = useState<TimelineData>({
     startDate: null,

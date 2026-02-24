@@ -7,13 +7,15 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { loc, setLanguage } from '@/utils/i18n';
+import { setLanguage } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import { PageLayout, SongList, EventBanner } from '@/components';
 import { apiroot3 } from '@/config/api';
 import { getEventBySearchKeyword } from '@/utils/eventsData';
 import type { Event } from '@/types';
 
 export default function EventTagPage() {
+  const loc = useLoc();
   const [ready, setReady] = useState(false);
   const [searchParams] = useSearchParams();
   

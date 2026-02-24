@@ -4,11 +4,13 @@
  */
 
 import { useEffect, useState } from 'react';
-import { loc, setLanguage } from '@/utils/i18n';
+import { setLanguage } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import { PageLayout, SongList } from '@/components';
 import { apiroot3 } from '@/config/api';
 
 export default function RankingPage() {
+  const loc = useLoc();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {

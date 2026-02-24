@@ -3,6 +3,7 @@
 /* Component Styles - 组件样式 */
 @import "./styles/components/ambientBackground.css";
 @import "./styles/components/events.css";
+@import "./styles/components/songPage.css";
 
 /* Tippy Tooltip Custom Theme - 搜索提示tooltip主题 */
 .tippy-box[data-theme~='light'] {

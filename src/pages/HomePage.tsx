@@ -13,7 +13,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
 
-import { loc, setLanguage } from '@/utils/i18n';
+import { setLanguage } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import { PageLayout, SongList } from '@/components';
 import { apiroot3 } from '@/config/api';
 import {
@@ -74,6 +75,7 @@ function EventsCarousel() {
 
 // PC端专用的 Swiper 组件
 function DesktopEventsSwiper() {
+  const loc = useLoc();
   const [ongoingEvents, setOngoingEvents] = useState<any[]>([]);
   const remainingEventsCount = getNonFeaturedEventsCount();
 
@@ -298,6 +300,7 @@ interface SearchBarProps {
 }
 
 function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) {
+  const loc = useLoc();
   const [isMobile, setIsMobile] = useState(false);
   const [currentValue, setCurrentValue] = useState(initS);
 
@@ -358,7 +361,6 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                 placeholder={initS === '' ? loc('SearchPlaceholder', '搜索...') : initS}
                 value={currentValue}
                 onChange={handleInputChange}
-                onClick={handleInputChange}
               />
               {currentValue && (
                 <button className="search-clear-button" onClick={handleClearSearch} title="清空搜索">
@@ -427,6 +429,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
 }
 
 function MainComp() {
+  const loc = useLoc();
   const [Search, setSearch] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
   const [page, setPage] = useState(0);
@@ -559,6 +562,7 @@ function MainComp() {
 
 // Simplified version of integrated search bar
 function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
+  const loc = useLoc();
   const [currentType, setCurrentType] = useState('zip');
   const [justChanged, setJustChanged] = useState(false);
 

@@ -3,10 +3,9 @@
  * 迁移自 legacy/src/app/widgets/SongList.jsx
  */
 
-import React from 'react';
 import useSWR from 'swr';
-import { loc } from '@/utils/i18n';
-import { CoverPic, InteractCount, Levels } from '@/components';
+import { useLoc } from '@/hooks';
+import { CoverPic, InteractCount, Levels, TagManageWidget } from '@/components';
 import { downloadSong } from '@/utils/download';
 import LazyLoad from 'react-lazy-load';
 import Tippy from '@tippyjs/react';
@@ -35,6 +34,8 @@ const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
 export default function SongList({ url, setMax, page, isRanking, isManage }: SongListProps) {
+  const loc = useLoc();
+  
   const { data, error, isLoading } = useSWR<Song[]>(url, fetcher, {
     revalidateOnFocus: false,
   });
@@ -60,11 +61,11 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
     localStorage.setItem('lastclickpage', page.toString());
   };
 
-  if (data && data.length < 30) {
+  if (data && data.length < 30 && data.length > 0) {
     if (page != null && setMax != null) setMax(page);
   }
 
-  if (!data || !Array.isArray(data)) {
+  if (!data || !Array.isArray(data) || data.length === 0) {
     return <div className="notReady">{loc('EmptyData', '暂无数据')}</div>;
   }
 
@@ -113,8 +114,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
               <>
                 {' '}
                 <Delbutton songid={o.id} />
-                {/* TODO: 迁移 TagManageWidget */}
-                {/* <TagManageWidget newClassName="songLevelMarginTop" songid={o.id} /> */}
+                <TagManageWidget newClassName="songLevelMarginTop" songid={o.id} />
               </>
             ) : (
               <Levels levels={o.levels} songid={o.id} isPlayer={false} />

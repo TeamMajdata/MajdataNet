@@ -8,7 +8,7 @@ import { apiroot3 } from '@/config/api';
 import LazyLoad from 'react-lazy-load';
 import { CoverPic, Level } from '@/components';
 import { getComboState } from '@/utils';
-import { loc } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 
 interface RecentPlayedData {
   chartId: string;
@@ -35,6 +35,8 @@ const fetcher = async (...args: Parameters<typeof fetch>) =>
  * 显示指定用户最近游玩的谱面及成绩
  */
 export default function RecentPlayedWidget({ username }: RecentPlayedWidgetProps) {
+  const loc = useLoc();
+  
   const { data, error, isLoading } = useSWR<RecentPlayedData[]>(
     `${apiroot3}/account/Recent?username=${username}`,
     fetcher

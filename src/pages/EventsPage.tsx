@@ -4,7 +4,8 @@
  */
 
 import { useEffect, useState, useMemo } from 'react';
-import { loc, setLanguage } from '@/utils/i18n';
+import { setLanguage } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import { PageLayout, EnhancedDescription } from '@/components';
 import EventsFilter from '@/components/EventsFilter';
 import TimelineModal from '@/components/TimelineModal';
@@ -17,6 +18,7 @@ import {
 import type { EventCategory } from '@/types';
 
 export default function EventsPage() {
+  const loc = useLoc();
   const [ready, setReady] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);

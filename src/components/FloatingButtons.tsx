@@ -72,11 +72,11 @@ export default function FloatingButtons() {
             className="top-1/2 left-1/2 z-999 fixed bg-[rgba(25,25,30,0.95)] backdrop-blur-[20px] md:mx-4 p-6 md:p-5 border border-white/15 rounded-2xl min-w-87.5 md:min-w-70 max-w-100 md:max-w-[90vw] -translate-x-1/2 -translate-y-1/2"
             style={{
               boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5), 0 4px 20px rgba(59, 130, 246, 0.1)',
-              animation: 'popupFadeIn 0.2s ease-out'
+              animation: 'popupFadeIn 0.2s ease-out forwards'
             }}
           >
             <h4 className="m-0 mb-6 font-semibold text-[1.1rem] text-white text-center">
-              {loc('SelectLanguage')} / Language
+              {loc('SelectLanguage', 'Language')}
             </h4>
             <button
               className="top-4 right-4 absolute flex justify-center items-center bg-transparent hover:bg-white/10 p-0 border-0 rounded w-6 h-6 text-[#a0a0a0] hover:text-white text-2xl transition-all duration-200 cursor-pointer"
@@ -94,11 +94,11 @@ export default function FloatingButtons() {
         @keyframes popupFadeIn {
           from {
             opacity: 0;
-            transform: translate(-50%, -50%) scale(0.9);
+            scale: 0.9;
           }
           to {
             opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
+            scale: 1;
           }
         }
       `}</style>

@@ -4,7 +4,7 @@
  */
 
 import { Unity, useUnityContext } from 'react-unity-webgl';
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import sleep from '@/utils/sleep';
 
 interface MajdataProps {

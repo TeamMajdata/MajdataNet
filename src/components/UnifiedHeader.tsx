@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useUser } from '@/hooks';
+import { useLoc, useUser } from '@/hooks';
 import MajdataLogo from './MajdataLogo';
-import { loc, handleLogout as logoutUtil } from '@/utils';
+import { handleLogout as logoutUtil } from '@/utils';
 import { apiroot3 } from '@/config/api';
 import { AiOutlineLoading3Quarters, AiOutlineUser } from 'react-icons/ai';
 
@@ -11,6 +11,7 @@ import { AiOutlineLoading3Quarters, AiOutlineUser } from 'react-icons/ai';
  * 包含Logo、导航菜单、用户下拉菜单、登录/注册
  */
 export default function UnifiedHeader() {
+  const loc = useLoc();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMainNavOpen, setIsMainNavOpen] = useState(false);
   const [isMobileAuthMenuOpen, setIsMobileAuthMenuOpen] = useState(false);

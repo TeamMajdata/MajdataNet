@@ -20,13 +20,27 @@ export function useI18n() {
     });
   }, []);
 
+  // 监听语言变化事件，确保所有使用该 hook 的组件都能更新
+  useEffect(() => {
+    const handleLanguageChange = (event: Event) => {
+      const customEvent = event as CustomEvent<Language>;
+      setLanguageState(customEvent.detail);
+    };
+
+    window.addEventListener('languageChange', handleLanguageChange);
+    return () => {
+      window.removeEventListener('languageChange', handleLanguageChange);
+    };
+  }, []);
+
   // 切换语言
   const changeLanguage = useCallback(async (lang: string) => {
     await setLanguage(lang);
-    setLanguageState(getCurrentLanguage());
+    const newLang = getCurrentLanguage();
+    setLanguageState(newLang);
     
     // 触发页面重新渲染
-    window.dispatchEvent(new CustomEvent('languageChange', { detail: getCurrentLanguage() }));
+    window.dispatchEvent(new CustomEvent('languageChange', { detail: newLang }));
   }, []);
 
   // 翻译函数
@@ -76,4 +90,20 @@ export function useTranslation() {
     t: (key: string, fallback?: string) => getTranslatedString(key, fallback),
     loc,
   };
+}
+
+/**
+ * 提供响应式的 loc 函数
+ * 当语言变化时，使用此 hook 的组件会自动重新渲染
+ */
+export function useLoc() {
+  const [, forceUpdate] = useState({});
+
+  // 监听语言变化以触发重新渲染
+  useLanguageChange(() => {
+    forceUpdate({});
+  });
+
+  // 返回 loc 函数
+  return (key: string, fallback?: string) => getTranslatedString(key, fallback);
 }

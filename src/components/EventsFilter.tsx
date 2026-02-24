@@ -3,7 +3,7 @@
  * 使用 TailwindCSS 重现原样式
  */
 
-import { loc } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import type { EventCategory } from '@/types';
 
 interface EventsFilterProps {
@@ -17,6 +17,8 @@ const EventsFilter: React.FC<EventsFilterProps> = ({
   onCategoryChange, 
   categories 
 }) => {
+  const loc = useLoc();
+  
   // 获取category的翻译
   const getCategoryTranslation = (category: EventCategory): string => {
     const categoryMap: Record<EventCategory, string> = {

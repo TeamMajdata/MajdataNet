@@ -10,12 +10,14 @@ const md5 = (md5Module as any).default || md5Module;
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { loc, setLanguage } from '@/utils/i18n';
+import { setLanguage } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import { PageLayout } from '@/components';
 import * as retCode from '@/config/apiRetCode';
 import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
+  const loc = useLoc();
   const [ready, setReady] = useState(false);
   const isPosted = useRef(false);
 
@@ -27,10 +29,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (ready && !isPosted.current) {
-      PostOTP();
+      PostOTP(loc);
       isPosted.current = true;
     }
-  }, [ready]);
+  }, [ready, loc]);
 
   if (!ready) return <div className="loading"></div>;
 
@@ -39,7 +41,7 @@ export default function LoginPage() {
     </PageLayout>;
 }
 
-async function PostOTP() {
+async function PostOTP(loc: (key: string, fallback?: string) => string) {
   const params = new URLSearchParams(window.location.search);
   const otp = params.get('otp');
   if (otp !== null) {
@@ -60,6 +62,7 @@ async function PostOTP() {
 }
 
 function Login() {
+  const loc = useLoc();
   const navigate = useNavigate();
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {

@@ -4,10 +4,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { loc, setLanguage } from '@/utils/i18n';
+import { setLanguage } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 import { PageLayout } from '@/components';
 
 export default function EditPage() {
+  const loc = useLoc();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {

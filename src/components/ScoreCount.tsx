@@ -1,7 +1,6 @@
-import React from 'react';
 import { apiroot3 } from '@/config/api';
 import useSWR from 'swr';
-import { loc } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
 
 export interface ScoreCountProps {
   /** 上传者用户名 */
@@ -25,6 +24,8 @@ const fetcher = (url: string) =>
  * 显示指定上传者的谱面评分排行榜
  */
 export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreCountProps) {
+  const loc = useLoc();
+  
   const { data, error, isLoading } = useSWR<ScoreData[]>(
     `${apiroot3}/stats/score-sums?uploader=${encodeURIComponent(uploader)}&page=${page}&pageSize=${pageSize}`,
     fetcher,
@@ -40,7 +41,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   }
 
   if (!data || data.length === 0) {
-    return <div>{loc('FailedToLoad', '加载失败')}</div>;
+    return <div>{loc('EmptyData', '空的')}</div>;
   }
 
   const maxScore = data[0].dxAccSum;
