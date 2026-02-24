@@ -156,7 +156,7 @@ function Delbutton({ songid }: { songid: string }) {
       }}
     >
       <svg
-        className="fill-white stroke-white p-[3px] w-full h-full"
+        className="fill-white stroke-white p-0.75 w-full h-full"
         xmlns="http://www.w3.org/2000/svg"
         height="24"
         width="24"

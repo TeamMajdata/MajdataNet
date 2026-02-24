@@ -3,7 +3,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { loc } from '@/utils';
 import AmbientBackground from './AmbientBackground';
-import AdComponent from './AdComponent';
 import FloatingButtons from './FloatingButtons';
 import UnifiedHeader from './UnifiedHeader';
 import type { PageLayoutProps } from '@/types';
@@ -15,7 +14,6 @@ import type { PageLayoutProps } from '@/types';
  */
 export default function PageLayout({
   children,
-  showAds = true,
   showFooter = true,
   showBackToHome = true,
   title = null,
@@ -74,17 +72,6 @@ export default function PageLayout({
       {/* Footer */}
       {showFooter && (
         <footer className="bg-linear-to-b from-[rgba(20,20,20,0.3)] to-[rgba(10,10,10,0.3)] backdrop-blur-[10px] mt-16 px-4 pt-12 pb-16 border-white/10 border-t text-center">
-          {showAds && (
-            <>
-              <script
-                async
-                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7973799234411834"
-                crossOrigin="anonymous"
-              />
-              <AdComponent />
-            </>
-          )}
-
           {/* Footer Content */}
           <div className="flex flex-col items-center gap-3 mb-8">
             {/* Copyright */}

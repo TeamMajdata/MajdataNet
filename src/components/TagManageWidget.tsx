@@ -76,7 +76,7 @@ export function TagManageTagLauncher({ onClick }: TagManageTagLauncherProps) {
 const TagManageButton = forwardRef<HTMLDivElement, TagManageButtonProps>(
   function TagManageButton({ onClick, newClassName }, ref) {
     return (
-      <div ref={ref} onClick={onClick} className={`fill-white stroke-white w-full h-full p-[3px] ${newClassName || ''}`}>
+      <div ref={ref} onClick={onClick} className={`fill-white stroke-white w-full h-full p-0.75 ${newClassName || ''}`}>
         <svg
           className="fill-white stroke-white w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
@@ -97,7 +97,7 @@ const TagManageTag = forwardRef<HTMLButtonElement, TagManageTagProps>(
       <motion.button
         ref={ref}
         onMouseDown={onClick}
-        className="bg-green-600 hover:bg-green-500 px-2.5 py-[3px] rounded-xl text-white text-xs transition-colors duration-200 cursor-pointer"
+        className="bg-green-600 hover:bg-green-500 px-2.5 py-0.75 rounded-xl text-white text-xs transition-colors duration-200 cursor-pointer"
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.2 }}
       >
@@ -279,7 +279,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       return <div>failed to load</div>;
     }
     if (isLoading) {
-      return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
+      return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
     }
     if (data === undefined) {
       return <div>failed to load</div>;

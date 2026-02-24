@@ -3,7 +3,6 @@ export { default as PageLayout } from './PageLayout';
 export { default as UnifiedHeader } from './UnifiedHeader';
 export { default as FloatingButtons } from './FloatingButtons';
 export { default as AmbientBackground } from './AmbientBackground';
-export { default as AdComponent } from './AdComponent';
 
 // 用户相关组件
 export { default as UserInfo } from './UserInfo';
