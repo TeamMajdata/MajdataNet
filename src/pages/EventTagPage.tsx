@@ -12,7 +12,8 @@ import { useLoc } from '@/hooks';
 import { PageLayout, SongList, EventBanner } from '@/components';
 import { apiroot3 } from '@/config/api';
 import { getEventBySearchKeyword } from '@/utils/eventsData';
-import type { Event } from '@/types';
+import { type Event } from '@/types';
+import { EventCategory } from '@/types/event';
 
 export default function EventTagPage() {
   const loc = useLoc();
@@ -34,7 +35,7 @@ export default function EventTagPage() {
           src: '/events/original.png',
           alt: 'Original Songs',
           title: loc('OriginalSongs'),
-          category: '私立企划' as const,
+          category: EventCategory.PrivateProject,
           createDate: new Date().toISOString().split('T')[0],
           endDate: '2099-12-31',
           description: loc('OriginalSongsDesc'),
@@ -48,7 +49,7 @@ export default function EventTagPage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
 
   return (
     <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen">

@@ -7,6 +7,21 @@ import { PageLayout, ChartUploader, SongList } from '@/components';
 import { useLoc, useUser } from '@/hooks';
 import { apiroot3 } from '@/config/api';
 import { Link } from 'react-router-dom';
+import { motion, type Variants } from 'framer-motion';
+
+// slideInUp 动画变体
+const slideInUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (delay: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.4, 0, 0.2, 1] as const,
+      delay,
+    },
+  }),
+};
 
 export default function UserChartsPage() {
   const loc = useLoc();
@@ -40,7 +55,13 @@ export default function UserChartsPage() {
 
       {/* Upload Section */}
       <section className="mb-16">
-        <div className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl animate-[slideInUp_0.6s_ease-out_0.3s_both]">
+        <motion.div 
+          className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl"
+          initial="hidden"
+          animate="visible"
+          custom={0.3}
+          variants={slideInUp}
+        >
           <div className="mb-8">
             <h2 className="m-0 mb-6 font-semibold text-[#e5e5e5] text-[1.8rem] text-center">
               {loc('UploadChart')}
@@ -95,11 +116,17 @@ export default function UserChartsPage() {
             </div>
           </div>
           <ChartUploader />
-        </div>
+        </motion.div>
       </section>
 
       {/* Charts Management Section */}
-      <section className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl animate-[slideInUp_0.6s_ease-out_0.5s_both]">
+      <motion.section 
+        className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl"
+        initial="hidden"
+        animate="visible"
+        custom={0.5}
+        variants={slideInUp}
+      >
         <div className="mb-8 pb-4 border-white/10 border-b text-center">
           <h2 className="m-0 mb-2 font-semibold text-[#e5e5e5] text-[1.8rem]">
             {loc('MyCharts')}
@@ -112,7 +139,7 @@ export default function UserChartsPage() {
           url={apiroot3 + '/maichart/list?search=uploader:' + encodeURIComponent(user.username)}
           isManage={true}
         />
-      </section>
+      </motion.section>
     </PageLayout>
   );
 }

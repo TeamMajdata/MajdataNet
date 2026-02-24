@@ -6,6 +6,21 @@
 import { Link } from 'react-router-dom';
 import { PageLayout } from '@/components';
 import { useLoc } from '@/hooks';
+import { motion, type Variants } from 'framer-motion';
+
+// slideInUp 动画变体
+const slideInUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (delay: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.4, 0, 0.2, 1] as const,
+      delay,
+    },
+  }),
+};
 
 export default function UserPage() {
   const loc = useLoc();
@@ -13,7 +28,13 @@ export default function UserPage() {
   return (
     <PageLayout title={loc('UserCenter')} showBackToHome={true}>
       <div className="pb-8">
-        <div className="mt-(--content-top-spacing) animate-[slideInUp_0.6s_ease-out_0.3s_both]">
+        <motion.div 
+          className="mt-(--content-top-spacing)"
+          initial="hidden"
+          animate="visible"
+          custom={0.3}
+          variants={slideInUp}
+        >
           <div className="gap-8 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] mx-auto max-w-225">
             {/* Charts Management Card */}
             <Link
@@ -78,7 +99,7 @@ export default function UserPage() {
               </div>
             </Link>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Mobile responsive */}

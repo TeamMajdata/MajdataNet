@@ -1,4 +1,4 @@
-import React from 'react';
+import { type JSX } from 'react';
 
 /**
  * 渲染等级数字，支持加号显示为上标

@@ -6,6 +6,21 @@
 import { Link } from 'react-router-dom';
 import { PageLayout, AvatarUploader, IntroUploader } from '@/components';
 import { useLoc, useUser } from '@/hooks';
+import { motion, type Variants } from 'framer-motion';
+
+// slideInUp 动画变体
+const slideInUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (delay: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.4, 0, 0.2, 1] as const,
+      delay,
+    },
+  }),
+};
 
 export default function UserProfilePage() {
   const loc = useLoc();
@@ -38,7 +53,12 @@ export default function UserProfilePage() {
       </div>
 
       {/* Profile Settings */}
-      <div className="animate-[slideInUp_0.6s_ease-out_0.3s_both]">
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        custom={0.3}
+        variants={slideInUp}
+      >
         <div className="flex flex-col gap-8 max-w-(--container-max-width) mx-auto my-0 px-(--container-padding)">
           {/* Avatar Settings Card */}
           <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-10 py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all hover:-translate-y-0.5 duration-300">
@@ -64,7 +84,7 @@ export default function UserProfilePage() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </PageLayout>
   );
 }

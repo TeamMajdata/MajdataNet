@@ -12,6 +12,7 @@ import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 import type { Song, SongListProps } from '@/types';
 
 
@@ -104,12 +105,14 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
             )}
 
             <br />
-            <div
-              className="songLevel downloadButtonBox"
+            <motion.div
+              className="float-left m-[0.1rem] mt-2 border border-gray-500 rounded-[5px] w-[1.3rem] h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none"
               onClick={OnDownloadClick({ id: o.id, title: o.title })}
+              whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
+              transition={{ duration: 0.125, ease: 'easeInOut' }}
             >
               <svg
-                className="downloadButton"
+                className="fill-white stroke-white w-full h-full"
                 xmlns="http://www.w3.org/2000/svg"
                 height="24"
                 viewBox="0 -960 960 960"
@@ -117,7 +120,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
               >
                 <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
               </svg>
-            </div>
+            </motion.div>
             <InteractCount songid={o.id} />
           </div>
         </div>
@@ -129,8 +132,10 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
 
 function Delbutton({ songid }: { songid: string }) {
   return (
-    <div
-      className="songLevel"
+    <motion.div
+      className="float-left m-[0.1rem] border border-gray-500 rounded-[5px] w-[1.3rem] h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none"
+      whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
+      transition={{ duration: 0.125, ease: 'easeInOut' }}
       onClick={async () => {
         const ret = confirm('真的要删除吗(不可恢复)\n(没有任何机会)');
         if (ret) {
@@ -151,7 +156,7 @@ function Delbutton({ songid }: { songid: string }) {
       }}
     >
       <svg
-        className="downloadButton shareButton"
+        className="fill-white stroke-white p-[3px] w-full h-full"
         xmlns="http://www.w3.org/2000/svg"
         height="24"
         width="24"
@@ -159,6 +164,6 @@ function Delbutton({ songid }: { songid: string }) {
       >
         <path d="M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z" />
       </svg>
-    </div>
+    </motion.div>
   );
 }

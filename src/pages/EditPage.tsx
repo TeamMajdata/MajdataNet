@@ -3,7 +3,7 @@
  * 迁移自 legacy/src/app/edit/page.jsx
  */
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout } from '@/components';

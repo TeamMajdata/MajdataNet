@@ -12,8 +12,23 @@ import { PageLayout, RecentPlayedWidget, SongList, ScoreCount } from '@/componen
 import { apiroot3 } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { motion, type Variants } from 'framer-motion';
 import 'github-markdown-css/github-markdown-dark.css';
 import type { IntroductionData } from '@/types';
+
+// slideInUp 动画变体
+const slideInUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (delay: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.4, 0, 0.2, 1] as const,
+      delay,
+    },
+  }),
+};
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
@@ -51,12 +66,24 @@ export default function SpacePage() {
   return (
     <PageLayout className="pb-8">
       {/* User Introduction */}
-      <section className="mt-(--content-top-spacing) mb-12 animate-[slideInUp_0.6s_ease-out_0.3s_both]">
+      <motion.section 
+        className="mt-(--content-top-spacing) mb-12"
+        initial="hidden"
+        animate="visible"
+        custom={0.3}
+        variants={slideInUp}
+      >
         <Introduction username={username} />
-      </section>
+      </motion.section>
 
       {/* Recent Activity */}
-      <section className="mb-12 animate-[slideInUp_0.6s_ease-out_0.4s_both]">
+      <motion.section 
+        className="mb-12"
+        initial="hidden"
+        animate="visible"
+        custom={0.4}
+        variants={slideInUp}
+      >
         <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
           {loc('RecentlyPlayedCharts', '最近游玩的谱面')}
         </h2>
@@ -67,10 +94,16 @@ export default function SpacePage() {
           }}
         />
         <RecentPlayedWidget username={username} />
-      </section>
+      </motion.section>
 
       {/* Uploaded Charts */}
-      <section className="mb-12 animate-[slideInUp_0.6s_ease-out_0.5s_both]">
+      <motion.section 
+        className="mb-12"
+        initial="hidden"
+        animate="visible"
+        custom={0.5}
+        variants={slideInUp}
+      >
         <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
           {loc('UploadedCharts', '已上传的谱面')}
         </h2>
@@ -83,10 +116,16 @@ export default function SpacePage() {
         <SongList
           url={`${apiroot3}/maichart/list?search=${encodeURIComponent('uploader:' + username)}`}
         />
-      </section>
+      </motion.section>
 
       {/* Who Loves To Play */}
-      <section className="mb-12 animate-[slideInUp_0.6s_ease-out_0.5s_both]">
+      <motion.section 
+        className="mb-12"
+        initial="hidden"
+        animate="visible"
+        custom={0.5}
+        variants={slideInUp}
+      >
         <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
           {loc('WhoLovesToPlay', '谁爱玩这些谱面')}
         </h2>
@@ -97,7 +136,7 @@ export default function SpacePage() {
           }}
         />
         <ScoreCount uploader={username} page={0} pageSize={30} />
-      </section>
+      </motion.section>
     </PageLayout>
   );
 }

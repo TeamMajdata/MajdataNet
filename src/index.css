@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 /* Component Styles - 组件样式 */
 @import "./styles/components/events.css";
@@ -45,12 +45,12 @@
   --background-start: 20, 20, 20;
   --shadow: #181818;
 
-  /* 缁熶竴瀹瑰櫒鏍峰紡 */
+  /* 统一容器样式 */
   --container-max-width: 1200px;
   --container-padding: 0 1rem;
   --container-margin: 0 auto;
 
-  /* 缁熶竴姣涚幓鐠冩晥鏋?*/
+  /* 统一毛玻璃效果 */
   --glassmorphism-bg-primary: rgb(15 15 20 / 85%);
   --glassmorphism-bg-secondary: rgb(30 30 30 / 90%);
   --glassmorphism-backdrop: blur(20px) saturate(180%);
@@ -58,33 +58,34 @@
   --glassmorphism-border-radius: 16px;
   --glassmorphism-shadow: 0 8px 25px rgb(0 0 0 / 30%);
 
-  /* 鏅鸿兘 Header 楂樺害绯荤粺 */
+  /* 智能 Header 高度系统 */
   --header-height-desktop: 70px;
   --header-height-tablet: 50px;
   --header-height-mobile: 50px;
   --header-height-mobile-small: 50px;
 
-  /* 褰撳墠鐢熸晥鐨?Header 楂樺害锛堥粯璁ゆ闈㈢锛?*/
+  /* 当前生效的 Header 高度（默认桌面端） */
   --header-height: var(--header-height-desktop);
 
-  /* 鏅鸿兘闂磋窛璁＄畻 */
+  /* 智能间距计算 */
   --content-top-spacing: calc(var(--header-height) + 0.5rem);
   --content-top-spacing-large: calc(var(--header-height) + 1rem);
 
-  /* 鍏朵粬鏍峰紡鍙橀噺 */
+  /* 其他样式变量 */
   --glassmorphism-bg: rgb(15 15 20 / 95%);
   --glassmorphism-bg-scrolled: rgb(10 12 18 / 85%);
-  --glassmorphism-border: rgb(255 255 255 / 10%);
   --glassmorphism-border-scrolled: rgb(255 255 255 / 15%);
 
   scrollbar-color: rgb(50 50 50) rgb(var(--background-start));
   scrollbar-width: thin;
 }
 
+/* 基础文本颜色 */
 div {
   color: rgb(var(--foreground-rgb));
 }
 
+/* Body 基础样式 */
 body {
   caret-color: transparent;
   color-scheme: only dark;
@@ -92,12 +93,14 @@ body {
   padding-top: var(--content-top-spacing-large);
 }
 
+/* 段落样式 */
 p {
   color: rgb(var(--foreground-rgb));
   text-align: center;
   margin: 1rem;
 }
 
+/* 标题样式 */
 h1 {
   color: whitesmoke;
   text-align: center;
@@ -114,195 +117,25 @@ h2 {
   user-select: text;
 }
 
-
-
-@media screen and (width <=500px) {
-
-
+@media screen and (width <= 500px) {
   h1 {
-    color: whitesmoke;
-    text-align: center;
     font-size: 2rem;
-    font-weight: bold;
-    user-select: text;
-  }
-
-}
-
-.songLevel {
-  float: left;
-  text-align: center;
-  border-radius: 5px;
-  font-weight: bold;
-  margin: 0.1rem;
-  width: 1.3rem;
-  height: 1.3rem;
-  font-size: 0.65rem;
-  line-height: 1.2rem;
-  border: 1px solid gray;
-  overflow: hidden;
-  cursor: pointer;
-  user-select: none;
-  transition: transform 0.125s ease-in-out;
-}
-
-.songLevel:hover {
-  transform: scale(1.1);
-  filter: brightness(1.2);
-}
-
-#lv0.songLevel {
-  background-color: rgb(111 171 250);
-}
-
-#lv1.songLevel {
-  background-color: rgb(93 212 93);
-}
-
-#lv2.songLevel {
-  background-color: rgb(202 202 84);
-}
-
-#lv3.songLevel {
-  background-color: rgb(255 91 91);
-}
-
-#lv4.songLevel {
-  background-color: rgb(134 23 134);
-}
-
-#lv5.songLevel {
-  background-color: rgb(189 63 189);
-}
-
-#lv6.songLevel {
-  background-color: rgb(255 145 0);
-}
-
-.majCanvas {
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-}
-
-
-@media screen and (width >=700px) {
-  .majCanvas {
-    width: 100%;
-    height: 100%;
-    border-radius: 10px;
   }
 }
 
-.majPlaceHolder {
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  line-height: 20rem;
-}
-
-
+/* 禁用状态样式 */
 *:disabled {
   background-color: rgb(92 0 0);
 }
 
-.downloadButton {
-  fill: white;
-  stroke: white;
-  width: 100%;
-  height: 100%;
-}
-
-.shareButton {
-  fill: white;
-  stroke: white;
-  width: 100%;
-  height: 100%;
-  padding: 3px;
-}
-
-.downloadButtonBox {
-  margin-top: 0.5rem;
-}
-
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-@keyframes successPulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.02);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-
-@keyframes successFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-    border-top-color: rgb(209 134 252);
-  }
-
-  50% {
-    transform: rotate(180deg);
-    border-top-color: rgb(151 239 255);
-  }
-
-  100% {
-    transform: rotate(360deg);
-    border-top-color: rgb(255 255 255);
-  }
-}
-
-
-
+/* 移除数字输入框的spinner */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   appearance: none;
   margin: 0;
 }
 
+/* Markdown body 样式 (用于 github-markdown-css 扩展) */
 .markdown-body {
   text-align: center;
   box-sizing: border-box;
@@ -329,82 +162,35 @@ input[type="number"]::-webkit-inner-spin-button {
   margin-bottom: 8px;
 }
 
-@media (width <=767px) {
+@media (width <= 767px) {
   .markdown-body {
     padding: 15px;
   }
 }
 
-
-.uploadMetaRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 4px 0;
-  flex-wrap: wrap;
-}
-
-.uploadMetaLabel {
-  font-weight: 600;
-  color: white;
-  font-size: 14px;
-  min-width: 50px;
-}
-
-.uploadMetaContent {
-  color: #fff7;
-  font-size: 14px;
-  text-align: left;
-  word-break: break-word;
-  flex: 1;
-}
-
-.tagList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.tag {
-  background-color: #f0f0f0;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  color: #333;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.tag:hover {
-  background-color: #ccc;
-}
-
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
+/* Keyframes - 仅保留仍在组件中使用 animate-[] 引用的动画 */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+    border-top-color: rgb(209 134 252);
   }
-
   50% {
-    transform: scale(1.05);
-    opacity: 0.7;
+    transform: rotate(180deg);
+    border-top-color: rgb(151 239 255);
+  }
+  100% {
+    transform: rotate(360deg);
+    border-top-color: rgb(255 255 255);
   }
 }
 
-
-
-@keyframes fadeIn {
+@keyframes dropdownFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: scale(0.95) translateY(-15px);
   }
-
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1) translateY(0);
   }
 }

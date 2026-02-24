@@ -19,6 +19,7 @@ import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import { useLoc } from '@/hooks';
 import sleep from '@/utils/sleep';
+import { motion } from 'framer-motion';
 import type {
   TagManageWidgetProps,
   TagManageWidgetRef,
@@ -41,7 +42,11 @@ const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
     }));
 
     return (
-      <div className={`songLevel downloadButtonBox ${newClassName}`}>
+      <motion.div 
+        className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] mt-2 w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-gray-500 overflow-hidden cursor-pointer select-none ${newClassName}`}
+        whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
+        transition={{ duration: 0.125, ease: 'easeInOut' }}
+      >
         <TagManageButton
           ref={buttonRef}
           onClick={() => setIsWindowOpen(!isWindowOpen)}
@@ -57,7 +62,7 @@ const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
             />,
             document.body
           )}
-      </div>
+      </motion.div>
     );
   }
 );
@@ -71,9 +76,9 @@ export function TagManageTagLauncher({ onClick }: TagManageTagLauncherProps) {
 const TagManageButton = forwardRef<HTMLDivElement, TagManageButtonProps>(
   function TagManageButton({ onClick, newClassName }, ref) {
     return (
-      <div ref={ref} onClick={onClick} className={`shareButton ${newClassName}`}>
+      <div ref={ref} onClick={onClick} className={`fill-white stroke-white w-full h-full p-[3px] ${newClassName || ''}`}>
         <svg
-          className="downloadButton"
+          className="fill-white stroke-white w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
           height="24"
           viewBox="-20 -20 512 512"
@@ -89,16 +94,15 @@ const TagManageButton = forwardRef<HTMLDivElement, TagManageButtonProps>(
 const TagManageTag = forwardRef<HTMLButtonElement, TagManageTagProps>(
   function TagManageTag({ onClick }, ref) {
     return (
-      <button
+      <motion.button
         ref={ref}
         onMouseDown={onClick}
-        className="tag"
-        style={{
-          backgroundColor: 'green',
-        }}
+        className="bg-green-600 hover:bg-green-500 px-2.5 py-[3px] rounded-xl text-white text-xs transition-colors duration-200 cursor-pointer"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.2 }}
       >
         <svg
-          className="downloadButton"
+          className="fill-white stroke-white w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
           height="16"
           viewBox="0 -960 960 960"
@@ -106,7 +110,7 @@ const TagManageTag = forwardRef<HTMLButtonElement, TagManageTagProps>(
         >
           <path d="M480-160v-80h120l180-240-180-240H160v200H80v-200q0-33 23.5-56.5T160-800h440q19 0 36 8.5t28 23.5l216 288-216 288q-11 15-28 23.5t-36 8.5H480Zm-10-320ZM200-120v-120H80v-80h120v-120h80v120h120v80H280v120h-80Z" />
         </svg>
-      </button>
+      </motion.button>
     );
   }
 );
@@ -365,14 +369,14 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
           {isInPrivatePage ? '作者Tags管理' : '玩家Tags管理'}
         </div>
         <div style={{ padding: '16px' }}>
-          <div className="uploadMetaRow">
-            <div className="uploadMetaLabel">Tags:</div>
-            <div className="uploadMetaContent tagList">
+          <div className="flex flex-wrap items-center gap-1.5 my-1">
+            <div className="min-w-12 font-semibold text-white text-sm">Tags:</div>
+            <div className="flex flex-wrap flex-1 gap-1.5 mt-1 text-white/70 text-sm text-left break-words">
               {tags && tags.length > 0 ? (
                 tags.map((tag, index) => (
                   <Tippy content={loc('DeleteTag')} key={index}>
                     <span
-                      className={isInPrivatePage ? 'tag' : 'tagPublic'}
+                      className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-[3px] rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-[3px] rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
                       onClick={() => {
                         dispatch({ type: 'REMOVE_TAG', payload: index });
                       }}
@@ -441,14 +445,14 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
           </div>
 
           <div
-            className="tagList"
+            className="flex flex-wrap gap-2 mt-1"
             style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
           >
             {categories[activeCategory]
               .filter((tag) => !tags.includes(tag))
               .map((tag) => (
                 <span
-                  className="tag"
+                  className="bg-gray-100 hover:bg-gray-300 px-2.5 py-[3px] rounded-xl text-[#333] text-xs transition-colors duration-200 cursor-pointer"
                   key={tag}
                   onClick={() => {
                     dispatch({ type: 'ADD_TAG', payload: tag });
