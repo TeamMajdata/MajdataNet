@@ -8,8 +8,7 @@ import { useLoc } from '@/hooks';
 import { CoverPic, InteractCount, Levels, TagManageWidget } from '@/components';
 import { downloadSong } from '@/utils/download';
 import LazyLoad from 'react-lazy-load';
-import Tippy from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css';
+import Tooltip from '@/components/Tooltip';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
@@ -69,19 +68,19 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
           )}
 
           <div className="ml-[8.9rem]">
-            <Tippy content={o.title}>
+            <Tooltip content={o.title}>
               <div className="mb-1.25 font-bold text-base truncate" id={o.id}>
                 <a href={'/song?id=' + o.id}>{o.title}</a>
               </div>
-            </Tippy>
-            <Tippy content={o.artist}>
+            </Tooltip>
+            <Tooltip content={o.artist}>
               <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
                 <a href={'/song?id=' + o.id}>
                   {o.artist === '' || o.artist == null ? '-' : o.artist}
                 </a>
               </div>
-            </Tippy>
-            <Tippy content={o.uploader + '@' + o.designer}>
+            </Tooltip>
+            <Tooltip content={o.uploader + '@' + o.designer}>
               <div className="mb-2 text-[0.8rem] truncate">
                 <a href={'/space?id=' + o.uploader}>
                   <img
@@ -93,7 +92,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
                   {o.uploader + '@' + o.designer}
                 </a>
               </div>
-            </Tippy>
+            </Tooltip>
             {isManage ? (
               <>
                 {' '}

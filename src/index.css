@@ -4,40 +4,14 @@
 @import "./styles/components/events.css";
 @import "./styles/components/songPage.css";
 
-/* Tippy Tooltip Custom Theme - 搜索提示tooltip主题 */
-.tippy-box[data-theme~='light'] {
-  background-color: transparent;
-  border: none;
+/* Radix UI Tooltip Animation */
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.tippy-box[data-theme~='light'] .tippy-content {
-  padding: 0;
-}
-
-/* 自定义箭头样式 - 增加箭头长度 */
-.tippy-box[data-theme~='light'] .tippy-arrow {
-  width: 50px;
-  height: 50px;
-}
-
-.tippy-box[data-theme~='light'][data-placement^='top'] > .tippy-arrow:before {
-  border-top-color: rgba(25, 25, 30, 0.98);
-  border-width: 50px 25px 0;
-}
-
-.tippy-box[data-theme~='light'][data-placement^='bottom'] > .tippy-arrow:before {
-  border-bottom-color: rgba(25, 25, 30, 0.98);
-  border-width: 0 25px 50px;
-}
-
-.tippy-box[data-theme~='light'][data-placement^='left'] > .tippy-arrow:before {
-  border-left-color: rgba(25, 25, 30, 0.98);
-  border-width: 25px 0 25px 50px;
-}
-
-.tippy-box[data-theme~='light'][data-placement^='right'] > .tippy-arrow:before {
-  border-right-color: rgba(25, 25, 30, 0.98);
-  border-width: 25px 50px 25px 0;
+.animate-tooltip {
+  animation: tooltipFadeIn 0.15s ease-out;
 }
 
 :root {

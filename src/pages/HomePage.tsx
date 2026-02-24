@@ -4,8 +4,7 @@
  */
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import Tippy from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css';
+import Tooltip from '@/components/Tooltip';
 import { useDebouncedCallback } from 'use-debounce';
 import { useSearchParams } from 'react-router-dom';
 
@@ -353,33 +352,19 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                   ×
                 </button>
               )}
-              <Tippy
+              <Tooltip
                 content={searchHints}
-                placement="top"
-                arrow={true}
-                theme="light"
-                interactive={true}
-                animation="scale"
-                offset={[0, 20]}
-                appendTo={() => document.body}
-                popperOptions={{
-                  modifiers: [
-                    {
-                      name: 'preventOverflow',
-                      options: {
-                        boundary: 'viewport',
-                      },
-                    },
-                  ],
-                }}
+                side="top"
+                sideOffset={20}
+                plain={true}
               >
-                <button 
-                  className="top-1/2 right-10 md:right-14 z-2 absolute flex justify-center items-center bg-transparent border border-white/20 rounded-full w-5 md:w-6 h-5 md:h-6 font-semibold text-white/70 text-xs md:text-sm leading-none -translate-y-1/2 cursor-pointer" 
+                <button
+                  className="top-1/2 right-10 md:right-14 z-2 absolute flex justify-center items-center bg-transparent border border-white/20 rounded-full w-5 md:w-6 h-5 md:h-6 font-semibold text-white/70 text-xs md:text-sm leading-none -translate-y-1/2 cursor-pointer"
                   title="搜索提示"
                 >
                   ?
                 </button>
-              </Tippy>
+              </Tooltip>
             </div>
           </div>
 

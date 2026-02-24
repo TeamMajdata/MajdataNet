@@ -13,7 +13,7 @@ import {
 } from 'react';
 import React from 'react';
 import { createPortal } from 'react-dom';
-import Tippy from '@tippyjs/react';
+import Tooltip from '@/components/Tooltip';
 import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
@@ -374,7 +374,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
             <div className="flex flex-wrap flex-1 gap-1.5 mt-1 text-white/70 text-sm text-left break-words">
               {tags && tags.length > 0 ? (
                 tags.map((tag, index) => (
-                  <Tippy content={loc('DeleteTag')} key={index}>
+                  <Tooltip content={loc('DeleteTag')} key={index}>
                     <span
                       className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-[3px] rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-[3px] rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
                       onClick={() => {
@@ -383,7 +383,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                     >
                       {tag}
                     </span>
-                  </Tippy>
+                  </Tooltip>
                 ))
               ) : (
                 <span style={{ color: '#999', fontStyle: 'italic' }}>{loc('NoTags')}</span>

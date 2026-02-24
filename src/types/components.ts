@@ -2,7 +2,6 @@
  * 组件 Props 类型定义
  */
 
-import type { useSingleton } from '@tippyjs/react';
 import type { ReactNode } from 'react';
 import type { Event, EventCategory } from './event';
 import type { Comment } from './comment';
@@ -10,7 +9,6 @@ import type { Comment } from './comment';
 // ======================== 歌曲详情组件 ========================
 export interface SongDetailsContainerProps {
   id: string;
-  tippy: ReturnType<typeof useSingleton>[1];
 }
 
 export interface CoverPicProps {

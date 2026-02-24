@@ -7,8 +7,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
-import Tippy, { useSingleton } from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css';
 import { toast } from 'react-toastify';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
@@ -16,6 +14,7 @@ import {
   PageLayout,
   CoverPic,
   Majdata,
+  Tooltip,
   TagManageWidget,
   TagManageTagLauncher,
   SongDifficultyLevels,
@@ -31,7 +30,6 @@ const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
 export default function SongPage() {
-  const [source, target] = useSingleton();
   const [ready, setReady] = useState(false);
   const [searchParams] = useSearchParams();
   const param = searchParams.get('id');
@@ -51,13 +49,7 @@ export default function SongPage() {
         style={{ backgroundImage: `url(${apiroot3}/maichart/${param}/image)` }}
       />
 
-      <Tippy
-        singleton={source}
-        animation="fade"
-        placement="top-start"
-        interactive={true}
-      />
-      <SongDetailsContainer id={param} tippy={target} />
+      <SongDetailsContainer id={param} />
       <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
       <ScoreList songid={param} />
       <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
@@ -67,16 +59,16 @@ export default function SongPage() {
   );
 }
 
-function SongDetailsContainer({ id, tippy }: SongDetailsContainerProps) {
+function SongDetailsContainer({ id }: SongDetailsContainerProps) {
   return (
     <div className="bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] backdrop-blur-xl saturate-160 rounded-xl transition-all">
-      <SongInfo id={id} tippy={tippy} />
+      <SongInfo id={id} />
     </div>
   );
 }
 
 
-function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingleton>[1] }) {
+function SongInfo({ id }: { id: string }) {
   const loc = useLoc();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tagButtonRef = useRef<any>(null);
@@ -124,10 +116,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
               textAlign: 'center',
             }}
           >
-            <Tippy
-              content={loc('SearchForTitle') || '点击搜索该歌曲'}
-              singleton={tippy}
-            >
+            <Tooltip content={loc('SearchForTitle') || '点击搜索该歌曲'}>
               <h1
                 className="inline-block hover:shadow-lg hover:text-shadow drop-shadow-md px-5 py-2.5 rounded-lg font-black hover:text-white text-4xl md:text-5xl text-center tracking-tight transition-all hover:-translate-y-0.5 duration-300 cursor-pointer hover:transform"
                 id={o.id}
@@ -140,12 +129,9 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
               >
                 {o.title}
               </h1>
-            </Tippy>
+            </Tooltip>
 
-            <Tippy
-              content={loc('SearchForArtist') || '点击搜索该艺术家'}
-              singleton={tippy}
-            >
+            <Tooltip content={loc('SearchForArtist') || '点击搜索该艺术家'}>
               <div className="font-medium text-white/80 text-xl md:text-2xl text-center">
                 <span
                   className="inline-block hover:bg-white/10 hover:shadow-md px-3 py-1 rounded-md hover:text-white transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
@@ -159,7 +145,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
                   Artist: {o.artist === '' || o.artist == null ? '-' : o.artist}
                 </span>
               </div>
-            </Tippy>
+            </Tooltip>
           </div>
 
           <div className="flex flex-col items-start gap-3">
@@ -177,11 +163,11 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
         <aside className="flex flex-col gap-4">
           {/* 移动端：设计师和标签水平排列 */}
           <div className="flex md:flex-row flex-col lg:flex-col gap-4 md:gap-4 lg:gap-4">
-            <Tippy content={o.uploader + '@' + o.designer} singleton={tippy}>
-              <div className="flex-1 bg-white/[0.08] shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
+            <Tooltip content={o.uploader + '@' + o.designer}>
+              <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
                 <a href={'/space?id=' + o.uploader} className="inline-flex items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-[16px] px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
                   <img
-                    className="flex-shrink-0 shadow-sm border-2 border-white/25 rounded-full w-9 min-w-9 h-9 min-h-9 aspect-square transition-all duration-300"
+                    className="shadow-sm border-2 border-white/25 rounded-full w-9 min-w-9 h-9 min-h-9 aspect-square transition-all duration-300 shrink-0"
                     src={apiroot3 + '/account/Icon?username=' + o.uploader}
                     alt={o.uploader}
                   />
@@ -191,9 +177,9 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
                   </div>
                 </a>
               </div>
-            </Tippy>
+            </Tooltip>
 
-            <div className="flex-1 bg-white/[0.08] shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
+            <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
               <h3 className="mb-3 font-bold text-white text-sm uppercase tracking-wider">
                 {loc('Tags') || '标签'}
               </h3>
@@ -202,7 +188,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
                 (o.tags.length > 0 || o.publicTags.length > 0) ? (
                   <>
                     {o.tags.map((tag, index) => (
-                      <Tippy content={loc('SearchForTag')} key={index}>
+                      <Tooltip content={loc('SearchForTag')} key={index}>
                         <span
                           className="inline-flex items-center bg-[linear-gradient(135deg,rgb(139_69_19/0.3),rgb(101_67_33/0.2))] hover:bg-[linear-gradient(135deg,rgb(139_69_19/0.5),rgb(101_67_33/0.4))] hover:shadow-[0_4px_12px_rgb(139_69_19/0.3)] px-3 py-1 border border-[rgb(139_69_19/0.4)] hover:border-[rgb(139_69_19/0.7)] rounded-full font-medium text-[rgb(255_215_0/0.9)] hover:text-[#ffd700] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                           onClick={() => {
@@ -212,10 +198,10 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
                         >
                           {tag}
                         </span>
-                      </Tippy>
+                      </Tooltip>
                     ))}
                     {o.publicTags?.map((tag, index) => (
-                      <Tippy content={loc('SearchForTag')} key={index}>
+                      <Tooltip content={loc('SearchForTag')} key={index}>
                         <span
                           className="inline-flex items-center bg-[linear-gradient(135deg,rgb(34_197_94/0.3),rgb(22_163_74/0.2))] hover:bg-[linear-gradient(135deg,rgb(34_197_94/0.5),rgb(22_163_74/0.4))] hover:shadow-[0_4px_12px_rgb(34_197_94/0.3)] px-3 py-1 border border-[rgb(34_197_94/0.4)] hover:border-[rgb(34_197_94/0.7)] rounded-full font-medium text-[rgb(74_222_128/0.9)] hover:text-[#4ade80] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                           onClick={() => {
@@ -225,7 +211,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
                         >
                           {tag}
                         </span>
-                      </Tippy>
+                      </Tooltip>
                     ))}
                   </>
                 ) : (

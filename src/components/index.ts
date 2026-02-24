@@ -38,3 +38,6 @@ export { default as SongDifficultyLevels } from './SongDifficultyLevels';
 export { CommentSender, CommentList } from './SongComments';
 export { LikeSender, ScoreList } from './SongInteraction';
 
+// 通用 UI
+export { default as Tooltip, TooltipProvider } from './Tooltip';
+

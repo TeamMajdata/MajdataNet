@@ -11,7 +11,6 @@ export default function MiniGamePage() {
   return (
     <PageLayout
       title={loc('MiniGame')}
-      className="minigame-page"
       showFooter={true}
     >
       <div className="flex justify-center p-4">

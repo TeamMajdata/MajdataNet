@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { I18nProvider } from './contexts/I18nContext';
+import { TooltipProvider } from './components/Tooltip';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -17,6 +18,7 @@ import './App.css';
 
 function App() {
   return (
+    <TooltipProvider delayDuration={200}>
     <I18nProvider>
       <Router>
         <Routes>
@@ -36,6 +38,7 @@ function App() {
         </Routes>
       </Router>
     </I18nProvider>
+    </TooltipProvider>
   );
 }
 

@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@tailwindcss/vite": "^4.2.1",
-    "@tippyjs/react": "^4.2.6",
     "axios": "^1.13.5",
     "framer-motion": "^12.34.3",
     "github-markdown-css": "^5.9.0",
@@ -31,7 +31,6 @@
     "swiper": "^12.1.2",
     "swr": "^2.4.0",
     "tailwindcss": "^4.2.1",
-    "tippy.js": "^6.3.7",
     "use-debounce": "^10.1.0"
   },
   "devDependencies": {
