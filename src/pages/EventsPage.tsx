@@ -87,13 +87,10 @@ export default function EventsPage() {
           {filteredEvents.map((event) => (
             <div 
               key={event.id} 
-              className="relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 rounded-2xl h-auto aspect-1279/372 overflow-hidden hover:scale-[1.03] transition-all hover:-translate-y-3 duration-[0.4s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform"
+              className="relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 rounded-2xl h-auto aspect-1279/372 overflow-hidden hover:scale-[1.03] transition-all hover:-translate-y-3 duration-[0.4s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer will-change-transform"
+              onClick={() => window.location.href = event.href}
             >
-              <a 
-                href={event.href} 
-                className="block w-full h-full text-inherit no-underline"
-              >
-                <div className="relative w-full h-full overflow-hidden">
+              <div className="relative w-full h-full overflow-hidden">
                   <img
                     className="block w-full h-full object-cover hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform"
                     src={event.src}

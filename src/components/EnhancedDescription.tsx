@@ -38,6 +38,7 @@ const EnhancedDescription: React.FC<EnhancedDescriptionProps> = ({ text, classNa
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 underline transition-colors"
               title={part}
+              onClick={(e) => e.stopPropagation()}
             >
               <span>🔗</span>
               <span>{displayText}</span>
