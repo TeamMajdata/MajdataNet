@@ -29,7 +29,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
   if (isLoading) {
     return (
       <>
-        <div className="loading"></div>
+        <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>
       </>
     );
   }
@@ -60,14 +60,14 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
       className="songCardWrapper"
     >
       <LazyLoad height={165} width={352} offset={300}>
-        <div className="songCard">
+        <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-[20rem] h-40 overflow-hidden transition-transform hover:-translate-y-1.25 duration-250 ease-in-out">
           {isRanking ? (
             <CoverPic id={o.id} display={'No.' + (index + 1)} />
           ) : (
             <CoverPic id={o.id} />
           )}
 
-          <div className="songInfo">
+          <div className="ml-[8.9rem]">
             <Tippy content={o.title}>
               <div className="songTitle" id={o.id}>
                 <a href={'/song?id=' + o.id}>{o.title}</a>
@@ -124,7 +124,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage }: Son
       </LazyLoad>
     </div>
   ));
-  return <div className="songCardContainer">{list}</div>;
+  return <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">{list}</div>;
 }
 
 function Delbutton({ songid }: { songid: string }) {

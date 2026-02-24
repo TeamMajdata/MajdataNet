@@ -39,7 +39,7 @@ export default function IntroUploader() {
   }
 
   if (isLoading) {
-    return <div className="loading"></div>;
+    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {

@@ -127,7 +127,7 @@ export default function AvatarUploader() {
 
   // 如果用户还在加载中，返回加载状态
   if (userLoading || !user) {
-    return <div className="loading"></div>;
+    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
   }
 
   const currentAvatarUrl = apiroot3 + '/account/Icon?username=' + user.username;

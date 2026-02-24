@@ -34,7 +34,7 @@ export default function LoginPage() {
     }
   }, [ready, loc]);
 
-  if (!ready) return <div className="loading"></div>;
+  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
 
   return <PageLayout className="flex justify-center items-center min-h-[60vh]">
       <Login />

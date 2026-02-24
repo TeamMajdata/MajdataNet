@@ -72,37 +72,27 @@ export default function ChartUploader() {
     }
   }
 
+  const uploadFields = [
+    { label: loc('maidata') },
+    { label: 'bg.png/bg.jpg' },
+    { label: 'track' },
+    { label: loc('BGVideoHint') },
+  ];
+
   return (
     <div className="flex flex-wrap justify-center max-w-(--container-max-width) mx-auto my-0 px-(--container-padding)">
       <form className="flex flex-col justify-center w-full" onSubmit={onSubmit}>
-        <div className="mt-4 pr-4 pl-4">{loc('maidata')}</div>
-        <input
-          className="bg-black shadow-[2px_2px_5px_gray] focus:shadow-[0_0_8px_rgba(0,123,255,0.5)] mx-2.5 my-2.5 px-1.5 py-1.5 border border-white focus:border-[#007bff] rounded-[10px] focus:outline-none h-8 caret-white"
-          type="file"
-          name="formfiles"
-          disabled={isUploading}
-        />
-        <div className="mt-4 pr-4 pl-4">bg.png/bg.jpg</div>
-        <input
-          className="bg-black shadow-[2px_2px_5px_gray] focus:shadow-[0_0_8px_rgba(0,123,255,0.5)] mx-2.5 my-2.5 px-1.5 py-1.5 border border-white focus:border-[#007bff] rounded-[10px] focus:outline-none h-8 caret-white"
-          type="file"
-          name="formfiles"
-          disabled={isUploading}
-        />
-        <div className="mt-4 pr-4 pl-4">track</div>
-        <input
-          className="bg-black shadow-[2px_2px_5px_gray] focus:shadow-[0_0_8px_rgba(0,123,255,0.5)] mx-2.5 my-2.5 px-1.5 py-1.5 border border-white focus:border-[#007bff] rounded-[10px] focus:outline-none h-8 caret-white"
-          type="file"
-          name="formfiles"
-          disabled={isUploading}
-        />
-        <div className="mt-4 pr-4 pl-4">{loc('BGVideoHint')}</div>
-        <input
-          className="bg-black shadow-[2px_2px_5px_gray] focus:shadow-[0_0_8px_rgba(0,123,255,0.5)] mx-2.5 my-2.5 px-1.5 py-1.5 border border-white focus:border-[#007bff] rounded-[10px] focus:outline-none h-8 caret-white"
-          type="file"
-          name="formfiles"
-          disabled={isUploading}
-        />
+        {uploadFields.map((field, index) => (
+          <div key={index}>
+            <div className="mt-4 pr-4 pl-4">{field.label}</div>
+            <input
+              className="bg-black shadow-[2px_2px_5px_gray] focus:shadow-[0_0_8px_rgba(0,123,255,0.5)] mx-2.5 my-2.5 px-1.5 py-1.5 border border-white focus:border-[#007bff] rounded-[10px] focus:outline-none h-8 caret-white"
+              type="file"
+              name="formfiles"
+              disabled={isUploading}
+            />
+          </div>
+        ))}
         <button
           className="hover:bg-[rgb(46,46,46)] disabled:bg-[rgb(92,0,0)] hover:shadow-[2px_2px_5px_gray] mx-2.5 my-2.5 px-1.5 py-1.5 border border-transparent hover:border-white rounded-[10px] text-[gainsboro] hover:text-white transition-all duration-200"
           type="submit"

@@ -40,7 +40,7 @@ export default function Majdata({ songid, apiroot, level }: MajdataProps) {
   // 只在首次加载完成时调用load()
   useEffect(() => {
     async function load() {
-      const httpprefix = 'https://' + location.host;
+      const httpprefix = location.protocol + '//' + location.host;
       let root = apiroot;
       if (!root.startsWith('http')) {
         root = httpprefix + root;
@@ -67,7 +67,7 @@ export default function Majdata({ songid, apiroot, level }: MajdataProps) {
   }, [isLoaded, songid, apiroot, level, sendMessage]);
 
   return (
-    <div className={'majViewPort majSticky'}>
+    <div className='top-0 z-100 box-border [@media(screen_and_(aspect-ratio>=2/3))]:static sticky bg-black p-2.5 rounded-[10px] w-full aspect-square min-[700px]:transform-none'>
       <Unity
         unityProvider={unityProvider}
         className="majCanvas"

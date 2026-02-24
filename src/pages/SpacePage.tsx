@@ -30,7 +30,7 @@ export default function SpacePage() {
     });
   }, []);
 
-  if (!ready) return <div className="loading"></div>;
+  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
 
   if (!username) {
     return (
@@ -118,7 +118,7 @@ function Introduction({ username }: { username: string }) {
   }
 
   if (isLoading) {
-    return <div className="loading"></div>;
+    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
   }
 
   if (!data) {

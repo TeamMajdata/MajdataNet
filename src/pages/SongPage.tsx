@@ -42,15 +42,14 @@ export default function SongPage() {
     });
   }, []);
 
-  if (!ready || !param) return <div className="loading"></div>;
+  if (!ready || !param) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
 
   return (
-    <PageLayout className="song-page">
-      {/* 自定义背景 - 覆盖PageLayout的默认背景 */}
+    <PageLayout>
       <div
-        className="bg song-bg"
+        className="-z-10 fixed inset-0 bg-cover bg-top-left blur-[20px] brightness-30"
         style={{ backgroundImage: `url(${apiroot3}/maichart/${param}/image)` }}
-      ></div>
+      />
 
       <Tippy
         singleton={source}
@@ -59,9 +58,9 @@ export default function SongPage() {
         interactive={true}
       />
       <SongDetailsContainer id={param} tippy={target} />
-      <div className="hr-solid"></div>
+      <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
       <ScoreList songid={param} />
-      <div className="hr-solid"></div>
+      <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
       <CommentSender songid={param} />
       <CommentList songid={param} />
     </PageLayout>
@@ -70,7 +69,7 @@ export default function SongPage() {
 
 function SongDetailsContainer({ id, tippy }: SongDetailsContainerProps) {
   return (
-    <div className="song-details-main-container">
+    <div className="bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] backdrop-blur-xl saturate-160 rounded-xl transition-all">
       <SongInfo id={id} tippy={tippy} />
     </div>
   );
@@ -91,7 +90,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
     return <div>failed to load</div>;
   }
   if (isLoading) {
-    return <div className="loading"></div>;
+    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
   }
   if (data === undefined) {
     return <div>failed to load</div>;
@@ -109,10 +108,10 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
   const o = data;
 
   return (
-    <div className="song-info-section">
-      <section className="gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] mb-10 hero-section">
+    <div className="bg-transparent p-6">
+      <section className="gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] mb-10">
         <div className="flex justify-center items-start">
-          <div className="w-48 md:w-64 h-48 md:h-64 hero-cover">
+          <div className="shadow-[0_25px_50px_rgb(0_0_0/0.45)] w-48 md:w-64 h-48 md:h-64 hover:scale-105 transition-transform duration-300">
             <CoverPic id={o.id} />
           </div>
         </div>
@@ -130,7 +129,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
               singleton={tippy}
             >
               <h1
-                className="drop-shadow-md font-black text-4xl md:text-5xl text-center tracking-tight clickable-title"
+                className="inline-block hover:shadow-lg hover:text-shadow drop-shadow-md px-5 py-2.5 rounded-lg font-black hover:text-white text-4xl md:text-5xl text-center tracking-tight transition-all hover:-translate-y-0.5 duration-300 cursor-pointer hover:transform"
                 id={o.id}
                 onClick={() => {
                   if (o.title && o.title !== '' && o.title !== null) {
@@ -149,7 +148,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
             >
               <div className="font-medium text-white/80 text-xl md:text-2xl text-center">
                 <span
-                  className="song-artist-modern clickable-artist"
+                  className="inline-block hover:bg-white/10 hover:shadow-md px-3 py-1 rounded-md hover:text-white transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                   onClick={() => {
                     if (o.artist && o.artist !== '' && o.artist !== null) {
                       localStorage.setItem('search', o.artist);
@@ -174,38 +173,38 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
         </div>
       </section>
 
-      <div className="lg:items-start gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] content-grid">
-        <aside className="flex flex-col gap-4 song-info-sidebar">
+      <div className="lg:items-start gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr]">
+        <aside className="flex flex-col gap-4">
           {/* 移动端：设计师和标签水平排列 */}
-          <div className="sidebar-top-row">
+          <div className="flex md:flex-row flex-col lg:flex-col gap-4 md:gap-4 lg:gap-4">
             <Tippy content={o.uploader + '@' + o.designer} singleton={tippy}>
-              <div className="p-5 rounded-2xl glass-panel sidebar-designer-panel">
-                <a href={'/space?id=' + o.uploader} className="designer-link">
+              <div className="flex-1 bg-white/[0.08] shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
+                <a href={'/space?id=' + o.uploader} className="inline-flex items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-[16px] px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
                   <img
-                    className="designer-avatar"
+                    className="flex-shrink-0 shadow-sm border-2 border-white/25 rounded-full w-9 min-w-9 h-9 min-h-9 aspect-square transition-all duration-300"
                     src={apiroot3 + '/account/Icon?username=' + o.uploader}
                     alt={o.uploader}
                   />
-                  <div className="designer-info">
-                    <span className="designer-username">{o.uploader}</span>
-                    <span className="designer-name">{o.designer}</span>
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="font-semibold text-white/95 text-base leading-[1.3]">{o.uploader}</span>
+                    <span className="font-normal text-white/65 text-sm leading-[1.3]">{o.designer}</span>
                   </div>
                 </a>
               </div>
             </Tippy>
 
-            <div className="p-5 rounded-2xl glass-panel sidebar-tags-panel">
+            <div className="flex-1 bg-white/[0.08] shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
               <h3 className="mb-3 font-bold text-white text-sm uppercase tracking-wider">
                 {loc('Tags') || '标签'}
               </h3>
-              <div className="meta-tags-container">
+              <div className="flex flex-wrap flex-1 gap-2">
                 {(o.tags || o.publicTags) &&
                 (o.tags.length > 0 || o.publicTags.length > 0) ? (
                   <>
                     {o.tags.map((tag, index) => (
                       <Tippy content={loc('SearchForTag')} key={index}>
                         <span
-                          className="tag-chip tag-private"
+                          className="inline-flex items-center bg-[linear-gradient(135deg,rgb(139_69_19/0.3),rgb(101_67_33/0.2))] hover:bg-[linear-gradient(135deg,rgb(139_69_19/0.5),rgb(101_67_33/0.4))] hover:shadow-[0_4px_12px_rgb(139_69_19/0.3)] px-3 py-1 border border-[rgb(139_69_19/0.4)] hover:border-[rgb(139_69_19/0.7)] rounded-full font-medium text-[rgb(255_215_0/0.9)] hover:text-[#ffd700] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                           onClick={() => {
                             localStorage.setItem('search', tag);
                             window.location.href = '/';
@@ -218,7 +217,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
                     {o.publicTags?.map((tag, index) => (
                       <Tippy content={loc('SearchForTag')} key={index}>
                         <span
-                          className="tag-chip tag-public"
+                          className="inline-flex items-center bg-[linear-gradient(135deg,rgb(34_197_94/0.3),rgb(22_163_74/0.2))] hover:bg-[linear-gradient(135deg,rgb(34_197_94/0.5),rgb(22_163_74/0.4))] hover:shadow-[0_4px_12px_rgb(34_197_94/0.3)] px-3 py-1 border border-[rgb(34_197_94/0.4)] hover:border-[rgb(34_197_94/0.7)] rounded-full font-medium text-[rgb(74_222_128/0.9)] hover:text-[#4ade80] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                           onClick={() => {
                             localStorage.setItem('search', 'tag:' + tag);
                             window.location.href = '/';
@@ -230,7 +229,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
                     ))}
                   </>
                 ) : (
-                  <span className="no-tags-text">
+                  <span className="text-white/40 text-sm italic">
                     {loc('NoTags') || '暂无标签'}
                   </span>
                 )}
@@ -243,9 +242,9 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 p-5 rounded-2xl glass-panel">
+          <div className="flex flex-col gap-2 bg-white/[0.08] shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
             <button
-              className="shadow-lg border border-white/20 rounded-xl w-full h-11 font-bold text-base transition-all btn-glass"
+              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
               onClick={OnDownloadClick({ id: o.id, title: o.title })}
               title={loc('Download')}
             >
@@ -263,7 +262,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
               </span>
             </button>
             <button
-              className="shadow-lg border border-white/20 rounded-xl w-full h-11 font-bold text-base transition-all btn-glass"
+              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
               onClick={shareSong({ id: o.id })}
               title={loc('Share')}
             >
@@ -286,7 +285,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
           </div>
 
           {/* ID/HASH/点赞面板 */}
-          <div className="relative flex flex-col p-5 rounded-2xl overflow-hidden glass-panel sidebar-info-panel">
+          <div className="relative flex flex-col bg-white/[0.08] shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl overflow-hidden transition-all duration-300">
             <div className="gap-y-3 grid grid-cols-[80px_1fr] text-sm">
               <span className="text-white/40">ID</span>
               <code
@@ -333,7 +332,7 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
             <MajdataView id={o.id} />
           ) : (
             <button
-              className="shadow-lg border border-white/20 rounded-xl font-bold text-base transition-all btn-glass majViewPort"
+              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md p-2.5 border border-white/20 rounded-xl w-full aspect-square font-bold text-base transition-all"
               onClick={() => setIsLoadMajdata(true)}
             >
               <span className="inline-flex justify-center items-center gap-2 w-full">
@@ -366,7 +365,7 @@ function MajdataView({ id }: { id: string }) {
     return <div>failed to load</div>;
   }
   if (isLoading) {
-    return <div className="loading"></div>;
+    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
   }
   if (data === undefined) {
     return <div>failed to load</div>;
@@ -383,8 +382,8 @@ function MajdataView({ id }: { id: string }) {
   }
 
   return (
-    <div className="majdata-container">
-      <Majdata songid={o.id} apiroot={apiroot3} level={firstNonEmptyIndex} />
+    <div className="w-full">
+      <Majdata songid={o.id} apiroot={apiroot3} level={'lv' + firstNonEmptyIndex} />
     </div>
   );
 }

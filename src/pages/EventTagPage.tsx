@@ -48,7 +48,7 @@ export default function EventTagPage() {
     });
   }, []);
 
-  if (!ready) return <div className="loading"></div>;
+  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
 
   return (
     <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen">

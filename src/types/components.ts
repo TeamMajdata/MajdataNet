@@ -73,7 +73,7 @@ export interface InteractCountProps {
 export interface MajdataProps {
   songid: string;
   apiroot: string;
-  level: number;
+  level: string;
 }
 
 // ======================== 页面布局组件 ========================

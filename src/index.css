@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 /* Component Styles - 组件样式 */
-@import "./styles/components/ambientBackground.css";
 @import "./styles/components/events.css";
 @import "./styles/components/songPage.css";
 
@@ -1080,9 +1079,6 @@ h2 {
   }
 }
 
-.songInfo {
-  margin-left: 8.9rem;
-}
 
 .songTitle {
   white-space: nowrap;
@@ -1735,11 +1731,6 @@ h2 {
   gap: 0.8rem;
 }
 
-.label-success {
-  color: #22c55e !important;
-  transition: color 0.3s ease;
-}
-
 .success-indicator {
   color: #22c55e;
   font-size: 0.9rem;
@@ -2147,152 +2138,12 @@ input[type="number"]::-webkit-inner-spin-button {
 .majdata-container {
   width: 100%;
 }
-
-/* Song椤甸潰鎺掕姒滄爣棰樻牱寮?*/
-.ranking-main-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 2rem;
-  text-align: center;
-  text-shadow: 0 4px 8px rgb(0 0 0 / 50%);
-  background: none;
-  -webkit-text-fill-color: unset;
-}
-
-/* Song椤甸潰鎺掕姒滄垚缁╁崱鐗囨牱寮?*/
-.score-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  margin: 1rem 2rem;
-  background: linear-gradient(135deg,
-      rgb(255 255 255 / 10%),
-      rgb(255 255 255 / 5%));
-  backdrop-filter: blur(10px);
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  box-shadow:
-    0 4px 15px rgb(0 0 0 / 20%),
-    0 2px 8px rgb(0 0 0 / 10%);
-}
-
-.score-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 8px 25px rgb(0 0 0 / 30%),
-    0 4px 12px rgb(0 0 0 / 20%);
-  border-color: rgb(255 255 255 / 20%);
-}
-
-/* FC/FC+ 鏇村己鑽у厜钃濊竟妗嗭紙鏇翠寒浣嗕笉鍔犵矖锛?*/
-.score-card.score-card-fc {
-  border: 1.5px solid rgb(59 130 246 / 45%) !important;
-  box-shadow:
-    0 2px 8px rgb(0 0 0 / 12%),
-    0 0 10px 2px rgb(59 130 246 / 32%),
-    0 0 6px 1px rgb(59 130 246 / 22%),
-    inset 0 0 8px 1px rgb(59 130 246 / 18%) !important;
-}
-
-.score-card.score-card-fc:hover {
-  transform: translateY(-2px);
-  border-color: rgb(59 130 246 / 65%) !important;
-  box-shadow:
-    0 4px 16px rgb(0 0 0 / 18%),
-    0 0 16px 3px rgb(59 130 246 / 45%),
-    0 0 10px 2px rgb(59 130 246 / 32%),
-    inset 0 0 12px 2px rgb(59 130 246 / 22%) !important;
-}
-
-/* AP/AP+ 鏇村己鑽у厜閲戣竟妗嗭紙鏇翠寒浣嗕笉鍔犵矖锛?*/
-.score-card.score-card-ap {
-  border: 1.5px solid rgb(251 191 36 / 45%) !important;
-  box-shadow:
-    0 2px 8px rgb(0 0 0 / 12%),
-    0 0 10px 2px rgb(251 191 36 / 32%),
-    0 0 6px 1px rgb(251 191 36 / 22%),
-    inset 0 0 8px 1px rgb(251 191 36 / 18%) !important;
-}
-
-.score-card.score-card-ap:hover {
-  transform: translateY(-2px);
-  border-color: rgb(251 191 36 / 65%) !important;
-  box-shadow:
-    0 8px 25px rgb(0 0 0 / 30%),
-    0 4px 12px rgb(0 0 0 / 20%),
-    0 0 20px rgb(251 191 36 / 25%),
-    inset 0 0 20px rgb(251 191 36 / 12%) !important;
-}
-
-.score-rank-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 80px;
-  flex-shrink: 0;
-}
-
-.rank-number {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: rgb(255 255 255 / 80%);
-  text-shadow: 0 2px 4px rgb(0 0 0 / 40%);
-  transition: all 0.3s ease;
-}
-
-.rank-number.top-three {
-  font-size: 1.6rem;
-  color: #fbbf24;
-  text-shadow:
-    0 0 8px rgb(251 191 36 / 60%),
-    0 0 16px rgb(251 191 36 / 40%),
-    0 2px 4px rgb(0 0 0 / 40%);
-  animation: glow 2s ease-in-out infinite alternate;
-}
-
 /* MMFC鎺掑悕鐗规畩鏍峰紡 */
 .mmfc-score-card {
   position: relative;
   overflow: visible;
 }
 
-.rank-number.rank-first {
-  font-size: 1.8rem;
-  color: #fbbf24;
-  background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 50%, #fbbf24 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow:
-    0 0 12px rgb(251 191 36 / 70%),
-    0 0 20px rgb(251 191 36 / 50%),
-    0 2px 4px rgb(0 0 0 / 50%);
-  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
-  animation: mmfcGoldenGlow 2s ease-in-out infinite alternate;
-}
-
-.rank-number.rank-second,
-.rank-number.rank-third {
-  font-size: 1.7rem;
-  color: #3b82f6;
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow:
-    0 0 10px rgb(59 130 246 / 60%),
-    0 0 18px rgb(59 130 246 / 40%),
-    0 2px 4px rgb(0 0 0 / 50%);
-  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.5));
-  animation: mmfcBlueGlow 2s ease-in-out infinite alternate;
-}
-
-.rank-number.rank-third {
-  font-size: 1.65rem;
-}
 
 @keyframes mmfcGoldenGlow {
   from {
@@ -2347,11 +2198,6 @@ input[type="number"]::-webkit-inner-spin-button {
   }
 }
 
-.score-player-info {
-  flex: 1;
-  min-width: 0;
-}
-
 .player-link {
   display: flex;
   align-items: center;
@@ -2391,18 +2237,6 @@ input[type="number"]::-webkit-inner-spin-button {
   flex: 1;
   overflow: hidden;
 }
-
-.player-username {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #fff;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-}
-
 .score-results {
   display: flex;
   flex-direction: column;
@@ -2733,23 +2567,6 @@ input[type="number"]::-webkit-inner-spin-button {
   margin-bottom: 1.5rem;
 }
 
-/* 瀛愬洖澶嶅垪琛?- 鍦ㄥ悓涓€涓鍐?*/
-.comment-reply-list {
-  padding-left: 1.5rem;
-  padding-top: 1rem;
-
-  position: relative;
-}
-
-.comment-reply-list::before {
-  content: "";
-  position: absolute;
-  left: -2px;
-  top: 0;
-  width: 2px;
-  height: 100%;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent);
-}
 
 /* 瀛愬洖澶嶅崱鐗?- 瀹屽叏閫忔槑锛屽彧鏄剧ず鍐呭 */
 .comment-card--reply {
@@ -2820,9 +2637,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* 鍝嶅簲寮忛€傞厤 */
 @media (max-width: 768px) {
-  .comment-reply-list {
-    padding-left: 0.5rem;
-  }
+  
 
   .comment-card {
     max-width: 90vw;
@@ -2851,38 +2666,11 @@ input[type="number"]::-webkit-inner-spin-button {
     min-height: 28px;
   }
 
-  .comment-reply-list {
-    padding-left: 0.5rem;
-  }
-
   .reply-composer-wrapper {
     padding: 0.75rem;
   }
 }
 
-/* Song椤甸潰鐜颁唬鍖栨牱寮?*/
-.song-info-container {
-  max-width: var(--container-max-width);
-  margin: var(--container-margin);
-  margin-top: var(--content-top-spacing);
-  padding: var(--container-padding);
-}
-
-.song-detail-modern {
-  background: var(--glassmorphism-bg-secondary);
-  backdrop-filter: var(--glassmorphism-backdrop);
-  border: var(--glassmorphism-border);
-  border-radius: var(--glassmorphism-border-radius);
-  box-shadow: var(--glassmorphism-shadow);
-  transition: all 0.3s ease;
-}
-
-.song-detail-modern:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 12px 35px rgb(0 0 0 / 40%),
-    0 4px 15px rgb(0 0 0 / 30%);
-}
 
 .song-interaction-container {
   max-width: var(--container-max-width);
@@ -2896,141 +2684,10 @@ input[type="number"]::-webkit-inner-spin-button {
   box-shadow: var(--glassmorphism-shadow);
 }
 
-.modern-interaction-btn {
-  background: linear-gradient(135deg,
-      rgb(59 130 246 / 20%),
-      rgb(37 99 235 / 30%));
-  backdrop-filter: blur(10px);
-  border: 1px solid rgb(59 130 246 / 30%);
-  border-radius: 12px;
-  color: #e5e5e5;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.modern-interaction-btn:hover {
-  background: linear-gradient(135deg,
-      rgb(59 130 246 / 30%),
-      rgb(37 99 235 / 40%));
-  border-color: rgb(59 130 246 / 50%);
-  transform: translateY(-2px);
-  box-shadow:
-    0 8px 25px rgb(59 130 246 / 20%),
-    0 4px 12px rgb(0 0 0 / 30%);
-}
-
-/* 璇勮鍙戦€佸櫒 - 涓巋r-solid淇濇寔涓€鑷寸殑瀹藉害 */
-.song-comment-sender {
-  width: 70%;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: linear-gradient(135deg,
-      rgb(255 255 255 / 10%),
-      rgb(255 255 255 / 5%));
-  backdrop-filter: blur(10px);
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 15px;
-  box-shadow:
-    0 8px 25px rgb(0 0 0 / 30%),
-    0 4px 12px rgb(0 0 0 / 20%);
-}
-
-/* 楂樼骇璇勮杈撳叆妗嗘牱寮?*/
-.modern-textarea {
-  background: linear-gradient(135deg,
-      rgb(255 255 255 / 8%),
-      rgb(255 255 255 / 4%));
-  backdrop-filter: blur(15px);
-  border: 1px solid rgb(255 255 255 / 20%);
-  border-radius: 12px;
-  color: #fff;
-  padding: 1.25rem;
-  font-size: 1rem;
-  line-height: 1.6;
-  transition: all 0.3s ease;
-  resize: vertical;
-  min-height: 120px;
-  width: 100%;
-  box-shadow:
-    0 4px 15px rgb(0 0 0 / 15%),
-    inset 0 1px 0 rgb(255 255 255 / 10%);
-  font-family: inherit;
-}
-
-.modern-textarea:focus {
-  outline: none;
-  border-color: rgb(59 130 246 / 40%);
-  background: linear-gradient(135deg,
-      rgb(255 255 255 / 12%),
-      rgb(255 255 255 / 6%));
-  box-shadow:
-    0 6px 20px rgb(0 0 0 / 20%),
-    0 0 0 2px rgb(59 130 246 / 20%),
-    inset 0 1px 0 rgb(255 255 255 / 15%);
-  transform: translateY(-1px);
-}
-
-.modern-textarea::placeholder {
-  color: rgb(255 255 255 / 50%);
-  opacity: 1;
-}
-
-/* 璇勮鍙戣〃鎸夐挳 - 鏇村ぇ鏇寸獊鍑?*/
-.comment-submit-button {
-  padding: 1rem 2.5rem !important;
-  font-size: 1.1rem !important;
-  font-weight: 600 !important;
-  min-height: 50px !important;
-  width: auto !important;
-  background: linear-gradient(135deg, #10b981, #059669) !important;
-  border: none !important;
-  border-radius: 12px !important;
-  color: #fff !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  box-shadow:
-    0 4px 15px rgb(16 185 129 / 30%),
-    0 2px 8px rgb(0 0 0 / 20%) !important;
-  text-transform: none !important;
-  letter-spacing: 0.02em !important;
-  margin-top: 1rem !important;
-}
-
-.comment-submit-button:hover {
-  background: linear-gradient(135deg, #059669, #047857) !important;
-  transform: translateY(-2px) !important;
-  box-shadow:
-    0 6px 20px rgb(16 185 129 / 40%),
-    0 4px 12px rgb(0 0 0 / 30%) !important;
-}
-
-.comment-submit-button:active {
-  transform: translateY(0) !important;
-  box-shadow:
-    0 2px 8px rgb(16 185 129 / 40%),
-    0 1px 4px rgb(0 0 0 / 30%) !important;
-}
-
-.comment-submit-button:disabled {
-  background: linear-gradient(135deg, #6b7280, #4b5563) !important;
-  cursor: not-allowed !important;
-  transform: none !important;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 20%) !important;
-  opacity: 0.7 !important;
-}
-
 /* 璇勮鍙戦€佸櫒甯冨眬鏍峰紡 */
 .comment-sender-header {
   margin-bottom: 1.5rem;
   text-align: center;
-}
-
-.comment-sender-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #fff;
-  margin: 0;
-  text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
 }
 
 .comment-input-section {
@@ -3053,84 +2710,6 @@ input[type="number"]::-webkit-inner-spin-button {
   padding: var(--container-padding);
 }
 
-
-.modern-comment-card {
-  background: var(--glassmorphism-bg-secondary);
-  backdrop-filter: var(--glassmorphism-backdrop);
-  border: var(--glassmorphism-border);
-  border-radius: var(--glassmorphism-border-radius);
-  box-shadow: var(--glassmorphism-shadow);
-  transition: all 0.3s ease;
-}
-
-.modern-comment-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 8px 25px rgb(0 0 0 / 30%),
-    0 4px 12px rgb(0 0 0 / 20%);
-}
-
-.song-score-list {
-  max-width: var(--container-max-width);
-  margin: var(--container-margin);
-  margin-top: 2rem;
-  padding: var(--container-padding);
-}
-
-.modern-score-card {
-  background: var(--glassmorphism-bg-secondary);
-  backdrop-filter: var(--glassmorphism-backdrop);
-  border: var(--glassmorphism-border);
-  border-radius: var(--glassmorphism-border-radius);
-  box-shadow: var(--glassmorphism-shadow);
-  transition: all 0.3s ease;
-}
-
-.modern-score-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 8px 25px rgb(0 0 0 / 30%),
-    0 4px 12px rgb(0 0 0 / 20%);
-  border-color: rgb(255 255 255 / 20%);
-}
-
-/* 鐐硅禐浜掑姩甯冨眬鏍峰紡 */
-.interaction-layout {
-  display: flex;
-  align-items: stretch;
-  gap: 2rem;
-  padding: 1.5rem;
-  min-height: 140px;
-}
-
-.interaction-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  flex-shrink: 0;
-  justify-content: center;
-  align-items: center;
-}
-
-.large-interaction-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  min-width: 120px;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 16px;
-  transition: all 0.3s ease;
-}
-
-.large-interaction-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow:
-    0 12px 30px rgb(59 130 246 / 30%),
-    0 6px 20px rgb(0 0 0 / 40%);
-}
-
 .btn-count {
   font-size: 1.1rem;
   font-weight: 700;
@@ -3138,57 +2717,6 @@ input[type="number"]::-webkit-inner-spin-button {
   text-align: center;
 }
 
-.interaction-divider {
-  width: 2px;
-  height: 100%;
-  align-self: stretch;
-  background: linear-gradient(180deg,
-      transparent 0%,
-      rgb(255 255 255 / 20%) 20%,
-      rgb(255 255 255 / 40%) 50%,
-      rgb(255 255 255 / 20%) 80%,
-      transparent 100%);
-  border-radius: 1px;
-  flex-shrink: 0;
-}
-
-
-
-
-.user-avatar-img {
-  object-fit: cover;
-}
-
-
-.no-likes-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 1rem 0;
-  text-align: left;
-  opacity: 0.6;
-  transition: all 0.3s ease;
-}
-
-.no-likes-placeholder:hover {
-  opacity: 0.8;
-  transform: translateY(-2px);
-}
-
-.placeholder-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.placeholder-text {
-  color: #a0a0a0;
-  font-size: 0.9rem;
-  margin: 0;
-  font-style: italic;
-}
 
 @keyframes fadeInUp {
   from {
@@ -3216,186 +2744,10 @@ input[type="number"]::-webkit-inner-spin-button {
   }
 }
 
-/* Song椤甸潰鍝嶅簲寮忚璁?*/
-@media (width <=768px) {
-
-  .song-info-container,
-  .song-interaction-container,
-  .song-comment-sender,
-  .song-comment-list,
-  .song-score-list {
-    margin-top: 1rem;
-    padding: 0 0.75rem;
-  }
-
-  .interaction-layout {
-    flex-direction: column;
-    gap: 1.5rem;
-    padding: 1rem;
-    min-height: auto;
-    align-items: center;
-  }
-
-  .interaction-buttons {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .large-interaction-btn {
-    min-width: 100px;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  .interaction-divider {
-    width: 100%;
-    height: 2px;
-    min-height: 2px;
-    background: linear-gradient(90deg,
-        transparent 0%,
-        rgb(255 255 255 / 20%) 20%,
-        rgb(255 255 255 / 40%) 50%,
-        rgb(255 255 255 / 20%) 80%,
-        transparent 100%);
-  }
-
-  .song-detail-modern {
-    padding: 1rem;
-    border-radius: 12px;
-  }
-
-  .modern-interaction-btn {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-  }
-
-  .modern-textarea {
-    padding: 0.75rem;
-    font-size: 1rem;
-    min-height: 100px;
-  }
-
-  .song-comment-sender {
-    width: 85%;
-    padding: 1.5rem;
-  }
-
-  .comment-sender-title {
-    font-size: 1.3rem;
-  }
-
-  .comment-submit-button {
-    padding: 0.8rem 2rem !important;
-    font-size: 1rem !important;
-    min-height: 45px !important;
-  }
-
-  .modern-comment-card,
-  .modern-score-card {
-    padding: 1rem;
-    margin: 0.5rem 0;
-    border-radius: 12px;
-  }
-}
-
-@media (width <=480px) {
-
-  .song-info-container,
-  .song-interaction-container,
-  .song-comment-sender,
-  .song-comment-list,
-  .song-score-list {
-    padding: 0 0.5rem;
-  }
-
-  .song-detail-modern {
-    padding: 0.75rem;
-    border-radius: 10px;
-  }
-
-  .modern-interaction-btn {
-    padding: 0.4rem;
-    font-size: 0.85rem;
-  }
-
-  .modern-comment-card,
-  .modern-score-card {
-    padding: 0.75rem;
-    border-radius: 10px;
-  }
-
-  .song-comment-sender {
-    width: 95%;
-    padding: 1rem;
-  }
-
-  .comment-sender-title {
-    font-size: 1.2rem;
-  }
-
-  .comment-submit-button {
-    padding: 0.7rem 1.5rem !important;
-    font-size: 0.95rem !important;
-    min-height: 42px !important;
-  }
-
-  .modern-textarea {
-    padding: 0.75rem;
-    font-size: 0.95rem;
-    min-height: 90px;
-  }
-
-  .interaction-layout {
-    padding: 0.75rem;
-    gap: 1rem;
-    min-height: auto;
-    align-items: center;
-  }
-
-  .large-interaction-btn {
-    min-width: 80px;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.85rem;
-    gap: 0.5rem;
-  }
-
-
-
-  .no-likes-placeholder {
-    padding: 1.5rem;
-  }
-
-  .placeholder-icon {
-    font-size: 2.5rem;
-  }
-
-  .placeholder-text {
-    font-size: 0.8rem;
-  }
-}
-
 /* Song椤甸潰鎺掕姒滃拰璇勮鍝嶅簲寮忔牱寮?- 768px */
 @media (width <=768px) {
-  .ranking-main-title {
-    font-size: 1.7rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .score-card {
-    padding: 1rem;
-    gap: 0.75rem;
-  }
-
   .score-rank-display {
     min-width: 70px;
-  }
-
-  .rank-number {
-    font-size: 1.2rem;
-  }
-
-  .rank-number.top-three {
-    font-size: 1.4rem;
   }
 
   .player-avatar {
@@ -3403,10 +2755,6 @@ input[type="number"]::-webkit-inner-spin-button {
     height: 40px;
     min-width: 40px;
     min-height: 40px;
-  }
-
-  .player-username {
-    font-size: 1rem;
   }
 
   .score-accuracy {
@@ -3436,34 +2784,6 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* Song椤甸潰鎺掕姒滃拰璇勮鍝嶅簲寮忔牱寮?- 480px */
 @media (width <=480px) {
-  .ranking-main-title {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .rank-number {
-    font-size: 1rem;
-  }
-
-  .rank-number.top-three {
-    font-size: 1.2rem;
-  }
-
-  .score-player-info {
-    width: 100%;
-  }
-
-  .player-avatar {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-  }
-
-  .player-username {
-    font-size: 0.9rem;
-  }
-
   /*480浠ヤ笅闅愯棌鐢ㄦ埛鍚?*/
   .mmfc-score-card .player-avatar {
     width: 48px;

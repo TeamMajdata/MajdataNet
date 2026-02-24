@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import useSWR from 'swr';
+import { motion, AnimatePresence } from 'framer-motion';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import { FaComments } from 'react-icons/fa';
@@ -85,11 +86,20 @@ function MarkdownCommentContent({ content, comment }: MarkdownCommentContentProp
             return (
               <a
                 href={href}
-                className="comment-mention"
+                className="inline-block px-1 py-0.5 rounded font-medium text-[#5c9ff6] no-underline transition-all duration-200"
+                style={{
+                  background: 'rgba(92, 190, 246, 0.08)'
+                }}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => {
                   e.stopPropagation();
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(106, 173, 255, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(92, 190, 246, 0.08)';
                 }}
                 {...rest}
               >
@@ -123,11 +133,26 @@ export function CommentComposer({
 }: CommentComposerProps) {
   const loc = useLoc();
   const [showPreview, setShowPreview] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className={`comment-composer ${isReply ? 'comment-composer-reply' : ''}`}>
-      <textarea
-        className="userinput commentbox modern-textarea"
+    <div className={`flex flex-col gap-3 ${isReply ? 'p-0' : ''}`}>
+      <motion.textarea
+        className="px-5 py-5 border rounded-xl focus:outline-none w-full min-h-30 font-inherit text-white text-base leading-relaxed resize-y"
+        style={{
+          background: 'linear-gradient(135deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 4%))',
+          backdropFilter: 'blur(15px)'
+        }}
+        animate={{
+          borderColor: isFocused ? 'rgb(59 130 246 / 40%)' : 'rgb(255 255 255 / 20%)',
+          boxShadow: isFocused 
+            ? '0 6px 20px rgb(0 0 0 / 20%), 0 0 0 2px rgb(59 130 246 / 20%), inset 0 1px 0 rgb(255 255 255 / 15%)'
+            : '0 4px 15px rgb(0 0 0 / 15%), inset 0 1px 0 rgb(255 255 255 / 10%)',
+          y: isFocused ? -1 : 0
+        }}
+        transition={{ duration: 0.3 }}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         value={value}
@@ -135,42 +160,74 @@ export function CommentComposer({
         disabled={isSubmitting}
       />
 
-      <div className="comment-preview-toggle">
-        <button
-          className="preview-toggle-btn"
+      <div className="my-2 text-right">
+        <motion.button
+          className="px-3 py-1 border rounded text-[#4a9eff] text-xs cursor-pointer"
+          style={{
+            background: 'none',
+            borderColor: 'rgba(255, 255, 255, 0.2)'
+          }}
+          whileHover={{
+            backgroundColor: 'rgba(74, 158, 255, 0.1)',
+            borderColor: 'rgba(74, 158, 255, 0.3)'
+          }}
+          transition={{ duration: 0.2 }}
           onClick={() => setShowPreview(!showPreview)}
         >
           {showPreview ? loc('HidePreview') : loc('ShowPreview')}
-        </button>
+        </motion.button>
       </div>
 
-      {showPreview && (
-        <div className="markdown-preview comment-preview">
-          {value.trim() ? (
-            <MarkdownCommentContent content={value} />
-          ) : (
-            <div className="preview-placeholder">
-              {loc('PreviewPlaceholder')}
-            </div>
-          )}
-        </div>
-      )}
+      <AnimatePresence>
+        {showPreview && (
+          <motion.div 
+            className="mb-2.5 p-3 border rounded-lg min-h-25 max-h-75 overflow-y-auto text-sm leading-normal"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              borderColor: 'rgba(255, 255, 255, 0.1)'
+            }}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {value.trim() ? (
+              <MarkdownCommentContent content={value} />
+            ) : (
+              <div className="py-5 text-[#888] text-center italic">
+                {loc('PreviewPlaceholder')}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="comment-actions">
-        <button
-          className="linkContentWithBorder modern-interaction-btn comment-action-btn"
+      <div className="flex items-center gap-2">
+        <motion.button
+          className="px-5 py-2 border rounded-lg font-medium text-sm cursor-pointer"
           type="button"
           onClick={onSubmit}
           disabled={!value.trim() || isSubmitting}
           style={{
+            background: 'linear-gradient(135deg, rgb(59 130 246 / 20%), rgb(37 99 235 / 30%))',
+            backdropFilter: 'blur(10px)',
+            borderColor: 'rgb(59 130 246 / 30%)',
+            color: '#e5e5e5',
             opacity: !value.trim() || isSubmitting ? 0.6 : 1,
             cursor: !value.trim() || isSubmitting ? 'not-allowed' : 'pointer',
           }}
+          whileHover={!value.trim() || isSubmitting ? {} : {
+            background: 'linear-gradient(135deg, rgb(59 130 246 / 30%), rgb(37 99 235 / 40%))',
+            borderColor: 'rgb(59 130 246 / 50%)',
+            y: -2,
+            boxShadow: '0 8px 25px rgb(59 130 246 / 20%), 0 4px 12px rgb(0 0 0 / 30%)'
+          }}
+          transition={{ duration: 0.3 }}
         >
           {isSubmitting ? (
             <>
               <AiOutlineLoading3Quarters
-                className="loading-icon-spin"
+                className="inline-block animate-spin"
                 style={{ width: '16px', height: '16px', marginRight: '4px' }}
               />
               {loc('PleaseWait')}
@@ -178,20 +235,28 @@ export function CommentComposer({
           ) : (
             loc('Post')
           )}
-        </button>
+        </motion.button>
         {isReply && onCancel && (
-          <button
-            className="linkContentWithBorder modern-interaction-btn comment-action-btn cancel-btn"
+          <motion.button
+            className="px-5 py-2 border rounded-lg font-medium text-sm cursor-pointer"
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
             style={{
+              background: 'rgb(255 255 255 / 3%)',
+              borderColor: 'rgb(59 130 246 / 30%)',
+              color: 'rgb(255 255 255 / 60%)',
               opacity: isSubmitting ? 0.6 : 1,
               cursor: isSubmitting ? 'not-allowed' : 'pointer',
             }}
+            whileHover={isSubmitting ? {} : {
+              background: 'rgb(255 255 255 / 8%)',
+              color: 'rgb(255 255 255 / 80%)'
+            }}
+            transition={{ duration: 0.3 }}
           >
             {loc('CancelReply')}
-          </button>
+          </motion.button>
         )}
       </div>
     </div>
@@ -248,11 +313,22 @@ export function CommentSender({ songid }: CommentSenderProps) {
   };
 
   return (
-    <div className="song-comment-sender">
-      <div className="comment-sender-header">
-        <h3 className="comment-sender-title">{loc('Comment')}</h3>
+    <motion.div 
+      className="mx-auto my-8 p-8 border rounded-2xl w-[70%]"
+      style={{
+        background: 'linear-gradient(135deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 5%))',
+        backdropFilter: 'blur(10px)',
+        borderColor: 'rgb(255 255 255 / 10%)',
+        boxShadow: '0 8px 25px rgb(0 0 0 / 30%), 0 4px 12px rgb(0 0 0 / 20%)'
+      }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="mb-6 text-center">
+        <h3 className="m-0 font-semibold text-white text-2xl" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>{loc('Comment')}</h3>
       </div>
-      <div className="comment-input-section">
+      <div className="flex flex-col gap-4">
         <CommentComposer
           value={comment}
           onChange={setComment}
@@ -261,7 +337,7 @@ export function CommentSender({ songid }: CommentSenderProps) {
           isSubmitting={isSubmitting}
         />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -292,94 +368,203 @@ function CommentCard({
   }, [comment.content]);
 
   return (
-    <div
-      className={`comment-card modern-comment-card ${isReply ? 'comment-card--reply' : ''}`}
+    <motion.div
+      className={`flex flex-col gap-2 ${
+        isReply 
+          ? 'p-3 m-0 rounded-lg border w-full' 
+          : 'px-7 py-5 mx-4 my-4 max-w-[33.33vw] rounded-xl border'
+      }`}
+      style={isReply ? {
+        background: 'linear-gradient(135deg, rgb(255 255 255 / 6%), rgb(255 255 255 / 3%))',
+        backdropFilter: 'blur(8px)',
+        borderColor: 'rgb(255 255 255 / 8%)',
+        boxShadow: '0 2px 8px rgb(0 0 0 / 15%)',
+        minWidth: 0
+      } : {
+        background: 'linear-gradient(135deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 4%))',
+        backdropFilter: 'blur(10px)',
+        borderColor: 'rgb(255 255 255 / 10%)',
+        boxShadow: '0 4px 15px rgb(0 0 0 / 20%), 0 2px 8px rgb(0 0 0 / 10%)'
+      }}
+      whileHover={{
+        y: -1,
+        boxShadow: isReply 
+          ? '0 4px 12px rgb(0 0 0 / 20%)'
+          : '0 6px 20px rgb(0 0 0 / 25%), 0 3px 10px rgb(0 0 0 / 15%)',
+        borderColor: isReply
+          ? 'rgb(255 255 255 / 12%)'
+          : 'rgb(255 255 255 / 15%)'
+      }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="comment-header">
-        <a href={'/space?id=' + comment.sender} className="commenter-link">
-          <img
-            className="commenter-avatar"
+      <div className="flex items-center">
+        <motion.a 
+          href={'/space?id=' + comment.sender} 
+          className="flex items-center gap-3 text-inherit no-underline"
+          whileHover={{ x: 2 }}
+          transition={{ duration: 0.3 }}
+        >
+          <motion.img
+            className={`rounded-full object-cover border-2 shrink-0 ${
+              isReply ? 'w-7 h-7 min-w-7 min-h-7' : 'w-10.5 h-10.5 min-w-10.5 min-h-10.5'
+            }`}
+            style={{
+              borderColor: 'rgb(255 255 255 / 15%)',
+              aspectRatio: '1'
+            }}
+            whileHover={{
+              borderColor: 'rgb(255 255 255 / 30%)',
+              boxShadow: '0 3px 12px rgb(0 0 0 / 30%)'
+            }}
+            transition={{ duration: 0.3 }}
             src={apiroot3 + '/account/Icon?username=' + comment.sender}
             alt={comment.sender}
           />
-          <div className="commenter-info">
-            <span className="commenter-username">{comment.sender}</span>
-            <span className="comment-timestamp">
+          <div className="flex flex-col gap-0.5">
+            <span className={`font-semibold text-white ${
+              isReply ? 'text-sm' : 'text-base'
+            }`} style={{ textShadow: '0 1px 2px rgb(0 0 0 / 30%)' }}>{comment.sender}</span>
+            <span className={`font-normal ${
+              isReply ? 'text-xs' : 'text-[0.85rem]'
+            }`} style={{ color: 'rgb(255 255 255 / 50%)' }}>
               {new Date(comment.timestamp).toLocaleDateString()}
             </span>
           </div>
-        </a>
+        </motion.a>
       </div>
-      <div className="comment-content-wrapper">
+      <div className="relative w-full">
         <div
           ref={contentRef}
-          className={`comment-content ${!isContentExpanded && shouldShowExpandButton ? 'comment-content-collapsed' : ''}`}
+          className={`leading-6 wrap-break-word select-text transition-all duration-300 ${
+            isReply ? 'text-sm py-1' : 'text-base py-2'
+          } ${
+            !isContentExpanded && shouldShowExpandButton ? 'max-h-45 overflow-hidden relative' : ''
+          }`}
+          style={{ color: 'rgb(255 255 255 / 90%)' }}
         >
           <MarkdownCommentContent content={comment.content} comment={comment} />
+          {!isContentExpanded && shouldShowExpandButton && (
+            <div
+              className="bottom-0 left-0 z-1 absolute w-full h-25 pointer-events-none"
+              style={{
+                background: 'linear-gradient(to bottom, transparent, rgba(20, 20, 30, 0.4) 30%, rgba(20, 20, 30, 0.95) 90%)'
+              }}
+            />
+          )}
         </div>
         {shouldShowExpandButton && (
-          <button
-            className={`comment-expand-btn ${!isContentExpanded ? 'comment-expand-btn-merged' : ''}`}
+          <motion.button
+            className={`w-full px-2.5 py-2 border-none text-white text-[0.85rem] cursor-pointer font-medium flex items-center justify-center gap-1 ${
+              !isContentExpanded 
+                ? 'absolute bottom-0 left-0 h-15 pb-2.5 bg-transparent z-2' 
+                : 'bg-[rgba(255,255,255,0.03)] border-t border-t-[rgba(255,255,255,0.05)]'
+            }`}
+            style={!isContentExpanded ? { 
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+              alignItems: 'flex-end'
+            } : {}}
             onClick={() => setIsContentExpanded(!isContentExpanded)}
+            whileHover={isContentExpanded ? {
+              background: 'rgba(255, 255, 255, 0.08)',
+              color: '#fff'
+            } : {
+              textShadow: '0 0 10px rgba(255, 255, 255, 0.4)'
+            }}
+            transition={{ duration: 0.2 }}
           >
             {isContentExpanded ? '▲ 点击收起' : '▼ 点击展开'}
-          </button>
+          </motion.button>
         )}
       </div>
-      <div className="comment-footer">
+      <div className={`flex gap-2 pt-2 border-t border-t-[rgb(255_255_255/5%)] ${
+        isReply ? 'border-t-0 pt-1 mt-0' : 'mt-2'
+      }`}>
         {onReply && (
-          <button
-            className="comment-footer-btn comment-icon-btn"
+          <motion.button
+            className={`flex justify-center items-center border rounded-md min-w-0 font-medium cursor-pointer ${
+              isReply ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'
+            }`}
+            style={{
+              color: 'rgb(255 255 255 / 70%)',
+              background: 'rgb(255 255 255 / 5%)',
+              borderColor: 'rgb(255 255 255 / 10%)',
+              opacity: isCommentPending ? 0.5 : 1,
+              cursor: isCommentPending ? 'not-allowed' : 'pointer'
+            }}
             onClick={() => onReply(comment)}
             disabled={isCommentPending}
             title={loc('Reply')}
-            style={{
-              opacity: isCommentPending ? 0.6 : 1,
-              cursor: isCommentPending ? 'not-allowed' : 'pointer',
+            whileHover={isCommentPending ? {} : {
+              color: 'rgb(255 255 255 / 90%)',
+              background: 'rgb(255 255 255 / 10%)',
+              borderColor: 'rgb(255 255 255 / 20%)',
+              y: -1
             }}
+            transition={{ duration: 0.2 }}
           >
             {isCommentPending ? (
-              <AiOutlineLoading3Quarters className="loading-icon-spin" />
+              <AiOutlineLoading3Quarters className={`inline-block animate-spin ${isReply ? 'w-3 h-3' : 'w-4 h-4'}`} />
             ) : (
-              <FaComments />
+              <FaComments className={isReply ? 'w-3 h-3' : 'w-4 h-4'} />
             )}
-          </button>
+          </motion.button>
         )}
         {canDelete && onDelete && (
-          <button
-            className="comment-footer-btn delete-btn comment-icon-btn"
+          <motion.button
+            className={`flex justify-center items-center border rounded-md min-w-0 font-medium cursor-pointer ${
+              isReply ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'
+            }`}
+            style={{
+              color: 'rgb(239 68 68 / 80%)',
+              background: 'rgb(255 255 255 / 5%)',
+              borderColor: 'rgb(255 255 255 / 10%)',
+              opacity: isCommentPending ? 0.5 : 1,
+              cursor: isCommentPending ? 'not-allowed' : 'pointer'
+            }}
             onClick={() => onDelete(comment)}
             disabled={isCommentPending}
             title={loc('DeleteComment')}
-            style={{
-              opacity: isCommentPending ? 0.6 : 1,
-              cursor: isCommentPending ? 'not-allowed' : 'pointer',
+            whileHover={isCommentPending ? {} : {
+              color: 'rgb(239 68 68 / 100%)',
+              background: 'rgb(239 68 68 / 10%)',
+              borderColor: 'rgb(239 68 68 / 30%)',
+              y: -1
             }}
+            transition={{ duration: 0.2 }}
           >
             {isCommentPending ? (
-              <AiOutlineLoading3Quarters className="loading-icon-spin" />
+              <AiOutlineLoading3Quarters className={`inline-block animate-spin ${isReply ? 'w-3 h-3' : 'w-4 h-4'}`} />
             ) : (
-              <AiFillDelete />
+              <AiFillDelete className={isReply ? 'w-3 h-3' : 'w-4 h-4'} />
             )}
-          </button>
+          </motion.button>
         )}
         {!isReply && replyCount > 0 && onToggleReplies && (
-          <button
-            className="comment-footer-btn expand-btn"
-            onClick={onToggleReplies}
-            disabled={isCommentPending}
+          <motion.button
+            className="ml-auto px-4 py-2 border rounded-md font-medium text-sm cursor-pointer"
             style={{
-              opacity: isCommentPending ? 0.6 : 1,
+              color: 'rgb(255 255 255 / 70%)',
+              background: 'rgb(255 255 255 / 5%)',
+              borderColor: 'rgb(255 255 255 / 10%)',
+              opacity: isCommentPending ? 0.5 : 1,
               cursor: isCommentPending ? 'not-allowed' : 'pointer',
             }}
+            onClick={onToggleReplies}
+            disabled={isCommentPending}
+            whileHover={isCommentPending ? {} : {
+              color: 'rgb(255 255 255 / 90%)',
+              background: 'rgb(255 255 255 / 10%)',
+              borderColor: 'rgb(255 255 255 / 20%)'
+            }}
+            transition={{ duration: 0.2 }}
           >
             {isRepliesExpanded
               ? `收起 ${replyCount} 条回复`
               : `展开 ${replyCount} 条回复`}
-          </button>
+          </motion.button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -456,110 +641,190 @@ function CommentThread({
   }, [comment.content]);
 
   return (
-    <div className="comment-card modern-comment-card">
-      <div className="comment-header">
-        <a href={'/space?id=' + comment.sender} className="commenter-link">
+    <div 
+      className="px-4 py-3 border rounded-lg transition-all"
+      style={{
+        background: 'linear-gradient(135deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 4%))',
+        backdropFilter: 'blur(10px)',
+        borderColor: 'rgb(255 255 255 / 10%)',
+        boxShadow: '0 2px 8px rgb(0 0 0 / 15%)'
+      }}
+    >
+      {/* 用户信息 */}
+      <div className="flex items-center gap-2 mb-2">
+        <a 
+          href={'/space?id=' + comment.sender} 
+          className="flex items-center gap-2 text-inherit no-underline"
+        >
           <img
-            className="commenter-avatar"
+            className="border rounded-full w-9 h-9 object-cover shrink-0"
+            style={{
+              borderColor: 'rgb(255 255 255 / 15%)'
+            }}
             src={apiroot3 + '/account/Icon?username=' + comment.sender}
             alt={comment.sender}
           />
-          <div className="commenter-info">
-            <span className="commenter-username">{comment.sender}</span>
-            <span className="comment-timestamp">
+          <div className="flex flex-col">
+            <span className="font-semibold text-white text-sm">{comment.sender}</span>
+            <span className="font-normal text-xs" style={{ color: 'rgb(255 255 255 / 50%)' }}>
               {new Date(comment.timestamp).toLocaleDateString()}
             </span>
           </div>
         </a>
       </div>
 
-      <div className="comment-content-wrapper">
+      {/* 评论内容 */}
+      <div className="relative">
         <div
           ref={contentRef}
-          className={`comment-content ${!isContentExpanded && shouldShowExpandButton ? 'comment-content-collapsed' : ''}`}
+          className={`text-sm leading-relaxed py-1 wrap-break-word select-text ${
+            !isContentExpanded && shouldShowExpandButton ? 'max-h-40 overflow-hidden' : ''
+          }`}
+          style={{ color: 'rgb(255 255 255 / 90%)' }}
         >
           <MarkdownCommentContent content={comment.content} comment={comment} />
+          {!isContentExpanded && shouldShowExpandButton && (
+            <div
+              className="bottom-0 left-0 z-1 absolute w-full h-20 pointer-events-none"
+              style={{
+                background: 'linear-gradient(to bottom, transparent, rgba(20, 20, 30, 0.95))'
+              }}
+            />
+          )}
         </div>
 
         {shouldShowExpandButton && (
           <button
-            className={`comment-expand-btn ${!isContentExpanded ? 'comment-expand-btn-merged' : ''}`}
+            className="opacity-70 hover:opacity-100 mt-1 px-2 py-1 border-none w-full text-white text-xs cursor-pointer"
+            style={{ background: 'transparent' }}
             onClick={() => setIsContentExpanded(!isContentExpanded)}
           >
-            {isContentExpanded ? '▲ 点击收起' : '▼ 点击展开'}
+            {isContentExpanded ? '▲ 收起' : '▼ 展开'}
           </button>
         )}
       </div>
 
-      <div className="comment-footer">
+      {/* 操作按钮 */}
+      <div className="flex items-center gap-2 mt-2 pt-2 border-t" style={{ borderColor: 'rgb(255 255 255 / 5%)' }}>
         <button
-          className="comment-footer-btn comment-icon-btn"
+          className="px-2 py-1 border rounded text-xs transition-colors cursor-pointer"
+          style={{
+            background: 'rgb(255 255 255 / 5%)',
+            borderColor: 'rgb(255 255 255 / 10%)',
+            color: 'rgb(255 255 255 / 70%)',
+            opacity: isCommentPending ? 0.5 : 1,
+            cursor: isCommentPending ? 'not-allowed' : 'pointer'
+          }}
           onClick={() => onReply(comment)}
           disabled={isCommentPending}
           title={loc('Reply')}
-          style={{
-            opacity: isCommentPending ? 0.6 : 1,
-            cursor: isCommentPending ? 'not-allowed' : 'pointer',
+          onMouseEnter={(e) => {
+            if (!isCommentPending) {
+              e.currentTarget.style.background = 'rgb(255 255 255 / 10%)';
+              e.currentTarget.style.color = 'rgb(255 255 255 / 90%)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgb(255 255 255 / 5%)';
+            e.currentTarget.style.color = 'rgb(255 255 255 / 70%)';
           }}
         >
           {isCommentPending ? (
-            <AiOutlineLoading3Quarters className="loading-icon-spin" />
+            <AiOutlineLoading3Quarters className="inline-block w-3 h-3 animate-spin" />
           ) : (
-            <FaComments />
+            <><FaComments className="inline-block mr-1 w-3 h-3" />{loc('Reply')}</>
           )}
         </button>
         {canDelete && (
           <button
-            className="comment-footer-btn delete-btn comment-icon-btn"
+            className="px-2 py-1 border rounded text-xs transition-colors cursor-pointer"
+            style={{
+              background: 'rgb(255 255 255 / 5%)',
+              borderColor: 'rgb(255 255 255 / 10%)',
+              color: 'rgb(239 68 68 / 80%)',
+              opacity: isCommentPending ? 0.5 : 1,
+              cursor: isCommentPending ? 'not-allowed' : 'pointer'
+            }}
             onClick={() => onDelete(comment)}
             disabled={isCommentPending}
             title={loc('DeleteComment')}
-            style={{
-              opacity: isCommentPending ? 0.6 : 1,
-              cursor: isCommentPending ? 'not-allowed' : 'pointer',
+            onMouseEnter={(e) => {
+              if (!isCommentPending) {
+                e.currentTarget.style.background = 'rgb(239 68 68 / 10%)';
+                e.currentTarget.style.color = 'rgb(239 68 68)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgb(255 255 255 / 5%)';
+              e.currentTarget.style.color = 'rgb(239 68 68 / 80%)';
             }}
           >
             {isCommentPending ? (
-              <AiOutlineLoading3Quarters className="loading-icon-spin" />
+              <AiOutlineLoading3Quarters className="inline-block w-3 h-3 animate-spin" />
             ) : (
-              <AiFillDelete />
+              <><AiFillDelete className="inline-block mr-1 w-3 h-3" />{loc('DeleteComment')}</>
             )}
           </button>
         )}
         {replies.length > 0 && (
           <button
-            className="comment-footer-btn expand-btn"
+            className="ml-auto px-2 py-1 border rounded text-xs transition-colors cursor-pointer"
+            style={{
+              background: 'rgb(255 255 255 / 5%)',
+              borderColor: 'rgb(255 255 255 / 10%)',
+              color: 'rgb(59 130 246 / 90%)',
+              opacity: isCommentPending ? 0.5 : 1,
+              cursor: isCommentPending ? 'not-allowed' : 'pointer'
+            }}
             onClick={onToggleReplies}
             disabled={isCommentPending}
-            style={{
-              opacity: isCommentPending ? 0.6 : 1,
-              cursor: isCommentPending ? 'not-allowed' : 'pointer',
+            onMouseEnter={(e) => {
+              if (!isCommentPending) {
+                e.currentTarget.style.background = 'rgb(59 130 246 / 10%)';
+                e.currentTarget.style.color = 'rgb(59 130 246)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgb(255 255 255 / 5%)';
+              e.currentTarget.style.color = 'rgb(59 130 246 / 90%)';
             }}
           >
-            {isExpanded
-              ? `收起 ${replies.length} 条回复`
-              : `展开 ${replies.length} 条回复`}
+            {isExpanded ? `▲ 收起 ${replies.length} 条` : `▼ 展开 ${replies.length} 条`}
           </button>
         )}
       </div>
 
+      {/* 回复输入框 */}
       {replyComposer}
 
-      {isExpanded && replies.length > 0 && (
-        <div className="comment-reply-list">
-          {replies.map((reply) => (
-            <CommentCard
-              key={reply.id}
-              comment={reply}
-              currentUser={currentUser}
-              onReply={(replyComment) => onReply(replyComment, comment)}
-              onDelete={onDelete}
-              isPending={isPending}
-              isReply={true}
-            />
-          ))}
-        </div>
-      )}
+      {/* 回复列表 */}
+      <AnimatePresence>
+        {isExpanded && replies.length > 0 && (
+          <motion.div 
+            className="gap-2 grid mt-3 pt-3 border-t overflow-hidden"
+            style={{
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              borderColor: 'rgb(255 255 255 / 5%)'
+            }}
+            initial={{ opacity: 0, height: 0, marginTop: 0, paddingTop: 0 }}
+            animate={{ opacity: 1, height: 'auto', marginTop: '0.75rem', paddingTop: '0.75rem' }}
+            exit={{ opacity: 0, height: 0, marginTop: 0, paddingTop: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+          >
+            {replies.map((reply) => (
+              <CommentCard
+                key={reply.id}
+                comment={reply}
+                currentUser={currentUser}
+                onReply={(replyComment) => onReply(replyComment, comment)}
+                onDelete={onDelete}
+                isPending={isPending}
+                isReply={true}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -732,7 +997,14 @@ export function CommentList({ songid }: CommentListProps) {
     return <div>failed to load</div>;
   }
   if (isLoading) {
-    return <div className="loading"></div>;
+    return (
+      <motion.div 
+        className="inline-block border-4 rounded-full w-12 h-12" 
+        style={{ borderColor: 'rgba(255, 255, 255, 0.3)', borderTopColor: 'white' }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+      />
+    );
   }
   if (data === '' || data === undefined) {
     return <div>failed to load</div>;
@@ -741,17 +1013,18 @@ export function CommentList({ songid }: CommentListProps) {
   const comments = Array.isArray(data.comments) ? data.comments : [];
 
   return (
-    <div className="theList song-comment-list">
+    <div className="max-w-(--container-max-width) mx-(--container-margin) mt-8 px-(--container-padding)">
       {comments.length === 0 ? (
-        <div className="no-comments-placeholder">
+        <div className="px-4 py-12 text-center">
           <p>{loc('NoComments')}</p>
         </div>
       ) : (
-        comments.map((comment: Comment) => {
-          const isExpanded = expandedComments.has(comment.id);
+        <div className="gap-4 grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))' }}>
+          {comments.map((comment: Comment) => {
+            const isExpanded = expandedComments.has(comment.id);
 
-          return (
-            <div key={comment.id} className="comment-thread-container">
+            return (
+              <div key={comment.id}>
               <CommentThread
                 comment={comment}
                 currentUser={currentUser}
@@ -762,29 +1035,42 @@ export function CommentList({ songid }: CommentListProps) {
                 isExpanded={isExpanded}
                 onToggleReplies={() => handleToggleReplies(comment.id)}
                 replyComposer={
-                  replyThreadId === comment.id && (
-                    <div className="reply-composer-wrapper">
-                      <CommentComposer
-                        value={replyContent}
-                        onChange={setReplyContent}
-                        onSubmit={handleSubmitReply}
-                        onCancel={handleCancelReply}
-                        placeholder={
-                          replyTargetUser
-                            ? `${loc('ReplyTo')} @${replyTargetUser}`
-                            : loc('ReplyPlaceholder')
-                        }
-                        autoFocus={true}
-                        isReply={true}
-                        isSubmitting={isSubmitting}
-                      />
-                    </div>
-                  )
+                  <AnimatePresence>
+                    {replyThreadId === comment.id && (
+                      <motion.div 
+                        className="mt-4 p-4 border rounded-lg" 
+                        style={{ 
+                          background: 'rgb(255 255 255 / 3%)', 
+                          borderColor: 'rgb(255 255 255 / 8%)' 
+                        }}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <CommentComposer
+                          value={replyContent}
+                          onChange={setReplyContent}
+                          onSubmit={handleSubmitReply}
+                          onCancel={handleCancelReply}
+                          placeholder={
+                            replyTargetUser
+                              ? `${loc('ReplyTo')} @${replyTargetUser}`
+                              : loc('ReplyPlaceholder')
+                          }
+                          autoFocus={true}
+                          isReply={true}
+                          isSubmitting={isSubmitting}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 }
               />
-            </div>
-          );
-        })
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

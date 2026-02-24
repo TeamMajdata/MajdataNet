@@ -212,7 +212,7 @@ export default function AmbientBackground() {
     <canvas
       ref={canvasRef}
       id="ambient-canvas"
-      className="ambient-background-canvas"
+      className="top-0 left-0 -z-99 fixed bg-[linear-gradient(0deg,#191d1e_50%,#283139_100%)] bg-fixed w-full h-full"
     >
       Your browser does not support the Canvas element.
     </canvas>
