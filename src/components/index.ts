@@ -23,4 +23,5 @@ export { default as UtilsDemo } from './UtilsDemo';
 // 列表和展示组件
 export { default as SongList } from './SongList';
 export { default as Majdata } from './Majdata';
+export { default as RecentPlayedWidget } from './RecentPlayedWidget';
 

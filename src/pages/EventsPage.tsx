@@ -3,7 +3,7 @@
  * TODO: 完整实现活动列表和筛选功能
  */
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { loc, setLanguage } from '@/utils/i18n';
 import { PageLayout } from '@/components';
 

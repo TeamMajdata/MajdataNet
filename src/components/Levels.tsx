@@ -1,4 +1,3 @@
-import React from 'react';
 import { makeLevelClickCallback } from '@/utils/scrollUtils';
 import { renderLevel } from '@/utils/renderLevel';
 
