@@ -127,18 +127,18 @@ export default function UnifiedHeader() {
                 onClick={() => setIsMainNavOpen(!isMainNavOpen)}
               >
                 <span className="flex flex-col gap-0.75 w-full h-2.5">
-                  <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm transition-all duration-200 ${isMainNavOpen ? 'rotate-[35deg] translate-x-0.5 translate-y-1' : ''}`}></span>
+                  <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm transition-all duration-200 ${isMainNavOpen ? 'rotate-35 translate-x-0.5 translate-y-1' : ''}`}></span>
                   <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm transition-all duration-200 ${isMainNavOpen ? 'opacity-0' : ''}`}></span>
                   <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm transition-all duration-200 ${isMainNavOpen ? 'rotate-[-35deg] translate-x-0.5 -translate-y-1' : ''}`}></span>
                 </span>
               </button>
 
               {isMainNavOpen && (
-                <div className="top-[calc(100%+0.75rem)] left-0 z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl min-w-[200px] overflow-hidden animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)]">
+                <div className="top-[calc(100%+0.75rem)] left-0 z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl min-w-50 overflow-hidden animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)]">
                   {/* 榜单项 - 可展开 */}
                   <div className="relative">
                     <button
-                      className={`flex items-center justify-between gap-3 px-5 py-4 text-[#e5e5e5] no-underline transition-all duration-200 text-sm font-medium text-center bg-none border-none cursor-pointer w-full ${isMobileRankingsOpen ? 'bg-gradient-to-br from-[rgb(59_130_246/15%)] to-[rgb(59_130_246/8%)] text-[#3b82f6]' : 'hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 hover:text-white hover:translate-x-1 hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
+                      className={`flex items-center justify-between gap-3 px-5 py-4 text-[#e5e5e5] no-underline transition-all duration-200 text-sm font-medium text-center bg-none border-none cursor-pointer w-full ${isMobileRankingsOpen ? 'bg-linear-to-br from-[rgb(59_130_246/15%)] to-[rgb(59_130_246/8%)] text-[#3b82f6]' : 'hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:text-white hover:translate-x-1 hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
                       onClick={() => setIsMobileRankingsOpen(!isMobileRankingsOpen)}
                     >
                       <span className="w-full text-sm text-center">{loc('Rankings')}</span>
@@ -150,13 +150,13 @@ export default function UnifiedHeader() {
                     {/* 榜单子菜单 - 横向展开 */}
                     {isMobileRankingsOpen && (
                       <div className="flex flex-col items-center bg-black/40 [@keyframes_slideInFromLeft]:from-opacity-0 [@keyframes_slideInFromLeft]:to-opacity-100 [@keyframes_slideInFromLeft]:from-max-h-0 [@keyframes_slideInFromLeft]:to-max-h-[500px] overflow-hidden [@keyframes_slideInFromLeft]:from-translate-x-[-2px] [@keyframes_slideInFromLeft]:to-translate-x-0 animate-[slideInFromLeft_0.3s_ease-out]">
-                        <Link to="/ranking" className="flex justify-start items-center gap-3 hover:bg-gradient-to-br hover:from-white/10 hover:to-white/[6%] ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline transition-all duration-200">
+                        <Link to="/ranking" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline transition-all duration-200">
                           <span className="text-sm text-left">{loc('Recommend')}</span>
                         </Link>
-                        <Link to="/user-ranking" className="flex justify-start items-center gap-3 hover:bg-gradient-to-br hover:from-white/10 hover:to-white/[6%] ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline transition-all duration-200">
+                        <Link to="/user-ranking" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline transition-all duration-200">
                           <span className="text-sm text-left">{loc('UserRankingTitle')}</span>
                         </Link>
-                        <Link to="/mmfc-ranking" className="flex justify-start items-center gap-3 hover:bg-gradient-to-br hover:from-white/10 hover:to-white/[6%] ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline transition-all duration-200">
+                        <Link to="/mmfc-ranking" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline transition-all duration-200">
                           <span className="text-sm text-left">{loc('MMFCRanking')}</span>
                         </Link>
                       </div>
@@ -197,7 +197,7 @@ export default function UnifiedHeader() {
           ) : isLoggedIn ? (
             <div className="relative">
               <button
-                className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-300 text-[#e5e5e5] text-sm font-medium min-h-10 ${isUserMenuOpen ? 'bg-linear-to-br from-white/15 to-white/10 border-white/30 -translate-y-0.5 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-gradient-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
+                className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-300 text-[#e5e5e5] text-sm font-medium min-h-10 ${isUserMenuOpen ? 'bg-linear-to-br from-white/15 to-white/10 border-white/30 -translate-y-0.5 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-linear-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               >
                 <img
@@ -205,25 +205,25 @@ export default function UnifiedHeader() {
                   src={`${apiroot3}/account/Icon?username=${username}`}
                   alt={username}
                 />
-                <span className="hidden md:inline max-w-[120px] overflow-hidden font-medium text-ellipsis whitespace-nowrap">{username}</span>
+                <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">{username}</span>
                 <span className={`transition-transform duration-300 text-[#a0a0a0] text-[0.7rem] ${isUserMenuOpen ? 'rotate-180' : ''}`}>
                   ▼
                 </span>
               </button>
 
               {isUserMenuOpen && (
-                <div className="top-[calc(100%+0.75rem)] right-0 z-[1001] absolute bg-gradient-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-[24px] saturate-[180%] border border-white/15 rounded-2xl w-full overflow-hidden animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)]">
-                  <Link to={`/space?id=${username}`} className="flex justify-center items-center gap-3 hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
+                <div className="top-[calc(100%+0.75rem)] right-0 z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl w-full overflow-hidden animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)]">
+                  <Link to={`/space?id=${username}`} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
                     <span className="w-full font-medium text-center">{loc('PersonalHomePage')}</span>
                   </Link>
-                  <Link to="/user/charts" className="flex justify-center items-center gap-3 hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
+                  <Link to="/user/charts" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
                     <span className="w-full font-medium text-center">{loc('ChartsManagement')}</span>
                   </Link>
-                  <Link to="/user/profile" className="flex justify-center items-center gap-3 hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
+                  <Link to="/user/profile" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
                     <span className="w-full font-medium text-center">{loc('AccountSetting')}</span>
                   </Link>
                   <div className="bg-white/10 my-2 h-px"></div>
-                  <button onClick={handleLogout} className="flex justify-center items-center gap-3 hover:bg-gradient-to-br hover:from-[rgb(239_68_68/25%)] hover:to-[rgb(220_38_38/20%)] bg-none hover:shadow-[0_2px_8px_rgb(239_68_68/20%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-[#fca5a5] text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
+                  <button onClick={handleLogout} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[rgb(239_68_68/25%)] hover:to-[rgb(220_38_38/20%)] bg-none hover:shadow-[0_2px_8px_rgb(239_68_68/20%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-[#fca5a5] text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
                     <span className="w-full font-medium text-center">{loc('Logout')}</span>
                   </button>
                 </div>
@@ -236,7 +236,7 @@ export default function UnifiedHeader() {
                 <Link to="/login" className="flex items-center gap-2 hover:bg-white/10 px-4 py-3 border border-white/10 hover:border-white/30 rounded-[10px] min-h-10 font-medium text-white/85 hover:text-white text-sm no-underline transition-all duration-200">
                   <span className="text-sm">{loc('Login')}</span>
                 </Link>
-                <Link to="/register" className="flex items-center gap-2 bg-gradient-to-br from-[#10b981] hover:from-[#059669] to-[#059669] hover:to-[#047857] px-4 py-3 border border-transparent rounded-[10px] min-h-10 font-medium text-white text-sm no-underline transition-all duration-200">
+                <Link to="/register" className="flex items-center gap-2 bg-linear-to-br from-[#10b981] hover:from-[#059669] to-[#059669] hover:to-[#047857] px-4 py-3 border border-transparent rounded-[10px] min-h-10 font-medium text-white text-sm no-underline transition-all duration-200">
                   <span className="text-sm">{loc('Register')}</span>
                 </Link>
               </div>
@@ -244,7 +244,7 @@ export default function UnifiedHeader() {
               {/* 移动端：下拉菜单形式 */}
               <div className="md:hidden block relative">
                 <button
-                  className={`flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-[10px] text-white/85 cursor-pointer transition-all duration-300 backdrop-blur-[10px] text-sm h-10 ${isMobileAuthMenuOpen ? 'bg-gradient-to-br from-white/15 to-white/10 border-white/30 -translate-y-0.5 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-gradient-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
+                  className={`flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-[10px] text-white/85 cursor-pointer transition-all duration-300 backdrop-blur-[10px] text-sm h-10 ${isMobileAuthMenuOpen ? 'bg-linear-to-br from-white/15 to-white/10 border-white/30 -translate-y-0.5 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-linear-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
                   onClick={() => setIsMobileAuthMenuOpen(!isMobileAuthMenuOpen)}
                 >
                   <AiOutlineUser className="font-medium text-white/85 text-base" />
@@ -254,11 +254,11 @@ export default function UnifiedHeader() {
                 </button>
 
                 {isMobileAuthMenuOpen && (
-                  <div className="top-[calc(100%+0.75rem)] right-0 z-[1001] absolute bg-gradient-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-[24px] saturate-[180%] p-4 border border-white/15 rounded-2xl min-w-[200px] animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)]">
-                    <Link to="/login" className="flex justify-center items-center gap-3 hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-white/85 hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
+                  <div className="top-[calc(100%+0.75rem)] right-0 z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 p-4 border border-white/15 rounded-2xl min-w-50 animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)]">
+                    <Link to="/login" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-white/85 hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
                       <span className="flex-1 w-full text-center">{loc('Login')}</span>
                     </Link>
-                    <Link to="/register" className="flex justify-center items-center gap-3 bg-gradient-to-br from-[rgb(16_185_129/20%)] hover:from-[rgb(16_185_129/30%)] to-[rgb(5_150_105/15%)] hover:to-[rgb(5_150_105/25%)] px-5 py-4 border-none w-full font-semibold text-[#10b981] hover:text-[#34d399] text-sm text-center no-underline transition-all duration-200 cursor-pointer">
+                    <Link to="/register" className="flex justify-center items-center gap-3 bg-linear-to-br from-[rgb(16_185_129/20%)] hover:from-[rgb(16_185_129/30%)] to-[rgb(5_150_105/15%)] hover:to-[rgb(5_150_105/25%)] px-5 py-4 border-none w-full font-semibold text-[#10b981] hover:text-[#34d399] text-sm text-center no-underline transition-all duration-200 cursor-pointer">
                       <span className="flex-1 w-full text-center">{loc('Register')}</span>
                     </Link>
                   </div>

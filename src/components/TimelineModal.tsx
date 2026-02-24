@@ -362,15 +362,15 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div 
-      className="z-[1000] fixed inset-0 flex justify-center items-center bg-black/80 backdrop-blur-[12px] p-4 animate-[fadeIn_0.3s_ease-out]"
+      className="z-1000 fixed inset-0 flex justify-center items-center bg-black/80 backdrop-blur-md p-4 animate-[fadeIn_0.3s_ease-out]"
       onClick={onClose}
     >
       <div 
-        className="flex flex-col bg-[rgba(20,20,20,0.95)] shadow-[0_24px_80px_rgba(0,0,0,0.8),0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-2xl border border-white/15 rounded-2xl w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden animate-[slideUp_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
+        className="flex flex-col bg-[rgba(20,20,20,0.95)] shadow-[0_24px_80px_rgba(0,0,0,0.8),0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-2xl border border-white/15 rounded-2xl w-225 max-w-[95vw] max-h-[90vh] overflow-hidden animate-[slideUp_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="after:right-10 after:bottom-0 after:left-10 after:absolute relative flex justify-between items-center bg-[rgba(25,25,25,0.8)] after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent px-10 py-8 pb-6 border-white/10 border-b after:h-px after:content-['']">
+        <div className="after:right-10 after:bottom-0 after:left-10 after:absolute relative flex justify-between items-center bg-[rgba(25,25,25,0.8)] after:bg-linear-to-r after:from-transparent after:via-white/20 after:to-transparent px-10 py-8 pb-6 border-white/10 border-b after:h-px after:content-['']">
           <h2 className="flex items-center gap-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] m-0 font-bold text-white text-2xl">
             {loc("EventTimeline", "活动时间轴")}
           </h2>
@@ -383,7 +383,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
         </div>
         
         {/* Content */}
-        <div className="flex-1 bg-[rgba(15,15,15,0.3)] px-10 py-[60px] overflow-y-auto scrollbar-thin scrollbar-track-white/5 scrollbar-thumb-white/30">
+        <div className="flex-1 bg-[rgba(15,15,15,0.3)] px-10 py-15 overflow-y-auto scrollbar-thin scrollbar-track-white/5 scrollbar-thumb-white/30">
           {ongoingEvents.length === 0 ? (
             <div className="px-4 py-12 text-white/70 text-lg text-center">
               <p>{loc("NoActiveEvents", "暂无活跃的活动")}</p>
@@ -447,7 +447,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                             </span>
                           </div>
                         </div>
-                        <div className="relative flex-1 bg-white/[0.03] pr-0 border border-white/8 rounded-md h-6">
+                        <div className="relative flex-1 bg-white/3 pr-0 border border-white/8 rounded-md h-6">
                           <a
                             href={event.href}
                             className="block top-0 after:top-1 after:right-1 hover:z-10 absolute after:absolute after:bg-white/30 after:opacity-0 hover:after:opacity-100 shadow-[0_2px_8px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:brightness-115 rounded-md after:rounded-full after:w-3 h-full after:h-3 overflow-hidden no-underline after:content-[''] active:scale-[0.98] transition-all after:transition-opacity hover:-translate-y-0.5 active:-translate-y-px duration-300 after:duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer"
@@ -461,11 +461,11 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                             rel="noopener noreferrer"
                           >
                             <div className="relative flex items-center px-2 w-full h-full">
-                              <span className="z-[2] drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] overflow-hidden font-semibold text-[0.7rem] text-white text-ellipsis whitespace-nowrap">
+                              <span className="z-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] overflow-hidden font-semibold text-[0.7rem] text-white text-ellipsis whitespace-nowrap">
                                 {event.title}
                               </span>
                               <div 
-                                className="top-0 left-0 absolute bg-gradient-to-r from-white/20 via-white/10 to-white/20 opacity-60 rounded-md h-full"
+                                className="top-0 left-0 absolute bg-linear-to-r from-white/20 via-white/10 to-white/20 opacity-60 rounded-md h-full"
                                 style={{ width: '100%' }}
                               />
                             </div>
