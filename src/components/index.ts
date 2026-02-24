@@ -8,6 +8,9 @@ export { default as AdComponent } from './AdComponent';
 // 用户相关组件
 export { default as UserInfo } from './UserInfo';
 export { default as Logout } from './Logout';
+export { default as ChartUploader } from './ChartUploader';
+export { default as AvatarUploader } from './AvatarUploader';
+export { default as IntroUploader } from './IntroUploader';
 
 // UI组件
 export { default as MajdataLogo } from './MajdataLogo';

@@ -1,0 +1,70 @@
+/**
+ * UserProfilePage - 个人设置页面
+ * 迁移自 legacy/src/app/user/profile/page.jsx
+ */
+
+import { Link } from 'react-router-dom';
+import { PageLayout, AvatarUploader, IntroUploader } from '@/components';
+import { useLoc, useUser } from '@/hooks';
+
+export default function UserProfilePage() {
+  const loc = useLoc();
+  const { user, isLoading } = useUser();
+
+  if (isLoading) {
+    return <div className="loading"></div>;
+  }
+
+  if (!user) {
+    return (
+      <PageLayout title={loc('AccountSetting')} showBackToHome={true}>
+        <div className="py-16 text-white/70 text-center">
+          {loc('PleaseLogin', '请先登录')}
+        </div>
+      </PageLayout>
+    );
+  }
+
+  return (
+    <PageLayout title={loc('AccountSetting')} showBackToHome={false}>
+      {/* Back Button */}
+      <div className="mb-6">
+        <Link
+          to="/user"
+          className="inline-block bg-[rgba(30,30,30,0.9)] hover:bg-[rgba(40,40,40,0.95)] px-6 py-2 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-lg text-white/90 no-underline transition-all duration-300"
+        >
+          ← {loc('Back')}
+        </Link>
+      </div>
+
+      {/* Profile Settings */}
+      <div className="animate-[slideInUp_0.6s_ease-out_0.3s_both]">
+        <div className="flex flex-col gap-8 max-w-(--container-max-width) mx-auto my-0 px-(--container-padding)">
+          {/* Avatar Settings Card */}
+          <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-10 py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all hover:-translate-y-0.5 duration-300">
+            <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
+              <div className="font-semibold text-[#e5e5e5] text-xl">
+                {loc('AvatarSettings')} ({loc('AvatarHint')})
+              </div>
+            </div>
+            <div className="min-h-37.5">
+              <AvatarUploader />
+            </div>
+          </div>
+
+          {/* Personal Introduction Card */}
+          <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-10 py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all hover:-translate-y-0.5 duration-300">
+            <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
+              <div className="font-semibold text-[#e5e5e5] text-xl">
+                {loc('PersonalIntro')}
+              </div>
+            </div>
+            <div className="min-h-37.5">
+              <IntroUploader />
+            </div>
+          </div>
+        </div>
+      </div>
+    </PageLayout>
+  );
+}
