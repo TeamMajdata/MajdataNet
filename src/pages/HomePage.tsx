@@ -3,7 +3,7 @@
  * 迁移自 legacy/src/app/page.jsx
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import { useDebouncedCallback } from 'use-debounce';
@@ -27,14 +27,7 @@ import {
 } from '@/utils/eventsData';
 
 export default function HomePage() {
-  const [isLoaded, setIsLoaded] = useState(false);
   const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (!isLoaded) {
-      setIsLoaded(true);
-    }
-  }, [isLoaded]);
 
   useEffect(() => {
     setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
@@ -76,12 +69,11 @@ function EventsCarousel() {
 // PC端专用的 Swiper 组件
 function DesktopEventsSwiper() {
   const loc = useLoc();
-  const [ongoingEvents, setOngoingEvents] = useState<any[]>([]);
   const remainingEventsCount = getNonFeaturedEventsCount();
 
-  useEffect(() => {
-    // 获取所有活跃的活动（进行中 + 即将开始）
-    const events = getActiveEvents().map((event) => ({
+  // 获取所有活跃的活动（进行中 + 即将开始）
+  const ongoingEvents = useMemo(() => {
+    return getActiveEvents().map((event) => ({
       ...event,
       timeAgo: getTimeAgo(event.createDate),
       createDateFormatted: new Date(event.createDate).toLocaleDateString('zh-CN', {
@@ -90,7 +82,6 @@ function DesktopEventsSwiper() {
         day: 'numeric',
       }),
     }));
-    setOngoingEvents(events);
   }, []);
 
   return (
@@ -193,23 +184,21 @@ function DesktopEventsSwiper() {
 
 // 移动端专用的 Swiper 组件
 function MobileEventsSwiper() {
-  const [ongoingEvents, setOngoingEvents] = useState<any[]>([]);
-
-  useEffect(() => {
-    // 获取当前语言的locale
-    const getDateLocale = () => {
-      const lang = localStorage.getItem('language') || 'zh';
-      const localeMap: Record<string, string> = {
-        zh: 'zh-CN',
-        en: 'en-US',
-        ja: 'ja-JP',
-        ko: 'ko-KR',
-      };
-      return localeMap[lang] || 'zh-CN';
+  // 获取当前语言的locale
+  const getDateLocale = () => {
+    const lang = localStorage.getItem('language') || 'zh';
+    const localeMap: Record<string, string> = {
+      zh: 'zh-CN',
+      en: 'en-US',
+      ja: 'ja-JP',
+      ko: 'ko-KR',
     };
+    return localeMap[lang] || 'zh-CN';
+  };
 
-    // 获取所有活跃的活动（进行中 + 即将开始）
-    const events = getActiveEvents().map((event) => ({
+  // 获取所有活跃的活动（进行中 + 即将开始）
+  const ongoingEvents = useMemo(() => {
+    return getActiveEvents().map((event) => ({
       ...event,
       timeAgo: getTimeAgo(event.createDate),
       createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(), {
@@ -218,7 +207,6 @@ function MobileEventsSwiper() {
         day: 'numeric',
       }),
     }));
-    setOngoingEvents(events);
   }, []);
 
   return (
@@ -430,32 +418,43 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
 
 function MainComp() {
   const loc = useLoc();
-  const [Search, setSearch] = useState('');
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [page, setPage] = useState(0);
-  const [maxpage, setMaxpage] = useState(999999);
-  const [sortType, setSortType] = useState(0);
   const [searchParams] = useSearchParams();
-
-  useEffect(() => {
-    if (!isLoaded) {
-      // 检查URL中的search参数
-      const urlSearchParam = searchParams.get('search');
-      const a = urlSearchParam || localStorage.getItem('search');
-      const b = localStorage.getItem('lastclickpage');
-      const s = localStorage.getItem('sort');
-
-      setSearch(a ? a : '');
-      setPage(parseInt(b ? b : '0'));
-      setIsLoaded(true);
-      setSortType(s ? parseInt(s) : 0);
-
-      // 如果URL中有search参数，保存到localStorage
-      if (urlSearchParam) {
-        localStorage.setItem('search', urlSearchParam);
-      }
+  const isInitialMount = useRef(true);
+  
+  // 从 localStorage 或 URL 参数初始化状态
+  const [Search, setSearch] = useState(() => {
+    const urlSearchParam = searchParams.get('search');
+    const initialValue = urlSearchParam || localStorage.getItem('search') || '';
+    // 保存URL参数到localStorage
+    if (urlSearchParam) {
+      localStorage.setItem('search', urlSearchParam);
     }
-  }, [isLoaded, searchParams]);
+    return initialValue;
+  });
+  const [page, setPage] = useState(() => {
+    const stored = localStorage.getItem('lastclickpage');
+    return parseInt(stored || '0');
+  });
+  const [maxpage, setMaxpage] = useState(999999);
+  const [sortType, setSortType] = useState(() => {
+    const stored = localStorage.getItem('sort');
+    return stored ? parseInt(stored) : 0;
+  });
+
+  // 处理 URL 参数变化（跳过初始挂载）
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    const urlSearchParam = searchParams.get('search');
+    if (urlSearchParam) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSearch(urlSearchParam);
+      localStorage.setItem('search', urlSearchParam);
+    }
+  }, [searchParams]);
 
   const debounced = useDebouncedCallback(
     // function
@@ -563,16 +562,10 @@ function MainComp() {
 // Simplified version of integrated search bar
 function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
   const loc = useLoc();
-  const [currentType, setCurrentType] = useState('zip');
-  const [justChanged, setJustChanged] = useState(false);
-
-  useEffect(() => {
-    // Get init type
-    const type = localStorage.getItem('DownloadType');
-    if (type != undefined) {
-      setCurrentType(type);
-    }
+  const [currentType, setCurrentType] = useState(() => {
+    return localStorage.getItem('DownloadType') || 'zip';
   });
+  const [justChanged, setJustChanged] = useState(false);
 
   const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newtype = e.target.value;
