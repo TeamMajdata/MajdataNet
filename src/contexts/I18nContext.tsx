@@ -1,18 +1,11 @@
 /**
  * 国际化 Context - 提供全局语言状态管理
  */
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { setLanguage, getCurrentLanguage, initializeLanguage, getTranslatedString } from '../utils/i18n';
 import type { Language } from '../config/i18n';
-
-interface I18nContextValue {
-  language: Language;
-  changeLanguage: (lang: string) => Promise<void>;
-  t: (key: string, fallback?: string) => string;
-  isReady: boolean;
-}
-
-const I18nContext = createContext<I18nContextValue | null>(null);
+import { I18nContext } from './i18nContextDef';
+import type { I18nContextValue } from './i18nContextDef';
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(getCurrentLanguage());
@@ -65,15 +58,4 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   };
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
-}
-
-/**
- * 使用 i18n Context 的 Hook
- */
-export function useI18nContext() {
-  const context = useContext(I18nContext);
-  if (!context) {
-    throw new Error('useI18nContext must be used within I18nProvider');
-  }
-  return context;
 }

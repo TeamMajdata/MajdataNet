@@ -1,9 +1,11 @@
 /**
  * 国际化 React Hook
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { setLanguage, getCurrentLanguage, initializeLanguage, getTranslatedString, loc } from '../utils/i18n';
 import type { Language } from '../config/i18n';
+import { I18nContext } from '../contexts/i18nContextDef';
+import type { I18nContextValue } from '../contexts/i18nContextDef';
 
 /**
  * 使用国际化的Hook
@@ -106,4 +108,16 @@ export function useLoc() {
 
   // 返回 loc 函数
   return (key: string, fallback?: string) => getTranslatedString(key, fallback);
+}
+
+/**
+ * 使用 i18n Context 的 Hook
+ * 需要在 I18nProvider 内部使用
+ */
+export function useI18nContext(): I18nContextValue {
+  const context = useContext(I18nContext);
+  if (!context) {
+    throw new Error('useI18nContext must be used within I18nProvider');
+  }
+  return context;
 }
