@@ -197,7 +197,7 @@ export default function UnifiedHeader() {
           ) : isLoggedIn ? (
             <div className="relative">
               <button
-                className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-300 text-[#e5e5e5] text-sm font-medium min-h-10 ${isUserMenuOpen ? 'bg-linear-to-br from-white/15 to-white/10 border-white/30 -translate-y-0.5 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-linear-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
+                className={`flex rounded-lg items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-300 text-[#e5e5e5] text-sm font-medium min-h-10 ${isUserMenuOpen ? 'bg-linear-to-br from-white/15 to-white/10 border-white/30 -translate-y-0.5 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-linear-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               >
                 <img
@@ -212,18 +212,18 @@ export default function UnifiedHeader() {
               </button>
 
               {isUserMenuOpen && (
-                <div className="top-[calc(100%+0.75rem)] right-0 z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl w-full overflow-hidden animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)]">
-                  <Link to={`/space?id=${username}`} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
+                <div className="top-[calc(100%+0.75rem)] right-0 z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl w-full overflow-hidden">
+                  <Link to={`/space?id=${username}`} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all duration-200 cursor-pointer">
                     <span className="w-full font-medium text-center">{loc('PersonalHomePage')}</span>
                   </Link>
-                  <Link to="/user/charts" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
+                  <Link to="/user/charts" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all duration-200 cursor-pointer">
                     <span className="w-full font-medium text-center">{loc('ChartsManagement')}</span>
                   </Link>
-                  <Link to="/user/profile" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
+                  <Link to="/user/profile" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all duration-200 cursor-pointer">
                     <span className="w-full font-medium text-center">{loc('AccountSetting')}</span>
                   </Link>
                   <div className="bg-white/10 my-2 h-px"></div>
-                  <button onClick={handleLogout} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[rgb(239_68_68/25%)] hover:to-[rgb(220_38_38/20%)] bg-none hover:shadow-[0_2px_8px_rgb(239_68_68/20%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-[#fca5a5] text-sm text-center no-underline transition-all hover:translate-x-1 duration-200 cursor-pointer">
+                  <button onClick={handleLogout} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[rgb(239_68_68/25%)] hover:to-[rgb(220_38_38/20%)] bg-none hover:shadow-[0_2px_8px_rgb(239_68_68/20%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-[#fca5a5] text-sm text-center no-underline transition-all duration-200 cursor-pointer">
                     <span className="w-full font-medium text-center">{loc('Logout')}</span>
                   </button>
                 </div>
