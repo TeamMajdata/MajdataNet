@@ -4,16 +4,17 @@
  */
 
 import { useEffect, useState } from 'react';
-import { getActiveEvents, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
+import { getActiveEvents, getCategoryTranslation, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
 import { useLoc } from '@/hooks';
-import type { 
-  Event, 
-  TimelineModalProps, 
-  TimelineSegment, 
-  TimelineEvent, 
-  TimeScale, 
-  TimelineData 
+import type {
+  Event,
+  TimelineModalProps,
+  TimelineSegment,
+  TimelineEvent,
+  TimeScale,
+  TimelineData,
 } from '@/types';
+import { EventCategory } from "@/types/event";
 
 
 const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
@@ -29,41 +30,42 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
 
   // 按category排序事件
   const sortEventsByCategory = (events: Event[]): Event[] => {
-    const categoryOrder: Record<string, number> = {
-      "大型赛事": 1,
-      "高校赛事": 2,
-      "私立赛事": 3,
-      "私立企划": 4
+    const categoryOrder: Record<EventCategory, number> = {
+      [EventCategory.All]: 0,
+      [EventCategory.Major]: 1,
+      [EventCategory.University]: 2,
+      [EventCategory.PrivateContest]: 3,
+      [EventCategory.PrivateProject]: 4
     };
-    
+
     return events.sort((a, b) => {
       const orderA = categoryOrder[a.category] || 999;
       const orderB = categoryOrder[b.category] || 999;
-      
+
       if (orderA !== orderB) {
         return orderA - orderB;
       }
-      
+
       return new Date(a.createDate).getTime() - new Date(b.createDate).getTime();
     });
   };
 
   // 智能时间轴压缩算法
   const applyTimelineCompression = (
-    events: Event[], 
-    minStart: Date, 
-    maxEnd: Date, 
+    events: Event[],
+    minStart: Date,
+    maxEnd: Date,
     totalDays: number
   ) => {
     const sortedEvents = sortEventsByCategory([...events]);
-    
+
     if (totalDays <= 120) {
       const eventsWithPosition = sortedEvents.map((event, index) => {
         const eventStart = new Date(event.createDate);
         const eventEnd = new Date(event.endDate);
         const eventDuration = Math.ceil((eventEnd.getTime() - eventStart.getTime()) / (1000 * 60 * 60 * 24));
         const startOffset = Math.ceil((eventStart.getTime() - minStart.getTime()) / (1000 * 60 * 60 * 24));
-        
+
         return {
           ...event,
           startOffset: (startOffset / totalDays) * 100,
@@ -74,7 +76,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
           row: index
         };
       });
-      
+
       return {
         events: eventsWithPosition,
         segments: [{ start: minStart, end: maxEnd, compressed: false, density: 0, days: totalDays, startPosition: 0, endPosition: 100 }],
@@ -84,14 +86,14 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
 
     const activitySegments = analyzeActivityDensity(sortedEvents, minStart, maxEnd);
     const segments = createCompressedSegments(activitySegments, minStart, maxEnd);
-    
+
     const eventsWithPosition = sortedEvents.map((event, index) => {
       const eventStart = new Date(event.createDate);
       const eventEnd = new Date(event.endDate);
       const eventDuration = Math.ceil((eventEnd.getTime() - eventStart.getTime()) / (1000 * 60 * 60 * 24));
-      
+
       const position = calculateCompressedPosition(eventStart, eventEnd, segments);
-      
+
       return {
         ...event,
         startOffset: position.start,
@@ -102,7 +104,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
         row: index
       };
     });
-    
+
     return {
       events: eventsWithPosition,
       segments,
@@ -114,34 +116,34 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
   const analyzeActivityDensity = (events: Event[], minStart: Date, maxEnd: Date) => {
     const totalDays = Math.ceil((maxEnd.getTime() - minStart.getTime()) / (1000 * 60 * 60 * 24));
     const densityMap = new Array(totalDays).fill(0);
-    
+
     events.forEach(event => {
       const eventStart = new Date(event.createDate);
       const eventEnd = new Date(event.endDate);
       const startDay = Math.floor((eventStart.getTime() - minStart.getTime()) / (1000 * 60 * 60 * 24));
       const endDay = Math.floor((eventEnd.getTime() - minStart.getTime()) / (1000 * 60 * 60 * 24));
-      
+
       for (let day = startDay; day <= endDay; day++) {
         if (day >= 0 && day < totalDays) {
           densityMap[day]++;
         }
       }
     });
-    
+
     interface ActivitySegment {
       startDay: number;
       endDay: number;
       isHighDensity: boolean;
       density: number;
     }
-    
+
     const segments: ActivitySegment[] = [];
     let currentSegment: ActivitySegment | null = null;
     const threshold = Math.max(1, events.length * 0.3);
-    
+
     for (let day = 0; day < totalDays; day++) {
       const isHighDensity = densityMap[day] >= threshold;
-      
+
       if (!currentSegment || currentSegment.isHighDensity !== isHighDensity) {
         if (currentSegment) {
           segments.push(currentSegment);
@@ -157,11 +159,11 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
         currentSegment.density = Math.max(currentSegment.density, densityMap[day]);
       }
     }
-    
+
     if (currentSegment) {
       segments.push(currentSegment);
     }
-    
+
     return segments;
   };
 
@@ -169,12 +171,12 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
   const createCompressedSegments = (activitySegments: { startDay: number; endDay: number; isHighDensity: boolean; density: number; }[], minStart: Date, maxEnd: Date): TimelineSegment[] => {
     const segments: TimelineSegment[] = [];
     let currentPosition = 0;
-    
+
     activitySegments.forEach(segment => {
       const segmentStart = new Date(minStart.getTime() + segment.startDay * 24 * 60 * 60 * 1000);
       const segmentEnd = new Date(minStart.getTime() + (segment.endDay + 1) * 24 * 60 * 60 * 1000);
       const segmentDays = segment.endDay - segment.startDay + 1;
-      
+
       let segmentWidth: number;
       if (segment.isHighDensity) {
         segmentWidth = Math.max(15, (segmentDays / Math.ceil((maxEnd.getTime() - minStart.getTime()) / (1000 * 60 * 60 * 24))) * 70);
@@ -182,7 +184,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
         const naturalWidth = (segmentDays / Math.ceil((maxEnd.getTime() - minStart.getTime()) / (1000 * 60 * 60 * 24))) * 100;
         segmentWidth = Math.min(15, Math.max(5, naturalWidth * 0.3));
       }
-      
+
       segments.push({
         start: segmentStart,
         end: segmentEnd,
@@ -192,16 +194,16 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
         density: segment.density,
         days: segmentDays
       });
-      
+
       currentPosition += segmentWidth;
     });
-    
+
     const totalWidth = currentPosition;
     segments.forEach(segment => {
       segment.startPosition = (segment.startPosition / totalWidth) * 100;
       segment.endPosition = (segment.endPosition / totalWidth) * 100;
     });
-    
+
     return segments;
   };
 
@@ -209,24 +211,24 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
   const calculateCompressedPosition = (eventStart: Date, eventEnd: Date, segments: TimelineSegment[]) => {
     let startPosition = 0;
     let endPosition = 0;
-    
+
     for (const segment of segments) {
       if (eventStart >= segment.start && eventStart <= segment.end) {
         const segmentProgress = (eventStart.getTime() - segment.start.getTime()) / (segment.end.getTime() - segment.start.getTime());
         startPosition = segment.startPosition + (segment.endPosition - segment.startPosition) * segmentProgress;
       }
-      
+
       if (eventEnd >= segment.start && eventEnd <= segment.end) {
         const segmentProgress = (eventEnd.getTime() - segment.start.getTime()) / (segment.end.getTime() - segment.start.getTime());
         endPosition = segment.startPosition + (segment.endPosition - segment.startPosition) * segmentProgress;
         break;
       }
     }
-    
+
     if (endPosition === 0) {
       endPosition = segments[segments.length - 1].endPosition;
     }
-    
+
     return {
       start: Math.max(0, startPosition),
       width: Math.max(1, endPosition - startPosition)
@@ -236,35 +238,67 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
   // 生成压缩后的时间刻度
   const generateCompressedTimeScale = (segments: TimelineSegment[]): TimeScale[] => {
     const scale: TimeScale[] = [];
-    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     segments.forEach(segment => {
       const segmentDays = Math.ceil((segment.end.getTime() - segment.start.getTime()) / (1000 * 60 * 60 * 24));
-      const stepDays = segment.compressed ? Math.max(7, Math.floor(segmentDays / 3)) : 
-                      segmentDays > 30 ? 3 : 1;
-      
-      const current = new Date(segment.start);
-      while (current <= segment.end) {
-        const segmentProgress = (current.getTime() - segment.start.getTime()) / (segment.end.getTime() - segment.start.getTime());
+      const stepDays = segment.compressed ? Math.max(7, Math.floor(segmentDays / 3)) :
+        segmentDays > 30 ? 3 : 1;
+
+      // 收集该segment内的所有刻度点
+      const segmentTicks = new Map<number, TimeScale>();
+
+      // 首先检查今天是否在这个segment内
+      if (today >= segment.start && today <= segment.end) {
+        const segmentProgress = (today.getTime() - segment.start.getTime()) / (segment.end.getTime() - segment.start.getTime());
         const position = segment.startPosition + (segment.endPosition - segment.startPosition) * segmentProgress;
         
-        scale.push({
-          date: new Date(current),
+        segmentTicks.set(today.getTime(), {
+          date: new Date(today),
           position,
-          isMonth: current.getDate() === 1,
-          isWeek: current.getDay() === 1 && stepDays >= 7,
+          isMonth: true, // 使用 isMonth 标记今天，以显示较粗的线
+          isWeek: false,
           compressed: segment.compressed
         });
+      }
+
+      // 然后添加常规刻度点
+      const current = new Date(segment.start);
+      while (current <= segment.end) {
+        const timeKey = current.getTime();
         
+        // 如果这个点还没被添加（不是今天）
+        if (!segmentTicks.has(timeKey)) {
+          const segmentProgress = (current.getTime() - segment.start.getTime()) / (segment.end.getTime() - segment.start.getTime());
+          const position = segment.startPosition + (segment.endPosition - segment.startPosition) * segmentProgress;
+
+          segmentTicks.set(timeKey, {
+            date: new Date(current),
+            position,
+            isMonth: false,
+            isWeek: current.getDay() === 1 && stepDays >= 7,
+            compressed: segment.compressed
+          });
+        }
+
         current.setDate(current.getDate() + stepDays);
       }
+
+      // 按时间排序并添加到scale中
+      const sortedTicks = Array.from(segmentTicks.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(entry => entry[1]);
+      
+      scale.push(...sortedTicks);
     });
-    
+
     return scale;
   };
 
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const events = getActiveEvents();
     if (events.length === 0) {
       setOngoingEvents([]);
@@ -279,20 +313,20 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
     }
 
     setOngoingEvents(events);
-    
+
     const dates = events.map(event => ({
       start: new Date(event.createDate),
       end: new Date(event.endDate),
       duration: Math.ceil((new Date(event.endDate).getTime() - new Date(event.createDate).getTime()) / (1000 * 60 * 60 * 24))
     }));
-    
+
     const minStart = new Date(Math.min(...dates.map(d => d.start.getTime())));
     const maxEnd = new Date(Math.max(...dates.map(d => d.end.getTime())));
     const totalDays = Math.ceil((maxEnd.getTime() - minStart.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     const compressedTimelineData = applyTimelineCompression(events, minStart, maxEnd, totalDays);
     const timeScale = generateCompressedTimeScale(compressedTimelineData.segments);
-    
+
     setTimelineData({
       startDate: minStart,
       endDate: maxEnd,
@@ -329,21 +363,22 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
   const formatCompactDate = (date: Date): string => {
     return date.toLocaleDateString(getDateLocale(), {
       month: "numeric",
-      day: "numeric"  
+      day: "numeric"
     });
   };
 
   // 获取事件颜色
   const getEventColor = (event: TimelineEvent): string => {
-    const baseColors: Record<string, string> = {
-      "大型赛事": "#3b82f6",
-      "私立赛事": "#10b981",
-      "高校赛事": "#f59e0b",
-      "私立企划": "#8b5cf6",
+    const baseColors: Record<EventCategory, string> = {
+      [EventCategory.All]: "#6b7280",
+      [EventCategory.Major]: "#3b82f6",
+      [EventCategory.PrivateContest]: "#10b981",
+      [EventCategory.University]: "#f59e0b",
+      [EventCategory.PrivateProject]: "#8b5cf6",
     };
-    
+
     const baseColor = baseColors[event.category] || "#6b7280";
-    
+
     if (event.isUpcoming) {
       const upcomingColors: Record<string, string> = {
         "#3b82f6": "#93c5fd",
@@ -354,18 +389,18 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
       };
       return upcomingColors[baseColor] || "#9ca3af";
     }
-    
+
     return baseColor;
   };
 
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="z-1000 fixed inset-0 flex justify-center items-center bg-black/80 backdrop-blur-md p-4 animate-[fadeIn_0.3s_ease-out]"
       onClick={onClose}
     >
-      <div 
+      <div
         className="flex flex-col bg-[rgba(20,20,20,0.95)] shadow-[0_24px_80px_rgba(0,0,0,0.8),0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-2xl border border-white/15 rounded-2xl w-225 max-w-[95vw] max-h-[90vh] overflow-hidden animate-[slideUp_0.4s_cubic-bezier(0.34,1.56,0.64,1)]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -374,14 +409,14 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
           <h2 className="flex items-center gap-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] m-0 font-bold text-white text-2xl">
             {loc("EventTimeline", "活动时间轴")}
           </h2>
-          <button 
+          <button
             className="flex justify-center items-center bg-white/5 hover:bg-red-500/15 hover:shadow-[0_4px_16px_rgba(239,68,68,0.2)] backdrop-blur-lg p-3 border border-white/10 hover:border-red-500/30 rounded-xl w-12 h-12 text-white/70 hover:text-red-500 text-xl hover:scale-105 active:scale-95 transition-all duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer"
             onClick={onClose}
           >
             ✕
           </button>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 bg-[rgba(15,15,15,0.3)] px-10 py-15 overflow-y-auto scrollbar-thin scrollbar-track-white/5 scrollbar-thumb-white/30">
           {ongoingEvents.length === 0 ? (
@@ -415,18 +450,17 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                   {/* Grid Lines */}
                   <div className="absolute inset-0 pointer-events-none">
                     {timelineData.timeScale.map((tick, index) => (
-                      <div 
+                      <div
                         key={index}
-                        className={`absolute top-0 bottom-0 ${
-                          tick.isMonth ? 'w-px bg-white/15' : 
-                          tick.isWeek ? 'w-px bg-white/8' : 
-                          'w-px bg-white/3'
-                        }`}
+                        className={`absolute top-0 bottom-0 ${tick.isMonth ? 'w-px bg-white/15' :
+                            tick.isWeek ? 'w-px bg-white/8' :
+                              'w-px bg-white/3'
+                          }`}
                         style={{ left: `${tick.position}%` }}
                       />
                     ))}
                   </div>
-                  
+
                   {/* Events */}
                   <div className="flex flex-col gap-2 mr-0 px-2.5 py-5 pr-10 text-left">
                     {timelineData.events.map((event) => (
@@ -436,11 +470,11 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                             {event.title}
                           </div>
                           <div className="flex flex-col gap-0.5 text-[0.7rem]">
-                            <span 
+                            <span
                               className="font-medium"
                               style={{ color: getEventColor(event) }}
                             >
-                              {event.category}
+                              {getCategoryTranslation(event.category)}
                             </span>
                             <span className="text-[0.65rem] text-white/60">
                               {formatCompactDate(new Date(event.createDate))} - {formatCompactDate(new Date(event.endDate))}
@@ -464,7 +498,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                               <span className="z-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] overflow-hidden font-semibold text-[0.7rem] text-white text-ellipsis whitespace-nowrap">
                                 {event.title}
                               </span>
-                              <div 
+                              <div
                                 className="top-0 left-0 absolute bg-linear-to-r from-white/20 via-white/10 to-white/20 opacity-60 rounded-md h-full"
                                 style={{ width: '100%' }}
                               />
