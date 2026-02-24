@@ -66,8 +66,8 @@ export default function UnifiedHeader() {
   };
 
   return (
-    <header className="top-0 before:top-0 right-0 before:right-0 left-0 before:left-0 z-[1000] fixed before:absolute bg-[rgb(8_10_15/30%)] before:bg-gradient-to-r before:from-transparent before:via-[rgb(59_130_246/60%)] before:to-transparent before:opacity-60 shadow-[0_8px_40px_rgb(0_0_0/25%),0_2px_0_rgb(255_255_255/8%)_inset,0_4px_16px_rgb(59_130_246/8%)] backdrop-blur-[28px] brightness-110 saturate-[180%] border-white/12 border-b before:h-px before:content-['']">
-      <div className="flex justify-between items-center mx-auto my-4 px-10 max-w-[1400px] h-16">
+    <header className="top-0 before:top-0 right-0 before:right-0 left-0 before:left-0 z-1000 fixed before:absolute bg-[rgb(8_10_15/30%)] before:bg-linear-to-r before:from-transparent before:via-[rgb(59_130_246/60%)] before:to-transparent before:opacity-60 shadow-[0_8px_40px_rgb(0_0_0/25%),0_2px_0_rgb(255_255_255/8%)_inset,0_4px_16px_rgb(59_130_246/8%)] backdrop-blur-[28px] brightness-110 saturate-180 border-white/12 border-b before:h-px before:content-['']">
+      <div className="flex justify-between items-center mx-auto my-4 px-10 max-w-350 h-16">
         {/* 左侧区域：Logo + 导航 */}
         <div className="flex flex-1 items-center gap-8">
           {/* Logo Section */}
@@ -84,7 +84,7 @@ export default function UnifiedHeader() {
               {/* 榜单下拉菜单 */}
               <div className="inline-block relative" ref={rankingsMenuRef}>
                 <button
-                  className={`flex items-center gap-2 px-5 py-3 text-white/85 no-underline rounded-lg transition-all duration-200 font-medium text-sm whitespace-nowrap relative bg-none border-none cursor-pointer ${isRankingsMenuOpen ? 'bg-gradient-to-br from-white/12 to-white/8 text-white -translate-y-px shadow-[0_4px_12px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 hover:text-white hover:-translate-y-px hover:shadow-[0_4px_12px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
+                  className={`flex items-center gap-2 px-5 py-3 text-white/85 no-underline rounded-lg transition-all duration-200 font-medium text-sm whitespace-nowrap relative bg-none border-none cursor-pointer ${isRankingsMenuOpen ? 'bg-linear-to-br from-white/12 to-white/8 text-white -translate-y-px shadow-[0_4px_12px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:text-white hover:-translate-y-px hover:shadow-[0_4px_12px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
                   onClick={() => setIsRankingsMenuOpen(!isRankingsMenuOpen)}
                 >
                   <span className="text-sm">{loc('Rankings')}</span>
@@ -94,14 +94,14 @@ export default function UnifiedHeader() {
                 </button>
 
                 {isRankingsMenuOpen && (
-                  <div className="top-[calc(100%+0.75rem)] left-0 z-1001 absolute bg-gradient-to-br from-[rgb(15_15_20/95%)] [@keyframes_dropdownFadeIn]:from-blur to-[rgb(10_12_18/98%)] [@keyframes_dropdownFadeIn]:from-opacity-0 shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-[24px] saturate-[180%] border border-white/15 rounded-2xl min-w-[200px] overflow-hidden [@keyframes_dropdownFadeIn]:from-scale-95 [@keyframes_dropdownFadeIn]:from-translate-y-[-15px] animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)] [animation-name:dropdownFadeIn]">
-                    <Link to="/ranking" className="flex justify-center items-center gap-3 hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200">
+                  <div className="top-[calc(100%+0.75rem)] left-0 z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] [@keyframes_dropdownFadeIn]:from-blur to-[rgb(10_12_18/98%)] [@keyframes_dropdownFadeIn]:from-opacity-0 shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl min-w-50 overflow-hidden [@keyframes_dropdownFadeIn]:from-scale-95 [@keyframes_dropdownFadeIn]:from-translate-y-[-15px] animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)] [animation-name:dropdownFadeIn]">
+                    <Link to="/ranking" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200">
                       <span className="text-sm">{loc('Recommend')}</span>
                     </Link>
-                    <Link to="/user-ranking" className="flex justify-center items-center gap-3 hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200">
+                    <Link to="/user-ranking" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200">
                       <span className="text-sm">{loc('UserRankingTitle')}</span>
                     </Link>
-                    <Link to="/mmfc-ranking" className="flex justify-center items-center gap-3 hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200">
+                    <Link to="/mmfc-ranking" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline transition-all hover:translate-x-1 duration-200">
                       <span className="text-sm">{loc('MMFCRanking')}</span>
                     </Link>
                   </div>
@@ -114,7 +114,7 @@ export default function UnifiedHeader() {
               <Link to="/events" className="relative flex items-center gap-2 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_4px_12px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-3 rounded-lg font-medium text-white/85 hover:text-white text-sm no-underline whitespace-nowrap transition-all hover:-translate-y-px duration-200">
                 <span className="text-sm">{loc('Contest')}</span>
               </Link>
-              <Link to="/eventTag?id=Original" className="relative flex items-center gap-2 hover:bg-gradient-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_4px_12px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-3 rounded-lg font-medium text-white/85 hover:text-white text-sm no-underline whitespace-nowrap transition-all hover:-translate-y-px duration-200">
+              <Link to="/eventTag?id=Original" className="relative flex items-center gap-2 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_4px_12px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-3 rounded-lg font-medium text-white/85 hover:text-white text-sm no-underline whitespace-nowrap transition-all hover:-translate-y-px duration-200">
                 <span className="text-sm">{loc('OriginalSongs')}</span>
               </Link>
             </div>
@@ -122,10 +122,10 @@ export default function UnifiedHeader() {
             {/* 移动端：汉堡菜单 */}
             <div className="xl:hidden block relative">
               <button
-                className={`flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-[10px] cursor-pointer transition-all duration-300 text-[#e5e5e5] text-sm font-medium h-10 w-10 backdrop-blur-[10px] ${isMainNavOpen ? 'bg-gradient-to-br from-white/15 to-white/10 border-white/30 -translate-y-0.5 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-gradient-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
+                className={`flex items-center gap-2 p-2.5 bg-white/5 border border-white/10 rounded-[10px] cursor-pointer transition-all duration-300 text-[#e5e5e5] text-sm font-medium h-10 w-10 backdrop-blur-[10px] ${isMainNavOpen ? 'bg-linear-to-br from-white/15 to-white/10 border-white/30 -translate-y-0.5 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]' : 'hover:bg-linear-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'}`}
                 onClick={() => setIsMainNavOpen(!isMainNavOpen)}
               >
-                <span className="flex flex-col gap-[3px] w-full h-2.5">
+                <span className="flex flex-col gap-0.75 w-full h-2.5">
                   <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm transition-all duration-200 ${isMainNavOpen ? 'rotate-[35deg] translate-x-0.5 translate-y-1' : ''}`}></span>
                   <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm transition-all duration-200 ${isMainNavOpen ? 'opacity-0' : ''}`}></span>
                   <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm transition-all duration-200 ${isMainNavOpen ? 'rotate-[-35deg] translate-x-0.5 -translate-y-1' : ''}`}></span>
@@ -133,7 +133,7 @@ export default function UnifiedHeader() {
               </button>
 
               {isMainNavOpen && (
-                <div className="top-[calc(100%+0.75rem)] left-0 z-[1001] absolute bg-gradient-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-[24px] saturate-[180%] border border-white/15 rounded-2xl min-w-[200px] overflow-hidden animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)]">
+                <div className="top-[calc(100%+0.75rem)] left-0 z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl min-w-[200px] overflow-hidden animate-[dropdownFadeIn_0.3s_cubic-bezier(0.4,0,0.2,1)]">
                   {/* 榜单项 - 可展开 */}
                   <div className="relative">
                     <button

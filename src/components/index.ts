@@ -28,4 +28,6 @@ export { default as RecentPlayedWidget } from './RecentPlayedWidget';
 // 活动相关组件
 export { default as EventBanner } from './EventBanner';
 export { default as EnhancedDescription } from './EnhancedDescription';
+export { default as EventsFilter } from './EventsFilter';
+export { default as TimelineModal } from './TimelineModal';
 
