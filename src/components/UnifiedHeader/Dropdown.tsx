@@ -1,0 +1,43 @@
+import { useEffect, useRef, ReactNode } from 'react';
+
+interface DropdownProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: ReactNode;
+  position?: 'left' | 'right';
+  className?: string;
+}
+
+/**
+ * 通用下拉菜单组件
+ * 处理点击外部关闭逻辑，无动效
+ */
+export default function Dropdown({ isOpen, onClose, children, position = 'left', className = '' }: DropdownProps) {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const positionClass = position === 'right' ? 'right-0' : 'left-0';
+
+  return (
+    <div 
+      ref={menuRef}
+      className={`top-[calc(100%+0.75rem)] z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl min-w-50 overflow-hidden ${positionClass} ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
