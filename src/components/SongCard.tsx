@@ -62,12 +62,6 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
             <Tooltip content={song.uploader + '@' + song.designer}>
               <div className="mb-2 text-[0.8rem] truncate">
                 <a href={'/space?id=' + song.uploader}>
-                  <img
-                    className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
-                    src={apiroot3 + '/account/Icon?username=' + song.uploader}
-                    loading="lazy"
-                    decoding="async"
-                  />
                   {song.uploader + '@' + song.designer}
                 </a>
               </div>
