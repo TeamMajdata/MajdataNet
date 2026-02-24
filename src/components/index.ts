@@ -23,6 +23,7 @@ export { default as TagManageWidget, TagManageTagLauncher } from './TagManageWid
 
 // 列表和展示组件
 export { default as SongList } from './SongList';
+export { default as SongCard } from './SongCard';
 export { default as Majdata } from './Majdata';
 export { default as MiniGame } from './MiniGame';
 export { default as RecentPlayedWidget } from './RecentPlayedWidget';
