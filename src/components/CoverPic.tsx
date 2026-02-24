@@ -24,7 +24,7 @@ export default function CoverPic({ id, display }: CoverPicProps) {
       >
         <PhotoView src={urlfull}>
           <img
-            className={`songImg ${isLoaded ? 'loadedImg' : 'loadingImg'}`}
+            className={`float-left rounded-[10px] h-full aspect-square object-cover cursor-pointer transition-opacity duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
             decoding="async"
             loading="lazy"
             src={url}

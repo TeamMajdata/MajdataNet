@@ -163,8 +163,8 @@ function SongInfo({ id, tippy }: { id: string; tippy: ReturnType<typeof useSingl
             </Tippy>
           </div>
 
-          <div className="difficulty-display-container">
-            <h3 className="difficulty-display-title">All Difficulties</h3>
+          <div className="flex flex-col items-start gap-3">
+            <h3 className="m-0 font-bold text-white text-sm uppercase tracking-[0.05em]">All Difficulties</h3>
             <SongDifficultyLevels
               levels={o.levels}
               songid={o.id}

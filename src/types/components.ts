@@ -98,6 +98,7 @@ export interface ScoreCountProps {
 }
 
 export interface ScoreCardProps {
+  rank: number;
   username: string;
   scoresum: number;
   maxscore: number;

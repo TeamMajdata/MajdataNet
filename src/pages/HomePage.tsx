@@ -388,7 +388,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                   const val = parseInt(e.target.value);
                   onSortChange(val);
                 }}
-                className="modern-select"
+                className={`w-full md:w-auto h-10 md:h-[45px] px-3 py-1 bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-[150%] rounded-full border border-white/20 text-white text-xs sm:text-sm min-w-0 md:min-w-[80px] flex items-center justify-center text-center cursor-pointer transition-all duration-300 ease-out outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-300/30 whitespace-nowrap overflow-hidden appearance-none`}
                 data-mobile-label={loc('SortBy', '排序方式')}
               >
                 {isMobile && (
@@ -581,7 +581,7 @@ function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
       <select
         value={isMobile ? currentType || 'placeholder' : currentType}
         onChange={handleChange}
-        className="modern-select"
+        className={`w-full md:w-auto h-10 md:h-[45px] px-3 py-1 bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-[150%] rounded-full border border-white/20 text-white text-xs sm:text-sm min-w-0 md:min-w-[80px] flex items-center justify-center text-center cursor-pointer transition-all duration-300 ease-out outline-none hover:border-blue-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-300/30 whitespace-nowrap overflow-hidden appearance-none`}
         data-mobile-label={loc('DownloadFormat', '下载格式')}
       >
         {isMobile && (

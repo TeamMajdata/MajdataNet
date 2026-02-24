@@ -56,35 +56,6 @@
 }
 
 
-/* ===== 难度等级 - 渐变背景样式 ===== */
-.difficulty-level-item.level-easy {
-  background: linear-gradient(90deg, rgb(59 130 246 / 60%), rgb(59 130 246 / 40%));
-}
-
-.difficulty-level-item.level-basic {
-  background: linear-gradient(90deg, rgb(34 197 94 / 60%), rgb(34 197 94 / 40%));
-}
-
-.difficulty-level-item.level-advanced {
-  background: linear-gradient(90deg, rgb(234 179 8 / 60%), rgb(234 179 8 / 40%));
-}
-
-.difficulty-level-item.level-expert {
-  background: linear-gradient(90deg, rgb(239 68 68 / 60%), rgb(239 68 68 / 40%));
-}
-
-.difficulty-level-item.level-master {
-  background: linear-gradient(90deg, rgb(168 85 247 / 60%), rgb(168 85 247 / 40%));
-}
-
-.difficulty-level-item.level-remaster {
-  background: linear-gradient(90deg, rgb(192 38 211 / 60%), rgb(192 38 211 / 40%));
-}
-
-.difficulty-level-item.level-utage {
-  background: linear-gradient(90deg, rgb(139 92 246 / 60%), rgb(139 92 246 / 40%));
-}
-
 
 /* ===== Sidebar 设计师面板特殊布局 ===== */
 .song-info-sidebar>.glass-panel:has(.designer-link) {
@@ -162,38 +133,6 @@
   box-shadow: 0 4px 12px rgb(34 197 94 / 30%);
 }
 
-
-/* ===== 交互按钮组 - 复杂背景和边框 ===== */
-.compact-interaction-btn {
-  background: rgb(255 255 255 / 14%);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgb(255 255 255 / 22%);
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.compact-interaction-btn:hover {
-  background: rgb(255 255 255 / 20%);
-  border-color: rgb(255 255 255 / 35%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgb(0 0 0 / 25%), 0 2px 8px rgb(0 0 0 / 15%);
-}
-
-/* ===== 点赞用户头像 - 动画和悬停效果 ===== */
-.liked-user-avatar {
-  animation: fadeInUp 0.6s ease-out both;
-  transition: all 0.3s ease;
-}
-
-.liked-user-avatar:hover {
-  transform: translateY(-4px) scale(1.1);
-  z-index: 10;
-}
-
-.liked-user-avatar:hover .user-avatar-img,
-.liked-user-avatar:hover .more-likes {
-  border-color: rgb(59 130 246 / 60%);
-  box-shadow: 0 8px 25px rgb(59 130 246 / 30%), 0 0 0 2px rgb(59 130 246 / 20%);
-}
 
 
 /* ===== 分数卡片 - 渐变背景和特殊效果 ===== */

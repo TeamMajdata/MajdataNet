@@ -25,7 +25,9 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   }
 
   if (isLoading) {
-    return <div className="loading"></div>;
+    return <div className="flex justify-center items-center min-h-20">
+      <div className="border-white border-b-2 rounded-full w-8 h-8 animate-spin"></div>
+    </div>;
   }
 
   if (!data || data.length === 0) {
@@ -35,11 +37,19 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   const maxScore = data[0].dxAccSum;
 
   return (
-    <div className="song-score-list">
-      <div className="theList">
-        {data.map((player) => (
+    <div
+      style={{
+        maxWidth: 'var(--container-max-width)',
+        margin: 'var(--container-margin)',
+        marginTop: '2rem',
+        padding: 'var(--container-padding)',
+      }}
+    >
+      <div className="gap-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {data.map((player, index) => (
           <ScoreCard
             key={player.username}
+            rank={index + 1}
             username={player.username}
             scoresum={player.dxAccSum}
             maxscore={maxScore}
@@ -53,43 +63,112 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
 /**
  * 单个分数卡片组件
  */
-function ScoreCard({ username, scoresum, maxscore }: ScoreCardProps) {
+function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
   const percentage = (scoresum / maxscore) * 100;
+  const isFirst = rank === 1;
 
   return (
-    <div style={{ width: '100%' }}>
-      <div className="score-card modern-score-card">
-        {/* 玩家信息 */}
-        <div className="score-player-info">
-          <a href={`/space?id=${username}`} className="player-link">
+    <div className="relative">
+      <a 
+        href={`/space?id=${username}`}
+        className="block text-inherit no-underline"
+      >
+        <div 
+          className="relative p-3 h-full transition-all duration-300 ease-out"
+          style={{
+            background: 'var(--glassmorphism-bg-secondary)',
+            backdropFilter: 'var(--glassmorphism-backdrop)',
+            border: isFirst ? '2px solid rgba(255, 215, 0, 0.5)' : 'var(--glassmorphism-border)',
+            borderRadius: 'var(--glassmorphism-border-radius)',
+            boxShadow: isFirst 
+              ? '0 4px 20px rgba(255, 215, 0, 0.3), var(--glassmorphism-shadow)'
+              : 'var(--glassmorphism-shadow)',
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget as HTMLElement;
+            el.style.transform = 'translateY(-4px) scale(1.02)';
+            el.style.boxShadow = isFirst
+              ? '0 8px 30px rgba(255, 215, 0, 0.4), 0 4px 12px rgb(0 0 0 / 20%)'
+              : '0 8px 25px rgb(0 0 0 / 30%), 0 4px 12px rgb(0 0 0 / 20%)';
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget as HTMLElement;
+            el.style.transform = 'translateY(0) scale(1)';
+            el.style.boxShadow = isFirst
+              ? '0 4px 20px rgba(255, 215, 0, 0.3), var(--glassmorphism-shadow)'
+              : 'var(--glassmorphism-shadow)';
+          }}
+        >
+          {/* 第一名标记 */}
+          {isFirst && (
+            <div
+              className="top-2 right-2 absolute px-2 py-1 rounded font-bold text-sm"
+              style={{
+                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+                color: '#000',
+                textShadow: '0 1px 2px rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 2px 8px rgba(255, 215, 0, 0.5)',
+              }}
+            >
+              1st
+            </div>
+          )}
+
+          {/* 玩家头像 */}
+          <div className="flex justify-center mb-2">
             <img
-              className="player-avatar"
+              className="border-2 rounded-full w-16 h-16 object-cover transition-all duration-300"
+              style={{
+                borderColor: isFirst ? 'rgba(255, 215, 0, 0.6)' : 'rgb(255 255 255 / 20%)',
+                aspectRatio: '1',
+              }}
               src={`${apiroot3}/account/Icon?username=${username}`}
               alt={username}
             />
-            <div className="player-details">
-              <span className="player-username">{username}</span>
-            </div>
-          </a>
-        </div>
+          </div>
 
-        {/* 分数显示 */}
-        <div className="score-results">
-          <div className="score-accuracy">{scoresum.toFixed(4)}%</div>
-        </div>
+          {/* 用户名 */}
+          <div 
+            className="mb-2 px-1 font-semibold text-white text-sm text-center truncate"
+            style={{
+              textShadow: '0 1px 2px rgb(0 0 0 / 30%)',
+            }}
+          >
+            {username}
+          </div>
 
-        {/* 进度条 */}
-        <div
-          style={{
-            width: `${percentage}%`,
-            height: '2px',
-            position: 'fixed',
-            backgroundColor: 'rgba(255,255,255,50)',
-            left: '0',
-            bottom: '10px',
-          }}
-        ></div>
-      </div>
+          {/* 分数 */}
+          <div 
+            className="font-bold text-white text-lg text-center"
+            style={{
+              textShadow: '0 1px 2px rgb(0 0 0 / 30%)',
+              color: isFirst ? '#FFD700' : 'white',
+            }}
+          >
+            {scoresum.toFixed(4)}%
+          </div>
+
+          {/* 进度条 */}
+          <div
+            className="mt-2 rounded-full overflow-hidden"
+            style={{
+              height: '4px',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <div
+              style={{
+                width: `${percentage}%`,
+                height: '100%',
+                background: isFirst
+                  ? 'linear-gradient(90deg, #FFD700 0%, #FFA500 100%)'
+                  : 'rgba(255, 255, 255, 0.5)',
+                transition: 'width 0.3s ease',
+              }}
+            />
+          </div>
+        </div>
+      </a>
     </div>
   );
 }
