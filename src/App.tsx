@@ -12,6 +12,7 @@ import EventTagPage from './pages/EventTagPage';
 import UserPage from './pages/UserPage';
 import UserChartsPage from './pages/UserChartsPage';
 import UserProfilePage from './pages/UserProfilePage';
+import MiniGamePage from './pages/MiniGamePage';
 import './App.css';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/user" element={<UserPage />} />
           <Route path="/user/charts" element={<UserChartsPage />} />
           <Route path="/user/profile" element={<UserProfilePage />} />
+          <Route path="/minigame" element={<MiniGamePage />} />
         </Routes>
       </Router>
     </I18nProvider>
