@@ -82,7 +82,7 @@ export default function PageLayout({
             {/* Open Source Info */}
             <div className="text-[0.85rem] text-white/80 text-center">
               <a
-                href="https://github.com/LingFeng-bbben/Majdata-Online"
+                href="https://github.com/TeamMajdata/MajdataNet"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-400/90 hover:text-blue-400 no-underline transition-all duration-300"
