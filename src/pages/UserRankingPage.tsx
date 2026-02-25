@@ -32,7 +32,7 @@ export default function UserRankingPage() {
       {/* 页面标题和说明 */}
       <div className="mt-8 mb-8 text-center">
         <h1 
-          className="mb-4 font-bold text-4xl text-white"
+          className="mb-4 font-bold text-white text-4xl"
           style={{
             textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
           }}

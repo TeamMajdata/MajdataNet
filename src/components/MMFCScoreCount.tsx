@@ -159,7 +159,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         }}
       >
         {/* 排名显示 */}
-        <div className="flex justify-center items-center shrink-0 min-w-20">
+        <div className="flex justify-center items-center min-w-20 shrink-0">
           <span 
             className="font-bold transition-all duration-300"
             style={{
@@ -187,7 +187,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         </div>
 
         {/* 玩家信息 */}
-        <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="flex flex-1 items-center gap-3 min-w-0">
           <img
             className="border-2 rounded-full w-12 h-12 object-cover transition-all duration-300 shrink-0"
             style={{
@@ -208,9 +208,9 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
             }}
           />
           
-          <div className="flex flex-col gap-1 flex-1 min-w-0 overflow-hidden">
+          <div className="flex flex-col flex-1 gap-1 min-w-0 overflow-hidden">
             <span 
-              className="font-semibold text-lg text-white text-ellipsis whitespace-nowrap overflow-hidden"
+              className="overflow-hidden font-semibold text-white text-lg text-ellipsis whitespace-nowrap"
               style={{
                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
               }}
@@ -221,9 +221,9 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         </div>
 
         {/* 分数显示 */}
-        <div className="flex flex-col items-end gap-1 shrink-0 text-right">
+        <div className="flex flex-col items-end gap-1 text-right shrink-0">
           <div 
-            className="font-bold text-2xl text-white"
+            className="font-bold text-white text-2xl"
             style={{
               textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
             }}

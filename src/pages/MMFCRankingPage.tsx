@@ -63,7 +63,7 @@ export default function MMFCRankingPage() {
       >
         <div className="mb-6 text-center">
           <h2 
-            className="mb-2 font-bold text-3xl text-white"
+            className="mb-2 font-bold text-white text-3xl"
             style={{
               textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
             }}
