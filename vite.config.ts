@@ -11,6 +11,46 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React 核心库
+          'vendor-react': ['react', 'react-dom'],
+          // React Router
+          'vendor-router': ['react-router-dom'],
+          // UI 组件库
+          'vendor-ui': [
+            'framer-motion',
+            'react-icons',
+            'react-photo-view',
+            'swiper',
+            '@radix-ui/react-tooltip',
+            'react-toastify',
+          ],
+          // Markdown 相关
+          'vendor-markdown': [
+            'react-markdown',
+            'remark-gfm',
+            'remark-breaks',
+            'github-markdown-css',
+          ],
+          // Unity WebGL
+          'vendor-unity': ['react-unity-webgl'],
+          // 工具库
+          'vendor-utils': [
+            'axios',
+            'jszip',
+            'js-md5',
+            'swr',
+            'use-debounce',
+            'react-lazy-load',
+          ],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000, // 将警告阈值提高到 1000 kB
+  },
   server: {
     proxy: {
       // 代理所有 /api1, /api2, /api3 请求到 majdata.net

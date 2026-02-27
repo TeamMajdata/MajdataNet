@@ -74,7 +74,7 @@ export default function Majdata({ songid, apiroot, level }: MajdataProps) {
         style={{ display: isLoaded ? 'unset' : 'none' }}
       />
       <div
-        className="w-full h-full text-center leading-[20rem]"
+        className="w-full h-full text-center leading-80"
         style={{ display: isLoaded ? 'none' : 'block' }}
       >
         Loading Majdata {`${(loadingProgression * 100).toFixed(2)}% ..`}
