@@ -14,6 +14,9 @@ export default function SongDifficultyLevels({
   isPlayer = false 
 }: SongDifficultyLevelsProps) {
   // 处理空值
+  if (!levels || !Array.isArray(levels)) {
+    return <div>No difficulty levels available</div>;
+  }
   const processedLevels = levels.map((level) => {
     if (level == null || level === '') {
       return '-';

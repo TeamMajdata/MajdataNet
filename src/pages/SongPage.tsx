@@ -5,7 +5,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import { setLanguage } from '@/utils/i18n';
@@ -26,11 +25,11 @@ import {
 import { downloadSong } from '@/utils/download';
 import type { SongDetailsContainerProps, SongSummary } from '@/types';
 
-const fetcher = (url: string) =>
-  fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
-
 export default function SongPage() {
+  const loc = useLoc();
   const [ready, setReady] = useState(false);
+  const [checkedParam, setCheckedParam] = useState<string | null>(null);
+  const [songData, setSongData] = useState<SongSummary | null>(null);
   const [searchParams] = useSearchParams();
   const param = searchParams.get('id');
 
@@ -40,7 +39,43 @@ export default function SongPage() {
     });
   }, []);
 
-  if (!ready || !param) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  useEffect(() => {
+    if (!param) return;
+    
+    fetch(`${apiroot3}/maichart/${param}/summary`, {
+      mode: 'cors',
+      credentials: 'include'
+    })
+      .then(async (res) => {
+        setCheckedParam(param);
+        if (res.ok) {
+          const data = await res.json();
+          setSongData(data);
+        } else {
+          setSongData(null);
+        }
+      })
+      .catch(() => {
+        setCheckedParam(param);
+        setSongData(null);
+      });
+  }, [param]);
+
+  const isChecking = param !== checkedParam;
+
+  if (!ready || !param || isChecking) {
+    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  }
+
+  if (!songData) {
+    return (
+      <PageLayout>
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="text-white text-2xl">{loc('SongNotFound', '歌曲不存在')}</div>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout>
@@ -49,7 +84,7 @@ export default function SongPage() {
         style={{ backgroundImage: `url(${apiroot3}/maichart/${param}/image)` }}
       />
 
-      <SongDetailsContainer id={param} />
+      <SongDetailsContainer id={param} data={songData} />
       <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
       <ScoreList songid={param} />
       <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
@@ -59,45 +94,31 @@ export default function SongPage() {
   );
 }
 
-function SongDetailsContainer({ id }: SongDetailsContainerProps) {
+function SongDetailsContainer({ id, data }: SongDetailsContainerProps & { data: SongSummary }) {
   return (
     <div className="bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] backdrop-blur-xl saturate-160 rounded-xl transition-all">
-      <SongInfo id={id} />
+      <SongInfo id={id} data={data} />
     </div>
   );
 }
 
 
-function SongInfo({ id }: { id: string }) {
+function SongInfo({ data }: { id: string; data: SongSummary }) {
   const loc = useLoc();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tagButtonRef = useRef<any>(null);
   const [isLoadMajdata, setIsLoadMajdata] = useState(false);
-  const { data, error, isLoading } = useSWR<SongSummary>(
-    apiroot3 + '/maichart/' + id + '/summary',
-    fetcher
-  );
 
-  if (error) {
-    return <div>failed to load</div>;
-  }
-  if (isLoading) {
-    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
-  }
-  if (data === undefined) {
-    return <div>failed to load</div>;
-  }
+  const o = data;
 
   const OnDownloadClick = (params: { id: string; title: string }) => async () => {
     await downloadSong({ id: params.id, title: params.title, toast: toast });
   };
 
-  const shareSong = (props: { id: string }) => async () => {
-    await navigator.clipboard.writeText('https://majdata.net/song?id=' + props.id);
+  const shareSong = () => async () => {
+    await navigator.clipboard.writeText(window.location.href);
     toast.success(loc('ClipboardSuccess'));
   };
-
-  const o = data;
 
   return (
     <div className="bg-transparent p-6">
@@ -165,7 +186,7 @@ function SongInfo({ id }: { id: string }) {
           <div className="flex md:flex-row flex-col lg:flex-col gap-4 md:gap-4 lg:gap-4">
             <Tooltip content={o.uploader + '@' + o.designer}>
               <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
-                <a href={'/space?id=' + o.uploader} className="inline-flex items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-[16px] px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
+                <a href={'/space?id=' + o.uploader} className="inline-flex items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-lg px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
                   <img
                     className="shadow-sm border-2 border-white/25 rounded-full w-9 min-w-9 h-9 min-h-9 aspect-square transition-all duration-300 shrink-0"
                     src={apiroot3 + '/account/Icon?username=' + o.uploader}
@@ -249,7 +270,7 @@ function SongInfo({ id }: { id: string }) {
             </button>
             <button
               className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
-              onClick={shareSong({ id: o.id })}
+              onClick={shareSong()}
               title={loc('Share')}
             >
               <span className="inline-flex justify-center items-center gap-2 w-full">
@@ -315,7 +336,7 @@ function SongInfo({ id }: { id: string }) {
 
         <main className="flex flex-col gap-8">
           {isLoadMajdata ? (
-            <MajdataView id={o.id} />
+            <MajdataView id={o.id} data={o} />
           ) : (
             <button
               className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md p-2.5 border border-white/20 rounded-xl w-full aspect-square font-bold text-base transition-all"
@@ -341,22 +362,7 @@ function SongInfo({ id }: { id: string }) {
 }
 
 // ======================== Majdata View ========================
-function MajdataView({ id }: { id: string }) {
-  const { data, error, isLoading } = useSWR<SongSummary>(
-    apiroot3 + '/maichart/' + id + '/summary',
-    fetcher
-  );
-
-  if (error) {
-    return <div>failed to load</div>;
-  }
-  if (isLoading) {
-    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
-  }
-  if (data === undefined) {
-    return <div>failed to load</div>;
-  }
-
+function MajdataView({ data }: { id: string; data: SongSummary }) {
   const o = data;
   // 找到最后一个非空的level，从后往前遍历
   let firstNonEmptyIndex = -1;

@@ -127,7 +127,7 @@ export default function SpacePage() {
         variants={slideInUp}
       >
         <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-          {loc('WhoLovesToPlay', '谁爱玩这些谱面')}
+          {loc('WhoLovesToPlay', '谁爱玩')}
         </h2>
         <div 
           className="relative mx-auto my-8 border-0 w-[70%] h-px" 

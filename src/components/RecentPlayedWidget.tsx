@@ -71,11 +71,11 @@ export default function RecentPlayedWidget({ username }: RecentPlayedWidgetProps
               songid={o.chartId}
               isPlayer={false}
             />
-            <div className="float-left shadow-[1px_1px_gray] m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none" style={{ color: 'yellow' }}>
+            <div className="float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none" style={{ color: 'yellow' }}>
               {o.acc.toFixed(4)}
             </div>
             <br />
-            <div className="float-left shadow-[1px_1px_gray] m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none">
+            <div className="float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none">
               {getComboState(o.comboState)}
             </div>
           </div>

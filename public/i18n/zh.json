@@ -45,6 +45,7 @@
   "SearchForTag": "搜索标签",
   "SearchForArtist": "搜索该艺术家",
   "SearchForTitle": "搜索该歌曲",
+  "SongNotFound": "这是什么地方？没有这首歌哦",
   "Tags": "标签",
   "SelfIntro": "自我介绍",
   "ServerError": "已闭店",
