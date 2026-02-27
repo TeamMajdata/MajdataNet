@@ -58,6 +58,9 @@ export default function MobileNav() {
         <Link to="/edit" className={MOBILE_DROPDOWN_ITEM}>
           <span className="w-full text-sm text-center">{loc('ChartEditor')}</span>
         </Link>
+        <Link to="/play" className={MOBILE_DROPDOWN_ITEM}>
+          <span className="w-full text-sm text-center">MajdataPlay</span>
+        </Link>
         <Link to="/events" className={MOBILE_DROPDOWN_ITEM}>
           <span className="w-full text-sm text-center">{loc('Contest')}</span>
         </Link>

@@ -15,6 +15,9 @@ export default function DesktopNav() {
       <Link to="/edit" className={NAV_LINK}>
         <span className="text-sm">{loc('ChartEditor')}</span>
       </Link>
+      <Link to="/play" className={NAV_LINK}>
+        <span className="text-sm">MajdataPlay</span>
+      </Link>
       <Link to="/events" className={NAV_LINK}>
         <span className="text-sm">{loc('Contest')}</span>
       </Link>
