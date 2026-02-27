@@ -4,10 +4,9 @@
  */
 
 import { memo, useCallback } from 'react';
-import LazyLoad from 'react-lazy-load';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-import { CoverPic, InteractCount, Levels, TagManageWidget } from '@/components';
+import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad } from '@/components';
 import Tooltip from '@/components/Tooltip';
 import { apiroot3 } from '@/config/api';
 import { downloadSong } from '@/utils/download';

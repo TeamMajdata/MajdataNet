@@ -5,8 +5,7 @@
 
 import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
-import LazyLoad from 'react-lazy-load';
-import { CoverPic, Level } from '@/components';
+import { CoverPic, Level, LazyLoad } from '@/components';
 import { getComboState } from '@/utils';
 import { useLoc } from '@/hooks';
 import type { RecentPlayedWidgetProps, RecentPlayedData } from '@/types';

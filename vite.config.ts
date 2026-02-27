@@ -44,7 +44,6 @@ export default defineConfig({
             'js-md5',
             'swr',
             'use-debounce',
-            'react-lazy-load',
           ],
         },
       },
