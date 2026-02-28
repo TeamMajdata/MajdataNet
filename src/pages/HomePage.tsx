@@ -35,7 +35,7 @@ export default function HomePage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
 
   return (
     <PageLayout showBackToHome={false}>
@@ -162,7 +162,7 @@ function DesktopEventsSwiper() {
 
             {/* More 页面作为 Swiper 的最后一页 */}
             <SwiperSlide className="flex h-auto">
-              <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-[1279/372] overflow-hidden">
+              <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
                 <Link to="/chart-events" className="block relative w-full h-full text-inherit no-underline">
                   <div className="flex flex-col justify-center items-center h-full text-white/70">
                     <div className="mb-2 text-[2rem]">→</div>
@@ -335,20 +335,20 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   );
 
   return (
-    <div className="mt-4 md:mt-0 mb-4 md:mb-4 px-3 px-4 md:px-4 w-full">
+    <div className="mt-4 md:mt-0 mb-4 md:mb-4 px-4 md:px-4 w-full">
       <div className="relative border border-white/10 rounded-[20px] overflow-visible">
         <div className="flex md:flex-row flex-col justify-center items-center gap-3 md:gap-6 p-4 w-full">
           <div className="w-full">
             <div className="relative flex items-center w-full">
               <input
                 type="text"
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-7 py-4 pr-12 md:pr-14 border-2 border-white/15 rounded-[30px] outline-none w-full h-[45px] md:h-[45px] text-white placeholder:text-white/60 text-base md:text-base"
+                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-7 py-4 pr-12 md:pr-14 border-2 border-white/15 rounded-[30px] outline-none w-full h-11.25 md:h-11.25 text-white placeholder:text-white/60 text-base md:text-base"
                 placeholder={initS === '' ? loc('SearchPlaceholder', '搜索...') : initS}
                 value={currentValue}
                 onChange={handleInputChange}
               />
               {currentValue && (
-                <button className="top-1/2 right-4 z-[2] absolute flex justify-center items-center bg-transparent border-none rounded-full w-7 md:w-7 h-7 md:h-7 font-light text-white/60 text-xl leading-none -translate-y-1/2 cursor-pointer" onClick={handleClearSearch} title="清空搜索">
+                <button className="top-1/2 right-4 z-2 absolute flex justify-center items-center bg-transparent border-none rounded-full w-7 md:w-7 h-7 md:h-7 font-light text-white/60 text-xl leading-none -translate-y-1/2 cursor-pointer" onClick={handleClearSearch} title="清空搜索">
                   ×
                 </button>
               )}
@@ -377,7 +377,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                   const val = parseInt(e.target.value);
                   onSortChange(val);
                 }}
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-[150%] px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-[80px] h-10 md:h-[45px] overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
+                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
                 data-mobile-label={loc('SortBy', '排序方式')}
               >
                 {isMobile && (
@@ -485,10 +485,10 @@ function MainComp() {
         setMax={setMaxpage}
       />
 
-      <div className="flex flex-col items-center gap-6 mx-auto mt-12 px-4 max-w-[1280px]">
+      <div className="flex flex-col items-center gap-6 mx-auto mt-12 px-4 max-w-7xl">
         <div className="flex items-center gap-4 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-6 border border-white/10 rounded-xl">
           <button
-            className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-[80px] ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+            className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
             disabled={page - 1 < 0}
             onClick={() => {
               setPage(page - 1);
@@ -503,7 +503,7 @@ function MainComp() {
             <input
               type="number"
               value={page}
-              className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-[60px] font-medium text-white text-center"
+              className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
               onChange={(event) => {
                 if (event.target.value !== '') {
                   setPage(parseInt(event.target.value));
@@ -516,7 +516,7 @@ function MainComp() {
           </div>
 
           <button
-            className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-[80px] ${page >= maxpage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+            className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page >= maxpage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
             disabled={page >= maxpage}
             onClick={() => {
               setPage(page + 1);
@@ -570,7 +570,7 @@ function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
       <select
         value={isMobile ? currentType || 'placeholder' : currentType}
         onChange={handleChange}
-        className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-[150%] px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-[80px] h-10 md:h-[45px] overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
+        className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
         data-mobile-label={loc('DownloadFormat', '下载格式')}
       >
         {isMobile && (

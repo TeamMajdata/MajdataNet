@@ -32,7 +32,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   }
 
   if (!data || data.length === 0) {
-    return <div>{loc('EmptyData', '空的')}</div>;
+    return <div className="py-8 text-center">{loc('EmptyData', '空的')}</div>;
   }
 
   const maxScore = data[0].dxAccSum;

@@ -12,11 +12,14 @@ import type { Song, SongListProps } from '@/types';
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
-export default function SongList({ url, setMax, page, isRanking, isManage }: SongListProps) {
+export default function SongList({ url, setMax, page, isRanking, isManage, onDataLoaded }: SongListProps) {
   const loc = useLoc();
 
   const { data, error, isLoading } = useSWR<Song[]>(url, fetcher, {
     revalidateOnFocus: false,
+    onSuccess: (data) => {
+      onDataLoaded?.(!!data && Array.isArray(data) && data.length > 0);
+    },
   });
 
   if (error) return <div className="m-auto w-full text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;

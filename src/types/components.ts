@@ -113,6 +113,7 @@ export interface SongListProps {
   page?: number;
   isRanking?: boolean;
   isManage?: boolean;
+  onDataLoaded?: (hasData: boolean) => void;
 }
 
 // ======================== 评论组件 ========================
