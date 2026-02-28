@@ -5,8 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import 'react-photo-view/dist/react-photo-view.css';
-import * as md5Module from 'js-md5';
-const md5 = (md5Module as any).default || md5Module;
+import { md5 } from 'js-md5';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

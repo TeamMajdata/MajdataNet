@@ -5,8 +5,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import 'react-photo-view/dist/react-photo-view.css';
-import * as md5Module from 'js-md5';
-const md5 = (md5Module as any).default || md5Module;
+import { md5 } from 'js-md5';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -34,7 +33,7 @@ export default function LoginPage() {
     }
   }, [ready, loc]);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
 
   return <PageLayout className="flex justify-center items-center min-h-[60vh]">
       <Login />
