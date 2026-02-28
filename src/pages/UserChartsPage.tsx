@@ -6,7 +6,6 @@
 import { PageLayout, ChartUploader, SongList } from '@/components';
 import { useLoc, useUser } from '@/hooks';
 import { apiroot3 } from '@/config/api';
-import { Link } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
 
 // slideInUp 动画变体

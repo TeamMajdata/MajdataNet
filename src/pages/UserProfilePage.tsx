@@ -3,7 +3,6 @@
  * 迁移自 legacy/src/app/user/profile/page.jsx
  */
 
-import { Link } from 'react-router-dom';
 import { PageLayout, AvatarUploader, IntroUploader } from '@/components';
 import { useLoc, useUser } from '@/hooks';
 import { motion, type Variants } from 'framer-motion';
