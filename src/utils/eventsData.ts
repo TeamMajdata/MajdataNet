@@ -326,9 +326,7 @@ export function getCategoryTranslation(category: EventCategory): string {
   const i18nKey = EVENT_CATEGORY_I18N_KEYS[category];
   if (!i18nKey) return '';
   
-  // 默认值映射
-  const defaultValues = ['高校赛事', '大型赛事', '私立企划', '私立赛事', '全部'];
-  return loc(i18nKey, defaultValues[category] || '');
+  return loc(i18nKey);
 }
 
 // 预构建搜索关键词到活动的映射表（性能优化）

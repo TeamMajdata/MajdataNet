@@ -18,6 +18,7 @@ import UserChartsPage from './pages/UserChartsPage';
 import UserProfilePage from './pages/UserProfilePage';
 import MiniGamePage from './pages/MiniGamePage';
 import './App.css';
+import PersonalScoresPage from './pages/PersonalScoresPage';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
           <Route path="/eventTag" element={<EventTagPage />} />
           <Route path="/user/charts" element={<UserChartsPage />} />
           <Route path="/user/profile" element={<UserProfilePage />} />
+          <Route path="/user/scores" element={<PersonalScoresPage />} />
           <Route path="/minigame" element={<MiniGamePage />} />
         </Routes>
       </Router>

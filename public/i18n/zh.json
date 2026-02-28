@@ -262,5 +262,13 @@
   "NoMMFCRankingData": "暂无打榜数据，请先添加参与者",
   "MMFCRankingListTitle": "打榜排名",
   "MMFCRankingListDescription": "参赛选手对 mmfc_bot 谱面的游玩总分排名",
-  "Rankings": "榜单"
+  "Rankings": "榜单",
+  "PersonalScores": "我的成绩",
+  "NoScores": "暂无成绩记录",
+  "SortByTime": "游玩时间",
+  "SortByDxAcc": "DX准确率",
+  "SortByClassicAcc": "Classic准确率",
+  "SortByDxScore": "DX分数",
+  "SortByCombo": "Combo状态",
+  "TotalScores": "总成绩数"
 }

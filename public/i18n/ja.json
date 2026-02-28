@@ -254,5 +254,13 @@
   "NoMMFCRankingData": "ランキングデータがありません。まず参加者を追加してください",
   "MMFCRankingListTitle": "チャレンジランキング",
   "MMFCRankingListDescription": "参加者のmmfc_bot譜面プレイ総合スコアランキング",
-  "Rankings": "ランキング"
+  "Rankings": "ランキング",
+  "PersonalScores": "マイスコア",
+  "NoScores": "スコア記録がありません",
+  "SortByTime": "プレイ時間",
+  "SortByDxAcc": "DX精度",
+  "SortByClassicAcc": "クラシック精度",
+  "SortByDxScore": "DXスコア",
+  "SortByCombo": "コンボ状態",
+  "TotalScores": "総スコア数"
 }

@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import { useLoc } from '@/hooks';
 import { getComboState, getLevelName } from '@/utils';
-import type { Score, ScoreListProps, LikeSenderProps } from '@/types';
+import type { ChartScore, ScoreListProps, LikeSenderProps } from '@/types';
 import { Link } from 'react-router-dom';
 
 const fetcher = (url: string) =>
@@ -228,10 +228,8 @@ export function ScoreList({ songid }: ScoreListProps) {
     return <div>failed to load</div>;
   }
 
-  console.log(data)
-
   const scoreList = data.scores;
-  const objlist = scoreList.map((p: Score[], index: number) =>
+  const objlist = scoreList.map((p: ChartScore[], index: number) =>
     p.length !== 0 ? <ScoreListLevel key={index} scores={p} level={index} /> : <React.Fragment key={index}></React.Fragment>
   );
 
@@ -245,7 +243,7 @@ export function ScoreList({ songid }: ScoreListProps) {
   );
 }
 
-function ScoreListLevel({ scores, level }: { scores: Score[]; level: number }) {
+function ScoreListLevel({ scores, level }: { scores: ChartScore[]; level: number }) {
   return (
     <div>
       <p>{getLevelName(level)}</p>
@@ -256,7 +254,7 @@ function ScoreListLevel({ scores, level }: { scores: Score[]; level: number }) {
   );
 }
 
-function ScoreCard({ score, index }: { score: Score; index: number }) {
+function ScoreCard({ score, index }: { score: ChartScore; index: number }) {
   const comboState = getComboState(score.comboState);
   let cardClass = 'flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0,0,0,0.3),0_4px_12px_rgb(0,0,0,0.2)] hover:border-white/20 mb-4';
 

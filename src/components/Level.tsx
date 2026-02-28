@@ -21,7 +21,7 @@ export default function Level({ level, difficulty, songid, isPlayer = false }: L
 
   return (
     <motion.div
-      className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-gray-500 overflow-hidden cursor-pointer select-none ${levelColors[String(level)] || ''}`}
+      className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-gray-500 overflow-hidden cursor-pointer select-none ${levelColors[level] || ''}`}
       style={{ display: 'unset' }}
       onClick={levelClickCallback}
       whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}

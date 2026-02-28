@@ -254,5 +254,13 @@
   "NoMMFCRankingData": "No ranking data available. Please add participants first",
   "MMFCRankingListTitle": "Challenge Rankings",
   "MMFCRankingListDescription": "Total scores ranking of participants playing mmfc_bot's charts",
-  "Rankings": "Rankings"
+  "Rankings": "Rankings",
+  "PersonalScores": "My Scores",
+  "NoScores": "No score records yet",
+  "SortByTime": "Play Time",
+  "SortByDxAcc": "DX Accuracy",
+  "SortByClassicAcc": "Classic Accuracy",
+  "SortByDxScore": "DX Score",
+  "SortByCombo": "Combo Status",
+  "TotalScores": "Total Scores"
 }
