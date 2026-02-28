@@ -6,7 +6,7 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Tooltip from '@/components/Tooltip';
 import { useDebouncedCallback } from 'use-debounce';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
@@ -123,7 +123,7 @@ function DesktopEventsSwiper() {
             {ongoingEvents.map((event) => (
               <SwiperSlide key={event.id} className="flex h-auto">
                 <div className="relative flex-1 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
-                  <a href={event.href} className="block relative w-full h-full text-inherit no-underline">
+                  <Link to={event.href} className="block relative w-full h-full text-inherit no-underline">
                     <div className="relative w-full h-full overflow-hidden">
                       <img
                         className="block w-full h-full object-cover"
@@ -155,7 +155,7 @@ function DesktopEventsSwiper() {
                         </div>
                       </div>
                     </div>
-                  </a>
+                  </Link>
                 </div>
               </SwiperSlide>
             ))}
@@ -163,7 +163,7 @@ function DesktopEventsSwiper() {
             {/* More 页面作为 Swiper 的最后一页 */}
             <SwiperSlide className="flex h-auto">
               <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-[1279/372] overflow-hidden">
-                <a href="/events" className="block relative w-full h-full text-inherit no-underline">
+                <Link to="/chart-events" className="block relative w-full h-full text-inherit no-underline">
                   <div className="flex flex-col justify-center items-center h-full text-white/70">
                     <div className="mb-2 text-[2rem]">→</div>
                     <div className="font-semibold text-lg tracking-wider">more</div>
@@ -176,7 +176,7 @@ function DesktopEventsSwiper() {
                       </span>
                     </div>
                   </div>
-                </a>
+                </Link>
               </div>
             </SwiperSlide>
           </Swiper>
@@ -251,7 +251,7 @@ function MobileEventsSwiper() {
             {/* 活跃的活动（进行中 + 即将开始） */}
             {ongoingEvents.map((event) => (
               <SwiperSlide key={event.id} className="flex h-auto">
-                <a href={event.href} className="block w-full h-full text-inherit no-underline">
+                <Link to={event.href} className="block w-full h-full text-inherit no-underline">
                   <div className="relative bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl border border-white/10 rounded-xl w-full aspect-1279/372 overflow-hidden">
                     <div className="relative w-full h-full overflow-hidden">
                       <img
@@ -262,20 +262,20 @@ function MobileEventsSwiper() {
                       />
                     </div>
                   </div>
-                </a>
+                </Link>
               </SwiperSlide>
             ))}
 
             {/* More 页面作为 Swiper 的最后一页 */}
             <SwiperSlide className="flex h-auto">
-              <a href="/events" className="block w-full h-full text-inherit no-underline">
+              <Link to="/chart-events" className="block w-full h-full text-inherit no-underline">
                 <div className="relative flex justify-center items-center bg-linear-to-br from-blue-500/20 via-purple-500/20 to-red-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl border border-white/15 rounded-xl w-full aspect-1279/372 overflow-hidden">
                   <div className="flex flex-col justify-center items-center gap-4 p-2 w-full h-full text-white text-center">
                     <div className="flex justify-center items-center font-light text-[3rem] text-white/90 leading-none">→</div>
                     <h3 className="flex justify-center items-center m-0 font-semibold text-white text-lg text-center leading-none">MORE</h3>
                   </div>
                 </div>
-              </a>
+              </Link>
             </SwiperSlide>
           </Swiper>
         </div>

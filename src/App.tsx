@@ -31,7 +31,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/edit" element={<EditPage />} />
           <Route path="/play" element={<PlayPage />} />
-          <Route path="/events" element={<EventsPage />} />
+          <Route path="/chart-events" element={<EventsPage />} />
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/user-ranking" element={<UserRankingPage />} />
           <Route path="/mmfc-ranking" element={<MMFCRankingPage />} />

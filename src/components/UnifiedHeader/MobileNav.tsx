@@ -61,7 +61,7 @@ export default function MobileNav() {
         <Link to="/play" className={MOBILE_DROPDOWN_ITEM}>
           <span className="w-full text-sm text-center">MajdataPlay</span>
         </Link>
-        <Link to="/events" className={MOBILE_DROPDOWN_ITEM}>
+        <Link to="/chart-events" className={MOBILE_DROPDOWN_ITEM}>
           <span className="w-full text-sm text-center">{loc('Contest')}</span>
         </Link>
         <Link to="/eventTag?id=Original" className={MOBILE_DROPDOWN_ITEM}>
