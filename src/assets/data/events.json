@@ -1,4 +1,15 @@
 ﻿[
+    {
+    "id": "LOA2",
+    "href": "/space?id=LOA2",
+    "src": "/events/loa2.jpg",
+    "alt": "loa2",
+    "title": "LOA2",
+    "category": 1,
+    "createDate": "2026-02-28",
+    "endDate": "2026-04-10",
+    "description": ""
+  },
   {
     "id": "agcc4",
     "href": "/space?id=AGCC",
@@ -10,7 +21,7 @@
     "endDate": "2026-03-15",
     "description": ""
   },
-    {
+  {
     "id": "hajicup2",
     "href": "/space?id=哈基杯",
     "src": "/events/hjb2.png",
@@ -32,7 +43,7 @@
     "endDate": "2026-02-28",
     "description": "将「用音乐采音」与「用采音写谱」分离为两个人的谱面创作展示活动"
   },
-    {
+  {
     "id": "xmmcg6",
     "href": "/space?id=xmmcg5",
     "src": "/events/xmmcg6.jpg",
