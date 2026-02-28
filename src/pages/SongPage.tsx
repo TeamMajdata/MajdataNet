@@ -96,7 +96,7 @@ export default function SongPage() {
 
 function SongDetailsContainer({ id, data }: SongDetailsContainerProps & { data: SongSummary }) {
   return (
-    <div className="bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] backdrop-blur-xl saturate-160 rounded-xl transition-all">
+    <div className="bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] backdrop-blur-xl backdrop-saturate-160 rounded-xl transition-all">
       <SongInfo id={id} data={data} />
     </div>
   );

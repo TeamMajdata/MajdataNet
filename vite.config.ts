@@ -64,7 +64,7 @@ export default defineConfig({
         secure: true,
       },
       '/api3': {
-        target: 'https://majdata.net',
+        target: 'https://maj-2.moyingmoe.top',
         changeOrigin: true,
         secure: true,
       },
