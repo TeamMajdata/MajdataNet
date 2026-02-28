@@ -73,9 +73,9 @@ export default function ChartUploader() {
   }
 
   const uploadFields = [
-    { label: loc('maidata') },
+    { label: 'maidata.txt'},
     { label: 'bg.png/bg.jpg' },
-    { label: 'track' },
+    { label: 'track.mp3' },
     { label: loc('BGVideoHint') },
   ];
 
@@ -85,12 +85,7 @@ export default function ChartUploader() {
         {uploadFields.map((field, index) => (
           <div key={index}>
             <div className="mt-4 pr-4 pl-4">{field.label}</div>
-            <input
-              className="bg-black shadow-[2px_2px_5px_gray] focus:shadow-[0_0_8px_rgba(0,123,255,0.5)] mx-2.5 my-2.5 px-1.5 py-1.5 border border-white focus:border-[#007bff] rounded-[10px] focus:outline-none h-8 caret-white"
-              type="file"
-              name="formfiles"
-              disabled={isUploading}
-            />
+            <input className="w-full h-10 px-3 py-2 mx-2 my-2 bg-gradient-to-r from-gray-900 to-black text-white rounded-lg border border-gray-400 shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" type="file" name="formfiles" disabled={isUploading} />
           </div>
         ))}
         <button

@@ -1112,9 +1112,9 @@ export function CommentList({ songid }: CommentListProps) {
   const comments = Array.isArray(data.comments) ? data.comments : [];
 
   return (
-    <div className="max-w-(--container-max-width) mx-(--container-margin) mt-8 px-(--container-padding)">
+    <div className="w-full mt-8">
       {comments.length === 0 ? (
-        <div className="px-4 py-12 text-center" style={{ color: 'rgb(255 255 255 / 50%)' }}>
+        <div className="w-full px-4 py-12 text-center " style={{ color: 'rgb(255 255 255 / 50%)' }}>
           <p>{loc('NoComments')}</p>
         </div>
       ) : (

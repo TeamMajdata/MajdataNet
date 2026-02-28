@@ -43,16 +43,6 @@ export default function UserChartsPage() {
 
   return (
     <PageLayout title={loc('ChartsManagement')} showBackToHome={false}>
-      {/* Back Button */}
-      <div className="mb-6">
-        <Link
-          to="/user"
-          className="inline-block bg-[rgba(30,30,30,0.9)] hover:bg-[rgba(40,40,40,0.95)] px-6 py-2 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-lg text-white/90 no-underline transition-all duration-300"
-        >
-          ← {loc('Back')}
-        </Link>
-      </div>
-
       {/* Upload Section */}
       <section className="mb-16">
         <motion.div 
