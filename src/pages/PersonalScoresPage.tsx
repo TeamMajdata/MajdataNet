@@ -12,8 +12,6 @@ import { getComboState } from '@/utils';
 import { useLoc } from '@/hooks';
 import type { Score } from '@/types';
 import { motion, type Variants } from 'framer-motion';
-import { AiOutlineLoading3Quarters } from 'react-icons/ai';
-import { toast } from 'react-toastify';
 
 // 动画变体
 const slideInUp: Variants = {
@@ -35,86 +33,6 @@ const fetcher = async (...args: Parameters<typeof fetch>) =>
 type SortOption = 'timestamp' | 'dxAcc' | 'dxScore' | 'comboState' | 'classicAcc';
 
 const ITEMS_PER_PAGE = 18;
-
-/**
- * 简化的点赞按钮组件
- */
-function SimpleLikeButton({ songid }: { songid: string }) {
-  const loc = useLoc();
-  const [isLoading, setIsLoading] = useState(false);
-  const { data, error, isLoading: isFetching, mutate } = useSWR(
-    apiroot3 + '/maichart/' + songid + '/interact',
-    fetcher
-  );
-
-  if (error || isFetching) return null;
-  if (!data || data.likes === undefined) return null;
-
-  const likecount = data.likes.length;
-  const isLiked = data.isLiked;
-
-  const handleLike = async () => {
-    if (isLoading) return;
-    
-    const formData = new FormData();
-    formData.set('type', 'like');
-    formData.set('content', 'like');
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(
-        apiroot3 + '/maichart/' + songid + '/interact',
-        {
-          method: 'POST',
-          body: formData,
-          mode: 'cors',
-          credentials: 'include',
-        }
-      );
-      
-      if (response.status === 200) {
-        toast.success(isLiked ? loc('CancelSuccess') : loc('LikeAction') + loc('Success'));
-        mutate();
-      } else {
-        toast.error(loc('LikeAction') + loc('FailedLoginPrompt'));
-      }
-    } catch {
-      toast.error(loc('LikeAction') + loc('FailedLoginPrompt'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <button
-      onClick={handleLike}
-      disabled={isLoading}
-      className="flex items-center gap-1.5 bg-white/10 hover:bg-white/15 disabled:opacity-60 px-2 py-1 border border-white/20 rounded-md font-semibold text-xs transition-all duration-200 disabled:cursor-not-allowed"
-      style={{
-        background: isLiked
-          ? 'linear-gradient(135deg, #10b981, #059669)'
-          : '',
-        borderColor: isLiked ? '#10b981' : '',
-      }}
-    >
-      {isLoading ? (
-        <AiOutlineLoading3Quarters className="w-3.5 h-3.5 animate-spin" />
-      ) : (
-        <svg
-          className="w-3.5 h-3.5"
-          xmlns="http://www.w3.org/2000/svg"
-          height="14"
-          viewBox="0 -960 960 960"
-          width="14"
-          fill="currentColor"
-        >
-          <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
-        </svg>
-      )}
-      <span className="text-xs">{likecount}</span>
-    </button>
-  );
-}
 
 /**
  * 个人成绩页面组件
@@ -339,10 +257,6 @@ export default function PersonalScoresPage() {
                       >
                         {score.acc.dx.toFixed(4) + (score.comboState > 0 && typeof score.comboState === 'number' ? ` ${getComboState(score.comboState)}` : '')}
                       </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      <SimpleLikeButton songid={score.chartInfo.id} />
                     </div>
                   </div>
                 </div>
