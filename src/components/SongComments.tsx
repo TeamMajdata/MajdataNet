@@ -23,6 +23,7 @@ import type {
   CommentThreadProps,
   CommentListProps
 } from '@/types';
+import { Link } from 'react-router-dom';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -402,8 +403,8 @@ function CommentCard({
       }}
     >
       <div className="flex items-center">
-        <a 
-          href={'/space?id=' + comment.sender} 
+        <Link
+          to={'/space?id=' + comment.sender} 
           className="flex items-center gap-2 text-inherit no-underline transition-all duration-300"
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateX(2px)';
@@ -443,7 +444,7 @@ function CommentCard({
               {new Date(comment.timestamp).toLocaleDateString()}
             </span>
           </div>
-        </a>
+        </Link>
       </div>
       <div className="relative w-full">
         <div
@@ -683,7 +684,7 @@ function CommentThread({
 
   return (
     <div 
-      className="mx-4 my-4 px-5 py-4 border rounded-xl max-w-[280px] transition-all"
+      className="mx-4 my-4 px-5 py-4 border rounded-xl max-w-70 transition-all"
       style={{
         background: 'linear-gradient(135deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 4%))',
         backdropFilter: 'blur(10px)',
@@ -703,8 +704,8 @@ function CommentThread({
     >
       {/* 用户信息 */}
       <div className="flex items-center">
-        <a 
-          href={'/space?id=' + comment.sender} 
+        <Link
+          to={'/space?id=' + comment.sender}
           className="flex items-center gap-2 text-inherit no-underline transition-all duration-300"
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateX(2px)';
@@ -736,7 +737,7 @@ function CommentThread({
               {new Date(comment.timestamp).toLocaleDateString()}
             </span>
           </div>
-        </a>
+        </Link>
       </div>
 
       {/* 评论内容 */}
@@ -1112,9 +1113,9 @@ export function CommentList({ songid }: CommentListProps) {
   const comments = Array.isArray(data.comments) ? data.comments : [];
 
   return (
-    <div className="w-full mt-8">
+    <div className="mt-8 w-full">
       {comments.length === 0 ? (
-        <div className="w-full px-4 py-12 text-center " style={{ color: 'rgb(255 255 255 / 50%)' }}>
+        <div className="px-4 py-12 w-full text-center" style={{ color: 'rgb(255 255 255 / 50%)' }}>
           <p>{loc('NoComments')}</p>
         </div>
       ) : (

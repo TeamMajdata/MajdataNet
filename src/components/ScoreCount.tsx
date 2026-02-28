@@ -2,6 +2,7 @@ import { apiroot3 } from '@/config/api';
 import useSWR from 'swr';
 import { useLoc } from '@/hooks';
 import type { ScoreCardProps, ScoreCountProps, ScoreData } from '@/types';
+import { Link } from 'react-router-dom';
 
 
 const fetcher = (url: string) =>
@@ -69,8 +70,8 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
 
   return (
     <div className="relative">
-      <a 
-        href={`/space?id=${username}`}
+      <Link
+        to={`/space?id=${username}`}
         className="block text-inherit no-underline"
       >
         <div 
@@ -168,7 +169,7 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
             />
           </div>
         </div>
-      </a>
+      </Link>
     </div>
   );
 }

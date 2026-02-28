@@ -14,7 +14,7 @@ import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout } from '@/components';
 import * as retCode from '@/config/apiRetCode';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
   const loc = useLoc();
@@ -146,20 +146,20 @@ function Login() {
             <label className="font-medium text-[#e5e5e5] text-sm">{loc('RememberMe', '记住我')}</label>
           </div>
 
-          <button className="relative bg-gradient-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed" type="submit">
+          <button className="relative bg-linear-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed" type="submit">
             <span className="z-10 relative">{loc('Login', '登录')}</span>
           </button>
         </form>
         <div className="mt-8 pt-6 border-white/10 border-t text-center">
           <p className="m-0 text-[#a0a0a0] text-sm">
-            <a href="/forget" className="font-medium text-blue-500 hover:text-blue-400 hover:underline no-underline transition-colors">
+            <Link to="/forget" className="font-medium text-blue-500 hover:text-blue-400 hover:underline no-underline transition-colors">
               {loc('ForgetPassword', '忘记密码？')}
-            </a>
+            </Link>
           </p>
           <p className="m-0 mt-2 text-[#a0a0a0] text-sm">
-            <a href="/register" className="font-medium text-blue-500 hover:text-blue-400 hover:underline no-underline transition-colors">
+            <Link to="/register" className="font-medium text-blue-500 hover:text-blue-400 hover:underline no-underline transition-colors">
               {loc('RegisterNow', '立即注册')}
-            </a>
+            </Link>
           </p>
         </div>
       </div>

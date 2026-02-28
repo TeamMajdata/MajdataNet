@@ -3,6 +3,7 @@ import useSWR from 'swr';
 import { useLoc } from '@/hooks';
 import type { ScoreData } from '@/types';
 import mmfcParticipants from '@/assets/data/mmfc-participants.json';
+import { Link } from 'react-router-dom';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -120,8 +121,8 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
   }
 
   return (
-    <a 
-      href={`/space?id=${username}`}
+    <Link
+      to={`/space?id=${username}`}
       className="block text-inherit no-underline"
     >
       <div 
@@ -232,6 +233,6 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
           </div>
         </div>
       </div>
-    </a>
+    </Link>
   );
 }

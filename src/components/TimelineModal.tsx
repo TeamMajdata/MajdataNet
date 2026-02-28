@@ -15,6 +15,7 @@ import type {
   TimelineData,
 } from '@/types';
 import { EventCategory } from "@/types/event";
+import { Link } from 'react-router-dom';
 
 
 const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
@@ -482,8 +483,8 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                           </div>
                         </div>
                         <div className="relative flex-1 bg-white/3 pr-0 border border-white/8 rounded-md h-6">
-                          <a
-                            href={event.href}
+                          <Link
+                            to={event.href}
                             className="block top-0 after:top-1 after:right-1 hover:z-10 absolute after:absolute after:bg-white/30 after:opacity-0 hover:after:opacity-100 shadow-[0_2px_8px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:brightness-115 rounded-md after:rounded-full after:w-3 h-full after:h-3 overflow-hidden no-underline after:content-[''] active:scale-[0.98] transition-all after:transition-opacity hover:-translate-y-0.5 active:-translate-y-px duration-300 after:duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer"
                             style={{
                               left: `${event.startOffset}%`,
@@ -503,7 +504,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                                 style={{ width: '100%' }}
                               />
                             </div>
-                          </a>
+                          </Link>
                         </div>
                       </div>
                     ))}

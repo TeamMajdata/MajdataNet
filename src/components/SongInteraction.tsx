@@ -11,6 +11,7 @@ import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import { useLoc } from '@/hooks';
 import { getComboState, getLevelName } from '@/utils';
 import type { Score, ScoreListProps, LikeSenderProps } from '@/types';
+import { Link } from 'react-router-dom';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -167,9 +168,9 @@ export function LikeSender({ songid }: LikeSenderProps) {
             {data.likes && data.likes.length > 0 ? (
               <>
                 {data.likes.slice(0, 40).map((username: string, index: number) => (
-                  <a
+                  <Link
                     key={username}
-                    href={'/space?id=' + username}
+                    to={'/space?id=' + username}
                     className="inline-block relative hover:scale-110 transition-all hover:-translate-y-1"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
@@ -179,7 +180,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
                       alt={username}
                       title={username}
                     />
-                  </a>
+                  </Link>
                 ))}
                 {data.likes.length > 40 && (
                   <div
@@ -283,8 +284,8 @@ function ScoreCard({ score, index }: { score: Score; index: number }) {
           </span>
         </div>
         <div className="flex-1 min-w-0">
-          <a
-            href={'/space?id=' + score.player.username}
+          <Link
+            to={'/space?id=' + score.player.username}
             className="flex items-center gap-3 text-white no-underline transition-all hover:translate-x-1"
           >
             <img
@@ -295,7 +296,7 @@ function ScoreCard({ score, index }: { score: Score; index: number }) {
             <div className="flex flex-col flex-1 gap-1 min-w-0">
               <span className="font-semibold text-white text-lg truncate">{score.player.username}</span>
             </div>
-          </a>
+          </Link>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div

@@ -14,6 +14,7 @@ import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout } from '@/components';
 import * as retCode from '@/config/apiRetCode';
+import { Link } from 'react-router-dom';
 
 export default function RegisterPage() {
   const [ready, setReady] = useState(false);
@@ -24,7 +25,7 @@ export default function RegisterPage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
 
   return (
     <PageLayout className="flex justify-center items-center min-h-[60vh]">
@@ -147,16 +148,16 @@ function Register() {
             ></script>
             <div className="cf-turnstile" data-sitekey="0x4AAAAAACAEyA1EhHmEDS0o"></div>
           </div>
-          <button className="relative bg-gradient-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed" type="submit" disabled={isPosting}>
+          <button className="relative bg-linear-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed" type="submit" disabled={isPosting}>
             <span className="z-10 relative">{loc('Register', '注册')}</span>
           </button>
         </form>
         <div className="mt-8 pt-6 border-white/10 border-t text-center">
           <p className="m-0 text-[#a0a0a0] text-sm">
             {loc('AlreadyHaveAccount', '已有账户？')}{' '}
-            <a href="/login" className="font-medium text-blue-500 hover:text-blue-400 hover:underline no-underline transition-colors">
+            <Link to="/login" className="font-medium text-blue-500 hover:text-blue-400 hover:underline no-underline transition-colors">
               {loc('LoginNow', '立即登录')}
-            </a>
+            </Link>
           </p>
         </div>
       </div>

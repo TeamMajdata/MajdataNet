@@ -11,6 +11,7 @@ import Tooltip from '@/components/Tooltip';
 import { apiroot3 } from '@/config/api';
 import { downloadSong } from '@/utils/download';
 import type { Song } from '@/types';
+import { Link } from 'react-router-dom';
 
 interface SongCardProps {
   song: Song;
@@ -48,21 +49,21 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
           <div className="ml-[8.9rem]">
             <Tooltip content={song.title}>
               <div className="mb-1.25 font-bold text-base truncate" id={song.id}>
-                <a href={'/song?id=' + song.id}>{song.title}</a>
+                <Link to={'/song?id=' + song.id}>{song.title}</Link>
               </div>
             </Tooltip>
             <Tooltip content={song.artist}>
               <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
-                <a href={'/song?id=' + song.id}>
+                <Link to={'/song?id=' + song.id}>
                   {song.artist === '' || song.artist == null ? '-' : song.artist}
-                </a>
+                </Link>
               </div>
             </Tooltip>
             <Tooltip content={song.uploader + '@' + song.designer}>
               <div className="mb-2 text-[0.8rem] truncate">
-                <a href={'/space?id=' + song.uploader}>
+                <Link to={'/space?id=' + song.uploader}>
                   {song.uploader + '@' + song.designer}
-                </a>
+                </Link>
               </div>
             </Tooltip>
             {isManage ? (

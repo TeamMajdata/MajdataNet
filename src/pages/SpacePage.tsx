@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
@@ -54,9 +54,9 @@ export default function SpacePage() {
           <div className="text-center">
             <h1 className="mb-4 font-bold text-2xl">{loc('Error', '错误')}</h1>
             <p className="mb-4">{loc('UserNotFound', '未找到用户')}</p>
-            <a href="/" className="text-blue-400 hover:text-blue-300 underline">
+            <Link to="/" className="text-blue-400 hover:text-blue-300 underline">
               {loc('BackToHome', '返回主页')}
-            </a>
+            </Link>
           </div>
         </div>
       </PageLayout>

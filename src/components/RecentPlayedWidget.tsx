@@ -9,6 +9,7 @@ import { CoverPic, Level, LazyLoad } from '@/components';
 import { getComboState } from '@/utils';
 import { useLoc } from '@/hooks';
 import type { RecentPlayedWidgetProps, RecentPlayedData } from '@/types';
+import { Link } from 'react-router-dom';
 
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
@@ -45,24 +46,24 @@ export default function RecentPlayedWidget({ username }: RecentPlayedWidgetProps
           <CoverPic id={o.chartId} />
           <div className="ml-[8.9rem]">
             <div className="mb-1.25 font-bold text-base truncate" id={o.chartId}>
-              <a href={'/song?id=' + o.chartId}>{o.title}</a>
+              <Link to={'/song?id=' + o.chartId}>{o.title}</Link>
             </div>
 
             <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
-              <a href={'/song?id=' + o.chartId}>
+              <Link to={'/song?id=' + o.chartId}>
                 {o.artist === '' || o.artist == null ? '-' : o.artist}
-              </a>
+              </Link>
             </div>
 
             <div className="mb-2 text-[0.8rem] truncate">
-              <a href={'/space?id=' + o.uploader}>
+              <Link to={'/space?id=' + o.uploader}>
                 <img
                   className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
                   src={apiroot3 + '/account/Icon?username=' + o.uploader}
                   alt={o.uploader}
                 />
                 {o.designer}
-              </a>
+              </Link>
             </div>
             <Level
               level={o.level}
