@@ -54,6 +54,9 @@ export default function UserMenu({ username }: UserMenuProps) {
         <Link to={`/space?id=${username}`} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
           <span className="w-full font-medium text-center">{loc('PersonalHomePage')}</span>
         </Link>
+        <Link to="/user/scores" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
+          <span className="w-full font-medium text-center">{loc('PersonalScores')}</span>
+        </Link>
         <Link to="/user/charts" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
           <span className="w-full font-medium text-center">{loc('ChartsManagement')}</span>
         </Link>
