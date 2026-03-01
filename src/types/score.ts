@@ -30,6 +30,7 @@ export interface RecentPlayedData {
   difficulty: string;
   acc: number;
   comboState: ComboState | number;
+  timestamp?: string; // 最后游玩时间（可选）
 }
 
 

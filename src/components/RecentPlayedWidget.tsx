@@ -5,15 +5,51 @@
 
 import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
-import { CoverPic, Level, LazyLoad } from '@/components';
-import { getComboState } from '@/utils';
+import { ScoreCard } from '@/components';
 import { useLoc } from '@/hooks';
-import type { RecentPlayedWidgetProps, RecentPlayedData } from '@/types';
-import { Link } from 'react-router-dom';
+import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
+import { motion } from 'framer-motion';
 
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
+
+/**
+ * 将 RecentPlayedData 转换为 Score 类型
+ */
+function convertToScore(data: RecentPlayedData): Score {
+  const chartLevel = parseInt(data.level);
+  
+  // 构造 levels 数组，确保 levels[chartLevel] = difficulty
+  const levels = new Array(chartLevel + 1).fill('');
+  levels[chartLevel] = data.difficulty;
+  
+  return {
+    acc: {
+      dx: data.acc,
+      classic: data.acc
+    },
+    dxScore: 0, // RecentPlayedData 中没有 dxScore
+    comboState: data.comboState,
+    chartLevel: chartLevel,
+    hash: '', // RecentPlayedData 中没有 hash
+    chartInfo: {
+      id: data.chartId,
+      title: data.title,
+      artist: data.artist,
+      designer: data.designer,
+      description: '',
+      levels: levels,
+      uploader: data.uploader,
+      timestamp: data.timestamp || '',
+      lastActive: '',
+      hash: '',
+      tags: [],
+      publicTags: []
+    },
+    timestamp: data.timestamp || ''
+  };
+}
 
 /**
  * 最近游玩记录组件
@@ -39,50 +75,21 @@ export default function RecentPlayedWidget({ username }: RecentPlayedWidgetProps
 
   if (!data || data.length === 0) return <p>{loc('NoRecentRecords', '暂无最近游玩记录')}</p>;
 
-  const list = data.map((o) => (
-    <div key={o.chartId} id={o.chartId} className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full">
-      <LazyLoad height={165} width={352} offset={300}>
-        <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-[20rem] h-40 overflow-hidden transition-transform hover:-translate-y-1.25 duration-250 ease-in-out">
-          <CoverPic id={o.chartId} />
-          <div className="ml-[8.9rem]">
-            <div className="mb-1.25 font-bold text-base truncate" id={o.chartId}>
-              <Link to={'/song?id=' + o.chartId}>{o.title}</Link>
-            </div>
-
-            <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
-              <Link to={'/song?id=' + o.chartId}>
-                {o.artist === '' || o.artist == null ? '-' : o.artist}
-              </Link>
-            </div>
-
-            <div className="mb-2 text-[0.8rem] truncate">
-              <Link to={'/space?id=' + o.uploader}>
-                <img
-                  className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
-                  src={apiroot3 + '/account/Icon?username=' + o.uploader}
-                  alt={o.uploader}
-                />
-                {o.designer}
-              </Link>
-            </div>
-            <Level
-              level={o.level}
-              difficulty={o.difficulty}
-              songid={o.chartId}
-              isPlayer={false}
-            />
-            <div className="float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none" style={{ color: 'yellow' }}>
-              {o.acc.toFixed(4)}
-            </div>
-            <br />
-            <div className="float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none">
-              {getComboState(o.comboState)}
-            </div>
-          </div>
-        </div>
-      </LazyLoad>
-    </div>
-  ));
+  const list = data.map((recentData) => {
+    const score = convertToScore(recentData);
+    
+    return (
+      <motion.div
+        key={recentData.chartId}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
+      >
+        <ScoreCard score={score} showLikeButton={true} />
+      </motion.div>
+    );
+  });
 
   return <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">{list}</div>;
 }

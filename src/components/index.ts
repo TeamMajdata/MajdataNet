@@ -21,6 +21,7 @@ export { default as ScoreCount } from './ScoreCount';
 export { default as MMFCScoreCount } from './MMFCScoreCount';
 export { default as LanguageSelector } from './LanguageSelector';
 export { default as TagManageWidget, TagManageTagLauncher } from './TagManageWidget';
+export { ScoreCard } from './ScoreCard';
 
 // 列表和展示组件
 export { default as SongList } from './SongList';
