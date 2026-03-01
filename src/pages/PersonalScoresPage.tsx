@@ -3,7 +3,7 @@
  * 展示用户所有成绩，支持多种排序方式
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import useSWR from 'swr';
 import { Link } from 'react-router-dom';
 import { apiroot3 } from '@/config/api';
@@ -128,6 +128,11 @@ export default function PersonalScoresPage() {
     `${apiroot3}/account/scores`,
     fetcher
   );
+
+  // 翻页时滚动到顶部
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   // 排序后的数据
   const sortedData = useMemo(() => {
