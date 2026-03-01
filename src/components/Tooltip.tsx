@@ -30,8 +30,8 @@ export default function Tooltip({
         <TooltipPrimitive.Content
           className={
             plain
-              ? undefined
-              : 'bg-black/85 backdrop-blur-sm px-3 py-1.5 rounded-lg text-white text-sm shadow-lg animate-tooltip z-50'
+              ? 'z-9999'
+              : 'bg-black/85 backdrop-blur-sm px-3 py-1.5 rounded-lg text-white text-sm shadow-lg animate-tooltip z-9999'
           }
           side={side}
           sideOffset={sideOffset}
