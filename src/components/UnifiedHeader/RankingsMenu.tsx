@@ -25,7 +25,7 @@ export default function RankingsMenu() {
         <span className="text-[#a0a0a0] text-[0.7rem]">▼</span>
       </button>
 
-      <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="left">
+      <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="left" className="w-full">
         <Link to="/ranking" className={DROPDOWN_ITEM}>
           <span className="text-sm">{loc('Recommend')}</span>
         </Link>
