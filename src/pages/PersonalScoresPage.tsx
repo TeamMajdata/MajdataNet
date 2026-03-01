@@ -162,6 +162,12 @@ export default function PersonalScoresPage() {
     }
   }, [data, sortBy]);
 
+  // 计算总成绩（所有acc.dx的总和）
+  const totalScore = useMemo(() => {
+    if (!data) return 0;
+    return data.reduce((sum, score) => sum + score.acc.dx, 0);
+  }, [data]);
+
   // 分页数据
   const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
   const paginatedData = useMemo(() => {
@@ -219,6 +225,14 @@ export default function PersonalScoresPage() {
         <h1 className="my-8 font-semibold text-white text-4xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
           {loc('PersonalScores', '我的成绩')}
         </h1>
+
+        {/* 总成绩显示 */}
+        <div className="mb-6 text-center">
+          <div className="inline-block bg-linear-to-r from-purple-500/20 to-blue-500/20 shadow-lg backdrop-blur-sm px-8 py-4 border border-white/20 rounded-2xl">
+            <div className="mb-1 text-gray-300 text-sm">{loc('TotalDxScore', '总成绩')}</div>
+            <div className="font-bold text-white text-3xl">{totalScore.toFixed(4)}</div>
+          </div>
+        </div>
 
         {/* 排序选择器 */}
         <div className="flex flex-wrap justify-center items-center gap-4 mx-auto mb-8 max-w-4xl">
