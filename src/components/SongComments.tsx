@@ -14,6 +14,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { useLoc } from '@/hooks';
+import 'github-markdown-css/github-markdown-dark.css';
 import type { 
   Comment, 
   CommentCardProps, 
@@ -59,9 +60,10 @@ function MarkdownCommentContent({ content, comment }: MarkdownCommentContentProp
   }
 
   return (
-    <Markdown
-      remarkPlugins={[remarkGfm, remarkBreaks]}
-      components={{
+    <div className="markdown-body">
+      <Markdown
+        remarkPlugins={[remarkGfm, remarkBreaks]}
+        components={{
         ol(props) {
           const { ...rest } = props;
           return <ol type="1" {...rest} />;
@@ -109,15 +111,22 @@ function MarkdownCommentContent({ content, comment }: MarkdownCommentContentProp
             );
           }
           return (
-            <a href={href} target="_blank" rel="noopener noreferrer" {...rest}>
+            <a 
+              href={href} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-[#58a6ff] hover:underline transition-colors duration-200"
+              {...rest}
+            >
               {children}
             </a>
           );
         },
       }}
-    >
-      {processedContent}
-    </Markdown>
+      >
+        {processedContent}
+      </Markdown>
+    </div>
   );
 }
 
