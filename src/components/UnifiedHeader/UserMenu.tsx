@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLoc } from '@/hooks';
 import { handleLogout as logoutUtil } from '@/utils';
@@ -16,6 +16,7 @@ interface UserMenuProps {
 export default function UserMenu({ username }: UserMenuProps) {
   const loc = useLoc();
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
     await logoutUtil(
@@ -32,7 +33,7 @@ export default function UserMenu({ username }: UserMenuProps) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         className={`flex rounded-[10px] items-center gap-3 px-4 cursor-pointer text-[#e5e5e5] text-sm font-medium h-12 bg-white/5 border border-white/10 backdrop-blur-[10px] ${
           isOpen
@@ -49,7 +50,7 @@ export default function UserMenu({ username }: UserMenuProps) {
         <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">{username}</span>
       </button>
 
-      <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="right" className="w-full">
+      <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="right" className="w-full" containerRef={containerRef}>
         <Link to={`/space?id=${username}`} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
           <span className="w-full font-medium text-center">{loc('PersonalHomePage')}</span>
         </Link>

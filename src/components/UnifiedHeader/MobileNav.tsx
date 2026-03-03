@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLoc } from '@/hooks';
 import { MOBILE_DROPDOWN_ITEM, HAMBURGER_BUTTON_BASE, HAMBURGER_BUTTON_ACTIVE, HAMBURGER_BUTTON_HOVER } from './styles';
@@ -11,9 +11,10 @@ export default function MobileNav() {
   const loc = useLoc();
   const [isMainNavOpen, setIsMainNavOpen] = useState(false);
   const [isMobileRankingsOpen, setIsMobileRankingsOpen] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
 
   return (
-    <nav className="xl:hidden block relative">
+    <nav className="xl:hidden block relative" ref={containerRef}>
       <button
         className={`${HAMBURGER_BUTTON_BASE} ${isMainNavOpen ? HAMBURGER_BUTTON_ACTIVE : HAMBURGER_BUTTON_HOVER}`}
         onClick={() => setIsMainNavOpen(!isMainNavOpen)}
@@ -25,7 +26,7 @@ export default function MobileNav() {
         </span>
       </button>
 
-      <Dropdown isOpen={isMainNavOpen} onClose={() => { setIsMainNavOpen(false); setIsMobileRankingsOpen(false); }} position="left">
+      <Dropdown isOpen={isMainNavOpen} onClose={() => { setIsMainNavOpen(false); setIsMobileRankingsOpen(false); }} position="left" containerRef={containerRef}>
         {/* 榜单项 - 可展开 */}
         <div className="relative">
           <button

@@ -7,27 +7,33 @@ interface DropdownProps {
   children: ReactNode;
   position?: 'left' | 'right';
   className?: string;
+  containerRef?: React.RefObject<HTMLElement | null>;
 }
 
 /**
  * 通用下拉菜单组件
  * 处理点击外部关闭逻辑，无动效
  */
-export default function Dropdown({ isOpen, onClose, children, position = 'left', className = '' }: DropdownProps) {
+export default function Dropdown({ isOpen, onClose, children, position = 'left', className = '', containerRef }: DropdownProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
 
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const isOutsideMenu = menuRef.current && !menuRef.current.contains(target);
+      const isOutsideContainer = containerRef?.current && !containerRef.current.contains(target);
+      
+      // 只有当点击既在菜单外部，又在容器外部时才关闭
+      if (isOutsideMenu && isOutsideContainer) {
         onClose();
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, containerRef]);
 
   if (!isOpen) return null;
 

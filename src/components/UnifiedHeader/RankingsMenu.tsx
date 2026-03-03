@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLoc } from '@/hooks';
 import { DROPDOWN_ITEM } from './styles';
@@ -10,9 +10,10 @@ import Dropdown from './Dropdown';
 export default function RankingsMenu() {
   const loc = useLoc();
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="inline-block relative">
+    <div className="inline-block relative" ref={containerRef}>
       <button
         className={`flex items-center gap-2 px-5 py-3 text-white/85 no-underline rounded-lg font-medium text-sm whitespace-nowrap relative bg-none border-none cursor-pointer ${
           isOpen
@@ -25,7 +26,7 @@ export default function RankingsMenu() {
         <span className="text-[#a0a0a0] text-[0.7rem]">▼</span>
       </button>
 
-      <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="left" className="w-full">
+      <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="left" className="w-full" containerRef={containerRef}>
         <Link to="/ranking" className={DROPDOWN_ITEM}>
           <span className="text-sm">{loc('Recommend')}</span>
         </Link>
