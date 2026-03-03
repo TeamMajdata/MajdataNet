@@ -372,7 +372,6 @@ function MajdataView({ data }: { id: string; data: SongSummary }) {
       break;
     }
   }
-  console.log(firstNonEmptyIndex)
 
   return (
     <div className="w-full">

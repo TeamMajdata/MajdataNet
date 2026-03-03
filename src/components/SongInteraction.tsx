@@ -228,8 +228,7 @@ export function ScoreList({ songid }: ScoreListProps) {
     return <div>failed to load</div>;
   }
 
-  const scoreList = data.scores;
-  const objlist = scoreList.map((p: ChartScore[], index: number) =>
+  const objlist = data.scores.map((p: ChartScore[], index: number) =>
     p.length !== 0 ? <ScoreListLevel key={index} scores={p} level={index} /> : <React.Fragment key={index}></React.Fragment>
   );
 
@@ -256,7 +255,7 @@ function ScoreListLevel({ scores, level }: { scores: ChartScore[]; level: number
 
 function ScoreCard({ score, index }: { score: ChartScore; index: number }) {
   const comboState = getComboState(score.comboState);
-  let cardClass = 'flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0,0,0,0.3),0_4px_12px_rgb(0,0,0,0.2)] hover:border-white/20 mb-4';
+  let cardClass = 'flex items-center gap-2 md:gap-4 p-2 md:p-4 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0,0,0,0.3),0_4px_12px_rgb(0,0,0,0.2)] hover:border-white/20 mb-2 md:mb-4';
 
   if (comboState === 'AP+' || comboState === 'AP') {
     cardClass += ' border-yellow-500/45 shadow-[0_2px_8px_rgb(0,0,0,0.12),0_0_10px_2px_rgb(251,191,36,0.32),0_0_6px_1px_rgb(251,191,36,0.22),inset_0_0_8px_1px_rgb(251,191,36,0.18)]';
@@ -276,29 +275,29 @@ function ScoreCard({ score, index }: { score: ChartScore; index: number }) {
   return (
     <div>
       <div className={cardClass}>
-        <div className="flex justify-center items-center min-w-20 shrink-0">
-          <span className={`text-2xl font-bold text-white/80 ${index < 3 ? 'text-xl text-amber-400' : ''}`}>
+        <div className="flex justify-center items-center min-w-12 md:min-w-20 shrink-0">
+          <span className={`text-base md:text-2xl font-bold text-white/80 ${index < 3 ? 'text-amber-400' : ''}`}>
             #{index + 1}
           </span>
         </div>
         <div className="flex-1 min-w-0">
           <Link
             to={'/space?id=' + score.player.username}
-            className="flex items-center gap-3 text-white no-underline transition-all hover:translate-x-1"
+            className="flex items-center gap-2 md:gap-3 text-white no-underline transition-all hover:translate-x-1"
           >
             <img
-              className="hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/40 rounded-full w-12 min-w-12 h-12 min-h-12 object-cover transition-all"
+              className="hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/40 rounded-full w-9 md:w-12 min-w-9 md:min-w-12 h-9 md:h-12 min-h-9 md:min-h-12 object-cover transition-all"
               src={apiroot3 + '/account/Icon?username=' + score.player.username}
               alt={score.player.username}
             />
-            <div className="flex flex-col flex-1 gap-1 min-w-0">
-              <span className="font-semibold text-white text-lg truncate">{score.player.username}</span>
+            <div className="flex flex-col flex-1 gap-0.5 md:gap-1 min-w-0">
+              <span className="font-semibold text-white text-sm md:text-lg truncate">{score.player.username}</span>
             </div>
           </Link>
         </div>
-        <div className="flex flex-col items-end gap-1 shrink-0">
+        <div className="flex flex-col items-end gap-0.5 md:gap-1 shrink-0">
           <div
-            className={`text-2xl font-bold text-white ${
+            className={`text-base md:text-2xl font-bold text-white ${
               comboState === 'AP+' || comboState === 'AP'
                 ? 'score-accuracy-ap'
                 : comboState === 'FC+' || comboState === 'FC'
@@ -308,7 +307,7 @@ function ScoreCard({ score, index }: { score: ChartScore; index: number }) {
           >
             {score.acc.toFixed(4)}%
           </div>
-          <div className="font-medium text-white/70 text-sm">{displayText}</div>
+          <div className="font-medium text-white/70 text-xs md:text-sm">{displayText}</div>
         </div>
       </div>
     </div>
