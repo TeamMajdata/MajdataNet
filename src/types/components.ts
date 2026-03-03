@@ -169,6 +169,8 @@ export interface CommentListProps {
 export interface RecentPlayedWidgetProps {
   /** 用户名 */
   username: string;
+  /** 数据加载完成后的回调，参数表示是否有数据 */
+  onDataLoaded?: (hasData: boolean) => void;
 }
 
 // ======================== 时间轴组件 ========================

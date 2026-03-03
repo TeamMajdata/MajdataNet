@@ -36,7 +36,8 @@ const fetcher = async (...args: Parameters<typeof fetch>) =>
 export default function SpacePage() {
   const loc = useLoc();
   const [ready, setReady] = useState(false);
-  const [hasUploadedCharts, setHasUploadedCharts] = useState(false);
+  const [hasUploadedCharts, setHasUploadedCharts] = useState<boolean | null>(null);
+  const [hasRecentPlayed, setHasRecentPlayed] = useState<boolean | null>(null);
   const [searchParams] = useSearchParams();
   const username = searchParams.get('id');
 
@@ -78,50 +79,54 @@ export default function SpacePage() {
       </motion.section>
 
       {/* Recent Activity */}
-      <motion.section 
-        className="mb-12"
-        initial="hidden"
-        animate="visible"
-        custom={0.4}
-        variants={slideInUp}
-      >
-        <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-          {loc('RecentlyPlayedCharts', '最近游玩的谱面')}
-        </h2>
-        <div 
-          className="relative mx-auto my-8 border-0 w-[70%] h-px" 
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-          }}
-        />
-        <RecentPlayedWidget username={username} />
-      </motion.section>
+      {hasRecentPlayed !== false && (
+        <motion.section 
+          className="mb-12"
+          initial="hidden"
+          animate="visible"
+          custom={0.4}
+          variants={slideInUp}
+        >
+          <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
+            {loc('RecentlyPlayedCharts', '最近游玩的谱面')}
+          </h2>
+          <div 
+            className="relative mx-auto my-8 border-0 w-[70%] h-px" 
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
+            }}
+          />
+          <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} />
+        </motion.section>
+      )}
 
       {/* Uploaded Charts */}
-      <motion.section 
-        className="mb-12"
-        initial="hidden"
-        animate="visible"
-        custom={0.5}
-        variants={slideInUp}
-      >
-        <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-          {loc('UploadedCharts', '已上传的谱面')}
-        </h2>
-        <div 
-          className="relative mx-auto my-8 border-0 w-[70%] h-px" 
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-          }}
-        />
-        <SongList
-          url={`${apiroot3}/maichart/list?search=${encodeURIComponent('uploader:' + username)}`}
-          onDataLoaded={setHasUploadedCharts}
-        />
-      </motion.section>
+      {hasUploadedCharts !== false && (
+        <motion.section 
+          className="mb-12"
+          initial="hidden"
+          animate="visible"
+          custom={0.5}
+          variants={slideInUp}
+        >
+          <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
+            {loc('UploadedCharts', '已上传的谱面')}
+          </h2>
+          <div 
+            className="relative mx-auto my-8 border-0 w-[70%] h-px" 
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
+            }}
+          />
+          <SongList
+            url={`${apiroot3}/maichart/list?search=${encodeURIComponent('uploader:' + username)}`}
+            onDataLoaded={setHasUploadedCharts}
+          />
+        </motion.section>
+      )}
 
       {/* Who Loves To Play */}
-      {hasUploadedCharts && (
+      {hasUploadedCharts === true && (
         <motion.section 
           className="mb-12"
           initial="hidden"

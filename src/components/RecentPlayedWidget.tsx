@@ -1,8 +1,3 @@
-/**
- * RecentPlayedWidget 组件 - 最近游玩记录
- * 迁移自 legacy/src/app/widgets/RecentPlayedWidget.jsx
- */
-
 import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
 import { ScoreCard } from '@/components';
@@ -55,12 +50,17 @@ function convertToScore(data: RecentPlayedData): Score {
  * 最近游玩记录组件
  * 显示指定用户最近游玩的谱面及成绩
  */
-export default function RecentPlayedWidget({ username }: RecentPlayedWidgetProps) {
+export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPlayedWidgetProps) {
   const loc = useLoc();
   
   const { data, error, isLoading } = useSWR<RecentPlayedData[]>(
     `${apiroot3}/account/Recent?username=${username}`,
-    fetcher
+    fetcher,
+    {
+      onSuccess: (data) => {
+        onDataLoaded?.(!!data && data.length > 0);
+      },
+    }
   );
 
   if (error) return <div className="m-auto w-full text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
