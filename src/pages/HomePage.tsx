@@ -337,18 +337,18 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   return (
     <div className="mt-4 md:mt-0 mb-4 md:mb-4 px-4 md:px-4 w-full">
       <div className="relative border border-white/10 rounded-[20px] overflow-visible">
-        <div className="flex md:flex-row flex-col justify-center items-center gap-3 md:gap-6 p-4 w-full">
-          <div className="w-full">
+        <div className="flex flex-row justify-center items-center gap-2 md:gap-6 p-3 md:p-4 w-full">
+          <div className="flex-1 min-w-0">
             <div className="relative flex items-center w-full">
               <input
                 type="text"
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-7 py-4 pr-12 md:pr-14 border-2 border-white/15 rounded-[30px] outline-none w-full h-11.25 md:h-11.25 text-white placeholder:text-white/60 text-base md:text-base"
+                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-6 md:px-7 py-3 md:py-4 pr-10 md:pr-14 border-2 border-white/15 rounded-[30px] outline-none w-full h-10 md:h-11.25 text-white placeholder:text-white/60 text-sm md:text-base"
                 placeholder={initS === '' ? loc('SearchPlaceholder', '搜索...') : initS}
                 value={currentValue}
                 onChange={handleInputChange}
               />
               {currentValue && (
-                <button className="top-1/2 right-4 z-2 absolute flex justify-center items-center bg-transparent border-none rounded-full w-7 md:w-7 h-7 md:h-7 font-light text-white/60 text-xl leading-none -translate-y-1/2 cursor-pointer" onClick={handleClearSearch} title="清空搜索">
+                <button className="top-1/2 right-3 md:right-4 z-2 absolute flex justify-center items-center bg-transparent border-none rounded-full w-6 md:w-7 h-6 md:h-7 font-light text-white/60 text-xl leading-none -translate-y-1/2 cursor-pointer" onClick={handleClearSearch} title="清空搜索">
                   ×
                 </button>
               )}
@@ -359,7 +359,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                 plain={true}
               >
                 <button
-                  className="top-1/2 right-10 md:right-14 z-2 absolute flex justify-center items-center bg-transparent border border-white/20 rounded-full w-5 md:w-6 h-5 md:h-6 font-semibold text-white/70 text-xs md:text-sm leading-none -translate-y-1/2 cursor-pointer"
+                  className="top-1/2 right-9 md:right-14 z-2 absolute flex justify-center items-center bg-transparent border border-white/20 rounded-full w-5 md:w-6 h-5 md:h-6 font-semibold text-white/70 text-xs md:text-sm leading-none -translate-y-1/2 cursor-pointer"
                   title="搜索提示"
                 >
                   ?
@@ -368,30 +368,28 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 w-full md:w-auto">
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <select
-                value={isMobile ? (sortType === undefined ? 'placeholder' : sortType) : sortType}
-                onChange={(e) => {
-                  if (e.target.value === 'placeholder') return;
-                  const val = parseInt(e.target.value);
-                  onSortChange(val);
-                }}
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
-                data-mobile-label={loc('SortBy', '排序方式')}
-              >
-                {isMobile && (
-                  <option value="placeholder" disabled>
-                    {loc('SortBy', '排序方式')}
-                  </option>
-                )}
-                {sortOptions.map((label, i) => (
-                  <option key={i} value={i}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="flex-shrink-0">
+            <select
+              value={isMobile ? (sortType === undefined ? 'placeholder' : sortType) : sortType}
+              onChange={(e) => {
+                if (e.target.value === 'placeholder') return;
+                const val = parseInt(e.target.value);
+                onSortChange(val);
+              }}
+              className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 md:px-3 py-1 border border-white/20 rounded-full outline-none w-auto min-w-16 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
+              data-mobile-label={loc('SortBy', '排序方式')}
+            >
+              {isMobile && (
+                <option value="placeholder" disabled>
+                  {loc('SortBy', '排序方式')}
+                </option>
+              )}
+              {sortOptions.map((label, i) => (
+                <option key={i} value={i}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
