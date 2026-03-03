@@ -18,10 +18,10 @@ export default function MobileNav() {
         className={`${HAMBURGER_BUTTON_BASE} ${isMainNavOpen ? HAMBURGER_BUTTON_ACTIVE : HAMBURGER_BUTTON_HOVER}`}
         onClick={() => setIsMainNavOpen(!isMainNavOpen)}
       >
-        <span className="flex flex-col gap-0.75 w-full h-2.5">
-          <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm ${isMainNavOpen ? 'rotate-35 translate-x-0.5 translate-y-1' : ''}`}></span>
-          <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm ${isMainNavOpen ? 'opacity-0' : ''}`}></span>
-          <span className={`block h-0.5 w-5 bg-[#e5e5e5] rounded-sm ${isMainNavOpen ? 'rotate-[-35deg] translate-x-0.5 -translate-y-1' : ''}`}></span>
+        <span className="flex flex-col gap-1.5 w-6 h-4">
+          <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm transition-transform ${isMainNavOpen ? 'rotate-45 translate-y-[7px]' : ''}`}></span>
+          <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm transition-opacity ${isMainNavOpen ? 'opacity-0' : ''}`}></span>
+          <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm transition-transform ${isMainNavOpen ? 'rotate-[-45deg] translate-y-[-7px]' : ''}`}></span>
         </span>
       </button>
 

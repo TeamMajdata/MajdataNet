@@ -34,7 +34,7 @@ export default function UserMenu({ username }: UserMenuProps) {
   return (
     <div className="relative">
       <button
-        className={`flex rounded-lg items-center gap-3 px-4 py-3 cursor-pointer text-[#e5e5e5] text-sm font-medium min-h-10 ${
+        className={`flex rounded-[10px] items-center gap-3 px-4 cursor-pointer text-[#e5e5e5] text-sm font-medium h-12 bg-white/5 border border-white/10 backdrop-blur-[10px] ${
           isOpen
             ? 'bg-linear-to-br from-white/15 to-white/10 border-white/30 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'
             : 'hover:bg-linear-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'
@@ -47,7 +47,6 @@ export default function UserMenu({ username }: UserMenuProps) {
           alt={username}
         />
         <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">{username}</span>
-        <span className="text-[#a0a0a0] text-[0.7rem]">▼</span>
       </button>
 
       <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="right" className="w-full">

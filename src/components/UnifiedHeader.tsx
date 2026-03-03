@@ -35,9 +35,9 @@ export default function UnifiedHeader() {
         </div>
 
         {/* 移动端中间Logo */}
-        <div className="md:hidden left-1/2 absolute -translate-x-1/2">
-          <Link to="/">
-            <img className="inline-block m-auto rounded-[5px] max-[500px]:w-10 h-10 max-[500px]:h-10" src="../../../salt.webp" alt="xxlb" />
+        <div className="md:hidden left-1/2 absolute flex items-center h-12 -translate-x-1/2">
+          <Link to="/" className="flex items-center">
+            <img className="rounded-[5px] w-12 h-12" src="../../../salt.webp" alt="xxlb" />
           </Link>
         </div>
 
