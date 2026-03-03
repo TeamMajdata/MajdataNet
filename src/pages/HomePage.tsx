@@ -288,6 +288,8 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   const loc = useLoc();
   const [isMobile, setIsMobile] = useState(false);
   const [currentValue, setCurrentValue] = useState(initS);
+  const [showHints, setShowHints] = useState(false);
+  const hintRef = useRef<HTMLDivElement>(null);
 
   const sortOptions = [
     loc('UploadDate', '上传日期'),
@@ -312,6 +314,22 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
     setCurrentValue(initS);
   }, [initS]);
 
+  // 点击外部关闭提示
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (hintRef.current && !hintRef.current.contains(event.target as Node)) {
+        setShowHints(false);
+      }
+    };
+
+    if (showHints) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showHints]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCurrentValue(value);
@@ -324,13 +342,15 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
     onChange(fakeEvent);
   };
 
-  // 搜索提示内容
-  const searchHints = (
-    <div className="bg-[rgba(25,25,30,0.98)] shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-[15px] backdrop-saturate-150 px-4 py-3 rounded-xl max-w-70">
-      <p className="my-1 first:mt-0 text-[0.9rem] text-white/90 leading-[1.4]">{loc('SearchHintID', '按 ID 搜索')}</p>
-      <p className="my-1 text-[0.9rem] text-white/90 leading-[1.4]">{loc('SearchHintHash', '按 Hash 搜索')}</p>
-      <p className="my-1 text-[0.9rem] text-white/90 leading-[1.4]">{loc('SearchHintTag', '按标签搜索')}</p>
-      <p className="my-1 last:mb-0 text-[0.9rem] text-white/90 leading-[1.4]">{loc('SearchHintUploader', '按上传者搜索')}</p>
+  // 提示内容组件
+  const hintContent = (
+    <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-5 py-4 border border-white/20 rounded-2xl w-70 md:w-[320px]">
+      <div className="space-y-2.5 text-left">
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintID', '按 ID 搜索')}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintHash', '按 Hash 搜索')}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintTag', '按标签搜索')}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintUploader', '按上传者搜索')}</p>
+      </div>
     </div>
   );
 
@@ -348,27 +368,50 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                 onChange={handleInputChange}
               />
               {currentValue && (
-                <button className="top-1/2 right-3 md:right-4 z-2 absolute flex justify-center items-center bg-transparent border-none rounded-full w-6 md:w-7 h-6 md:h-7 font-light text-white/60 text-xl leading-none -translate-y-1/2 cursor-pointer" onClick={handleClearSearch} title="清空搜索">
+                <button 
+                  className="top-1/2 right-3 md:right-4 z-2 absolute flex justify-center items-center bg-transparent border-none rounded-full w-6 md:w-7 h-6 md:h-7 font-light text-white/60 hover:text-white/90 text-xl leading-none transition-colors -translate-y-1/2 cursor-pointer" 
+                  onClick={handleClearSearch} 
+                  title="清空搜索"
+                >
                   ×
                 </button>
               )}
-              <Tooltip
-                content={searchHints}
-                side="top"
-                sideOffset={20}
-                plain={true}
-              >
-                <button
-                  className="top-1/2 right-9 md:right-14 z-2 absolute flex justify-center items-center bg-transparent border border-white/20 rounded-full w-5 md:w-6 h-5 md:h-6 font-semibold text-white/70 text-xs md:text-sm leading-none -translate-y-1/2 cursor-pointer"
-                  title="搜索提示"
+              {/* PC端使用hover触发的Tooltip */}
+              {!isMobile ? (
+                <Tooltip
+                  content={hintContent}
+                  side="top"
+                  sideOffset={20}
+                  plain={true}
                 >
-                  ?
-                </button>
-              </Tooltip>
+                  <button
+                    className="top-1/2 right-9 md:right-14 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-6 h-6 font-bold text-white/80 hover:text-white text-xs md:text-sm leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
+                    title="搜索提示"
+                  >
+                    ?
+                  </button>
+                </Tooltip>
+              ) : (
+                /* 移动端使用点击触发 */
+                <div ref={hintRef} className="top-1/2 right-9 z-10 absolute -translate-y-1/2">
+                  <button
+                    className="flex justify-center items-center bg-white/5 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 rounded-full w-6.5 h-6.5 font-bold text-white/80 text-xs leading-none transition-all duration-200 cursor-pointer"
+                    onClick={() => setShowHints(!showHints)}
+                    title="搜索提示"
+                  >
+                    ?
+                  </button>
+                  {showHints && (
+                    <div className="top-full right-0 absolute mt-2 animate-[fadeIn_0.2s_ease-out]">
+                      {hintContent}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <select
               value={isMobile ? (sortType === undefined ? 'placeholder' : sortType) : sortType}
               onChange={(e) => {
