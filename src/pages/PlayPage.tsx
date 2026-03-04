@@ -301,7 +301,7 @@ export default function PlayPage() {
 
           {/* 隐私 */}
           <section className="mb-8">
-            <h2 className="mb-4 font-bold text-white text-2xl">{loc('PrivatePolicy', 'Private policy')}</h2>
+            <h2 className="mb-4 font-bold text-white text-2xl">{loc('PrivatePolicy', 'Private Policy')}</h2>
             <div className="bg-[rgb(30_30_30/90%)] backdrop-blur-[20px] p-8 border border-white/10 rounded-2xl">
               <h3 className="mb-4 font-bold text-white text-2xl">1. Introduction</h3>
               <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">Welcome to this game. This game is an open-source project, and its source code is publicly available. This Privacy Policy explains how we collect, use, and protect your information.</p>
