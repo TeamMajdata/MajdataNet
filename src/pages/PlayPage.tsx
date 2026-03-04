@@ -26,21 +26,21 @@ export default function PlayPage() {
         <title>MajdataPlay - Majdata Net</title>
         <meta name="description" content="MajdataPlay 是一款免费开源的 majdata 游玩器，支持 Windows、Android 和 iOS 平台" />
         <meta name="keywords" content="MajdataPlay, Majplay, maimai, 音游, 模拟器, maimai simulator, majdata, player" />
-        
+
         {/* Open Graph */}
         <meta property="og:title" content="MajdataPlay - majdata 游玩器" />
         <meta property="og:description" content="MajdataPlay 是一款免费开源的 majdata 游玩器，支持 Windows、Android 和 iOS 平台" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://majdata.net/play" />
         <meta property="og:image" content="https://majdata.net/salt.webp" />
-        
+
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="MajdataPlay - majdata 游玩器" />
         <meta name="twitter:description" content="MajdataPlay 是一款免费开源的 majdata 游玩器，支持 Windows、Android 和 iOS 平台" />
         <meta name="twitter:image" content="https://majdata.net/salt.webp" />
       </Helmet>
-      
+
       <PageLayout className="pb-8">
         <div className="mx-auto px-4 max-w-250">
           {/* 特别注意 */}
@@ -83,7 +83,7 @@ export default function PlayPage() {
           {/* 下载部分 */}
           <section className="mb-16">
             <h2 className="mb-10 pl-4 font-bold text-white text-3xl text-left">{loc('Download', '下载')}</h2>
-            
+
             {/* PC版下载 */}
             <div className="mb-12">
               <h3 className="mb-6 pl-2 font-semibold text-white text-2xl text-left">💻 {loc('DownloadPC', '下载 PC 版')}</h3>
@@ -285,8 +285,8 @@ export default function PlayPage() {
 
           {/* 开源信息 */}
           <section className="mb-8 text-center">
+            <h2 className="mb-4 font-bold text-white text-2xl">{loc('OpenSource', '开源')}</h2>
             <div className="bg-[rgb(30_30_30/90%)] backdrop-blur-[20px] p-8 border border-white/10 rounded-2xl">
-              <h2 className="mb-4 font-bold text-white text-2xl">{loc('OpenSource', '开源')}</h2>
               <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">
                 {loc('OpenSourceDesc', 'MajdataPlay 是一个开源项目，欢迎贡献代码')}
               </p>
@@ -296,6 +296,40 @@ export default function PlayPage() {
               >
                 {loc('ViewSourceCode', '查看源代码')} →
               </a>
+            </div>
+          </section>
+
+          {/* 隐私 */}
+          <section className="mb-8">
+            <h2 className="mb-4 font-bold text-white text-2xl">{loc('PrivatePolicy', 'Private policy')}</h2>
+            <div className="bg-[rgb(30_30_30/90%)] backdrop-blur-[20px] p-8 border border-white/10 rounded-2xl">
+              <h3 className="mb-4 font-bold text-white text-2xl">1. Introduction</h3>
+              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">Welcome to this game. This game is an open-source project, and its source code is publicly available. This Privacy Policy explains how we collect, use, and protect your information.</p>
+              <h3 className="mb-4 font-bold text-white text-2xl">2. Information We Collect</h3>
+              <h4 className="mb-4 font-bold text-white text-2xl">2.1 No Personally Identifiable Information</h4>
+              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">This game does not require user registration and does not actively collect your name, address, email address, phone number, or other personally identifiable information.</p>
+              <h3 className="mb-4 font-bold text-white text-2xl">3. Data Storage and Security</h3>
+              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">We take reasonable measures to protect data security. However, no method of transmission over the Internet can guarantee absolute security.</p>
+              <h3 className="mb-4 font-bold text-white text-2xl">4. Local Data Storage</h3>
+              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">The game may store the following data locally on your device:</p>
+              <ul className="space-y-2 text-[#b0b0b0] text-base leading-relaxed list-disc list-inside">
+                <li>Game settings</li>
+                <li>Game levels</li>
+                <li>Chart scores</li>
+                <li>Game logs</li>
+              </ul>
+              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">This data remains on your device and is not automatically uploaded.</p>
+              <h3 className="mb-4 font-bold text-white text-2xl">5. Open Source Notice</h3>
+              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">This game is an open-source project. You may review the source code to understand how data is handled. Community review and contributions are encouraged.</p>
+              <h3 className="mb-4 font-bold text-white text-2xl">6. Changes to This Policy</h3>
+              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">We may update this Privacy Policy from time to time. Updates will be posted on the project page.</p>
+              <h3 className="mb-4 font-bold text-white text-2xl">7. Contact Information</h3>
+              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">If you have any privacy-related questions, please contact us via:</p>
+              <ul className="space-y-2 text-[#b0b0b0] text-base leading-relaxed list-disc list-inside">
+                <li>Project homepage</li>
+                <li>Repository issue tracker</li>
+                <li>email to admin@majdata.net</li>
+              </ul>
             </div>
           </section>
         </div>
