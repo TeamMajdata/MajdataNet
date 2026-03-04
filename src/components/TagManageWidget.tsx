@@ -371,12 +371,12 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
         <div style={{ padding: '16px' }}>
           <div className="flex flex-wrap items-center gap-1.5 my-1">
             <div className="min-w-12 font-semibold text-white text-sm">Tags:</div>
-            <div className="flex flex-wrap flex-1 gap-1.5 mt-1 text-white/70 text-sm text-left break-words">
+            <div className="flex flex-wrap flex-1 gap-1.5 mt-1 text-white/70 text-sm text-left wrap-break-word">
               {tags && tags.length > 0 ? (
                 tags.map((tag, index) => (
                   <Tooltip content={loc('DeleteTag')} key={index}>
                     <span
-                      className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-[3px] rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-[3px] rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
+                      className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-[3px] rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
                       onClick={() => {
                         dispatch({ type: 'REMOVE_TAG', payload: index });
                       }}

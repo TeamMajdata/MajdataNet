@@ -299,37 +299,74 @@ export default function PlayPage() {
             </div>
           </section>
 
-          {/* 隐私 */}
-          <section className="mb-8">
-            <h2 className="mb-4 font-bold text-white text-2xl">{loc('PrivatePolicy', 'Private Policy')}</h2>
+          {/* 隐私政策 */}
+          <section className="mb-16 text-left">
+            <h2 className="mb-10 pl-4 font-bold text-white text-3xl text-left">{loc('PrivatePolicy', 'Privacy Policy')}</h2>
             <div className="bg-[rgb(30_30_30/90%)] backdrop-blur-[20px] p-8 border border-white/10 rounded-2xl">
-              <h3 className="mb-4 font-bold text-white text-2xl">1. Introduction</h3>
-              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">Welcome to this game. This game is an open-source project, and its source code is publicly available. This Privacy Policy explains how we collect, use, and protect your information.</p>
-              <h3 className="mb-4 font-bold text-white text-2xl">2. Information We Collect</h3>
-              <h4 className="mb-4 font-bold text-white text-2xl">2.1 No Personally Identifiable Information</h4>
-              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">This game does not require user registration and does not actively collect your name, address, email address, phone number, or other personally identifiable information.</p>
-              <h3 className="mb-4 font-bold text-white text-2xl">3. Data Storage and Security</h3>
-              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">We take reasonable measures to protect data security. However, no method of transmission over the Internet can guarantee absolute security.</p>
-              <h3 className="mb-4 font-bold text-white text-2xl">4. Local Data Storage</h3>
-              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">The game may store the following data locally on your device:</p>
-              <ul className="space-y-2 text-[#b0b0b0] text-base leading-relaxed list-disc list-inside">
-                <li>Game settings</li>
-                <li>Game levels</li>
-                <li>Chart scores</li>
-                <li>Game logs</li>
-              </ul>
-              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">This data remains on your device and is not automatically uploaded.</p>
-              <h3 className="mb-4 font-bold text-white text-2xl">5. Open Source Notice</h3>
-              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">This game is an open-source project. You may review the source code to understand how data is handled. Community review and contributions are encouraged.</p>
-              <h3 className="mb-4 font-bold text-white text-2xl">6. Changes to This Policy</h3>
-              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">We may update this Privacy Policy from time to time. Updates will be posted on the project page.</p>
-              <h3 className="mb-4 font-bold text-white text-2xl">7. Contact Information</h3>
-              <p className="mb-6 text-[#b0b0b0] text-base leading-relaxed">If you have any privacy-related questions, please contact us via:</p>
-              <ul className="space-y-2 text-[#b0b0b0] text-base leading-relaxed list-disc list-inside">
-                <li>Project homepage</li>
-                <li>Repository issue tracker</li>
-                <li>email to admin@majdata.net</li>
-              </ul>
+              <div className="space-y-8">
+                {/* Introduction */}
+                <div className="text-left">
+                  <h3 className="mb-3 pb-2 border-emerald-500/30 border-b font-bold text-white text-xl text-left">1. {loc('PrivacyIntroTitle', 'Introduction')}</h3>
+                  <p className="text-[#b0b0b0] text-base text-left leading-relaxed">{loc('PrivacyIntro', 'Welcome to this game. This game is an open-source project, and its source code is publicly available. This Privacy Policy explains how we collect, use, and protect your information.')}</p>
+                </div>
+
+                {/* Information We Collect */}
+                <div className="text-left">
+                  <h3 className="mb-3 pb-2 border-emerald-500/30 border-b font-bold text-white text-xl text-left">2. {loc('PrivacyInfoWeCollect', 'Information We Collect')}</h3>
+                  <div className="space-y-4">
+                    <div className="text-left">
+                      <h4 className="mb-2 font-semibold text-white text-lg text-left">2.1 {loc('PrivacyNoPersonalInfo', 'No Personally Identifiable Information')}</h4>
+                      <p className="text-[#b0b0b0] text-base text-left leading-relaxed">{loc('PrivacyNoPersonalInfoDesc', 'This game does not require user registration and does not actively collect your name, address, email address, phone number, or other personally identifiable information.')}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Data Storage and Security */}
+                <div className="text-left">
+                  <h3 className="mb-3 pb-2 border-emerald-500/30 border-b font-bold text-white text-xl text-left">3. {loc('PrivacyDataSecurity', 'Data Storage and Security')}</h3>
+                  <p className="text-[#b0b0b0] text-base text-left leading-relaxed">{loc('PrivacyDataSecurityDesc', 'We take reasonable measures to protect data security. However, no method of transmission over the Internet can guarantee absolute security.')}</p>
+                </div>
+
+                {/* Local Data Storage */}
+                <div className="text-left">
+                  <h3 className="mb-3 pb-2 border-emerald-500/30 border-b font-bold text-white text-xl text-left">4. {loc('PrivacyLocalStorage', 'Local Data Storage')}</h3>
+                  <p className="mb-3 text-[#b0b0b0] text-base text-left leading-relaxed">{loc('PrivacyLocalStorageDesc1', 'The game may store the following data locally on your device:')}</p>
+                  <ul className="space-y-2 pl-6 text-[#b0b0b0] text-base text-left leading-relaxed list-disc">
+                    <li className="text-left">{loc('PrivacyLocalStorageItem1', 'Game settings')}</li>
+                    <li className="text-left">{loc('PrivacyLocalStorageItem2', 'Game levels')}</li>
+                    <li className="text-left">{loc('PrivacyLocalStorageItem3', 'Chart scores')}</li>
+                    <li className="text-left">{loc('PrivacyLocalStorageItem4', 'Game logs')}</li>
+                  </ul>
+                  <p className="mt-3 text-[#b0b0b0] text-base text-left leading-relaxed">{loc('PrivacyLocalStorageDesc2', 'This data remains on your device and is not automatically uploaded.')}</p>
+                </div>
+
+                {/* Open Source Notice */}
+                <div className="text-left">
+                  <h3 className="mb-3 pb-2 border-emerald-500/30 border-b font-bold text-white text-xl text-left">5. {loc('PrivacyOpenSource', 'Open Source Notice')}</h3>
+                  <p className="text-[#b0b0b0] text-base text-left leading-relaxed">{loc('PrivacyOpenSourceDesc', 'This game is an open-source project. You may review the source code to understand how data is handled. Community review and contributions are encouraged.')}</p>
+                </div>
+
+                {/* Changes to This Policy */}
+                <div className="text-left">
+                  <h3 className="mb-3 pb-2 border-emerald-500/30 border-b font-bold text-white text-xl text-left">6. {loc('PrivacyChanges', 'Changes to This Policy')}</h3>
+                  <p className="text-[#b0b0b0] text-base text-left leading-relaxed">{loc('PrivacyChangesDesc', 'We may update this Privacy Policy from time to time. Updates will be posted on the project page.')}</p>
+                </div>
+
+                {/* Contact Information */}
+                <div className="text-left">
+                  <h3 className="mb-3 pb-2 border-emerald-500/30 border-b font-bold text-white text-xl text-left">7. {loc('PrivacyContact', 'Contact Information')}</h3>
+                  <p className="mb-3 text-[#b0b0b0] text-base text-left leading-relaxed">{loc('PrivacyContactDesc', 'If you have any privacy-related questions, please contact us via:')}</p>
+                  <ul className="space-y-2 pl-6 text-[#b0b0b0] text-base text-left leading-relaxed list-disc">
+                    <li className="text-left">{loc('PrivacyContactItem1', 'Project homepage')}</li>
+                    <li className="text-left"><a href="https://github.com/LingFeng-bbben/MajdataPlay/issues" className="text-blue-400 hover:text-blue-300 hover:underline transition-colors">{loc('PrivacyContactItem2', 'Repository issue tracker')}</a></li>
+                    <li className="text-left">
+                      <a href="mailto:admin@majdata.net" className="text-blue-400 hover:text-blue-300 hover:underline transition-colors">
+                        admin@majdata.net
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </section>
         </div>

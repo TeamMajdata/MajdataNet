@@ -70,8 +70,6 @@ body {
 /* 段落样式 */
 p {
   color: rgb(var(--foreground-rgb));
-  text-align: center;
-  margin: 1rem;
 }
 
 /* 标题样式 */

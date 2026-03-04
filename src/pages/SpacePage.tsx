@@ -193,7 +193,7 @@ function Introduction({ username }: { username: string }) {
         {/* User Info */}
         <div className="flex-1">
           <h1 className="mb-2 font-bold text-[2rem] text-gray-200 max-md:text-2xl">{data.username}</h1>
-          <p className="m-0 text-gray-400 text-base">
+          <p className="m-0 text-gray-400 text-base text-right">
             {loc('JoinAt', '加入于')} {new Date(data.joinDate).toLocaleString()}
           </p>
         </div>
@@ -202,7 +202,7 @@ function Introduction({ username }: { username: string }) {
       {/* Introduction */}
       {data.introduction && (
         <div className="mt-4">
-          <h3 className="mb-4 font-semibold text-gray-200 text-xl">
+          <h3 className="mb-4 font-semibold text-gray-200 text-xl text-center">
             {loc('SelfIntro', '自我介绍')}
           </h3>
           <article className="bg-black/30 p-6 rounded-xl select-text **:select-text markdown-body">
