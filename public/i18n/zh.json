@@ -311,7 +311,7 @@
   "PrivacyLocalStorage": "本地数据存储",
   "PrivacyLocalStorageDesc1": "游戏可能会在您的设备上本地存储以下数据：",
   "PrivacyLocalStorageItem1": "游戏设置",
-  "PrivacyLocalStorageItem2": "游戏关卡",
+  "PrivacyLocalStorageItem2": "曲目数据",
   "PrivacyLocalStorageItem3": "谱面成绩",
   "PrivacyLocalStorageItem4": "游戏日志",
   "PrivacyLocalStorageDesc2": "这些数据保留在您的设备上，不会自动上传。",
