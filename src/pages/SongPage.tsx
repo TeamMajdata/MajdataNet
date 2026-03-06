@@ -185,19 +185,17 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
           {/* 移动端：设计师和标签水平排列 */}
           <div className="flex md:flex-row flex-col lg:flex-col gap-4 md:gap-4 lg:gap-4">
             <Tooltip content={o.uploader + '@' + o.designer}>
-              <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
-                <Link to={'/space?id=' + o.uploader} className="inline-flex items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-lg px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
-                  <img
-                    className="shadow-sm border-2 border-white/25 rounded-full w-9 min-w-9 h-9 min-h-9 aspect-square transition-all duration-300 shrink-0"
-                    src={apiroot3 + '/account/Icon?username=' + o.uploader}
-                    alt={o.uploader}
-                  />
-                  <div className="flex flex-col items-start gap-1">
-                    <span className="font-semibold text-white/95 text-base leading-[1.3]">{o.uploader}</span>
-                    <span className="font-normal text-white/65 text-sm leading-[1.3]">{o.designer}</span>
-                  </div>
-                </Link>
-              </div>
+              <Link to={'/space?id=' + o.uploader} className="flex-1 inline-flex items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-lg px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
+                <img
+                  className="shadow-sm border-2 border-white/25 rounded-full w-9 min-w-9 h-9 min-h-9 aspect-square transition-all duration-300 shrink-0"
+                  src={apiroot3 + '/account/Icon?username=' + o.uploader}
+                  alt={o.uploader}
+                />
+                <div className="flex flex-col items-start gap-1">
+                  <span className="font-semibold text-white/95 text-base leading-[1.3]">{o.uploader}</span>
+                  <span className="font-normal text-white/65 text-sm leading-[1.3]">{o.designer}</span>
+                </div>
+              </Link>
             </Tooltip>
 
             <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
