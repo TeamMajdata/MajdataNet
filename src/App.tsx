@@ -20,6 +20,7 @@ import MiniGamePage from './pages/MiniGamePage';
 import './App.css';
 import PersonalScoresPage from './pages/PersonalScoresPage';
 import QRAuthPage from './pages/QRAuthPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path="/user/scores" element={<PersonalScoresPage />} />
           <Route path="/minigame" element={<MiniGamePage />} />
           <Route path="/qrauth" element={<QRAuthPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>
     </I18nProvider>

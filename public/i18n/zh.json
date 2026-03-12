@@ -322,5 +322,10 @@
   "PrivacyContact": "联系信息",
   "PrivacyContactDesc": "如果您有任何隐私相关的问题，请通过以下方式联系我们：",
   "PrivacyContactItem1": "项目主页",
-  "PrivacyContactItem2": "仓库 ISSUE 跟踪器"
+  "PrivacyContactItem2": "仓库 ISSUE 跟踪器",
+  "notfound.title": "页面未找到",
+  "notfound.description": "抱歉，您访问的页面不存在或已被移除。",
+  "notfound.redirect": "${countdown} 秒后自动返回首页...",
+  "notfound.backHome": "返回首页",
+  "notfound.goBack": "返回上一页"
 }

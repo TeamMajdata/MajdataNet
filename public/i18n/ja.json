@@ -314,5 +314,10 @@
   "PrivacyContact": "連絡先情報",
   "PrivacyContactDesc": "プライバシーに関するご質問がある場合は、以下の方法でお問い合わせください：",
   "PrivacyContactItem1": "プロジェクトのホームページ",
-  "PrivacyContactItem2": "リポジトリの問題追跡システム"
+  "PrivacyContactItem2": "リポジトリの問題追跡システム",
+  "notfound.title": "ページが見つかりません",
+  "notfound.description": "申し訳ございません。お探しのページは存在しないか、削除された可能性があります。",
+  "notfound.redirect": "${countdown}秒後にホームページに戻ります...",
+  "notfound.backHome": "ホームに戻る",
+  "notfound.goBack": "前のページに戻る"
 }

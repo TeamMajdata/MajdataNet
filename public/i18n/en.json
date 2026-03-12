@@ -314,5 +314,10 @@
   "PrivacyContact": "Contact Information",
   "PrivacyContactDesc": "If you have any privacy-related questions, please contact us via:",
   "PrivacyContactItem1": "Project homepage",
-  "PrivacyContactItem2": "Repository issue tracker"
+  "PrivacyContactItem2": "Repository issue tracker",
+  "notfound.title": "Page Not Found",
+  "notfound.description": "Sorry, the page you are looking for does not exist or has been removed.",
+  "notfound.redirect": "Redirecting to home page in ${countdown} seconds...",
+  "notfound.backHome": "Back to Home",
+  "notfound.goBack": "Go Back"
 }
