@@ -3,7 +3,8 @@
  * 迁移自 legacy/src/app/page.jsx
  */
 
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import useSWR from 'swr';
 import Tooltip from '@/components/Tooltip';
 import { useDebouncedCallback } from 'use-debounce';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -14,7 +15,7 @@ import 'swiper/swiper-bundle.css';
 
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout, SongList } from '@/components';
+import { PageLayout, SongCard, SongList } from '@/components';
 import { apiroot3 } from '@/config/api';
 import {
   getEventStatusClass,
@@ -24,7 +25,39 @@ import {
   getTimeAgo,
   getCategoryTranslation,
 } from '@/utils/eventsData';
-import type { SearchBarProps } from '@/types';
+import type { SearchBarProps, Song } from '@/types';
+
+const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
+  const cacheKey = 'homeSongListCache';
+
+  // 1. 尝试从 localStorage 读取缓存
+  try {
+    const cachedData = localStorage.getItem(cacheKey);
+    if (cachedData) {
+      const parsed = JSON.parse(cachedData);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error(e)
+  }
+
+  // 2. 缓存不存在或解析失败，发起请求
+  const data = await fetch(url, { mode: 'cors', credentials: 'include' })
+    .then((res) => res.json());
+
+  // 3. 请求成功后存入 localStorage
+  if (Array.isArray(data) && data.length > 0) {
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify(data));
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  return data;
+};
 
 export default function HomePage() {
   const [ready, setReady] = useState(false);
@@ -138,11 +171,10 @@ function DesktopEventsSwiper() {
                             <span className="whitespace-nowrap">
                               {getCategoryTranslation(event.category)}
                             </span>
-                            <span className={`font-semibold text-[0.85rem] px-1.5 py-0.5 rounded inline-block ${
-                              getEventStatusClass(event) === 'status-upcoming' ? 'text-[#fbbf24] bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.3)]' :
+                            <span className={`font-semibold text-[0.85rem] px-1.5 py-0.5 rounded inline-block ${getEventStatusClass(event) === 'status-upcoming' ? 'text-[#fbbf24] bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.3)]' :
                               getEventStatusClass(event) === 'status-ongoing' ? 'text-[#10b981] bg-[rgba(16,185,129,0.15)] border border-[rgba(16,185,129,0.3)]' :
-                              'text-[#9ca3af] bg-[rgba(156,163,175,0.15)] border border-[rgba(156,163,175,0.3)]'
-                            }`}>
+                                'text-[#9ca3af] bg-[rgba(156,163,175,0.15)] border border-[rgba(156,163,175,0.3)]'
+                              }`}>
                               • {getEventStatusText(event)}
                             </span>
                             <span
@@ -368,9 +400,9 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                 onChange={handleInputChange}
               />
               {currentValue && (
-                <button 
-                  className="top-1/2 right-3 md:right-4 z-2 absolute flex justify-center items-center bg-transparent border-none rounded-full w-6 md:w-7 h-6 md:h-7 font-light text-white/60 hover:text-white/90 text-xl leading-none transition-colors -translate-y-1/2 cursor-pointer" 
-                  onClick={handleClearSearch} 
+                <button
+                  className="top-1/2 right-3 md:right-4 z-2 absolute flex justify-center items-center bg-transparent border-none rounded-full w-6 md:w-7 h-6 md:h-7 font-light text-white/60 hover:text-white/90 text-xl leading-none transition-colors -translate-y-1/2 cursor-pointer"
+                  onClick={handleClearSearch}
                   title="清空搜索"
                 >
                   ×
@@ -444,7 +476,11 @@ function MainComp() {
   const loc = useLoc();
   const [searchParams] = useSearchParams();
   const isInitialMount = useRef(true);
-  
+  const [activeTab, setActiveTab] = useState<'all' | 'random'>(() => {
+    const stored = localStorage.getItem('homeActiveTab');
+    return stored === 'random' ? 'random' : 'all';
+  });
+
   // 从 localStorage 或 URL 参数初始化状态
   const [Search, setSearch] = useState(() => {
     const urlSearchParam = searchParams.get('search');
@@ -464,6 +500,7 @@ function MainComp() {
     const stored = localStorage.getItem('sort');
     return stored ? parseInt(stored) : 0;
   });
+  const [randomSeed, setRandomSeed] = useState(0);
 
   // 处理 URL 参数变化（跳过初始挂载）
   useEffect(() => {
@@ -471,7 +508,7 @@ function MainComp() {
       isInitialMount.current = false;
       return;
     }
-    
+
     const urlSearchParam = searchParams.get('search');
     if (urlSearchParam) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -502,84 +539,187 @@ function MainComp() {
 
   const sortWords = ['', 'likep', 'commp', 'playp'];
 
+  const refreshRandomBatch = useCallback(() => {
+    setRandomSeed((prev) => prev + 1);
+    window.scrollTo(0, 200);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('homeActiveTab', activeTab);
+  }, [activeTab]);
+
   // 渲染数据
   return (
     <>
-      <SearchBar
-        onChange={(e) => debounced(e.target.value)}
-        initS={Search}
-        sortType={sortType}
-        onSortChange={onSortChange}
-      />
-
-      <SongList
-        url={
-          apiroot3 +
-          '/maichart/list?sort=' +
-          sortWords[sortType] +
-          '&page=' +
-          page +
-          '&search=' +
-          encodeURIComponent(Search)
-        }
-        page={page}
-        setMax={setMaxpage}
-      />
-
-      <div className="flex flex-col items-center gap-6 mx-auto mt-12 px-4 max-w-7xl">
-        <div className="flex items-center gap-4 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-6 border border-white/10 rounded-xl">
+      <div className="flex justify-center px-4 pt-2 pb-3">
+        <div className="inline-flex bg-[rgba(20,20,25,0.7)] p-1 border border-white/10 rounded-full">
           <button
-            className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-            disabled={page - 1 < 0}
-            onClick={() => {
-              setPage(page - 1);
-              window.scrollTo(0, 200);
-            }}
+            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'all' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
+              }`}
+            onClick={() => setActiveTab('all')}
           >
-            ←
+            {loc('AllCharts', '全部谱面')}
           </button>
-
-          <div className="flex items-center gap-2">
-            <span className="text-[#ccc] text-sm">{loc('PageOf', '第')}</span>
-            <input
-              type="number"
-              value={page}
-              className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
-              onChange={(event) => {
-                if (event.target.value !== '') {
-                  setPage(parseInt(event.target.value));
-                } else setPage(0);
-              }}
-              min="0"
-              step="1"
-            />
-            <span className="text-[#ccc] text-sm">{loc('Page', '页')}</span>
-          </div>
-
           <button
-            className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page >= maxpage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-            disabled={page >= maxpage}
-            onClick={() => {
-              setPage(page + 1);
-              window.scrollTo(0, 200);
-            }}
+            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'random' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
+              }`}
+            onClick={() => setActiveTab('random')}
           >
-            →
+            {loc('RandomRecommend', '随机推荐')}
           </button>
         </div>
-
-        <button
-          className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer"
-          onClick={() => {
-            setPage(0);
-            window.scrollTo(0, 200);
-          }}
-        >
-          {loc('FrontPage', '首页')}
-        </button>
-        <IntegratedDownloadTypeSelector isMobile={true} />
       </div>
+
+      {activeTab === 'all' ? (
+        <>
+          <SearchBar
+            onChange={(e) => debounced(e.target.value)}
+            initS={Search}
+            sortType={sortType}
+            onSortChange={onSortChange}
+          />
+
+          <SongList
+            url={
+              apiroot3 +
+              '/maichart/list?sort=' +
+              sortWords[sortType] +
+              '&page=' +
+              page +
+              '&search=' +
+              encodeURIComponent(Search)
+            }
+            page={page}
+            setMax={setMaxpage}
+          />
+
+          <div className="flex flex-col items-center gap-6 mx-auto mt-12 px-4 max-w-7xl">
+            <div className="flex items-center gap-4 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-6 border border-white/10 rounded-xl">
+              <button
+                className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+                disabled={page - 1 < 0}
+                onClick={() => {
+                  setPage(page - 1);
+                  window.scrollTo(0, 200);
+                }}
+              >
+                ←
+              </button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[#ccc] text-sm">{loc('PageOf', '第')}</span>
+                <input
+                  type="number"
+                  value={page}
+                  className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
+                  onChange={(event) => {
+                    if (event.target.value !== '') {
+                      setPage(parseInt(event.target.value));
+                    } else setPage(0);
+                  }}
+                  min="0"
+                  step="1"
+                />
+                <span className="text-[#ccc] text-sm">{loc('Page', '页')}</span>
+              </div>
+
+              <button
+                className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page >= maxpage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+                disabled={page >= maxpage}
+                onClick={() => {
+                  setPage(page + 1);
+                  window.scrollTo(0, 200);
+                }}
+              >
+                →
+              </button>
+            </div>
+
+            <button
+              className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer"
+              onClick={() => {
+                setPage(0);
+                window.scrollTo(0, 200);
+              }}
+            >
+              {loc('FrontPage', '首页')}
+            </button>
+            <IntegratedDownloadTypeSelector isMobile={true} />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex flex-col items-center gap-4 mx-auto mb-6 px-4 max-w-7xl">
+            <button
+              className="bg-blue-500/80 hover:bg-blue-500 px-6 py-2 border-none rounded-lg font-medium text-white cursor-pointer"
+              onClick={refreshRandomBatch}
+            >
+              {loc('RefreshBatch', '换一批')}
+            </button>
+          </div>
+
+          <RandomRecommendList refreshKey={randomSeed} />
+
+          <div className="flex justify-center mt-12 px-4">
+            <IntegratedDownloadTypeSelector isMobile={true} />
+          </div>
+        </>
+      )}
     </>
+  );
+}
+
+function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
+  const loc = useLoc();
+
+  const { data, error, isLoading } = useSWR<Song[]>(
+    apiroot3 + '/maichart/list',
+    cachedSongListFetcher,
+    {
+      revalidateOnFocus: false,
+    }
+  );
+
+  const randomSongs = useMemo(() => {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      return [] as Song[];
+    }
+
+    const hashWithSeed = (song: Song, seed: number) => {
+      const key = `${song.id}|${song.title}|${song.uploader}|${seed}`;
+      let hash = 2166136261;
+      for (let i = 0; i < key.length; i++) {
+        hash ^= key.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
+    };
+
+    return [...data]
+      .sort((a, b) => hashWithSeed(a, refreshKey) - hashWithSeed(b, refreshKey))
+      .slice(0, 30);
+  }, [data, refreshKey]);
+
+  if (error) {
+    return <div className="m-auto w-full text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]" />
+    );
+  }
+
+  if (randomSongs.length === 0) {
+    return <div className="m-auto w-full text-[50px] text-center">{loc('EmptyData', '暂无数据')}</div>;
+  }
+
+  return (
+    <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+      {randomSongs.map((song, index) => (
+        <SongCard key={song.id} song={song} index={index} page={0} />
+      ))}
+    </div>
   );
 }
 
