@@ -1,8 +1,3 @@
-/**
- * 歌曲下载工具函数
- * 迁移自 legacy/src/app/download.jsx
- */
-
 import { apiroot3 } from '@/config/api';
 import JSZip from 'jszip';
 import axios from 'axios';
@@ -12,13 +7,15 @@ import type { DownloadSongParams } from '@/types/download';
 async function fetchFile(
   url: string,
   fileName: string,
-  toast: typeof toastType
+  toast: typeof toastType,
+  signal?: AbortSignal
 ): Promise<Blob | undefined> {
   let t: Id | undefined;
   try {
     t = toast.loading('Downloading ' + fileName, { hideProgressBar: false });
     const response = await axios.get(url, {
       responseType: 'blob',
+      signal,
       onDownloadProgress: function (progressEvent) {
         if (progressEvent.lengthComputable && progressEvent.total) {
           const progress = progressEvent.loaded / progressEvent.total;
@@ -30,7 +27,7 @@ async function fetchFile(
     });
     if (t) toast.done(t);
     return response.data;
-  } catch (error) {
+  } catch {
     if (t) toast.done(t);
     return undefined;
   }
@@ -48,45 +45,63 @@ function downloadFile(url: string, fileName: string): void {
 
 export async function downloadSong(props: DownloadSongParams): Promise<void> {
   const zip = new JSZip();
+  const abortController = new AbortController();
+  const prefix = apiroot3 + '/maichart/' + props.id;
 
-  const track = await fetchFile(
-    apiroot3 + '/maichart/' + props.id + '/track',
+  const trackPromise = fetchFile(
+    prefix + '/track',
     'track.mp3',
-    props.toast
-  );
+    props.toast,
+    abortController.signal
+  ).then((result) => {
+    if (result === undefined) {
+      abortController.abort();
+    }
+    return result;
+  });
 
-  if (track === undefined) {
-    props.toast.error(props.title + '下载失败');
-    return;
-  }
-
-  const bg = await fetchFile(
-    apiroot3 + '/maichart/' + props.id + '/image?fullImage=true',
+  const bgPromise = fetchFile(
+    prefix + '/image?fullImage=true',
     'bg',
-    props.toast
-  );
+    props.toast,
+    abortController.signal
+  ).then((result) => {
+    if (result === undefined) {
+      abortController.abort();
+    }
+    return result;
+  });
 
-  if (bg === undefined) {
-    props.toast.error(props.title + '下载失败');
-    return;
-  }
-
-  const maidata = await fetchFile(
-    apiroot3 + '/maichart/' + props.id + '/chart',
+  const maidataPromise = fetchFile(
+    prefix + '/chart',
     'maidata',
-    props.toast
+    props.toast,
+    abortController.signal
+  ).then((result) => {
+    if (result === undefined) {
+      abortController.abort();
+    }
+    return result;
+  });
+
+  const videoPromise = fetchFile(
+    prefix + '/video',
+    'bg.mp4',
+    props.toast,
+    abortController.signal
   );
 
-  if (maidata === undefined) {
+  const [track, bg, maidata, video] = await Promise.all([
+    trackPromise,
+    bgPromise,
+    maidataPromise,
+    videoPromise,
+  ]);
+
+  if (track === undefined || bg === undefined || maidata === undefined) {
     props.toast.error(props.title + '下载失败');
     return;
   }
-
-  const video = await fetchFile(
-    apiroot3 + '/maichart/' + props.id + '/video',
-    'bg.mp4',
-    props.toast
-  );
 
   zip.file('track.mp3', track);
   zip.file('bg.jpg', bg);
