@@ -1,8 +1,3 @@
-/**
- * 主页组件
- * 迁移自 legacy/src/app/page.jsx
- */
-
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import useSWR from 'swr';
 import Tooltip from '@/components/Tooltip';
@@ -27,32 +22,74 @@ import {
 } from '@/utils/eventsData';
 import type { SearchBarProps, Song } from '@/types';
 
+// 获取用户时区的次日午夜时间戳 (UTC)
+const getNextMidnightTimestamp = (): number => {
+  const now = new Date();
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: userTimeZone,
+  });
+
+  const parts = formatter.formatToParts(now);
+  const dateObj: Record<string, string> = {};
+  parts.forEach(({ type, value }) => {
+    dateObj[type] = value;
+  });
+
+  const userLocalDate = new Date(
+    parseInt(dateObj.year),
+    parseInt(dateObj.month) - 1,
+    parseInt(dateObj.day)
+  );
+
+  const tomorrow = new Date(userLocalDate);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const millisUntilMidnight = tomorrow.getTime() - now.getTime() + (now.getTime() - userLocalDate.getTime());
+  return now.getTime() + millisUntilMidnight;
+};
+
 const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
   const cacheKey = 'homeSongListCache';
+  const cacheExpireTimeKey = 'homeSongListCacheExpireTime';
 
   // 1. 尝试从 localStorage 读取缓存
   try {
     const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      const parsed = JSON.parse(cachedData);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+    const cacheExpireTime = localStorage.getItem(cacheExpireTimeKey);
+    const now = Date.now();
+
+    if (cachedData && cacheExpireTime) {
+      const expireTimestamp = parseInt(cacheExpireTime);
+
+      if (now < expireTimestamp) {
+        const parsed = JSON.parse(cachedData);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
       }
     }
   } catch (e) {
-    console.error(e)
+    console.error('缓存读取错误:', e)
   }
 
-  // 2. 缓存不存在或解析失败，发起请求
+  // 2. 缓存不存在或已过期，发起请求
   const data = await fetch(url, { mode: 'cors', credentials: 'include' })
     .then((res) => res.json());
 
-  // 3. 请求成功后存入 localStorage
+  // 3. 请求成功后存入 localStorage，同时存储时间戳和过期时间
   if (Array.isArray(data) && data.length > 0) {
     try {
+      const nextMidnightTime = getNextMidnightTimestamp();
+
       localStorage.setItem(cacheKey, JSON.stringify(data));
+      localStorage.setItem(cacheExpireTimeKey, nextMidnightTime.toString());
     } catch (e) {
-      console.error(e)
+      console.error('缓存保存错误:', e)
     }
   }
 
@@ -500,7 +537,7 @@ function MainComp() {
     const stored = localStorage.getItem('sort');
     return stored ? parseInt(stored) : 0;
   });
-  const [randomSeed, setRandomSeed] = useState(0);
+  const [randomSeed, setRandomSeed] = useState(() => Math.floor(Math.random() * 1000000));
 
   // 处理 URL 参数变化（跳过初始挂载）
   useEffect(() => {
@@ -541,7 +578,6 @@ function MainComp() {
 
   const refreshRandomBatch = useCallback(() => {
     setRandomSeed((prev) => prev + 1);
-    window.scrollTo(0, 200);
   }, []);
 
   useEffect(() => {
