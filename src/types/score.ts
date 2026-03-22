@@ -34,10 +34,10 @@ export interface RecentPlayedData {
 }
 
 
-export interface Score{
-  acc: {"dx": number, "classic": number};
+export interface Score {
+  acc: { "dx": number, "classic": number };
   dxScore: number;
-  comboState : ComboState | number;
+  comboState: ComboState | number;
   chartLevel: number;
   hash: string;
   chartInfo: ChartInfo;
@@ -53,7 +53,6 @@ interface ChartInfo {
   levels: string[];
   uploader: string;
   timestamp: string;
-  lastActive: string;
   hash: string;
   tags: string[];
   publicTags: string[];

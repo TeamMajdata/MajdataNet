@@ -14,11 +14,11 @@ const fetcher = async (...args: Parameters<typeof fetch>) =>
  */
 function convertToScore(data: RecentPlayedData): Score {
   const chartLevel = parseInt(data.level);
-  
+
   // 构造 levels 数组，确保 levels[chartLevel] = difficulty
   const levels = new Array(chartLevel + 1).fill('');
   levels[chartLevel] = data.difficulty;
-  
+
   return {
     acc: {
       dx: data.acc,
@@ -37,7 +37,6 @@ function convertToScore(data: RecentPlayedData): Score {
       levels: levels,
       uploader: data.uploader,
       timestamp: data.timestamp || '',
-      lastActive: '',
       hash: '',
       tags: [],
       publicTags: []
@@ -52,7 +51,7 @@ function convertToScore(data: RecentPlayedData): Score {
  */
 export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPlayedWidgetProps) {
   const loc = useLoc();
-  
+
   const { data, error, isLoading } = useSWR<RecentPlayedData[]>(
     `${apiroot3}/account/Recent?username=${username}`,
     fetcher,
@@ -77,7 +76,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
 
   const list = data.map((recentData) => {
     const score = convertToScore(recentData);
-    
+
     return (
       <motion.div
         key={recentData.chartId}
