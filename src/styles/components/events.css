@@ -22,8 +22,9 @@
   bottom: 0.5rem;
   left: 50%;
   transform: translateX(-50%);
-  position: absolute;
+  position: relative;
   width: auto;
+  margin-top: 1rem;
 }
 
 .mobile-events-swiper .swiper-pagination-bullet {

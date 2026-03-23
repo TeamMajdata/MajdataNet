@@ -136,6 +136,17 @@ function EventsCarousel() {
   return isMobile ? <MobileEventsSwiper /> : <DesktopEventsSwiper />;
 }
 
+function getDateLocale() {
+  const lang = localStorage.getItem('language') || 'zh';
+  const localeMap: Record<string, string> = {
+    zh: 'zh-CN',
+    en: 'en-US',
+    ja: 'ja-JP',
+    ko: 'ko-KR',
+  };
+  return localeMap[lang] || 'zh-CN';
+};
+
 // PC端专用的 Swiper 组件
 function DesktopEventsSwiper() {
   const loc = useLoc();
@@ -146,7 +157,7 @@ function DesktopEventsSwiper() {
     return getActiveEvents().map((event) => ({
       ...event,
       timeAgo: getTimeAgo(event.createDate),
-      createDateFormatted: new Date(event.createDate).toLocaleDateString('zh-CN', {
+      createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(), {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -155,7 +166,7 @@ function DesktopEventsSwiper() {
   }, []);
 
   return (
-    <section className="mx-auto mt-8 mb-12 px-4 max-w-7xl">
+    <section className="mx-auto mt-8 px-4 max-w-7xl">
       <div className="w-full">
         <div className="relative w-full">
           <Swiper
@@ -257,18 +268,6 @@ function DesktopEventsSwiper() {
 
 // 移动端专用的 Swiper 组件
 function MobileEventsSwiper() {
-  // 获取当前语言的locale
-  const getDateLocale = () => {
-    const lang = localStorage.getItem('language') || 'zh';
-    const localeMap: Record<string, string> = {
-      zh: 'zh-CN',
-      en: 'en-US',
-      ja: 'ja-JP',
-      ko: 'ko-KR',
-    };
-    return localeMap[lang] || 'zh-CN';
-  };
-
   // 获取所有活跃的活动（进行中 + 即将开始）
   const ongoingEvents = useMemo(() => {
     return getActiveEvents().map((event) => ({
@@ -283,7 +282,7 @@ function MobileEventsSwiper() {
   }, []);
 
   return (
-    <section className="mx-auto mt-4 mb-0 px-4 max-w-7xl">
+    <section className="mx-auto mt-4 px-4 max-w-7xl">
       <div className="relative w-full">
         <div className="relative w-full">
           <Swiper
@@ -300,7 +299,7 @@ function MobileEventsSwiper() {
               dynamicBullets: true,
             }}
             navigation={false}
-            loop={false}
+            loop={ongoingEvents.length > 1}
             breakpoints={{
               480: {
                 slidesPerView: 1.2,
@@ -337,14 +336,14 @@ function MobileEventsSwiper() {
 
             {/* More 页面作为 Swiper 的最后一页 */}
             <SwiperSlide className="flex h-auto">
-              <Link to="/chart-events" className="block w-full h-full text-inherit no-underline">
-                <div className="relative flex justify-center items-center bg-linear-to-br from-blue-500/20 via-purple-500/20 to-red-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl border border-white/15 rounded-xl w-full aspect-1279/372 overflow-hidden">
-                  <div className="flex flex-col justify-center items-center gap-4 p-2 w-full h-full text-white text-center">
-                    <div className="flex justify-center items-center font-light text-[3rem] text-white/90 leading-none">→</div>
-                    <h3 className="flex justify-center items-center m-0 font-semibold text-white text-lg text-center leading-none">MORE</h3>
+              <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
+                <Link to="/chart-events" className="block relative w-full h-full text-inherit no-underline">
+                  <div className="flex flex-col justify-center items-center h-full text-white/70">
+                    <div className="text-[2rem] leading-none">→</div>
+                    <div className="font-semibold text-lg leading-none tracking-wider">MORE</div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             </SwiperSlide>
           </Swiper>
         </div>
@@ -357,8 +356,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   const loc = useLoc();
   const [isMobile, setIsMobile] = useState(false);
   const [currentValue, setCurrentValue] = useState(initS);
-  const [showHints, setShowHints] = useState(false);
-  const hintRef = useRef<HTMLDivElement>(null);
+
 
   const sortOptions = [
     loc('UploadDate', '上传日期'),
@@ -383,21 +381,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
     setCurrentValue(initS);
   }, [initS]);
 
-  // 点击外部关闭提示
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (hintRef.current && !hintRef.current.contains(event.target as Node)) {
-        setShowHints(false);
-      }
-    };
 
-    if (showHints) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showHints]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -445,38 +429,18 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                   ×
                 </button>
               )}
-              {/* PC端使用hover触发的Tooltip */}
-              {!isMobile ? (
-                <Tooltip
-                  content={hintContent}
-                  side="top"
-                  sideOffset={20}
-                  plain={true}
+              <Tooltip
+                content={hintContent}
+                side="top"
+                sideOffset={20}
+                plain={true}
+              >
+                <div
+                  className="top-1/2 right-2 md:right-9 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-6.5 md:w-6 h-6.5 md:h-6 font-bold text-white/80 hover:text-white text-xs md:text-sm leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
                 >
-                  <button
-                    className="top-1/2 right-9 md:right-14 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-6 h-6 font-bold text-white/80 hover:text-white text-xs md:text-sm leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
-                    title="搜索提示"
-                  >
-                    ?
-                  </button>
-                </Tooltip>
-              ) : (
-                /* 移动端使用点击触发 */
-                <div ref={hintRef} className="top-1/2 right-9 z-10 absolute -translate-y-1/2">
-                  <button
-                    className="flex justify-center items-center bg-white/5 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 rounded-full w-6.5 h-6.5 font-bold text-white/80 text-xs leading-none transition-all duration-200 cursor-pointer"
-                    onClick={() => setShowHints(!showHints)}
-                    title="搜索提示"
-                  >
-                    ?
-                  </button>
-                  {showHints && (
-                    <div className="top-full right-0 absolute mt-2 animate-[fadeIn_0.2s_ease-out]">
-                      {hintContent}
-                    </div>
-                  )}
+                  ?
                 </div>
-              )}
+              </Tooltip>
             </div>
           </div>
 

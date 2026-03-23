@@ -3,11 +3,11 @@
  */
 
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
 export const TooltipProvider = TooltipPrimitive.Provider;
 
-interface TooltipProps {
+interface TooltipProps extends TooltipPrimitive.TooltipProps {
   content: ReactNode;
   children: ReactNode;
   side?: 'top' | 'bottom' | 'left' | 'right';
@@ -22,10 +22,27 @@ export default function Tooltip({
   side = 'top',
   sideOffset = 6,
   plain = false,
+  ...props
 }: TooltipProps) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <TooltipPrimitive.Root>
-      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+    <TooltipPrimitive.Root
+      open={open}
+      onOpenChange={setOpen}
+      delayDuration={0}
+      {...props}
+    >
+      <TooltipPrimitive.Trigger
+        asChild
+        onClick={() => {
+          setOpen(prev => !prev);
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+      >
+        {children}
+      </TooltipPrimitive.Trigger>
       <TooltipPrimitive.Portal>
         <TooltipPrimitive.Content
           className={
