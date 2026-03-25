@@ -1,8 +1,3 @@
-/**
- * UserChartsPage - 谱面管理页面
- * 迁移自 legacy/src/app/user/charts/page.jsx
- */
-
 import { PageLayout, ChartUploader, SongList } from '@/components';
 import { useLoc, useUser } from '@/hooks';
 import { apiroot3 } from '@/config/api';
@@ -44,7 +39,7 @@ export default function UserChartsPage() {
     <PageLayout title={loc('ChartsManagement')} showBackToHome={false}>
       {/* Upload Section */}
       <section className="mb-16">
-        <motion.div 
+        <motion.div
           className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl"
           initial="hidden"
           animate="visible"
@@ -55,7 +50,7 @@ export default function UserChartsPage() {
             <h2 className="m-0 mb-6 font-semibold text-[#e5e5e5] text-[1.8rem] text-center">
               {loc('UploadChart')}
             </h2>
-            
+
             {/* Notice Board */}
             <div className="relative bg-linear-to-br from-[rgba(59,130,246,0.15)] via-[rgba(59,130,246,0.1)] to-[rgba(99,102,241,0.1)] shadow-[0_0_30px_rgba(59,130,246,0.2),inset_0_0_20px_rgba(59,130,246,0.05)] mb-8 p-8 border-[rgba(59,130,246,0.4)] border-2 rounded-2xl overflow-hidden">
               {/* Decorative corner pins */}
@@ -63,7 +58,7 @@ export default function UserChartsPage() {
               <div className="top-3 right-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
               <div className="bottom-3 left-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
               <div className="right-3 bottom-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
-              
+
               {/* Header with icon */}
               <div className="flex justify-center items-center gap-3 mb-6 pb-4 border-[rgba(59,130,246,0.3)] border-b-2">
                 <div className="drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] text-4xl"></div>
@@ -71,7 +66,7 @@ export default function UserChartsPage() {
                   {loc('UploadNotice')}
                 </h3>
               </div>
-              
+
               {/* Notice content */}
               <ol className="space-y-3 m-0 pl-8 text-[#e5e5e5] list-decimal">
                 <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
@@ -95,7 +90,7 @@ export default function UserChartsPage() {
                   </span>
                 </li>
               </ol>
-              
+
               {/* Bottom accent line */}
               <div className="mt-6 pt-4 border-[rgba(59,130,246,0.2)] border-t">
                 <div className="flex justify-center items-center gap-2 opacity-80 text-[#60a5fa] text-sm">
@@ -109,7 +104,7 @@ export default function UserChartsPage() {
       </section>
 
       {/* Charts Management Section */}
-      <motion.section 
+      <motion.section
         className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl"
         initial="hidden"
         animate="visible"
