@@ -52,19 +52,8 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // 代理所有 /api1, /api2, /api3 请求到 majdata.net
-      '/api1': {
-        target: 'https://majdata.net',
-        changeOrigin: true,
-        secure: true,
-      },
-      '/api2': {
-        target: 'https://majdata.net',
-        changeOrigin: true,
-        secure: true,
-      },
       '/api3': {
-        target: 'https://maj-2.moyingmoe.top',
+        target: 'https://majdata.net',
         changeOrigin: true,
         secure: true,
       },
