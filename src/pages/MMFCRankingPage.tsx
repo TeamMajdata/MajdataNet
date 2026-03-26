@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout, EventBanner } from '@/components';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import MMFCScoreCount from '@/components/MMFCScoreCount';
 import { EventCategory, type Event } from '@/types';
 
@@ -24,7 +25,7 @@ export default function MMFCRankingPage() {
   if (!ready) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="border-white border-b-2 rounded-full w-12 h-12 animate-spin"></div>
+        <LoadingSpinner className="border-white border-b-2 rounded-full w-12 h-12" />
       </div>
     );
   }
@@ -50,7 +51,7 @@ export default function MMFCRankingPage() {
       </div>
 
       {/* 打榜排名 */}
-      <div 
+      <div
         className="mx-auto mt-8 px-4 max-w-5xl"
         style={{
           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))',
@@ -62,7 +63,7 @@ export default function MMFCRankingPage() {
         }}
       >
         <div className="mb-6 text-center">
-          <h2 
+          <h2
             className="mb-2 font-bold text-white text-3xl"
             style={{
               textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
@@ -70,7 +71,7 @@ export default function MMFCRankingPage() {
           >
             {loc('MMFCRankingListTitle', '打榜排名')}
           </h2>
-          <p 
+          <p
             className="text-white/70 text-base"
             style={{
               textShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
@@ -79,7 +80,7 @@ export default function MMFCRankingPage() {
             {loc('MMFCRankingListDescription', '参赛选手对 mmfc_bot 谱面的游玩总分排名')}
           </p>
         </div>
-        
+
         {/* 显示指定用户对 mmfc_bot 谱面的游玩总分排名 */}
         <MMFCScoreCount />
       </div>

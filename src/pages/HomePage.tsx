@@ -10,7 +10,7 @@ import 'swiper/swiper-bundle.css';
 
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout, SongCard, SongList } from '@/components';
+import { PageLayout, SongCard, SongList, LoadingSpinner } from '@/components';
 import { apiroot3 } from '@/config/api';
 import {
   getEventStatusClass,
@@ -105,7 +105,7 @@ export default function HomePage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
     <PageLayout showBackToHome={false}>
@@ -706,7 +706,9 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
 
   if (isLoading) {
     return (
-      <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]" />
+      <div className="flex justify-center items-center py-20 w-full">
+        <LoadingSpinner size="50px" />
+      </div>
     );
   }
 

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { motion } from 'framer-motion';
 import { loc } from '@/utils';
 import AmbientBackground from './AmbientBackground';
 import FloatingButtons from './FloatingButtons';
@@ -35,13 +36,13 @@ export default function PageLayout({
       {/* Page Title */}
       {title && (
         <section className="max-w-7xl mx-auto mt-(--content-top-spacing) mb-0 px-4">
-          <div 
+          <motion.div
             className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-8 border border-white/10 rounded-2xl text-center"
-            style={{
-              animation: 'slideInUp 0.6s ease-out 0.2s both'
-            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
           >
-            <h1 
+            <h1
               className="m-0 font-bold text-[#e5e5e5] text-[2.5rem]"
               style={{
                 textShadow: '0 0 2px #a78bfa, 0 0 4px #60a5fa'
@@ -49,7 +50,7 @@ export default function PageLayout({
             >
               {title}
             </h1>
-          </div>
+          </motion.div>
         </section>
       )}
 
@@ -143,8 +144,8 @@ export default function PageLayout({
           </div>
 
           {/* Mini Game Link */}
-          <Link 
-            to="/minigame" 
+          <Link
+            to="/minigame"
             className="group inline-block relative mt-8 hover:rotate-2 hover:scale-110 transition-all duration-300"
           >
             <img
@@ -173,20 +174,6 @@ export default function PageLayout({
         pauseOnHover
         theme="dark"
       />
-      
-      {/* Animation keyframes */}
-      <style>{`
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </>
   );
 }

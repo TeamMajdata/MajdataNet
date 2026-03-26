@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { PageLayout, ScoreCount } from '@/components';
 
 export default function UserRankingPage() {
@@ -22,7 +23,7 @@ export default function UserRankingPage() {
   if (!ready) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="border-white border-b-2 rounded-full w-12 h-12 animate-spin"></div>
+        <LoadingSpinner className="border-white border-b-2 rounded-full w-12 h-12" />
       </div>
     );
   }
@@ -31,7 +32,7 @@ export default function UserRankingPage() {
     <PageLayout className="pb-8">
       {/* 页面标题和说明 */}
       <div className="mt-8 mb-8 text-center">
-        <h1 
+        <h1
           className="mb-4 font-bold text-white text-4xl"
           style={{
             textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
@@ -39,7 +40,7 @@ export default function UserRankingPage() {
         >
           {loc('UserRankingTitle', '用户排行榜')}
         </h1>
-        <p 
+        <p
           className="mx-auto mt-4 max-w-2xl text-white/80 text-xl leading-relaxed"
           style={{
             textShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
@@ -50,7 +51,7 @@ export default function UserRankingPage() {
       </div>
 
       {/* 排名列表 */}
-      <div 
+      <div
         className="mx-auto px-4 max-w-7xl"
         style={{
           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))',

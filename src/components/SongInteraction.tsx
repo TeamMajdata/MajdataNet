@@ -7,11 +7,12 @@ import React, { useState } from 'react';
 import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
-import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { useLoc } from '@/hooks';
 import { getComboState, getLevelName } from '@/utils';
 import type { ChartScore, ScoreListProps, LikeSenderProps } from '@/types';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -30,7 +31,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
     return <div>..?</div>;
   }
   if (isLoading) {
-    return <div className="flex justify-center items-center py-8"><div className="border-4 border-white/30 border-t-white rounded-full w-8 h-8 animate-spin"></div></div>;
+    return <div className="flex justify-center items-center py-8"><LoadingSpinner className="border-4 border-white/30 border-t-white rounded-full w-8 h-8" /></div>;
   }
   if (data === '' || data === undefined || data.likes === undefined || data.disLikeCount === undefined) {
     return <div>failed to load</div>;
@@ -116,9 +117,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
               }}
             >
               {isLikeLoading ? (
-                <AiOutlineLoading3Quarters
-                  className="w-4 h-4 animate-spin"
-                />
+                <LoadingSpinner className="w-4 h-4" />
               ) : (
                 <svg
                   className="w-4 h-4"
@@ -146,9 +145,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
               }}
             >
               {isDislikeLoading ? (
-                <AiOutlineLoading3Quarters
-                  className="w-4 h-4 animate-spin"
-                />
+                <LoadingSpinner className="w-4 h-4" />
               ) : (
                 <svg
                   className="w-4 h-4"
@@ -164,28 +161,48 @@ export function LikeSender({ songid }: LikeSenderProps) {
         </div>
 
         <div className="flex flex-col p-0">
-          <div className="flex flex-wrap gap-2">
+          <motion.div
+            className="flex flex-wrap gap-2"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.05
+                }
+              }
+            }}
+          >
             {data.likes && data.likes.length > 0 ? (
               <>
-                {data.likes.slice(0, 40).map((username: string, index: number) => (
-                  <Link
+                {data.likes.slice(0, 40).map((username: string) => (
+                  <motion.div
                     key={username}
-                    to={'/space?id=' + username}
-                    className="inline-block relative hover:scale-110 transition-all hover:-translate-y-1"
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    variants={{
+                      hidden: { opacity: 0, scale: 0.8 },
+                      visible: { opacity: 1, scale: 1 }
+                    }}
                   >
-                    <img
-                      className="hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/30 rounded-full w-8 min-w-8 h-8 min-h-8 transition-all"
-                      src={apiroot3 + '/account/Icon?username=' + username}
-                      alt={username}
-                      title={username}
-                    />
-                  </Link>
+                    <Link
+                      to={'/space?id=' + username}
+                      className="inline-block relative hover:scale-110 transition-all hover:-translate-y-1"
+                    >
+                      <img
+                        className="hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/30 rounded-full w-8 min-w-8 h-8 min-h-8 transition-all"
+                        src={apiroot3 + '/account/Icon?username=' + username}
+                        alt={username}
+                        title={username}
+                      />
+                    </Link>
+                  </motion.div>
                 ))}
                 {data.likes.length > 40 && (
-                  <div
+                  <motion.div
                     className="inline-block relative hover:scale-110 transition-all hover:-translate-y-1"
-                    style={{ animationDelay: `${40 * 0.1}s` }}
+                    variants={{
+                      hidden: { opacity: 0, scale: 0.8 },
+                      visible: { opacity: 1, scale: 1 }
+                    }}
                   >
                     <div
                       className="flex justify-center items-center hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/30 rounded-full w-8 min-w-8 h-8 min-h-8 font-semibold text-xs transition-all"
@@ -193,7 +210,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
                     >
                       +{data.likes.length - 40}
                     </div>
-                  </div>
+                  </motion.div>
                 )}
               </>
             ) : (
@@ -201,7 +218,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
                 <p className="m-0 text-gray-400 text-sm italic">{loc('BeFirstToLike')}</p>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
@@ -222,7 +239,7 @@ export function ScoreList({ songid }: ScoreListProps) {
     return <div>failed to load</div>;
   }
   if (isLoading) {
-    return <div className="flex justify-center items-center py-8"><div className="border-4 border-white/30 border-t-white rounded-full w-8 h-8 animate-spin"></div></div>;
+    return <div className="flex justify-center items-center py-8"><LoadingSpinner className="border-4 border-white/30 border-t-white rounded-full w-8 h-8" /></div>;
   }
   if (data === '' || data === undefined || data.scores === undefined) {
     return <div>failed to load</div>;
@@ -297,13 +314,12 @@ function ScoreCard({ score, index }: { score: ChartScore; index: number }) {
         </div>
         <div className="flex flex-col items-end gap-0.5 md:gap-1 shrink-0">
           <div
-            className={`text-base md:text-2xl font-bold text-white ${
-              comboState === 'AP+' || comboState === 'AP'
+            className={`text-base md:text-2xl font-bold text-white ${comboState === 'AP+' || comboState === 'AP'
                 ? 'score-accuracy-ap'
                 : comboState === 'FC+' || comboState === 'FC'
                   ? 'score-accuracy-fc'
                   : ''
-            }`}
+              }`}
           >
             {score.acc.toFixed(4)}%
           </div>

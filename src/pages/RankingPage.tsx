@@ -4,9 +4,10 @@
  */
 
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout, SongList } from '@/components';
+import { PageLayout, SongList, LoadingSpinner } from '@/components';
 import { apiroot3 } from '@/config/api';
 import type { RankingSectionProps } from '@/types';
 
@@ -20,7 +21,11 @@ export default function RankingPage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return (
+    <div className="flex justify-center items-center h-[50vh]">
+      <LoadingSpinner size={50} />
+    </div>
+  );
 
   return (
     <PageLayout className="pb-8">
@@ -64,8 +69,16 @@ export default function RankingPage() {
 }
 
 function RankingSection({ title, subtitle, sortType, delay = '' }: RankingSectionProps) {
+  // Extract delay number if possible, or mapping it. It seems delay is a class string like "delay-[100ms]".
+  // Since we are moving to framer-motion, we should parse this or pass a number.
+  // The delay prop is "delay-[100ms]", "delay-[200ms]" etc.
+  const delayMs = delay ? parseInt(delay.replace(/[^0-9]/g, '')) / 1000 : 0;
+
   return (
-    <div 
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut", delay: delayMs }}
       className={`
         bg-[rgba(30,30,30,0.6)] 
         backdrop-blur-md 
@@ -73,8 +86,6 @@ function RankingSection({ title, subtitle, sortType, delay = '' }: RankingSectio
         p-8 
         border border-white/10 
         shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
-        animate-[slideInUp_0.6s_ease-out_both]
-        ${delay}
       `}
     >
       <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
@@ -87,6 +98,6 @@ function RankingSection({ title, subtitle, sortType, delay = '' }: RankingSectio
         url={apiroot3 + '/maichart/list?&isRanking=true&sort=' + encodeURIComponent(sortType)}
         isRanking={true}
       />
-    </div>
+    </motion.div>
   );
 }

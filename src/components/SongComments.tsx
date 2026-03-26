@@ -9,16 +9,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import { FaComments } from 'react-icons/fa';
-import { AiFillDelete, AiOutlineLoading3Quarters } from 'react-icons/ai';
+import { AiFillDelete } from 'react-icons/ai';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { useLoc } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
-import type { 
-  Comment, 
-  CommentCardProps, 
-  CommentComposerProps, 
+import type {
+  Comment,
+  CommentCardProps,
+  CommentComposerProps,
   MarkdownCommentContentProps,
   CommentSenderProps,
   CommentThreadProps,
@@ -64,65 +65,65 @@ function MarkdownCommentContent({ content, comment }: MarkdownCommentContentProp
       <Markdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
         components={{
-        ol(props) {
-          const { ...rest } = props;
-          return <ol type="1" {...rest} />;
-        },
-        ul(props) {
-          const { ...rest } = props;
-          return <ul style={{ listStyleType: 'disc' }} {...rest} />;
-        },
-        img(props) {
-          const { ...rest } = props;
-          return <img style={{ width: '200px', height: 'auto' }} {...rest} />;
-        },
-        a(props) {
-          const { href, children, ...rest } = props;
-          if (
-            href &&
-            href.startsWith('/space?id=') &&
-            children &&
-            Array.isArray(children) &&
-            typeof children[0] === 'string' &&
-            children[0].startsWith('@')
-          ) {
+          ol(props) {
+            const { ...rest } = props;
+            return <ol type="1" {...rest} />;
+          },
+          ul(props) {
+            const { ...rest } = props;
+            return <ul style={{ listStyleType: 'disc' }} {...rest} />;
+          },
+          img(props) {
+            const { ...rest } = props;
+            return <img style={{ width: '200px', height: 'auto' }} {...rest} />;
+          },
+          a(props) {
+            const { href, children, ...rest } = props;
+            if (
+              href &&
+              href.startsWith('/space?id=') &&
+              children &&
+              Array.isArray(children) &&
+              typeof children[0] === 'string' &&
+              children[0].startsWith('@')
+            ) {
+              return (
+                <a
+                  href={href}
+                  className="inline-block px-1 py-0.5 rounded font-medium text-[#5c9ff6] no-underline transition-all duration-200"
+                  style={{
+                    background: 'rgba(92, 190, 246, 0.08)'
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(106, 173, 255, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(92, 190, 246, 0.08)';
+                  }}
+                  {...rest}
+                >
+                  {children}
+                </a>
+              );
+            }
             return (
               <a
                 href={href}
-                className="inline-block px-1 py-0.5 rounded font-medium text-[#5c9ff6] no-underline transition-all duration-200"
-                style={{
-                  background: 'rgba(92, 190, 246, 0.08)'
-                }}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(106, 173, 255, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(92, 190, 246, 0.08)';
-                }}
+                className="text-[#58a6ff] hover:underline transition-colors duration-200"
                 {...rest}
               >
                 {children}
               </a>
             );
-          }
-          return (
-            <a 
-              href={href} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-[#58a6ff] hover:underline transition-colors duration-200"
-              {...rest}
-            >
-              {children}
-            </a>
-          );
-        },
-      }}
+          },
+        }}
       >
         {processedContent}
       </Markdown>
@@ -155,7 +156,7 @@ export function CommentComposer({
         }}
         animate={{
           borderColor: isFocused ? 'rgb(59 130 246 / 40%)' : 'rgb(255 255 255 / 20%)',
-          boxShadow: isFocused 
+          boxShadow: isFocused
             ? '0 6px 20px rgb(0 0 0 / 20%), 0 0 0 2px rgb(59 130 246 / 20%), inset 0 1px 0 rgb(255 255 255 / 15%)'
             : '0 4px 15px rgb(0 0 0 / 15%), inset 0 1px 0 rgb(255 255 255 / 10%)',
           y: isFocused ? -1 : 0
@@ -190,7 +191,7 @@ export function CommentComposer({
 
       <AnimatePresence>
         {showPreview && (
-          <motion.div 
+          <motion.div
             className="mb-2.5 p-3 border rounded-lg min-h-25 max-h-75 overflow-y-auto text-sm leading-normal"
             style={{
               backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -236,10 +237,8 @@ export function CommentComposer({
         >
           {isSubmitting ? (
             <>
-              <AiOutlineLoading3Quarters
-                className="inline-block animate-spin"
-                style={{ width: '16px', height: '16px', marginRight: '4px' }}
-              />
+              <LoadingSpinner className="inline-block" size="16px" />
+              <div style={{ width: '4px', display: 'inline-block' }}></div>
               {loc('PleaseWait')}
             </>
           ) : (
@@ -323,7 +322,7 @@ export function CommentSender({ songid }: CommentSenderProps) {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="mx-auto my-8 p-8 border rounded-2xl w-[70%]"
       style={{
         background: 'linear-gradient(135deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 5%))',
@@ -379,11 +378,10 @@ function CommentCard({
 
   return (
     <div
-      className={`flex flex-col ${
-        isReply 
-          ? 'my-3 p-0 gap-2' 
+      className={`flex flex-col ${isReply
+          ? 'my-3 p-0 gap-2'
           : 'px-5 py-4 mx-4 my-4 max-w-70 rounded-xl border gap-3'
-      }`}
+        }`}
       style={isReply ? {
         background: 'transparent',
         border: 'none',
@@ -413,7 +411,7 @@ function CommentCard({
     >
       <div className="flex items-center">
         <Link
-          to={'/space?id=' + comment.sender} 
+          to={'/space?id=' + comment.sender}
           className="flex items-center gap-2 text-inherit no-underline transition-all duration-300"
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateX(2px)';
@@ -423,9 +421,8 @@ function CommentCard({
           }}
         >
           <img
-            className={`rounded-full object-cover border-2 shrink-0 transition-all duration-300 ${
-              isReply ? 'w-7 h-7 min-w-7 min-h-7' : 'w-9 h-9 min-w-9 min-h-9'
-            }`}
+            className={`rounded-full object-cover border-2 shrink-0 transition-all duration-300 ${isReply ? 'w-7 h-7 min-w-7 min-h-7' : 'w-9 h-9 min-w-9 min-h-9'
+              }`}
             style={{
               borderColor: 'rgb(255 255 255 / 15%)',
               aspectRatio: '1'
@@ -442,14 +439,12 @@ function CommentCard({
             alt={comment.sender}
           />
           <div className="flex flex-col gap-0.5">
-            <span className={`font-semibold text-white ${
-              isReply ? 'text-sm' : 'text-base'
-            }`} style={{ textShadow: '0 1px 2px rgb(0 0 0 / 30%)' }}>
+            <span className={`font-semibold text-white ${isReply ? 'text-sm' : 'text-base'
+              }`} style={{ textShadow: '0 1px 2px rgb(0 0 0 / 30%)' }}>
               {comment.sender}
             </span>
-            <span className={`font-normal ${
-              isReply ? 'text-xs' : 'text-[0.85rem]'
-            }`} style={{ color: 'rgb(255 255 255 / 50%)' }}>
+            <span className={`font-normal ${isReply ? 'text-xs' : 'text-[0.85rem]'
+              }`} style={{ color: 'rgb(255 255 255 / 50%)' }}>
               {new Date(comment.timestamp).toLocaleDateString()}
             </span>
           </div>
@@ -458,11 +453,9 @@ function CommentCard({
       <div className="relative w-full">
         <div
           ref={contentRef}
-          className={`leading-6 wrap-break-word select-text transition-all duration-300 ${
-            isReply ? 'text-sm py-1' : 'text-base py-2'
-          } ${
-            !isContentExpanded && shouldShowExpandButton ? 'max-h-45 overflow-hidden relative' : ''
-          }`}
+          className={`leading-6 wrap-break-word select-text transition-all duration-300 ${isReply ? 'text-sm py-1' : 'text-base py-2'
+            } ${!isContentExpanded && shouldShowExpandButton ? 'max-h-45 overflow-hidden relative' : ''
+            }`}
           style={{ color: 'rgb(255 255 255 / 90%)' }}
         >
           <MarkdownCommentContent content={comment.content} comment={comment} />
@@ -477,12 +470,11 @@ function CommentCard({
         </div>
         {shouldShowExpandButton && (
           <button
-            className={`w-full px-2.5 py-2 border-none text-white text-[0.85rem] cursor-pointer font-medium flex items-center justify-center gap-1 transition-all duration-200 ${
-              !isContentExpanded 
-                ? 'absolute bottom-0 left-0 h-15 pb-2.5 bg-transparent z-2' 
+            className={`w-full px-2.5 py-2 border-none text-white text-[0.85rem] cursor-pointer font-medium flex items-center justify-center gap-1 transition-all duration-200 ${!isContentExpanded
+                ? 'absolute bottom-0 left-0 h-15 pb-2.5 bg-transparent z-2'
                 : 'bg-[rgba(255,255,255,0.03)] border-t border-t-[rgba(255,255,255,0.05)]'
-            }`}
-            style={!isContentExpanded ? { 
+              }`}
+            style={!isContentExpanded ? {
               textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
               alignItems: 'flex-end'
             } : {}}
@@ -507,14 +499,12 @@ function CommentCard({
           </button>
         )}
       </div>
-      <div className={`flex gap-2 pt-2 border-t border-t-[rgb(255_255_255/5%)] ${
-        isReply ? 'border-t-0 pt-1 mt-0' : 'mt-1.5'
-      }`}>
+      <div className={`flex gap-2 pt-2 border-t border-t-[rgb(255_255_255/5%)] ${isReply ? 'border-t-0 pt-1 mt-0' : 'mt-1.5'
+        }`}>
         {onReply && (
           <button
-            className={`flex justify-center items-center border rounded-md min-w-0 font-medium cursor-pointer transition-all duration-200 ${
-              isReply ? 'px-2 py-1 text-xs' : 'px-2.5 py-1.5 text-xs'
-            }`}
+            className={`flex justify-center items-center border rounded-md min-w-0 font-medium cursor-pointer transition-all duration-200 ${isReply ? 'px-2 py-1 text-xs' : 'px-2.5 py-1.5 text-xs'
+              }`}
             style={{
               color: 'rgb(255 255 255 / 70%)',
               background: 'rgb(255 255 255 / 5%)',
@@ -541,7 +531,7 @@ function CommentCard({
             }}
           >
             {isCommentPending ? (
-              <AiOutlineLoading3Quarters className="inline-block w-3 h-3 animate-spin" />
+              <LoadingSpinner className="inline-block" size="12px" />
             ) : (
               <FaComments className="w-3 h-3" />
             )}
@@ -549,9 +539,8 @@ function CommentCard({
         )}
         {canDelete && onDelete && (
           <button
-            className={`flex justify-center items-center border rounded-md min-w-0 font-medium cursor-pointer transition-all duration-200 ${
-              isReply ? 'px-2 py-1 text-xs' : 'px-2.5 py-1.5 text-xs'
-            }`}
+            className={`flex justify-center items-center border rounded-md min-w-0 font-medium cursor-pointer transition-all duration-200 ${isReply ? 'px-2 py-1 text-xs' : 'px-2.5 py-1.5 text-xs'
+              }`}
             style={{
               color: 'rgb(239 68 68 / 80%)',
               background: 'rgb(255 255 255 / 5%)',
@@ -578,7 +567,7 @@ function CommentCard({
             }}
           >
             {isCommentPending ? (
-              <AiOutlineLoading3Quarters className="inline-block w-3 h-3 animate-spin" />
+              <LoadingSpinner className="inline-block" size="12px" />
             ) : (
               <AiFillDelete className="w-3 h-3" />
             )}
@@ -692,7 +681,7 @@ function CommentThread({
   }, [comment.content]);
 
   return (
-    <div 
+    <div
       className="mx-4 my-4 px-5 py-4 border rounded-xl max-w-70 transition-all"
       style={{
         background: 'linear-gradient(135deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 4%))',
@@ -753,9 +742,8 @@ function CommentThread({
       <div className="relative w-full">
         <div
           ref={contentRef}
-          className={`text-base py-2 leading-6 wrap-break-word select-text transition-all duration-300 ${
-            !isContentExpanded && shouldShowExpandButton ? 'max-h-45 overflow-hidden relative' : ''
-          }`}
+          className={`text-base py-2 leading-6 wrap-break-word select-text transition-all duration-300 ${!isContentExpanded && shouldShowExpandButton ? 'max-h-45 overflow-hidden relative' : ''
+            }`}
           style={{ color: 'rgb(255 255 255 / 90%)' }}
         >
           <MarkdownCommentContent content={comment.content} comment={comment} />
@@ -771,12 +759,11 @@ function CommentThread({
 
         {shouldShowExpandButton && (
           <button
-            className={`w-full px-2.5 py-2 border-none text-white text-[0.85rem] cursor-pointer font-medium flex items-center justify-center gap-1 transition-all duration-200 ${
-              !isContentExpanded 
-                ? 'absolute bottom-0 left-0 h-15 pb-2.5 bg-transparent z-2' 
+            className={`w-full px-2.5 py-2 border-none text-white text-[0.85rem] cursor-pointer font-medium flex items-center justify-center gap-1 transition-all duration-200 ${!isContentExpanded
+                ? 'absolute bottom-0 left-0 h-15 pb-2.5 bg-transparent z-2'
                 : 'bg-[rgba(255,255,255,0.03)] border-t border-t-[rgba(255,255,255,0.05)]'
-            }`}
-            style={!isContentExpanded ? { 
+              }`}
+            style={!isContentExpanded ? {
               textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
               alignItems: 'flex-end'
             } : {}}
@@ -833,7 +820,7 @@ function CommentThread({
           }}
         >
           {isCommentPending ? (
-            <AiOutlineLoading3Quarters className="inline-block w-3 h-3 animate-spin" />
+            <LoadingSpinner className="inline-block" size="12px" />
           ) : (
             <FaComments className="w-3 h-3" />
           )}
@@ -868,7 +855,7 @@ function CommentThread({
             }}
           >
             {isCommentPending ? (
-              <AiOutlineLoading3Quarters className="inline-block w-3 h-3 animate-spin" />
+              <LoadingSpinner className="inline-block" size="12px" />
             ) : (
               <AiFillDelete className="w-3 h-3" />
             )}
@@ -909,7 +896,7 @@ function CommentThread({
 
       {/* 回复列表 */}
       {isExpanded && replies.length > 0 && (
-        <div 
+        <div
           className="relative mt-4 pt-0 pl-6"
           style={{
             borderColor: 'rgb(255 255 255 / 5%)'
@@ -1107,8 +1094,8 @@ export function CommentList({ songid }: CommentListProps) {
   }
   if (isLoading) {
     return (
-      <motion.div 
-        className="inline-block border-4 rounded-full w-12 h-12" 
+      <motion.div
+        className="inline-block border-4 rounded-full w-12 h-12"
         style={{ borderColor: 'rgba(255, 255, 255, 0.3)', borderTopColor: 'white' }}
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -1145,11 +1132,11 @@ export function CommentList({ songid }: CommentListProps) {
                 onToggleReplies={() => handleToggleReplies(comment.id)}
                 replyComposer={
                   replyThreadId === comment.id && (
-                    <div 
-                      className="mt-4 p-4 border rounded-lg" 
-                      style={{ 
-                        background: 'rgb(255 255 255 / 3%)', 
-                        borderColor: 'rgb(255 255 255 / 8%)' 
+                    <div
+                      className="mt-4 p-4 border rounded-lg"
+                      style={{
+                        background: 'rgb(255 255 255 / 3%)',
+                        borderColor: 'rgb(255 255 255 / 8%)'
                       }}
                     >
                       <CommentComposer

@@ -9,6 +9,7 @@ import axios from 'axios';
 import { apiroot3 } from '@/config/api';
 import { useLoc, useUser } from '@/hooks';
 import { sleep } from '@/utils';
+import LoadingSpinner from './LoadingSpinner';
 
 export default function AvatarUploader() {
   const loc = useLoc();
@@ -127,7 +128,7 @@ export default function AvatarUploader() {
 
   // 如果用户还在加载中，返回加载状态
   if (userLoading || !user) {
-    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+    return <div className="flex justify-center items-center py-12"><LoadingSpinner size="50px" /></div>;
   }
 
   const currentAvatarUrl = apiroot3 + '/account/Icon?username=' + user.username;
@@ -152,11 +153,10 @@ export default function AvatarUploader() {
         <div className="flex flex-col flex-1 justify-center items-center gap-4">
           <div className="flex flex-col justify-center items-center gap-4">
             <img
-              className={`w-40 h-40 rounded-full object-cover border-4 transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${
-                previewUrl
+              className={`w-40 h-40 rounded-full object-cover border-4 transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${previewUrl
                   ? 'border-[rgba(59,130,246,0.8)] shadow-[0_6px_25px_rgba(59,130,246,0.5)]'
                   : 'border-white/20'
-              }`}
+                }`}
               src={previewAvatarUrl}
               alt={loc('PreviewAvatar')}
             />

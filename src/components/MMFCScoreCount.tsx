@@ -1,6 +1,7 @@
 import { apiroot3 } from '@/config/api';
 import useSWR from 'swr';
 import { useLoc } from '@/hooks';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import type { ScoreData } from '@/types';
 import mmfcParticipants from '@/assets/data/mmfc-participants.json';
 import { Link } from 'react-router-dom';
@@ -14,7 +15,7 @@ const fetcher = (url: string) =>
  */
 export default function MMFCScoreCount() {
   const loc = useLoc();
-  
+
   // 获取 mmfc_bot 用户的分数总和数据
   const { data, error, isLoading } = useSWR<ScoreData[]>(
     `${apiroot3}/stats/score-sums?uploader=${encodeURIComponent('mmfc_bot')}&page=0&pageSize=1000`,
@@ -33,7 +34,7 @@ export default function MMFCScoreCount() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-100">
-        <div className="border-white border-b-2 rounded-full w-12 h-12 animate-spin"></div>
+        <LoadingSpinner className="border-white border-b-2 rounded-full w-12 h-12" />
       </div>
     );
   }
@@ -125,7 +126,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
       to={`/space?id=${username}`}
       className="block text-inherit no-underline"
     >
-      <div 
+      <div
         className="relative flex items-center gap-4 px-6 py-4 transition-all duration-300 ease-out"
         style={{
           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
@@ -161,7 +162,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
       >
         {/* 排名显示 */}
         <div className="flex justify-center items-center min-w-20 shrink-0">
-          <span 
+          <span
             className="font-bold transition-all duration-300"
             style={{
               fontSize: isFirst ? '1.8rem' : isSecond ? '1.7rem' : isThird ? '1.65rem' : '1.4rem',
@@ -171,7 +172,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                filter: isFirst 
+                filter: isFirst
                   ? 'drop-shadow(0 0 8px rgba(251, 191, 36, 0.6))'
                   : 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))',
                 textShadow: isFirst
@@ -208,9 +209,9 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
               el.style.boxShadow = 'none';
             }}
           />
-          
+
           <div className="flex flex-col flex-1 gap-1 min-w-0 overflow-hidden">
-            <span 
+            <span
               className="overflow-hidden font-semibold text-white text-lg text-ellipsis whitespace-nowrap"
               style={{
                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
@@ -223,7 +224,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
 
         {/* 分数显示 */}
         <div className="flex flex-col items-end gap-1 text-right shrink-0">
-          <div 
+          <div
             className="font-bold text-white text-2xl"
             style={{
               textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',

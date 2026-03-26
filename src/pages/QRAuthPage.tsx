@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { apiroot3 } from '@/config/api';
-import { PageLayout } from '@/components';
+import { PageLayout, LoadingSpinner } from '@/components';
 import * as retCode from '@/config/apiRetCode';
 
 interface MachineAuthInfo {
@@ -72,7 +72,9 @@ function PermitLogin({ authId }: { authId: string | null }) {
 
   if (isLoading) {
     return (
-      <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12 h-12 animate-[spin_0.1s_linear_infinite]" />
+      <div className="flex justify-center items-center min-h-[40vh]">
+        <LoadingSpinner size={48} />
+      </div>
     );
   }
 

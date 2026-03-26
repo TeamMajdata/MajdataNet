@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout } from '@/components';
+import { PageLayout, LoadingSpinner } from '@/components';
 
 export default function NotFoundPage() {
   const loc = useLoc();
@@ -18,7 +18,7 @@ export default function NotFoundPage() {
 
   useEffect(() => {
     if (!ready) return;
-    
+
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -33,22 +33,18 @@ export default function NotFoundPage() {
     return () => clearInterval(timer);
   }, [ready, navigate]);
 
-  if (!ready) {
-    return (
-      <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>
-    );
-  }
+  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
     <PageLayout className="flex justify-center items-center min-h-[60vh]">
-      <div 
+      <div
         className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md mx-auto p-12 border border-white/10 rounded-2xl max-w-2xl text-center"
         style={{
           animation: 'slideInUp 0.6s ease-out both'
         }}
       >
         {/* 404标题 */}
-        <h1 
+        <h1
           className="m-0 mb-6 font-bold text-[#e5e5e5] text-[6rem] leading-none"
           style={{
             textShadow: '0 0 20px #a78bfa, 0 0 40px #60a5fa'
@@ -59,7 +55,7 @@ export default function NotFoundPage() {
 
         {/* 错误信息 */}
         <div className="mb-8">
-          <p 
+          <p
             className="mb-4 font-semibold text-[#e5e5e5] text-[1.5rem]"
             style={{
               textShadow: '0 0 2px #a78bfa'

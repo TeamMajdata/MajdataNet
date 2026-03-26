@@ -1,6 +1,7 @@
 import { apiroot3 } from '@/config/api';
 import useSWR from 'swr';
 import { useLoc } from '@/hooks';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import type { ScoreCardProps, ScoreCountProps, ScoreData } from '@/types';
 import { Link } from 'react-router-dom';
 
@@ -14,7 +15,7 @@ const fetcher = (url: string) =>
  */
 export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreCountProps) {
   const loc = useLoc();
-  
+
   const { data, error, isLoading } = useSWR<ScoreData[]>(
     `${apiroot3}/stats/score-sums?uploader=${encodeURIComponent(uploader)}&page=${page}&pageSize=${pageSize}`,
     fetcher,
@@ -27,7 +28,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
 
   if (isLoading) {
     return <div className="flex justify-center items-center min-h-20">
-      <div className="border-white border-b-2 rounded-full w-8 h-8 animate-spin"></div>
+      <LoadingSpinner className="border-white border-b-2 rounded-full w-8 h-8" />
     </div>;
   }
 
@@ -74,14 +75,14 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
         to={`/space?id=${username}`}
         className="block text-inherit no-underline"
       >
-        <div 
+        <div
           className="relative p-3 h-full transition-all duration-300 ease-out"
           style={{
             background: 'var(--glassmorphism-bg-secondary)',
             backdropFilter: 'var(--glassmorphism-backdrop)',
             border: isFirst ? '2px solid rgba(255, 215, 0, 0.5)' : 'var(--glassmorphism-border)',
             borderRadius: 'var(--glassmorphism-border-radius)',
-            boxShadow: isFirst 
+            boxShadow: isFirst
               ? '0 4px 20px rgba(255, 215, 0, 0.3), var(--glassmorphism-shadow)'
               : 'var(--glassmorphism-shadow)',
           }}
@@ -129,7 +130,7 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
           </div>
 
           {/* 用户名 */}
-          <div 
+          <div
             className="mb-2 px-1 font-semibold text-white text-sm text-center truncate"
             style={{
               textShadow: '0 1px 2px rgb(0 0 0 / 30%)',
@@ -139,7 +140,7 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
           </div>
 
           {/* 分数 */}
-          <div 
+          <div
             className="font-bold text-white text-lg text-center"
             style={{
               textShadow: '0 1px 2px rgb(0 0 0 / 30%)',

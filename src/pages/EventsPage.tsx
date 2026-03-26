@@ -6,7 +6,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout, EnhancedDescription } from '@/components';
+import { PageLayout, EnhancedDescription, LoadingSpinner } from '@/components';
 import EventsFilter from '@/components/EventsFilter';
 import TimelineModal from '@/components/TimelineModal';
 import {
@@ -59,7 +59,7 @@ export default function EventsPage() {
     setIsTimelineModalOpen(false);
   };
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
     <PageLayout className="py-8 min-h-screen mt-(--content-top-spacing)">
@@ -113,10 +113,10 @@ export default function EventsPage() {
                       </span>
                       <span
                         className={`font-semibold text-sm px-2 py-0.5 rounded-md inline-block mr-2 ${getEventStatusClass(event) === 'status-upcoming'
-                            ? 'text-amber-400 bg-amber-400/20 border border-amber-400/40 shadow-[0_0_8px_rgba(251,191,36,0.2)]'
-                            : getEventStatusClass(event) === 'status-ongoing'
-                              ? 'text-emerald-400 bg-emerald-400/20 border border-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
-                              : 'text-gray-400 bg-gray-400/20 border border-gray-400/40'
+                          ? 'text-amber-400 bg-amber-400/20 border border-amber-400/40 shadow-[0_0_8px_rgba(251,191,36,0.2)]'
+                          : getEventStatusClass(event) === 'status-ongoing'
+                            ? 'text-emerald-400 bg-emerald-400/20 border border-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
+                            : 'text-gray-400 bg-gray-400/20 border border-gray-400/40'
                           }`}
                       >
                         • {getEventStatusText(event)}

@@ -1,4 +1,4 @@
-import { PageLayout, ChartUploader, SongList } from '@/components';
+import { PageLayout, ChartUploader, SongList, LoadingSpinner } from '@/components';
 import { useLoc, useUser } from '@/hooks';
 import { apiroot3 } from '@/config/api';
 import { motion, type Variants } from 'framer-motion';
@@ -22,7 +22,7 @@ export default function UserChartsPage() {
   const { user, isLoading } = useUser();
 
   if (isLoading) {
-    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+    return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
   }
 
   if (!user) {

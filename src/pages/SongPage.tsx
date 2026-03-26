@@ -9,6 +9,7 @@ import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import {
   PageLayout,
   CoverPic,
@@ -41,7 +42,7 @@ export default function SongPage() {
 
   useEffect(() => {
     if (!param) return;
-    
+
     fetch(`${apiroot3}/maichart/${param}/summary`, {
       mode: 'cors',
       credentials: 'include'
@@ -64,7 +65,11 @@ export default function SongPage() {
   const isChecking = param !== checkedParam;
 
   if (!ready || !param || isChecking) {
-    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingSpinner size={50} />
+      </div>
+    );
   }
 
   if (!songData) {
@@ -185,7 +190,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
           {/* 移动端：设计师和标签水平排列 */}
           <div className="flex md:flex-row flex-col lg:flex-col gap-4 md:gap-4 lg:gap-4">
             <Tooltip content={o.uploader + '@' + o.designer}>
-              <Link to={'/space?id=' + o.uploader} className="flex-1 inline-flex items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-lg px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
+              <Link to={'/space?id=' + o.uploader} className="inline-flex flex-1 items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-lg px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
                 <img
                   className="shadow-sm border-2 border-white/25 rounded-full w-9 min-w-9 h-9 min-h-9 aspect-square transition-all duration-300 shrink-0"
                   src={apiroot3 + '/account/Icon?username=' + o.uploader}
@@ -204,7 +209,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               </h3>
               <div className="flex flex-wrap flex-1 gap-2">
                 {(o.tags || o.publicTags) &&
-                (o.tags.length > 0 || o.publicTags.length > 0) ? (
+                  (o.tags.length > 0 || o.publicTags.length > 0) ? (
                   <>
                     {o.tags.map((tag, index) => (
                       <Tooltip content={loc('SearchForTag')} key={index}>

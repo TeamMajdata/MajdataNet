@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout } from '@/components';
+import { PageLayout, LoadingSpinner } from '@/components';
 
 export default function PlayPage() {
   const loc = useLoc();
@@ -18,7 +18,7 @@ export default function PlayPage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
     <>

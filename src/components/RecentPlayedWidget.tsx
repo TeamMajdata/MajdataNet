@@ -4,6 +4,7 @@ import { ScoreCard } from '@/components';
 import { useLoc } from '@/hooks';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
 import { motion } from 'framer-motion';
+import LoadingSpinner from './LoadingSpinner';
 
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
@@ -66,9 +67,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
 
   if (isLoading) {
     return (
-      <>
-        <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>
-      </>
+      <div className="flex justify-center items-center py-10 w-full"><LoadingSpinner size="50px" /></div>
     );
   }
 

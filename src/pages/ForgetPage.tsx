@@ -6,9 +6,10 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout } from '@/components';
+import { PageLayout, LoadingSpinner } from '@/components';
 import * as retCode from '@/config/apiRetCode';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export default function ForgetPage() {
   const [ready, setReady] = useState(false);
@@ -19,7 +20,7 @@ export default function ForgetPage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   const params = new URLSearchParams(window.location.search);
   const otp = params.get('otp');
@@ -73,7 +74,12 @@ function FindAccount() {
 
   return (
     <div className="mx-auto mt-[calc(var(--header-height)+1rem)] px-4 py-8 w-full max-w-md">
-      <div className="bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-8 md:p-12 border border-white/10 rounded-[20px] animate-[slideInUp_0.6s_ease-out_0.4s_both]">
+      <motion.div
+        className="bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-8 md:p-12 border border-white/10 rounded-[20px]"
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+      >
         <div className="mb-8 text-center">
           <h2 className="m-0 mb-2 font-bold text-[#e5e5e5] text-3xl">{loc('ForgetPasswordTitle', '忘记密码')}</h2>
           <p className="m-0 text-[#a0a0a0] text-sm">{loc('ForgetPasswordSubtitle', '输入用户名和邮箱找回密码')}</p>
@@ -112,7 +118,7 @@ function FindAccount() {
             </Link>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -163,7 +169,12 @@ function ResetPassword({ otp }: { otp: string }) {
 
   return (
     <div className="mx-auto mt-[calc(var(--header-height)+1rem)] px-4 py-8 w-full max-w-md">
-      <div className="bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-8 md:p-12 border border-white/10 rounded-[20px] animate-[slideInUp_0.6s_ease-out_0.4s_both]">
+      <motion.div
+        className="bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-8 md:p-12 border border-white/10 rounded-[20px]"
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+      >
         <div className="mb-8 text-center">
           <h2 className="m-0 mb-2 font-bold text-[#e5e5e5] text-3xl">{loc('ResetPasswordTitle', '重置密码')}</h2>
           <p className="m-0 text-[#a0a0a0] text-sm">{loc('ResetPasswordSubtitle', '输入新密码')}</p>
@@ -202,7 +213,7 @@ function ResetPassword({ otp }: { otp: string }) {
             </Link>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

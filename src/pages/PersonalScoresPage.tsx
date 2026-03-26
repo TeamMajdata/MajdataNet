@@ -6,7 +6,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
-import { ScoreCard, PageLayout } from '@/components';
+import { ScoreCard, PageLayout, LoadingSpinner } from '@/components';
 import { useLoc } from '@/hooks';
 import type { Score } from '@/types';
 import { motion, type Variants } from 'framer-motion';
@@ -53,13 +53,13 @@ export default function PersonalScoresPage() {
   // 排序后的数据
   const sortedData = useMemo(() => {
     if (!data) return [];
-    
+
     const sorted = [...data];
-    
+
     switch (sortBy) {
       case 'timestamp':
         // 按最后游玩时间降序（最新的在前）
-        return sorted.sort((a, b) => 
+        return sorted.sort((a, b) =>
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
         );
       case 'dxAcc':
@@ -116,8 +116,8 @@ export default function PersonalScoresPage() {
   if (isLoading) {
     return (
       <PageLayout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>
+        <div className="flex justify-center items-center h-screen">
+          <LoadingSpinner size="50px" />
         </div>
       </PageLayout>
     );
@@ -163,59 +163,54 @@ export default function PersonalScoresPage() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handleSortChange('timestamp')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-                sortBy === 'timestamp'
+              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'timestamp'
                   ? 'bg-blue-500 text-white shadow-lg'
                   : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-              }`}
+                }`}
             >
               {loc('SortByTime', '游玩时间')}
             </button>
             <button
               onClick={() => handleSortChange('dxAcc')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-                sortBy === 'dxAcc'
+              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'dxAcc'
                   ? 'bg-blue-500 text-white shadow-lg'
                   : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-              }`}
+                }`}
             >
               {loc('SortByDxAcc', 'DX准确率')}
             </button>
             <button
               onClick={() => handleSortChange('classicAcc')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-                sortBy === 'classicAcc'
+              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'classicAcc'
                   ? 'bg-blue-500 text-white shadow-lg'
                   : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-              }`}
+                }`}
             >
               {loc('SortByClassicAcc', 'Classic准确率')}
             </button>
             <button
               onClick={() => handleSortChange('dxScore')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-                sortBy === 'dxScore'
+              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'dxScore'
                   ? 'bg-blue-500 text-white shadow-lg'
                   : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-              }`}
+                }`}
             >
               {loc('SortByDxScore', 'DX分数')}
             </button>
             <button
               onClick={() => handleSortChange('comboState')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-                sortBy === 'comboState'
+              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'comboState'
                   ? 'bg-blue-500 text-white shadow-lg'
                   : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-              }`}
+                }`}
             >
               {loc('SortByCombo', 'Combo状态')}
             </button>
           </div>
         </div>
 
-        <div 
-          className="relative mx-auto my-8 border-0 w-[70%] h-px" 
+        <div
+          className="relative mx-auto my-8 border-0 w-[70%] h-px"
           style={{
             background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
           }}
@@ -249,7 +244,7 @@ export default function PersonalScoresPage() {
             <div className="text-gray-400 text-sm text-center">
               显示 {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, sortedData.length)} / {sortedData.length} 条成绩
             </div>
-            
+
             <div className="flex flex-wrap justify-center items-center gap-2">
               <button
                 onClick={() => setCurrentPage(1)}
@@ -265,7 +260,7 @@ export default function PersonalScoresPage() {
               >
                 ‹
               </button>
-              
+
               {/* 页码按钮 */}
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(page => {
@@ -278,7 +273,7 @@ export default function PersonalScoresPage() {
                   // 添加省略号
                   const prevPage = arr[index - 1];
                   const showEllipsis = prevPage && page - prevPage > 1;
-                  
+
                   return (
                     <React.Fragment key={page}>
                       {showEllipsis && (
@@ -286,11 +281,10 @@ export default function PersonalScoresPage() {
                       )}
                       <button
                         onClick={() => setCurrentPage(page)}
-                        className={`flex justify-center items-center px-4 py-2 rounded-lg font-medium text-sm transition-all min-w-10 ${
-                          currentPage === page
+                        className={`flex justify-center items-center px-4 py-2 rounded-lg font-medium text-sm transition-all min-w-10 ${currentPage === page
                             ? 'bg-blue-500 text-white shadow-lg'
                             : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-                        }`}
+                          }`}
                       >
                         {page}
                       </button>
@@ -317,7 +311,7 @@ export default function PersonalScoresPage() {
         )}
 
         {/* 统计信息 */}
-        <motion.div 
+        <motion.div
           className="flex justify-center gap-8 mx-auto mt-8 max-w-4xl"
           initial="hidden"
           animate="visible"

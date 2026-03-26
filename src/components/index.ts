@@ -44,4 +44,5 @@ export { LikeSender, ScoreList } from './SongInteraction';
 // 通用 UI
 export { default as Tooltip, TooltipProvider } from './Tooltip';
 export { default as LazyLoad } from './LazyLoad';
+export { default as LoadingSpinner } from './LoadingSpinner';
 

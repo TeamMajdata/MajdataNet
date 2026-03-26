@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLoc, useUser } from '@/hooks';
 import MajdataLogo from './MajdataLogo';
-import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import DesktopNav from './UnifiedHeader/DesktopNav';
 import MobileNav from './UnifiedHeader/MobileNav';
 import UserMenu from './UnifiedHeader/UserMenu';
@@ -45,7 +45,7 @@ export default function UnifiedHeader() {
         <div className="relative flex items-center rounded-[10px] shrink-0">
           {isLoading ? (
             <div className="flex items-center gap-2 opacity-70 px-3 md:px-4 py-2 md:py-3 border border-white/10 rounded-[10px] h-10 md:min-h-10 font-medium text-white/85 text-sm no-underline transition-all duration-200 cursor-default pointer-events-none">
-              <AiOutlineLoading3Quarters className="animate-pulse" />
+              <LoadingSpinner className="animate-pulse" size={25} />
               <span className="hidden md:inline text-sm">{loc('Loading')}</span>
             </div>
           ) : isLoggedIn ? (

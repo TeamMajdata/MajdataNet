@@ -13,6 +13,7 @@ import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
 import { useLoc, useUser } from '@/hooks';
 import { sleep } from '@/utils';
+import LoadingSpinner from './LoadingSpinner';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -39,7 +40,7 @@ export default function IntroUploader() {
   }
 
   if (isLoading) {
-    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
+    return <div className="flex justify-center items-center h-[200px]"><LoadingSpinner size="50px" /></div>;
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {

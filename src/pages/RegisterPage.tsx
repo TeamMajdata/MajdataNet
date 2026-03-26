@@ -11,9 +11,10 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout } from '@/components';
+import { PageLayout, LoadingSpinner } from '@/components';
 import * as retCode from '@/config/apiRetCode';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export default function RegisterPage() {
   const [ready, setReady] = useState(false);
@@ -24,7 +25,11 @@ export default function RegisterPage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return (
+    <div className="flex justify-center items-center h-[50vh]">
+      <LoadingSpinner size={50} />
+    </div>
+  );
 
   return (
     <PageLayout className="flex justify-center items-center min-h-[60vh]">
@@ -93,7 +98,12 @@ function Register() {
 
   return (
     <div className="mx-auto mt-[calc(var(--header-height)+1rem)] px-4 py-8 w-full max-w-md">
-      <div className="bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-8 md:p-12 border border-white/10 rounded-[20px] animate-[slideInUp_0.6s_ease-out_0.4s_both]">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+        className="bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-8 md:p-12 border border-white/10 rounded-[20px]"
+      >
         <div className="mb-8 text-center">
           <h2 className="m-0 mb-2 font-bold text-[#e5e5e5] text-3xl">{loc('CreateAccount', '创建账户')}</h2>
           <p className="m-0 text-[#a0a0a0] text-sm">{loc('RegisterSubtitle', '注册一个新账户')}</p>
@@ -139,7 +149,7 @@ function Register() {
               required
             />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 scale-75 md:scale-100 origin-top-left">
             <script
               src="https://challenges.cloudflare.com/turnstile/v0/api.js"
               async
@@ -159,7 +169,7 @@ function Register() {
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </div >
   );
 }

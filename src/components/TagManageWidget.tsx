@@ -18,6 +18,7 @@ import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
 import { toast } from 'react-toastify';
 import { useLoc } from '@/hooks';
+import LoadingSpinner from './LoadingSpinner';
 import sleep from '@/utils/sleep';
 import { motion } from 'framer-motion';
 import type {
@@ -42,7 +43,7 @@ const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
     }));
 
     return (
-      <motion.div 
+      <motion.div
         className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] mt-2 w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-gray-500 overflow-hidden cursor-pointer select-none ${newClassName}`}
         whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
         transition={{ duration: 0.125, ease: 'easeInOut' }}
@@ -120,7 +121,7 @@ interface SongSummary {
   publicTags?: string[];
 }
 
-type TagsAction = 
+type TagsAction =
   | { type: 'INIT_TAGS'; payload: string[] }
   | { type: 'ADD_TAG'; payload: string }
   | { type: 'REMOVE_TAG'; payload: number }
@@ -279,7 +280,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       return <div>failed to load</div>;
     }
     if (isLoading) {
-      return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+      return <div className="flex justify-center items-center h-20"><LoadingSpinner size="50px" /></div>;
     }
     if (data === undefined) {
       return <div>failed to load</div>;
@@ -376,7 +377,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                 tags.map((tag, index) => (
                   <Tooltip content={loc('DeleteTag')} key={index}>
                     <span
-                      className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-[3px] rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
+                      className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-0.75 rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
                       onClick={() => {
                         dispatch({ type: 'REMOVE_TAG', payload: index });
                       }}
@@ -452,7 +453,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
               .filter((tag) => !tags.includes(tag))
               .map((tag) => (
                 <span
-                  className="bg-gray-100 hover:bg-gray-300 px-2.5 py-[3px] rounded-xl text-[#333] text-xs transition-colors duration-200 cursor-pointer"
+                  className="bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs transition-colors duration-200 cursor-pointer"
                   key={tag}
                   onClick={() => {
                     dispatch({ type: 'ADD_TAG', payload: tag });
@@ -463,7 +464,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
               ))}
           </div>
           <br />
-          <div className="relative bg-[linear-gradient(90deg,transparent_0%,rgb(255_255_255/20%)*15%,rgb(255_255_255*/_40%)*30%,rgb(255_255_255*/_60%)*50%,rgb(255_255_255*/_40%)*70%,rgb(255_255_255*/_20%)_85%,transparent_100%)] mx-auto my-8 max-[480px]:my-5 max-[768px]:my-6 border-0 w-[70%] max-[480px]:w-[90%] max-[768px]:w-[80%] h-[1px]" />
+          <div className="relative bg-[linear-gradient(90deg,transparent_0%,rgb(255_255_255/20%)*15%,rgb(255_255_255*/_40%)*30%,rgb(255_255_255*/_60%)*50%,rgb(255_255_255*/_40%)*70%,rgb(255_255_255*/_20%)_85%,transparent_100%)] mx-auto my-8 max-[480px]:my-5 max-[768px]:my-6 border-0 w-[70%] max-[480px]:w-[90%] max-[768px]:w-[80%] h-px" />
           <div
             style={{
               display: 'flex',

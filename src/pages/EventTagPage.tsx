@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout, SongList, EventBanner } from '@/components';
+import { PageLayout, SongList, EventBanner, LoadingSpinner } from '@/components';
 import { apiroot3 } from '@/config/api';
 import { getEventBySearchKeyword } from '@/utils/eventsData';
 import { type Event } from '@/types';
@@ -19,27 +19,27 @@ export default function EventTagPage() {
   const loc = useLoc();
   const [ready, setReady] = useState(false);
   const [searchParams] = useSearchParams();
-  
+
   // 获取URL中的id参数
   const eventId = searchParams.get('id');
-  
+
   // 构造搜索关键词，格式为 tag:eventId（这是传给后端API的参数）
   const searchKeyword = eventId ? `tag:${eventId}` : '';
-  
+
   // 特殊处理：Original 原创曲
   const currentEvent: Event | null = eventId
     ? eventId === 'Original'
       ? {
-          id: 'original',
-          href: '/eventTag?id=Original',
-          src: '/events/original.png',
-          alt: 'Original Songs',
-          title: loc('OriginalSongs'),
-          category: EventCategory.PrivateProject,
-          createDate: new Date().toISOString().split('T')[0],
-          endDate: '2099-12-31',
-          description: loc('OriginalSongsDesc'),
-        }
+        id: 'original',
+        href: '/eventTag?id=Original',
+        src: '/events/original.png',
+        alt: 'Original Songs',
+        title: loc('OriginalSongs'),
+        category: EventCategory.PrivateProject,
+        createDate: new Date().toISOString().split('T')[0],
+        endDate: '2099-12-31',
+        description: loc('OriginalSongsDesc'),
+      }
       : getEventBySearchKeyword(eventId)
     : null;
 
@@ -49,7 +49,7 @@ export default function EventTagPage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
     <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen">
@@ -70,7 +70,7 @@ export default function EventTagPage() {
             <SongList
               url={`${apiroot3}/maichart/list?sort=&search=${encodeURIComponent(searchKeyword)}`}
               page={0}
-              setMax={() => {}}
+              setMax={() => { }}
             />
           </div>
         </div>

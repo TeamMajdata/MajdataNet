@@ -7,6 +7,7 @@ import useSWR from 'swr';
 import { useLoc } from '@/hooks';
 import SongCard from '@/components/SongCard';
 import type { Song, SongListProps } from '@/types';
+import LoadingSpinner from './LoadingSpinner';
 
 
 const fetcher = (url: string) =>
@@ -25,7 +26,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
   if (error) return <div className="m-auto w-full text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
   if (isLoading) {
     return (
-      <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]" />
+      <div className="flex justify-center items-center py-20 w-full"><LoadingSpinner size="50px" /></div>
     );
   }
 

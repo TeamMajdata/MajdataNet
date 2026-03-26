@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
-import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { CoverPic, Level, LazyLoad } from '@/components';
 import { apiroot3 } from '@/config/api';
 import { getComboState } from '@/utils';
@@ -36,7 +36,7 @@ function SimpleLikeButton({ songid }: { songid: string }) {
 
   const handleLike = async () => {
     if (isLoading) return;
-    
+
     const formData = new FormData();
     formData.set('type', 'like');
     formData.set('content', 'like');
@@ -52,7 +52,7 @@ function SimpleLikeButton({ songid }: { songid: string }) {
           credentials: 'include',
         }
       );
-      
+
       if (response.status === 200) {
         toast.success(isLiked ? loc('CancelSuccess') : loc('LikeAction') + loc('Success'));
         mutate();
@@ -79,7 +79,7 @@ function SimpleLikeButton({ songid }: { songid: string }) {
       }}
     >
       {isLoading ? (
-        <AiOutlineLoading3Quarters className="w-3.5 h-3.5 animate-spin" />
+        <LoadingSpinner className="w-3.5 h-3.5" />
       ) : (
         <svg
           className="w-3.5 h-3.5"
@@ -119,8 +119,8 @@ export function ScoreCard({ score, showLikeButton = true }: ScoreCardProps) {
 
           <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
             <Link to={'/song?id=' + score.chartInfo.id}>
-              {score.chartInfo.artist === '' || score.chartInfo.artist == null 
-                ? '-' 
+              {score.chartInfo.artist === '' || score.chartInfo.artist == null
+                ? '-'
                 : score.chartInfo.artist}
             </Link>
           </div>
@@ -144,8 +144,8 @@ export function ScoreCard({ score, showLikeButton = true }: ScoreCardProps) {
           />
 
           <div className="flex flex-wrap gap-1 mt-1">
-            <div 
-              className="float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none" 
+            <div
+              className="float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none"
               title={`DX: ${score.acc.dx.toFixed(4)}`}
             >
               {score.acc.dx.toFixed(4) + (score.comboState > 0 && typeof score.comboState === 'number' ? ` ${getComboState(score.comboState)}` : '')}

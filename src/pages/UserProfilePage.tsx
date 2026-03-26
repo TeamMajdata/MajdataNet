@@ -3,7 +3,7 @@
  * 迁移自 legacy/src/app/user/profile/page.jsx
  */
 
-import { PageLayout, AvatarUploader, IntroUploader } from '@/components';
+import { PageLayout, AvatarUploader, IntroUploader, LoadingSpinner } from '@/components';
 import { useLoc, useUser } from '@/hooks';
 import { motion, type Variants } from 'framer-motion';
 
@@ -26,7 +26,7 @@ export default function UserProfilePage() {
   const { user, isLoading } = useUser();
 
   if (isLoading) {
-    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-[50px] h-[50px] animate-[spin_0.1s_linear_infinite]"></div>;
+    return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
   }
 
   if (!user) {
@@ -42,13 +42,13 @@ export default function UserProfilePage() {
   return (
     <PageLayout title={loc('AccountSetting')} showBackToHome={false}>
       {/* Profile Settings */}
-      <motion.div 
+      <motion.div
         initial="hidden"
         animate="visible"
         custom={0.3}
         variants={slideInUp}
       >
-        <div className="flex flex-col gap-8 w-full mx-auto my-0 ">
+        <div className="flex flex-col gap-8 mx-auto my-0 w-full">
           {/* Avatar Settings Card */}
           <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-10 py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all hover:-translate-y-0.5 duration-300">
             <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">

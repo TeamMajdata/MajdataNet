@@ -8,7 +8,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout, RecentPlayedWidget, SongList, ScoreCount } from '@/components';
+import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner } from '@/components';
 import { apiroot3 } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -47,7 +47,7 @@ export default function SpacePage() {
     });
   }, []);
 
-  if (!ready) return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   if (!username) {
     return (
@@ -68,7 +68,7 @@ export default function SpacePage() {
   return (
     <PageLayout className="pb-8">
       {/* User Introduction */}
-      <motion.section 
+      <motion.section
         className="mt-(--content-top-spacing) mb-12"
         initial="hidden"
         animate="visible"
@@ -80,7 +80,7 @@ export default function SpacePage() {
 
       {/* Recent Activity */}
       {hasRecentPlayed !== false && (
-        <motion.section 
+        <motion.section
           className="mb-12"
           initial="hidden"
           animate="visible"
@@ -90,8 +90,8 @@ export default function SpacePage() {
           <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
             {loc('RecentlyPlayedCharts', '最近游玩的谱面')}
           </h2>
-          <div 
-            className="relative mx-auto my-8 border-0 w-[70%] h-px" 
+          <div
+            className="relative mx-auto my-8 border-0 w-[70%] h-px"
             style={{
               background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
             }}
@@ -102,7 +102,7 @@ export default function SpacePage() {
 
       {/* Uploaded Charts */}
       {hasUploadedCharts !== false && (
-        <motion.section 
+        <motion.section
           className="mb-12"
           initial="hidden"
           animate="visible"
@@ -112,8 +112,8 @@ export default function SpacePage() {
           <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
             {loc('UploadedCharts', '已上传的谱面')}
           </h2>
-          <div 
-            className="relative mx-auto my-8 border-0 w-[70%] h-px" 
+          <div
+            className="relative mx-auto my-8 border-0 w-[70%] h-px"
             style={{
               background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
             }}
@@ -127,7 +127,7 @@ export default function SpacePage() {
 
       {/* Who Loves To Play */}
       {hasUploadedCharts === true && (
-        <motion.section 
+        <motion.section
           className="mb-12"
           initial="hidden"
           animate="visible"
@@ -137,8 +137,8 @@ export default function SpacePage() {
           <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
             {loc('WhoLovesToPlay', '谁爱玩')}
           </h2>
-          <div 
-            className="relative mx-auto my-8 border-0 w-[70%] h-px" 
+          <div
+            className="relative mx-auto my-8 border-0 w-[70%] h-px"
             style={{
               background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
             }}
@@ -166,7 +166,11 @@ function Introduction({ username }: { username: string }) {
   }
 
   if (isLoading) {
-    return <div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>;
+    return (
+      <div className="flex justify-center items-center py-20">
+        <LoadingSpinner size={50} />
+      </div>
+    );
   }
 
   if (!data) {

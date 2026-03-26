@@ -3,6 +3,7 @@ import { apiroot3 } from '@/config/api';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import type { CoverPicProps } from '@/types';
+import LoadingSpinner from './LoadingSpinner';
 
 /**
  * 谱面封面图片组件
@@ -20,7 +21,7 @@ export default function CoverPic({ id, display }: CoverPicProps) {
     <>
       <PhotoProvider
         bannerVisible={false}
-        loadingElement={<div className="m-auto border-[3px] border-[rgb(var(--background-start))] border-t-white border-solid rounded-full w-12.5 h-12.5 animate-[spin_0.1s_linear_infinite]"></div>}
+        loadingElement={<LoadingSpinner size="50px" />}
       >
         <PhotoView src={urlfull}>
           <img
