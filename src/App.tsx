@@ -3,9 +3,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { I18nProvider } from './contexts/I18nContext';
 import { TooltipProvider } from './components/Tooltip';
 import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ForgetPage from './pages/ForgetPage';
+import ForginsterPage from './pages/ForginsterPage';
 import EditPage from './pages/EditPage';
 import PlayPage from './pages/PlayPage';
 import EventsPage from './pages/EventsPage';
@@ -31,9 +29,9 @@ function App() {
           <Router>
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forget" element={<ForgetPage />} />
+              <Route path="/login" element={<ForginsterPage />} />
+              <Route path="/register" element={<ForginsterPage />} />
+              <Route path="/forget" element={<ForginsterPage />} />
               <Route path="/edit" element={<EditPage />} />
               <Route path="/play" element={<PlayPage />} />
               <Route path="/chart-events" element={<EventsPage />} />
