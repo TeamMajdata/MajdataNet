@@ -53,7 +53,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api3': {
-        target: 'https://majdata.net',
+        target: 'https://maj-3.moyingmoe.top',
         changeOrigin: true,
         secure: true,
       },
