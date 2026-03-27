@@ -97,7 +97,7 @@ export default function PageLayout({
                   e.currentTarget.style.textShadow = 'none';
                 }}
               >
-                {loc('FooterOpenSource')}
+                GitHub
               </a>
               {' | '}
               <a
