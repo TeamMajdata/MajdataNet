@@ -106,7 +106,7 @@ function PermitLogin({ authId }: { authId: string | null }) {
       switch (rsp.code) {
         case retCode.CODE_NOT_LOGGED_IN:
           toast.error('请先登录');
-          navigate('/login');
+          navigate('/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
           break;
         case retCode.CODE_PERMISSION_DENIED:
           toast.error('权限不足');

@@ -155,6 +155,7 @@ async function PostOTP(otp: string, loc: (key: string, fallback?: string) => str
 function LoginTab() {
   const loc = useLoc();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -196,7 +197,15 @@ function LoginTab() {
       return;
     }
 
-    // 登录成功，返回之前的页面或主页
+    const redirectPath = searchParams.get('redirect');
+
+    // 登录成功，优先跳转到显式指定的回跳地址
+    if (redirectPath) {
+      navigate(redirectPath, { replace: true });
+      return;
+    }
+
+    // 未指定回跳地址时，尝试返回之前页面，否则进入主页
     if (document.referrer && document.referrer !== location.href) {
       history.back();
     } else {
