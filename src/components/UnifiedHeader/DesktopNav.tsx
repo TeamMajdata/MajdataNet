@@ -24,6 +24,9 @@ export default function DesktopNav() {
       <Link to="/eventTag?id=Original" className={NAV_LINK}>
         <span className="text-sm">{loc('OriginalSongs')}</span>
       </Link>
+      <Link to="/docs" className={NAV_LINK}>
+        <span className="text-sm">{loc('DocsTitle', 'Docs')}</span>
+      </Link>
     </div>
   );
 }

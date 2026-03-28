@@ -317,5 +317,14 @@
   "notfound.description": "申し訳ございません。お探しのページは存在しないか、削除された可能性があります。",
   "notfound.redirect": "${countdown}秒後にホームページに戻ります...",
   "notfound.backHome": "ホームに戻る",
-  "notfound.goBack": "前のページに戻る"
+  "notfound.goBack": "前のページに戻る",
+  "DocsTitle": "ドキュメント",
+  "DocsSearchPlaceholder": "ドキュメントを検索...",
+  "DocsOnThisPage": "このページ",
+  "DocsNoResults": "一致するドキュメントがありません",
+  "DocsLoading": "検索インデックスを構築中...",
+  "DocsNotFound": "ドキュメントが見つかりません",
+  "DocsNotFoundDesc": "要求されたドキュメントが存在しないか、まだ翻訳されていません。",
+  "DocsPrev": "前へ",
+  "DocsNext": "次へ"
 }

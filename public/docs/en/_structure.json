@@ -1,0 +1,30 @@
+{
+  "title": "Documentation",
+  "items": [
+    {
+      "title": "Introduction",
+      "slug": "index",
+      "description": "Docs portal overview"
+    },
+    {
+      "title": "Guides",
+      "children": [
+        {
+          "title": "Quick Start",
+          "slug": "guide/quick-start",
+          "description": "Integrate docs pages quickly"
+        }
+      ]
+    },
+    {
+      "title": "API",
+      "children": [
+        {
+          "title": "Renderer",
+          "slug": "api/renderer",
+          "description": "Markdown rendering capabilities"
+        }
+      ]
+    }
+  ]
+}

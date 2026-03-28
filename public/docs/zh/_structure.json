@@ -1,0 +1,30 @@
+{
+  "title": "文档",
+  "items": [
+    {
+      "title": "简介",
+      "slug": "index",
+      "description": "文档站总览"
+    },
+    {
+      "title": "指南",
+      "children": [
+        {
+          "title": "快速开始",
+          "slug": "guide/quick-start",
+          "description": "在项目中接入 Docs 站"
+        }
+      ]
+    },
+    {
+      "title": "API",
+      "children": [
+        {
+          "title": "渲染器能力",
+          "slug": "api/renderer",
+          "description": "Markdown 渲染与扩展点"
+        }
+      ]
+    }
+  ]
+}

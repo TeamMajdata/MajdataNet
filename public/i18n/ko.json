@@ -317,5 +317,14 @@
   "notfound.description": "죄송합니다. 요청하신 페이지가 존재하지 않거나 삭제되었습니다.",
   "notfound.redirect": "${countdown}초 후 홈페이지로 돌아갑니다...",
   "notfound.backHome": "홈으로 돌아가기",
-  "notfound.goBack": "이전 페이지로"
+  "notfound.goBack": "이전 페이지로",
+  "DocsTitle": "문서",
+  "DocsSearchPlaceholder": "문서 검색...",
+  "DocsOnThisPage": "이 페이지",
+  "DocsNoResults": "일치하는 문서가 없습니다",
+  "DocsLoading": "검색 인덱스를 준비하는 중...",
+  "DocsNotFound": "문서를 찾을 수 없습니다",
+  "DocsNotFoundDesc": "요청한 문서가 없거나 아직 번역되지 않았습니다.",
+  "DocsPrev": "이전",
+  "DocsNext": "다음"
 }

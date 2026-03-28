@@ -35,6 +35,12 @@ export default defineConfig({
             'remark-breaks',
             'github-markdown-css',
           ],
+          // Docs 系统
+          'vendor-docs': [
+            'highlight.js',
+            'fuse.js',
+            'github-slugger',
+          ],
           // Unity WebGL
           'vendor-unity': ['react-unity-webgl'],
           // 工具库

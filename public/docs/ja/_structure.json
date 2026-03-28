@@ -1,0 +1,30 @@
+{
+  "title": "ドキュメント",
+  "items": [
+    {
+      "title": "イントロダクション",
+      "slug": "index",
+      "description": "ドキュメント全体の概要"
+    },
+    {
+      "title": "ガイド",
+      "children": [
+        {
+          "title": "クイックスタート",
+          "slug": "guide/quick-start",
+          "description": "ドキュメントを素早く追加"
+        }
+      ]
+    },
+    {
+      "title": "API",
+      "children": [
+        {
+          "title": "レンダラー",
+          "slug": "api/renderer",
+          "description": "Markdown レンダリング能力"
+        }
+      ]
+    }
+  ]
+}

@@ -17,3 +17,4 @@ export * from './pages';
 export * from './i18n';
 export * from './download';
 export * from './hooks';
+export * from './doc';

@@ -1,0 +1,30 @@
+{
+  "title": "문서",
+  "items": [
+    {
+      "title": "소개",
+      "slug": "index",
+      "description": "문서 포털 개요"
+    },
+    {
+      "title": "가이드",
+      "children": [
+        {
+          "title": "빠른 시작",
+          "slug": "guide/quick-start",
+          "description": "문서 페이지 빠르게 추가"
+        }
+      ]
+    },
+    {
+      "title": "API",
+      "children": [
+        {
+          "title": "렌더러",
+          "slug": "api/renderer",
+          "description": "Markdown 렌더링 기능"
+        }
+      ]
+    }
+  ]
+}

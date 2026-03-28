@@ -326,5 +326,14 @@
   "notfound.description": "抱歉，您访问的页面不存在或已被移除。",
   "notfound.redirect": "${countdown} 秒后自动返回首页...",
   "notfound.backHome": "返回首页",
-  "notfound.goBack": "返回上一页"
+  "notfound.goBack": "返回上一页",
+  "DocsTitle": "文档",
+  "DocsSearchPlaceholder": "搜索文档...",
+  "DocsOnThisPage": "本页目录",
+  "DocsNoResults": "没有找到相关文档",
+  "DocsLoading": "正在构建搜索索引...",
+  "DocsNotFound": "未找到该文档",
+  "DocsNotFoundDesc": "请求的文档不存在或暂未翻译。",
+  "DocsPrev": "上一页",
+  "DocsNext": "下一页"
 }
