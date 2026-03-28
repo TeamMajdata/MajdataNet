@@ -1,0 +1,368 @@
+{
+  "openapi": "3.0.4",
+  "paths": {
+    // 获取当前用户的歌单列表
+    // Return:
+    /*
+    
+    [
+      {
+        "id": "69c912b1156f16321e20a906",
+        "name": "test",
+        "createdBy": "KirisameVanilla",
+        "description": "test",
+        "count": 0
+      },
+      {
+        "id": "69c912b4156f16321e20a914",
+        "name": "test",
+        "createdBy": "KirisameVanilla",
+        "description": "test",
+        "count": 0
+      },
+      {
+        "id": "69c912b6156f16321e20a91f",
+        "name": "test",
+        "createdBy": "KirisameVanilla",
+        "description": "test",
+        "count": 0
+      }
+    ]
+        
+    */
+    "/api/collection/list": {
+      "get": {
+        "tags": [
+          "Collection"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    // 在已登陆的情况下为当前用户创建歌单
+    "/api/collection/create": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    // 获取指定歌单的歌曲的hash值列表
+    "/api/collection/{idStr}/hashlist": {
+      "get": {
+        "tags": [
+          "Collection"
+        ],
+        "parameters": [
+          {
+            "name": "idStr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    // 获取指定歌单的歌曲的歌曲列表
+    "/api/collection/{idStr}/songlist": {
+      "get": {
+        "tags": [
+          "Collection"
+        ],
+        "parameters": [
+          {
+            "name": "idStr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    // 删除指定歌单
+    "/api/collection/{idStr}/destroy": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "parameters": [
+          {
+            "name": "idStr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    // 修改指定歌单
+    "/api/collection/{idStr}/modify": {
+      "post": {
+        "tags": [
+          "Collection"
+        ],
+        "parameters": [
+          {
+            "name": "idStr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionMetadata"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionMetadata"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionMetadata"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    // 查看当前用户收藏的歌单的列表
+    "/api/account/favorite/collection/list": {
+      "get": {
+        "tags": [
+          "Favorite"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    // 更改当前用户收藏的歌单
+    "/api/account/favorite/collection/diff": {
+      "post": {
+        "tags": [
+          "Favorite"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ObjectId"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ObjectId"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ObjectId"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Favorite"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ObjectId"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ObjectId"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ObjectId"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CollectionCreateRequest": {
+        "required": [
+          "name",
+          "visibility"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": false
+          },
+          "description": {
+            "type": "string",
+            "nullable": false
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/CollectionVisibility"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollectionMetadata": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/CollectionVisibility"
+          },
+          "items": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollectionVisibility": {
+        "enum": [
+          0,
+          1
+        ],
+        "type": "integer",
+        "format": "int32"
+      }
+    }
+  }
+}

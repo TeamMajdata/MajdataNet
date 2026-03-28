@@ -22,6 +22,7 @@ import {
   CommentList,
   LikeSender,
   ScoreList,
+  CollectionModal,
 } from '@/components';
 import { downloadSong } from '@/utils/download';
 import type { SongDetailsContainerProps, SongSummary } from '@/types';
@@ -113,6 +114,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tagButtonRef = useRef<any>(null);
   const [isLoadMajdata, setIsLoadMajdata] = useState(false);
+  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
 
   const o = data;
 
@@ -289,6 +291,24 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 <span>{loc('Share') || '分享'}</span>
               </span>
             </button>
+            <button
+              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
+              onClick={() => setIsCollectionModalOpen(true)}
+              title={loc('Collection') || '收藏'}
+            >
+              <span className="inline-flex justify-center items-center gap-2 w-full">
+                <svg
+                  className="fill-current transition-transform duration-300 ease-in-out"
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="20"
+                  viewBox="0 -960 960 960"
+                  width="20"
+                >
+                  <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
+                </svg>
+                <span>{loc('Collection') || '收藏'}</span>
+              </span>
+            </button>
             <div style={{ display: 'none' }}>
               <TagManageWidget ref={tagButtonRef} songid={o.id} />
             </div>
@@ -360,6 +380,10 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
           )}
         </main>
       </div>
+      <CollectionModal
+        isOpen={isCollectionModalOpen}
+        onClose={() => setIsCollectionModalOpen(false)}
+      />
     </div>
   );
 }
