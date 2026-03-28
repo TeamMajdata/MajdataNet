@@ -8,7 +8,7 @@ import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout, LoadingSpinner } from '@/components';
 import * as retCode from '@/config/apiRetCode';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
 type TabType = 'login' | 'register' | 'forget';
@@ -85,7 +85,7 @@ export default function ForginsterPage() {
 
   return (
     <PageLayout className="flex justify-center items-center min-h-[60vh]">
-      <div className="mx-auto mt-[calc(var(--header-height)+1rem)] px-4 py-8 w-full max-w-md">
+      <div className="mx-auto[calc(var(--header-height)+1rem)] px-4 py-8 w-full max-w-md">
         <div className="flex bg-black/40 mb-6 p-1 rounded-xl">
           <button
             className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-all ${activeTab === 'login'
@@ -112,7 +112,7 @@ export default function ForginsterPage() {
               }`}
             onClick={() => switchTab('forget')}
           >
-            {loc('ForgetPassword', '忘记密码')}
+            {loc('ForgetPassword', '找回密码')}
           </button>
         </div>
 
@@ -249,13 +249,6 @@ function LoginTab() {
           <span className="z-10 relative">{loc('Login', '登录')}</span>
         </button>
       </form>
-      <div className="mt-8 pt-6 border-white/10 border-t text-center">
-        <p className="m-0 text-[#a0a0a0] text-sm">
-          <Link to="/forget" className="font-medium text-blue-500 hover:text-blue-400 hover:underline no-underline transition-colors">
-            {loc('ForgetPassword', '忘记密码？')}
-          </Link>
-        </p>
-      </div>
     </div>
   );
 }
@@ -471,10 +464,10 @@ function ForgetTab({ otp }: { otp: string | null }) {
     <div className={AUTH_CARD_CLASSNAME}>
       <div className="mb-8 text-center">
         <h2 className="m-0 mb-2 font-bold text-[#e5e5e5] text-3xl">
-          {hasOtp ? loc('ResetPasswordTitle', '重置密码') : loc('ForgetPasswordTitle', '忘记密码')}
+          {hasOtp ? loc('ResetPasswordTitle', '重设密码') : loc('ForgetPasswordTitle', '找回密码')}
         </h2>
         <p className="m-0 text-[#a0a0a0] text-sm">
-          {hasOtp ? loc('ResetPasswordSubtitle', '输入新密码') : loc('ForgetPasswordSubtitle', '输入用户名和邮箱找回密码')}
+          {hasOtp ? loc('ResetPasswordSubtitle', '请输入新的密码') : loc('ForgetPasswordSubtitle', '请输入注册时使用的用户名和邮箱')}
         </p>
       </div>
       <form className="flex flex-col gap-6" onSubmit={onSubmit}>

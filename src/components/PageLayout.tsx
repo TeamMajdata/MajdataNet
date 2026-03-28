@@ -9,10 +9,6 @@ import UnifiedHeader from './UnifiedHeader';
 import type { PageLayoutProps } from '@/types';
 
 
-/**
- * 页面布局组件
- * 提供统一的页面结构：背景、头部导航、标题、内容、页脚等
- */
 export default function PageLayout({
   children,
   showFooter = true,
