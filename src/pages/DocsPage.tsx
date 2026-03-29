@@ -118,7 +118,7 @@ export default function DocsPage() {
   );
 
   return (
-    <PageLayout title={loc('DocsTitle', '文档')} className="pb-8">
+    <PageLayout>
       <DocLayout
         topbar={
           <DocSearchBar

@@ -41,7 +41,7 @@ export default function IntroUploader() {
   }
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-[200px]"><LoadingSpinner size="50px" /></div>;
+    return <div className="flex justify-center items-center h-50"><LoadingSpinner size="50px" /></div>;
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
