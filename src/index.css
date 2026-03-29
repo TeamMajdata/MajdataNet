@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 @import "./styles/components/events.css";
 
@@ -105,20 +105,53 @@ input[type="number"]::-webkit-inner-spin-button {
   background-color: var(--background-start) !important;
 }
 
-.markdown-body ul,
-.markdown-body ol {
-  display: table;
-  margin-left: auto;
-  margin-right: auto;
+/* 覆盖全局 h1/h2 居中，markdown 内标题默认左对齐 */
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  text-align: left !important;
+}
+
+.markdown-body ul {
+  display: block;
   text-align: left;
-  list-style: none;
-  padding-left: 0;
+  padding-left: 2em;
+  list-style-type: disc;
+}
+
+.markdown-body ol {
+  display: block;
+  text-align: left;
+  padding-left: 2em;
+  list-style-type: decimal;
 }
 
 .markdown-body ul li,
 .markdown-body ol li {
-  padding-left: 5px;
   margin-bottom: 8px;
+}
+
+/* [c]...[/c] 居中块 */
+.markdown-body .md-center {
+  text-align: center !important;
+}
+
+.markdown-body .md-center h1,
+.markdown-body .md-center h2,
+.markdown-body .md-center h3,
+.markdown-body .md-center h4,
+.markdown-body .md-center h5,
+.markdown-body .md-center h6 {
+  text-align: center !important;
+}
+
+.markdown-body .md-center ul,
+.markdown-body .md-center ol {
+  display: inline-block;
+  text-align: left;
 }
 
 @media (width <= 767px) {

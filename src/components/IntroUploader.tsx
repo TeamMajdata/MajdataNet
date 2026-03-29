@@ -13,6 +13,7 @@ import useSWR from 'swr';
 import { apiroot3 } from '@/config/api';
 import { useLoc, useUser } from '@/hooks';
 import { sleep } from '@/utils';
+import remarkCenter from '@/utils/remarkCenter';
 import LoadingSpinner from './LoadingSpinner';
 
 const fetcher = (url: string) =>
@@ -117,13 +118,10 @@ export default function IntroUploader() {
       <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">{loc('Preview')}</h2>
       <article className="bg-transparent px-4 markdown-body">
         <Markdown
-          remarkPlugins={[remarkGfm]}
+          remarkPlugins={[remarkGfm, remarkCenter]}
           components={{
             ol(props) {
               return <ol type="1" {...props} />;
-            },
-            ul(props) {
-              return <ul style={{ listStyleType: 'disc' }} {...props} />;
             },
             img(props) {
               return <img style={{ margin: 'auto' }} {...props} />;

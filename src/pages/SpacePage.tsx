@@ -12,6 +12,7 @@ import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner } 
 import { apiroot3 } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkCenter from '@/utils/remarkCenter';
 import { motion, type Variants } from 'framer-motion';
 import 'github-markdown-css/github-markdown-dark.css';
 import type { IntroductionData } from '@/types';
@@ -211,15 +212,11 @@ function Introduction({ username }: { username: string }) {
           </h3>
           <article className="bg-black/30 p-6 rounded-xl select-text **:select-text markdown-body">
             <Markdown
-              remarkPlugins={[remarkGfm]}
+              remarkPlugins={[remarkGfm, remarkCenter]}
               components={{
                 ol(props) {
                   const { ...rest } = props;
                   return <ol type="1" {...rest} />;
-                },
-                ul(props) {
-                  const { ...rest } = props;
-                  return <ul style={{ listStyleType: 'disc' }} {...rest} />;
                 },
                 img(props) {
                   const { ...rest } = props;
