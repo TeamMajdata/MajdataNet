@@ -118,6 +118,44 @@
       }
     },
     // 获取指定歌单的歌曲的歌曲列表
+    /*
+
+    {
+        "id": "69c92444156f16321e218206",
+        "createdBy": "KirisameVanilla",
+        "name": "Test Change",
+        "description": null,
+        "visibility": 1,
+        "items": [
+            {
+                "id": "5d793d3d-d2c9-41ba-b752-734365009250",
+                "title": "サラマンドラの踊り子",
+                "artist": "清风明月",
+                "designer": "SPTXzx",
+                "description": "",
+                "levels": [
+                    "",
+                    "",
+                    "",
+                    "",
+                    "13+",
+                    "",
+                    ""
+                ],
+                "uploader": "SPTXzx",
+                "timestamp": "2026-02-25T04:13:35.309Z",
+                "hash": "BKVkl0TAmFNIV+1qoW2JbA==",
+                "tags": [],
+                "publicTags": [
+                    "技巧",
+                    "葉月ゆら",
+                    "FULL"
+                ]
+            }
+        ],
+        "count": 1
+    }
+    */
     "/api/collection/{idStr}/songlist": {
       "get": {
         "tags": [
