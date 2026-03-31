@@ -1,4 +1,4 @@
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import useSWR from 'swr';
 import { useLoc } from '@/hooks';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -18,7 +18,7 @@ export default function MMFCScoreCount() {
 
   // 获取 mmfc_bot 用户的分数总和数据
   const { data, error, isLoading } = useSWR<ScoreData[]>(
-    `${apiroot3}/stats/score-sums?uploader=${encodeURIComponent('mmfc_bot')}&page=0&pageSize=1000`,
+    endpoints.stats.scoreSums('mmfc_bot', 0, 1000),
     fetcher,
     { refreshInterval: 30000 } // 每30秒刷新一次
   );
@@ -196,7 +196,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
               borderColor: isTopThree ? (isFirst ? 'rgba(251, 191, 36, 0.4)' : 'rgba(59, 130, 246, 0.4)') : 'rgba(255, 255, 255, 0.2)',
               aspectRatio: '1',
             }}
-            src={`${apiroot3}/account/Icon?username=${username}`}
+            src={endpoints.account.icon(username)}
             alt={username}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLElement;

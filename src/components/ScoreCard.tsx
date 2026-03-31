@@ -9,7 +9,7 @@ import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { CoverPic, Level, LazyLoad } from '@/components';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';
 import { useLoc } from '@/hooks';
 import type { Score } from '@/types';
@@ -24,7 +24,7 @@ function SimpleLikeButton({ songid }: { songid: string }) {
   const loc = useLoc();
   const [isLoading, setIsLoading] = useState(false);
   const { data, error, isLoading: isFetching, mutate } = useSWR(
-    apiroot3 + '/maichart/' + songid + '/interact',
+    endpoints.maichart.interact(songid),
     fetcher
   );
 
@@ -44,7 +44,7 @@ function SimpleLikeButton({ songid }: { songid: string }) {
 
     try {
       const response = await fetch(
-        apiroot3 + '/maichart/' + songid + '/interact',
+        endpoints.maichart.interact(songid),
         {
           method: 'POST',
           body: formData,
@@ -129,7 +129,7 @@ export function ScoreCard({ score, showLikeButton = true }: ScoreCardProps) {
             <Link to={'/space?id=' + score.chartInfo.uploader}>
               <img
                 className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
-                src={apiroot3 + '/account/Icon?username=' + score.chartInfo.uploader}
+                src={endpoints.account.icon(score.chartInfo.uploader)}
                 alt={score.chartInfo.uploader}
               />
               {score.chartInfo.designer}

@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import useSWR from 'swr';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { ScoreCard, PageLayout, LoadingSpinner } from '@/components';
 import { useLoc } from '@/hooks';
 import type { Score } from '@/types';
@@ -41,7 +41,7 @@ export default function PersonalScoresPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data, error, isLoading } = useSWR<Score[]>(
-    `${apiroot3}/account/scores`,
+    endpoints.account.scores,
     fetcher
   );
 

@@ -9,7 +9,7 @@ import useSWR from 'swr';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner } from '@/components';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkCenter from '@/utils/remarkCenter';
@@ -120,7 +120,7 @@ export default function SpacePage() {
             }}
           />
           <SongList
-            url={`${apiroot3}/maichart/list?search=${encodeURIComponent('uploader:' + username)}`}
+            url={endpoints.maichart.listSearch('uploader:' + username)}
             onDataLoaded={setHasUploadedCharts}
           />
         </motion.section>
@@ -154,7 +154,7 @@ export default function SpacePage() {
 function Introduction({ username }: { username: string }) {
   const loc = useLoc();
   const { data, error, isLoading } = useSWR<IntroductionData>(
-    `${apiroot3}/account/intro?username=${encodeURIComponent(username)}`,
+    endpoints.account.intro(username),
     fetcher
   );
 
@@ -190,7 +190,7 @@ function Introduction({ username }: { username: string }) {
         <div className="shrink-0">
           <img
             className="border-[3px] border-blue-500/50 rounded-full w-30 max-md:w-25 min-w-30 max-md:min-w-25 h-30 max-md:h-25 min-h-30 max-md:min-h-25 object-cover aspect-square"
-            src={`${apiroot3}/account/Icon?username=${username}`}
+            src={endpoints.account.icon(username)}
             alt={username}
           />
         </div>

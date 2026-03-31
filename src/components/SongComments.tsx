@@ -6,7 +6,7 @@
 import { useState, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import { FaComments } from 'react-icons/fa';
 import { AiFillDelete } from 'react-icons/ai';
@@ -276,7 +276,7 @@ export function CommentSender({ songid }: CommentSenderProps) {
   const loc = useLoc();
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { mutate } = useSWR(apiroot3 + '/maichart/' + songid + '/interact');
+  const { mutate } = useSWR(endpoints.maichart.interact(songid));
 
   const onSubmit = async () => {
     if (comment.trim() === '') {
@@ -293,7 +293,7 @@ export function CommentSender({ songid }: CommentSenderProps) {
 
     try {
       const response = await fetch(
-        apiroot3 + '/maichart/' + songid + '/interact',
+        endpoints.maichart.interact(songid),
         {
           method: 'POST',
           body: formData,
@@ -435,7 +435,7 @@ function CommentCard({
               e.currentTarget.style.borderColor = 'rgb(255 255 255 / 15%)';
               e.currentTarget.style.boxShadow = 'none';
             }}
-            src={apiroot3 + '/account/Icon?username=' + comment.sender}
+            src={endpoints.account.icon(comment.sender)}
             alt={comment.sender}
           />
           <div className="flex flex-col gap-0.5">
@@ -726,7 +726,7 @@ function CommentThread({
               e.currentTarget.style.borderColor = 'rgb(255 255 255 / 15%)';
               e.currentTarget.style.boxShadow = 'none';
             }}
-            src={apiroot3 + '/account/Icon?username=' + comment.sender}
+            src={endpoints.account.icon(comment.sender)}
             alt={comment.sender}
           />
           <div className="flex flex-col gap-0.5">
@@ -938,7 +938,7 @@ export function CommentList({ songid }: CommentListProps) {
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    fetch(apiroot3 + '/account/info/', {
+    fetch(endpoints.account.info, {
       mode: 'cors',
       credentials: 'include',
     })
@@ -954,7 +954,7 @@ export function CommentList({ songid }: CommentListProps) {
   }, []);
 
   const { data, error, isLoading, mutate } = useSWR(
-    apiroot3 + '/maichart/' + songid + '/interact',
+    endpoints.maichart.interact(songid),
     fetcher,
     {
       refreshInterval: replyThreadId ? 0 : 3000,
@@ -1021,7 +1021,7 @@ export function CommentList({ songid }: CommentListProps) {
 
     try {
       const response = await fetch(
-        apiroot3 + '/maichart/' + songid + '/interact',
+        endpoints.maichart.interact(songid),
         {
           method: 'POST',
           body: formData,
@@ -1065,7 +1065,7 @@ export function CommentList({ songid }: CommentListProps) {
 
     try {
       const response = await fetch(
-        apiroot3 + '/maichart/' + songid + '/interact',
+        endpoints.maichart.interact(songid),
         {
           method: 'DELETE',
           body: formData,

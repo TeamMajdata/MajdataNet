@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout, SongList, LoadingSpinner } from '@/components';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import type { RankingSectionProps } from '@/types';
 
 export default function RankingPage() {
@@ -95,7 +95,7 @@ function RankingSection({ title, subtitle, sortType, delay = '' }: RankingSectio
         </div>
       </div>
       <SongList
-        url={apiroot3 + '/maichart/list?&isRanking=true&sort=' + encodeURIComponent(sortType)}
+        url={endpoints.maichart.listRanking(sortType)}
         isRanking={true}
       />
     </motion.div>

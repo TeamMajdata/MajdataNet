@@ -5,13 +5,12 @@
 
 import React from 'react';
 import { renderLevel } from '@/utils/renderLevel';
-import { apiroot3 } from '@/config/api';
 import type { SongDifficultyLevelsProps } from '@/types';
 
-export default function SongDifficultyLevels({ 
+export default function SongDifficultyLevels({
   levels,
   songid,
-  isPlayer = false 
+  isPlayer = false
 }: SongDifficultyLevelsProps) {
   // 处理空值
   if (!levels || !Array.isArray(levels)) {
@@ -29,11 +28,11 @@ export default function SongDifficultyLevels({
     const target = e.currentTarget;
     const id = target.id;
     if (!id) return;
-    
+
     // 使用全局的 window.unitySendMessage (Majdata组件会设置)
     if (window.unitySendMessage) {
       const httpprefix = location.protocol + '//' + location.host;
-      let root = apiroot3;
+      let root = '/api3/api';
       if (!root.startsWith('http')) {
         root = httpprefix + root;
       }
@@ -80,9 +79,8 @@ export default function SongDifficultyLevels({
         return (
           <div
             key={index}
-            className={`flex flex-row items-center justify-between gap-3 px-4 py-2 rounded w-40 shrink-0 transition-all duration-200 ease-out min-h-10 ${
-              isPlayer ? 'cursor-pointer hover:translate-x-1 hover:shadow-lg' : ''
-            }`}
+            className={`flex flex-row items-center justify-between gap-3 px-4 py-2 rounded w-40 shrink-0 transition-all duration-200 ease-out min-h-10 ${isPlayer ? 'cursor-pointer hover:translate-x-1 hover:shadow-lg' : ''
+              }`}
             style={{ background: levelGradients[index] }}
             id={`lv${index}`}
             onClick={levelClickCallback}

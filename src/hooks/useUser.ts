@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import type { UserInfo, UseUserResult } from '@/types';
 
 /**
@@ -20,7 +20,7 @@ export function useUser(autoFetch = true): UseUserResult {
     setError(null);
 
     try {
-      const response = await fetch(apiroot3 + '/account/info/', {
+      const response = await fetch(endpoints.account.info, {
         mode: 'cors',
         credentials: 'include',
       });
@@ -30,7 +30,7 @@ export function useUser(autoFetch = true): UseUserResult {
       }
 
       const data = await response.json();
-      
+
       // 检查返回的数据是否有用户名
       if (data && data.username) {
         setUser(data);

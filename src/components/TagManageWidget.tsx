@@ -15,7 +15,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import Tooltip from '@/components/Tooltip';
 import useSWR from 'swr';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import { useLoc } from '@/hooks';
 import LoadingSpinner from './LoadingSpinner';
@@ -221,7 +221,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
     const { data, error, isLoading } = useSWR<SongSummary>(
-      apiroot3 + '/maichart/' + songid + '/summary',
+      endpoints.maichart.summary(songid),
       fetcher
     );
 
@@ -250,7 +250,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
         hideProgressBar: true,
       });
       const response = await fetch(
-        apiroot3 + '/maichart/' + songid + (isInPrivatePage ? '/tags' : '/publictags'),
+        isInPrivatePage ? endpoints.maichart.tags(songid) : endpoints.maichart.publictags(songid),
         {
           method: 'POST',
           headers: {

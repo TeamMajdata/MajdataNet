@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLoc } from '@/hooks';
 import { handleLogout as logoutUtil } from '@/utils';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { DIVIDER } from './styles';
 import Dropdown from './Dropdown';
 
@@ -44,7 +44,7 @@ export default function UserMenu({ username }: UserMenuProps) {
       >
         <img
           className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 object-cover ${isOpen ? 'border-white/60' : 'border-white/30 hover:border-white/60'}`}
-          src={`${apiroot3}/account/Icon?username=${username}`}
+          src={endpoints.account.icon(username)}
           alt={username}
         />
         <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">{username}</span>

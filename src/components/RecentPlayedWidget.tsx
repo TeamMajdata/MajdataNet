@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { ScoreCard } from '@/components';
 import { useLoc } from '@/hooks';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
@@ -54,7 +54,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   const loc = useLoc();
 
   const { data, error, isLoading } = useSWR<RecentPlayedData[]>(
-    `${apiroot3}/account/Recent?username=${username}`,
+    endpoints.account.recent(username),
     fetcher,
     {
       onSuccess: (data) => {

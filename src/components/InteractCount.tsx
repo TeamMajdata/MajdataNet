@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import type { InteractCountProps, InteractData } from '@/types';
 
 const fetcher = async (...args: [RequestInfo, RequestInit?]) =>
@@ -11,7 +11,7 @@ const fetcher = async (...args: [RequestInfo, RequestInit?]) =>
  */
 export default function InteractCount({ songid }: InteractCountProps) {
   const { data, error, isLoading } = useSWR<InteractData>(
-    `${apiroot3}/maichart/${songid}/interactsum`,
+    endpoints.maichart.interactsum(songid),
     fetcher
   );
 

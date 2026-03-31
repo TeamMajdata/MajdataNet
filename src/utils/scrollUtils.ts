@@ -1,7 +1,7 @@
 /**
  * 滚动相关工具函数
  */
-import { apiroot3 } from '../config/api';
+import { endpoints } from '../config/api';
 
 /**
  * 平滑滚动到页面顶部
@@ -30,7 +30,7 @@ export function makeLevelClickCallback(
     
     scrollToTop();
     
-    const maichart = `${apiroot3}/maichart/${songid}`;
+    const maichart = endpoints.maichart.prefix(songid);
     const maidata = `${maichart}/chart`;
     const track = `${maichart}/track`;
     const bg = `${maichart}/image?fullImage=true`;

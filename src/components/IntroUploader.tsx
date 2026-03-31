@@ -10,7 +10,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import 'github-markdown-css/github-markdown-dark.css';
 import useSWR from 'swr';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { useLoc, useUser } from '@/hooks';
 import { sleep } from '@/utils';
 import remarkCenter from '@/utils/remarkCenter';
@@ -26,7 +26,7 @@ export default function IntroUploader() {
   const [isUploading, setIsUploading] = useState(false);
 
   const { data, error, isLoading } = useSWR(
-    user ? apiroot3 + '/account/intro?username=' + encodeURIComponent(user.username) : null,
+    user ? endpoints.account.intro(user.username) : null,
     fetcher
   );
 
@@ -62,7 +62,7 @@ export default function IntroUploader() {
     setIsUploading(true);
 
     try {
-      const response = await axios.post(apiroot3 + '/account/intro', formData, {
+      const response = await axios.post(endpoints.account.uploadIntro, formData, {
         onUploadProgress: function (progressEvent) {
           if (progressEvent.total && progressEvent.lengthComputable) {
             const progress = progressEvent.loaded / progressEvent.total;

@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import useSWR from 'swr';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useLoc } from '@/hooks';
@@ -23,7 +23,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isDislikeLoading, setIsDislikeLoading] = useState(false);
   const { data, error, isLoading, mutate } = useSWR(
-    apiroot3 + '/maichart/' + songid + '/interact',
+    endpoints.maichart.interact(songid),
     fetcher
   );
 
@@ -62,7 +62,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
 
     try {
       const response = await fetch(
-        apiroot3 + '/maichart/' + songid + '/interact',
+        endpoints.maichart.interact(songid),
         {
           method: 'POST',
           body: formData,
@@ -189,7 +189,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
                     >
                       <img
                         className="hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/30 rounded-full w-8 min-w-8 h-8 min-h-8 transition-all"
-                        src={apiroot3 + '/account/Icon?username=' + username}
+                        src={endpoints.account.icon(username)}
                         alt={username}
                         title={username}
                       />
@@ -230,7 +230,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
 export function ScoreList({ songid }: ScoreListProps) {
   const loc = useLoc();
   const { data, error, isLoading } = useSWR(
-    apiroot3 + '/maichart/' + songid + '/score',
+    endpoints.maichart.score(songid),
     fetcher,
     { refreshInterval: 30000 }
   );
@@ -304,7 +304,7 @@ function ScoreCard({ score, index }: { score: ChartScore; index: number }) {
           >
             <img
               className="hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/40 rounded-full w-9 md:w-12 min-w-9 md:min-w-12 h-9 md:h-12 min-h-9 md:min-h-12 object-cover transition-all"
-              src={apiroot3 + '/account/Icon?username=' + score.player.username}
+              src={endpoints.account.icon(score.player.username)}
               alt={score.player.username}
             />
             <div className="flex flex-col flex-1 gap-0.5 md:gap-1 min-w-0">

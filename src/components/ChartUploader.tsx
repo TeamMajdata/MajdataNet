@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { useLoc } from '@/hooks';
 import { sleep } from '@/utils';
 import { motion } from 'framer-motion';
@@ -47,7 +47,7 @@ export default function ChartUploader() {
     setIsUploading(true);
 
     try {
-      const response = await axios.post(apiroot3 + '/maichart/upload', formData, {
+      const response = await axios.post(endpoints.maichart.upload, formData, {
         onUploadProgress: function (progressEvent) {
           if (progressEvent.total && progressEvent.lengthComputable) {
             const progress = progressEvent.loaded / progressEvent.total;

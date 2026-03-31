@@ -1,4 +1,4 @@
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import useSWR from 'swr';
 import { useLoc } from '@/hooks';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -17,7 +17,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   const loc = useLoc();
 
   const { data, error, isLoading } = useSWR<ScoreData[]>(
-    `${apiroot3}/stats/score-sums?uploader=${encodeURIComponent(uploader)}&page=${page}&pageSize=${pageSize}`,
+    endpoints.stats.scoreSums(uploader, page, pageSize),
     fetcher,
     { refreshInterval: 30000 } // 每30秒刷新一次
   );
@@ -124,7 +124,7 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
                 borderColor: isFirst ? 'rgba(255, 215, 0, 0.6)' : 'rgb(255 255 255 / 20%)',
                 aspectRatio: '1',
               }}
-              src={`${apiroot3}/account/Icon?username=${username}`}
+              src={endpoints.account.icon(username)}
               alt={username}
             />
           </div>

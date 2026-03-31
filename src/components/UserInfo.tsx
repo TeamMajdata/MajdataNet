@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useUser } from '@/hooks';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { loc } from '@/utils';
 
 /**
@@ -31,7 +31,7 @@ export default function UserInfo() {
       <Link to="/user">
         <img
           className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
-          src={`${apiroot3}/account/Icon?username=${user.username}`}
+          src={endpoints.account.icon(user.username)}
           alt={user.username}
         />
         {user.username}

@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad } from '@/components';
 import Tooltip from '@/components/Tooltip';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { downloadSong } from '@/utils/download';
 import type { Song } from '@/types';
 import { Link } from 'react-router-dom';
@@ -107,7 +107,7 @@ const Delbutton = memo(function Delbutton({ songid }: { songid: string }) {
   const handleDelete = useCallback(async () => {
     const ret = confirm('真的要删除吗(不可恢复)\n(没有任何机会)');
     if (!ret) return;
-    const response = await fetch(apiroot3 + '/maichart/delete?chartId=' + songid, {
+    const response = await fetch(endpoints.maichart.delete(songid), {
       method: 'POST',
       mode: 'cors',
       credentials: 'include',

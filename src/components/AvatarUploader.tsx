@@ -6,7 +6,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { useLoc, useUser } from '@/hooks';
 import { sleep } from '@/utils';
 import LoadingSpinner from './LoadingSpinner';
@@ -81,7 +81,7 @@ export default function AvatarUploader() {
     });
 
     try {
-      const response = await axios.post(apiroot3 + '/account/Icon', formData, {
+      const response = await axios.post(endpoints.account.uploadIcon, formData, {
         onUploadProgress: function (progressEvent) {
           if (progressEvent.total && progressEvent.lengthComputable) {
             const progress = progressEvent.loaded / progressEvent.total;
@@ -131,7 +131,7 @@ export default function AvatarUploader() {
     return <div className="flex justify-center items-center py-12"><LoadingSpinner size="50px" /></div>;
   }
 
-  const currentAvatarUrl = apiroot3 + '/account/Icon?username=' + user.username;
+  const currentAvatarUrl = endpoints.account.icon(user.username);
   const previewAvatarUrl = previewUrl || currentAvatarUrl;
 
   return (

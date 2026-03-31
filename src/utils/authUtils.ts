@@ -1,7 +1,7 @@
 /**
  * 认证相关工具函数
  */
-import { apiroot3 } from '../config/api';
+import { endpoints } from '../config/api';
 
 /**
  * 清除认证相关的Cookie
@@ -22,7 +22,7 @@ export async function handleLogout(
 ): Promise<void> {
   try {
     // 调用服务器登出API
-    await fetch(apiroot3 + '/account/Logout', {
+    await fetch(endpoints.account.logout, {
       method: 'POST',
       mode: 'cors',
       credentials: 'include',

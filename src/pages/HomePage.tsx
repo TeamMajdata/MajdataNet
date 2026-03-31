@@ -11,7 +11,7 @@ import 'swiper/swiper-bundle.css';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout, SongCard, SongList, LoadingSpinner } from '@/components';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import {
   getEventStatusClass,
   getEventStatusText,
@@ -580,15 +580,7 @@ function MainComp() {
           />
 
           <SongList
-            url={
-              apiroot3 +
-              '/maichart/list?sort=' +
-              sortWords[sortType] +
-              '&page=' +
-              page +
-              '&search=' +
-              encodeURIComponent(Search)
-            }
+            url={endpoints.maichart.listSearchAndSort(Search, sortWords[sortType], page)}
             page={page}
             setMax={setMaxpage}
           />
@@ -673,7 +665,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   const loc = useLoc();
 
   const { data, error, isLoading } = useSWR<Song[]>(
-    apiroot3 + '/maichart/list',
+    endpoints.maichart.list,
     cachedSongListFetcher,
     {
       revalidateOnFocus: false,

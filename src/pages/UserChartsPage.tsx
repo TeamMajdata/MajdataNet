@@ -1,6 +1,6 @@
 import { PageLayout, ChartUploader, SongList, LoadingSpinner } from '@/components';
 import { useLoc, useUser } from '@/hooks';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { motion, type Variants } from 'framer-motion';
 
 // slideInUp 动画变体
@@ -120,7 +120,7 @@ export default function UserChartsPage() {
           </p>
         </div>
         <SongList
-          url={apiroot3 + '/maichart/list?search=uploader:' + encodeURIComponent(user.username)}
+          url={endpoints.maichart.listSearch('uploader:' + user.username)}
           isManage={true}
         />
       </motion.section>
