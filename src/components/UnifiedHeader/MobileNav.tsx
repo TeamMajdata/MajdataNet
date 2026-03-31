@@ -20,9 +20,9 @@ export default function MobileNav() {
         onClick={() => setIsMainNavOpen(!isMainNavOpen)}
       >
         <span className="flex flex-col gap-1.5 w-6 h-4">
-          <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm transition-transform ${isMainNavOpen ? 'rotate-45 translate-y-[7px]' : ''}`}></span>
-          <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm transition-opacity ${isMainNavOpen ? 'opacity-0' : ''}`}></span>
-          <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm transition-transform ${isMainNavOpen ? 'rotate-[-45deg] translate-y-[-7px]' : ''}`}></span>
+          <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm ${isMainNavOpen ? 'rotate-45 translate-y-[7px]' : ''}`}></span>
+          <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm ${isMainNavOpen ? 'opacity-0' : ''}`}></span>
+          <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm ${isMainNavOpen ? 'rotate-[-45deg] translate-y-[-7px]' : ''}`}></span>
         </span>
       </button>
 
@@ -30,11 +30,10 @@ export default function MobileNav() {
         {/* 榜单项 - 可展开 */}
         <div className="relative">
           <button
-            className={`flex items-center justify-between gap-3 px-5 py-4 text-[#e5e5e5] no-underline text-sm font-medium text-center bg-none border-none cursor-pointer w-full ${
-              isMobileRankingsOpen
+            className={`flex items-center justify-between gap-3 px-5 py-4 text-[#e5e5e5] no-underline text-sm font-medium text-center bg-none border-none cursor-pointer w-full ${isMobileRankingsOpen
                 ? 'bg-linear-to-br from-[rgb(59_130_246/15%)] to-[rgb(59_130_246/8%)] text-[#3b82f6]'
                 : 'hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:text-white hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]'
-            }`}
+              }`}
             onClick={() => setIsMobileRankingsOpen(!isMobileRankingsOpen)}
           >
             <span className="w-full text-sm text-center">{loc('Rankings')}</span>
