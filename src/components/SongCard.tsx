@@ -5,6 +5,7 @@
 
 import { memo, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad } from '@/components';
 import Tooltip from '@/components/Tooltip';
 import { apiroot3 } from '@/config/api';
@@ -38,7 +39,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
       className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
     >
       <LazyLoad height={165} width={352} offset={300}>
-        <div className="bg-[#c0c0c0] m-auto p-[0.8rem] border-2 border-t-[#dfdfdf] border-r-[#808080] border-b-[#808080] border-l-[#dfdfdf] w-[20rem] h-40 overflow-hidden">
+        <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-[20rem] h-40 overflow-hidden transition-transform hover:-translate-y-1.25 duration-250 ease-in-out">
           {isRanking ? (
             <CoverPic id={song.id} display={'No.' + (index + 1)} />
           ) : (
@@ -51,16 +52,20 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
                 <Link to={'/song?id=' + song.id}>{song.title}</Link>
               </div>
             </Tooltip>
-            <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
-              <Link to={'/song?id=' + song.id}>
-                {song.artist === '' || song.artist == null ? '-' : song.artist}
-              </Link>
-            </div>
-            <div className="mb-2 text-[0.8rem] truncate">
-              <Link to={'/space?id=' + song.uploader}>
-                {song.uploader + '@' + song.designer}
-              </Link>
-            </div>
+            <Tooltip content={song.artist}>
+              <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
+                <Link to={'/song?id=' + song.id}>
+                  {song.artist === '' || song.artist == null ? '-' : song.artist}
+                </Link>
+              </div>
+            </Tooltip>
+            <Tooltip content={song.uploader + '@' + song.designer}>
+              <div className="mb-2 text-[0.8rem] truncate">
+                <Link to={'/space?id=' + song.uploader}>
+                  {song.uploader + '@' + song.designer}
+                </Link>
+              </div>
+            </Tooltip>
             {isManage ? (
               <>
                 {' '}
@@ -71,23 +76,24 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
               <Levels levels={song.levels} songid={song.id} isPlayer={false} />
             )}
 
-            <div className="flex items-center mt-10 h-auto">
-              <div
-                className="float-left m-[0.1rem] border border-gray-500 rounded-xs w-[1.3rem] h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none"
-                onClick={handleDownload}
+            <br />
+            <motion.div
+              className="float-left m-[0.1rem] mt-2 border border-gray-500 rounded-[5px] w-[1.3rem] h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none"
+              onClick={handleDownload}
+              whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
+              transition={{ duration: 0.125, ease: 'easeInOut' }}
+            >
+              <svg
+                className="fill-white stroke-white w-full h-full"
+                xmlns="http://www.w3.org/2000/svg"
+                height="24"
+                viewBox="0 -960 960 960"
+                width="24"
               >
-                <svg
-                  className="fill-white stroke-white w-full h-full"
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24"
-                  viewBox="0 -960 960 960"
-                  width="24"
-                >
-                  <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-                </svg>
-              </div>
-              <InteractCount songid={song.id} />
-            </div>
+                <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
+              </svg>
+            </motion.div>
+            <InteractCount songid={song.id} />
           </div>
         </div>
       </LazyLoad>
@@ -117,8 +123,10 @@ const Delbutton = memo(function Delbutton({ songid }: { songid: string }) {
   }, [songid]);
 
   return (
-    <div
-      className="float-left m-[0.1rem] border border-gray-500 rounded-[2px] w-[1.3rem] h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none"
+    <motion.div
+      className="float-left m-[0.1rem] border border-gray-500 rounded-[5px] w-[1.3rem] h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none"
+      whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
+      transition={{ duration: 0.125, ease: 'easeInOut' }}
       onClick={handleDelete}
     >
       <svg
@@ -130,6 +138,6 @@ const Delbutton = memo(function Delbutton({ songid }: { songid: string }) {
       >
         <path d="M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z" />
       </svg>
-    </div>
+    </motion.div>
   );
 });

@@ -1,55 +1,24 @@
-@import '98.css/dist/98.css';
 @import "tailwindcss";
 
 @import "./styles/components/events.css";
 
-/* 禁用所有动画 */
-* {
-  animation: none !important;
-  transition: none !important;
-}
-
-/* Windows 98 主题覆盖 */
-html {
-  background: teal;
-  font-family: "MS Sans Serif", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-body {
-  background: teal;
-  color: #000;
-}
-
-/* 主要背景使用 98 风格的棋盘纹理 */
-html, body {
-  background-image: repeating-linear-gradient(
-    45deg,
-    #008080 0,
-    #008080 1px,
-    #009999 1px,
-    #009999 2px
-  );
-  background-repeat: repeat;
-  background-size: 6px 6px;
-}
-
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start: 0, 128, 128;
-  --shadow: #dfdfdf;
+  --foreground-rgb: 255, 255, 255, 100;
+  --background-start: 20, 20, 20;
+  --shadow: #181818;
 
   /* 统一容器样式 */
   --container-max-width: 1200px;
   --container-padding: 0 1rem;
   --container-margin: 0 auto;
 
-  /* 98 风格盒子 */
-  --glassmorphism-bg-primary: #c0c0c0;
-  --glassmorphism-bg-secondary: #dfdfdf;
-  --glassmorphism-backdrop: none;
-  --glassmorphism-border: 2px solid;
-  --glassmorphism-border-radius: 0;
-  --glassmorphism-shadow: 1px 1px 0 #ffffff, 2px 2px 0 #dfdfdf;
+  /* 统一毛玻璃效果 */
+  --glassmorphism-bg-primary: rgb(15 15 20 / 85%);
+  --glassmorphism-bg-secondary: rgb(30 30 30 / 90%);
+  --glassmorphism-backdrop: blur(20px) saturate(180%);
+  --glassmorphism-border: 1px solid rgb(255 255 255 / 12%);
+  --glassmorphism-border-radius: 16px;
+  --glassmorphism-shadow: 0 8px 25px rgb(0 0 0 / 30%);
 
   /* 智能 Header 高度系统 */
   --header-height-desktop: 70px;
@@ -65,58 +34,47 @@ html, body {
   --content-top-spacing-large: calc(var(--header-height) + 1rem);
 
   /* 其他样式变量 */
-  --glassmorphism-bg: #c0c0c0;
-  --glassmorphism-bg-scrolled: #c0c0c0;
-  --glassmorphism-border-scrolled: 2px solid;
+  --glassmorphism-bg: rgb(15 15 20 / 95%);
+  --glassmorphism-bg-scrolled: rgb(10 12 18 / 85%);
+  --glassmorphism-border-scrolled: rgb(255 255 255 / 15%);
 
-  scrollbar-color: #c0c0c0 #dfdfdf;
+  scrollbar-color: rgb(50 50 50) rgb(var(--background-start));
   scrollbar-width: thin;
 }
 
 /* 基础文本颜色 */
 div {
-  color: #000;
+  color: rgb(var(--foreground-rgb));
 }
 
 /* Body 基础样式 */
 body {
-  caret-color: #000;
-  color-scheme: light dark;
-  background-color: teal;
+  caret-color: transparent;
+  color-scheme: only dark;
+  background-color: rgb(var(--background-start));
   padding-top: var(--content-top-spacing-large);
-  background-image: repeating-linear-gradient(
-    45deg,
-    #008080 0,
-    #008080 1px,
-    #009999 1px,
-    #009999 2px
-  );
-  background-repeat: repeat;
-  background-size: 6px 6px;
 }
 
 /* 段落样式 */
 p {
-  color: #000;
+  color: rgb(var(--foreground-rgb));
 }
 
 /* 标题样式 */
 h1 {
-  color: #000;
+  color: whitesmoke;
   text-align: center;
   font-size: 2.5rem;
   font-weight: bold;
   user-select: text;
-  text-shadow: 1px 1px #ffffff;
 }
 
 h2 {
-  color: #000;
+  color: whitesmoke;
   text-align: center;
   font-size: 2.5rem;
   font-weight: bold;
   user-select: text;
-  text-shadow: 1px 1px #ffffff;
 }
 
 @media screen and (width <= 500px) {
@@ -127,8 +85,7 @@ h2 {
 
 /* 禁用状态样式 */
 *:disabled {
-  background-color: #c0c0c0;
-  color: #808080;
+  background-color: rgb(92 0 0);
 }
 
 /* 移除数字输入框的spinner */
@@ -144,12 +101,8 @@ input[type="number"]::-webkit-inner-spin-button {
   min-width: 200px;
   max-width: 100%;
   margin: 0 auto;
-  padding: 20px;
-  background-color: #c0c0c0 !important;
-  color: #000 !important;
-  border: 2px solid;
-  border-color: #dfdfdf #808080 #808080 #dfdfdf;
-  font-family: "MS Sans Serif", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 45px;
+  background-color: var(--background-start) !important;
 }
 
 /* 覆盖全局 h1/h2 居中，markdown 内标题默认左对齐 */
@@ -204,125 +157,5 @@ input[type="number"]::-webkit-inner-spin-button {
 @media (width <= 767px) {
   .markdown-body {
     padding: 15px;
-  }
-}
-
-/* ==================== Windows 98 全局主题覆盖 ==================== */
-
-/* 所有按钮样式 */
-button, [role="button"], .btn, input[type="submit"], input[type="button"], input[type="reset"] {
-  background: linear-gradient(135deg, #dfdfdf 0%, #808080 100%) !important;
-  color: #000 !important;
-  border: 2px solid !important;
-  border-color: #dfdfdf #808080 #808080 #dfdfdf !important;
-  padding: 2px 6px !important;
-  font-family: "MS Sans Serif", -apple-system, BlinkMacSystemFont !important;
-  font-size: 11px !important;
-  cursor: pointer !important;
-  user-select: none !important;
-  box-shadow: 1px 1px 0 #ffffff inset, 2px 2px 0 #dfdfdf inset !important;
-}
-
-button:active, [role="button"]:active, .btn:active, input[type="submit"]:active, input[type="button"]:active {
-  border-color: #808080 #dfdfdf #dfdfdf #808080 !important;
-  box-shadow: 1px 1px 0 #808080 inset, 2px 2px 0 #808080 inset !important;
-}
-
-/* 所有输入框 */
-input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="url"], input[type="number"], textarea, select {
-  background: #ffffff !important;
-  color: #000 !important;
-  border: 2px solid !important;
-  border-color: #808080 #dfdfdf #dfdfdf #808080 !important;
-  padding: 2px 2px !important;
-  font-family: "MS Sans Serif", -apple-system, BlinkMacSystemFont !important;
-  font-size: 11px !important;
-}
-
-/* 链接样式 */
-a {
-  color: #0000ff !important;
-  text-decoration: underline !important;
-}
-
-a:visited {
-  color: #800080 !important;
-}
-
-a:active {
-  color: #ff0000 !important;
-}
-
-/* 卡片/面板 */
-article, aside, section, nav, div[class*="card"], div[class*="panel"], div[class*="container"], div[class*="box"] {
-  background: #c0c0c0 !important;
-  border: 2px solid !important;
-  border-color: #dfdfdf #808080 #808080 #dfdfdf !important;
-  color: #000 !important;
-}
-
-/* 表格样式 */
-table {
-  background: #c0c0c0 !important;
-  color: #000 !important;
-  border-collapse: collapse !important;
-}
-
-th {
-  background: linear-gradient(135deg, #dfdfdf 0%, #808080 100%) !important;
-  color: #000 !important;
-  border: 1px solid !important;
-  border-color: #dfdfdf #808080 #808080 #dfdfdf !important;
-  padding: 2px 4px !important;
-  text-align: left !important;
-}
-
-td {
-  background: #c0c0c0 !important;
-  color: #000 !important;
-  border: 1px solid #808080 !important;
-  padding: 2px 4px !important;
-}
-
-/* 去除所有背景渐变和模糊效果 */
-*[style*="background"], *[style*="backdrop"], *[style*="blur"], *[style*="gradient"] {
-  background: #c0c0c0 !important;
-  backdrop-filter: none !important;
-  box-shadow: none !important;
-}
-
-/* 标题吧 */
-header {
-  background: linear-gradient(90deg, #000080 0%, #1084d7 100%) !important;
-  color: #ffffff !important;
-  border-bottom: 2px solid !important;
-  border-color: #dfdfdf #000000 #000000 #dfdfdf !important;
-  box-shadow: 1px 1px 0 #ffffff inset, 2px 2px 0 #000000 inset !important;
-}
-
-header a {
-  color: #ffffff !important;
-  text-decoration: none !important;
-}
-
-/* 去除所有阴影 */
-* {
-  box-shadow: none !important;
-  filter: none !important;
-}
-
-/* 圆角变方角 */
-* {
-  border-radius: 0 !important;
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  button {
-    padding: 4px 8px !important;
-  }
-  
-  input[type="text"], input[type="email"], input[type="password"], textarea {
-    padding: 3px 3px !important;
   }
 }

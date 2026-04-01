@@ -20,7 +20,7 @@ const levelColors: Record<number, string> = {
  */
 export default function Levels({ levels, songid, isPlayer = false }: LevelsProps) {
   // 预处理等级数组，将空值替换为 "-"
-  const processedLevels = levels.map((level) =>
+  const processedLevels = levels.map((level) => 
     (level == null || level === '') ? '-' : level
   );
 

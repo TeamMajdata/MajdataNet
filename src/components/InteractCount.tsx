@@ -38,14 +38,14 @@ export default function InteractCount({ songid }: InteractCountProps) {
     : { background: 'transparent' };
 
   return (
-    <div className="flex items-center gap-0.5">
+    <div>
       {/* 播放次数 */}
-      <div className="w-[1.3rem] h-[1.3rem] text-[0.8rem] text-center leading-[1.3rem]">
+      <div className="float-left mt-2 ml-0.5 w-[1.3rem] h-[1.3rem] text-[0.8rem] text-center">
         {playcount}
       </div>
 
       {/* 点赞图标 */}
-      <div className="w-[1.3rem] h-[1.3rem]">
+      <div className="float-left mt-2 ml-0.5 w-[1.3rem] h-[1.3rem]">
         <svg
           className="fill-white stroke-white p-0.5 w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
@@ -59,12 +59,12 @@ export default function InteractCount({ songid }: InteractCountProps) {
       </div>
 
       {/* 点赞数 */}
-      <div className="w-[1.3rem] h-[1.3rem] text-[0.8rem] text-center leading-[1.3rem]">
+      <div className="float-left mt-2 ml-0.5 w-[1.3rem] h-[1.3rem] text-[0.8rem] text-center">
         {likecount}
       </div>
 
       {/* 评论图标 */}
-      <div className="w-[1.3rem] h-[1.3rem]">
+      <div className="float-left mt-2 ml-0.5 w-[1.3rem] h-[1.3rem]">
         <svg
           className="fill-white stroke-white p-0.5 w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
@@ -78,7 +78,7 @@ export default function InteractCount({ songid }: InteractCountProps) {
       </div>
 
       {/* 评论数 */}
-      <div className="w-[1.3rem] h-[1.3rem] text-[0.8rem] text-center leading-[1.3rem]">
+      <div className="float-left mt-2 ml-0.5 w-[1.3rem] h-[1.3rem] text-[0.8rem] text-center">
         {commentcount}
       </div>
     </div>
