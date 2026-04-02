@@ -1,9 +1,3 @@
-/**
- * MMFC排行榜页面
- * 迁移自 legacy/src/app/mmfc-ranking/page.jsx
- * 显示指定参与者对 mmfc_bot 谱面的游玩总分排名
- */
-
 import { useEffect, useState } from 'react';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
@@ -33,7 +27,7 @@ export default function MMFCRankingPage() {
   // MMFC活动信息
   const mmfcEvent: Event = {
     id: 'mmfc12',
-    href: '/mmfc-ranking',
+    href: '/ranking/mmfc',
     src: '/events/MMFC12.jpg',
     alt: loc('MMFCRankingTitle', 'MMFC排行榜'),
     title: loc('MMFCRankingTitle', 'MMFC排行榜'),

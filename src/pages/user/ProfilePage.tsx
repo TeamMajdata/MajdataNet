@@ -1,8 +1,3 @@
-/**
- * UserProfilePage - 个人设置页面
- * 迁移自 legacy/src/app/user/profile/page.jsx
- */
-
 import { PageLayout, AvatarUploader, IntroUploader, LoadingSpinner } from '@/components';
 import { useLoc, useUser } from '@/hooks';
 import { motion, type Variants } from 'framer-motion';

@@ -1,9 +1,3 @@
-/**
- * 用户排行榜页面
- * 迁移自 legacy/src/app/user-ranking/page.jsx
- * 显示所有用户的总分排名
- */
-
 import { useEffect, useState } from 'react';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
