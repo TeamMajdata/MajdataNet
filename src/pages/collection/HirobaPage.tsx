@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import useSWR from 'swr';
 import { PageLayout, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
@@ -14,7 +14,6 @@ export default function CollectionsHirobaPage() {
     const stored = localStorage.getItem('lastCollectionPage');
     return parseInt(stored || '0');
   });
-  const [maxpage, setMaxpage] = useState(999999);
   const pageSize = 30;
 
   const url = `${endpoints.collection.list}?page=${page}&pageSize=${pageSize}`;
@@ -23,11 +22,7 @@ export default function CollectionsHirobaPage() {
     revalidateOnFocus: false
   });
 
-  useEffect(() => {
-    if (data && data.length < pageSize && data.length > 0) {
-      setMaxpage(page);
-    }
-  }, [data, page, pageSize]);
+  const isLastPage = data && data.length < pageSize && data.length > 0;
 
   return (
     <PageLayout showBackToHome={false}>
@@ -92,8 +87,8 @@ export default function CollectionsHirobaPage() {
               </div>
 
               <button
-                className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page >= maxpage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-                disabled={page >= maxpage}
+                className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${isLastPage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+                disabled={isLastPage}
                 onClick={() => {
                   const newPage = page + 1;
                   setPage(newPage);
