@@ -1,4 +1,30 @@
 ﻿[
+
+
+  {
+    "id": "march",
+    "href": "/eventTag?id=奇跡の三月",
+    "src": "/events/march.png",
+    "alt": "mmarch",
+    "title": "奇跡の三月",
+    "category": 3,
+    "createDate": "2026-04-02",
+    "endDate": "2026-05-02",
+    "description": "「三月がずっと続けばいい」"
+  },
+
+  {
+    "id": "majfoon",
+    "href": "/eventTag?id=MajFoon",
+    "src": "/events/0401.png",
+    "alt": "majfoon",
+    "title": "MajFoon",
+    "category": 3,
+    "createDate": "2026-04-01",
+    "endDate": "2026-05-01",
+    "description": "majnet愚人节区"
+  },
+
   {
     "id": "mmfc13",
     "href": "/space?id=mmfc_bot",
