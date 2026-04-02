@@ -2,13 +2,22 @@
  * 活动数据处理工具函数
  */
 
-import eventsDataRaw from '@/assets/data/events.json';
 import { loc } from './i18n';
 import type { Event, EventWithTimeInfo, CarouselEventsResult, EventCategory } from '@/types';
 import { EVENT_CATEGORY_I18N_KEYS } from '@/types/event';
 
-// 类型断言确保导入的数据符合类型
-const eventsData: Event[] = eventsDataRaw as Event[];
+// 从 public/events.json 动态加载 外部可访问
+let eventsData: Event[] = [];
+try {
+  const _res = await fetch('/events.json');
+  if (_res.ok) {
+    eventsData = (await _res.json()) as Event[];
+  } else {
+    console.warn('[eventsData] fetch /events.json failed:', _res.status);
+  }
+} catch (_err) {
+  console.warn('[eventsData] fetch /events.json error:', _err);
+}
 
 /**
  * 获取所有活动数据
