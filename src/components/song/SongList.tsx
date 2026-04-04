@@ -5,9 +5,9 @@
 
 import useSWR from 'swr';
 import { useLoc } from '@/hooks';
-import SongCard from '@/components/SongCard';
+import SongCard from './SongCard';
+import { LoadingSpinner } from '@/components';
 import type { Song, SongListProps } from '@/types';
-import LoadingSpinner from './LoadingSpinner';
 
 
 const fetcher = (url: string) =>

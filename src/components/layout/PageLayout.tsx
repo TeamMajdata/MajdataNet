@@ -3,9 +3,9 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion } from 'framer-motion';
 import { loc } from '@/utils';
+import { UnifiedHeader } from '@/components';
 import AmbientBackground from './AmbientBackground';
 import FloatingButtons from './FloatingButtons';
-import UnifiedHeader from './UnifiedHeader';
 import type { PageLayoutProps } from '@/types';
 
 

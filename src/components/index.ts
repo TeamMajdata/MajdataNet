@@ -1,49 +1,50 @@
 // 布局组件
-export { default as PageLayout } from './PageLayout';
-export { default as UnifiedHeader } from './UnifiedHeader';
-export { default as FloatingButtons } from './FloatingButtons';
-export { default as AmbientBackground } from './AmbientBackground';
+export { default as PageLayout } from './layout/PageLayout';
+export { default as UnifiedHeader } from './header';
+export { default as FloatingButtons } from './layout/FloatingButtons';
+export { default as AmbientBackground } from './layout/AmbientBackground';
 
 // 用户相关组件
-export { default as UserInfo } from './UserInfo';
-export { default as Logout } from './Logout';
-export { default as ChartUploader } from './ChartUploader';
-export { default as AvatarUploader } from './AvatarUploader';
-export { default as IntroUploader } from './IntroUploader';
+export { default as UserInfo } from './user/UserInfo';
+export { default as Logout } from './user/Logout';
+export { default as ChartUploader } from './user/ChartUploader';
+export { default as AvatarUploader } from './user/AvatarUploader';
+export { default as IntroUploader } from './user/IntroUploader';
 
 // UI组件
-export { default as MajdataLogo } from './MajdataLogo';
-export { default as Level } from './Level';
-export { default as Levels } from './Levels';
-export { default as CoverPic } from './CoverPic';
-export { default as InteractCount } from './InteractCount';
-export { default as ScoreCount } from './ScoreCount';
-export { default as MMFCScoreCount } from './MMFCScoreCount';
-export { default as LanguageSelector } from './LanguageSelector';
-export { default as TagManageWidget, TagManageTagLauncher } from './TagManageWidget';
-export { ScoreCard } from './ScoreCard';
+export { default as MajdataLogo } from './header/MajdataLogo';
+export { default as Level } from './score/Level';
+export { default as Levels } from './score/Levels';
+export { default as CoverPic } from './ui/CoverPic';
+export { default as InteractCount } from './score/InteractCount';
+export { default as ScoreCount } from './score/ScoreCount';
+export { default as MMFCScoreCount } from './score/MMFCScoreCount';
+export { default as LanguageSelector } from './ui/LanguageSelector';
+export { default as TagManageWidget, TagManageTagLauncher } from './ui/TagManageWidget';
+export { ScoreCard } from './score/ScoreCard';
 
 // 列表和展示组件
-export { default as SongList } from './SongList';
-export { default as SongCard } from './SongCard';
-export { default as Majdata } from './Majdata';
-export { default as MiniGame } from './MiniGame';
-export { default as RecentPlayedWidget } from './RecentPlayedWidget';
+export { default as SongList } from './song/SongList';
+export { default as SongCard } from './song/SongCard';
+export { default as Majdata } from './song/Majdata';
+export { default as MiniGame } from './song/MiniGame';
+export { default as RecentPlayedWidget } from './user/RecentPlayedWidget';
 
 // 活动相关组件
-export { default as EventBanner } from './EventBanner';
-export { default as EnhancedDescription } from './EnhancedDescription';
-export { default as EventsFilter } from './EventsFilter';
-export { default as TimelineModal } from './TimelineModal';
+export { default as EventBanner } from './event/EventBanner';
+export { default as EnhancedDescription } from './event/EnhancedDescription';
+export { default as EventsFilter } from './event/EventsFilter';
+export { default as TimelineModal } from './event/TimelineModal';
 
 // 歌曲详情页组件
-export { default as SongDifficultyLevels } from './SongDifficultyLevels';
-export { CommentSender, CommentList } from './SongComments';
-export { LikeSender, ScoreList } from './SongInteraction';
+export { default as SongDifficultyLevels } from './song/SongDifficultyLevels';
+export { CommentSender, CommentList } from './song/SongComments';
+export { LikeSender, ScoreList } from './song/SongInteraction';
 
 // 通用 UI
-export { default as Tooltip, TooltipProvider } from './Tooltip';
-export { default as LazyLoad } from './LazyLoad';
-export { default as LoadingSpinner } from './LoadingSpinner';
+export { default as Tooltip, TooltipProvider } from './ui/Tooltip';
+export { default as LazyLoad } from './ui/LazyLoad';
+export { default as LoadingSpinner } from './ui/LoadingSpinner';
 
-export { default as CollectionModal } from './CollectionModal';
+export { default as CollectionCard } from './collection/CollectionCard';
+export { default as CollectionModal } from './collection/CollectionModal';

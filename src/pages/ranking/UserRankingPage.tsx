@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { PageLayout, ScoreCount } from '@/components';
+import { PageLayout, ScoreCount, LoadingSpinner } from '@/components';
 
 export default function UserRankingPage() {
   const loc = useLoc();

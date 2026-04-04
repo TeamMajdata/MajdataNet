@@ -6,9 +6,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout, EnhancedDescription, LoadingSpinner } from '@/components';
-import EventsFilter from '@/components/EventsFilter';
-import TimelineModal from '@/components/TimelineModal';
+import { PageLayout, EnhancedDescription, LoadingSpinner, EventsFilter, TimelineModal } from '@/components';
 import {
   getEventStatusClass,
   getEventStatusText,

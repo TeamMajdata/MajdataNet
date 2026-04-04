@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { LoadingSpinner } from '@/components';
 import { useLoc } from '@/hooks';
 import { getComboState, getLevelName } from '@/utils';
 import type { ChartScore, ScoreListProps, LikeSenderProps } from '@/types';

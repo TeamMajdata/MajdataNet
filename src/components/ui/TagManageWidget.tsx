@@ -13,7 +13,7 @@ import {
 } from 'react';
 import React from 'react';
 import { createPortal } from 'react-dom';
-import Tooltip from '@/components/Tooltip';
+import { Tooltip } from '@/components';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';

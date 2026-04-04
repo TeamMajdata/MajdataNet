@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import useSWR from 'swr';
-import { PageLayout, LoadingSpinner } from '@/components';
+import { PageLayout, LoadingSpinner, CollectionCard } from '@/components';
 import { endpoints } from '@/config/api';
 import { useLoc } from '@/hooks';
 import type { Collection } from '@/types';
-import CollectionCard from '@/components/CollectionCard';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 

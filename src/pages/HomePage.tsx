@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import useSWR from 'swr';
-import Tooltip from '@/components/Tooltip';
+import { Tooltip } from '@/components';
 import { useDebouncedCallback } from 'use-debounce';
 import { Link, useSearchParams } from 'react-router-dom';
 

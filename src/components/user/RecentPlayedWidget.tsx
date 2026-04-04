@@ -4,7 +4,7 @@ import { ScoreCard } from '@/components';
 import { useLoc } from '@/hooks';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
 import { motion } from 'framer-motion';
-import LoadingSpinner from './LoadingSpinner';
+import { LoadingSpinner } from '@/components';
 
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>

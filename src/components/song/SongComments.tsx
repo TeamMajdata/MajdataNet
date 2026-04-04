@@ -10,7 +10,7 @@ import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import { FaComments } from 'react-icons/fa';
 import { AiFillDelete } from 'react-icons/ai';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { LoadingSpinner } from '@/components';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';

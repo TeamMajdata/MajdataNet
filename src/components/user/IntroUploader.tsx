@@ -14,7 +14,7 @@ import { endpoints } from '@/config/api';
 import { useLoc, useUser } from '@/hooks';
 import { sleep } from '@/utils';
 import remarkCenter from '@/utils/remarkCenter';
-import LoadingSpinner from './LoadingSpinner';
+import { LoadingSpinner } from '@/components';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());

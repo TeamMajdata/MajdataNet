@@ -6,7 +6,7 @@ import { useLoc } from '@/hooks';
 import { sleep } from '@/utils';
 import { motion } from 'framer-motion';
 import { MdOutlineAudioFile, MdOutlineDescription, MdOutlineImage, MdOutlineVideoFile, MdCloudUpload } from 'react-icons/md';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { LoadingSpinner } from '@/components';
 
 export default function ChartUploader() {
   const loc = useLoc();

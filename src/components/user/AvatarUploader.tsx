@@ -9,7 +9,7 @@ import axios from 'axios';
 import { endpoints } from '@/config/api';
 import { useLoc, useUser } from '@/hooks';
 import { sleep } from '@/utils';
-import LoadingSpinner from './LoadingSpinner';
+import { LoadingSpinner } from '@/components';
 
 export default function AvatarUploader() {
   const loc = useLoc();

@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useLoc, useUser } from '@/hooks';
+import { LoadingSpinner } from '@/components';
 import MajdataLogo from './MajdataLogo';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import DesktopNav from './UnifiedHeader/DesktopNav';
-import MobileNav from './UnifiedHeader/MobileNav';
-import UserMenu from './UnifiedHeader/UserMenu';
-import AuthSection from './UnifiedHeader/AuthSection';
+import DesktopNav from './DesktopNav';
+import MobileNav from './MobileNav';
+import UserMenu from './UserMenu';
+import AuthSection from './AuthSection';
 
 /**
  * 统一顶部导航栏组件

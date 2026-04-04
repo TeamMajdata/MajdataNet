@@ -1,8 +1,8 @@
 /**
  * 语言选择器组件
  */
-import { useI18n } from '../hooks/useI18n';
-import { LANGUAGE_CONFIG } from '../config/i18n';
+import { useI18n } from '@/hooks/useI18n';
+import { LANGUAGE_CONFIG } from '@/config/i18n';
 
 export default function LanguageSelector() {
   const { language, changeLanguage, t } = useI18n();

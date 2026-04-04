@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { LoadingSpinner } from '@/components';
 import { CoverPic, Level, LazyLoad } from '@/components';
 import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';

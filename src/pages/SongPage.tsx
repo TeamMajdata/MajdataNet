@@ -9,7 +9,6 @@ import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import LoadingSpinner from '@/components/LoadingSpinner';
 import {
   PageLayout,
   CoverPic,
@@ -23,6 +22,7 @@ import {
   LikeSender,
   ScoreList,
   CollectionModal,
+  LoadingSpinner,
 } from '@/components';
 import { downloadSong } from '@/utils/download';
 import type { SongDetailsContainerProps, SongSummary } from '@/types';

@@ -1,7 +1,7 @@
 import { endpoints } from '@/config/api';
 import useSWR from 'swr';
 import { useLoc } from '@/hooks';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { LoadingSpinner } from '@/components';
 import type { ScoreCardProps, ScoreCountProps, ScoreData } from '@/types';
 import { Link } from 'react-router-dom';
 

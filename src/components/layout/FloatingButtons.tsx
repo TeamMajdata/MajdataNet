@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { loc } from '@/utils';
-import LanguageSelector from './LanguageSelector';
+import { LanguageSelector } from '@/components';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**

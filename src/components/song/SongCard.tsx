@@ -6,8 +6,7 @@
 import { memo, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad } from '@/components';
-import Tooltip from '@/components/Tooltip';
+import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad, Tooltip } from '@/components';
 import { endpoints } from '@/config/api';
 import { downloadSong } from '@/utils/download';
 import type { Song } from '@/types';

@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout, EventBanner } from '@/components';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import MMFCScoreCount from '@/components/MMFCScoreCount';
+import { PageLayout, EventBanner, LoadingSpinner, MMFCScoreCount } from '@/components';
 import { EventCategory, type Event } from '@/types';
 
 export default function MMFCRankingPage() {
