@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'react-photo-view/dist/react-photo-view.css';
 import { md5 } from 'js-md5';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { setLanguage } from '@/utils/i18n';
@@ -137,7 +137,7 @@ export default function ForginsterPage() {
 }
 
 async function PostOTP(otp: string, loc: (key: string, fallback?: string) => string) {
-  const verifyRsp = await fetch(apiroot3 + '/account/verify?otp=' + otp, {
+  const verifyRsp = await fetch(endpoints.account.verify(otp), {
     method: 'GET',
     credentials: 'include',
   });
@@ -172,7 +172,7 @@ function LoginTab() {
     formData.set('rememberMe', (formData.get('rememberMe') != null).toString());
     formData.set('password', md5(formData.get('password') as string));
 
-    const response = await fetch(apiroot3 + '/account/Login', {
+    const response = await fetch(endpoints.account.login, {
       method: 'POST',
       body: formData,
       credentials: 'include',
@@ -269,7 +269,7 @@ function RegisterTab() {
       }
       formData.set('password', md5(formData.get('password') as string));
 
-      const response = await fetch(apiroot3 + '/account/Register', {
+      const response = await fetch(endpoints.account.register, {
         method: 'POST',
         body: formData,
       });
@@ -398,7 +398,7 @@ function ForgetTab({ otp }: { otp: string | null }) {
           return;
         }
 
-        const response = await fetch(apiroot3 + '/account/forget', {
+        const response = await fetch(endpoints.account.forget, {
           method: 'POST',
           body: formData,
           credentials: 'include',
@@ -435,7 +435,7 @@ function ForgetTab({ otp }: { otp: string | null }) {
         formData.set('newpassword', md5(formData.get('newpassword') as string));
         formData.delete('repeatpassword');
 
-        const response = await fetch(apiroot3 + '/account/forget', {
+        const response = await fetch(endpoints.account.forget, {
           method: 'PUT',
           body: formData,
           credentials: 'include',

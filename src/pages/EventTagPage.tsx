@@ -10,7 +10,7 @@ import { useSearchParams } from 'react-router-dom';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
 import { PageLayout, SongList, EventBanner, LoadingSpinner } from '@/components';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { getEventBySearchKeyword } from '@/utils/eventsData';
 import { type Event } from '@/types';
 import { EventCategory } from '@/types/event';
@@ -68,7 +68,7 @@ export default function EventTagPage() {
             <div className="relative mx-auto my-8 w-[70%] h-px" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 15%, rgba(255, 255, 255, 0.4) 30%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.4) 70%, rgba(255, 255, 255, 0.2) 85%, transparent 100%)' }}></div>
 
             <SongList
-              url={`${apiroot3}/maichart/list?sort=&search=${encodeURIComponent(searchKeyword)}`}
+              url={endpoints.maichart.listSearch(searchKeyword)}
               page={0}
               setMax={() => { }}
             />

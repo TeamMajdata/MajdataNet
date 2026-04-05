@@ -1,4 +1,4 @@
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import JSZip from 'jszip';
 import axios from 'axios';
 import type { Id, toast as toastType } from 'react-toastify';
@@ -46,7 +46,7 @@ function downloadFile(url: string, fileName: string): void {
 export async function downloadSong(props: DownloadSongParams): Promise<void> {
   const zip = new JSZip();
   const abortController = new AbortController();
-  const prefix = apiroot3 + '/maichart/' + props.id;
+  const prefix = endpoints.maichart.prefix(props.id);
 
   const trackPromise = fetchFile(
     prefix + '/track',

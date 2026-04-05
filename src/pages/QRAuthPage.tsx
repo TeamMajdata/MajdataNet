@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { PageLayout, LoadingSpinner } from '@/components';
 import * as retCode from '@/config/apiRetCode';
 
@@ -44,7 +44,7 @@ export default function QRAuthPage() {
 function PermitLogin({ authId }: { authId: string | null }) {
   const navigate = useNavigate();
   const { data, error, isLoading } = useSWR<MachineAuthInfo>(
-    authId ? apiroot3 + '/machine/auth/info?auth-id=' + authId : null,
+    authId ? endpoints.machine.authInfo(authId) : null,
     fetcher
   );
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -91,8 +91,8 @@ function PermitLogin({ authId }: { authId: string | null }) {
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-
-    const response = await fetch(apiroot3 + '/machine/auth/permit?auth-id=' + authId, {
+    if (!authId) return;
+    const response = await fetch(endpoints.machine.authPermit(authId), {
       method: 'POST',
       credentials: 'include',
     });

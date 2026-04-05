@@ -5,11 +5,10 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { apiroot3 } from '@/config/api';
+import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import LoadingSpinner from '@/components/LoadingSpinner';
 import {
   PageLayout,
   CoverPic,
@@ -22,6 +21,8 @@ import {
   CommentList,
   LikeSender,
   ScoreList,
+  CollectionModal,
+  LoadingSpinner,
 } from '@/components';
 import { downloadSong } from '@/utils/download';
 import type { SongDetailsContainerProps, SongSummary } from '@/types';
@@ -43,7 +44,7 @@ export default function SongPage() {
   useEffect(() => {
     if (!param) return;
 
-    fetch(`${apiroot3}/maichart/${param}/summary`, {
+    fetch(endpoints.maichart.summary(param!), {
       mode: 'cors',
       credentials: 'include'
     })
@@ -86,7 +87,7 @@ export default function SongPage() {
     <PageLayout>
       <div
         className="-z-10 fixed inset-0 bg-cover bg-top-left blur-[20px] brightness-30"
-        style={{ backgroundImage: `url(${apiroot3}/maichart/${param}/image)` }}
+        style={{ backgroundImage: `url(${endpoints.maichart.image(param!)})` }}
       />
 
       <SongDetailsContainer id={param} data={songData} />
@@ -113,6 +114,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tagButtonRef = useRef<any>(null);
   const [isLoadMajdata, setIsLoadMajdata] = useState(false);
+  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
 
   const o = data;
 
@@ -193,7 +195,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               <Link to={'/space?id=' + o.uploader} className="inline-flex flex-1 items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-lg px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
                 <img
                   className="shadow-sm border-2 border-white/25 rounded-full w-9 min-w-9 h-9 min-h-9 aspect-square transition-all duration-300 shrink-0"
-                  src={apiroot3 + '/account/Icon?username=' + o.uploader}
+                  src={endpoints.account.icon(o.uploader)}
                   alt={o.uploader}
                 />
                 <div className="flex flex-col items-start gap-1">
@@ -289,6 +291,24 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 <span>{loc('Share') || '分享'}</span>
               </span>
             </button>
+            <button
+              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
+              onClick={() => setIsCollectionModalOpen(true)}
+              title={loc('Collection') || '收藏'}
+            >
+              <span className="inline-flex justify-center items-center gap-2 w-full">
+                <svg
+                  className="fill-current transition-transform duration-300 ease-in-out"
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="20"
+                  viewBox="0 -960 960 960"
+                  width="20"
+                >
+                  <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
+                </svg>
+                <span>{loc('Collection') || '收藏'}</span>
+              </span>
+            </button>
             <div style={{ display: 'none' }}>
               <TagManageWidget ref={tagButtonRef} songid={o.id} />
             </div>
@@ -360,6 +380,11 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
           )}
         </main>
       </div>
+      <CollectionModal
+        isOpen={isCollectionModalOpen}
+        onClose={() => setIsCollectionModalOpen(false)}
+        songId={o.id}
+      />
     </div>
   );
 }
@@ -378,7 +403,7 @@ function MajdataView({ data }: { id: string; data: SongSummary }) {
 
   return (
     <div className="w-full">
-      <Majdata songid={o.id} apiroot={apiroot3} level={'lv' + firstNonEmptyIndex} />
+      <Majdata songid={o.id} apiroot={endpoints.maichart.prefix('')} level={'lv' + firstNonEmptyIndex} />
     </div>
   );
 }
