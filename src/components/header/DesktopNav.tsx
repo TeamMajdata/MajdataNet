@@ -18,6 +18,9 @@ export default function DesktopNav() {
       <Link to="/play" className={NAV_LINK}>
         <span className="text-sm">MajdataPlay</span>
       </Link>
+      <Link to="/collection/hiroba" className={NAV_LINK}>
+        <span className="text-sm">{loc('CollectionHiroba')}</span>
+      </Link>
       <Link to="/chart-events" className={NAV_LINK}>
         <span className="text-sm">{loc('Contest')}</span>
       </Link>
