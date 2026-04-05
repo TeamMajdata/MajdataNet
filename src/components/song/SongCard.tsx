@@ -18,9 +18,10 @@ interface SongCardProps {
   isRanking?: boolean;
   isManage?: boolean;
   page?: number;
+  disableLink?: boolean;
 }
 
-const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page }: SongCardProps) {
+const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page, disableLink }: SongCardProps) {
   const savePosition = useCallback(() => {
     if (page == null) return;
     localStorage.setItem('lastclickid', song.id);
@@ -30,6 +31,9 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
   const handleDownload = useCallback(async () => {
     await downloadSong({ id: song.id, title: song.title, toast });
   }, [song.id, song.title]);
+
+  const link = (to: string, children: React.ReactNode) =>
+    disableLink ? <span>{children}</span> : <Link to={to}>{children}</Link>;
 
   return (
     <div
@@ -48,21 +52,17 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
           <div className="ml-[8.9rem]">
             <Tooltip content={song.title}>
               <div className="mb-1.25 font-bold text-base truncate" id={song.id}>
-                <Link to={'/song?id=' + song.id}>{song.title}</Link>
+                {link('/song?id=' + song.id, song.title)}
               </div>
             </Tooltip>
             <Tooltip content={song.artist}>
               <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
-                <Link to={'/song?id=' + song.id}>
-                  {song.artist === '' || song.artist == null ? '-' : song.artist}
-                </Link>
+                {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}
               </div>
             </Tooltip>
             <Tooltip content={song.uploader + '@' + song.designer}>
               <div className="mb-2 text-[0.8rem] truncate">
-                <Link to={'/space?id=' + song.uploader}>
-                  {song.uploader + '@' + song.designer}
-                </Link>
+                {link('/space?id=' + song.uploader, song.uploader + '@' + song.designer)}
               </div>
             </Tooltip>
             {isManage ? (

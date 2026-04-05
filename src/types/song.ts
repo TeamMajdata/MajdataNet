@@ -24,4 +24,5 @@ export interface Song {
   uploader: string;
   designer: string;
   levels: string[];
+  hash: string;
 }

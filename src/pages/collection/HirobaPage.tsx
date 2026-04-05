@@ -1,23 +1,34 @@
 import { useState } from 'react';
 import useSWR from 'swr';
-import { PageLayout, LoadingSpinner, CollectionCard } from '@/components';
+import { PageLayout, LoadingSpinner, CollectionCard, CollectionModal } from '@/components';
 import { endpoints } from '@/config/api';
-import { useLoc } from '@/hooks';
+import { useLoc, useUser } from '@/hooks';
 import type { Collection } from '@/types';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
 export default function CollectionsHirobaPage() {
   const loc = useLoc();
+  const { username } = useUser();
+  const [onlyMine, setOnlyMine] = useState(false);
+  const [isManaging, setIsManaging] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(() => {
     const stored = localStorage.getItem('lastCollectionPage');
     return parseInt(stored || '0');
   });
   const pageSize = 30;
 
-  const url = `${endpoints.collection.list}?page=${page}&pageSize=${pageSize}`;
+  const handleToggleOnlyMine = () => {
+    setOnlyMine((prev) => !prev);
+    if (isManaging) setIsManaging(false);
+  };
 
-  const { data, error, isLoading } = useSWR<Collection[]>(url, fetcher, {
+  const url = onlyMine && username
+    ? endpoints.collection.list(page, pageSize, username)
+    : endpoints.collection.list(page, pageSize);
+
+  const { data, error, isLoading, mutate } = useSWR<Collection[]>(url, fetcher, {
     revalidateOnFocus: false
   });
 
@@ -26,7 +37,54 @@ export default function CollectionsHirobaPage() {
   return (
     <PageLayout showBackToHome={false}>
       <div className="mx-auto px-4 py-8 w-full max-w-7xl min-h-screen">
-        <h1 className="mb-8 font-bold text-white text-3xl text-center">{loc('CollectionsHiroba', '歌单广场')}</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="font-bold text-white text-3xl">{loc('CollectionsHiroba', '歌单广场')}</h1>
+
+          {username && (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleToggleOnlyMine}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer border ${
+                  onlyMine
+                    ? 'bg-blue-500/80 text-white border-blue-500/80'
+                    : 'bg-white/10 text-white/80 border-white/20 hover:bg-white/15'
+                }`}
+              >
+                {loc('OnlyMine', '仅自己')}
+              </button>
+              {onlyMine && (
+                <>
+                  {isManaging && (
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer border bg-blue-500/80 text-white border-blue-500/80 hover:bg-blue-500"
+                    >
+                      + {loc('NewCollection', '新建歌单')}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsManaging((prev) => !prev)}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer border ${
+                      isManaging
+                        ? 'bg-red-500/80 text-white border-red-500/80'
+                        : 'bg-white/10 text-white/80 border-white/20 hover:bg-white/15'
+                    }`}
+                  >
+                    {isManaging ? loc('ExitManage', '退出管理') : loc('Manage', '管理模式')}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Management mode hint bar */}
+        {isManaging && (
+          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-4 py-2.5 rounded-xl mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span className="text-red-300/80 text-sm">{loc('ManageHint', '管理模式：点击歌单右上角按钮可删除歌单')}</span>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center py-20 w-full">
@@ -39,7 +97,12 @@ export default function CollectionsHirobaPage() {
         ) : (
           <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {data.map((collection) => (
-              <CollectionCard key={collection.id} collection={collection} />
+              <CollectionCard
+                key={collection.id}
+                collection={collection}
+                isManaging={isManaging}
+                onDelete={() => mutate()}
+              />
             ))}
           </div>
         )}
@@ -111,6 +174,12 @@ export default function CollectionsHirobaPage() {
           </div>
         )}
 
+        {/* Create Collection Modal */}
+        <CollectionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onCreate={() => mutate()}
+        />
       </div>
     </PageLayout>
   );

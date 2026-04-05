@@ -4,12 +4,18 @@ export const apiroot3 = '/api3/api';
 export const endpoints = {
   // 歌单 CRUD
   collection: {
-    list: `${apiroot3}/collection/list`,
+    list: (page: number, pageSize: number, createdBy: string = '') => {
+      if (createdBy === '') {
+        return `${apiroot3}/collection/list?page=${page}&pageSize=${pageSize}`;
+      }
+      return `${apiroot3}/collection/list?page=${page}&pageSize=${pageSize}&createdBy=${encodeURIComponent(createdBy)}`;
+    },
     create: `${apiroot3}/collection/create`,
     hashlist: (id: string) => `${apiroot3}/collection/${id}/hashlist`,
     songlist: (id: string) => `${apiroot3}/collection/${id}/songlist`,
     destroy: (id: string) => `${apiroot3}/collection/${id}/destroy`,
     modify: (id: string) => `${apiroot3}/collection/${id}/modify`,
+    addToCollection: (id: string) => `${apiroot3}/collection/${id}/add`,
   },
   // 收藏的歌单
   favorite: {
@@ -32,7 +38,7 @@ export const endpoints = {
   },
   maichart: {
     list: `${apiroot3}/maichart/list`,
-    listSearchAndSort: (searchKeyword: string, sortWord: string, page: number) => `${apiroot3}/maichart/list?sort=${sortWord}&page=${page}&search=${encodeURIComponent(searchKeyword)}`,
+    listSearchAndSort: (searchKeyword: string = '', sortWord: string = '', page: number = 0) => `${apiroot3}/maichart/list?sort=${sortWord}&page=${page}&search=${encodeURIComponent(searchKeyword)}`,
     listSearch: (searchKeyword: string) => `${apiroot3}/maichart/list?sort=&search=${encodeURIComponent(searchKeyword)}`,
     listRanking: (sortType: string) => `${apiroot3}/maichart/list?&isRanking=true&sort=${encodeURIComponent(sortType)}`,
     upload: `${apiroot3}/maichart/upload`,

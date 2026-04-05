@@ -21,6 +21,7 @@ import PersonalScoresPage from './pages/user/ScoresPage';
 import QRAuthPage from './pages/QRAuthPage';
 import NotFoundPage from './pages/NotFoundPage';
 import CollectionsHirobaPage from './pages/collection/HirobaPage';
+import CollectionPage from './pages/collection/CollectionPage';
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
               <Route path="/minigame" element={<MiniGamePage />} />
               <Route path="/qrauth" element={<QRAuthPage />} />
               <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
+              <Route path="/collection" element={<CollectionPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Router>
