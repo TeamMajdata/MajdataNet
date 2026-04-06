@@ -14,7 +14,7 @@ import { LoadingSpinner } from '@/components';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
-import { useLoc } from '@/hooks';
+import { useLoc, useUser } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
 import type {
   Comment,
@@ -379,8 +379,8 @@ function CommentCard({
   return (
     <div
       className={`flex flex-col ${isReply
-          ? 'my-3 p-0 gap-2'
-          : 'px-5 py-4 mx-4 my-4 max-w-70 rounded-xl border gap-3'
+        ? 'my-3 p-0 gap-2'
+        : 'px-5 py-4 mx-4 my-4 max-w-70 rounded-xl border gap-3'
         }`}
       style={isReply ? {
         background: 'transparent',
@@ -471,8 +471,8 @@ function CommentCard({
         {shouldShowExpandButton && (
           <button
             className={`w-full px-2.5 py-2 border-none text-white text-[0.85rem] cursor-pointer font-medium flex items-center justify-center gap-1 transition-all duration-200 ${!isContentExpanded
-                ? 'absolute bottom-0 left-0 h-15 pb-2.5 bg-transparent z-2'
-                : 'bg-[rgba(255,255,255,0.03)] border-t border-t-[rgba(255,255,255,0.05)]'
+              ? 'absolute bottom-0 left-0 h-15 pb-2.5 bg-transparent z-2'
+              : 'bg-[rgba(255,255,255,0.03)] border-t border-t-[rgba(255,255,255,0.05)]'
               }`}
             style={!isContentExpanded ? {
               textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
@@ -760,8 +760,8 @@ function CommentThread({
         {shouldShowExpandButton && (
           <button
             className={`w-full px-2.5 py-2 border-none text-white text-[0.85rem] cursor-pointer font-medium flex items-center justify-center gap-1 transition-all duration-200 ${!isContentExpanded
-                ? 'absolute bottom-0 left-0 h-15 pb-2.5 bg-transparent z-2'
-                : 'bg-[rgba(255,255,255,0.03)] border-t border-t-[rgba(255,255,255,0.05)]'
+              ? 'absolute bottom-0 left-0 h-15 pb-2.5 bg-transparent z-2'
+              : 'bg-[rgba(255,255,255,0.03)] border-t border-t-[rgba(255,255,255,0.05)]'
               }`}
             style={!isContentExpanded ? {
               textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
@@ -928,30 +928,14 @@ function CommentThread({
 // ======================== Comment List ========================
 export function CommentList({ songid }: CommentListProps) {
   const loc = useLoc();
+  const { username: currentUser } = useUser();
   const [replyTargetId, setReplyTargetId] = useState<string | null>(null);
   const [replyThreadId, setReplyThreadId] = useState<string | null>(null);
   const [replyTargetUser, setReplyTargetUser] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    fetch(endpoints.account.info, {
-      mode: 'cors',
-      credentials: 'include',
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.username) {
-          setCurrentUser(data.username);
-        }
-      })
-      .catch(() => {
-        setCurrentUser(null);
-      });
-  }, []);
 
   const { data, error, isLoading, mutate } = useSWR(
     endpoints.maichart.interact(songid),

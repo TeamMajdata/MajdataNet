@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import type { Collection } from '@/types';
-import { useLoc } from '@/hooks';
+import { useLoc, useUser } from '@/hooks';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -49,7 +49,7 @@ const listItemVariants = {
 
 export default function CollectionModal({ isOpen, onClose, songId, onCreate }: CollectionModalProps) {
   const loc = useLoc();
-  const [username, setUsername] = useState<string | null>(null);
+  const { username } = useUser();
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -58,16 +58,6 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
   const [addingId, setAddingId] = useState<string | null>(null);
   const [creatingLoading, setCreatingLoading] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    fetch(endpoints.account.info, { mode: 'cors', credentials: 'include' })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.username) setUsername(data.username);
-      })
-      .catch(() => setUsername(null));
-  }, [isOpen]);
 
   const { data, error, isLoading, mutate } = useSWR<Collection[]>(
     username ? endpoints.collection.list(0, 100, username) : null,
