@@ -15,7 +15,7 @@ export const endpoints = {
     songlist: (id: string) => `${apiroot3}/collection/${id}/songlist`,
     destroy: (id: string) => `${apiroot3}/collection/${id}/destroy`,
     modify: (id: string) => `${apiroot3}/collection/${id}/modify`,
-    addToCollection: (id: string) => `${apiroot3}/collection/${id}/add`,
+    diff: (id: string) => `${apiroot3}/collection/${id}/diff`,
   },
   // 收藏的歌单
   favorite: {

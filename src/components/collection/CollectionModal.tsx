@@ -109,12 +109,12 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
     if (!songId || addingId) return;
     setAddingId(collectionId);
     try {
-      const res = await fetch(endpoints.collection.addToCollection(collectionId), {
+      const res = await fetch(endpoints.collection.diff(collectionId), {
         method: 'POST',
         mode: 'cors',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songId }),
+        body: JSON.stringify({ "hashesToAdd": [songId] }),
       });
       if (res.ok) {
         toast.success(loc('AddSuccess', '已添加到收藏夹'));
@@ -175,7 +175,7 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-9999">
+        <div className="z-9999 fixed inset-0">
           <motion.div
             variants={backdropVariants}
             initial="hidden"
@@ -191,14 +191,14 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute top-1/2 left-1/2 flex w-[90%] max-w-md max-h-[85vh] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-white/10 bg-[rgba(20,20,25,0.95)] shadow-2xl"
+            className="top-1/2 left-1/2 absolute flex flex-col bg-[rgba(20,20,25,0.95)] shadow-2xl border border-white/10 rounded-2xl w-[90%] max-w-md max-h-[85vh] overflow-hidden -translate-x-1/2 -translate-y-1/2"
           >
             {/* Header */}
-            <div className="flex shrink-0 items-center justify-between px-5 pt-5 pb-3">
-              <h2 className="text-xl font-bold text-white">{title}</h2>
+            <div className="flex justify-between items-center px-5 pt-5 pb-3 shrink-0">
+              <h2 className="font-bold text-white text-xl">{title}</h2>
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+                className="flex justify-center items-center hover:bg-white/10 rounded-full w-8 h-8 text-white/60 hover:text-white transition-colors cursor-pointer"
                 aria-label={loc('Close', '关闭')}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -208,25 +208,25 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
             </div>
 
             {/* Scrollable body */}
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-2">
+            <div className="flex-1 px-5 pb-2 min-h-0 overflow-y-auto">
               {isLoading && (
-                <div className="flex w-full items-center justify-center py-16">
+                <div className="flex justify-center items-center py-16 w-full">
                   <LoadingSpinner size="36px" />
                 </div>
               )}
 
               {!isLoading && error && (
-                <div className="flex w-full items-center justify-center py-12">
-                  <p className="text-sm text-white/40">{loc('LoadFailed', '加载失败')}</p>
+                <div className="flex justify-center items-center py-12 w-full">
+                  <p className="text-white/40 text-sm">{loc('LoadFailed', '加载失败')}</p>
                 </div>
               )}
 
               {!isLoading && !error && !hasCollections && !isCreating && (
-                <div className="flex w-full flex-col items-center justify-center gap-3 py-12">
+                <div className="flex flex-col justify-center items-center gap-3 py-12 w-full">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/15">
                     <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
                   </svg>
-                  <p className="text-sm text-white/40">{loc('NoCollections', '暂无收藏夹')}</p>
+                  <p className="text-white/40 text-sm">{loc('NoCollections', '暂无收藏夹')}</p>
                 </div>
               )}
 
@@ -235,7 +235,7 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
                   {/* Search */}
                   <div className="relative mb-3">
                     <svg
-                      className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-white/30"
+                      className="top-1/2 left-3 absolute text-white/30 -translate-y-1/2 pointer-events-none"
                       width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                     >
                       <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
@@ -245,13 +245,13 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder={loc('SearchCollections', '搜索收藏夹...')}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder-white/30 outline-none transition-colors focus:border-white/25"
+                      className="bg-white/5 py-2.5 pr-3 pl-9 border border-white/10 focus:border-white/25 rounded-xl outline-none w-full text-white text-sm transition-colors placeholder-white/30"
                     />
                   </div>
 
                   {filteredCollections.length === 0 && (
-                    <div className="flex w-full items-center justify-center py-12">
-                      <p className="text-sm text-white/30">{loc('NoResults', '没有找到匹配的收藏夹')}</p>
+                    <div className="flex justify-center items-center py-12 w-full">
+                      <p className="text-white/30 text-sm">{loc('NoResults', '没有找到匹配的收藏夹')}</p>
                     </div>
                   )}
 
@@ -269,36 +269,34 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
                           whileTap={songId ? { scale: 0.98 } : undefined}
                           disabled={!!addingId}
                           onClick={songId ? () => handleAddToCollection(collection.id) : undefined}
-                          className={`group flex items-start gap-3 rounded-xl p-3 text-left transition-colors ${
-                            songId ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'
-                          } ${isAdding ? 'bg-blue-500/10' : ''}`}
+                          className={`group flex items-start gap-3 rounded-xl p-3 text-left transition-colors ${songId ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'
+                            } ${isAdding ? 'bg-blue-500/10' : ''}`}
                         >
-                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                            isAdding ? 'bg-blue-500/15' : 'bg-white/5 group-hover:bg-white/10'
-                          }`}>
+                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${isAdding ? 'bg-blue-500/15' : 'bg-white/5 group-hover:bg-white/10'
+                            }`}>
                             {isAdding ? (
                               <LoadingSpinner size="18px" />
                             ) : (
                               <svg
                                 width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                className="text-white/40 transition-colors group-hover:text-white/60"
+                                className="text-white/40 group-hover:text-white/60 transition-colors"
                               >
                                 <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
                               </svg>
                             )}
                           </div>
 
-                          <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-medium text-white/90">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-white/90 text-sm truncate">
                               {collection.name || loc('UnnamedCollection', '未命名收藏夹')}
                             </div>
                             {collection.description && (
-                              <div className="mt-0.5 truncate text-xs text-white/40">{collection.description}</div>
+                              <div className="mt-0.5 text-white/40 text-xs truncate">{collection.description}</div>
                             )}
                           </div>
 
-                          <div className="flex h-6 shrink-0 items-center justify-center rounded-full bg-white/5 px-2.5">
-                            <span className="text-xs text-white/40">{collection.count}</span>
+                          <div className="flex justify-center items-center bg-white/5 px-2.5 rounded-full h-6 shrink-0">
+                            <span className="text-white/40 text-xs">{collection.count}</span>
                           </div>
                         </motion.button>
                       );
@@ -317,9 +315,9 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-3 space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+                    <div className="space-y-3 bg-white/5 mt-3 p-4 border border-white/10 rounded-xl">
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-white/70">
+                        <label className="block mb-1.5 font-medium text-white/70 text-xs">
                           {loc('CollectionName', '名称')} <span className="text-red-400">*</span>
                         </label>
                         <input
@@ -329,11 +327,11 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
                           onChange={(e) => setNewName(e.target.value)}
                           onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); }}
                           placeholder={loc('CollectionNamePlaceholder', '收藏夹名称')}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/25 outline-none transition-colors focus:border-blue-500/50"
+                          className="bg-white/5 px-3 py-2 border border-white/10 focus:border-blue-500/50 rounded-lg outline-none w-full text-white text-sm transition-colors placeholder-white/25"
                         />
                       </div>
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-white/70">
+                        <label className="block mb-1.5 font-medium text-white/70 text-xs">
                           {loc('Description', '描述')}
                         </label>
                         <input
@@ -341,17 +339,17 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
                           value={newDescription}
                           onChange={(e) => setNewDescription(e.target.value)}
                           placeholder={loc('DescriptionPlaceholder', '描述内容（可选）')}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/25 outline-none transition-colors focus:border-blue-500/50"
+                          className="bg-white/5 px-3 py-2 border border-white/10 focus:border-blue-500/50 rounded-lg outline-none w-full text-white text-sm transition-colors placeholder-white/25"
                         />
                       </div>
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-white/70">
+                        <label className="block mb-1.5 font-medium text-white/70 text-xs">
                           {loc('Visibility', '可见性')}
                         </label>
                         <select
                           value={newVisibility}
                           onChange={(e) => setNewVisibility(Number(e.target.value) as 0 | 1)}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-blue-500/50"
+                          className="bg-white/5 px-3 py-2 border border-white/10 focus:border-blue-500/50 rounded-lg outline-none w-full text-white text-sm transition-colors"
                         >
                           <option value={0}>{loc('Private', '私有')}</option>
                           <option value={1}>{loc('Public', '公开')}</option>
@@ -361,10 +359,10 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
                         <button
                           onClick={handleCreate}
                           disabled={!newName.trim() || creatingLoading}
-                          className="flex-1 rounded-lg bg-blue-600 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/30"
+                          className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-white/10 py-2 rounded-lg font-medium text-white disabled:text-white/30 text-sm transition-colors disabled:cursor-not-allowed"
                         >
                           {creatingLoading ? (
-                            <span className="flex items-center justify-center gap-2"><LoadingSpinner size="14px" /></span>
+                            <span className="flex justify-center items-center gap-2"><LoadingSpinner size="14px" /></span>
                           ) : (
                             loc('Create', '创建')
                           )}
@@ -372,7 +370,7 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
                         <button
                           onClick={resetCreateForm}
                           disabled={creatingLoading}
-                          className="flex-1 rounded-lg bg-white/5 py-2 text-sm text-white/70 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="flex-1 bg-white/5 hover:bg-white/10 disabled:opacity-50 py-2 rounded-lg text-white/70 text-sm transition-colors disabled:cursor-not-allowed"
                         >
                           {loc('Cancel', '取消')}
                         </button>
@@ -385,10 +383,10 @@ export default function CollectionModal({ isOpen, onClose, songId, onCreate }: C
 
             {/* Footer: create button */}
             {(!isLoading || hasCollections) && !isCreating && (
-              <div className="shrink-0 border-t border-white/5 px-5 py-3">
+              <div className="px-5 py-3 border-white/5 border-t shrink-0">
                 <button
                   onClick={() => setIsCreating(true)}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl py-2.5 text-sm text-white/50 transition-colors hover:bg-white/5 hover:text-white/80"
+                  className="flex justify-center items-center gap-2 hover:bg-white/5 py-2.5 rounded-xl w-full text-white/50 hover:text-white/80 text-sm transition-colors cursor-pointer"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 5v14" /><path d="M5 12h14" />
