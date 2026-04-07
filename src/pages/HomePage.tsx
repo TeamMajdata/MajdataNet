@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import useSWR from 'swr';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip } from '@/components';
 import { useDebouncedCallback } from 'use-debounce';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -415,20 +416,29 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
             <div className="relative flex items-center w-full">
               <input
                 type="text"
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-6 md:px-7 py-3 md:py-4 pr-10 md:pr-14 border-2 border-white/15 rounded-[30px] outline-none w-full h-10 md:h-11.25 text-white placeholder:text-white/60 text-sm md:text-base"
+                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-6 md:px-7 py-3 md:py-4 pr-10 md:pr-14 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-sm md:text-base transition-colors"
                 placeholder={initS === '' ? loc('SearchPlaceholder', '搜索...') : initS}
                 value={currentValue}
                 onChange={handleInputChange}
+                aria-label={loc('SearchPlaceholder', '搜索...')}
               />
-              {currentValue && (
-                <button
-                  className="top-1/2 right-3 md:right-4 z-2 absolute flex justify-center items-center bg-transparent border-none rounded-full w-6 md:w-7 h-6 md:h-7 font-light text-white/60 hover:text-white/90 text-xl leading-none transition-colors -translate-y-1/2 cursor-pointer"
-                  onClick={handleClearSearch}
-                  title="清空搜索"
-                >
-                  ×
-                </button>
-              )}
+              <AnimatePresence>
+                {currentValue && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.15 }}
+                    className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-5 h-5 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
+                    onClick={handleClearSearch}
+                    aria-label={loc('ClearSearch', '清空搜索')}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+                    </svg>
+                  </motion.button>
+                )}
+              </AnimatePresence>
               <Tooltip
                 content={hintContent}
                 side="top"
@@ -436,7 +446,9 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                 plain={true}
               >
                 <div
-                  className="top-1/2 right-2 md:right-9 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-6.5 md:w-6 h-6.5 md:h-6 font-bold text-white/80 hover:text-white text-xs md:text-sm leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
+                  className="top-1/2 right-3 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-5 h-5 font-bold text-[10px] text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
+                  role="button"
+                  aria-label='Search Hint Button'
                 >
                   ?
                 </div>

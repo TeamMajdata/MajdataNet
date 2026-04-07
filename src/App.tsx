@@ -18,6 +18,7 @@ import UserProfilePage from './pages/user/ProfilePage';
 import MiniGamePage from './pages/MiniGamePage';
 import './App.css';
 import PersonalScoresPage from './pages/user/ScoresPage';
+import UserCollectionPage from './pages/user/CollectionPage';
 import QRAuthPage from './pages/QRAuthPage';
 import NotFoundPage from './pages/NotFoundPage';
 import CollectionsHirobaPage from './pages/collection/HirobaPage';
@@ -46,6 +47,7 @@ function App() {
               <Route path="/user/charts" element={<UserChartsPage />} />
               <Route path="/user/profile" element={<UserProfilePage />} />
               <Route path="/user/scores" element={<PersonalScoresPage />} />
+              <Route path="/user/collections" element={<UserCollectionPage />} />
               <Route path="/minigame" element={<MiniGamePage />} />
               <Route path="/qrauth" element={<QRAuthPage />} />
               <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />

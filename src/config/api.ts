@@ -4,11 +4,11 @@ export const apiroot3 = '/api3/api';
 export const endpoints = {
   // 歌单 CRUD
   collection: {
-    list: (page: number, pageSize: number, createdBy: string = '') => {
+    list: (page: number, pageSize: number, createdBy: string = '', keyword: string = '') => {
       if (createdBy === '') {
-        return `${apiroot3}/collection/list?page=${page}&pageSize=${pageSize}`;
+        return `${apiroot3}/collection/list?page=${page}&pageSize=${pageSize}&keyword=${encodeURIComponent(keyword)}`;
       }
-      return `${apiroot3}/collection/list?page=${page}&pageSize=${pageSize}&createdBy=${encodeURIComponent(createdBy)}`;
+      return `${apiroot3}/collection/list?page=${page}&pageSize=${pageSize}&createdBy=${encodeURIComponent(createdBy)}&keyword=${encodeURIComponent(keyword)}`;
     },
     create: `${apiroot3}/collection/create`,
     hashlist: (id: string) => `${apiroot3}/collection/${id}/hashlist`,
