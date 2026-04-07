@@ -23,7 +23,7 @@ const slideInUp: Variants = {
 
 export default function UserCollectionPage() {
   const loc = useLoc();
-  const { user, isLoading: userLoading } = useUserContext();
+  const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState<'mine' | 'favorites'>('mine');
   const [isManaging, setIsManaging] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,19 +46,7 @@ export default function UserCollectionPage() {
   const isLastPage = Boolean(data && data.length < pageSize && data.length > 0);
   const isFavLastPage = Boolean(favorites && favorites.length < pageSize && favorites.length > 0);
 
-  if (userLoading) {
-    return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
-  }
-
-  if (!user) {
-    return (
-      <PageLayout title={loc('MyCollections')} showBackToHome={true}>
-        <div className="py-16 text-white/70 text-center">
-          {loc('PleaseLogin', '请先登录')}
-        </div>
-      </PageLayout>
-    );
-  }
+  if (!user) return null;
 
   const tabItems = [
     { key: 'mine' as const, label: loc('MyCollections', '我的歌单') },

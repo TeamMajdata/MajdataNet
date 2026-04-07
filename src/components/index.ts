@@ -48,3 +48,6 @@ export { default as LoadingSpinner } from './ui/LoadingSpinner';
 
 export { default as CollectionCard } from './collection/CollectionCard';
 export { default as CollectionModal } from './collection/CollectionModal';
+
+// 路由守卫
+export { default as ProtectedRoute } from './ProtectedRoute';

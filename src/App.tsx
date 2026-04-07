@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nProvider } from './contexts/I18nContext';
 import { UserProvider } from '@/contexts/UserContext';
-import { TooltipProvider } from '@/components';
+import { TooltipProvider, ProtectedRoute } from '@/components';
 import HomePage from './pages/HomePage';
 import ForginsterPage from './pages/ForginsterPage';
 import EditPage from './pages/EditPage';
@@ -46,15 +46,17 @@ function App() {
                 <Route path="/song" element={<SongPage />} />
                 <Route path="/space" element={<SpacePage />} />
                 <Route path="/eventTag" element={<EventTagPage />} />
-                <Route path="/user/charts" element={<UserChartsPage />} />
-                <Route path="/user/profile" element={<UserProfilePage />} />
-                <Route path="/user/scores" element={<PersonalScoresPage />} />
-                <Route path="/user/collections" element={<UserCollectionPage />} />
                 <Route path="/minigame" element={<MiniGamePage />} />
                 <Route path="/qrauth" element={<QRAuthPage />} />
-                <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
                 <Route path="/collection" element={<CollectionPage />} />
                 <Route path="*" element={<NotFoundPage />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/user/charts" element={<UserChartsPage />} />
+                  <Route path="/user/profile" element={<UserProfilePage />} />
+                  <Route path="/user/scores" element={<PersonalScoresPage />} />
+                  <Route path="/user/collections" element={<UserCollectionPage />} />
+                  <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
+                </Route>
               </Routes>
             </Router>
           </UserProvider>

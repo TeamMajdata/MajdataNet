@@ -1,5 +1,5 @@
-import { PageLayout, ChartUploader, SongList, LoadingSpinner } from '@/components';
-import { useLoc, useUserContext } from '@/hooks';
+import { PageLayout, ChartUploader, SongList } from '@/components';
+import { useLoc } from '@/hooks';
 import { endpoints } from '@/config/api';
 import { motion, type Variants } from 'framer-motion';
 
@@ -19,21 +19,6 @@ const slideInUp: Variants = {
 
 export default function UserChartsPage() {
   const loc = useLoc();
-  const { user, isLoading } = useUserContext();
-
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
-  }
-
-  if (!user) {
-    return (
-      <PageLayout title={loc('ChartsManagement')} showBackToHome={true}>
-        <div className="py-16 text-white/70 text-center">
-          {loc('PleaseLogin', '请先登录')}
-        </div>
-      </PageLayout>
-    );
-  }
 
   return (
     <PageLayout title={loc('ChartsManagement')} showBackToHome={false}>
