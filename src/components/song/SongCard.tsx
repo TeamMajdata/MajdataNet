@@ -19,26 +19,36 @@ interface SongCardProps {
   isManage?: boolean;
   page?: number;
   disableLink?: boolean;
+  onClick?: (song: Song) => void;
 }
 
-const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page, disableLink }: SongCardProps) {
+const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page, disableLink, onClick }: SongCardProps) {
   const savePosition = useCallback(() => {
     if (page == null) return;
     localStorage.setItem('lastclickid', song.id);
     localStorage.setItem('lastclickpage', page.toString());
   }, [song.id, page]);
 
-  const handleDownload = useCallback(async () => {
+  const handleClick = useCallback(() => {
+    if (onClick) {
+      onClick(song);
+    } else {
+      savePosition();
+    }
+  }, [onClick, song, savePosition]);
+
+  const handleDownload = useCallback(async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     await downloadSong({ id: song.id, title: song.title, toast });
   }, [song.id, song.title]);
 
   const link = (to: string, children: React.ReactNode) =>
-    disableLink ? <span>{children}</span> : <Link to={to}>{children}</Link>;
+    disableLink || onClick ? <span>{children}</span> : <Link to={to}>{children}</Link>;
 
   return (
     <div
       id={song.id}
-      onClick={savePosition}
+      onClick={handleClick}
       className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
     >
       <LazyLoad height={165} width={352} offset={300}>

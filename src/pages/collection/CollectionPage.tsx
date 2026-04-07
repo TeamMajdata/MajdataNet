@@ -426,39 +426,36 @@ export default function CollectionPage() {
 
             {searchResults.length > 0 && (
               <>
-                <div className="bg-[rgba(20,20,25,0.95)] shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-xl mb-4 p-4 border border-white/10 rounded-2xl max-h-80 overflow-y-auto">
-                  <div className="flex flex-col gap-2">
-                    {searchResults.map((song) => (
-                      <div
-                        key={song.id}
-                        className="flex justify-between items-center bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl transition-colors"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-white text-sm truncate">{song.title}</div>
-                          <div className="text-white/50 text-xs truncate">
-                            {song.artist || '-'} · {song.uploader}@{song.designer}
-                          </div>
-                        </div>
-                        {allExistingIds.has(song.id) ? (
-                          <span className="ml-3 text-white/30 text-xs shrink-0">
-                            {loc('Added', '已添加')}
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => handleAddSong(song)}
-                            disabled={!!addingSongId}
-                            className="bg-blue-500/80 hover:bg-blue-500 disabled:bg-white/10 ml-3 px-3 py-1 border-none rounded-lg text-white disabled:text-white/30 text-sm transition-colors cursor-pointer disabled:cursor-not-allowed shrink-0"
-                          >
-                            + {loc('Add', '添加')}
-                          </button>
-                        )}
+                <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+                  {searchResults.map((song, index) => {
+                    const isAdded = allExistingIds.has(song.id);
+                    return (
+                      <div key={song.id} className="relative">
+                        <SongCard song={song} index={index} disableLink />
+                        <motion.button
+                          whileHover={{ scale: 1.15 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isAdded) handleRemoveSong(song.id)
+                            else handleAddSong(song);
+                          }}
+                          disabled={!!addingSongId}
+                          className={`top-2 right-2 z-10 absolute flex justify-center items-center shadow-lg border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer transition-colors ${isAdded
+                            ? 'bg-red-500/80 hover:bg-red-500'
+                            : 'bg-blue-500/80 hover:bg-blue-500 disabled:bg-white/10 disabled:cursor-not-allowed'
+                            }`}
+                          title={isAdded ? loc('RemoveFromCollection', '从歌单移除') : loc('Add', '添加')}
+                        >
+                          {isAdded ? '×' : '+'}
+                        </motion.button>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
 
                 {/* 搜索结果分页 */}
-                <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="flex justify-center items-center gap-3 mt-4 mb-4">
                   <button
                     className={`px-4 py-1.5 bg-blue-500/80 border-none rounded-lg text-white text-sm cursor-pointer ${searchPage <= 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
                     disabled={searchPage <= 0}
