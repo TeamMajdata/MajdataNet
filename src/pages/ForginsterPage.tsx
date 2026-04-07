@@ -6,9 +6,11 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc } from '@/hooks';
-import { PageLayout, LoadingSpinner } from '@/components';
+import { PageLayout } from '@/components';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import * as retCode from '@/config/apiRetCode';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useUserContext } from '@/hooks';
 import { AnimatePresence, motion } from 'framer-motion';
 
 type TabType = 'login' | 'register' | 'forget';
@@ -156,69 +158,84 @@ function LoginTab() {
   const loc = useLoc();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { refetch } = useUserContext();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setIsSubmitting(true);
 
-    const formData = new FormData(event.currentTarget);
-    if (formData.get('username') === '') {
-      toast.error(loc('NoUsername', '请输入用户名'));
-      return;
-    }
-    if (formData.get('password') === '') {
-      toast.error(loc('NoPasswd', '请输入密码'));
-      return;
-    }
-    formData.set('rememberMe', (formData.get('rememberMe') != null).toString());
-    formData.set('password', md5(formData.get('password') as string));
-
-    const response = await fetch(endpoints.account.login, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-    });
-
-    if (response.status !== 200) {
-      const rsp = await response.json();
-      switch (rsp.code) {
-        case retCode.CODE_INVALID_CREDENTIALS:
-          toast.error(loc('WrongCredential', '用户名或密码错误'));
-          break;
-        case retCode.CODE_LOGIN_FAILED_PENDING_VERIFCATION:
-          toast.error(loc('[Login]PendingVerifcation', '账户尚未激活，请查收邮件'));
-          break;
-        case retCode.CODE_LOGIN_FAILED_USER_BANNED:
-          toast.error(loc('[Login]UserBanned', '账户已被封禁'));
-          break;
-        default:
-          toast.error(await response.text());
-          break;
+    try {
+      const formData = new FormData(event.currentTarget);
+      if (formData.get('username') === '') {
+        toast.error(loc('NoUsername', '请输入用户名'));
+        return;
       }
-      return;
-    }
+      if (formData.get('password') === '') {
+        toast.error(loc('NoPasswd', '请输入密码'));
+        return;
+      }
+      formData.set('rememberMe', (formData.get('rememberMe') != null).toString());
+      formData.set('password', md5(formData.get('password') as string));
 
-    const redirectPath = searchParams.get('redirect');
+      const response = await fetch(endpoints.account.login, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
 
-    // 登录成功，优先跳转到显式指定的回跳地址
-    if (redirectPath) {
-      navigate(redirectPath, { replace: true });
-      return;
-    }
+      if (response.status !== 200) {
+        const rsp = await response.json();
+        switch (rsp.code) {
+          case retCode.CODE_INVALID_CREDENTIALS:
+            toast.error(loc('WrongCredential', '用户名或密码错误'));
+            break;
+          case retCode.CODE_LOGIN_FAILED_PENDING_VERIFCATION:
+            toast.error(loc('[Login]PendingVerifcation', '账户尚未激活，请查收邮件'));
+            break;
+          case retCode.CODE_LOGIN_FAILED_USER_BANNED:
+            toast.error(loc('[Login]UserBanned', '账户已被封禁'));
+            break;
+          default:
+            toast.error(await response.text());
+            break;
+        }
+        return;
+      }
 
-    // 未指定回跳地址时，尝试返回之前页面，否则进入主页
-    if (document.referrer && document.referrer !== location.href) {
-      history.back();
-    } else {
-      navigate('/');
+      const redirectPath = searchParams.get('redirect');
+
+      // 登录成功，刷新用户状态后再跳转
+      await refetch();
+
+      // 登录成功，优先跳转到显式指定的回跳地址
+      if (redirectPath) {
+        navigate(redirectPath, { replace: true });
+        return;
+      }
+
+      // 未指定回跳地址时，尝试返回之前页面，否则进入主页
+      if (document.referrer && document.referrer !== location.href) {
+        history.back();
+      } else {
+        navigate('/');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <div className={AUTH_CARD_CLASSNAME}>
+    <div className={AUTH_CARD_CLASSNAME + ' relative'}>
       <div className="mb-8 text-center">
         <h2 className="m-0 mb-2 font-bold text-[#e5e5e5] text-3xl">{loc('WelcomeBack', '欢迎回来')}</h2>
         <p className="m-0 text-[#a0a0a0] text-sm">{loc('LoginSubtitle', '登录到你的账户')}</p>
       </div>
+      {isSubmitting && (
+        <div className="z-10 absolute inset-0 flex justify-center items-center bg-[rgb(30_30_30/90%)] backdrop-blur-sm rounded-[20px]">
+          <LoadingSpinner size="36px" />
+        </div>
+      )}
       <form className="flex flex-col gap-6" onSubmit={onSubmit}>
         <div className="flex flex-col gap-2">
           <label className="font-medium text-[#e5e5e5] text-sm">{loc('Username', '用户名')}</label>
@@ -245,7 +262,7 @@ function LoginTab() {
           <label className="font-medium text-[#e5e5e5] text-sm">{loc('RememberMe', '记住我')}</label>
         </div>
 
-        <button className="relative bg-linear-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed" type="submit">
+        <button className="relative bg-linear-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed" type="submit" disabled={isSubmitting}>
           <span className="z-10 relative">{loc('Login', '登录')}</span>
         </button>
       </form>

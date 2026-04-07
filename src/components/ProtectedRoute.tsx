@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useUserContext } from '@/hooks';
 import { LoadingSpinner } from '@/components';
@@ -6,9 +6,11 @@ import { LoadingSpinner } from '@/components';
 export default function ProtectedRoute() {
   const { user, isLoading } = useUserContext();
   const navigate = useNavigate();
+  const redirected = useRef(false);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoading && !user && !redirected.current) {
+      redirected.current = true;
       navigate('/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
     }
   }, [isLoading, user, navigate]);
