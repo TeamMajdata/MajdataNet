@@ -13,7 +13,7 @@ const fetcher = (url: string) =>
 interface CollectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  songId?: string;
+  songHash?: string;
   onCreate?: () => void;
 }
 
@@ -47,7 +47,7 @@ const listItemVariants = {
   }),
 };
 
-export default function CollectionModal({ isOpen, onClose, songId, onCreate }: CollectionModalProps) {
+export default function CollectionModal({ isOpen, onClose, songHash: songId, onCreate }: CollectionModalProps) {
   const loc = useLoc();
   const { username } = useUser();
   const [isCreating, setIsCreating] = useState(false);
