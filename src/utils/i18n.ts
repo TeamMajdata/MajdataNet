@@ -8,6 +8,7 @@ import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES } from '../
 // eslint-disable-next-line prefer-const
 let languageCache: LanguageCache = {};
 let currentLanguage: Language = DEFAULT_LANGUAGE;
+let warnedMissingKeys = new Set<string>();
 
 /**
  * 设置当前语言
@@ -16,7 +17,7 @@ let currentLanguage: Language = DEFAULT_LANGUAGE;
 export async function setLanguage(lang: string): Promise<void> {
   // 提取语言代码（前两个字符）
   const langCode = lang.slice(0, 2).toLowerCase() as Language;
-  
+
   // 检查是否为支持的语言
   if (!SUPPORTED_LANGUAGES.includes(langCode)) {
     console.warn(`[i18n] Unsupported language: ${langCode}, falling back to ${DEFAULT_LANGUAGE}`);
@@ -36,12 +37,12 @@ export async function setLanguage(lang: string): Promise<void> {
     if (!response.ok) {
       throw new Error('Language file not found');
     }
-    
+
     const translations: TranslationDictionary = await response.json();
     languageCache[langCode] = translations;
     currentLanguage = langCode;
     localStorage.setItem(LANGUAGE_STORAGE_KEY, langCode);
-    
+
     console.log(`[i18n] Switched to ${langCode}`);
   } catch (error) {
     console.error(`[i18n] Failed to load language: ${langCode}`, error);
@@ -58,12 +59,15 @@ export async function setLanguage(lang: string): Promise<void> {
  */
 export function getTranslatedString(key: string, fallback?: string): string {
   const translations = languageCache[currentLanguage] || {};
-  
+
   if (!translations[key]) {
-    console.warn(`[i18n] Missing translation key: ${key} in ${currentLanguage}`);
+    if (!warnedMissingKeys.has(key)) {
+      console.warn(`[i18n] Missing translation key: ${key} in ${currentLanguage}`);
+      warnedMissingKeys.add(key);
+    }
     return fallback || key;
   }
-  
+
   return translations[key];
 }
 
@@ -93,7 +97,7 @@ export function getBrowserLanguage(): Language {
 export async function initializeLanguage(): Promise<Language> {
   const savedLang = localStorage.getItem(LANGUAGE_STORAGE_KEY);
   const preferredLang = savedLang || navigator.language;
-  
+
   await setLanguage(preferredLang);
   return currentLanguage;
 }
@@ -106,7 +110,7 @@ export async function preloadLanguage(lang: Language): Promise<void> {
   if (languageCache[lang]) {
     return; // 已加载
   }
-  
+
   try {
     const response = await fetch(`/i18n/${lang}.json`);
     if (response.ok) {

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nProvider } from './contexts/I18nContext';
+import { FavoritesProvider } from './contexts/FavoritesContext';
 import { TooltipProvider } from '@/components';
 import HomePage from './pages/HomePage';
 import ForginsterPage from './pages/ForginsterPage';
@@ -29,6 +30,7 @@ function App() {
     <HelmetProvider>
       <TooltipProvider delayDuration={200}>
         <I18nProvider>
+          <FavoritesProvider>
           <Router>
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -55,6 +57,7 @@ function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Router>
+          </FavoritesProvider>
         </I18nProvider>
       </TooltipProvider>
     </HelmetProvider>
