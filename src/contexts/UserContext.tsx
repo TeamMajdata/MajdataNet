@@ -1,12 +1,10 @@
 /**
- * 用户信息 Context
+ * 用户信息 Context - 提供全局用户状态管理
  */
-
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { endpoints } from '@/config/api';
-import type { UserInfo, UseUserContextResult } from '@/types';
-
-const UserContext = createContext<UseUserContextResult | null>(null);
+import type { UserInfo } from '@/types';
+import { UserContext } from './userContextDef';
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserInfo | null>(null);
@@ -47,25 +45,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [fetchUser]);
 
   return (
+    //TODO: 把类型提取出来
     <UserContext.Provider value={{ user, username: user?.username || '', isLoading, error, refetch: fetchUser }}>
       {children}
     </UserContext.Provider>
   );
-}
-
-/**
- * 获取用户信息的 Hook
- */
-export function useUserContext(): UseUserContextResult {
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error('useUserContext must be used within UserProvider');
-  return ctx;
-}
-
-/**
- * 简化版用户名获取函数（兼容 legacy 版本）
- */
-export function useUsername(): string {
-  const { username } = useUserContext();
-  return username;
 }

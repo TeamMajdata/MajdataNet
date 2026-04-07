@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nProvider } from './contexts/I18nContext';
-import { UserProvider } from './hooks/UserContext';
+import { UserProvider } from '@/contexts/UserContext';
 import { TooltipProvider } from '@/components';
 import HomePage from './pages/HomePage';
 import ForginsterPage from './pages/ForginsterPage';
