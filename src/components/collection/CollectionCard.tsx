@@ -30,17 +30,18 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
   const [currentCoverIndex, setCurrentCoverIndex] = useState(0);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (!data || !data.items || data.items.length === 0) return;
-    if (data.items.length === 1) return;
+    if (!isHovered) return;
+    if (!data || !data.items || data.items.length <= 1) return;
 
     const timer = setInterval(() => {
       setCurrentCoverIndex((prev) => (prev + 1) % data.items.length);
-    }, 3000);
+    }, 1000);
 
     return () => clearInterval(timer);
-  }, [data]);
+  }, [data, isHovered]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -67,6 +68,8 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
     <div className="relative">
       <div
         className={`flex bg-[rgba(20,20,25,0.8)] shadow-lg hover:shadow-xl border rounded-xl w-full h-35 overflow-hidden transition-all ${isManaging ? 'cursor-default border-red-500/30' : 'cursor-pointer border-white/10 hover:-translate-y-1'}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => { setIsHovered(false); setCurrentCoverIndex(0); }}
         onClick={() => {
           if (isManaging) return;
           navigate('/collection?id=' + collection.id);
