@@ -6,7 +6,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { endpoints } from '@/config/api';
 import type { UserInfo, UseUserContextResult } from '@/types';
 
-const UserContext = createContext<UseUserResult | null>(null);
+const UserContext = createContext<UseUserContextResult | null>(null);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserInfo | null>(null);
