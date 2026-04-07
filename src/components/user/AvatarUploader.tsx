@@ -7,13 +7,13 @@ import { useCallback, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { endpoints } from '@/config/api';
-import { useLoc, useUser } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 import { sleep } from '@/utils';
 import { LoadingSpinner } from '@/components';
 
 export default function AvatarUploader() {
   const loc = useLoc();
-  const { user, isLoading: userLoading } = useUser();
+  const { user, isLoading: userLoading } = useUserContext();
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

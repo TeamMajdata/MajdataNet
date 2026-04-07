@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import type { Collection } from '@/types';
-import { useLoc, useUser } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -49,7 +49,7 @@ const listItemVariants = {
 
 export default function CollectionModal({ isOpen, onClose, songHash: songId, onCreate }: CollectionModalProps) {
   const loc = useLoc();
-  const { username } = useUser();
+  const { username } = useUserContext();
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');

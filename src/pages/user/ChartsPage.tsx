@@ -1,5 +1,5 @@
 import { PageLayout, ChartUploader, SongList, LoadingSpinner } from '@/components';
-import { useLoc, useUser } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 import { endpoints } from '@/config/api';
 import { motion, type Variants } from 'framer-motion';
 
@@ -19,7 +19,7 @@ const slideInUp: Variants = {
 
 export default function UserChartsPage() {
   const loc = useLoc();
-  const { user, isLoading } = useUser();
+  const { user, isLoading } = useUserContext();
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;

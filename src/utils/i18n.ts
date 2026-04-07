@@ -8,7 +8,7 @@ import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES } from '../
 // eslint-disable-next-line prefer-const
 let languageCache: LanguageCache = {};
 let currentLanguage: Language = DEFAULT_LANGUAGE;
-let warnedMissingKeys = new Set<string>();
+const warnedMissingKeys = new Set<string>();
 
 /**
  * 设置当前语言

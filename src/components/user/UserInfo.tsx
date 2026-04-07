@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useUser } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import { endpoints } from '@/config/api';
 import { loc } from '@/utils';
 
@@ -8,7 +8,7 @@ import { loc } from '@/utils';
  * 显示用户头像和用户名，或显示登录链接
  */
 export default function UserInfo() {
-  const { user, isLoading, error } = useUser();
+  const { user, isLoading, error } = useUserContext();
 
   if (error || !user?.username) {
     return (

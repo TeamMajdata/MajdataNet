@@ -1,5 +1,5 @@
 import { PageLayout, AvatarUploader, IntroUploader, LoadingSpinner } from '@/components';
-import { useLoc, useUser } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 import { motion, type Variants } from 'framer-motion';
 
 // slideInUp 动画变体
@@ -18,7 +18,7 @@ const slideInUp: Variants = {
 
 export default function UserProfilePage() {
   const loc = useLoc();
-  const { user, isLoading } = useUser();
+  const { user, isLoading } = useUserContext();
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;

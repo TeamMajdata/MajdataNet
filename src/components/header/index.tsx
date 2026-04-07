@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useLoc, useUser } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 import { LoadingSpinner } from '@/components';
 import MajdataLogo from './MajdataLogo';
 import DesktopNav from './DesktopNav';
@@ -13,7 +13,7 @@ import AuthSection from './AuthSection';
  */
 export default function UnifiedHeader() {
   const loc = useLoc();
-  const { user, isLoading, error } = useUser();
+  const { user, isLoading, error } = useUserContext();
   const username = user?.username || '';
   const isLoggedIn = !!username && !error;
 

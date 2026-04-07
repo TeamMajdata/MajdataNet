@@ -11,7 +11,7 @@ import remarkGfm from 'remark-gfm';
 import 'github-markdown-css/github-markdown-dark.css';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
-import { useLoc, useUser } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 import { sleep } from '@/utils';
 import remarkCenter from '@/utils/remarkCenter';
 import { LoadingSpinner } from '@/components';
@@ -21,7 +21,7 @@ const fetcher = (url: string) =>
 
 export default function IntroUploader() {
   const loc = useLoc();
-  const { user } = useUser();
+  const { user } = useUserContext();
   const [intro, setIntro] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 

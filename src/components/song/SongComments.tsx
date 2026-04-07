@@ -14,7 +14,7 @@ import { LoadingSpinner } from '@/components';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
-import { useLoc, useUser } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
 import type {
   Comment,
@@ -928,7 +928,7 @@ function CommentThread({
 // ======================== Comment List ========================
 export function CommentList({ songid }: CommentListProps) {
   const loc = useLoc();
-  const { username: currentUser } = useUser();
+  const { username: currentUser } = useUserContext();
   const [replyTargetId, setReplyTargetId] = useState<string | null>(null);
   const [replyThreadId, setReplyThreadId] = useState<string | null>(null);
   const [replyTargetUser, setReplyTargetUser] = useState<string | null>(null);

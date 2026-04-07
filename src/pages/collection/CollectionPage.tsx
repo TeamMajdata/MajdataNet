@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import { PageLayout, SongCard, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import { setLanguage } from '@/utils/i18n';
-import { useLoc, useUser } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 import type { CollectionSongList, Song } from '@/types';
 
 const fetcher = (url: string) =>
@@ -36,7 +36,7 @@ export default function CollectionPage() {
 
 
   // 获取当前用户
-  const { username } = useUser();
+  const { username } = useUserContext();
   const isCreator = !!collectionData && !!username && collectionData.createdBy === username;
 
   // 管理模式状态

@@ -3,4 +3,5 @@
  */
 
 export { useI18n, useLanguageChange, useTranslation, useLoc } from './useI18n';
-export { useUser, useUsername } from './useUser';
+export { useUserContext, useUsername, UserProvider } from './UserContext';
+export { useFavorites } from './useFavorites';

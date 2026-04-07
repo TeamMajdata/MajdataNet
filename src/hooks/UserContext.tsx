@@ -1,18 +1,16 @@
 /**
- * 用户信息 Hook
+ * 用户信息 Context
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { endpoints } from '@/config/api';
-import type { UserInfo, UseUserResult } from '@/types';
+import type { UserInfo, UseUserContextResult } from '@/types';
 
-/**
- * 获取用户信息的 Hook
- * @param autoFetch 是否自动获取（默认true）
- */
-export function useUser(autoFetch = true): UseUserResult {
+const UserContext = createContext<UseUserResult | null>(null);
+
+export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(autoFetch);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchUser = useCallback(async () => {
@@ -31,7 +29,6 @@ export function useUser(autoFetch = true): UseUserResult {
 
       const data = await response.json();
 
-      // 检查返回的数据是否有用户名
       if (data && data.username) {
         setUser(data);
       } else {
@@ -46,25 +43,29 @@ export function useUser(autoFetch = true): UseUserResult {
   }, []);
 
   useEffect(() => {
-    if (autoFetch) {
-      fetchUser();
-    }
-  }, [autoFetch, fetchUser]);
+    fetchUser();
+  }, [fetchUser]);
 
-  return {
-    user,
-    username: user?.username || '',
-    isLoading,
-    error,
-    refetch: fetchUser,
-  };
+  return (
+    <UserContext.Provider value={{ user, username: user?.username || '', isLoading, error, refetch: fetchUser }}>
+      {children}
+    </UserContext.Provider>
+  );
+}
+
+/**
+ * 获取用户信息的 Hook
+ */
+export function useUserContext(): UseUserContextResult {
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error('useUserContext must be used within UserProvider');
+  return ctx;
 }
 
 /**
  * 简化版用户名获取函数（兼容 legacy 版本）
- * 注意：这是一个 Hook，必须在 React 组件中使用
  */
 export function useUsername(): string {
-  const { username } = useUser();
+  const { username } = useUserContext();
   return username;
 }

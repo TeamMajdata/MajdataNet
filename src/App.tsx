@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nProvider } from './contexts/I18nContext';
-import { FavoritesProvider } from './contexts/FavoritesContext';
+import { UserProvider } from './hooks/UserContext';
 import { TooltipProvider } from '@/components';
 import HomePage from './pages/HomePage';
 import ForginsterPage from './pages/ForginsterPage';
@@ -30,34 +30,34 @@ function App() {
     <HelmetProvider>
       <TooltipProvider delayDuration={200}>
         <I18nProvider>
-          <FavoritesProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<ForginsterPage />} />
-              <Route path="/register" element={<ForginsterPage />} />
-              <Route path="/forget" element={<ForginsterPage />} />
-              <Route path="/edit" element={<EditPage />} />
-              <Route path="/play" element={<PlayPage />} />
-              <Route path="/chart-events" element={<EventsPage />} />
-              <Route path="/ranking" element={<RankingPage />} />
-              <Route path="/ranking/user" element={<UserRankingPage />} />
-              <Route path="/ranking/mmfc" element={<MMFCRankingPage />} />
-              <Route path="/song" element={<SongPage />} />
-              <Route path="/space" element={<SpacePage />} />
-              <Route path="/eventTag" element={<EventTagPage />} />
-              <Route path="/user/charts" element={<UserChartsPage />} />
-              <Route path="/user/profile" element={<UserProfilePage />} />
-              <Route path="/user/scores" element={<PersonalScoresPage />} />
-              <Route path="/user/collections" element={<UserCollectionPage />} />
-              <Route path="/minigame" element={<MiniGamePage />} />
-              <Route path="/qrauth" element={<QRAuthPage />} />
-              <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
-              <Route path="/collection" element={<CollectionPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Router>
-          </FavoritesProvider>
+          <UserProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<ForginsterPage />} />
+                <Route path="/register" element={<ForginsterPage />} />
+                <Route path="/forget" element={<ForginsterPage />} />
+                <Route path="/edit" element={<EditPage />} />
+                <Route path="/play" element={<PlayPage />} />
+                <Route path="/chart-events" element={<EventsPage />} />
+                <Route path="/ranking" element={<RankingPage />} />
+                <Route path="/ranking/user" element={<UserRankingPage />} />
+                <Route path="/ranking/mmfc" element={<MMFCRankingPage />} />
+                <Route path="/song" element={<SongPage />} />
+                <Route path="/space" element={<SpacePage />} />
+                <Route path="/eventTag" element={<EventTagPage />} />
+                <Route path="/user/charts" element={<UserChartsPage />} />
+                <Route path="/user/profile" element={<UserProfilePage />} />
+                <Route path="/user/scores" element={<PersonalScoresPage />} />
+                <Route path="/user/collections" element={<UserCollectionPage />} />
+                <Route path="/minigame" element={<MiniGamePage />} />
+                <Route path="/qrauth" element={<QRAuthPage />} />
+                <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
+                <Route path="/collection" element={<CollectionPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Router>
+          </UserProvider>
         </I18nProvider>
       </TooltipProvider>
     </HelmetProvider>

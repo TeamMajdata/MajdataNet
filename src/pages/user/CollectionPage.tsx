@@ -2,8 +2,7 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { PageLayout, LoadingSpinner, CollectionCard, CollectionModal } from '@/components';
 import { endpoints } from '@/config/api';
-import { useLoc, useUser } from '@/hooks';
-import { useFavorites } from '@/contexts/FavoritesContext';
+import { useLoc, useUserContext, useFavorites } from '@/hooks';
 import { motion, type Variants } from 'framer-motion';
 import type { Collection } from '@/types';
 
@@ -24,7 +23,7 @@ const slideInUp: Variants = {
 
 export default function UserCollectionPage() {
   const loc = useLoc();
-  const { user, isLoading: userLoading } = useUser();
+  const { user, isLoading: userLoading } = useUserContext();
   const [activeTab, setActiveTab] = useState<'mine' | 'favorites'>('mine');
   const [isManaging, setIsManaging] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,8 +43,8 @@ export default function UserCollectionPage() {
   });
 
   const { favorites, isLoadingFavorites: favLoading } = useFavorites();
-  const isLastPage = data && data.length < pageSize && data.length > 0;
-  const isFavLastPage = favorites && favorites.length < pageSize && favorites.length > 0;
+  const isLastPage = Boolean(data && data.length < pageSize && data.length > 0);
+  const isFavLastPage = Boolean(favorites && favorites.length < pageSize && favorites.length > 0);
 
   if (userLoading) {
     return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;

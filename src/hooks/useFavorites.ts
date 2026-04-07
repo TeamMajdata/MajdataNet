@@ -1,25 +1,19 @@
-import { createContext, useContext, useMemo, useState, useCallback } from 'react';
+/**
+ * 收藏 Hook - 基于 SWR 的轻量状态管理
+ */
+
+import { useMemo, useState, useCallback } from 'react';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import { endpoints } from '@/config/api';
-import { useLoc, useUser } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 import type { Collection } from '@/types';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
-interface FavoritesContextValue {
-  favoriteIds: Set<string>;
-  favorites: Collection[] | undefined;
-  isLoadingFavorites: boolean;
-  toggleFavorite: (collectionId: string) => Promise<void>;
-  isPending: (id: string) => boolean;
-}
-
-const FavoritesContext = createContext<FavoritesContextValue | null>(null);
-
-export function FavoritesProvider({ children }: { children: React.ReactNode }) {
+export function useFavorites() {
   const loc = useLoc();
-  const { user } = useUser();
+  const { user } = useUserContext();
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
   const { data, isLoading, mutate } = useSWR<Collection[]>(
@@ -64,15 +58,5 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 
   const isPending = useCallback((id: string) => pendingIds.has(id), [pendingIds]);
 
-  return (
-    <FavoritesContext.Provider value={{ favoriteIds, favorites: data, isLoadingFavorites: isLoading, toggleFavorite, isPending }}>
-      {children}
-    </FavoritesContext.Provider>
-  );
-}
-
-export function useFavorites() {
-  const ctx = useContext(FavoritesContext);
-  if (!ctx) throw new Error('useFavorites must be used within FavoritesProvider');
-  return ctx;
+  return { favoriteIds, favorites: data, isLoadingFavorites: isLoading, toggleFavorite, isPending };
 }

@@ -6,8 +6,7 @@ import useSWR from 'swr';
 import { LazyLoad, CoverPic, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import type { Collection, CollectionSongList } from '@/types';
-import { useLoc } from '@/hooks';
-import { useFavorites } from '@/contexts/FavoritesContext';
+import { useLoc, useFavorites } from '@/hooks';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
