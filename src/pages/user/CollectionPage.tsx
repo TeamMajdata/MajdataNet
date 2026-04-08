@@ -50,7 +50,7 @@ export default function UserCollectionPage() {
 
   const tabItems = [
     { key: 'mine' as const, label: loc('MyCollections', '我的歌单') },
-    { key: 'favorites' as const, label: loc('MyFavorites', '我的收藏') },
+    { key: 'favorites' as const, label: loc('MyFavCollections', '我的收藏') },
   ];
 
   return (
@@ -64,7 +64,7 @@ export default function UserCollectionPage() {
           variants={slideInUp}
         >
           <h1 className="font-bold text-white text-2xl md:text-3xl">
-            {activeTab === 'mine' ? loc('MyCollections', '我的歌单') : loc('MyFavorites', '我的收藏')}
+            {activeTab === 'mine' ? loc('MyCollections', '我的歌单') : loc('MyFavCollections', '我的收藏')}
           </h1>
           <div className="flex items-center gap-3">
             {isManaging && (

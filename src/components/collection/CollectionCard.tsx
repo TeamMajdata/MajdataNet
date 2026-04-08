@@ -85,8 +85,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
             <CoverPic id={data.items[currentCoverIndex].id} />
           ) : (
             <div className="flex flex-col justify-center items-center bg-black/60 w-full h-full text-white/50 text-xs">
-              <span>No</span>
-              <span>Cover</span>
+              <span>{loc('NoCover', '无封面')}</span>
             </div>
           )}
         </div>
@@ -97,8 +96,8 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
           <div className="flex-1 mt-1 text-gray-400 line-clamp-2" title={collection.description || ''}>
             {collection.description || loc('NoDescription', '暂无描述')}
           </div>
-          <div className="mt-1 text-gray-500 truncate">Creator: {collection.createdBy}</div>
-          <div className="mt-1 text-gray-500 truncate">Count: {collection.count}</div>
+          <div className="mt-1 text-gray-500 truncate">{loc('CreatorLabel', '创建者')}: {collection.createdBy}</div>
+          <div className="mt-1 text-gray-500 truncate">{loc('CountLabel', '数量')}: {collection.count}</div>
         </div>
       </div>
 

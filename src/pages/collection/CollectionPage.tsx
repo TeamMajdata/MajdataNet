@@ -1,7 +1,3 @@
-/**
- * 歌单详情页 - 显示歌单内所有歌曲，支持创建者管理模式
- */
-
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
