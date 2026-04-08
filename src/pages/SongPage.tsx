@@ -403,7 +403,7 @@ function MajdataView({ data }: { id: string; data: SongSummary }) {
 
   return (
     <div className="w-full">
-      <Majdata songid={o.id} apiroot={endpoints.maichart.prefix('')} level={'lv' + firstNonEmptyIndex} />
+      <Majdata songid={o.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + firstNonEmptyIndex} />
     </div>
   );
 }

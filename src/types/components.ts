@@ -70,7 +70,7 @@ export interface InteractCountProps {
 // ======================== Majdata 组件 ========================
 export interface MajdataProps {
   songid: string;
-  apiroot: string;
+  chartRoot: string;
   level: string;
 }
 

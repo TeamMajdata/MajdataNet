@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-export default function Majdata({ songid, apiroot, level }: MajdataProps) {
+export default function Majdata({ songid, chartRoot: apiroot, level }: MajdataProps) {
   const buildUrl = '/WebGLBuild'; // replace with your CDN
   const hasLoadedRef = useRef(false);
 
@@ -45,7 +45,7 @@ export default function Majdata({ songid, apiroot, level }: MajdataProps) {
       if (!root.startsWith('http')) {
         root = httpprefix + root;
       }
-      const maichart = root + '/maichart/' + songid;
+      const maichart = root + '/' + songid;
       const maidata = maichart + '/chart';
       const track = maichart + '/track';
       const bg = maichart + '/image?fullImage=true';
