@@ -1,5 +1,5 @@
-import { PageLayout, ChartUploader, SongList } from '@/components';
-import { useLoc } from '@/hooks';
+import { PageLayout, ChartUploader, SongList, LoadingSpinner } from '@/components';
+import { useLoc, useUserContext } from '@/hooks';
 import { endpoints } from '@/config/api';
 import { motion, type Variants } from 'framer-motion';
 
@@ -19,7 +19,15 @@ const slideInUp: Variants = {
 
 export default function UserChartsPage() {
   const loc = useLoc();
-
+  const { user, isLoading } = useUserContext();
+  if (isLoading && !user ) {
+      return (
+        <div className="flex justify-center items-center h-screen">
+          <LoadingSpinner size="50px" />
+        </div>
+      );
+  }
+  
   return (
     <PageLayout title={loc('ChartsManagement')} showBackToHome={false}>
       {/* Upload Section */}
@@ -105,7 +113,7 @@ export default function UserChartsPage() {
           </p>
         </div>
         <SongList
-          url={endpoints.maichart.listSearch('uploader:' + user.username)}
+          url={endpoints.maichart.listSearch('uploader:' + user?.username)}
           isManage={true}
         />
       </motion.section>
