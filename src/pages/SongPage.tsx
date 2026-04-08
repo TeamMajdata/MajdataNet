@@ -1,8 +1,3 @@
-/**
- * 歌曲详情页 - 完整迁移
- * 迁移自 legacy/src/app/song/page.jsx
- */
-
 import { useEffect, useState, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { endpoints } from '@/config/api';
