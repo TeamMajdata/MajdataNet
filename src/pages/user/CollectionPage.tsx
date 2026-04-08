@@ -54,7 +54,7 @@ export default function UserCollectionPage() {
   ];
 
   return (
-    <PageLayout title={activeTab === 'mine' ? loc('MyCollections', '我的歌单') : loc('MyFavorites', '我的收藏')} showBackToHome={false}>
+    <PageLayout>
       <div className="mx-auto px-4 py-8 w-full max-w-7xl min-h-screen">
         <motion.div
           className="flex sm:flex-row flex-col justify-between items-start sm:items-center gap-4 mb-8"
