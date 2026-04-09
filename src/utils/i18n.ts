@@ -42,8 +42,6 @@ export async function setLanguage(lang: string): Promise<void> {
     languageCache[langCode] = translations;
     currentLanguage = langCode;
     localStorage.setItem(LANGUAGE_STORAGE_KEY, langCode);
-
-    console.log(`[i18n] Switched to ${langCode}`);
   } catch (error) {
     console.error(`[i18n] Failed to load language: ${langCode}`, error);
     languageCache[langCode] = {}; // 降级到空字典

@@ -1,14 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import { LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
-import type { Collection } from '@/types';
-import { useLoc, useUserContext } from '@/hooks';
-
-const fetcher = (url: string) =>
-  fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
+import { useCollections, useLoc } from '@/hooks';
 
 interface CollectionModalProps {
   isOpen: boolean;
@@ -49,21 +44,24 @@ const listItemVariants = {
 
 export default function CollectionModal({ isOpen, onClose, songHash: songId, onCreate }: CollectionModalProps) {
   const loc = useLoc();
-  const { username } = useUserContext();
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newVisibility, setNewVisibility] = useState<0 | 1>(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [addingId, setAddingId] = useState<string | null>(null);
   const [creatingLoading, setCreatingLoading] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  const { data, error, isLoading, mutate } = useSWR<Collection[]>(
-    username ? endpoints.collection.list(0, 100, username) : null,
-    fetcher,
-    { revalidateOnFocus: false }
-  );
+  const {
+    collections,
+    error,
+    isLoading,
+    isSongInCollection,
+    toggleSongInCollection,
+    isPending,
+    mutateCollections,
+    mutateHashLists,
+  } = useCollections();
 
   // Reset on close
   useEffect(() => {
@@ -73,7 +71,6 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
       setNewName('');
       setNewDescription('');
       setNewVisibility(0);
-      setAddingId(null);
     }
   }, [isOpen]);
 
@@ -90,34 +87,15 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
     return () => window.removeEventListener('keydown', handler);
   }, [isOpen, onClose]);
 
-  const filteredCollections = (data || []).filter((c) => {
+  const filteredCollections = (collections || []).filter((c) => {
     const q = searchQuery.toLowerCase();
     return (c.name || '').toLowerCase().includes(q) || (c.description || '').toLowerCase().includes(q);
   });
 
-  const handleAddToCollection = useCallback(async (collectionId: string) => {
-    if (!songId || addingId) return;
-    setAddingId(collectionId);
-    try {
-      const res = await fetch(endpoints.collection.diff(collectionId), {
-        method: 'POST',
-        mode: 'cors',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ "hashesToAdd": [songId] }),
-      });
-      if (res.ok) {
-        toast.success(loc('AddSuccess', '已添加到收藏夹'));
-        onClose();
-      } else {
-        toast.error(loc('AddFailed', '添加失败'));
-      }
-    } catch {
-      toast.error(loc('AddFailed', '添加失败'));
-    } finally {
-      setAddingId(null);
-    }
-  }, [songId, addingId, onClose, loc]);
+  const handleToggle = useCallback(async (collectionId: string) => {
+    if (!songId) return;
+    await toggleSongInCollection(collectionId, songId);
+  }, [songId, toggleSongInCollection]);
 
   const handleCreate = useCallback(async () => {
     if (!newName.trim() || creatingLoading) return;
@@ -137,7 +115,8 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
         setNewVisibility(0);
         setIsCreating(false);
         setSearchQuery('');
-        mutate();
+        mutateCollections();
+        mutateHashLists();
         onCreate?.();
       } else {
         toast.error(loc('CreateFailed', '创建失败'));
@@ -147,7 +126,7 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
     } finally {
       setCreatingLoading(false);
     }
-  }, [newName, newDescription, newVisibility, creatingLoading, mutate, onCreate, loc]);
+  }, [newName, newDescription, newVisibility, creatingLoading, mutateCollections, mutateHashLists, onCreate, loc]);
 
   const resetCreateForm = () => {
     setIsCreating(false);
@@ -156,11 +135,7 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
     setNewVisibility(0);
   };
 
-  const title = songId
-    ? loc('AddToCollection', '添加到收藏夹')
-    : loc('MyCollections', '我的收藏夹');
-
-  const hasCollections = data && data.length > 0;
+  const hasCollections = collections && collections.length > 0;
 
   return (
     <AnimatePresence>
@@ -181,11 +156,11 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="top-1/2 left-1/2 absolute flex flex-col bg-[rgba(20,20,25,0.95)] shadow-2xl border border-white/10 rounded-2xl w-[90%] max-w-md max-h-[85vh] overflow-hidden -translate-x-1/2 -translate-y-1/2"
+            className="top-1/2 left-1/2 absolute flex flex-col bg-[rgba(20,20,25,0.95)] shadow-2xl border border-white/10 rounded-2xl w-[90%] max-w-md min-h-80 sm:min-h-95 max-h-[85vh] overflow-hidden -translate-x-1/2 -translate-y-1/2"
           >
             {/* Header */}
             <div className="flex justify-between items-center px-5 pt-5 pb-3 shrink-0">
-              <h2 className="font-bold text-white text-xl">{title}</h2>
+              <h2 className="font-bold text-white text-xl">{loc('MyCollections', '我的收藏夹')}</h2>
               <button
                 onClick={onClose}
                 className="flex justify-center items-center hover:bg-white/10 rounded-full w-8 h-8 text-white/60 hover:text-white transition-colors cursor-pointer"
@@ -198,13 +173,7 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
             </div>
 
             {/* Scrollable body */}
-            <div className="flex-1 px-5 pb-2 min-h-0 overflow-y-auto">
-              {isLoading && (
-                <div className="flex justify-center items-center py-16 w-full">
-                  <LoadingSpinner size="36px" />
-                </div>
-              )}
-
+            <div className="relative flex-1 px-5 pb-2 min-h-0 overflow-y-auto">
               {!isLoading && error && (
                 <div className="flex justify-center items-center py-12 w-full">
                   <p className="text-white/40 text-sm">{loc('LoadFailed', '加载失败')}</p>
@@ -247,7 +216,8 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
 
                   <div className="flex flex-col gap-1.5">
                     {filteredCollections.map((collection, index) => {
-                      const isAdding = addingId === collection.id;
+                      const isAdding = isPending(collection.id);
+                      const isInCollection = songId ? isSongInCollection(collection.id, songId) : false;
                       return (
                         <motion.button
                           key={collection.id}
@@ -257,15 +227,22 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
                           animate="visible"
                           whileHover={songId ? { scale: 1.01 } : undefined}
                           whileTap={songId ? { scale: 0.98 } : undefined}
-                          disabled={!!addingId}
-                          onClick={songId ? () => handleAddToCollection(collection.id) : undefined}
+                          disabled={!!isAdding}
+                          onClick={songId ? () => handleToggle(collection.id) : undefined}
                           className={`group flex items-start gap-3 rounded-xl p-3 text-left transition-colors ${songId ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'
-                            } ${isAdding ? 'bg-blue-500/10' : ''}`}
+                            } ${isInCollection ? 'bg-blue-500/10' : ''} ${isAdding ? 'bg-blue-500/10' : ''}`}
                         >
-                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${isAdding ? 'bg-blue-500/15' : 'bg-white/5 group-hover:bg-white/10'
+                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${isAdding ? 'bg-blue-500/15' : isInCollection ? 'bg-blue-500/15' : 'bg-white/5 group-hover:bg-white/10'
                             }`}>
                             {isAdding ? (
                               <LoadingSpinner size="18px" />
+                            ) : isInCollection ? (
+                              <svg
+                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                className="text-blue-400"
+                              >
+                                <path d="M20 6 9 17l-5-5" />
+                              </svg>
                             ) : (
                               <svg
                                 width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -277,7 +254,7 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-white/90 text-sm truncate">
+                            <div className={`font-medium text-sm truncate ${isInCollection ? 'text-blue-300' : 'text-white/90'}`}>
                               {collection.name || loc('UnnamedCollection', '未命名收藏夹')}
                             </div>
                             {collection.description && (
@@ -293,6 +270,24 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
                     })}
                   </div>
                 </>
+              )}
+
+              {isLoading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="z-20 absolute inset-0 flex justify-center items-center bg-black/35 backdrop-blur-[2px]"
+                >
+                  <div className="flex items-center gap-3 bg-[rgba(15,15,20,0.72)] shadow-[0_16px_40px_rgba(0,0,0,0.35)] px-5 py-4 border border-white/10 rounded-2xl">
+                    <LoadingSpinner size="36px" />
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium text-white text-sm">{loc('Loading', '加载中')}</span>
+                      <span className="text-white/45 text-xs">{loc('PleaseWait', '请稍候')}</span>
+                    </div>
+                  </div>
+                </motion.div>
               )}
 
               {/* Create form (collapsible) */}
