@@ -71,7 +71,7 @@ export function useCollections() {
   const isSongInCollection = useCallback(
     (collectionId: string, songHash?: string) => {
       if (!songHash || !hashListMap) return false;
-      return hashListMap[collectionId].includes(songHash) ?? false;
+      return ((collectionId in hashListMap) && (hashListMap[collectionId].includes(songHash))) ?? false;
     },
     [hashListMap]
   );
