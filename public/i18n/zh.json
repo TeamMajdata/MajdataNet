@@ -367,5 +367,6 @@
   "AddFailed": "添加失败",
   "CreateSuccess": "创建成功",
   "CreateFailed": "创建失败",
-  "Submit": "提交"
+  "Submit": "提交",
+  "500UploadErrorAndHint": "上传失败, 请前往主站上传"
 }

@@ -362,5 +362,6 @@
   "Manage": "Manage",
   "ExitManage": "Exit Manage",
   "AllCharts": "All Charts",
-  "RandomRecommend": "Random Recommend"
+  "RandomRecommend": "Random Recommend",
+  "500UploadErrorAndHint": "Upload failed, please go to the main site to upload"
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { endpoints } from '@/config/api';
 import { useLoc } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
@@ -59,10 +59,17 @@ export default function ChartUploader() {
       toast.success(getDisplayMessage(response.data, loc('UploadSuccess', 'Upload succeeded')));
       await sleep(2000);
       window.location.reload();
-    } catch (e: unknown) {
-      const error = e as { response?: { data?: unknown }; message?: string };
-      const message = getDisplayMessage(error.response?.data ?? error.message, loc('UploadFailed', 'Upload failed'));
-      toast.error(message, { autoClose: false });
+    }
+    catch (e: unknown) {
+      if (e instanceof AxiosError && e.response?.status === 500) {
+        toast.error(loc('500UploadErrorAndHint'), { autoClose: false });
+      }
+      else {
+        const error = e as { response?: { data?: unknown }; message?: string };
+        const message = getDisplayMessage(error.response?.data ?? error.message, loc('UploadFailed', 'Upload failed'));
+        toast.error(message, { autoClose: false });
+      }
+
     } finally {
       toast.done(uploading);
       setIsUploading(false);
