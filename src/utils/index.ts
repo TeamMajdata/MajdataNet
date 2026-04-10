@@ -21,6 +21,9 @@ export { scrollToTop, makeLevelClickCallback } from './scrollUtils';
 // 下载工具
 export { downloadSong } from './download';
 
+// HTTP 消息工具
+export { getDisplayMessage } from './httpMessage';
+
 // 国际化工具
 export {
   setLanguage,

@@ -12,7 +12,7 @@ import 'github-markdown-css/github-markdown-dark.css';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { useLoc, useUserContext } from '@/hooks';
-import { sleep } from '@/utils';
+import { getDisplayMessage, sleep } from '@/utils';
 import remarkCenter from '@/utils/remarkCenter';
 import { LoadingSpinner } from '@/components';
 
@@ -41,7 +41,7 @@ export default function IntroUploader() {
   }
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-[200px]"><LoadingSpinner size="50px" /></div>;
+    return <div className="flex justify-center items-center h-50"><LoadingSpinner size="50px" /></div>;
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -71,14 +71,13 @@ export default function IntroUploader() {
         },
         withCredentials: true,
       });
-      toast.done(uploading);
-      toast.success(response.data);
+      toast.success(getDisplayMessage(response.data, loc('UploadSuccess', 'Upload succeeded')));
       await sleep(2000);
       window.location.reload();
     } catch (e: unknown) {
-      toast.done(uploading);
-      const error = e as { response?: { data?: string }; message?: string };
-      toast.error(error.response?.data || error.message || 'Upload failed', { autoClose: false });
+      const error = e as { response?: { data?: unknown }; message?: string };
+      const message = getDisplayMessage(error.response?.data ?? error.message, loc('UploadFailed', 'Upload failed'));
+      toast.error(message, { autoClose: false });
     } finally {
       toast.done(uploading);
       setIsUploading(false);

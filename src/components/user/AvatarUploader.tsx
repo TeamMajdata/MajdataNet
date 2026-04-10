@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { endpoints } from '@/config/api';
 import { useLoc, useUserContext } from '@/hooks';
-import { sleep } from '@/utils';
+import { getDisplayMessage, sleep } from '@/utils';
 import { LoadingSpinner } from '@/components';
 
 export default function AvatarUploader() {
@@ -91,25 +91,18 @@ export default function AvatarUploader() {
         withCredentials: true,
       });
 
-      toast.done(uploading);
-      toast.success(response.data);
+      toast.success(getDisplayMessage(response.data, loc('UploadSuccess', '上传成功')));
       await sleep(2000);
       window.location.reload();
     } catch (e: unknown) {
-      toast.done(uploading);
-
-      const error = e as { response?: { data?: string; status?: number; statusText?: string }; message?: string };
-      let errorMessage = '上传失败';
-      if (error.response?.data) {
-        errorMessage = error.response.data;
-      } else if (error.response?.status) {
-        errorMessage = `上传失败 (${error.response.status}: ${error.response.statusText})`;
-      } else if (error.message) {
-        errorMessage = `上传失败: ${error.message}`;
-      }
-
+      const error = e as { response?: { data?: unknown; status?: number; statusText?: string }; message?: string };
+      const fallbackMessage = error.response?.status
+        ? `上传失败 (${error.response.status}: ${error.response.statusText || 'Unknown'})`
+        : loc('UploadFailed', '上传失败');
+      const errorMessage = getDisplayMessage(error.response?.data ?? error.message, fallbackMessage);
       toast.error(errorMessage, { autoClose: false });
     } finally {
+      toast.done(uploading);
       setIsUploading(false);
     }
   }, [selectedFile, loc]);
@@ -154,8 +147,8 @@ export default function AvatarUploader() {
           <div className="flex flex-col justify-center items-center gap-4">
             <img
               className={`w-40 h-40 rounded-full object-cover border-4 transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${previewUrl
-                  ? 'border-[rgba(59,130,246,0.8)] shadow-[0_6px_25px_rgba(59,130,246,0.5)]'
-                  : 'border-white/20'
+                ? 'border-[rgba(59,130,246,0.8)] shadow-[0_6px_25px_rgba(59,130,246,0.5)]'
+                : 'border-white/20'
                 }`}
               src={previewAvatarUrl}
               alt={loc('PreviewAvatar')}
