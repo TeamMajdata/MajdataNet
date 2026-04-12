@@ -16,6 +16,33 @@ import type { ChartScore, ScoreListProps } from '@/types';
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
+const listSwapVariants = {
+  enter: (direction: number) => ({
+    opacity: 0.34,
+    x: direction > 0 ? 82 : -82,
+    scale: 0.92,
+    rotateX: 0,
+    rotateY: direction > 0 ? -10 : 10,
+    filter: 'blur(3px)'
+  }),
+  center: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    rotateX: 0,
+    rotateY: 0,
+    filter: 'blur(0px)'
+  },
+  exit: (direction: number) => ({
+    opacity: 0.26,
+    x: direction > 0 ? -78 : 78,
+    scale: 0.91,
+    rotateX: 0,
+    rotateY: direction > 0 ? 9 : -9,
+    filter: 'blur(3px)'
+  })
+};
+
 // TabBar 组件 - 等级选择
 function LevelTabBar({
   levels,
@@ -157,9 +184,9 @@ function RankingCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
+      initial={{ opacity: 0, scale: 0.985 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.985 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
       layout
     >
@@ -324,10 +351,81 @@ function RankingList({
   );
 }
 
+function RankingDeckBackdrop({
+  scoreLevels,
+  validLevels,
+  activeLevel,
+  transitionDirection
+}: {
+  scoreLevels: ChartScore[][];
+  validLevels: number[];
+  activeLevel: number;
+  transitionDirection: 1 | -1;
+}) {
+  const stackedLevels = validLevels
+    .filter((level) => level !== activeLevel)
+    .slice(0, 2);
+
+  if (stackedLevels.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="z-10 absolute inset-0 pointer-events-none">
+      {stackedLevels.map((levelIndex, stackIndex) => {
+        const previewScores = scoreLevels[levelIndex] || [];
+        const horizontalOffset = (12 + stackIndex * 16) * transitionDirection;
+
+        return (
+          <motion.div
+            key={`deck-${levelIndex}`}
+            initial={{
+              x: 72 * transitionDirection,
+              y: 18 + stackIndex * 22,
+              scale: 0.97 - stackIndex * 0.04,
+              opacity: 0
+            }}
+            animate={{
+              x: horizontalOffset,
+              y: 18 + stackIndex * 22,
+              scale: 0.97 - stackIndex * 0.04,
+              opacity: 0.52 - stackIndex * 0.14
+            }}
+            exit={{
+              x: 90 * transitionDirection,
+              y: 18 + stackIndex * 22,
+              scale: 0.96 - stackIndex * 0.04,
+              opacity: 0
+            }}
+            transition={{ type: 'spring', stiffness: 220, damping: 28 }}
+            className="top-0 absolute inset-x-6 bg-white/10 backdrop-blur-sm border border-white/18 rounded-2xl overflow-hidden"
+          >
+            <div
+              className="px-2 pb-3"
+              style={{
+                maskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)'
+              }}
+            >
+              <div className="scale-95 origin-top">
+                <RankingList
+                  scores={previewScores}
+                  level={levelIndex}
+                />
+              </div>
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ======================== 主组件 ========================
 export function ScoreRanking({ songid }: ScoreListProps) {
   const loc = useLoc();
   const [activeLevel, setActiveLevel] = useState<number>(0);
+  const [transitionDirection, setTransitionDirection] = useState<1 | -1>(1);
 
   const { data, error, isLoading } = useSWR(
     endpoints.maichart.score(songid),
@@ -353,6 +451,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
   // 如果当前 activeLevel 没有数据，切换到第一个有效等级
   const currentLevelScores = scoreLevels[activeLevel] || [];
   const hasActiveData = currentLevelScores.length > 0;
+  const resolvedActiveLevel = hasActiveData ? activeLevel : (validLevels[0] ?? 0);
 
   React.useEffect(() => {
     if (!hasActiveData && validLevels.length > 0) {
@@ -361,9 +460,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
   }, [hasActiveData, validLevels]);
 
   // 获取当前等级对应的数据
-  const displayScores = hasActiveData
-    ? currentLevelScores
-    : (validLevels.length > 0 ? scoreLevels[validLevels[0]] || [] : []);
+  const displayScores = scoreLevels[resolvedActiveLevel] || [];
 
   // 处理加载状态
   if (error) {
@@ -424,8 +521,12 @@ export function ScoreRanking({ songid }: ScoreListProps) {
       <LevelTabBar
         levels={levels}
         scoreLevels={scoreLevels}
-        activeLevel={hasActiveData ? activeLevel : (validLevels[0] ?? 0)}
+        activeLevel={resolvedActiveLevel}
         onSelect={(level) => {
+          if (level === resolvedActiveLevel) {
+            return;
+          }
+          setTransitionDirection(level > resolvedActiveLevel ? 1 : -1);
           setActiveLevel(level);
         }}
       />
@@ -434,31 +535,60 @@ export function ScoreRanking({ songid }: ScoreListProps) {
       <div className="flex items-center gap-2 px-1">
         <div className="bg-linear-to-b from-white/60 to-white/20 rounded-full w-1 h-4" />
         <span className="font-semibold text-white/70 text-sm">
-          {getLevelName(hasActiveData ? activeLevel : (validLevels[0] ?? 0))}
+          {getLevelName(resolvedActiveLevel)}
           {' · '}
-          <span className="text-white/50">{levels[hasActiveData ? activeLevel : (validLevels[0] ?? 0)] || '-'}</span>
+          <span className="text-white/50">{levels[resolvedActiveLevel] || '-'}</span>
         </span>
       </div>
 
       {/* 排行榜内容 */}
-      <div className="relative min-h-50">
-        <AnimatePresence mode="wait">
-          {hasActiveData ? (
-            <RankingList
-              key={activeLevel}
-              scores={currentLevelScores}
-              level={activeLevel}
-            />
-          ) : validLevels.length > 0 ? (
-            <RankingList
-              key={validLevels[0]}
-              scores={scoreLevels[validLevels[0]] || []}
-              level={validLevels[0]}
-            />
-          ) : (
-            <EmptyState />
-          )}
-        </AnimatePresence>
+      <div className="relative mx-auto w-full max-w-4xl min-h-50" style={{ perspective: 1400 }}>
+        <RankingDeckBackdrop
+          scoreLevels={scoreLevels}
+          validLevels={validLevels}
+          activeLevel={resolvedActiveLevel}
+          transitionDirection={transitionDirection}
+        />
+
+        <div className="z-30 relative bg-white/10 backdrop-blur-sm p-2 border border-white/18 rounded-2xl overflow-hidden">
+          <AnimatePresence mode="wait" custom={transitionDirection}>
+            {validLevels.length > 0 ? (
+              <motion.div
+                key={resolvedActiveLevel}
+                custom={transitionDirection}
+                variants={listSwapVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: 'spring', stiffness: 260, damping: 28 },
+                  opacity: { duration: 0.18 },
+                  scale: { duration: 0.22 },
+                  rotateY: { duration: 0.24 },
+                  filter: { duration: 0.2 }
+                }}
+                className="relative origin-top"
+              >
+                <RankingList
+                  scores={scoreLevels[resolvedActiveLevel] || []}
+                  level={resolvedActiveLevel}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty-state"
+                variants={listSwapVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                custom={transitionDirection}
+                className="relative"
+              >
+                <EmptyState />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
