@@ -15,7 +15,7 @@ import {
   CommentSender,
   CommentList,
   LikeSender,
-  ScoreList,
+  ScoreRanking,
   CollectionModal,
   LoadingSpinner,
 } from '@/components';
@@ -87,7 +87,7 @@ export default function SongPage() {
 
       <SongDetailsContainer id={param} data={songData} />
       <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
-      <ScoreList songid={param} />
+      <ScoreRanking songid={param} />
       <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
       <CommentSender songid={param} />
       <CommentList songid={param} />

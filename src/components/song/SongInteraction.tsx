@@ -1,16 +1,10 @@
-/**
- * SongInteraction 组件 - 歌曲交互（点赞/踩）和成绩榜
- * 迁移自 legacy/src/app/song/page.jsx
- */
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import { LoadingSpinner } from '@/components';
 import { useLoc } from '@/hooks';
-import { getComboState, getLevelName } from '@/utils';
-import type { ChartScore, ScoreListProps, LikeSenderProps } from '@/types';
+import type { LikeSenderProps } from '@/types';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -219,111 +213,6 @@ export function LikeSender({ songid }: LikeSenderProps) {
               </div>
             )}
           </motion.div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-
-export function ScoreList({ songid }: ScoreListProps) {
-  const loc = useLoc();
-  const { data, error, isLoading } = useSWR(
-    endpoints.maichart.score(songid),
-    fetcher,
-    { refreshInterval: 30000 }
-  );
-
-  if (error) {
-    return <div>failed to load</div>;
-  }
-  if (isLoading) {
-    return <div className="flex justify-center items-center py-8"><LoadingSpinner className="border-4 border-white/30 border-t-white rounded-full w-8 h-8" /></div>;
-  }
-  if (data === '' || data === undefined || data.scores === undefined) {
-    return <div>failed to load</div>;
-  }
-
-  const objlist = data.scores.map((p: ChartScore[], index: number) =>
-    p.length !== 0 ? <ScoreListLevel key={index} scores={p} level={index} /> : <React.Fragment key={index}></React.Fragment>
-  );
-
-  return (
-    <div className="w-full">
-      <div>
-        <h2 className="mb-6 font-bold text-white text-2xl">{loc('RankingList')}</h2>
-      </div>
-      <div>{objlist}</div>
-    </div>
-  );
-}
-
-function ScoreListLevel({ scores, level }: { scores: ChartScore[]; level: number }) {
-  return (
-    <div>
-      <p>{getLevelName(level)}</p>
-      {scores.map((o, index) => (
-        <ScoreCard key={index} score={o} index={index} />
-      ))}
-    </div>
-  );
-}
-
-function ScoreCard({ score, index }: { score: ChartScore; index: number }) {
-  const comboState = getComboState(score.comboState);
-  let cardClass = 'flex items-center gap-2 md:gap-4 p-2 md:p-4 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgb(0,0,0,0.3),0_4px_12px_rgb(0,0,0,0.2)] hover:border-white/20 mb-2 md:mb-4';
-
-  if (comboState === 'AP+' || comboState === 'AP') {
-    cardClass += ' border-yellow-500/45 shadow-[0_2px_8px_rgb(0,0,0,0.12),0_0_10px_2px_rgb(251,191,36,0.32),0_0_6px_1px_rgb(251,191,36,0.22),inset_0_0_8px_1px_rgb(251,191,36,0.18)]';
-  } else if (comboState === 'FC+' || comboState === 'FC') {
-    cardClass += ' border-blue-400/45 shadow-[0_2px_8px_rgb(0,0,0,0.12),0_0_10px_2px_rgb(59,130,246,0.32),0_0_6px_1px_rgb(59,130,246,0.22),inset_0_0_8px_1px_rgb(59,130,246,0.18)]';
-  }
-
-  let displayText;
-  if (score.acc < 80) {
-    displayText = 'Failed';
-  } else if (comboState && comboState !== '') {
-    displayText = comboState;
-  } else {
-    displayText = 'Clear';
-  }
-
-  return (
-    <div>
-      <div className={cardClass}>
-        <div className="flex justify-center items-center min-w-12 md:min-w-20 shrink-0">
-          <span className={`text-base md:text-2xl font-bold text-white/80 ${index < 3 ? 'text-amber-400' : ''}`}>
-            #{index + 1}
-          </span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <Link
-            to={'/space?id=' + score.player.username}
-            className="flex items-center gap-2 md:gap-3 text-white no-underline transition-all hover:translate-x-1"
-          >
-            <img
-              className="hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/40 rounded-full w-9 md:w-12 min-w-9 md:min-w-12 h-9 md:h-12 min-h-9 md:min-h-12 object-cover transition-all"
-              src={endpoints.account.icon(score.player.username)}
-              alt={score.player.username}
-            />
-            <div className="flex flex-col flex-1 gap-0.5 md:gap-1 min-w-0">
-              <span className="font-semibold text-white text-sm md:text-lg truncate">{score.player.username}</span>
-            </div>
-          </Link>
-        </div>
-        <div className="flex flex-col items-end gap-0.5 md:gap-1 shrink-0">
-          <div
-            className={`text-base md:text-2xl font-bold text-white ${comboState === 'AP+' || comboState === 'AP'
-                ? 'score-accuracy-ap'
-                : comboState === 'FC+' || comboState === 'FC'
-                  ? 'score-accuracy-fc'
-                  : ''
-              }`}
-          >
-            {score.acc.toFixed(4)}%
-          </div>
-          <div className="font-medium text-white/70 text-xs md:text-sm">{displayText}</div>
         </div>
       </div>
     </div>

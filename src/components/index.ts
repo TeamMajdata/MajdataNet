@@ -39,7 +39,8 @@ export { default as TimelineModal } from './event/TimelineModal';
 // 歌曲详情页组件
 export { default as SongDifficultyLevels } from './song/SongDifficultyLevels';
 export { CommentSender, CommentList } from './song/SongComments';
-export { LikeSender, ScoreList } from './song/SongInteraction';
+export { LikeSender } from './song/SongInteraction';
+export { ScoreRanking } from './song/ScoreRanking';
 
 // 通用 UI
 export { default as Tooltip, TooltipProvider } from './ui/Tooltip';
