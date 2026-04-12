@@ -47,8 +47,6 @@ function App() {
                 <Route path="/space" element={<SpacePage />} />
                 <Route path="/eventTag" element={<EventTagPage />} />
                 <Route path="/minigame" element={<MiniGamePage />} />
-                <Route path="/qrauth" element={<QRAuthPage />} />
-                <Route path="/collection" element={<CollectionPage />} />
                 <Route path="*" element={<NotFoundPage />} />
                 <Route element={<ProtectedRoute />}>
                   <Route path="/user/charts" element={<UserChartsPage />} />
@@ -56,6 +54,8 @@ function App() {
                   <Route path="/user/scores" element={<PersonalScoresPage />} />
                   <Route path="/user/collections" element={<UserCollectionPage />} />
                   <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
+                  <Route path="/collection" element={<CollectionPage />} />
+                  <Route path="/qrauth" element={<QRAuthPage />} />
                 </Route>
               </Routes>
             </Router>
