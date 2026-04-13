@@ -11,6 +11,7 @@ export default function MobileNav() {
   const loc = useLoc();
   const [isMainNavOpen, setIsMainNavOpen] = useState(false);
   const [isMobileRankingsOpen, setIsMobileRankingsOpen] = useState(false);
+  const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
   const containerRef = useRef<HTMLElement>(null);
 
   return (
@@ -26,7 +27,7 @@ export default function MobileNav() {
         </span>
       </button>
 
-      <Dropdown isOpen={isMainNavOpen} onClose={() => { setIsMainNavOpen(false); setIsMobileRankingsOpen(false); }} position="left" containerRef={containerRef}>
+      <Dropdown isOpen={isMainNavOpen} onClose={() => { setIsMainNavOpen(false); setIsMobileRankingsOpen(false); setIsMobileToolsOpen(false); }} position="left" containerRef={containerRef}>
         {/* 榜单项 - 可展开 */}
         <div className="relative">
           <button
@@ -55,11 +56,33 @@ export default function MobileNav() {
           )}
         </div>
 
-        <Link to="/edit" className={MOBILE_DROPDOWN_ITEM}>
-          <span className="w-full text-sm text-center">{loc('ChartEditor')}</span>
-        </Link>
-        <Link to="/play" className={MOBILE_DROPDOWN_ITEM}>
-          <span className="w-full text-sm text-center">MajdataPlay</span>
+        {/* 工具项 - 可展开 */}
+        <div className="relative">
+          <button
+            className={`flex items-center justify-between gap-3 px-5 py-4 text-[#e5e5e5] no-underline text-sm font-medium text-center bg-none border-none cursor-pointer w-full ${isMobileToolsOpen
+              ? 'bg-linear-to-br from-[rgb(59_130_246/15%)] to-[rgb(59_130_246/8%)] text-[#3b82f6]'
+              : 'hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:text-white hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]'
+              }`}
+            onClick={() => setIsMobileToolsOpen(!isMobileToolsOpen)}
+          >
+            <span className="w-full text-sm text-center">工具</span>
+            <span className={`text-2xl font-light ${isMobileToolsOpen ? 'text-[#3b82f6]' : 'text-[#a0a0a0]'}`}>›</span>
+          </button>
+
+          {isMobileToolsOpen && (
+            <div className="flex flex-col items-center bg-black/40 overflow-hidden">
+              <Link to="/edit" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
+                <span className="text-sm text-left">{loc('ChartEditor')}</span>
+              </Link>
+              <Link to="/play" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
+                <span className="text-sm text-left">MajdataPlay</span>
+              </Link>
+            </div>
+          )}
+        </div>
+
+        <Link to="https://docs.majdata.net" className={MOBILE_DROPDOWN_ITEM} target="_blank" rel="noopener noreferrer">
+          <span className="w-full text-sm text-center">文档</span>
         </Link>
         <Link to="/collection/hiroba" className={MOBILE_DROPDOWN_ITEM}>
           <span className="w-full text-sm text-center">{loc('CollectionHiroba')}</span>
