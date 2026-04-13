@@ -1,5 +1,16 @@
 ﻿[
 
+  {
+    "id": "mufc2",
+    "href": "/space?id=",
+    "src": "/events/mufc2.jpg",
+    "alt": "mufc2",
+    "title": "mufc2",
+    "category": 1,
+    "createDate": "2026-04-13",
+    "endDate": "2026-04-26",
+    "description": "高校自制谱竞赛"
+  },
 
   {
     "id": "march",
