@@ -1,5 +1,15 @@
 ﻿[
-
+  {
+    "id": "youming",
+    "href": "/eventTag?id=有明编年史",
+    "src": "/events/youming.png",
+    "alt": "youming",
+    "title": "有明编年史",
+    "category": 3,
+    "createDate": "2026-04-17",
+    "endDate": "2026-05-17",
+    "description": ""
+  },
   {
     "id": "mufc2",
     "href": "/space?id=MUFC2",
@@ -11,7 +21,6 @@
     "endDate": "2026-04-26",
     "description": "高校自制谱竞赛"
   },
-
   {
     "id": "march",
     "href": "/eventTag?id=奇跡の三月",
@@ -23,7 +32,6 @@
     "endDate": "2026-05-02",
     "description": "「三月がずっと続けばいい」"
   },
-
   {
     "id": "majfoon",
     "href": "/eventTag?id=MajFoon",
@@ -35,7 +43,6 @@
     "endDate": "2026-05-01",
     "description": "majnet愚人节区"
   },
-
   {
     "id": "mmfc13",
     "href": "/space?id=mmfc_bot",
