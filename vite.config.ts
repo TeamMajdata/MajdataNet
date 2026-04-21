@@ -51,6 +51,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000, // 将警告阈值提高到 1000 kB
   },
   server: {
+    port: 3000,
     proxy: {
       '/api3': {
         target: 'https://majdata.net',
