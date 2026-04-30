@@ -1,14 +1,14 @@
 ﻿[
   {
-    "id": "youming",
-    "href": "/eventTag?id=有明编年史",
-    "src": "/events/youming.png",
-    "alt": "youming",
-    "title": "有明编年史",
+    "id": "FFMC",
+    "href": "/space?id=FFMC",
+    "src": "/events/ffmc.png",
+    "alt": "ffmc",
+    "title": "FFMC",
     "category": 3,
-    "createDate": "2026-04-17",
-    "endDate": "2026-05-17",
-    "description": ""
+    "createDate": "2026-05-01",
+    "endDate": "2026-05-31",
+    "description": "饭町 & majdata 线下全自制比赛"
   },
   {
     "id": "mufc2",
