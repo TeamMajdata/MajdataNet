@@ -167,6 +167,13 @@ function RankingCard({
 
   const styles = getComboStyles();
 
+  const topThreeAvatarClass =
+    rank === 1
+      ? 'border-amber-400 shadow-[0_0_0_1px_rgb(251_191_36/0.35),0_0_12px_rgb(251_191_36/0.45),0_0_22px_rgb(251_191_36/0.2)]'
+      : rank === 2
+        ? 'border-gray-300 shadow-[0_0_0_1px_rgb(209_213_219/0.35),0_0_12px_rgb(209_213_219/0.4),0_0_22px_rgb(209_213_219/0.18)]'
+        : 'border-amber-600 shadow-[0_0_0_1px_rgb(217_119_6/0.35),0_0_12px_rgb(217_119_6/0.4),0_0_22px_rgb(217_119_6/0.2)]';
+
   // 显示状态文本
   const getDisplayText = () => {
     if (score.acc < 80) return 'Failed';
@@ -222,21 +229,12 @@ function RankingCard({
               className={`
                 w-10 h-10 rounded-full object-cover
                 border-2 transition-all duration-200
-                group-hover:border-white/40 group-hover:scale-105
-                ${rank <= 3 ? 'border-white/30' : 'border-white/20'}
+                group-hover:scale-105
+                ${rank <= 3 ? topThreeAvatarClass : 'border-white/20 group-hover:border-white/40'}
               `}
               src={endpoints.account.icon(score.player.username)}
               alt={score.player.username}
             />
-            {/* Top 3 光环 */}
-            {rank <= 3 && (
-              <div
-                className={`
-                  absolute inset-0 rounded-full blur-xs opacity-50
-                  ${rank === 1 ? 'bg-amber-400' : rank === 2 ? 'bg-gray-300' : 'bg-amber-600'}
-                `}
-              />
-            )}
           </div>
 
           {/* 用户名 */}
@@ -550,7 +548,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
           transitionDirection={transitionDirection}
         />
 
-        <div className="z-30 relative bg-white/10 backdrop-blur-sm p-2 border border-white/18 rounded-2xl overflow-hidden">
+        <div className="z-30 relative overflow-hidden">
           <AnimatePresence mode="wait" custom={transitionDirection}>
             {validLevels.length > 0 ? (
               <motion.div

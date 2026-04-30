@@ -45,8 +45,9 @@ export default function CollectionsHirobaPage() {
     revalidateOnFocus: false,
   });
 
-  const isLastPage = data && data.length < pageSize && data.length > 0;
-  const hasData = data && data.length > 0;
+  const isLastPage = !!data && data.length < pageSize;
+  const hasData = !!data && data.length > 0;
+  const shouldShowPaginator = !isLoading && !isSearching && !error && (hasData || page > 0);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentValue(e.target.value);
@@ -195,7 +196,7 @@ export default function CollectionsHirobaPage() {
         </AnimatePresence>
 
         {/* Paginator */}
-        {hasData && (
+        {shouldShowPaginator && (
           <div className="flex flex-col items-center gap-4 mx-auto mt-12 px-4 max-w-7xl">
             <div className="flex items-center gap-3 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-4 border border-white/10 rounded-xl">
               {/* Prev */}
