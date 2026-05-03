@@ -349,76 +349,6 @@ function RankingList({
   );
 }
 
-function RankingDeckBackdrop({
-  scoreLevels,
-  validLevels,
-  activeLevel,
-  transitionDirection
-}: {
-  scoreLevels: ChartScore[][];
-  validLevels: number[];
-  activeLevel: number;
-  transitionDirection: 1 | -1;
-}) {
-  const stackedLevels = validLevels
-    .filter((level) => level !== activeLevel)
-    .slice(0, 2);
-
-  if (stackedLevels.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="z-10 absolute inset-0 pointer-events-none">
-      {stackedLevels.map((levelIndex, stackIndex) => {
-        const previewScores = scoreLevels[levelIndex] || [];
-        const horizontalOffset = (12 + stackIndex * 16) * transitionDirection;
-
-        return (
-          <motion.div
-            key={`deck-${levelIndex}`}
-            initial={{
-              x: 72 * transitionDirection,
-              y: 18 + stackIndex * 22,
-              scale: 0.97 - stackIndex * 0.04,
-              opacity: 0
-            }}
-            animate={{
-              x: horizontalOffset,
-              y: 18 + stackIndex * 22,
-              scale: 0.97 - stackIndex * 0.04,
-              opacity: 0.52 - stackIndex * 0.14
-            }}
-            exit={{
-              x: 90 * transitionDirection,
-              y: 18 + stackIndex * 22,
-              scale: 0.96 - stackIndex * 0.04,
-              opacity: 0
-            }}
-            transition={{ type: 'spring', stiffness: 220, damping: 28 }}
-            className="top-0 absolute inset-x-6 bg-white/10 backdrop-blur-sm border border-white/18 rounded-2xl overflow-hidden"
-          >
-            <div
-              className="px-2 pb-3"
-              style={{
-                maskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 72%, transparent 100%)'
-              }}
-            >
-              <div className="scale-95 origin-top">
-                <RankingList
-                  scores={previewScores}
-                  level={levelIndex}
-                />
-              </div>
-            </div>
-          </motion.div>
-        );
-      })}
-    </div>
-  );
-}
-
 // ======================== 主组件 ========================
 export function ScoreRanking({ songid }: ScoreListProps) {
   const loc = useLoc();
@@ -541,14 +471,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
 
       {/* 排行榜内容 */}
       <div className="relative mx-auto w-full max-w-4xl min-h-50" style={{ perspective: 1400 }}>
-        <RankingDeckBackdrop
-          scoreLevels={scoreLevels}
-          validLevels={validLevels}
-          activeLevel={resolvedActiveLevel}
-          transitionDirection={transitionDirection}
-        />
-
-        <div className="z-30 relative overflow-hidden">
+        <div className="relative overflow-hidden">
           <AnimatePresence mode="wait" custom={transitionDirection}>
             {validLevels.length > 0 ? (
               <motion.div
