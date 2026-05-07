@@ -1,5 +1,16 @@
 ﻿[
   {
+    "id": "touhou_1",
+    "href": "/space?id=%E4%B8%9C%E6%96%B9%E8%88%9E%E9%9F%B3%E7%A5%AD",
+    "src": "/events/touhou.jpg",
+    "alt": "touhou",
+    "title": "东方舞音祭",
+    "category": 4,
+    "createDate": "2026-05-15",
+    "endDate": "2026-07-10",
+    "description": "东方Project主题的舞萌自制比赛"
+  },
+  {
     "id": "FFMC",
     "href": "/space?id=FFMC",
     "src": "/events/ffmc.png",
