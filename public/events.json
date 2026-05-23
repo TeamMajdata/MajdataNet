@@ -1,4 +1,15 @@
 ﻿[
+    {
+    "id": "hxb2",
+    "href": "/space?id=海鲜杯2",
+    "src": "/events/hxb2.jpg",
+    "alt": "海鲜杯2",
+    "title": "海鲜杯2",
+    "category": 4,
+    "createDate": "2026-05-09",
+    "endDate": "2026-07-12",
+    "description": "同人音乐主题的舞萌自制比赛"
+  },
   {
     "id": "touhou_1",
     "href": "/space?id=%E4%B8%9C%E6%96%B9%E8%88%9E%E9%9F%B3%E7%A5%AD",
