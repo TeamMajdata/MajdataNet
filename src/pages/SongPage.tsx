@@ -20,7 +20,7 @@ import {
   LoadingSpinner,
 } from '@/components';
 import { downloadSong } from '@/utils/download';
-import { stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
+import { parseTmpRichText } from '@/utils/richTextUtils';
 import type { SongDetailsContainerProps, SongSummary } from '@/types';
 
 export default function SongPage() {
