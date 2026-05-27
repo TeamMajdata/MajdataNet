@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad, Tooltip } from '@/components';
 import { endpoints } from '@/config/api';
 import { downloadSong } from '@/utils/download';
+import { stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
 import type { Song } from '@/types';
 import { Link } from 'react-router-dom';
 
@@ -39,7 +40,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
 
   const handleDownload = useCallback(async (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    await downloadSong({ id: song.id, title: song.title, toast });
+    await downloadSong({ id: song.id, title: stripTmpTags(song.title), toast });
   }, [song.id, song.title]);
 
   const link = (to: string, children: React.ReactNode) =>
@@ -60,9 +61,9 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
           )}
 
           <div className="ml-[8.9rem]">
-            <Tooltip content={song.title}>
+            <Tooltip content={stripTmpTags(song.title)}>
               <div className="mb-1.25 font-bold text-base truncate" id={song.id}>
-                {link('/song?id=' + song.id, song.title)}
+                {link('/song?id=' + song.id, parseTmpRichText(song.title))}
               </div>
             </Tooltip>
             <Tooltip content={song.artist}>

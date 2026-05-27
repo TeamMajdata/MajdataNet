@@ -35,6 +35,9 @@ export {
   preloadLanguage,
 } from './i18n';
 
+// TMP 富文本工具
+export { hasTmpTags, stripTmpTags, parseTmpRichText, TmpRichText } from './richTextUtils';
+
 // 活动数据工具
 export {
   getAllEvents,
