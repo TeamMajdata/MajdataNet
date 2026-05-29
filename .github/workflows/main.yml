@@ -22,4 +22,4 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             cd ~
-            sh pull_majnet.sh
+            bash pull_majnet.sh
