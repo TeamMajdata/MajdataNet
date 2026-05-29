@@ -72,8 +72,8 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   }
 
   if (!data || data.length === 0) return <p>{loc('NoRecentRecords', '暂无最近游玩记录')}</p>;
-
-  const list = data.map((recentData) => {
+  const filter_data = data.slice(0,9);
+  const list = filter_data.map((recentData) => {
     const score = convertToScore(recentData);
 
     return (
