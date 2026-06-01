@@ -100,15 +100,56 @@ function SimpleLikeButton({ songid }: { songid: string }) {
 export interface ScoreCardProps {
   score: Score;
   showLikeButton?: boolean;
+  showComboEffects?: boolean;
+  rank?: number | null;
+  rankTotal?: number | null;
 }
 
 /**
  * ScoreCard 组件
  */
-export function ScoreCard({ score, showLikeButton = true }: ScoreCardProps) {
+export function ScoreCard({
+  score,
+  showLikeButton = true,
+  showComboEffects = false,
+  rank,
+  rankTotal
+}: ScoreCardProps) {
+  const comboStateNumber = typeof score.comboState === 'number' ? score.comboState : Number(score.comboState);
+  const comboStateText = comboStateNumber > 0 ? getComboState(comboStateNumber) : '';
+  const isAp = comboStateText === 'AP' || comboStateText === 'AP+';
+  const isFc = comboStateText === 'FC' || comboStateText === 'FC+';
+  const comboCardClass = showComboEffects && isAp
+    ? 'border-amber-400/60 shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_0_22px_rgb(251_191_36/0.28),0_0_42px_rgb(251_191_36/0.14),inset_0_0_18px_rgb(251_191_36/0.16)]'
+    : showComboEffects && isFc
+      ? 'border-blue-400/60 shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_0_20px_rgb(56_189_248/0.26),0_0_40px_rgb(59_130_246/0.14),inset_0_0_18px_rgb(56_189_248/0.14)]'
+      : 'border-white/10 shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset]';
+  const comboGlowClass = showComboEffects && isAp
+    ? 'bg-[radial-gradient(circle_at_88%_15%,rgb(251_191_36/0.24),transparent_34%)]'
+    : showComboEffects && isFc
+      ? 'bg-[radial-gradient(circle_at_88%_15%,rgb(56_189_248/0.22),transparent_34%)]'
+      : '';
+  const scoreTextClass = showComboEffects && isAp
+    ? 'text-amber-300 drop-shadow-[0_0_10px_rgb(251_191_36/0.45)]'
+    : showComboEffects && isFc
+      ? 'text-sky-300 drop-shadow-[0_0_10px_rgb(56_189_248/0.42)]'
+      : '';
+  const comboBadgeClass = showComboEffects && isAp
+    ? 'bg-gradient-to-r from-amber-400 to-yellow-300 text-black shadow-[0_0_12px_rgb(251_191_36/0.44)]'
+    : showComboEffects && isFc
+      ? 'bg-gradient-to-r from-blue-500 to-sky-300 text-white shadow-[0_0_12px_rgb(56_189_248/0.42)]'
+      : 'bg-white/15 text-white/85';
+
   return (
     <LazyLoad height={165} width={352} offset={300}>
-      <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-[20rem] h-40 overflow-hidden transition-transform hover:-translate-y-1.25 duration-250 ease-in-out">
+      <div
+        className={`
+          relative bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass}
+          ${comboCardClass}
+          m-auto p-[0.8rem] border rounded-[10px] w-[20rem] h-40 overflow-hidden
+          transition-transform hover:-translate-y-1.25 duration-250 ease-in-out
+        `}
+      >
         <CoverPic id={score.chartInfo.id} />
         <div className="ml-[8.9rem]">
           <div className="mb-1.25 font-bold text-base truncate">
@@ -143,13 +184,26 @@ export function ScoreCard({ score, showLikeButton = true }: ScoreCardProps) {
             isPlayer={false}
           />
 
-          <div className="flex flex-wrap gap-1 mt-1">
+          <div className="flex flex-wrap items-center gap-1 mt-1">
             <div
-              className="float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none"
+              className={`float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none ${scoreTextClass}`}
               title={`DX: ${score.acc.dx.toFixed(4)}`}
             >
-              {score.acc.dx.toFixed(4) + (score.comboState > 0 && typeof score.comboState === 'number' ? ` ${getComboState(score.comboState)}` : '')}
+              {score.acc.dx.toFixed(4)}
             </div>
+            {comboStateText && (
+              <span className={`rounded px-1.5 py-0.5 text-[0.65rem] font-bold leading-none ${comboBadgeClass}`}>
+                {comboStateText}
+              </span>
+            )}
+            {rank && (
+              <span
+                className="rounded bg-gradient-to-r from-yellow-300 to-amber-500 px-1.5 py-0.5 text-[0.65rem] font-bold leading-none text-black shadow-[0_0_12px_rgb(251_191_36/0.35)]"
+                title={rankTotal ? `#${rank} / ${rankTotal}` : `#${rank}`}
+              >
+                #{rank}
+              </span>
+            )}
           </div>
 
           {showLikeButton && (
