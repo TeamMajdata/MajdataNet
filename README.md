@@ -16,28 +16,6 @@ MajdataNet v2. 你可以在 [Branch Legacy](https://github.com/TeamMajdata/Majda
 - Framer Motion (动画)
 - i18n (国际化支持)
 
-## 主要功能
-
-### 核心功能
-- 谱面上传与管理
-- 谱面浏览与下载
-- 谱面评论与互动
-- 用户注册与登录
-- 个人空间管理
-
-### 社区功能
-- 活动系统与活动标签
-- 排行榜系统
-- MMFC (Full Combo) 排行榜
-- 用户排行榜
-- 谱面互动计数
-
-### 其他功能
-- 小游戏集成
-- 多语言支持 (中文、英文、日文、韩文)
-- PWA支持
-- 响应式设计
-
 ## 快速开始
 
 ### 环境要求
@@ -57,7 +35,7 @@ pnpm install
 pnpm dev
 ```
 
-访问 http://localhost:5173 查看应用。
+访问 <http://localhost:3000> 查看应用。
 
 ### 构建生产版本
 
@@ -179,7 +157,9 @@ API相关配置位于 `src/config/` 目录：
 
 ## 许可证
 
-本项目仅供学习交流使用。
+[GNU](./LICENSE)
+
+gitattributes file is from [gitattributes/gitattributes](https://github.com/gitattributes/gitattributes/blob/master/Web.gitattributes)
 
 ## 联系方式
 

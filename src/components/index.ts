@@ -52,3 +52,5 @@ export { default as CollectionModal } from './collection/CollectionModal';
 
 // 路由守卫
 export { default as ProtectedRoute } from './ProtectedRoute';
+
+export { default as ScrollToTopListener } from './ScrollToTopListener';

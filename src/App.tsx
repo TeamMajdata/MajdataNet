@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nProvider } from './contexts/I18nContext';
 import { UserProvider } from '@/contexts/UserContext';
-import { TooltipProvider, ProtectedRoute } from '@/components';
+import { TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
 import HomePage from './pages/HomePage';
 import ForginsterPage from './pages/ForginsterPage';
 import EditPage from './pages/EditPage';
@@ -32,6 +32,7 @@ function App() {
         <I18nProvider>
           <UserProvider>
             <Router>
+              <ScrollToTopListener />
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<ForginsterPage />} />
