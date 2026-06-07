@@ -226,7 +226,11 @@ export default function PersonalScoresPage() {
               transition={{ duration: 0.3 }}
               className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
             >
-              <ScoreCard score={score} showLikeButton={true} />
+              <ScoreCard
+                score={score}
+                showLikeButton={true}
+                showComboEffects={true}
+              />
             </motion.div>
           ))}
         </div>
