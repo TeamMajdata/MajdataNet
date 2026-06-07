@@ -230,6 +230,7 @@ export default function PersonalScoresPage() {
                 score={score}
                 showLikeButton={true}
                 showComboEffects={true}
+                showRank={true}
               />
             </motion.div>
           ))}

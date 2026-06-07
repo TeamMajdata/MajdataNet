@@ -3,86 +3,14 @@ import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { ScoreCard, LoadingSpinner } from '@/components';
 import { useLoc } from '@/hooks';
-import type { ChartScore, RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
+import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
 import { motion } from 'framer-motion';
 import RecentActivityChart, { parseRecentTime } from '@/components/chart/RecentActivityChart';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type RecentRank = {
-  rank: number;
-  total: number;
-};
-
-type ChartScorePayload = {
-  scores?: ChartScore[][];
-};
 
 // ─── Fetcher ──────────────────────────────────────────────────────────────────
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
-
-// ─── Rank helpers ─────────────────────────────────────────────────────────────
-
-function findUserRank(
-  payload: ChartScorePayload | null,
-  username: string,
-  levelIndex: number
-): RecentRank | null {
-  if (!payload?.scores || !Array.isArray(payload.scores)) return null;
-
-  const target = username.trim().toLowerCase();
-  const candidateIndexes = [
-    levelIndex,
-    ...payload.scores.map((_, index) => index).filter((index) => index !== levelIndex),
-  ].filter((index) => index >= 0 && index < payload.scores!.length);
-
-  for (const index of candidateIndexes) {
-    const scoreList = payload.scores[index];
-    if (!Array.isArray(scoreList)) continue;
-
-    const rankIndex = scoreList.findIndex((score) =>
-      score.player?.username?.trim().toLowerCase() === target
-    );
-    if (rankIndex !== -1) {
-      return {
-        rank: rankIndex + 1,
-        total: scoreList.length,
-      };
-    }
-  }
-
-  return null;
-}
-
-async function fetchRecentRanks(
-  username: string,
-  records: RecentPlayedData[]
-): Promise<Record<string, RecentRank>> {
-  const uniqueRecords = Array.from(
-    new Map(records.map((record) => [`${record.chartId}:${record.level}`, record])).values()
-  );
-  const rankEntries = await Promise.all(
-    uniqueRecords.map(async (record) => {
-      try {
-        const payload = await fetch(endpoints.maichart.score(record.chartId), {
-          mode: 'cors',
-          credentials: 'include',
-        }).then((res) => res.json() as Promise<ChartScorePayload>);
-        const rank = findUserRank(payload, username, parseInt(record.level));
-        return [`${record.chartId}:${record.level}`, rank] as const;
-      } catch {
-        return [`${record.chartId}:${record.level}`, null] as const;
-      }
-    })
-  );
-
-  return rankEntries.reduce<Record<string, RecentRank>>((acc, [key, rank]) => {
-    if (rank) acc[key] = rank;
-    return acc;
-  }, {});
-}
 
 // ─── Data conversion ─────────────────────────────────────────────────────────
 
@@ -150,13 +78,6 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
 
   const displayData = useMemo(() => sortedData.slice(0, 9), [sortedData]);
 
-  const rankKey = displayData.map((record) => `${record.chartId}:${record.level}`).join('|');
-  const { data: rankMap } = useSWR(
-    displayData.length > 0 ? ['recent-ranks', username, rankKey] : null,
-    () => fetchRecentRanks(username, displayData),
-    { revalidateOnFocus: false }
-  );
-
   // ── Loading / Error / Empty ──────────────────────────────────────────────
 
   if (error) {
@@ -183,7 +104,6 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
 
   const scoreCards = displayData.map((recentData, index) => {
     const score = convertToScore(recentData);
-    const rank = rankMap?.[`${recentData.chartId}:${recentData.level}`] ?? null;
 
     return (
       <motion.div
@@ -197,8 +117,8 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
           score={score}
           showLikeButton={true}
           showComboEffects={true}
-          rank={rank?.rank}
-          rankTotal={rank?.total}
+          showRank={true}
+          rankUsername={username}
         />
       </motion.div>
     );

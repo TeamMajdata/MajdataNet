@@ -3,7 +3,7 @@
  * 展示单个成绩的卡片
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
@@ -11,15 +11,12 @@ import { LoadingSpinner } from '@/components';
 import { CoverPic, Level, LazyLoad } from '@/components';
 import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';
-import { useLoc } from '@/hooks';
-import type { Score } from '@/types';
+import { useLoc, useUsername } from '@/hooks';
+import type { Score, ChartScore } from '@/types';
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
 
-/**
- * 简化的点赞按钮组件
- */
 function SimpleLikeButton({ songid }: { songid: string }) {
   const loc = useLoc();
   const [isLoading, setIsLoading] = useState(false);
@@ -97,12 +94,43 @@ function SimpleLikeButton({ songid }: { songid: string }) {
   );
 }
 
+/**
+ * 从谱面成绩列表中查找指定用户的排名
+ */
+function findUserRank(
+  payload: { scores?: ChartScore[][] } | null,
+  username: string,
+  levelIndex: number
+): { rank: number; total: number } | null {
+  if (!payload?.scores || !Array.isArray(payload.scores)) return null;
+
+  const target = username.trim().toLowerCase();
+  const candidateIndexes = [
+    levelIndex,
+    ...payload.scores.map((_, index) => index).filter((index) => index !== levelIndex),
+  ].filter((index) => index >= 0 && index < payload.scores.length);
+
+  for (const index of candidateIndexes) {
+    const scoreList = payload.scores[index];
+    if (!Array.isArray(scoreList)) continue;
+
+    const rankIndex = scoreList.findIndex(
+      (score) => score.player?.username?.trim().toLowerCase() === target
+    );
+    if (rankIndex !== -1) {
+      return { rank: rankIndex + 1, total: scoreList.length };
+    }
+  }
+
+  return null;
+}
+
 export interface ScoreCardProps {
   score: Score;
   showLikeButton?: boolean;
   showComboEffects?: boolean;
-  rank?: number | null;
-  rankTotal?: number | null;
+  showRank?: boolean;
+  rankUsername?: string;
 }
 
 /**
@@ -112,9 +140,30 @@ export function ScoreCard({
   score,
   showLikeButton = true,
   showComboEffects = false,
-  rank,
-  rankTotal
+  showRank = false,
+  rankUsername,
 }: ScoreCardProps) {
+  const currentUsername = useUsername();
+  const targetUsername = rankUsername || currentUsername;
+
+  const { data: chartScores } = useSWR(
+    showRank && targetUsername ? endpoints.maichart.score(score.chartInfo.id) : null,
+    fetcher
+  );
+
+  // 计算最终使用的排名信息
+  const resolvedRank = useMemo(() => {
+    if (!showRank || !chartScores || !targetUsername) return null;
+    const result = findUserRank(chartScores, targetUsername, score.chartLevel);
+    return result?.rank ?? null;
+  }, [showRank, chartScores, targetUsername, score.chartLevel]);
+
+  const resolvedRankTotal = useMemo(() => {
+    if (!showRank || !chartScores || !targetUsername) return null;
+    const result = findUserRank(chartScores, targetUsername, score.chartLevel);
+    return result?.total ?? null;
+  }, [showRank, chartScores, targetUsername, score.chartLevel]);
+
   const comboStateNumber = typeof score.comboState === 'number' ? score.comboState : Number(score.comboState);
   const comboStateText = comboStateNumber > 0 ? getComboState(comboStateNumber) : '';
   const isAp = comboStateText === 'AP' || comboStateText === 'AP+';
@@ -196,12 +245,12 @@ export function ScoreCard({
                 {comboStateText}
               </span>
             )}
-            {rank && (
+            {resolvedRank && (
               <span
-                className="rounded bg-gradient-to-r from-yellow-300 to-amber-500 px-1.5 py-0.5 text-[0.65rem] font-bold leading-none text-black shadow-[0_0_12px_rgb(251_191_36/0.35)]"
-                title={rankTotal ? `#${rank} / ${rankTotal}` : `#${rank}`}
+                className="bg-linear-to-r from-yellow-300 to-amber-500 shadow-[0_0_12px_rgb(251_191_36/0.35)] px-1.5 py-0.5 rounded font-bold text-[0.65rem] text-black leading-none"
+                title={resolvedRankTotal ? `#${resolvedRank} / ${resolvedRankTotal}` : `#${resolvedRank}`}
               >
-                #{rank}
+                #{resolvedRank}
               </span>
             )}
           </div>
