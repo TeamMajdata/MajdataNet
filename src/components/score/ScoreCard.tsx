@@ -102,16 +102,17 @@ function findUserRank(
   username: string,
   levelIndex: number
 ): { rank: number; total: number } | null {
-  if (!payload?.scores || !Array.isArray(payload.scores)) return null;
+  const scores = payload?.scores;
+  if (!scores || !Array.isArray(scores)) return null;
 
   const target = username.trim().toLowerCase();
   const candidateIndexes = [
     levelIndex,
-    ...payload.scores.map((_, index) => index).filter((index) => index !== levelIndex),
-  ].filter((index) => index >= 0 && index < payload.scores.length);
+    ...scores.map((_, index) => index).filter((index) => index !== levelIndex),
+  ].filter((index) => index >= 0 && index < scores.length);
 
   for (const index of candidateIndexes) {
-    const scoreList = payload.scores[index];
+    const scoreList = scores[index];
     if (!Array.isArray(scoreList)) continue;
 
     const rankIndex = scoreList.findIndex(
