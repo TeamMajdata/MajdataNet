@@ -42,6 +42,9 @@ export { CommentSender, CommentList } from './song/SongComments';
 export { LikeSender } from './song/SongInteraction';
 export { ScoreRanking } from './song/ScoreRanking';
 
+// 图表组件
+export { default as RecentActivityChart } from './chart/RecentActivityChart';
+
 // 通用 UI
 export { default as Tooltip, TooltipProvider } from './ui/Tooltip';
 export { default as LazyLoad } from './ui/LazyLoad';
