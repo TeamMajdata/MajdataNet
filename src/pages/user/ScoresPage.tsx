@@ -1,14 +1,10 @@
-/**
- * 个人成绩页面
- * 展示用户所有成绩，支持多种排序方式
- */
-
 import React, { useState, useMemo, useEffect } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { ScoreCard, PageLayout, LoadingSpinner } from '@/components';
 import { useLoc } from '@/hooks';
 import type { Score } from '@/types';
+import { ComboState } from '@/types';
 import { motion, type Variants } from 'framer-motion';
 
 // 动画变体
@@ -32,6 +28,56 @@ type SortOption = 'timestamp' | 'dxAcc' | 'dxScore' | 'comboState' | 'classicAcc
 
 const ITEMS_PER_PAGE = 18;
 
+// ---- ComboState 筛选相关 ----
+
+type ComboStateFilter = 'apPlus' | 'ap' | 'fcPlus' | 'fc' | 'notFc';
+
+const COMBO_FILTER_STORAGE_KEY = 'majdata_scores_combo_filter';
+
+const ALL_COMBO_FILTERS: ComboStateFilter[] = ['apPlus', 'ap', 'fcPlus', 'fc', 'notFc'];
+
+const COMBO_FILTER_LABELS: Record<ComboStateFilter, string> = {
+  apPlus: 'AP+',
+  ap: 'AP',
+  fcPlus: 'FC+',
+  fc: 'FC',
+  notFc: '未FC',
+};
+
+/** 筛选芯片激活态颜色，参照 ScoreCard 的 comboBadgeClass */
+const COMBO_FILTER_COLORS: Record<ComboStateFilter, string> = {
+  apPlus: 'bg-gradient-to-r from-amber-400 to-yellow-300 text-black shadow-[0_0_10px_rgb(251_191_36/0.35)]',
+  ap: 'bg-gradient-to-r from-amber-400/80 to-yellow-300/80 text-black shadow-[0_0_8px_rgb(251_191_36/0.25)]',
+  fcPlus: 'bg-gradient-to-r from-blue-500 to-sky-300 text-white shadow-[0_0_10px_rgb(56_189_248/0.35)]',
+  fc: 'bg-gradient-to-r from-blue-500/80 to-sky-300/80 text-white shadow-[0_0_8px_rgb(56_189_248/0.25)]',
+  notFc: 'bg-slate-600 text-white shadow-lg',
+};
+
+const loadComboFilter = (): ComboStateFilter[] => {
+  try {
+    const stored = localStorage.getItem(COMBO_FILTER_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch { return [...ALL_COMBO_FILTERS]; }
+  return [...ALL_COMBO_FILTERS];
+};
+
+const saveComboFilter = (filters: ComboStateFilter[]) => {
+  localStorage.setItem(COMBO_FILTER_STORAGE_KEY, JSON.stringify(filters));
+};
+
+/** 将 comboState 数值映射到筛选分组 */
+const toFilterKey = (comboState: number): ComboStateFilter | null => {
+  if (comboState === ComboState.APPlus) return 'apPlus';
+  if (comboState === ComboState.AP) return 'ap';
+  if (comboState === ComboState.FCPlus) return 'fcPlus';
+  if (comboState === ComboState.FC) return 'fc';
+  if (comboState === ComboState.None) return 'notFc';
+  return null;
+};
+
 /**
  * 个人成绩页面组件
  */
@@ -39,6 +85,7 @@ export default function PersonalScoresPage() {
   const loc = useLoc();
   const [sortBy, setSortBy] = useState<SortOption>('timestamp');
   const [currentPage, setCurrentPage] = useState(1);
+  const [comboFilter, setComboFilter] = useState<ComboStateFilter[]>(loadComboFilter);
 
   const { data, error, isLoading } = useSWR<Score[]>(
     endpoints.account.scores,
@@ -50,29 +97,34 @@ export default function PersonalScoresPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
+  // 按 Combo 状态筛选后的数据
+  const filteredData = useMemo(() => {
+    if (!data) return [];
+    return data.filter((score) => {
+      const state = typeof score.comboState === 'number' ? score.comboState : Number(score.comboState);
+      const key = toFilterKey(state);
+      return key !== null && comboFilter.includes(key);
+    });
+  }, [data, comboFilter]);
+
   // 排序后的数据
   const sortedData = useMemo(() => {
-    if (!data) return [];
+    if (!filteredData.length) return [];
 
-    const sorted = [...data];
+    const sorted = [...filteredData];
 
     switch (sortBy) {
       case 'timestamp':
-        // 按最后游玩时间降序（最新的在前）
         return sorted.sort((a, b) =>
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
         );
       case 'dxAcc':
-        // 按DX准确率降序
         return sorted.sort((a, b) => b.acc.dx - a.acc.dx);
       case 'classicAcc':
-        // 按Classic准确率降序
         return sorted.sort((a, b) => b.acc.classic - a.acc.classic);
       case 'dxScore':
-        // 按DX分数降序
         return sorted.sort((a, b) => b.dxScore - a.dxScore);
       case 'comboState':
-        // 按Combo状态降序
         return sorted.sort((a, b) => {
           const stateA = typeof a.comboState === 'number' ? a.comboState : 0;
           const stateB = typeof b.comboState === 'number' ? b.comboState : 0;
@@ -81,13 +133,23 @@ export default function PersonalScoresPage() {
       default:
         return sorted;
     }
-  }, [data, sortBy]);
+  }, [filteredData, sortBy]);
 
-  // 计算总成绩（所有acc.dx的总和）
-  const totalScore = useMemo(() => {
-    if (!data) return 0;
-    return data.reduce((sum, score) => sum + score.acc.dx, 0);
-  }, [data]);
+  // 统计：筛选后数据的各项合计
+  const totalDxAcc = useMemo(() => {
+    if (!filteredData.length) return 0;
+    return filteredData.reduce((sum, score) => sum + score.acc.dx, 0);
+  }, [filteredData]);
+
+  const totalClassicAcc = useMemo(() => {
+    if (!filteredData.length) return 0;
+    return filteredData.reduce((sum, score) => sum + score.acc.classic, 0);
+  }, [filteredData]);
+
+  const totalDxScoreSum = useMemo(() => {
+    if (!filteredData.length) return 0;
+    return filteredData.reduce((sum, score) => sum + score.dxScore, 0);
+  }, [filteredData]);
 
   // 分页数据
   const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
@@ -100,6 +162,18 @@ export default function PersonalScoresPage() {
   // 切换排序方式时重置到第一页
   const handleSortChange = (newSort: SortOption) => {
     setSortBy(newSort);
+    setCurrentPage(1);
+  };
+
+  // 切换筛选条件时重置到第一页，并持久化到 localStorage
+  const handleFilterToggle = (filter: ComboStateFilter) => {
+    setComboFilter((prev) => {
+      const next = prev.includes(filter)
+        ? prev.filter((f) => f !== filter)
+        : [...prev, filter];
+      saveComboFilter(next);
+      return next;
+    });
     setCurrentPage(1);
   };
 
@@ -133,7 +207,6 @@ export default function PersonalScoresPage() {
     );
   }
 
-
   return (
     <PageLayout className="pb-8">
       <motion.section
@@ -147,25 +220,37 @@ export default function PersonalScoresPage() {
           {loc('PersonalScores', '我的成绩')}
         </h1>
 
-        {/* 总成绩显示 */}
-        <div className="mb-6 text-center">
-          <div className="inline-block bg-linear-to-r from-purple-500/20 to-blue-500/20 shadow-lg backdrop-blur-sm px-8 py-4 border border-white/20 rounded-2xl">
-            <div className="mb-1 text-gray-300 text-sm">{loc('TotalDxScore', '总成绩')}</div>
-            <div className="font-bold text-white text-3xl">{totalScore.toFixed(4)}</div>
+        {/* 统计数据卡片 — 基于筛选后数据 */}
+        <div className="gap-3 grid grid-cols-2 lg:grid-cols-4 mx-auto mb-6 max-w-3xl">
+          <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
+            <div className="mb-1 text-gray-400 text-xs tracking-wide">{loc('TotalDxAcc', 'DX准确率合计')}</div>
+            <div className="font-bold tabular-nums text-purple-400 text-xl sm:text-2xl">{totalDxAcc.toFixed(4)}</div>
+          </div>
+          <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
+            <div className="mb-1 text-gray-400 text-xs tracking-wide">{loc('TotalClassicAcc', 'Classic准确率合计')}</div>
+            <div className="font-bold tabular-nums text-emerald-400 text-xl sm:text-2xl">{totalClassicAcc.toFixed(4)}</div>
+          </div>
+          <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
+            <div className="mb-1 text-gray-400 text-xs tracking-wide">{loc('TotalDxScore', 'DX分数合计')}</div>
+            <div className="font-bold tabular-nums text-amber-400 text-xl sm:text-2xl">{totalDxScoreSum.toFixed(0)}</div>
+          </div>
+          <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
+            <div className="mb-1 text-gray-400 text-xs tracking-wide">{loc('FilteredCount', '筛选结果')}</div>
+            <div className="font-bold tabular-nums text-white text-xl sm:text-2xl">{filteredData.length}</div>
           </div>
         </div>
 
-        {/* 排序选择器 */}
-        <div className="flex flex-wrap justify-center items-center gap-4 mx-auto mb-8 max-w-4xl">
-          <span className="font-medium text-white">
-            {loc('SortBy', '排序方式')}
+        {/* 第一行：排序依据 */}
+        <div className="flex flex-wrap justify-center items-center gap-4 mx-auto mb-4 max-w-4xl">
+          <span className="font-medium text-white text-sm">
+            {loc('SortBy', '排序依据')}
           </span>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handleSortChange('timestamp')}
               className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'timestamp'
-                  ? 'bg-blue-500 text-white shadow-lg'
-                  : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
+                ? 'bg-blue-500 text-white shadow-lg'
+                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
               {loc('SortByTime', '游玩时间')}
@@ -173,8 +258,8 @@ export default function PersonalScoresPage() {
             <button
               onClick={() => handleSortChange('dxAcc')}
               className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'dxAcc'
-                  ? 'bg-blue-500 text-white shadow-lg'
-                  : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
+                ? 'bg-blue-500 text-white shadow-lg'
+                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
               {loc('SortByDxAcc', 'DX准确率')}
@@ -182,8 +267,8 @@ export default function PersonalScoresPage() {
             <button
               onClick={() => handleSortChange('classicAcc')}
               className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'classicAcc'
-                  ? 'bg-blue-500 text-white shadow-lg'
-                  : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
+                ? 'bg-blue-500 text-white shadow-lg'
+                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
               {loc('SortByClassicAcc', 'Classic准确率')}
@@ -191,8 +276,8 @@ export default function PersonalScoresPage() {
             <button
               onClick={() => handleSortChange('dxScore')}
               className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'dxScore'
-                  ? 'bg-blue-500 text-white shadow-lg'
-                  : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
+                ? 'bg-blue-500 text-white shadow-lg'
+                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
               {loc('SortByDxScore', 'DX分数')}
@@ -200,12 +285,36 @@ export default function PersonalScoresPage() {
             <button
               onClick={() => handleSortChange('comboState')}
               className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'comboState'
-                  ? 'bg-blue-500 text-white shadow-lg'
-                  : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
+                ? 'bg-blue-500 text-white shadow-lg'
+                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
               {loc('SortByCombo', 'Combo状态')}
             </button>
+          </div>
+        </div>
+
+        {/* 第二行：Combo状态筛选 */}
+        <div className="flex flex-wrap justify-center items-center gap-4 mx-auto mb-8 max-w-4xl">
+          <span className="font-medium text-white text-sm">
+            {loc('FilterByCombo', 'Combo筛选')}
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {ALL_COMBO_FILTERS.map((filter) => {
+              const isActive = comboFilter.includes(filter);
+              return (
+                <button
+                  key={filter}
+                  onClick={() => handleFilterToggle(filter)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${isActive
+                    ? COMBO_FILTER_COLORS[filter]
+                    : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
+                    }`}
+                >
+                  {COMBO_FILTER_LABELS[filter]}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -216,118 +325,114 @@ export default function PersonalScoresPage() {
           }}
         />
 
-        {/* 成绩卡片列表 */}
-        <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
-          {paginatedData.map((score) => (
-            <motion.div
-              key={`${score.hash}-${score.timestamp}`}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
-            >
-              <ScoreCard
-                score={score}
-                showLikeButton={true}
-                showComboEffects={true}
-                showRank={true}
-              />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* 分页控件 */}
-        {totalPages > 1 && (
-          <motion.div
-            className="flex flex-col gap-4 mx-auto mt-8 max-w-4xl"
-            initial="hidden"
-            animate="visible"
-            custom={0.3}
-            variants={slideInUp}
-          >
-            {/* 显示当前范围 */}
-            <div className="text-gray-400 text-sm text-center">
-              显示 {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, sortedData.length)} / {sortedData.length} 条成绩
+        {/* 成绩卡片列表 / 无筛选结果提示 */}
+        {filteredData.length === 0 ? (
+          <div className="py-16 text-center">
+            <p className="text-gray-400 text-lg">
+              {loc('NoFilterResults', '没有符合筛选条件的成绩')}
+            </p>
+            <p className="mt-2 text-gray-500 text-sm">
+              {loc('NoFilterResultsHint', '请尝试调整上方的 Combo 筛选条件')}
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+              {paginatedData.map((score) => (
+                <motion.div
+                  key={`${score.hash}-${score.timestamp}`}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
+                >
+                  <ScoreCard
+                    score={score}
+                    showLikeButton={true}
+                    showComboEffects={true}
+                    showRank={true}
+                  />
+                </motion.div>
+              ))}
             </div>
 
-            <div className="flex flex-wrap justify-center items-center gap-2">
-              <button
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-                className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
+            {/* 分页控件 */}
+            {totalPages > 1 && (
+              <motion.div
+                className="flex flex-col gap-4 mx-auto mt-8 max-w-4xl"
+                initial="hidden"
+                animate="visible"
+                custom={0.3}
+                variants={slideInUp}
               >
-                «
-              </button>
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
-              >
-                ‹
-              </button>
+                <div className="text-gray-400 text-sm text-center">
+                  显示 {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, sortedData.length)} / {sortedData.length} 条成绩
+                </div>
 
-              {/* 页码按钮 */}
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(page => {
-                  // 显示首页、末页、当前页及其前后各2页
-                  if (page === 1 || page === totalPages) return true;
-                  if (Math.abs(page - currentPage) <= 2) return true;
-                  return false;
-                })
-                .map((page, index, arr) => {
-                  // 添加省略号
-                  const prevPage = arr[index - 1];
-                  const showEllipsis = prevPage && page - prevPage > 1;
+                <div className="flex flex-wrap justify-center items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
+                  >
+                    «
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
+                  >
+                    ‹
+                  </button>
 
-                  return (
-                    <React.Fragment key={page}>
-                      {showEllipsis && (
-                        <span className="px-2 text-gray-400">...</span>
-                      )}
-                      <button
-                        onClick={() => setCurrentPage(page)}
-                        className={`flex justify-center items-center px-4 py-2 rounded-lg font-medium text-sm transition-all min-w-10 ${currentPage === page
-                            ? 'bg-blue-500 text-white shadow-lg'
-                            : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-                          }`}
-                      >
-                        {page}
-                      </button>
-                    </React.Fragment>
-                  );
-                })}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      if (page === 1 || page === totalPages) return true;
+                      if (Math.abs(page - currentPage) <= 2) return true;
+                      return false;
+                    })
+                    .map((page, index, arr) => {
+                      const prevPage = arr[index - 1];
+                      const showEllipsis = prevPage && page - prevPage > 1;
 
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
-              >
-                ›
-              </button>
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-                className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
-              >
-                »
-              </button>
-            </div>
-          </motion.div>
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsis && (
+                            <span className="px-2 text-gray-400">...</span>
+                          )}
+                          <button
+                            onClick={() => setCurrentPage(page)}
+                            className={`flex justify-center items-center px-4 py-2 rounded-lg font-medium text-sm transition-all min-w-10 ${currentPage === page
+                              ? 'bg-blue-500 text-white shadow-lg'
+                              : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
+                              }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      );
+                    })}
+
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
+                  >
+                    ›
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
+                  >
+                    »
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </>
         )}
 
-        {/* 统计信息 */}
-        <motion.div
-          className="flex justify-center gap-8 mx-auto mt-8 max-w-4xl"
-          initial="hidden"
-          animate="visible"
-          custom={0.3}
-          variants={slideInUp}
-        >
-          <div className="bg-[rgb(var(--background-start)/0.6)] px-6 py-4 rounded-lg text-center">
-            <div className="font-bold text-white text-2xl">{data.length}</div>
-            <div className="text-gray-400 text-sm">{loc('TotalScores', '总成绩数')}</div>
-          </div>
-        </motion.div>
       </motion.section>
     </PageLayout>
   );
