@@ -1,5 +1,16 @@
 ﻿[
-    {
+  {
+    "id": "paradise260628",
+    "href": "/space?id=乐园杯",
+    "src": "/events/paradise260628.png",
+    "alt": "乐园杯",
+    "title": "乐园杯",
+    "category": 4,
+    "createDate": "2026-06-28",
+    "endDate": "2026-07-24",
+    "description": "1kHz-4kHz频段的声波传递着人类灵魂深处的呐喊，所以，愿你在此地找到属于自己情感的归宿"
+  },
+  {
     "id": "hxb2",
     "href": "/space?id=海鲜杯2",
     "src": "/events/hxb2.jpg",
