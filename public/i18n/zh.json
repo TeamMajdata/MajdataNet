@@ -368,5 +368,6 @@
   "CreateSuccess": "创建成功",
   "CreateFailed": "创建失败",
   "Submit": "提交",
+  "Tools": "工具",
   "500UploadErrorAndHint": "上传失败, 请前往主站上传"
 }

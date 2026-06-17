@@ -358,5 +358,6 @@
   "CreateSuccess": "作成に成功しました",
   "CreateFailed": "作成に失敗しました",
   "Submit": "送信",
+  "Tools": "ツール",
   "500UploadErrorAndHint": "アップロードに失敗しました。主サイトに行ってアップロードしてください"
 }
