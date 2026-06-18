@@ -23,6 +23,7 @@ export const endpoints = {
     diff: `${apiroot3}/account/favorite/collection/diff`,
   },
   account: {
+    nickname: `${apiroot3}/account/nickname/`,
     info: `${apiroot3}/account/info/`,
     login: `${apiroot3}/account/Login`,
     logout: `${apiroot3}/account/Logout`,
