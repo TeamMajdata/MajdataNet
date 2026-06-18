@@ -42,6 +42,7 @@ export const endpoints = {
     listSearch: (searchKeyword: string) => `${apiroot3}/maichart/list?sort=&search=${encodeURIComponent(searchKeyword)}`,
     listRanking: (sortType: string) => `${apiroot3}/maichart/list?&isRanking=true&sort=${encodeURIComponent(sortType)}`,
     upload: `${apiroot3}/maichart/upload`,
+    hashStatus: (hash: string) => `${apiroot3}/maichart/hash-status?hash=${encodeURIComponent(hash)}`,
     delete: (chartId: string) => `${apiroot3}/maichart/delete?chartId=${chartId}`,
     summary: (id: string | number) => `${apiroot3}/maichart/${id}/summary`,
     image: (id: string | number) => `${apiroot3}/maichart/${id}/image`,

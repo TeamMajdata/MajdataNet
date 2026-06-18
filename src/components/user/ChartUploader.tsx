@@ -1,16 +1,197 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios, { AxiosError } from 'axios';
+import { md5 } from 'js-md5';
 import { endpoints } from '@/config/api';
 import { useLoc } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import { motion } from 'framer-motion';
 import { MdOutlineAudioFile, MdOutlineDescription, MdOutlineImage, MdOutlineVideoFile, MdCloudUpload } from 'react-icons/md';
 import { LoadingSpinner } from '@/components';
+import type { Song } from '@/types';
+
+type HashLookupStatus = 'idle' | 'checking' | 'notFound' | 'exists' | 'inheritsScores' | 'error';
+
+interface HashLookupState {
+  status: HashLookupStatus;
+  fileKey?: string;
+  hash?: string;
+  chart?: Song;
+  message?: string;
+}
+
+interface HashStatusResponse {
+  hash?: string;
+  Hash?: string;
+  exists?: boolean;
+  Exists?: boolean;
+  hasHistoricalScores?: boolean;
+  HasHistoricalScores?: boolean;
+  willInheritScores?: boolean;
+  WillInheritScores?: boolean;
+  chart?: Song | null;
+  Chart?: Song | null;
+}
+
+function getFileKey(file: File) {
+  return `${file.name}:${file.size}:${file.lastModified}`;
+}
+
+function addUnique<T>(items: T[], item: T) {
+  if (!items.includes(item)) {
+    items.push(item);
+  }
+}
+
+function normalizeLines(text: string) {
+  return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+}
+
+function encodeUtf8(text: string) {
+  return new TextEncoder().encode(text);
+}
+
+function hashCandidatesFromBytes(bytes: Uint8Array) {
+  const candidates: string[] = [];
+  const add = (value: Uint8Array | ArrayBuffer | number[]) => {
+    addUnique(candidates, md5.base64(value));
+  };
+
+  add(bytes);
+
+  if (bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+    add(bytes.slice(3));
+  }
+
+  const decoder = new TextDecoder('utf-8', { fatal: false });
+  const rawText = decoder.decode(bytes);
+  const text = rawText.charCodeAt(0) === 0xfeff ? rawText.slice(1) : rawText;
+  const normalized = normalizeLines(text);
+
+  add(encodeUtf8(normalized));
+  add(encodeUtf8(normalized.split('\n').filter((line) => line.trim() !== '').join('\n')));
+
+  const nonBlank = normalized.split('\n').filter((line) => line.trim() !== '');
+  const firstLevelIndex = nonBlank.findIndex((line) => line.trimStart().toLowerCase().startsWith('&lv_'));
+  if (firstLevelIndex !== -1) {
+    const normalizedLevelGap = [
+      ...nonBlank.slice(0, firstLevelIndex),
+      '',
+      ...nonBlank.slice(firstLevelIndex),
+    ].join('\n');
+    add(encodeUtf8(normalizedLevelGap));
+  }
+
+  add(encodeUtf8(rawText.replace(/\n/g, '\r\n')));
+
+  return candidates;
+}
 
 export default function ChartUploader() {
   const loc = useLoc();
   const [isUploading, setIsUploading] = useState(false);
+  const [hashLookup, setHashLookup] = useState<HashLookupState>({ status: 'idle' });
+  const hashLookupSeq = useRef(0);
+  const hashLookupAbort = useRef<AbortController | null>(null);
+
+  async function lookupMaidataHash(file: File) {
+    const fileKey = getFileKey(file);
+    const seq = hashLookupSeq.current + 1;
+    hashLookupSeq.current = seq;
+    hashLookupAbort.current?.abort();
+    const abortController = new AbortController();
+    hashLookupAbort.current = abortController;
+
+    setHashLookup({ status: 'checking', fileKey });
+
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const hashes = hashCandidatesFromBytes(bytes);
+      let inheritedState: HashLookupState | null = null;
+
+      for (const hash of hashes) {
+        const response = await axios.get<HashStatusResponse>(endpoints.maichart.hashStatus(hash), {
+          withCredentials: true,
+          signal: abortController.signal,
+        });
+        const exists = response.data.exists ?? response.data.Exists;
+        const hasHistoricalScores = response.data.hasHistoricalScores ?? response.data.HasHistoricalScores;
+        const willInheritScores = response.data.willInheritScores ?? response.data.WillInheritScores;
+        const chart = response.data.chart ?? response.data.Chart ?? undefined;
+        const result: Pick<HashLookupState, 'status' | 'chart'> | null = exists
+          ? { status: 'exists', chart }
+          : willInheritScores || hasHistoricalScores
+            ? { status: 'inheritsScores' }
+            : null;
+
+        if (result) {
+          const nextState: HashLookupState = {
+            status: result.status,
+            fileKey,
+            hash,
+            chart: result.chart,
+          };
+          if (nextState.status === 'inheritsScores') {
+            inheritedState ??= nextState;
+            continue;
+          }
+
+          if (hashLookupSeq.current === seq) {
+            setHashLookup(nextState);
+          }
+          return nextState;
+        }
+      }
+
+      if (inheritedState) {
+        if (hashLookupSeq.current === seq) {
+          setHashLookup(inheritedState);
+        }
+        return inheritedState;
+      }
+
+      const nextState: HashLookupState = { status: 'notFound', fileKey };
+      if (hashLookupSeq.current === seq) {
+        setHashLookup(nextState);
+      }
+      return nextState;
+    } catch (e: unknown) {
+      if (axios.isCancel(e) || (e instanceof AxiosError && e.code === 'ERR_CANCELED')) {
+        return { status: 'checking', fileKey } satisfies HashLookupState;
+      }
+
+      const error = e as { response?: { data?: unknown }; message?: string };
+      const nextState: HashLookupState = {
+        status: 'error',
+        fileKey,
+        message: getDisplayMessage(error.response?.data ?? error.message, loc('MaidataHashLookupFailed', 'Failed to query maidata hash')),
+      };
+      if (hashLookupSeq.current === seq) {
+        setHashLookup(nextState);
+      }
+      return nextState;
+    }
+  }
+
+  function resetHashLookup() {
+    hashLookupSeq.current += 1;
+    hashLookupAbort.current?.abort();
+    setHashLookup({ status: 'idle' });
+  }
+
+  function onFileChange(index: number, event: React.ChangeEvent<HTMLInputElement>) {
+    if (index !== 0) {
+      return;
+    }
+
+    const file = event.currentTarget.files?.[0];
+    if (!file) {
+      resetHashLookup();
+      return;
+    }
+
+    void lookupMaidataHash(file);
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,6 +218,11 @@ export default function ChartUploader() {
       for (const file of missedFiles) {
         toast.error(loc('NoFileSelected') + file);
       }
+      return;
+    }
+
+    if (hashLookup.status === 'exists') {
+      toast.error(loc('MaidataAlreadyExists', 'This chart already exists on the site'), { autoClose: false });
       return;
     }
 
@@ -82,6 +268,25 @@ export default function ChartUploader() {
     { label: 'track.mp3', icon: <MdOutlineAudioFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
     { label: loc('BGVideoHint'), icon: <MdOutlineVideoFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
   ];
+  const hashLookupStatusText: Record<HashLookupStatus, string> = {
+    idle: '',
+    checking: loc('MaidataHashChecking', 'Checking whether this chart already exists...'),
+    notFound: loc('MaidataHashNotFound', 'No existing chart found'),
+    exists: hashLookup.chart
+      ? loc('MaidataAlreadyExistsWithTitle', 'This chart already exists on the site') + `: ${hashLookup.chart.title}`
+      : loc('MaidataAlreadyExists', 'This chart already exists on the site'),
+    inheritsScores: loc('MaidataWillInheritScores', 'This upload will inherit previous scores'),
+    error: hashLookup.message || loc('MaidataHashLookupFailed', 'Failed to query maidata hash'),
+  };
+  const hashLookupStatusClass: Record<HashLookupStatus, string> = {
+    idle: '',
+    checking: 'text-blue-300',
+    notFound: 'text-emerald-300',
+    exists: 'text-red-300',
+    inheritsScores: 'text-amber-300',
+    error: 'text-red-300',
+  };
+  const cannotUploadByHash = hashLookup.status === 'checking' || hashLookup.status === 'exists';
 
   return (
     <motion.div
@@ -115,22 +320,38 @@ export default function ChartUploader() {
                     type="file"
                     name="formfiles"
                     disabled={isUploading}
+                    onChange={(event) => onFileChange(index, event)}
                   />
                 </div>
               </div>
             ))}
           </div>
 
+          {hashLookup.status !== 'idle' && (
+            <div className={`flex items-center gap-2 text-sm ${hashLookupStatusClass[hashLookup.status]}`}>
+              {hashLookup.status === 'checking' && <LoadingSpinner className="w-4 h-4" />}
+              <span>{hashLookupStatusText[hashLookup.status]}</span>
+              {hashLookup.status === 'exists' && hashLookup.chart && (
+                <a
+                  className="text-blue-300 hover:text-blue-200 underline"
+                  href={`/song?id=${encodeURIComponent(hashLookup.chart.id)}`}
+                >
+                  {loc('View', 'View')}
+                </a>
+              )}
+            </div>
+          )}
+
           <motion.button
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
             className={`mt-4 w-full py-3 rounded-xl font-bold text-gray-200 shadow-lg transition-all duration-200 flex items-center justify-center gap-2 border border-white/5
-              ${isUploading
+              ${isUploading || cannotUploadByHash
                 ? 'bg-red-900/50 cursor-not-allowed opacity-70'
                 : 'bg-[#2e2e2e] hover:bg-[#3a3a3a] hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]'
               }`}
             type="submit"
-            disabled={isUploading}
+            disabled={isUploading || cannotUploadByHash}
           >
             {isUploading ? (
               <>
