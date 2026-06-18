@@ -2,16 +2,16 @@
  * Tooltip 通用组件 - 基于 Radix UI
  */
 
-import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { type ReactNode, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { type ReactNode, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const TooltipProvider = TooltipPrimitive.Provider;
 
 interface TooltipProps extends TooltipPrimitive.TooltipProps {
   content: ReactNode;
   children: ReactNode;
-  side?: 'top' | 'bottom' | 'left' | 'right';
+  side?: "top" | "bottom" | "left" | "right";
   sideOffset?: number;
   /** plain=true 时不添加默认样式，适用于内容本身已有完整样式的场景 */
   plain?: boolean;
@@ -20,7 +20,7 @@ interface TooltipProps extends TooltipPrimitive.TooltipProps {
 export default function Tooltip({
   content,
   children,
-  side = 'top',
+  side = "top",
   sideOffset = 6,
   plain = false,
   ...props
@@ -37,7 +37,7 @@ export default function Tooltip({
       <TooltipPrimitive.Trigger
         asChild
         onClick={() => {
-          setOpen(prev => !prev);
+          setOpen((prev) => !prev);
         }}
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
@@ -56,11 +56,11 @@ export default function Tooltip({
                 initial={{ opacity: 0, y: 4, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 4, scale: 0.95 }}
-                transition={{ duration: 0.15, ease: 'easeOut' }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
                 className={
                   plain
-                    ? 'z-9999 origin-(--radix-tooltip-content-transform-origin)'
-                    : 'bg-black/85 backdrop-blur-sm px-3 py-1.5 rounded-lg text-white text-sm shadow-lg z-9999 origin-(--radix-tooltip-content-transform-origin)'
+                    ? "z-9999 origin-(--radix-tooltip-content-transform-origin)"
+                    : "bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg text-gray-700 text-sm shadow-lg border border-gray-200 z-9999 origin-(--radix-tooltip-content-transform-origin)"
                 }
               >
                 {content}

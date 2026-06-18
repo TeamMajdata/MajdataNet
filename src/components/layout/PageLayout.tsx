@@ -51,9 +51,7 @@ export default function PageLayout({
       )}
 
       {/* Main Content */}
-      <main className={`max-w-7xl mx-auto mt-4 px-4 ${className}`}>
-        {children}
-      </main>
+      <main className={`mx-auto mt-4 px-4 ${className}`}>{children}</main>
 
       {/* Back to Home Section */}
       {showBackToHome && (

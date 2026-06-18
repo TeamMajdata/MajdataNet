@@ -1,45 +1,43 @@
-import { makeLevelClickCallback } from '@/utils/scrollUtils';
-import { renderLevel } from '@/utils/renderLevel';
-import type { LevelsProps } from '@/types';
-import { motion } from 'framer-motion';
+import { makeLevelClickCallback } from "@/utils/scrollUtils";
+import { renderLevel } from "@/utils/renderLevel";
+import type { LevelsProps } from "@/types";
 
-// 难度等级背景色映射
 const levelColors: Record<number, string> = {
-  0: 'bg-[rgb(111_171_250)]', // Easy
-  1: 'bg-[rgb(93_212_93)]',   // Basic
-  2: 'bg-[rgb(202_202_84)]',  // Advanced
-  3: 'bg-[rgb(255_91_91)]',   // Expert
-  4: 'bg-[rgb(134_23_134)]',  // Master
-  5: 'bg-[rgb(189_63_189)]',  // ReMaster
-  6: 'bg-[rgb(255_145_0)]',   // Utage
+  0: "rgba(56,189,248,0.8)",
+  1: "rgba(52,211,153,0.8)",
+  2: "rgba(251,191,36,0.8)",
+  3: "rgba(244,63,94,0.8)",
+  4: "rgba(217,70,239,0.8)",
+  5: "rgba(139,92,246,0.8)",
+  6: "rgba(249,115,22,0.8)",
 };
 
-/**
- * 多难度等级列表组件
- * 显示所有可用的难度等级（最多7个）
- */
-export default function Levels({ levels, songid, isPlayer = false }: LevelsProps) {
-  // 预处理等级数组，将空值替换为 "-"
-  const processedLevels = levels.map((level) => 
-    (level == null || level === '') ? '-' : level
+export default function Levels({
+  levels,
+  songid,
+  isPlayer = false,
+}: LevelsProps) {
+  const processedLevels = levels.map((level) =>
+    level == null || level === "" ? "-" : level,
   );
 
   const levelClickCallback = makeLevelClickCallback(songid, isPlayer);
 
-  // 难度顺序：0=Easy, 1=Basic, 2=Advanced, 3=Expert, 4=Master, 5=ReMaster, 6=Utage
   return (
     <div>
       {processedLevels.map((level, index) => (
-        <motion.div
+        <div
           key={index}
-          className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-gray-500 overflow-hidden cursor-pointer select-none ${levelColors[index] || ''}`}
-          style={{ display: level === '-' ? 'none' : 'unset' }}
+          className="inline-flex items-center justify-center rounded-full w-8 h-8 cursor-pointer select-none"
+          style={{
+            display: level === "-" ? "none" : "inline-flex",
+            color: "#fff",
+            backgroundColor: levelColors[index] || "rgba(209,213,219,0.8)",
+          }}
           onClick={levelClickCallback}
-          whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
-          transition={{ duration: 0.125, ease: 'easeInOut' }}
         >
           {renderLevel(level)}
-        </motion.div>
+        </div>
       ))}
     </div>
   );

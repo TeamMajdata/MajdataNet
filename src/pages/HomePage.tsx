@@ -607,7 +607,7 @@ function MainComp() {
       <div className="flex justify-center px-4 pt-2 pb-3">
         <div className="inline-flex bg-gray-100 p-1 border border-gray-200 rounded-full">
           <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-200 cursor-pointer ${
+            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 ${
               activeTab === "all"
                 ? "bg-white text-[#5C8DC1] shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
@@ -617,7 +617,7 @@ function MainComp() {
             {loc("AllCharts", "全部谱面")}
           </button>
           <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-200 cursor-pointer ${
+            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 ${
               activeTab === "random"
                 ? "bg-white text-[#5C8DC1] shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
@@ -648,7 +648,7 @@ function MainComp() {
             setMax={setMaxpage}
           />
 
-          <div className="flex flex-col items-center gap-4 mx-auto mt-8 px-4 max-w-7xl">
+          <div className="flex flex-col items-center gap-4 mx-auto mt-8 px-4">
             <div className="flex items-center gap-3 p-4">
               <button
                 className={`flex items-center justify-center px-4 py-2.5 text-gray-700 hover:text-[#5C8DC1] font-medium text-sm cursor-pointer min-w-[3rem] transition-all duration-200 hover:scale-105 active:scale-95 ${page - 1 < 0 ? "opacity-20 cursor-not-allowed" : ""}`}
@@ -698,7 +698,7 @@ function MainComp() {
         </>
       ) : (
         <>
-          <div className="flex justify-center mx-auto mb-6 px-4 max-w-7xl">
+          <div className="flex justify-center mx-auto mb-6 px-4">
             <button
               className="flex items-center gap-2 bg-white hover:bg-gray-50 px-5 py-2.5 border border-gray-200 hover:border-[#5C8DC1]/30 rounded-lg text-gray-700 hover:text-[#5C8DC1] text-sm font-medium transition-all duration-200 cursor-pointer"
               onClick={refreshRandomBatch}
@@ -774,7 +774,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }
 
   return (
-    <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+    <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full">
       {randomSongs.map((song, index) => (
         <SongCard key={song.id} song={song} index={index} page={0} />
       ))}
