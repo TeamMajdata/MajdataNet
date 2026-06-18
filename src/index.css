@@ -69,7 +69,8 @@ body {
         );
     background-position: 10px 10px;
     background-size: 21px 21px;
-    padding-top: var(--content-top-spacing-large);
+    padding-left: 240px;
+    padding-top: 0.5rem;
 }
 
 /* 段落样式 */

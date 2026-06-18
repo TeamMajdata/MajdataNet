@@ -8,7 +8,7 @@ export const BUTTON_BASE =
 
 // 导航链接样式
 export const NAV_LINK =
-  "relative flex items-center gap-2 hover:bg-linear-to-br hover:from-[#5C8DC1]/10 hover:to-[#5C8DC1]/5 hover:shadow-[0_4px_12px_rgb(92_141_193/15%),0_1px_0_rgb(92_141_193/10%)_inset] px-5 py-3 rounded-full font-medium text-gray-600 hover:text-[#5C8DC1] text-sm no-underline whitespace-nowrap transition-transform hover:scale-105 active:scale-95";
+  "flex items-center gap-2 w-full bg-linear-to-r from-[#5C8DC1]/10 to-[#5C8DC1]/10 bg-no-repeat bg-[length:0%_100%] hover:bg-[length:100%_100%] px-4 py-3 border-l-3 border-transparent hover:border-[#5C8DC1] font-medium text-gray-600 hover:text-[#5C8DC1] text-sm no-underline whitespace-nowrap transition-all duration-400 ease-out hover:scale-105 active:scale-95";
 
 // 下拉菜单项样式
 export const DROPDOWN_ITEM =
