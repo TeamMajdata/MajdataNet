@@ -280,6 +280,11 @@ function RegisterTab() {
       event.preventDefault();
 
       const formData = new FormData(event.currentTarget);
+      const username = formData.get('username') as string;
+      if (!/^[a-zA-Z0-9]+$/.test(username)) {
+        toast.error(loc('InvalidUsernameFormat', '用户名只能包含字母和数字'));
+        return;
+      }
       if (formData.get('password') !== formData.get('password2')) {
         toast.error(loc('PasswdNoMatch', '两次密码不匹配'));
         return;
@@ -342,6 +347,8 @@ function RegisterTab() {
             type="text"
             name="username"
             placeholder={loc('EnterUsername', '输入用户名')}
+            pattern="[a-zA-Z0-9]+"
+            title={loc('InvalidUsernameFormat', '用户名只能包含字母和数字')}
             required
           />
         </div>
