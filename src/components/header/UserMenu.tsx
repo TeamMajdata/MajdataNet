@@ -1,9 +1,17 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useLoc } from "@/hooks";
+import {
+  User,
+  BarChart3,
+  Music,
+  FolderHeart,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import { handleLogout as logoutUtil } from "@/utils";
 import { endpoints } from "@/config/api";
-import { DIVIDER } from "./styles";
+import { DIVIDER, DESKTOP_DROPDOWN_ITEM } from "./styles";
 import Dropdown from "./Dropdown";
 
 interface UserMenuProps {
@@ -35,76 +43,69 @@ export default function UserMenu({ username }: UserMenuProps) {
   return (
     <div className="relative" ref={containerRef}>
       <button
-        className={`flex rounded-full items-center gap-2 md:gap-3 pl-1 pr-3 cursor-pointer text-gray-600 text-sm font-medium h-10 md:h-12 bg-black/5 border border-black/10 backdrop-blur-[10px] ${
-          isOpen
-            ? "bg-linear-to-br from-[#5C8DC1]/12 to-[#5C8DC1]/6 border-[#5C8DC1]/25 shadow-[0_8px_25px_rgb(0_0_0/10%),0_1px_0_rgb(92_141_193/15%)_inset]"
-            : "hover:bg-linear-to-br hover:from-[#5C8DC1]/10 hover:to-[#5C8DC1]/5 hover:border-[#5C8DC1]/20 hover:shadow-[0_8px_25px_rgb(0_0_0/8%),0_1px_0_rgb(92_141_193/10%)_inset]"
-        }`}
+        className="cursor-pointer border-none bg-none p-0 transition-transform hover:scale-110 active:scale-95"
         onClick={() => setIsOpen(!isOpen)}
       >
         <img
-          className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 object-cover ${isOpen ? "border-[#5C8DC1]/40" : "border-black/10 hover:border-[#5C8DC1]/40"}`}
+          className={`w-9 h-9 rounded-full object-cover ring-2 ring-offset-1 transition-all ${
+            isOpen
+              ? "ring-[#5C8DC1] ring-offset-[#5C8DC1]/15"
+              : "ring-black/10 ring-offset-transparent hover:ring-[#5C8DC1]/50"
+          }`}
           src={endpoints.account.icon(username)}
           alt={username}
         />
-        <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">
-          {username}
-        </span>
       </button>
 
       <Dropdown
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        position="right"
+        variant="auto"
         className="w-full"
         containerRef={containerRef}
       >
-        <Link
-          to={`/space?id=${username}`}
-          className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[#5C8DC1]/10 hover:to-[#5C8DC1]/5 bg-none hover:shadow-[0_2px_8px_rgb(92_141_193/15%),0_1px_0_rgb(92_141_193/10%)_inset] px-5 py-4 border-none w-full font-medium text-gray-500 hover:text-[#5C8DC1] text-sm text-center no-underline cursor-pointer"
-        >
-          <span className="w-full font-medium text-center">
+        <div className="hidden xl:flex flex-row items-end gap-1 absolute bottom-4 left-4">
+          <img
+            className="w-20 h-20 rounded-full object-cover ring-2 ring-white border-4 border-[#5C8DC1]"
+            src={endpoints.account.icon(username)}
+            alt={username}
+          />
+          <span className="font-semibold text-white text-6xl">{username}</span>
+        </div>
+        <Link to={`/space?id=${username}`} className={DESKTOP_DROPDOWN_ITEM}>
+          <User className="w-8 h-8 text-white" />
+          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
             {loc("PersonalHomePage")}
           </span>
         </Link>
-        <Link
-          to="/user/scores"
-          className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[#5C8DC1]/10 hover:to-[#5C8DC1]/5 bg-none hover:shadow-[0_2px_8px_rgb(92_141_193/15%),0_1px_0_rgb(92_141_193/10%)_inset] px-5 py-4 border-none w-full font-medium text-gray-500 hover:text-[#5C8DC1] text-sm text-center no-underline cursor-pointer"
-        >
-          <span className="w-full font-medium text-center">
+        <Link to="/user/scores" className={DESKTOP_DROPDOWN_ITEM}>
+          <BarChart3 className="w-8 h-8 text-white" />
+          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
             {loc("PersonalScores")}
           </span>
         </Link>
-        <Link
-          to="/user/charts"
-          className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[#5C8DC1]/10 hover:to-[#5C8DC1]/5 bg-none hover:shadow-[0_2px_8px_rgb(92_141_193/15%),0_1px_0_rgb(92_141_193/10%)_inset] px-5 py-4 border-none w-full font-medium text-gray-500 hover:text-[#5C8DC1] text-sm text-center no-underline cursor-pointer"
-        >
-          <span className="w-full font-medium text-center">
+        <Link to="/user/charts" className={DESKTOP_DROPDOWN_ITEM}>
+          <Music className="w-8 h-8 text-white" />
+          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
             {loc("ChartsManagement")}
           </span>
         </Link>
-        <Link
-          to="/user/collections"
-          className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[#5C8DC1]/10 hover:to-[#5C8DC1]/5 bg-none hover:shadow-[0_2px_8px_rgb(92_141_193/15%),0_1px_0_rgb(92_141_193/10%)_inset] px-5 py-4 border-none w-full font-medium text-gray-500 hover:text-[#5C8DC1] text-sm text-center no-underline cursor-pointer"
-        >
-          <span className="w-full font-medium text-center">
+        <Link to="/user/collections" className={DESKTOP_DROPDOWN_ITEM}>
+          <FolderHeart className="w-8 h-8 text-white" />
+          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
             {loc("MyCollections", "我的歌单")}
           </span>
         </Link>
-        <Link
-          to="/user/profile"
-          className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[#5C8DC1]/10 hover:to-[#5C8DC1]/5 bg-none hover:shadow-[0_2px_8px_rgb(92_141_193/15%),0_1px_0_rgb(92_141_193/10%)_inset] px-5 py-4 border-none w-full font-medium text-gray-500 hover:text-[#5C8DC1] text-sm text-center no-underline cursor-pointer"
-        >
-          <span className="w-full font-medium text-center">
+        <Link to="/user/profile" className={DESKTOP_DROPDOWN_ITEM}>
+          <Settings className="w-8 h-8 text-white" />
+          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
             {loc("AccountSetting")}
           </span>
         </Link>
         <div className={DIVIDER}></div>
-        <button
-          onClick={handleLogout}
-          className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[rgb(239_68_68/10%)] hover:to-[rgb(220_38_38/5%)] bg-none hover:shadow-[0_2px_8px_rgb(239_68_68/15%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-gray-500 hover:text-red-500 text-sm text-center no-underline cursor-pointer"
-        >
-          <span className="w-full font-medium text-center">
+        <button onClick={handleLogout} className={DESKTOP_DROPDOWN_ITEM}>
+          <LogOut className="w-8 h-8 text-red-300" />
+          <span className="text-2xl font-black text-red-300/50 group-hover:text-red-300 [-webkit-text-stroke:0.4px_rgba(252,165,165,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
             {loc("Logout")}
           </span>
         </button>

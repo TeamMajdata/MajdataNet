@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { useLoc } from "@/hooks";
 import {
   MOBILE_DROPDOWN_ITEM,
@@ -25,17 +26,11 @@ export default function MobileNav() {
         className={`${HAMBURGER_BUTTON_BASE} ${isMainNavOpen ? HAMBURGER_BUTTON_ACTIVE : HAMBURGER_BUTTON_HOVER}`}
         onClick={() => setIsMainNavOpen(!isMainNavOpen)}
       >
-        <span className="flex flex-col gap-1.5 w-6 h-4">
-          <span
-            className={`block h-0.5 w-6 bg-gray-500 rounded-sm transition-transform ${isMainNavOpen ? "rotate-45 translate-y-1.75" : ""}`}
-          ></span>
-          <span
-            className={`block h-0.5 w-6 bg-gray-500 rounded-sm transition-opacity ${isMainNavOpen ? "opacity-0" : ""}`}
-          ></span>
-          <span
-            className={`block h-0.5 w-6 bg-gray-500 rounded-sm transition-transform ${isMainNavOpen ? "-rotate-45 -translate-y-1.75" : ""}`}
-          ></span>
-        </span>
+        {isMainNavOpen ? (
+          <X className="w-5 h-5 text-gray-600" />
+        ) : (
+          <Menu className="w-5 h-5 text-gray-600" />
+        )}
       </button>
 
       <Dropdown
@@ -45,7 +40,7 @@ export default function MobileNav() {
           setIsMobileRankingsOpen(false);
           setIsMobileToolsOpen(false);
         }}
-        position="left"
+        
         containerRef={containerRef}
       >
         {/* 榜单项 - 可展开 */}

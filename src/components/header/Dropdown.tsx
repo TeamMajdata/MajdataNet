@@ -1,28 +1,89 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 interface DropdownProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
-  position?: "left" | "right";
+  variant?: "desktop" | "mobile" | "user" | "auto";
   className?: string;
   containerRef?: React.RefObject<HTMLElement | null>;
 }
 
+const DESKTOP_BREAKPOINT = 1280;
+
+type VariantStyle = {
+  position: string;
+  open: string;
+  closed: string;
+  base: string;
+};
+
+const variantStyles: Record<string, VariantStyle> = {
+  desktop: {
+    position: "fixed left-0 top-0 bottom-0 z-1001",
+    open: "translate-x-0",
+    closed: "-translate-x-full",
+    base: "bg-[#5C8DC1] !w-64 h-full transition-transform duration-300 ease-out flex flex-col items-center justify-center",
+  },
+  mobile: {
+    position: "absolute right-0 top-full mt-2 z-1001",
+    open: "opacity-100 scale-100",
+    closed: "opacity-0 scale-95",
+    base: "bg-white shadow-lg border border-gray-200 rounded-xl min-w-48 transition-all duration-200 ease-out origin-bottom-right",
+  },
+  user: {
+    position: "absolute right-0 bottom-full mb-2 z-1001",
+    open: "opacity-100 scale-100",
+    closed: "opacity-0 scale-95",
+    base: "bg-white shadow-lg border border-gray-200 rounded-xl min-w-48 transition-all duration-200 ease-out origin-bottom-left",
+  },
+};
+
+function getStyle(variant: string, isDesktop: boolean): VariantStyle {
+  if (variant === "user") {
+    return isDesktop ? variantStyles.user : variantStyles.mobile;
+  }
+  return variantStyles[variant] || variantStyles.mobile;
+}
+
 /**
  * 通用下拉菜单组件
- * 处理点击外部关闭逻辑，无动效
+ * 桌面端显示为侧边滑出面板，移动端为弹出菜单
  */
 export default function Dropdown({
   isOpen,
   onClose,
   children,
-  position = "left",
+  variant = "auto",
   className = "",
   containerRef,
 }: DropdownProps) {
   const menuRef = useRef<HTMLDivElement>(null);
+  const [render, setRender] = useState(false);
+  const [animateIn, setAnimateIn] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(
+    typeof window !== "undefined" && window.innerWidth >= DESKTOP_BREAKPOINT,
+  );
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT);
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setRender(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setAnimateIn(true));
+      });
+    } else {
+      setAnimateIn(false);
+      const timer = setTimeout(() => setRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -34,7 +95,6 @@ export default function Dropdown({
       const isOutsideContainer =
         containerRef?.current && !containerRef.current.contains(target);
 
-      // 只有当点击既在菜单外部，又在容器外部时才关闭
       if (isOutsideMenu && isOutsideContainer) {
         onClose();
       }
@@ -44,15 +104,29 @@ export default function Dropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose, containerRef]);
 
-  if (!isOpen) return null;
+  if (!render) return null;
 
-  const positionClass = position === "right" ? "right-0" : "left-0";
+  const resolved =
+    variant === "auto" ? (isDesktop ? "desktop" : "mobile") : variant;
+  const style = getStyle(resolved, isDesktop);
 
   return (
     <div
       ref={menuRef}
-      className={`top-[calc(100%+0.75rem)] z-1001 absolute bg-linear-to-br from-[rgb(255_255_255/98%)] to-[rgb(248_248_254/98%)] shadow-[0_20px_60px_rgb(0_0_0/12%),0_4px_20px_rgb(92_141_193/15%),0_1px_0_rgb(0_0_0/5%)_inset] backdrop-blur-xl saturate-180 border border-black/8 rounded-2xl min-w-50 overflow-hidden ${positionClass} ${className}`}
+      className={`${style.position} ${style.base} ${
+        animateIn ? style.open : style.closed
+      } ${className}`}
     >
+      {resolved === "desktop" && (
+        <svg
+          className="absolute -right-20 top-0 h-full pointer-events-none"
+          viewBox="0 0 100 1024"
+          preserveAspectRatio="none"
+          width="80"
+        >
+          <path d="M0 0L99.5 1024L0 1024L0 0Z" fill="#5C8DC1" opacity="1" />
+        </svg>
+      )}
       {children}
     </div>
   );

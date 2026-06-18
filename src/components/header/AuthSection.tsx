@@ -47,7 +47,7 @@ export default function AuthSection() {
         <Dropdown
           isOpen={isMobileAuthMenuOpen}
           onClose={() => setIsMobileAuthMenuOpen(false)}
-          position="right"
+          
           className="p-4"
         >
           <Link
