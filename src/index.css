@@ -108,11 +108,6 @@ h2 {
     }
 }
 
-/* 禁用状态样式 */
-*:disabled {
-    background-color: rgb(92 0 0);
-}
-
 /* 移除数字输入框的spinner */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {

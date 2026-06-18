@@ -22,11 +22,21 @@ import { endpoints } from "@/config/api";
 import {
   getEventStatusClass,
   getEventStatusText,
-  getNonFeaturedEventsCount,
   getActiveEvents,
   getTimeAgo,
   getCategoryTranslation,
 } from "@/utils/eventsData";
+import {
+  CalendarClock,
+  Calendar,
+  Heart,
+  MessageCircle,
+  Flag,
+  Play,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import type { SearchBarProps, Song } from "@/types";
 
 // 获取用户时区的次日午夜时间戳 (UTC)
@@ -197,31 +207,40 @@ function DesktopEventsSwiper() {
         {ongoingEvents.map((event) => (
           <SwiperSlide key={event.id}>
             <Link to={event.href} className="block no-underline group">
-              <div className="relative bg-white shadow-md border border-gray-200 rounded-2xl overflow-hidden transition-transform hover:scale-[1.02] duration-300">
+              <div className="relative bg-white shadow-md border border-gray-200 rounded-2xl transition-transform duration-300">
                 <img
                   className="w-full aspect-[1279/372] object-cover"
                   src={event.src}
                   alt={event.alt}
                   loading="lazy"
                 />
-                <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-transparent via-transparent to-black/70 opacity-0 group-hover:opacity-100 p-4 transition-opacity duration-300">
-                  <h3 className="m-0 mb-1 font-bold text-white text-lg leading-tight">
+                <span
+                  className={`absolute top-3 right-3 z-10 flex items-center gap-2 font-semibold bg-white rounded-full px-4 py-2 text-xl leading-none ${
+                    getEventStatusClass(event) === "status-upcoming"
+                      ? "text-[#5C8DC1]"
+                      : getEventStatusClass(event) === "status-ongoing"
+                        ? "text-[#10b981]"
+                        : "text-white"
+                  }`}
+                >
+                  {getEventStatusClass(event) === "status-upcoming" ? (
+                    <CalendarClock size={24} />
+                  ) : getEventStatusClass(event) === "status-ongoing" ? (
+                    <Play size={24} />
+                  ) : (
+                    <Flag size={24} />
+                  )}
+                  {getEventStatusText(event)}
+                </span>
+                <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-transparent via-transparent to-black/40 p-4">
+                  <h3 className="m-0 mb-1 font-bold text-white text-4xl leading-tight">
                     {event.title}
                   </h3>
                   <div className="flex flex-wrap items-center gap-2 text-white/80 text-xs">
-                    <span>{getCategoryTranslation(event.category)}</span>
-                    <span
-                      className={`font-semibold px-1.5 py-0.5 rounded ${
-                        getEventStatusClass(event) === "status-upcoming"
-                          ? "text-[#fbbf24] bg-[#fbbf24]/15"
-                          : getEventStatusClass(event) === "status-ongoing"
-                            ? "text-[#10b981] bg-[#10b981]/15"
-                            : "text-gray-400 bg-gray-400/10"
-                      }`}
-                    >
-                      {getEventStatusText(event)}
+                    <span className="text-white">
+                      {getCategoryTranslation(event.category)}
                     </span>
-                    <span>{event.timeAgo}</span>
+                    <span className="text-white">{event.timeAgo}</span>
                   </div>
                 </div>
               </div>
@@ -252,41 +271,65 @@ function MobileEventsSwiper() {
   }, []);
 
   return (
-    <section className="mx-auto mt-4 px-4 max-w-7xl">
-      <div className="relative w-full">
-        <div className="relative w-full">
-          <Swiper
-            modules={[Pagination, Autoplay]}
-            spaceBetween={20}
-            slidesPerView={1}
-            centeredSlides={true}
-            autoplay={{ delay: 5000, disableOnInteraction: false }}
-            pagination={{ clickable: true, dynamicBullets: true }}
-            loop={ongoingEvents.length > 1}
-            breakpoints={{
-              640: { slidesPerView: 1.3, spaceBetween: 20 },
-              768: { slidesPerView: 1.8, spaceBetween: 24 },
-              1024: { slidesPerView: 2.2, spaceBetween: 24 },
-            }}
-            className="pb-10"
-          >
-            {ongoingEvents.map((event) => (
-              <SwiperSlide key={event.id}>
-                <Link to={event.href} className="block no-underline">
-                  <div className="bg-white shadow-md border border-gray-200 rounded-2xl overflow-hidden transition-transform hover:scale-[1.02] duration-300">
-                    <img
-                      className="w-full aspect-[1279/372] object-cover"
-                      src={event.src}
-                      alt={event.alt}
-                      loading="lazy"
-                    />
+    <section className="mx-auto mt-8 w-full">
+      <Swiper
+        modules={[Pagination, Autoplay]}
+        spaceBetween={0}
+        slidesPerView={1}
+        centeredSlides={true}
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        pagination={{ clickable: true, dynamicBullets: true }}
+        loop={ongoingEvents.length > 1}
+        breakpoints={{
+          768: { slidesPerView: 1, spaceBetween: 0 },
+          1024: { slidesPerView: 1, spaceBetween: 0 },
+        }}
+        className="pb-10"
+      >
+        {ongoingEvents.map((event) => (
+          <SwiperSlide key={event.id}>
+            <Link to={event.href} className="block no-underline group">
+              <div className="relative bg-white shadow-md border border-gray-200 rounded-2xl transition-transform duration-300">
+                <img
+                  className="w-full aspect-[1279/372] object-cover"
+                  src={event.src}
+                  alt={event.alt}
+                  loading="lazy"
+                />
+                <span
+                  className={`absolute top-3 right-3 z-10 flex items-center gap-2 font-semibold bg-white rounded-full px-4 py-2 text-xl leading-none ${
+                    getEventStatusClass(event) === "status-upcoming"
+                      ? "text-[#5C8DC1]"
+                      : getEventStatusClass(event) === "status-ongoing"
+                        ? "text-[#10b981]"
+                        : "text-white"
+                  }`}
+                >
+                  {getEventStatusClass(event) === "status-upcoming" ? (
+                    <CalendarClock size={24} />
+                  ) : getEventStatusClass(event) === "status-ongoing" ? (
+                    <Play size={24} />
+                  ) : (
+                    <Flag size={24} />
+                  )}
+                  {getEventStatusText(event)}
+                </span>
+                <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-transparent via-transparent to-black/40 p-4">
+                  <h3 className="m-0 mb-1 font-bold text-white text-4xl leading-tight">
+                    {event.title}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-2 text-white/80 text-xs">
+                    <span className="text-white">
+                      {getCategoryTranslation(event.category)}
+                    </span>
+                    <span className="text-white">{event.timeAgo}</span>
                   </div>
-                </Link>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      </div>
+                </div>
+              </div>
+            </Link>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </section>
   );
 }
@@ -300,6 +343,21 @@ function SearchBar({
   const loc = useLoc();
   const [isMobile, setIsMobile] = useState(false);
   const [currentValue, setCurrentValue] = useState(initS);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  const sortIcons = [Calendar, Heart, MessageCircle, Play];
+
+  // 点击外部关闭排序下拉
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const sortOptions = [
     loc("UploadDate", "上传日期"),
@@ -340,18 +398,18 @@ function SearchBar({
 
   // 提示内容组件
   const hintContent = (
-    <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-5 py-4 border border-white/20 rounded-2xl w-70 md:w-[320px]">
+    <div className="bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] px-5 py-4 border border-[#5C8DC1]/20 rounded-2xl w-70 md:w-[320px]">
       <div className="space-y-2.5 text-left">
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">
+        <p className="m-0 text-[0.85rem] text-gray-600 md:text-[0.9rem] leading-normal">
           {loc("SearchHintID", "按 ID 搜索")}
         </p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">
+        <p className="m-0 text-[0.85rem] text-gray-600 md:text-[0.9rem] leading-normal">
           {loc("SearchHintHash", "按 Hash 搜索")}
         </p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">
+        <p className="m-0 text-[0.85rem] text-gray-600 md:text-[0.9rem] leading-normal">
           {loc("SearchHintTag", "按标签搜索")}
         </p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">
+        <p className="m-0 text-[0.85rem] text-gray-600 md:text-[0.9rem] leading-normal">
           {loc("SearchHintUploader", "按上传者搜索")}
         </p>
       </div>
@@ -360,13 +418,13 @@ function SearchBar({
 
   return (
     <div className="mt-4 md:mt-0 mb-4 md:mb-4 px-4 md:px-4 w-full">
-      <div className="relative border border-white/10 rounded-[20px] overflow-visible">
+      <div className="relative overflow-visible">
         <div className="flex flex-row justify-center items-center gap-2 md:gap-6 p-3 md:p-4 w-full">
           <div className="flex-1 min-w-0">
             <div className="relative flex items-center w-full">
               <input
                 type="text"
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-6 md:px-7 py-3 md:py-4 pr-10 md:pr-14 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-sm md:text-base transition-colors"
+                className="bg-white px-6 md:px-7 py-3 md:py-4 pr-10 md:pr-14 border-2 border-gray-200 focus:border-[#5C8DC1] rounded-[30px] outline-none w-full h-11 text-gray-700 placeholder:text-gray-400 text-sm md:text-base transition-colors"
                 placeholder={
                   initS === "" ? loc("SearchPlaceholder", "搜索...") : initS
                 }
@@ -381,7 +439,7 @@ function SearchBar({
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.15 }}
-                    className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-5 h-5 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
+                    className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-gray-100 hover:bg-gray-200 border-none rounded-full w-5 h-5 text-gray-400 hover:text-gray-600 text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
                     onClick={handleClearSearch}
                     aria-label={loc("ClearSearch", "清空搜索")}
                   >
@@ -409,7 +467,7 @@ function SearchBar({
                 plain={true}
               >
                 <div
-                  className="top-1/2 right-3 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-5 h-5 font-bold text-[10px] text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
+                  className="top-1/2 right-3 z-10 absolute flex justify-center items-center bg-gray-100 hover:bg-[#5C8DC1]/10 active:bg-[#5C8DC1]/15 shadow-sm border border-gray-200 hover:border-[#5C8DC1]/30 rounded-full w-5 h-5 font-bold text-[10px] text-[#5C8DC1] hover:text-[#4A7DAF] leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
                   role="button"
                   aria-label="Search Hint Button"
                 >
@@ -419,34 +477,46 @@ function SearchBar({
             </div>
           </div>
 
-          <div className="shrink-0">
-            <select
-              value={
-                isMobile
-                  ? sortType === undefined
-                    ? "placeholder"
-                    : sortType
-                  : sortType
-              }
-              onChange={(e) => {
-                if (e.target.value === "placeholder") return;
-                const val = parseInt(e.target.value);
-                onSortChange(val);
-              }}
-              className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 md:px-3 py-1 border border-white/20 rounded-full outline-none w-auto min-w-16 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
-              data-mobile-label={loc("SortBy", "排序方式")}
+          <div className="shrink-0 relative" ref={sortRef}>
+            <button
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              className="flex items-center justify-center gap-1.5 bg-white hover:bg-gray-50 px-4 md:px-5 py-2 border border-gray-200 hover:border-[#5C8DC1]/30 rounded-full min-h-10 text-gray-700 hover:text-[#5C8DC1] text-xs sm:text-sm font-medium whitespace-nowrap overflow-visible transition-all duration-200 cursor-pointer"
             >
-              {isMobile && (
-                <option value="placeholder" disabled>
-                  {loc("SortBy", "排序方式")}
-                </option>
-              )}
-              {sortOptions.map((label, i) => (
-                <option key={i} value={i}>
-                  {label}
-                </option>
-              ))}
-            </select>
+              <span className="inline-flex items-center justify-center">
+                {React.createElement(sortIcons[sortType ?? 0], { size: 14 })}
+              </span>
+              <span className="inline-flex items-center">
+                {sortOptions[sortType ?? 0]}
+              </span>
+              <ChevronDown
+                size={12}
+                className={`transition-transform duration-200 ${isSortOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {isSortOpen && (
+              <div className="top-full right-0 z-20 absolute bg-white shadow-[0_8px_30px_rgba(0,0,0,0.1),0_2px_8px_rgba(0,0,0,0.04)] mt-2 py-1 border border-gray-200 rounded-xl min-w-[140px] overflow-hidden">
+                {sortOptions.map((label, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      onSortChange(i);
+                      setIsSortOpen(false);
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2.5 w-full text-sm text-left transition-colors ${
+                      (sortType ?? 0) === i
+                        ? "text-[#5C8DC1] bg-[#5C8DC1]/5 font-semibold"
+                        : "text-gray-600 hover:text-[#5C8DC1] hover:bg-gray-50"
+                    }`}
+                  >
+                    <span className="inline-flex items-center justify-center">
+                      {React.createElement(sortIcons[i], { size: 18 })}
+                    </span>
+                    <span className="inline-flex items-center">{label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -535,22 +605,22 @@ function MainComp() {
   return (
     <>
       <div className="flex justify-center px-4 pt-2 pb-3">
-        <div className="inline-flex bg-[rgba(20,20,25,0.7)] p-1 border border-white/10 rounded-full">
+        <div className="inline-flex bg-gray-100 p-1 border border-gray-200 rounded-full">
           <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${
+            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-200 cursor-pointer ${
               activeTab === "all"
-                ? "bg-blue-500/80 text-white"
-                : "text-white/80 hover:text-white"
+                ? "bg-white text-[#5C8DC1] shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
             }`}
             onClick={() => setActiveTab("all")}
           >
             {loc("AllCharts", "全部谱面")}
           </button>
           <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${
+            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-200 cursor-pointer ${
               activeTab === "random"
-                ? "bg-blue-500/80 text-white"
-                : "text-white/80 hover:text-white"
+                ? "bg-white text-[#5C8DC1] shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
             }`}
             onClick={() => setActiveTab("random")}
           >
@@ -578,27 +648,27 @@ function MainComp() {
             setMax={setMaxpage}
           />
 
-          <div className="flex flex-col items-center gap-6 mx-auto mt-12 px-4 max-w-7xl">
-            <div className="flex items-center gap-4 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-6 border border-white/10 rounded-xl">
+          <div className="flex flex-col items-center gap-4 mx-auto mt-8 px-4 max-w-7xl">
+            <div className="flex items-center gap-3 p-4">
               <button
-                className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page - 1 < 0 ? "bg-gray-500/50 cursor-not-allowed opacity-60" : ""}`}
+                className={`flex items-center justify-center px-4 py-2.5 text-gray-700 hover:text-[#5C8DC1] font-medium text-sm cursor-pointer min-w-[3rem] transition-all duration-200 hover:scale-105 active:scale-95 ${page - 1 < 0 ? "opacity-20 cursor-not-allowed" : ""}`}
                 disabled={page - 1 < 0}
                 onClick={() => {
                   setPage(page - 1);
                   window.scrollTo(0, 200);
                 }}
               >
-                ←
+                <ChevronLeft size={18} />
               </button>
 
               <div className="flex items-center gap-2">
-                <span className="text-[#ccc] text-sm">
+                <span className="text-gray-400 text-sm">
                   {loc("PageOf", "第")}
                 </span>
                 <input
                   type="number"
                   value={page}
-                  className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
+                  className="bg-gray-50 focus:shadow-[0_0_0_2px_rgba(92,141,193,0.2)] px-3 py-2 border border-gray-200 focus:border-[#5C8DC1] rounded-lg focus:outline-none w-16 font-medium text-gray-700 text-center transition-colors"
                   onChange={(event) => {
                     if (event.target.value !== "") {
                       setPage(parseInt(event.target.value));
@@ -607,38 +677,30 @@ function MainComp() {
                   min="0"
                   step="1"
                 />
-                <span className="text-[#ccc] text-sm">{loc("Page", "页")}</span>
+                <span className="text-gray-400 text-sm">
+                  {loc("Page", "页")}
+                </span>
               </div>
 
               <button
-                className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page >= maxpage ? "bg-gray-500/50 cursor-not-allowed opacity-60" : ""}`}
+                className={`flex items-center justify-center px-4 py-2.5 text-gray-700 hover:text-[#5C8DC1] font-medium text-sm cursor-pointer min-w-[3rem] transition-all duration-200 hover:scale-105 active:scale-95 ${page >= maxpage ? "opacity-20 cursor-not-allowed" : ""}`}
                 disabled={page >= maxpage}
                 onClick={() => {
                   setPage(page + 1);
                   window.scrollTo(0, 200);
                 }}
               >
-                →
+                <ChevronRight size={18} />
               </button>
             </div>
-
-            <button
-              className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer"
-              onClick={() => {
-                setPage(0);
-                window.scrollTo(0, 200);
-              }}
-            >
-              {loc("FrontPage", "首页")}
-            </button>
-            <IntegratedDownloadTypeSelector isMobile={true} />
+            <IntegratedDownloadTypeSelector />
           </div>
         </>
       ) : (
         <>
-          <div className="flex flex-col items-center gap-4 mx-auto mb-6 px-4 max-w-7xl">
+          <div className="flex justify-center mx-auto mb-6 px-4 max-w-7xl">
             <button
-              className="bg-blue-500/80 hover:bg-blue-500 px-6 py-2 border-none rounded-lg font-medium text-white cursor-pointer"
+              className="flex items-center gap-2 bg-white hover:bg-gray-50 px-5 py-2.5 border border-gray-200 hover:border-[#5C8DC1]/30 rounded-lg text-gray-700 hover:text-[#5C8DC1] text-sm font-medium transition-all duration-200 cursor-pointer"
               onClick={refreshRandomBatch}
             >
               {loc("RefreshBatch", "换一批")}
@@ -648,7 +710,7 @@ function MainComp() {
           <RandomRecommendList refreshKey={randomSeed} />
 
           <div className="flex justify-center mt-12 px-4">
-            <IntegratedDownloadTypeSelector isMobile={true} />
+            <IntegratedDownloadTypeSelector />
           </div>
         </>
       )}
@@ -720,48 +782,46 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   );
 }
 
-function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
-  const loc = useLoc();
+function IntegratedDownloadTypeSelector() {
   const [currentType, setCurrentType] = useState(() => {
     return localStorage.getItem("DownloadType") || "zip";
   });
-  const [justChanged, setJustChanged] = useState(false);
-
-  const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newtype = e.target.value;
-    if (newtype === "placeholder") return;
-    localStorage.setItem("DownloadType", newtype);
-    setCurrentType(newtype);
-
-    setJustChanged(true);
-    setTimeout(() => setJustChanged(false), 2000);
-  };
+  const [setJustChanged] = useState(false);
 
   return (
-    <div className="flex items-center gap-3">
-      {!isMobile && (
-        <label className={`${justChanged ? "text-[#22c55e]" : ""}`}>
-          {loc("DownloadFormat", "下载格式")}
-          {justChanged && (
-            <span className="ml-2 font-semibold text-[#22c55e] text-sm">✓</span>
-          )}
-        </label>
-      )}
-      <select
-        value={isMobile ? currentType || "placeholder" : currentType}
-        onChange={handleChange}
-        className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
-        data-mobile-label={loc("DownloadFormat", "下载格式")}
-      >
-        {isMobile && (
-          <option value="placeholder" disabled>
-            {loc("DownloadFormat", "下载格式")}
-            {justChanged && " ✓"}
-          </option>
-        )}
-        <option value="zip">ZIP</option>
-        <option value="adx">ADX</option>
-      </select>
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="flex bg-gray-100 rounded-full p-0.5">
+        <button
+          onClick={() => {
+            localStorage.setItem("DownloadType", "zip");
+            setCurrentType("zip");
+            setJustChanged(true);
+            setTimeout(() => setJustChanged(false), 2000);
+          }}
+          className={`px-3 md:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+            currentType === "zip"
+              ? "bg-white text-[#5C8DC1] shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          ZIP
+        </button>
+        <button
+          onClick={() => {
+            localStorage.setItem("DownloadType", "adx");
+            setCurrentType("adx");
+            setJustChanged(true);
+            setTimeout(() => setJustChanged(false), 2000);
+          }}
+          className={`px-3 md:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+            currentType === "adx"
+              ? "bg-white text-[#5C8DC1] shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          ADX
+        </button>
+      </div>
     </div>
   );
 }
