@@ -3,14 +3,14 @@ import { toast } from 'react-toastify';
 import axios, { AxiosError } from 'axios';
 import { md5 } from 'js-md5';
 import { endpoints } from '@/config/api';
-import { useLoc } from '@/hooks';
+import { useLoc, useUserContext } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import { motion } from 'framer-motion';
 import { MdOutlineAudioFile, MdOutlineDescription, MdOutlineImage, MdOutlineVideoFile, MdCloudUpload } from 'react-icons/md';
 import { LoadingSpinner } from '@/components';
 import type { Song } from '@/types';
 
-type HashLookupStatus = 'idle' | 'checking' | 'notFound' | 'exists' | 'inheritsScores' | 'error';
+type HashLookupStatus = 'idle' | 'checking' | 'notFound' | 'exists' | 'inheritsScores' | 'loginRequired' | 'error';
 
 interface HashLookupState {
   status: HashLookupStatus;
@@ -27,8 +27,12 @@ interface HashStatusResponse {
   Exists?: boolean;
   hasHistoricalScores?: boolean;
   HasHistoricalScores?: boolean;
+  hasHistoricalInteract?: boolean;
+  HasHistoricalInteract?: boolean;
   willInheritScores?: boolean;
   WillInheritScores?: boolean;
+  willInheritInteract?: boolean;
+  WillInheritInteract?: boolean;
   chart?: Song | null;
   Chart?: Song | null;
 }
@@ -89,6 +93,7 @@ function hashCandidatesFromBytes(bytes: Uint8Array) {
 
 export default function ChartUploader() {
   const loc = useLoc();
+  const { user, isLoading: isUserLoading } = useUserContext();
   const [isUploading, setIsUploading] = useState(false);
   const [hashLookup, setHashLookup] = useState<HashLookupState>({ status: 'idle' });
   const hashLookupSeq = useRef(0);
@@ -105,6 +110,18 @@ export default function ChartUploader() {
     setHashLookup({ status: 'checking', fileKey });
 
     try {
+      if (!user) {
+        const nextState: HashLookupState = {
+          status: 'loginRequired',
+          fileKey,
+          message: isUserLoading
+            ? loc('MaidataHashChecking', 'Checking whether this chart already exists...')
+            : loc('MaidataHashLoginRequired', 'Please log in before checking maidata hash'),
+        };
+        setHashLookup(nextState);
+        return nextState;
+      }
+
       const bytes = new Uint8Array(await file.arrayBuffer());
       const hashes = hashCandidatesFromBytes(bytes);
       let inheritedState: HashLookupState | null = null;
@@ -116,11 +133,13 @@ export default function ChartUploader() {
         });
         const exists = response.data.exists ?? response.data.Exists;
         const hasHistoricalScores = response.data.hasHistoricalScores ?? response.data.HasHistoricalScores;
+        const hasHistoricalInteract = response.data.hasHistoricalInteract ?? response.data.HasHistoricalInteract;
         const willInheritScores = response.data.willInheritScores ?? response.data.WillInheritScores;
+        const willInheritInteract = response.data.willInheritInteract ?? response.data.WillInheritInteract;
         const chart = response.data.chart ?? response.data.Chart ?? undefined;
         const result: Pick<HashLookupState, 'status' | 'chart'> | null = exists
           ? { status: 'exists', chart }
-          : willInheritScores || hasHistoricalScores
+          : willInheritScores || hasHistoricalScores || willInheritInteract || hasHistoricalInteract
             ? { status: 'inheritsScores' }
             : null;
 
@@ -161,10 +180,13 @@ export default function ChartUploader() {
       }
 
       const error = e as { response?: { data?: unknown }; message?: string };
+      const isUnauthorized = e instanceof AxiosError && e.response?.status === 401;
       const nextState: HashLookupState = {
-        status: 'error',
+        status: isUnauthorized ? 'loginRequired' : 'error',
         fileKey,
-        message: getDisplayMessage(error.response?.data ?? error.message, loc('MaidataHashLookupFailed', 'Failed to query maidata hash')),
+        message: isUnauthorized
+          ? loc('MaidataHashLoginRequired', 'Please log in before checking maidata hash')
+          : getDisplayMessage(error.response?.data ?? error.message, loc('MaidataHashLookupFailed', 'Failed to query maidata hash')),
       };
       if (hashLookupSeq.current === seq) {
         setHashLookup(nextState);
@@ -275,7 +297,8 @@ export default function ChartUploader() {
     exists: hashLookup.chart
       ? loc('MaidataAlreadyExistsWithTitle', 'This chart already exists on the site') + `: ${hashLookup.chart.title}`
       : loc('MaidataAlreadyExists', 'This chart already exists on the site'),
-    inheritsScores: loc('MaidataWillInheritScores', 'This upload will inherit previous scores'),
+    inheritsScores: loc('MaidataWillInheritHistory', 'This upload will inherit previous scores or interactions'),
+    loginRequired: hashLookup.message || loc('MaidataHashLoginRequired', 'Please log in before checking maidata hash'),
     error: hashLookup.message || loc('MaidataHashLookupFailed', 'Failed to query maidata hash'),
   };
   const hashLookupStatusClass: Record<HashLookupStatus, string> = {
@@ -284,9 +307,10 @@ export default function ChartUploader() {
     notFound: 'text-emerald-300',
     exists: 'text-red-300',
     inheritsScores: 'text-amber-300',
+    loginRequired: 'text-red-300',
     error: 'text-red-300',
   };
-  const cannotUploadByHash = hashLookup.status === 'checking' || hashLookup.status === 'exists';
+  const cannotUploadByHash = hashLookup.status === 'checking' || hashLookup.status === 'exists' || hashLookup.status === 'loginRequired';
 
   return (
     <motion.div

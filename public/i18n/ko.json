@@ -147,6 +147,8 @@
   "MaidataAlreadyExists": "이 채보는 이미 사이트에 존재합니다",
   "MaidataAlreadyExistsWithTitle": "이 채보는 이미 사이트에 존재합니다",
   "MaidataWillInheritScores": "이번 업로드는 이전 점수를 이어받습니다",
+  "MaidataWillInheritHistory": "이번 업로드는 이전 점수 또는 상호작용을 이어받습니다",
+  "MaidataHashLoginRequired": "maidata.txt 해시를 확인하기 전에 로그인하세요",
   "MaidataHashLookupFailed": "maidata.txt 해시 조회에 실패했습니다",
   "View": "보기",
   "ManageYourCharts": "내가 올린 채보를 관리하세요",

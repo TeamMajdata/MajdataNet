@@ -147,6 +147,8 @@
   "MaidataAlreadyExists": "This chart already exists on the site",
   "MaidataAlreadyExistsWithTitle": "This chart already exists on the site",
   "MaidataWillInheritScores": "This upload will inherit previous scores",
+  "MaidataWillInheritHistory": "This upload will inherit previous scores or interactions",
+  "MaidataHashLoginRequired": "Please log in before checking maidata.txt hash",
   "MaidataHashLookupFailed": "Failed to query maidata.txt hash",
   "View": "View",
   "ManageYourCharts": "Manage your uploaded charts",
