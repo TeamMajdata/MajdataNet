@@ -112,7 +112,7 @@ export default function ChartUploader() {
           fileKey,
           message: isUserLoading
             ? loc('MaidataHashChecking', 'Checking whether this chart already exists...')
-            : loc('MaidataHashLoginRequired', 'Please log in before checking maidata hash'),
+            : loc('NotLoggedIn', 'Not logged in'),
         };
         setHashLookup(nextState);
         return nextState;
@@ -179,7 +179,7 @@ export default function ChartUploader() {
         status: isUnauthorized ? 'loginRequired' : 'error',
         fileKey,
         message: isUnauthorized
-          ? loc('MaidataHashLoginRequired', 'Please log in before checking maidata hash')
+          ? loc('NotLoggedIn', 'Not logged in')
           : getDisplayMessage(error.response?.data ?? error.message, loc('MaidataHashLookupFailed', 'Failed to query maidata hash')),
       };
       if (hashLookupSeq.current === seq) {
@@ -292,7 +292,7 @@ export default function ChartUploader() {
       ? loc('MaidataAlreadyExistsWithTitle', 'This chart already exists on the site') + `: ${hashLookup.chart.title}`
       : loc('MaidataAlreadyExists', 'This chart already exists on the site'),
     inheritsHistory: loc('MaidataWillInheritHistory', 'This upload will inherit previous scores or interactions'),
-    loginRequired: hashLookup.message || loc('MaidataHashLoginRequired', 'Please log in before checking maidata hash'),
+    loginRequired: hashLookup.message || loc('NotLoggedIn', 'Not logged in'),
     error: hashLookup.message || loc('MaidataHashLookupFailed', 'Failed to query maidata hash'),
   };
   const hashLookupStatusClass: Record<HashLookupStatus, string> = {
