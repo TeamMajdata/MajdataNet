@@ -10,7 +10,7 @@ import { MdOutlineAudioFile, MdOutlineDescription, MdOutlineImage, MdOutlineVide
 import { LoadingSpinner } from '@/components';
 import type { Song } from '@/types';
 
-type HashLookupStatus = 'idle' | 'checking' | 'notFound' | 'exists' | 'inheritsScores' | 'loginRequired' | 'error';
+type HashLookupStatus = 'idle' | 'checking' | 'notFound' | 'exists' | 'inheritsHistory' | 'loginRequired' | 'error';
 
 interface HashLookupState {
   status: HashLookupStatus;
@@ -29,10 +29,6 @@ interface HashStatusResponse {
   HasHistoricalScores?: boolean;
   hasHistoricalInteract?: boolean;
   HasHistoricalInteract?: boolean;
-  willInheritScores?: boolean;
-  WillInheritScores?: boolean;
-  willInheritInteract?: boolean;
-  WillInheritInteract?: boolean;
   chart?: Song | null;
   Chart?: Song | null;
 }
@@ -134,13 +130,11 @@ export default function ChartUploader() {
         const exists = response.data.exists ?? response.data.Exists;
         const hasHistoricalScores = response.data.hasHistoricalScores ?? response.data.HasHistoricalScores;
         const hasHistoricalInteract = response.data.hasHistoricalInteract ?? response.data.HasHistoricalInteract;
-        const willInheritScores = response.data.willInheritScores ?? response.data.WillInheritScores;
-        const willInheritInteract = response.data.willInheritInteract ?? response.data.WillInheritInteract;
         const chart = response.data.chart ?? response.data.Chart ?? undefined;
         const result: Pick<HashLookupState, 'status' | 'chart'> | null = exists
           ? { status: 'exists', chart }
-          : willInheritScores || hasHistoricalScores || willInheritInteract || hasHistoricalInteract
-            ? { status: 'inheritsScores' }
+          : hasHistoricalScores || hasHistoricalInteract
+            ? { status: 'inheritsHistory' }
             : null;
 
         if (result) {
@@ -150,7 +144,7 @@ export default function ChartUploader() {
             hash,
             chart: result.chart,
           };
-          if (nextState.status === 'inheritsScores') {
+          if (nextState.status === 'inheritsHistory') {
             inheritedState ??= nextState;
             continue;
           }
@@ -297,7 +291,7 @@ export default function ChartUploader() {
     exists: hashLookup.chart
       ? loc('MaidataAlreadyExistsWithTitle', 'This chart already exists on the site') + `: ${hashLookup.chart.title}`
       : loc('MaidataAlreadyExists', 'This chart already exists on the site'),
-    inheritsScores: loc('MaidataWillInheritHistory', 'This upload will inherit previous scores or interactions'),
+    inheritsHistory: loc('MaidataWillInheritHistory', 'This upload will inherit previous scores or interactions'),
     loginRequired: hashLookup.message || loc('MaidataHashLoginRequired', 'Please log in before checking maidata hash'),
     error: hashLookup.message || loc('MaidataHashLookupFailed', 'Failed to query maidata hash'),
   };
@@ -306,7 +300,7 @@ export default function ChartUploader() {
     checking: 'text-blue-300',
     notFound: 'text-emerald-300',
     exists: 'text-red-300',
-    inheritsScores: 'text-amber-300',
+    inheritsHistory: 'text-amber-300',
     loginRequired: 'text-red-300',
     error: 'text-red-300',
   };
