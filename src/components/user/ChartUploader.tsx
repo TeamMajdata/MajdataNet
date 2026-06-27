@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios, { AxiosError } from 'axios';
 import { md5 } from 'js-md5';
+import { Link } from 'react-router-dom';
 import { endpoints } from '@/config/api';
 import { useLoc, useUserContext } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
@@ -21,16 +22,10 @@ interface HashLookupState {
 }
 
 interface HashStatusResponse {
-  hash?: string;
-  Hash?: string;
   exists?: boolean;
-  Exists?: boolean;
   hasHistoricalScores?: boolean;
-  HasHistoricalScores?: boolean;
   hasHistoricalInteract?: boolean;
-  HasHistoricalInteract?: boolean;
   chart?: Song | null;
-  Chart?: Song | null;
 }
 
 function getFileKey(file: File) {
@@ -127,10 +122,10 @@ export default function ChartUploader() {
           withCredentials: true,
           signal: abortController.signal,
         });
-        const exists = response.data.exists ?? response.data.Exists;
-        const hasHistoricalScores = response.data.hasHistoricalScores ?? response.data.HasHistoricalScores;
-        const hasHistoricalInteract = response.data.hasHistoricalInteract ?? response.data.HasHistoricalInteract;
-        const chart = response.data.chart ?? response.data.Chart ?? undefined;
+        const exists = response.data.exists;
+        const hasHistoricalScores = response.data.hasHistoricalScores;
+        const hasHistoricalInteract = response.data.hasHistoricalInteract;
+        const chart = response.data.chart ?? undefined;
         const result: Pick<HashLookupState, 'status' | 'chart'> | null = exists
           ? { status: 'exists', chart }
           : hasHistoricalScores || hasHistoricalInteract
@@ -356,6 +351,7 @@ export default function ChartUploader() {
                 >
                   {loc('View', 'View')}
                 </Link>
+              )}
             </div>
           )}
 
