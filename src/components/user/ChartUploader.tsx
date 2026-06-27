@@ -350,13 +350,12 @@ export default function ChartUploader() {
               {hashLookup.status === 'checking' && <LoadingSpinner className="w-4 h-4" />}
               <span>{hashLookupStatusText[hashLookup.status]}</span>
               {hashLookup.status === 'exists' && hashLookup.chart && (
-                <a
+                <Link
                   className="text-blue-300 hover:text-blue-200 underline"
-                  href={`/song?id=${encodeURIComponent(hashLookup.chart.id)}`}
+                  to={`/song?id=${encodeURIComponent(hashLookup.chart.id)}`}
                 >
                   {loc('View', 'View')}
-                </a>
-              )}
+                </Link>
             </div>
           )}
 
