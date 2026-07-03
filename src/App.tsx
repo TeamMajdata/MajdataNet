@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nProvider } from './contexts/I18nContext';
@@ -6,7 +7,6 @@ import { TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/componen
 import HomePage from './pages/HomePage';
 import ForginsterPage from './pages/ForginsterPage';
 import EditPage from './pages/EditPage';
-import PlayPage from './pages/PlayPage';
 import EventsPage from './pages/EventsPage';
 import RankingPage from './pages/RankingPage';
 import UserRankingPage from './pages/ranking/UserRankingPage';
@@ -25,6 +25,13 @@ import NotFoundPage from './pages/NotFoundPage';
 import CollectionsHirobaPage from './pages/collection/HirobaPage';
 import CollectionPage from './pages/collection/CollectionPage';
 
+function ExternalRedirect({ to }: { to: string }) {
+  useEffect(() => {
+    window.location.replace(to);
+  }, [to]);
+  return null;
+}
+
 function App() {
   return (
     <HelmetProvider>
@@ -39,7 +46,7 @@ function App() {
                 <Route path="/register" element={<ForginsterPage />} />
                 <Route path="/forget" element={<ForginsterPage />} />
                 <Route path="/edit" element={<EditPage />} />
-                <Route path="/play" element={<PlayPage />} />
+                <Route path="/play" element={<ExternalRedirect to="https://docs.majdata.net/majdataplay/" />} />
                 <Route path="/chart-events" element={<EventsPage />} />
                 <Route path="/ranking" element={<RankingPage />} />
                 <Route path="/ranking/user" element={<UserRankingPage />} />
