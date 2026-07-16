@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios, { AxiosError } from 'axios';
 import { Link } from 'react-router-dom';
@@ -6,6 +6,11 @@ import { endpoints } from '@/config/api';
 import { useLoc, useUserContext } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import { getFileKey, hashCandidatesFromBytes } from '@/utils/maidataHash';
+import {
+  validateMaidataBytes,
+  type MaidataValidationResult,
+  type RequiredMaidataMetadata,
+} from '@/utils/maidataValidation';
 import { motion } from 'framer-motion';
 import { MdOutlineAudioFile, MdOutlineDescription, MdOutlineImage, MdOutlineVideoFile, MdCloudUpload } from 'react-icons/md';
 import { LoadingSpinner } from '@/components';
@@ -28,15 +33,98 @@ interface HashStatusResponse {
   chart?: Song | null;
 }
 
+type MaidataValidationStatus = 'idle' | 'checking' | 'valid' | 'invalid' | 'readError' | 'fileChanged';
+
+interface MaidataValidationState {
+  status: MaidataValidationStatus;
+  fileKey?: string;
+  result?: MaidataValidationResult;
+  contentHash?: string;
+}
+
+const metadataErrorKeys: Record<RequiredMaidataMetadata, string> = {
+  title: 'MaidataTitleMissingOrEmpty',
+  artist: 'MaidataArtistMissingOrEmpty',
+  des: 'MaidataDesignerMissingOrEmpty',
+};
+
+const metadataErrorFallbacks: Record<RequiredMaidataMetadata, string> = {
+  title: '歌曲名(&title)缺失或为空',
+  artist: '艺术家(&artist)缺失或为空',
+  des: '谱师(&des)缺失或为空',
+};
+
 export default function ChartUploader() {
   const loc = useLoc();
   const { user, isLoading: isUserLoading } = useUserContext();
   const [isUploading, setIsUploading] = useState(false);
   const [hashLookup, setHashLookup] = useState<HashLookupState>({ status: 'idle' });
+  const [maidataValidation, setMaidataValidation] = useState<MaidataValidationState>({ status: 'idle' });
   const hashLookupSeq = useRef(0);
   const hashLookupAbort = useRef<AbortController | null>(null);
+  const maidataInputRef = useRef<HTMLInputElement | null>(null);
+  const maidataFileBeforePicker = useRef<File | null>(null);
 
-  async function lookupMaidataHash(file: File) {
+  useEffect(() => {
+    const input = maidataInputRef.current;
+    if (!input) {
+      return;
+    }
+
+    // 取消文件选择时，恢复选中之前已选的maidata
+    const handleCancel = () => {
+      const previousFile = maidataFileBeforePicker.current;
+      maidataFileBeforePicker.current = null;
+
+      if (!previousFile || typeof DataTransfer === 'undefined') {
+        return;
+      }
+
+      try {
+        const transfer = new DataTransfer();
+        transfer.items.add(previousFile);
+        input.files = transfer.files;
+      } catch {
+        hashLookupSeq.current += 1;
+        hashLookupAbort.current?.abort();
+        setMaidataValidation({ status: 'idle' });
+        setHashLookup({ status: 'idle' });
+      }
+    };
+
+    input.addEventListener('cancel', handleCancel);
+    return () => input.removeEventListener('cancel', handleCancel);
+  }, []);
+
+  function getMaidataValidationMessages(state: MaidataValidationState) {
+    if (state.status === 'fileChanged') {
+      return [loc('MaidataFileChanged', 'maidata.txt was modified after it was selected. Please select the file again.')];
+    }
+
+    if (state.status === 'readError') {
+      return [loc('MaidataFileReadFailed', 'Failed to read maidata.txt. Please select the file again.')];
+    }
+
+    if (state.status !== 'invalid' || !state.result) {
+      return [];
+    }
+
+    if (state.result.empty) {
+      return [loc('MaidataFileEmpty', 'maidata.txt cannot be empty')];
+    }
+
+    return state.result.missingOrEmptyMetadata.map((key) =>
+      loc(metadataErrorKeys[key], metadataErrorFallbacks[key]),
+    );
+  }
+
+  function showMaidataValidationToasts(state: MaidataValidationState) {
+    for (const message of getMaidataValidationMessages(state)) {
+      toast.error(message, { autoClose: false });
+    }
+  }
+
+  async function inspectMaidata(file: File, showValidationToast = false) {
     const fileKey = getFileKey(file);
     const seq = hashLookupSeq.current + 1;
     hashLookupSeq.current = seq;
@@ -44,23 +132,66 @@ export default function ChartUploader() {
     const abortController = new AbortController();
     hashLookupAbort.current = abortController;
 
+    setMaidataValidation({ status: 'checking', fileKey });
+    setHashLookup({ status: 'idle' });
+
+    let bytes: Uint8Array;
+    let validationResult: MaidataValidationResult;
+
+    try {
+      bytes = new Uint8Array(await file.arrayBuffer());
+      validationResult = validateMaidataBytes(bytes);
+    } catch {
+      if (hashLookupSeq.current === seq) {
+        const nextState: MaidataValidationState = { status: 'readError', fileKey };
+        setMaidataValidation(nextState);
+        setHashLookup({ status: 'idle' });
+        if (showValidationToast) {
+          showMaidataValidationToasts(nextState);
+        }
+      }
+      return;
+    }
+
+    if (hashLookupSeq.current !== seq) {
+      return;
+    }
+
+    if (!validationResult.valid) {
+      const nextState: MaidataValidationState = {
+        status: 'invalid',
+        fileKey,
+        result: validationResult,
+      };
+      setMaidataValidation(nextState);
+      if (showValidationToast) {
+        showMaidataValidationToasts(nextState);
+      }
+      return;
+    }
+
+    const hashes = hashCandidatesFromBytes(bytes);
+    setMaidataValidation({
+      status: 'valid',
+      fileKey,
+      result: validationResult,
+      contentHash: hashes[0],
+    });
+
+    if (!user) {
+      setHashLookup({
+        status: 'loginRequired',
+        fileKey,
+        message: isUserLoading
+          ? loc('MaidataHashChecking', 'Checking whether this chart already exists...')
+          : loc('NotLoggedIn', 'Not logged in'),
+      });
+      return;
+    }
+
     setHashLookup({ status: 'checking', fileKey });
 
     try {
-      if (!user) {
-        const nextState: HashLookupState = {
-          status: 'loginRequired',
-          fileKey,
-          message: isUserLoading
-            ? loc('MaidataHashChecking', 'Checking whether this chart already exists...')
-            : loc('NotLoggedIn', 'Not logged in'),
-        };
-        setHashLookup(nextState);
-        return nextState;
-      }
-
-      const bytes = new Uint8Array(await file.arrayBuffer());
-      const hashes = hashCandidatesFromBytes(bytes);
       let inheritedState: HashLookupState | null = null;
 
       for (const hash of hashes) {
@@ -130,9 +261,10 @@ export default function ChartUploader() {
     }
   }
 
-  function resetHashLookup() {
+  function resetMaidataInspection() {
     hashLookupSeq.current += 1;
     hashLookupAbort.current?.abort();
+    setMaidataValidation({ status: 'idle' });
     setHashLookup({ status: 'idle' });
   }
 
@@ -141,13 +273,59 @@ export default function ChartUploader() {
       return;
     }
 
+    maidataFileBeforePicker.current = null;
     const file = event.currentTarget.files?.[0];
     if (!file) {
-      resetHashLookup();
+      resetMaidataInspection();
       return;
     }
 
-    void lookupMaidataHash(file);
+    void inspectMaidata(file);
+  }
+
+  function onFileInputClick(index: number, event: React.MouseEvent<HTMLInputElement>) {
+    if (index !== 0 || event.currentTarget.value === '' || typeof DataTransfer === 'undefined') {
+      return;
+    }
+
+    // 将上次选中的文件暂存到另一对象，并清空当前控件value，使再次选择同一文件也会触发change重新校验maidata
+    maidataFileBeforePicker.current = event.currentTarget.files?.[0] ?? null;
+    event.currentTarget.value = '';
+  }
+
+  function markMaidataFileChanged(fileKey: string) {
+    hashLookupSeq.current += 1;
+    hashLookupAbort.current?.abort();
+    const nextState: MaidataValidationState = { status: 'fileChanged', fileKey };
+    setMaidataValidation(nextState);
+    setHashLookup({ status: 'idle' });
+    showMaidataValidationToasts(nextState);
+  }
+
+  async function createStableMaidataFile(file: File) {
+    let bytes: Uint8Array;
+
+    try {
+      // 上传前重新读取磁盘文件，用于识别选择后被修改的文件。
+      bytes = new Uint8Array(await file.arrayBuffer());
+    } catch {
+      markMaidataFileChanged(getFileKey(file));
+      return null;
+    }
+
+    const contentHash = hashCandidatesFromBytes(bytes)[0];
+    if (!maidataValidation.contentHash || contentHash !== maidataValidation.contentHash) {
+      markMaidataFileChanged(getFileKey(file));
+      return null;
+    }
+
+    // 使用内存副本上传，避免读取完成后源文件再次变化导致 ERR_UPLOAD_FILE_CHANGED。
+    const stableBuffer = new ArrayBuffer(bytes.byteLength);
+    new Uint8Array(stableBuffer).set(bytes);
+    return new File([stableBuffer], file.name, {
+      type: file.type,
+      lastModified: file.lastModified,
+    });
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -157,16 +335,16 @@ export default function ChartUploader() {
     const filesNecessary = formData.getAll('formfiles');
 
     const fileChecks = [
-      { file: filesNecessary[0], name: 'maidata.txt' },
-      { file: filesNecessary[1], name: 'bg.png/bg.jpg' },
-      { file: filesNecessary[2], name: 'track' },
+      { file: filesNecessary[0], name: 'maidata.txt', checkSize: false },
+      { file: filesNecessary[1], name: 'bg.png/bg.jpg', checkSize: true },
+      { file: filesNecessary[2], name: 'track', checkSize: true },
     ];
 
     const missedFiles: string[] = [];
 
-    for (const { file, name } of fileChecks) {
+    for (const { file, name, checkSize } of fileChecks) {
       const fileObj = file as File;
-      if (!fileObj || fileObj.name === '' || fileObj.size === 0) {
+      if (!fileObj || fileObj.name === '' || (checkSize && fileObj.size === 0)) {
         missedFiles.push(name);
       }
     }
@@ -178,9 +356,45 @@ export default function ChartUploader() {
       return;
     }
 
+    const maidataFile = filesNecessary[0] as File;
+    const maidataFileKey = getFileKey(maidataFile);
+    const validationMatchesFile = maidataValidation.fileKey === maidataFileKey;
+
+    if (
+      validationMatchesFile
+      && (
+        maidataValidation.status === 'invalid'
+        || maidataValidation.status === 'readError'
+        || maidataValidation.status === 'fileChanged'
+      )
+    ) {
+      showMaidataValidationToasts(maidataValidation);
+      return;
+    }
+
+    if (!validationMatchesFile || maidataValidation.status !== 'valid') {
+      await inspectMaidata(maidataFile, true);
+      return;
+    }
+
     if (hashLookup.status === 'exists') {
       toast.error(loc('MaidataAlreadyExists', 'This chart already exists on the site'), { autoClose: false });
       return;
+    }
+
+    const stableMaidataFile = await createStableMaidataFile(maidataFile);
+    if (!stableMaidataFile) {
+      return;
+    }
+
+    const uploadFormData = new FormData();
+    let formfileIndex = 0;
+    for (const [key, value] of formData.entries()) {
+      if (key === 'formfiles' && formfileIndex++ === 0) {
+        uploadFormData.append(key, stableMaidataFile);
+      } else {
+        uploadFormData.append(key, value);
+      }
     }
 
     const uploading = toast.loading(loc('Uploading'), {
@@ -190,7 +404,7 @@ export default function ChartUploader() {
     setIsUploading(true);
 
     try {
-      const response = await axios.post(endpoints.maichart.upload, formData, {
+      const response = await axios.post(endpoints.maichart.upload, uploadFormData, {
         onUploadProgress: function (progressEvent) {
           if (progressEvent.total && progressEvent.lengthComputable) {
             const progress = progressEvent.loaded / progressEvent.total;
@@ -245,6 +459,11 @@ export default function ChartUploader() {
     loginRequired: 'text-red-300',
     error: 'text-red-300',
   };
+  const maidataValidationMessages = getMaidataValidationMessages(maidataValidation);
+  const cannotUploadByValidation = maidataValidation.status === 'checking'
+    || maidataValidation.status === 'invalid'
+    || maidataValidation.status === 'readError'
+    || maidataValidation.status === 'fileChanged';
   const cannotUploadByHash = hashLookup.status === 'checking' || hashLookup.status === 'exists' || hashLookup.status === 'loginRequired';
 
   return (
@@ -278,13 +497,23 @@ export default function ChartUploader() {
                     className="bg-transparent hover:file:bg-white/20 file:bg-white/10 file:mr-4 px-4 file:px-3 py-3 file:py-1.5 file:border-0 file:rounded-md focus:outline-none w-full file:font-semibold text-gray-300 hover:file:text-white file:text-gray-300 file:text-xs text-sm transition-colors cursor-pointer"
                     type="file"
                     name="formfiles"
+                    ref={index === 0 ? maidataInputRef : undefined}
                     disabled={isUploading}
+                    onClick={index === 0 ? (event) => onFileInputClick(index, event) : undefined}
                     onChange={(event) => onFileChange(index, event)}
                   />
                 </div>
               </div>
             ))}
           </div>
+
+          {maidataValidationMessages.length > 0 && (
+            <div className="space-y-1 text-red-300 text-sm">
+              {maidataValidationMessages.map((message) => (
+                <div key={message}>{message}</div>
+              ))}
+            </div>
+          )}
 
           {hashLookup.status !== 'idle' && (
             <div className={`flex items-center gap-2 text-sm ${hashLookupStatusClass[hashLookup.status]}`}>
@@ -305,12 +534,12 @@ export default function ChartUploader() {
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
             className={`mt-4 w-full py-3 rounded-xl font-bold text-gray-200 shadow-lg transition-all duration-200 flex items-center justify-center gap-2 border border-white/5
-              ${isUploading || cannotUploadByHash
+              ${isUploading || cannotUploadByValidation || cannotUploadByHash
                 ? 'bg-red-900/50 cursor-not-allowed opacity-70'
                 : 'bg-[#2e2e2e] hover:bg-[#3a3a3a] hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]'
               }`}
             type="submit"
-            disabled={isUploading || cannotUploadByHash}
+            disabled={isUploading || cannotUploadByValidation || cannotUploadByHash}
           >
             {isUploading ? (
               <>
