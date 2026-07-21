@@ -238,6 +238,8 @@
   "LoginNow": "Login Now",
   "RegisterNow": "Register Now",
   "VerificationFailed": "Verification failed: ",
+  "WaitingForCloudflareVerification": "Waiting for Cloudflare verification",
+  "CloudflareVerificationNotReady": "Cloudflare verification is not ready. Check your network and try again shortly.",
   "EnterUsername": "Enter username",
   "EnterPassword": "Enter password",
   "EnterEmail": "Enter email",

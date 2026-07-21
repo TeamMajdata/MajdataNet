@@ -248,6 +248,8 @@
   "LoginNow": "立即登录",
   "RegisterNow": "立即注册",
   "VerificationFailed": "验证失败：",
+  "WaitingForCloudflareVerification": "等待 Cloudflare 验证",
+  "CloudflareVerificationNotReady": "Cloudflare 验证尚未完成，请检查网络后稍候重试",
   "EnterUsername": "请输入用户名",
   "EnterPassword": "请输入密码",
   "EnterEmail": "请输入邮箱",
