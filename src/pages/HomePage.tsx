@@ -489,10 +489,7 @@ function MainComp() {
   const loc = useLoc();
   const [searchParams] = useSearchParams();
   const isInitialMount = useRef(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'random'>(() => {
-    const stored = localStorage.getItem('homeActiveTab');
-    return stored === 'random' ? 'random' : 'all';
-  });
+  const [activeTab, setActiveTab] = useState<'all' | 'random'>('all');
 
   // 从 localStorage 或 URL 参数初始化状态
   const [Search, setSearch] = useState(() => {
@@ -555,10 +552,6 @@ function MainComp() {
   const refreshRandomBatch = useCallback(() => {
     setRandomSeed((prev) => prev + 1);
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('homeActiveTab', activeTab);
-  }, [activeTab]);
 
   // 渲染数据
   return (
