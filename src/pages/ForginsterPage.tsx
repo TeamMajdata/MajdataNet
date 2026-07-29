@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import 'react-photo-view/dist/react-photo-view.css';
 import { md5 } from 'js-md5';
 import { endpoints } from '@/config/api';
@@ -17,6 +17,47 @@ type TabType = 'login' | 'register' | 'forget';
 
 const TAB_ORDER: TabType[] = ['login', 'register', 'forget'];
 const AUTH_CARD_CLASSNAME = 'bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-8 md:p-12 border border-white/10 rounded-[20px]';
+const TURNSTILE_SITE_KEY = '0x4AAAAAACAEyA1EhHmEDS0o';
+const TURNSTILE_SCRIPT_ID = 'cloudflare-turnstile-script';
+
+type TurnstileApi = {
+  render: (container: HTMLElement, options: { sitekey: string }) => string;
+  remove?: (widgetId: string) => void;
+};
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi;
+  }
+}
+
+let turnstileScriptPromise: Promise<void> | null = null;
+
+function loadTurnstileScript() {
+  if (window.turnstile) return Promise.resolve();
+  if (turnstileScriptPromise) return turnstileScriptPromise;
+
+  turnstileScriptPromise = new Promise<void>((resolve, reject) => {
+    const existingScript = document.getElementById(TURNSTILE_SCRIPT_ID) as HTMLScriptElement | null;
+    const script = existingScript ?? document.createElement('script');
+
+    const handleLoad = () => resolve();
+    const handleError = () => reject(new Error('Cloudflare Turnstile failed to load'));
+
+    script.addEventListener('load', handleLoad, { once: true });
+    script.addEventListener('error', handleError, { once: true });
+
+    if (!existingScript) {
+      script.id = TURNSTILE_SCRIPT_ID;
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  });
+
+  return turnstileScriptPromise;
+}
 
 const tabTransitionVariants = {
   enter: (direction: number) => ({
@@ -270,16 +311,73 @@ function LoginTab() {
   );
 }
 
+function TurnstileWidget() {
+  const loc = useLoc();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let cancelled = false;
+    let widgetId: string | undefined;
+    const hasRenderedWidget = () => container.childElementCount > 0;
+    const updateVisibility = () => setIsVisible(hasRenderedWidget());
+    const observer = new MutationObserver(updateVisibility);
+
+    observer.observe(container, { childList: true, subtree: true });
+    updateVisibility();
+
+    loadTurnstileScript()
+      .then(() => {
+        if (cancelled || !window.turnstile || hasRenderedWidget()) return;
+        widgetId = window.turnstile.render(container, { sitekey: TURNSTILE_SITE_KEY });
+        updateVisibility();
+      })
+      .catch(() => {
+        // The placeholder remains visible when Cloudflare cannot be reached.
+      });
+
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+      if (widgetId) window.turnstile?.remove?.(widgetId);
+    };
+  }, []);
+
+  return (
+    <div className="relative w-[300px] h-[65px]" aria-live="polite">
+      <div ref={containerRef} />
+      {!isVisible && (
+        <div className="absolute inset-0 flex items-center gap-3 bg-black/35 px-4 border border-white/15 border-dashed rounded-lg text-[#b8c7db] text-sm">
+          <span className="inline-block border-2 border-blue-400/30 border-t-blue-400 rounded-full w-5 h-5 animate-spin" aria-hidden="true" />
+          <span>{loc('WaitingForCloudflareVerification', '等待 Cloudflare 验证')}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RegisterTab() {
   const loc = useLoc();
   const [isPosting, setIsPosting] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const turnstileResponse = formData.get('cf-turnstile-response');
+    if (typeof turnstileResponse !== 'string' || turnstileResponse.trim() === '') {
+      toast.error(loc(
+        'CloudflareVerificationNotReady',
+        'Cloudflare 验证尚未完成，请检查网络后稍候重试',
+      ));
+      return;
+    }
+
     setIsPosting(true);
     try {
-      event.preventDefault();
-
-      const formData = new FormData(event.currentTarget);
       if (formData.get('password') !== formData.get('password2')) {
         toast.error(loc('PasswdNoMatch', '两次密码不匹配'));
         return;
@@ -310,9 +408,13 @@ function RegisterTab() {
             case retCode.CODE_EMAIL_ALREADY_EXISTS:
               toast.error(loc('EmailExists', '邮箱已被注册'));
               break;
-            default:
-              toast.error(loc('VerificationFailed', '验证失败') + rsp.message);
+            default: {
+              const message = typeof rsp.message === 'string' ? rsp.message.trim() : '';
+              toast.error(message
+                ? `${loc('VerificationFailed', '验证失败：')}${message}`
+                : loc('VerificationFailed', '验证失败'));
               break;
+            }
           }
           return;
         }
@@ -376,12 +478,7 @@ function RegisterTab() {
           />
         </div>
         <div className="flex flex-col gap-2 scale-75 md:scale-100 origin-top-left">
-          <script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-            async
-            defer
-          ></script>
-          <div className="cf-turnstile" data-sitekey="0x4AAAAAACAEyA1EhHmEDS0o"></div>
+          <TurnstileWidget />
         </div>
         <button className="relative bg-linear-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed" type="submit" disabled={isPosting}>
           <span className="z-10 relative">{loc('Register', '注册')}</span>

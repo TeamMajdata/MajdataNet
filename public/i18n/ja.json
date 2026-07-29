@@ -238,6 +238,8 @@
   "LoginNow": "今すぐログイン",
   "RegisterNow": "今すぐ登録",
   "VerificationFailed": "認証に失敗しました：",
+  "WaitingForCloudflareVerification": "Cloudflare 認証を待っています",
+  "CloudflareVerificationNotReady": "Cloudflare 認証が完了していません。ネットワークを確認して、しばらくしてから再試行してください。",
   "EnterUsername": "ユーザー名を入力",
   "EnterPassword": "パスワードを入力",
   "EnterEmail": "メールアドレスを入力",
