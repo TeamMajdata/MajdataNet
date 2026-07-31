@@ -98,7 +98,7 @@ export default function SongPage() {
 
 function SongDetailsContainer({ id, data }: SongDetailsContainerProps & { data: SongSummary }) {
   return (
-    <div className="bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] backdrop-blur-xl backdrop-saturate-160 rounded-xl transition-all">
+      <div className="bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] backdrop-blur-xl backdrop-saturate-160 rounded-xl min-w-0 transition-all">
       <SongInfo id={id} data={data} />
     </div>
   );
@@ -125,7 +125,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
 
   return (
     <div className="bg-transparent p-6">
-      <section className="gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] mb-10">
+        <section className="gap-5 sm:gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] mb-8 sm:mb-10 min-w-0">
         <div className="flex justify-center items-start">
           <div className="shadow-[0_25px_50px_rgb(0_0_0/0.45)] w-48 md:w-64 h-48 md:h-64 hover:scale-105 transition-transform duration-300">
             <CoverPic id={o.id} />
@@ -183,7 +183,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
         </div>
       </section>
 
-      <div className="lg:items-start gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr]">
+        <div className="lg:items-start gap-5 sm:gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] min-w-0">
         <aside className="flex flex-col gap-4">
           {/* 移动端：设计师和标签水平排列 */}
           <div className="flex md:flex-row flex-col lg:flex-col gap-4 md:gap-4 lg:gap-4">
@@ -201,7 +201,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               </Link>
             </Tooltip>
 
-            <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
+            <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl min-w-0 transition-all duration-300">
               <h3 className="mb-3 font-bold text-white text-sm uppercase tracking-wider">
                 {loc('Tags') || '标签'}
               </h3>
@@ -250,7 +250,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl transition-all duration-300">
+          <div className="flex flex-col gap-2 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl transition-all duration-300">
             <button
               className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
               onClick={OnDownloadClick({ id: o.id, title: o.title })}
@@ -311,8 +311,8 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
           </div>
 
           {/* ID/HASH/点赞面板 */}
-          <div className="relative flex flex-col bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-5 border border-white/10 rounded-2xl overflow-hidden transition-all duration-300">
-            <div className="gap-y-3 grid grid-cols-[80px_1fr] text-sm">
+          <div className="relative flex flex-col bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl min-w-0 overflow-hidden transition-all duration-300">
+            <div className="gap-y-3 grid grid-cols-[64px_minmax(0,1fr)] sm:grid-cols-[80px_minmax(0,1fr)] text-sm">
               <span className="text-white/40">ID</span>
               <code
                 className="bg-black/20 px-2 py-0.5 rounded w-fit font-mono text-white/80 text-xs text-center break-all"

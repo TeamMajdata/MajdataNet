@@ -283,12 +283,12 @@ function MobileEventsSwiper() {
   }, []);
 
   return (
-    <section className="mx-auto mt-4 px-4 max-w-7xl">
+    <section className="mx-auto mt-2 sm:mt-4 px-0 sm:px-4 max-w-7xl">
       <div className="relative w-full">
         <div className="relative w-full">
           <Swiper
             modules={[Pagination, Autoplay]}
-            spaceBetween={16}
+            spaceBetween={12}
             slidesPerView={1}
             centeredSlides={true}
             autoplay={{
@@ -315,7 +315,7 @@ function MobileEventsSwiper() {
                 spaceBetween: 24,
               },
             }}
-            className="pb-12 overflow-visible mobile-events-swiper"
+            className="pb-9 sm:pb-12 overflow-visible mobile-events-swiper"
           >
             {/* 活跃的活动（进行中 + 即将开始） */}
             {ongoingEvents.map((event) => (
@@ -399,7 +399,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
 
   // 提示内容组件
   const hintContent = (
-    <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-5 py-4 border border-white/20 rounded-2xl w-70 md:w-[320px]">
+    <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-4 sm:px-5 py-4 border border-white/20 rounded-2xl w-[min(17.5rem,calc(100vw-1.5rem))] md:w-[320px]">
       <div className="space-y-2.5 text-left">
         <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintID', '按 ID 搜索')}</p>
         <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintHash', '按 Hash 搜索')}</p>
@@ -410,14 +410,14 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   );
 
   return (
-    <div className="mt-4 md:mt-0 mb-4 md:mb-4 px-4 md:px-4 w-full">
+    <div className="mt-3 md:mt-0 mb-4 px-0 sm:px-4 w-full min-w-0">
       <div className="relative border border-white/10 rounded-[20px] overflow-visible">
-        <div className="flex flex-row justify-center items-center gap-2 md:gap-6 p-3 md:p-4 w-full">
+        <div className="flex flex-row justify-center items-center gap-2 md:gap-6 p-2 sm:p-3 md:p-4 w-full min-w-0">
           <div className="flex-1 min-w-0">
             <div className="relative flex items-center w-full">
               <input
                 type="text"
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-6 md:px-7 py-3 md:py-4 pr-10 md:pr-14 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-sm md:text-base transition-colors"
+                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-4 md:px-7 py-3 md:py-4 pr-18 md:pr-14 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-base transition-colors"
                 placeholder={initS === '' ? loc('SearchPlaceholder', '搜索...') : initS}
                 value={currentValue}
                 onChange={handleInputChange}
@@ -430,7 +430,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.15 }}
-                    className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-5 h-5 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
+                    className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-7 h-7 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
                     onClick={handleClearSearch}
                     aria-label={loc('ClearSearch', '清空搜索')}
                   >
@@ -447,7 +447,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                 plain={true}
               >
                 <div
-                  className="top-1/2 right-3 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-5 h-5 font-bold text-[10px] text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
+                  className="top-1/2 right-2 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-7 h-7 font-bold text-xs text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer touch-manipulation"
                   role="button"
                   aria-label='Search Hint Button'
                 >
@@ -465,7 +465,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                 const val = parseInt(e.target.value);
                 onSortChange(val);
               }}
-              className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 md:px-3 py-1 border border-white/20 rounded-full outline-none w-auto min-w-16 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
+              className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 md:px-3 py-1 border border-white/20 rounded-full outline-none w-28 sm:w-auto min-w-0 md:min-w-20 h-11 md:h-11.25 overflow-hidden text-white text-center whitespace-nowrap appearance-none cursor-pointer"
               data-mobile-label={loc('SortBy', '排序方式')}
             >
               {isMobile && (
@@ -591,10 +591,10 @@ function MainComp() {
             setMax={setMaxpage}
           />
 
-          <div className="flex flex-col items-center gap-6 mx-auto mt-12 px-4 max-w-7xl">
-            <div className="flex items-center gap-4 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-6 border border-white/10 rounded-xl">
+          <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
+            <div className="gap-2 sm:gap-4 grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] sm:flex items-center bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-2.5 sm:p-6 border border-white/10 rounded-xl w-full sm:w-auto max-w-md">
               <button
-                className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+                className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
                 disabled={page - 1 < 0}
                 onClick={() => {
                   setPage(page - 1);
@@ -604,7 +604,7 @@ function MainComp() {
                 ←
               </button>
 
-              <div className="flex items-center gap-2">
+              <div className="flex justify-center items-center gap-1.5 sm:gap-2 min-w-0">
                 <span className="text-[#ccc] text-sm">{loc('PageOf', '第')}</span>
                 <input
                   type="number"
@@ -622,7 +622,7 @@ function MainComp() {
               </div>
 
               <button
-                className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page >= maxpage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+                className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${page >= maxpage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
                 disabled={page >= maxpage}
                 onClick={() => {
                   setPage(page + 1);
@@ -699,7 +699,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }, [data, refreshKey]);
 
   if (error) {
-    return <div className="m-auto w-full text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
+    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
   }
 
   if (isLoading) {
@@ -711,11 +711,11 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }
 
   if (randomSongs.length === 0) {
-    return <div className="m-auto w-full text-[50px] text-center">{loc('EmptyData', '暂无数据')}</div>;
+    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{loc('EmptyData', '暂无数据')}</div>;
   }
 
   return (
-    <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+    <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
       {randomSongs.map((song, index) => (
         <SongCard key={song.id} song={song} index={index} page={0} />
       ))}

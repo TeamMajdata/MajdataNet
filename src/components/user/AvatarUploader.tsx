@@ -129,11 +129,11 @@ export default function AvatarUploader() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center gap-8">
+      <div className="flex lg:flex-row flex-col items-center gap-6 lg:gap-8">
         {/* Current Avatar */}
-        <div className="flex flex-col flex-[0_0_auto] justify-center items-center gap-4 h-55">
+        <div className="flex flex-col flex-[0_0_auto] justify-center items-center gap-3 lg:gap-4 h-auto lg:h-55">
           <img
-            className="shadow-[0_6px_20px_rgba(0,0,0,0.4)] border-4 border-white/20 rounded-full w-40 h-40 object-cover transition-all duration-300"
+            className="shadow-[0_6px_20px_rgba(0,0,0,0.4)] border-4 border-white/20 rounded-full w-30 lg:w-40 h-30 lg:h-40 object-cover transition-all duration-300"
             src={currentAvatarUrl}
             alt={loc('CurrentAvatar')}
           />
@@ -143,10 +143,10 @@ export default function AvatarUploader() {
         </div>
 
         {/* Preview Avatar */}
-        <div className="flex flex-col flex-1 justify-center items-center gap-4">
+        <div className="flex flex-col flex-1 justify-center items-center gap-3 lg:gap-4">
           <div className="flex flex-col justify-center items-center gap-4">
             <img
-              className={`w-40 h-40 rounded-full object-cover border-4 transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${previewUrl
+              className={`w-30 lg:w-40 h-30 lg:h-40 rounded-full object-cover border-4 transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${previewUrl
                 ? 'border-[rgba(59,130,246,0.8)] shadow-[0_6px_25px_rgba(59,130,246,0.5)]'
                 : 'border-white/20'
                 }`}
@@ -160,7 +160,7 @@ export default function AvatarUploader() {
         </div>
 
         {/* Upload Controls */}
-        <div className="flex flex-col flex-[0_0_280px] justify-center items-stretch gap-6 h-55">
+        <div className="flex flex-col flex-none lg:flex-[0_0_280px] justify-center items-stretch gap-4 lg:gap-6 w-full max-w-75 lg:max-w-none h-auto lg:h-55">
           <input
             ref={fileInputRef}
             type="file"
@@ -216,33 +216,6 @@ export default function AvatarUploader() {
         </div>
       </div>
 
-      {/* Mobile Responsive */}
-      <style>{`
-        @media (max-width: 768px) {
-          .w-full > div:first-child {
-            flex-direction: column;
-            gap: 1.5rem;
-            align-items: center;
-          }
-          .w-full > div:first-child > div:first-child {
-            height: auto;
-            justify-content: flex-start;
-          }
-          .w-full > div:first-child > div:nth-child(2) {
-            height: 180px;
-          }
-          .w-full > div:first-child img {
-            width: 120px;
-            height: 120px;
-          }
-          .w-full > div:first-child > div:last-child {
-            flex: none;
-            max-width: 300px;
-            height: auto;
-            justify-content: flex-start;
-          }
-        }
-      `}</style>
     </div>
   );
 }

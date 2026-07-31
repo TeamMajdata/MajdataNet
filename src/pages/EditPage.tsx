@@ -43,15 +43,15 @@ export default function EditPage() {
       </Helmet>
 
       <PageLayout className="pb-8">
-        <div className="mx-auto px-4 max-w-250">
+        <div className="mx-auto px-0 sm:px-4 max-w-250 min-w-0">
           {/* 产品介绍部分 */}
-          <section className="mb-16 py-8 text-center">
-            <div className="bg-[rgb(30_30_30/90%)] shadow-[0_20px_60px_rgb(0_0_0/30%),0_4px_20px_rgb(59_130_246/10%)] backdrop-blur-[20px] p-8 md:p-12 border border-white/10 rounded-3xl">
-              <div className="flex justify-center items-center gap-4 mb-6">
-                <img className="rounded-xl w-16 h-16 object-cover" src="./salt.webp" alt="MajdataEdit" />
-                <h1 className="bg-clip-text bg-linear-to-br from-white to-[#e5e5e5] m-0 font-bold text-transparent text-4xl">MajdataEdit</h1>
+          <section className="mb-10 sm:mb-16 py-4 sm:py-8 text-center">
+            <div className="bg-[rgb(30_30_30/90%)] shadow-[0_20px_60px_rgb(0_0_0/30%),0_4px_20px_rgb(59_130_246/10%)] backdrop-blur-[20px] p-4 sm:p-8 md:p-12 border border-white/10 rounded-2xl sm:rounded-3xl">
+              <div className="flex justify-center items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
+                <img className="rounded-xl w-13 sm:w-16 h-13 sm:h-16 object-cover" src="/salt.webp" alt="MajdataEdit" />
+                <h1 className="bg-clip-text bg-linear-to-br from-white to-[#e5e5e5] m-0 font-bold text-transparent text-3xl sm:text-4xl">MajdataEdit</h1>
               </div>
-              <p className="my-4 text-[#b0b0b0] text-xl leading-relaxed">{loc('MajdataPunchline', 'MajdataEdit 谱面编辑器')}</p>
+              <p className="my-4 text-[#b0b0b0] text-lg sm:text-xl leading-relaxed">{loc('MajdataPunchline', 'MajdataEdit 谱面编辑器')}</p>
               <p className="mb-8 text-[#888] text-base italic">Windows Only</p>
 
               <div className="flex flex-wrap justify-center items-center gap-4 my-6">
@@ -73,15 +73,15 @@ export default function EditPage() {
                 href="https://github.com/LingFeng-bbben/MajdataView/releases"
                 className="inline-block mt-8 no-underline"
               >
-                <div className="flex items-center gap-3 bg-linear-to-br from-emerald-500 hover:from-emerald-600 to-emerald-600 hover:to-emerald-700 shadow-[0_8px_25px_rgb(16_185_129/30%),0_2px_10px_rgb(0_0_0/20%)] hover:shadow-[0_12px_35px_rgb(16_185_129/40%),0_4px_15px_rgb(0_0_0/30%)] px-8 py-4 rounded-2xl font-semibold text-white text-lg transition-all hover:-translate-y-1">{loc('Download', '下载')}</div>
+                <div className="flex items-center gap-3 bg-linear-to-br from-emerald-500 hover:from-emerald-600 to-emerald-600 hover:to-emerald-700 shadow-[0_8px_25px_rgb(16_185_129/30%),0_2px_10px_rgb(0_0_0/20%)] hover:shadow-[0_12px_35px_rgb(16_185_129/40%),0_4px_15px_rgb(0_0_0/30%)] px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl min-h-11 font-semibold text-white text-base sm:text-lg transition-all md:hover:-translate-y-1">{loc('Download', '下载')}</div>
               </a>
             </div>
           </section>
 
           {/* 教程部分 */}
           <section className="mb-16">
-            <h2 className="mb-10 pl-4 font-bold text-white text-3xl text-left">{loc('Tutorials', '教程')}</h2>
-            <div className="gap-6 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] mb-8">
+            <h2 className="mb-6 sm:mb-10 pl-1 sm:pl-4 font-bold text-white text-2xl sm:text-3xl text-left">{loc('Tutorials', '教程')}</h2>
+            <div className="gap-4 sm:gap-6 grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] mb-8 min-w-0">
               <a
                 href="https://github.com/LingFeng-bbben/MajdataView/wiki/%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8"
                 className="block bg-[rgb(30_30_30/90%)] hover:bg-[rgb(35_35_40/95%)] hover:shadow-[0_12px_30px_rgb(0_0_0/30%),0_4px_15px_rgb(59_130_246/10%)] backdrop-blur-[20px] p-6 border border-white/10 hover:border-blue-500/30 rounded-2xl text-inherit no-underline transition-all hover:-translate-y-1"
@@ -122,7 +122,7 @@ export default function EditPage() {
 
           {/* 视频教程部分 */}
           <section className="mb-16">
-            <h2 className="mb-10 pl-4 font-bold text-white text-3xl text-left">{loc('VideoTutorials', '视频教程')}</h2>
+            <h2 className="mb-6 sm:mb-10 pl-1 sm:pl-4 font-bold text-white text-2xl sm:text-3xl text-left">{loc('VideoTutorials', '视频教程')}</h2>
             <div className="gap-8 grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] max-md:grid-cols-1 mb-8">
               <div className="bg-[rgb(30_30_30/90%)] hover:bg-[rgb(35_35_40/95%)] hover:shadow-[0_12px_30px_rgb(0_0_0/30%),0_4px_15px_rgb(59_130_246/10%)] backdrop-blur-[20px] p-4 border border-white/10 hover:border-blue-500/30 rounded-2xl transition-all hover:-translate-y-1">
                 <iframe

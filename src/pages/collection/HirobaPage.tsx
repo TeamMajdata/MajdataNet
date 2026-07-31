@@ -68,7 +68,7 @@ export default function CollectionsHirobaPage() {
 
   return (
     <PageLayout showBackToHome={false}>
-      <div className="mx-auto px-4 py-8 w-full max-w-7xl min-h-screen">
+      <div className="mx-auto px-0 sm:px-4 py-5 sm:py-8 w-full max-w-7xl min-h-screen min-w-0">
         {/* Header */}
         <div className="flex flex-col gap-2 mb-8">
           <h1 className="text-left">{loc('CollectionsHiroba', '歌单广场')}</h1>
@@ -197,8 +197,8 @@ export default function CollectionsHirobaPage() {
 
         {/* Paginator */}
         {shouldShowPaginator && (
-          <div className="flex flex-col items-center gap-4 mx-auto mt-12 px-4 max-w-7xl">
-            <div className="flex items-center gap-3 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-4 border border-white/10 rounded-xl">
+          <div className="flex flex-col items-center gap-4 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
+            <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-3 sm:p-4 border border-white/10 rounded-xl w-full sm:w-auto">
               {/* Prev */}
               <button
                 className={`flex justify-center items-center px-4 py-2.5 bg-blue-500/80 border-none rounded-lg text-white cursor-pointer min-w-10 h-9 transition-colors ${page <= 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-50' : 'hover:bg-blue-500'}`}
@@ -259,11 +259,11 @@ export default function CollectionsHirobaPage() {
               </button>
 
               {/* Divider */}
-              <div className="bg-white/10 mx-1 w-px h-6" />
+              <div className="hidden sm:block bg-white/10 mx-1 w-px h-6" />
 
               {/* Front page */}
               <button
-                className="bg-white/10 hover:bg-white/20 px-4 py-2 border border-white/20 rounded-lg h-9 text-white text-sm transition-colors cursor-pointer"
+                className="bg-white/10 hover:bg-white/20 px-4 py-2 border border-white/20 rounded-lg w-full sm:w-auto h-10 sm:h-9 text-white text-sm transition-colors cursor-pointer"
                 onClick={() => goToPage(0)}
               >
                 {loc('FrontPage', '首页')}

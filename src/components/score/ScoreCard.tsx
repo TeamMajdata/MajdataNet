@@ -196,8 +196,8 @@ export function ScoreCard({
         className={`
           relative bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass}
           ${comboCardClass}
-          m-auto p-[0.8rem] border rounded-[10px] w-[20rem] h-40 overflow-hidden
-          transition-transform hover:-translate-y-1.25 duration-250 ease-in-out
+          m-auto p-[0.8rem] border rounded-[10px] w-full max-w-[20rem] h-40 overflow-hidden
+          transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out
         `}
       >
         <CoverPic id={score.chartInfo.id} />

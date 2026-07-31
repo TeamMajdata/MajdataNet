@@ -12,7 +12,7 @@ export const NAV_LINK = "relative flex items-center gap-2 hover:bg-linear-to-br 
 export const DROPDOWN_ITEM = "flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline";
 
 // 汉堡菜单按钮样式
-export const HAMBURGER_BUTTON_BASE = "flex items-center justify-center gap-2 px-3 md:px-4 bg-white/5 border border-white/10 rounded-[10px] cursor-pointer text-[#e5e5e5] text-sm font-medium h-10 md:h-12 backdrop-blur-[10px]";
+export const HAMBURGER_BUTTON_BASE = "flex items-center justify-center gap-2 px-3 md:px-4 bg-white/5 border border-white/10 rounded-[10px] cursor-pointer text-[#e5e5e5] text-sm font-medium h-11 md:h-12 backdrop-blur-[10px] touch-manipulation";
 
 export const HAMBURGER_BUTTON_ACTIVE = "bg-linear-to-br from-white/15 to-white/10 border-white/30 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]";
 

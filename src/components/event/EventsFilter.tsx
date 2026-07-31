@@ -15,16 +15,16 @@ const EventsFilter: React.FC<EventsFilterProps> = ({
   const loc = useLoc();
 
   return (
-    <div className="mx-auto my-8 px-4 max-w-(--container-max-width) text-center">
+    <div className="mx-auto my-6 sm:my-8 px-0 sm:px-4 max-w-(--container-max-width) text-center">
       <div className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] mb-4 font-semibold text-white/90 text-base">
         {loc("FilterEventTypes", "活动类型")}
       </div>
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
         {categories.map((category) => (
           <button
             key={category}
             className={`
-              px-4 py-2 rounded-lg text-sm font-medium cursor-pointer
+              px-3 sm:px-4 py-2.5 rounded-lg min-h-11 text-sm font-medium cursor-pointer
               transition-all duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]
               backdrop-blur-lg whitespace-nowrap
               ${selectedCategory === category

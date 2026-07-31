@@ -53,6 +53,29 @@ body {
   color-scheme: only dark;
   background-color: rgb(var(--background-start));
   padding-top: var(--content-top-spacing-large);
+  min-width: 0;
+  min-height: 100dvh;
+  overflow-x: clip;
+  text-size-adjust: 100%;
+}
+
+#root {
+  min-width: 0;
+  min-height: 100dvh;
+}
+
+img,
+video,
+iframe {
+  max-width: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* 段落样式 */
@@ -79,7 +102,13 @@ h2 {
 
 @media screen and (width <= 500px) {
   h1 {
-    font-size: 2rem;
+    font-size: 1.875rem;
+    line-height: 1.15;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    line-height: 1.2;
   }
 }
 
@@ -155,7 +184,43 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 @media (width <= 767px) {
+  :root {
+    --container-padding: 0 0.75rem;
+    --header-height: var(--header-height-mobile);
+    --content-top-spacing: 0.75rem;
+    --content-top-spacing-large: calc(var(--header-height) + env(safe-area-inset-top) + 0.75rem);
+  }
+
   .markdown-body {
-    padding: 15px;
+    min-width: 0;
+    padding: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+
+  .markdown-body pre,
+  .markdown-body table {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .markdown-body img {
+    height: auto;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

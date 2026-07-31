@@ -66,7 +66,7 @@ export default function MMFCScoreCount() {
 
   return (
     <div
-      className="mx-auto px-4 max-w-4xl"
+      className="mx-auto px-0 sm:px-4 max-w-4xl"
       style={{
         marginTop: '2rem',
       }}
@@ -127,7 +127,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
       className="block text-inherit no-underline"
     >
       <div
-        className="relative flex items-center gap-4 px-6 py-4 transition-all duration-300 ease-out"
+        className="relative flex items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 min-w-0 transition-all duration-300 ease-out"
         style={{
           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
           backdropFilter: 'blur(10px)',
@@ -161,7 +161,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         }}
       >
         {/* 排名显示 */}
-        <div className="flex justify-center items-center min-w-20 shrink-0">
+        <div className="flex justify-center items-center min-w-12 sm:min-w-20 shrink-0">
           <span
             className="font-bold transition-all duration-300"
             style={{
@@ -191,7 +191,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         {/* 玩家信息 */}
         <div className="flex flex-1 items-center gap-3 min-w-0">
           <img
-            className="border-2 rounded-full w-12 h-12 object-cover transition-all duration-300 shrink-0"
+            className="border-2 rounded-full w-10 sm:w-12 h-10 sm:h-12 object-cover transition-all duration-300 shrink-0"
             style={{
               borderColor: isTopThree ? (isFirst ? 'rgba(251, 191, 36, 0.4)' : 'rgba(59, 130, 246, 0.4)') : 'rgba(255, 255, 255, 0.2)',
               aspectRatio: '1',
@@ -212,7 +212,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
 
           <div className="flex flex-col flex-1 gap-1 min-w-0 overflow-hidden">
             <span
-              className="overflow-hidden font-semibold text-white text-lg text-ellipsis whitespace-nowrap"
+              className="overflow-hidden font-semibold text-white text-sm sm:text-lg text-ellipsis whitespace-nowrap"
               style={{
                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
               }}
@@ -223,9 +223,9 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         </div>
 
         {/* 分数显示 */}
-        <div className="flex flex-col items-end gap-1 text-right shrink-0">
+        <div className="flex flex-col items-end gap-1 text-right min-w-0 shrink-0">
           <div
-            className="font-bold text-white text-2xl"
+            className="font-bold text-white text-base sm:text-2xl"
             style={{
               textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
             }}

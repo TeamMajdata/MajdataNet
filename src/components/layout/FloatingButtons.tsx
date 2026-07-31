@@ -11,7 +11,7 @@ export default function FloatingButtons() {
   const [showLanguagePopup, setShowLanguagePopup] = useState(false);
 
   // 共用的按钮基础类名
-  const baseButtonClasses = "w-14 h-14 md:w-[50px] md:h-[50px] sm:w-11 sm:h-11 bg-[rgba(255,255,255,0.05)] rounded-full text-white cursor-pointer backdrop-blur-[10px] flex items-center justify-center font-bold no-underline relative outline-none p-0 m-0 leading-none text-center shadow-[0_20px_60px_rgba(0,0,0,0.4),0_8px_32px_rgba(0,0,0,0.2),inset_0_2px_0_rgba(255,255,255,0.08)]";
+  const baseButtonClasses = "w-11 h-11 md:w-[50px] md:h-[50px] bg-[rgba(255,255,255,0.08)] rounded-full text-white cursor-pointer backdrop-blur-[10px] flex items-center justify-center font-bold no-underline relative outline-none p-0 m-0 leading-none text-center shadow-[0_20px_60px_rgba(0,0,0,0.4),0_8px_32px_rgba(0,0,0,0.2),inset_0_2px_0_rgba(255,255,255,0.08)] touch-manipulation";
 
   const hoverStyle = {
     backgroundColor: 'rgba(45, 45, 50, 0.95)',
@@ -28,10 +28,10 @@ export default function FloatingButtons() {
   return (
     <>
       {/* Floating Buttons */}
-      <div className="right-8 sm:right-4 md:right-6 bottom-8 sm:bottom-4 md:bottom-6 z-100 fixed flex flex-col items-center gap-4 sm:gap-2 md:gap-3">
+      <div className="right-3 sm:right-4 md:right-6 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] sm:bottom-4 md:bottom-6 z-100 fixed flex flex-col items-center gap-2 md:gap-3">
         {/* Go to Top Button */}
         <motion.button
-          className={`${baseButtonClasses} text-[1.2rem] md:text-[1.1rem] sm:text-[1rem] select-none`}
+          className={`${baseButtonClasses} text-base md:text-[1.1rem] select-none`}
           onClick={() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
@@ -45,7 +45,7 @@ export default function FloatingButtons() {
 
         {/* Language Settings Button */}
         <motion.button
-          className={`${baseButtonClasses} text-[1.2rem] md:text-[1.1rem] sm:text-[1rem]`}
+          className={`${baseButtonClasses} text-base md:text-[1.1rem]`}
           onClick={() => setShowLanguagePopup(!showLanguagePopup)}
           whileHover={hoverStyle}
           whileTap={activeStyle}
@@ -73,7 +73,7 @@ export default function FloatingButtons() {
               animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
               exit={{ opacity: 0, scale: 0.9, x: "-50%", y: "-50%" }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="top-1/2 left-1/2 z-999 fixed bg-[rgba(25,25,30,0.95)] backdrop-blur-[20px] md:mx-4 p-6 md:p-5 border border-white/15 rounded-2xl min-w-87.5 md:min-w-70 max-w-100 md:max-w-[90vw]"
+              className="top-1/2 left-1/2 z-999 fixed bg-[rgba(25,25,30,0.95)] backdrop-blur-[20px] p-5 sm:p-6 border border-white/15 rounded-2xl w-[calc(100vw-1.5rem)] max-w-100"
               style={{
                 boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5), 0 4px 20px rgba(59, 130, 246, 0.1)',
               }}

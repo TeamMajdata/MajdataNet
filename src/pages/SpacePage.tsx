@@ -88,7 +88,7 @@ export default function SpacePage() {
           custom={0.4}
           variants={slideInUp}
         >
-          <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
+          <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
             {loc('RecentlyPlayedCharts', '最近游玩的谱面')}
           </h2>
           <div
@@ -110,7 +110,7 @@ export default function SpacePage() {
           custom={0.5}
           variants={slideInUp}
         >
-          <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
+          <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
             {loc('UploadedCharts', '已上传的谱面')}
           </h2>
           <div
@@ -135,7 +135,7 @@ export default function SpacePage() {
           custom={0.5}
           variants={slideInUp}
         >
-          <h2 className="my-8 font-semibold text-white text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
+          <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
             {loc('WhoLovesToPlay', '谁爱玩')}
           </h2>
           <div
@@ -183,9 +183,9 @@ function Introduction({ username }: { username: string }) {
   }
 
   return (
-    <div className="bg-[rgb(30_30_30/90%)] shadow-[0_8px_25px_rgb(0_0_0/30%)] backdrop-blur-xl backdrop-saturate-180 p-8 border border-white/12 rounded-2xl">
+    <div className="bg-[rgb(30_30_30/90%)] shadow-[0_8px_25px_rgb(0_0_0/30%)] backdrop-blur-xl backdrop-saturate-180 p-4 sm:p-6 md:p-8 border border-white/12 rounded-2xl min-w-0">
       {/* Profile Header */}
-      <div className="flex md:flex-row flex-col items-center gap-8 max-md:gap-6 mb-8 pb-8 border-white/10 border-b md:text-left text-center">
+      <div className="flex md:flex-row flex-col items-center gap-6 md:gap-8 mb-6 sm:mb-8 pb-6 sm:pb-8 border-white/10 border-b md:text-left text-center">
         {/* Avatar */}
         <div className="shrink-0">
           <img
@@ -198,7 +198,7 @@ function Introduction({ username }: { username: string }) {
         {/* User Info */}
         <div className="flex-1">
           <h1 className="mb-2 font-bold text-[2rem] text-gray-200 max-md:text-2xl">{data.username}</h1>
-          <p className="m-0 text-gray-400 text-base text-right">
+          <p className="m-0 text-gray-400 text-sm sm:text-base md:text-right text-center break-words">
             {loc('JoinAt', '加入于')} {new Date(data.joinDate).toLocaleString()}
           </p>
         </div>
@@ -210,7 +210,7 @@ function Introduction({ username }: { username: string }) {
           <h3 className="mb-4 font-semibold text-gray-200 text-xl text-center">
             {loc('SelfIntro', '自我介绍')}
           </h3>
-          <article className="bg-black/30 p-6 rounded-xl select-text **:select-text markdown-body">
+          <article className="bg-black/30 p-0 sm:p-2 rounded-xl min-w-0 select-text **:select-text markdown-body">
             <Markdown
               remarkPlugins={[remarkGfm, remarkCenter]}
               components={{

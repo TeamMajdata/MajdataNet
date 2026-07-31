@@ -323,7 +323,7 @@ export function CommentSender({ songid }: CommentSenderProps) {
 
   return (
     <motion.div
-      className="mx-auto my-8 p-8 border rounded-2xl w-[70%]"
+      className="mx-auto my-6 sm:my-8 p-4 sm:p-6 md:p-8 border rounded-2xl w-full md:w-[82%] lg:w-[70%]"
       style={{
         background: 'linear-gradient(135deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 5%))',
         backdropFilter: 'blur(10px)',

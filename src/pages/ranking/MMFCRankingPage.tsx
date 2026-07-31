@@ -44,12 +44,11 @@ export default function MMFCRankingPage() {
 
       {/* 打榜排名 */}
       <div
-        className="mx-auto mt-8 px-4 max-w-5xl"
+        className="mx-auto mt-5 sm:mt-8 p-3 sm:p-6 md:p-8 max-w-5xl"
         style={{
           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))',
           backdropFilter: 'blur(10px)',
           borderRadius: '16px',
-          padding: '2rem',
           border: '1px solid rgba(255, 255, 255, 0.1)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
         }}
