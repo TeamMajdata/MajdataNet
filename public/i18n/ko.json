@@ -373,5 +373,7 @@
   "CreateSuccess": "생성 성공",
   "CreateFailed": "생성 실패",
   "Submit": "제출",
-  "500UploadErrorAndHint": "업로드 실패, 주 사이트로 가서 업로드하세요"
+  "500UploadErrorAndHint": "업로드 실패, 주 사이트로 가서 업로드하세요",
+  "LatestActivity": "최근 활동",
+  "LatestActivityShort": "최근"
 }

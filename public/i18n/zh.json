@@ -54,7 +54,7 @@
   "Test": "测试",
   "Upload": "上传",
   "UploadChart": "谱面上传",
-  "UploadDate": "序",
+  "UploadDate": "时",
   "UploadNoticeTerms1": "上传的谱面是你自己写的或合作写的，又或是谱面原作者同意上传；",
   "UploadNoticeTerms2": "此谱面可以公开，自由下载；",
   "UploadNoticeTerms3": "公开这张谱面不会侵害第三方权益；",
@@ -383,5 +383,7 @@
   "CreateSuccess": "创建成功",
   "CreateFailed": "创建失败",
   "Submit": "提交",
-  "500UploadErrorAndHint": "上传失败, 请前往主站上传"
+  "500UploadErrorAndHint": "上传失败, 请前往主站上传",
+  "LatestActivity": "最近互动",
+  "LatestActivityShort": "热"
 }
