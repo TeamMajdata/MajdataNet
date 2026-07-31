@@ -6,5 +6,7 @@
 export interface UserInfo {
   username: string;
   email?: string;
+  joinDate: string;
+  nickname: string;
   // 根据实际API返回添加更多字段
 }
