@@ -360,10 +360,11 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
 
 
   const sortOptions = [
-    loc('UploadDate', '上传日期'),
+    loc('LatestActivityShort', '互'),
     loc('LikeCount', '点赞数'),
     loc('CommentCount', '评论数'),
     loc('PlayCount', '播放数'),
+    loc('UploadDate', '上传日期'),
   ];
 
   // 检测是否为移动端
@@ -547,7 +548,7 @@ function MainComp() {
     localStorage.setItem('lastclickpage', '0');
   };
 
-  const sortWords = ['', 'likep', 'commp', 'playp'];
+  const sortWords = ['', 'likep', 'commp', 'playp', 'timep'];
 
   const refreshRandomBatch = useCallback(() => {
     setRandomSeed((prev) => prev + 1);

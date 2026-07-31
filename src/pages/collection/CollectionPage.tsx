@@ -56,7 +56,7 @@ export default function CollectionPage() {
   const [searchMaxPage, setSearchMaxPage] = useState(999999);
   const [searchSortType, setSearchSortType] = useState(0);
 
-  const sortWords = ['', 'likep', 'commp', 'playp'];
+  const sortWords = ['', 'likep', 'commp', 'playp', 'timep'];
 
   // 歌单中原有的歌曲 ID
   const originalIds = useMemo(
@@ -99,10 +99,11 @@ export default function CollectionPage() {
 
   // 搜索排序选项
   const searchSortOptions = [
-    loc('UploadDate', '上传日期'),
+    loc('LatestActivity', '最新互动'),
     loc('LikeCount', '点赞数'),
     loc('CommentCount', '评论数'),
     loc('PlayCount', '播放数'),
+    loc('UploadDate', '上传日期'),
   ];
 
   // 使用 SWR 进行搜索
