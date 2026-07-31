@@ -35,12 +35,14 @@ export default function UserMenu({ username }: UserMenuProps) {
   return (
     <div className="relative" ref={containerRef}>
       <button
-        className={`flex rounded-[10px] items-center gap-2 md:gap-3 px-3 md:px-4 cursor-pointer text-[#e5e5e5] text-sm font-medium h-10 md:h-12 bg-white/5 border border-white/10 backdrop-blur-[10px] ${
+        className={`flex rounded-[10px] items-center gap-2 md:gap-3 px-2.5 md:px-4 cursor-pointer text-[#e5e5e5] text-sm font-medium h-11 md:h-12 bg-white/5 border border-white/10 backdrop-blur-[10px] touch-manipulation ${
           isOpen
             ? 'bg-linear-to-br from-white/15 to-white/10 border-white/30 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'
             : 'hover:bg-linear-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'
         }`}
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-label={loc('UserMenu', '用户菜单')}
       >
         <img
           className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 object-cover ${isOpen ? 'border-white/60' : 'border-white/30 hover:border-white/60'}`}
@@ -50,7 +52,7 @@ export default function UserMenu({ username }: UserMenuProps) {
         <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">{username}</span>
       </button>
 
-      <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="right" className="w-full" containerRef={containerRef}>
+      <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="right" className="w-[min(18rem,calc(100vw-1.5rem))] md:w-full" containerRef={containerRef}>
         <Link to={`/space?id=${username}`} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
           <span className="w-full font-medium text-center">{loc('PersonalHomePage')}</span>
         </Link>

@@ -123,9 +123,9 @@ export default function UserCollectionPage() {
                 <LoadingSpinner size="50px" />
               </div>
             ) : error ? (
-              <div className="m-auto w-full text-[50px] text-white text-center">{loc('ServerError', '服务器错误')}</div>
+    <div className="m-auto w-full text-2xl sm:text-[50px] text-white text-center">{loc('ServerError', '服务器错误')}</div>
             ) : !data || data.length === 0 ? (
-              <div className="m-auto w-full text-[50px] text-white text-center">{loc('EmptyData', '暂无数据')}</div>
+    <div className="m-auto w-full text-2xl sm:text-[50px] text-white text-center">{loc('EmptyData', '暂无数据')}</div>
             ) : (
               <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {data.map((collection) => (
@@ -157,7 +157,7 @@ export default function UserCollectionPage() {
                 <LoadingSpinner size="50px" />
               </div>
             ) : !favorites || favorites.length === 0 ? (
-              <div className="m-auto w-full text-[50px] text-white text-center">{loc('EmptyFavorites', '暂无收藏')}</div>
+    <div className="m-auto w-full text-2xl sm:text-[50px] text-white text-center">{loc('EmptyFavorites', '暂无收藏')}</div>
             ) : (
               <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {favorites.map((collection) => (
@@ -207,17 +207,17 @@ function Paginator({ page, setPage, storageKey, isLastPage, loc }: {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 mx-auto mt-12 px-4 max-w-7xl">
-      <div className="flex items-center gap-4 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-6 border border-white/10 rounded-xl">
+      <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
+        <div className="gap-2 sm:gap-4 grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] sm:flex items-center bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-2.5 sm:p-6 border border-white/10 rounded-xl w-full sm:w-auto max-w-md">
         <button
-          className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+          className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
           disabled={page - 1 < 0}
           onClick={() => handlePageChange(page - 1)}
         >
           &larr;
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex justify-center items-center gap-1.5 sm:gap-2 min-w-0">
           <span className="text-[#ccc] text-sm">{loc('PageOf', '第')}</span>
           <input
             type="number"
@@ -238,7 +238,7 @@ function Paginator({ page, setPage, storageKey, isLastPage, loc }: {
         </div>
 
         <button
-          className={`px-6 py-3 bg-blue-500/80 border-none rounded-lg text-white font-medium cursor-pointer min-w-20 ${isLastPage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+          className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${isLastPage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
           disabled={isLastPage}
           onClick={() => handlePageChange(page + 1)}
         >

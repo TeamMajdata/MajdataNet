@@ -31,15 +31,15 @@ export default function PageLayout({
 
       {/* Page Title */}
       {title && (
-        <section className="max-w-7xl mx-auto mt-(--content-top-spacing) mb-0 px-4">
+        <section className="mx-auto mt-(--content-top-spacing) mb-0 px-3 sm:px-4 max-w-7xl">
           <motion.div
-            className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-8 border border-white/10 rounded-2xl text-center"
+            className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-4 sm:p-6 md:p-8 border border-white/10 rounded-2xl text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
           >
             <h1
-              className="m-0 font-bold text-[#e5e5e5] text-[2.5rem]"
+              className="m-0 font-bold text-[#e5e5e5] text-2xl sm:text-3xl md:text-[2.5rem] leading-tight"
               style={{
                 textShadow: '0 0 2px #a78bfa, 0 0 4px #60a5fa'
               }}
@@ -51,14 +51,14 @@ export default function PageLayout({
       )}
 
       {/* Main Content */}
-      <main className={`max-w-7xl mx-auto mt-4 px-4 ${className}`}>{children}</main>
+      <main className={`mx-auto mt-3 sm:mt-4 px-3 sm:px-4 w-full max-w-7xl min-w-0 ${className}`}>{children}</main>
 
       {/* Back to Home Section */}
       {showBackToHome && (
-        <section className="my-16 pt-8 border-white/10 border-t text-center">
+        <section className="my-10 sm:my-16 pt-6 sm:pt-8 border-white/10 border-t text-center">
           <div className="mx-auto px-4 max-w-7xl">
             <Link to="/" className="no-underline">
-              <div className="inline-block bg-[rgba(25,25,30,0.9)] hover:bg-[rgba(35,35,40,0.95)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] px-8 py-4 border border-white/10 hover:border-white/20 rounded-xl font-semibold text-[#e5e5e5] transition-all hover:-translate-y-0.5 duration-300">
+              <div className="inline-flex justify-center items-center bg-[rgba(25,25,30,0.9)] hover:bg-[rgba(35,35,40,0.95)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] px-6 sm:px-8 py-3 sm:py-4 border border-white/10 hover:border-white/20 rounded-xl min-h-11 font-semibold text-[#e5e5e5] transition-all hover:-translate-y-0.5 duration-300">
                 {loc('BackToHome')}
               </div>
             </Link>
@@ -68,7 +68,7 @@ export default function PageLayout({
 
       {/* Footer */}
       {showFooter && (
-        <footer className="bg-linear-to-b from-[rgba(20,20,20,0.3)] to-[rgba(10,10,10,0.3)] backdrop-blur-[10px] mt-16 px-4 pt-12 pb-16 border-white/10 border-t text-center">
+        <footer className="bg-linear-to-b from-[rgba(20,20,20,0.3)] to-[rgba(10,10,10,0.3)] backdrop-blur-[10px] mt-12 sm:mt-16 px-4 pt-10 sm:pt-12 pb-[calc(4rem+env(safe-area-inset-bottom))] border-white/10 border-t text-center">
           {/* Footer Content */}
           <div className="flex flex-col items-center gap-3 mb-8">
             {/* Copyright */}

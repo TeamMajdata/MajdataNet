@@ -50,10 +50,10 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
     <div
       id={song.id}
       onClick={handleClick}
-      className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
+      className="flex justify-center w-full min-w-0"
     >
       <LazyLoad height={165} width={352} offset={300}>
-        <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-[20rem] h-40 overflow-hidden transition-transform hover:-translate-y-1.25 duration-250 ease-in-out">
+        <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-full max-w-[20rem] h-40 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
           {isRanking ? (
             <CoverPic id={song.id} display={'No.' + (index + 1)} />
           ) : (
@@ -88,7 +88,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
 
             <br />
             <motion.div
-              className="float-left m-[0.1rem] mt-2 border border-gray-500 rounded-[5px] w-[1.3rem] h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none"
+              className="float-left flex justify-center items-center m-[0.1rem] mt-1.5 sm:mt-2 border border-gray-500 rounded-md w-7 sm:w-[1.3rem] h-7 sm:h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none touch-manipulation"
               onClick={handleDownload}
               whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
               transition={{ duration: 0.125, ease: 'easeInOut' }}

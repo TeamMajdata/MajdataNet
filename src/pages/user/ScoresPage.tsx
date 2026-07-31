@@ -216,7 +216,7 @@ export default function PersonalScoresPage() {
         custom={0.2}
         variants={slideInUp}
       >
-        <h1 className="my-8 font-semibold text-white text-4xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
+        <h1 className="my-5 sm:my-8 font-semibold text-white text-3xl sm:text-4xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
           {loc('PersonalScores', '我的成绩')}
         </h1>
 
@@ -241,11 +241,11 @@ export default function PersonalScoresPage() {
         </div>
 
         {/* 第一行：排序依据 */}
-        <div className="flex flex-wrap justify-center items-center gap-4 mx-auto mb-4 max-w-4xl">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-stretch sm:items-center gap-3 sm:gap-4 mx-auto mb-4 max-w-4xl">
           <span className="font-medium text-white text-sm">
             {loc('SortBy', '排序依据')}
           </span>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             <button
               onClick={() => handleSortChange('timestamp')}
               className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'timestamp'
@@ -295,11 +295,11 @@ export default function PersonalScoresPage() {
         </div>
 
         {/* 第二行：Combo状态筛选 */}
-        <div className="flex flex-wrap justify-center items-center gap-4 mx-auto mb-8 max-w-4xl">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-stretch sm:items-center gap-3 sm:gap-4 mx-auto mb-8 max-w-4xl">
           <span className="font-medium text-white text-sm">
             {loc('FilterByCombo', 'Combo筛选')}
           </span>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             {ALL_COMBO_FILTERS.map((filter) => {
               const isActive = comboFilter.includes(filter);
               return (
@@ -337,14 +337,14 @@ export default function PersonalScoresPage() {
           </div>
         ) : (
           <>
-            <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+            <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
               {paginatedData.map((score) => (
                 <motion.div
                   key={`${score.hash}-${score.timestamp}`}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
+                  className="flex justify-center w-full min-w-0"
                 >
                   <ScoreCard
                     score={score}

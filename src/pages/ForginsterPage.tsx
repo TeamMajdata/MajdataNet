@@ -16,12 +16,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 type TabType = 'login' | 'register' | 'forget';
 
 const TAB_ORDER: TabType[] = ['login', 'register', 'forget'];
-const AUTH_CARD_CLASSNAME = 'bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-8 md:p-12 border border-white/10 rounded-[20px]';
+const AUTH_CARD_CLASSNAME = 'bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-4 sm:p-8 md:p-12 border border-white/10 rounded-[20px]';
 const TURNSTILE_SITE_KEY = '0x4AAAAAACAEyA1EhHmEDS0o';
 const TURNSTILE_SCRIPT_ID = 'cloudflare-turnstile-script';
 
 type TurnstileApi = {
-  render: (container: HTMLElement, options: { sitekey: string }) => string;
+  render: (container: HTMLElement, options: { sitekey: string; size?: 'normal' | 'compact' }) => string;
   remove?: (widgetId: string) => void;
 };
 
@@ -128,10 +128,10 @@ export default function ForginsterPage() {
 
   return (
     <PageLayout className="flex justify-center items-center min-h-[60vh]">
-      <div className="mx-auto[calc(var(--header-height)+1rem)] px-4 py-8 w-full max-w-md">
-        <div className="flex bg-black/40 mb-6 p-1 rounded-xl">
+      <div className="mx-auto px-0 sm:px-4 py-4 sm:py-8 w-full max-w-md min-w-0">
+        <div className="flex bg-black/40 mb-4 sm:mb-6 p-1 rounded-xl">
           <button
-            className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-all ${activeTab === 'login'
+            className={`flex-1 px-2 sm:px-4 py-3 rounded-lg min-w-0 font-medium text-xs sm:text-sm transition-all ${activeTab === 'login'
               ? 'bg-blue-600 text-white'
               : 'text-gray-400 hover:text-white'
               }`}
@@ -140,7 +140,7 @@ export default function ForginsterPage() {
             {loc('Login', '登录')}
           </button>
           <button
-            className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-all ${activeTab === 'register'
+            className={`flex-1 px-2 sm:px-4 py-3 rounded-lg min-w-0 font-medium text-xs sm:text-sm transition-all ${activeTab === 'register'
               ? 'bg-blue-600 text-white'
               : 'text-gray-400 hover:text-white'
               }`}
@@ -149,7 +149,7 @@ export default function ForginsterPage() {
             {loc('Register', '注册')}
           </button>
           <button
-            className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-all ${activeTab === 'forget'
+            className={`flex-1 px-2 sm:px-4 py-3 rounded-lg min-w-0 font-medium text-xs sm:text-sm transition-all ${activeTab === 'forget'
               ? 'bg-blue-600 text-white'
               : 'text-gray-400 hover:text-white'
               }`}
@@ -332,7 +332,10 @@ function TurnstileWidget() {
     loadTurnstileScript()
       .then(() => {
         if (cancelled || !window.turnstile || hasRenderedWidget()) return;
-        widgetId = window.turnstile.render(container, { sitekey: TURNSTILE_SITE_KEY });
+        widgetId = window.turnstile.render(container, {
+          sitekey: TURNSTILE_SITE_KEY,
+          size: window.innerWidth < 360 ? 'compact' : 'normal',
+        });
         updateVisibility();
       })
       .catch(() => {
@@ -347,7 +350,7 @@ function TurnstileWidget() {
   }, []);
 
   return (
-    <div className="relative w-[300px] h-[65px]" aria-live="polite">
+    <div className="relative w-full max-w-[300px] min-h-[65px]" aria-live="polite">
       <div ref={containerRef} />
       {!isVisible && (
         <div className="absolute inset-0 flex items-center gap-3 bg-black/35 px-4 border border-white/15 border-dashed rounded-lg text-[#b8c7db] text-sm">

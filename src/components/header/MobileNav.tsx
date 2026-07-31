@@ -14,11 +14,19 @@ export default function MobileNav() {
   const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
   const containerRef = useRef<HTMLElement>(null);
 
+  const closeMenu = () => {
+    setIsMainNavOpen(false);
+    setIsMobileRankingsOpen(false);
+    setIsMobileToolsOpen(false);
+  };
+
   return (
     <nav className="xl:hidden block relative" ref={containerRef}>
       <button
         className={`${HAMBURGER_BUTTON_BASE} ${isMainNavOpen ? HAMBURGER_BUTTON_ACTIVE : HAMBURGER_BUTTON_HOVER}`}
         onClick={() => setIsMainNavOpen(!isMainNavOpen)}
+        aria-label={loc('NavigationMenu', '导航菜单')}
+        aria-expanded={isMainNavOpen}
       >
         <span className="flex flex-col gap-1.5 w-6 h-4">
           <span className={`block h-0.5 w-6 bg-[#e5e5e5] rounded-sm transition-transform ${isMainNavOpen ? 'rotate-45 translate-y-1.75' : ''}`}></span>
@@ -27,7 +35,13 @@ export default function MobileNav() {
         </span>
       </button>
 
-      <Dropdown isOpen={isMainNavOpen} onClose={() => { setIsMainNavOpen(false); setIsMobileRankingsOpen(false); setIsMobileToolsOpen(false); }} position="left" containerRef={containerRef}>
+      <Dropdown
+        isOpen={isMainNavOpen}
+        onClose={closeMenu}
+        position="left"
+        className="w-[min(20rem,calc(100vw-1.5rem))]"
+        containerRef={containerRef}
+      >
         {/* 榜单项 - 可展开 */}
         <div className="relative">
           <button
@@ -36,6 +50,7 @@ export default function MobileNav() {
               : 'hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:text-white hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]'
               }`}
             onClick={() => setIsMobileRankingsOpen(!isMobileRankingsOpen)}
+            aria-expanded={isMobileRankingsOpen}
           >
             <span className="w-full text-sm text-center">{loc('Rankings')}</span>
             <span className={`text-2xl font-light ${isMobileRankingsOpen ? 'text-[#3b82f6]' : 'text-[#a0a0a0]'}`}>›</span>
@@ -43,13 +58,13 @@ export default function MobileNav() {
 
           {isMobileRankingsOpen && (
             <div className="flex flex-col items-center bg-black/40 overflow-hidden">
-              <Link to="/ranking" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
+              <Link to="/ranking" onClick={closeMenu} className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 px-6 py-3.5 border-transparent border-l-2 w-full min-h-11 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
                 <span className="text-sm text-left">{loc('Recommend')}</span>
               </Link>
-              <Link to="/ranking/user" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
+              <Link to="/ranking/user" onClick={closeMenu} className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 px-6 py-3.5 border-transparent border-l-2 w-full min-h-11 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
                 <span className="text-sm text-left">{loc('UserRankingTitle')}</span>
               </Link>
-              <Link to="/ranking/mmfc" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
+              <Link to="/ranking/mmfc" onClick={closeMenu} className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 px-6 py-3.5 border-transparent border-l-2 w-full min-h-11 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
                 <span className="text-sm text-left">{loc('MMFCRanking')}</span>
               </Link>
             </div>
@@ -64,6 +79,7 @@ export default function MobileNav() {
               : 'hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 hover:text-white hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset]'
               }`}
             onClick={() => setIsMobileToolsOpen(!isMobileToolsOpen)}
+            aria-expanded={isMobileToolsOpen}
           >
             <span className="w-full text-sm text-center">工具</span>
             <span className={`text-2xl font-light ${isMobileToolsOpen ? 'text-[#3b82f6]' : 'text-[#a0a0a0]'}`}>›</span>
@@ -71,26 +87,26 @@ export default function MobileNav() {
 
           {isMobileToolsOpen && (
             <div className="flex flex-col items-center bg-black/40 overflow-hidden">
-              <Link to="/edit" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
+              <Link to="/edit" onClick={closeMenu} className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 px-6 py-3.5 border-transparent border-l-2 w-full min-h-11 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
                 <span className="text-sm text-left">{loc('ChartEditor')}</span>
               </Link>
-              <Link to="/play" className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 ml-2 px-4 py-3.5 border-transparent border-l-2 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
+              <Link to="/play" onClick={closeMenu} className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 px-6 py-3.5 border-transparent border-l-2 w-full min-h-11 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
                 <span className="text-sm text-left">MajdataPlay</span>
               </Link>
             </div>
           )}
         </div>
 
-        <Link to="https://docs.majdata.net" className={MOBILE_DROPDOWN_ITEM} target="_blank" rel="noopener noreferrer">
+        <Link to="https://docs.majdata.net" className={MOBILE_DROPDOWN_ITEM} onClick={closeMenu} target="_blank" rel="noopener noreferrer">
           <span className="w-full text-sm text-center">文档</span>
         </Link>
-        <Link to="/collection/hiroba" className={MOBILE_DROPDOWN_ITEM}>
+        <Link to="/collection/hiroba" className={MOBILE_DROPDOWN_ITEM} onClick={closeMenu}>
           <span className="w-full text-sm text-center">{loc('CollectionHiroba')}</span>
         </Link>
-        <Link to="/chart-events" className={MOBILE_DROPDOWN_ITEM}>
+        <Link to="/chart-events" className={MOBILE_DROPDOWN_ITEM} onClick={closeMenu}>
           <span className="w-full text-sm text-center">{loc('Contest')}</span>
         </Link>
-        <Link to="/eventTag?id=Original" className={MOBILE_DROPDOWN_ITEM}>
+        <Link to="/eventTag?id=Original" className={MOBILE_DROPDOWN_ITEM} onClick={closeMenu}>
           <span className="w-full text-sm text-center">{loc('OriginalSongs')}</span>
         </Link>
       </Dropdown>
