@@ -76,7 +76,7 @@ const SongCard = memo(function SongCard({
       className="flex justify-center hover:z-1001"
     >
       <LazyLoad height={165} width={165} offset={300}>
-        <div className="flex gap-3 w-70 h-70 overflow-visible transition-transform hover:-translate-y-1.25 duration-250 ease-in-out">
+        <div className="flex gap-3 w-68 h-70 overflow-visible transition-transform hover:-translate-y-1.25 duration-250 ease-in-out">
           <div className="relative shrink-0 w-52 aspect-square">
             {isRanking ? (
               <CoverPic id={song.id} display={"No." + (index + 1)} />
@@ -85,7 +85,10 @@ const SongCard = memo(function SongCard({
             )}
             <Tooltip content={stripTmpTags(song.title)}>
               <div
-                className="absolute bottom-20 left-1/2 bg-white rounded-full w-64 shadow-md border border-gray-200 px-3 py-1.5 z-11" style={{ transform: `translateX(-50%) rotate(${titleRotation}deg)` }}
+                className="absolute bottom-20 left-1/2 bg-white rounded-full w-64 shadow-md border border-gray-200 px-3 py-1.5 z-11"
+                style={{
+                  transform: `translateX(-50%) rotate(${titleRotation}deg)`,
+                }}
                 id={song.id}
               >
                 <div className="font-bold text-sm truncate text-center leading-tight">
@@ -148,7 +151,7 @@ const SongCard = memo(function SongCard({
       </LazyLoad>
     </div>
   );
-  });
+});
 export default SongCard;
 
 const Delbutton = memo(function Delbutton({ songid }: { songid: string }) {

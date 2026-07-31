@@ -131,25 +131,19 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
   };
 
   return (
-    <div className="bg-transparent p-6">
-      <section className="gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] mb-10">
+    <div className="bg-transparent p-6 text-white">
+      <section className="gap-8 flex flex-col mb-10">
         <div className="flex justify-center items-start">
-          <div className="shadow-[0_25px_50px_rgb(0_0_0/0.45)] w-48 md:w-64 h-48 md:h-64 hover:scale-105 transition-transform duration-300">
+          <div className="w-48 md:w-64 h-48 md:h-64 hover:scale-105 transition-transform duration-300">
             <CoverPic id={o.id} />
           </div>
         </div>
 
         <div className="flex flex-col justify-between gap-3">
-          <div
-            style={{
-              marginTop: "20px",
-              lineHeight: "5.5",
-              textAlign: "center",
-            }}
-          >
+          <div className="flex flex-col gap-1">
             <Tooltip content={loc("SearchForTitle") || "点击搜索该歌曲"}>
               <h1
-                className="inline-block hover:shadow-lg hover:text-shadow drop-shadow-md px-5 py-2.5 rounded-lg font-black hover:text-gray-700 text-4xl md:text-5xl text-center tracking-tight transition-all hover:-translate-y-0.5 duration-300 cursor-pointer hover:transform"
+                className="font-black text-4xl tracking-tight transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                 id={o.id}
                 onClick={() => {
                   if (o.title && o.title !== "" && o.title !== null) {
@@ -163,9 +157,9 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
             </Tooltip>
 
             <Tooltip content={loc("SearchForArtist") || "点击搜索该艺术家"}>
-              <div className="font-medium text-gray-600 text-xl md:text-2xl text-center">
+              <div className="font-medium text-xl tracking-tight text-center transition-all hover:-translate-y-0.5 duration-300 cursor-pointer">
                 <span
-                  className="inline-block hover:bg-white/10 hover:shadow-md px-3 py-1 rounded-md hover:text-gray-700 transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
+                  className="transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                   onClick={() => {
                     if (o.artist && o.artist !== "" && o.artist !== null) {
                       localStorage.setItem("search", o.artist);
@@ -173,7 +167,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                     }
                   }}
                 >
-                  Artist: {o.artist === "" || o.artist == null ? "-" : o.artist}
+                  {o.artist === "" || o.artist == null ? "-" : o.artist}
                 </span>
               </div>
             </Tooltip>
