@@ -378,5 +378,7 @@
   "ExitManage": "Exit Manage",
   "AllCharts": "All Charts",
   "RandomRecommend": "Random Recommend",
-  "500UploadErrorAndHint": "Upload failed, please go to the main site to upload"
+  "500UploadErrorAndHint": "Upload failed, please go to the main site to upload",
+  "LatestActivity": "Latest Activity",
+  "LatestActivityShort": "Latest Activity"
 }
