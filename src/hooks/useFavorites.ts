@@ -24,7 +24,10 @@ export function useFavorites() {
 
   const favoriteIds = useMemo(() => new Set(data?.map((c) => c.id) ?? []), [data]);
 
-  const toggleFavorite = useCallback(async (collectionId: string) => {
+  const toggleFavorite = useCallback(async (
+    collectionId: string,
+    successMessages?: { added: string; removed: string }
+  ) => {
     if (!user) {
       toast.info(loc('PleaseLogin', '请先登录'));
       return;
@@ -40,7 +43,11 @@ export function useFavorites() {
         body: JSON.stringify([collectionId]),
       });
       if (res.ok) {
-        toast.success(isFavorited ? loc('UnfavoriteSuccess', '已取消收藏') : loc('FavoriteSuccess', '收藏成功'));
+        toast.success(
+          isFavorited
+            ? (successMessages?.removed ?? loc('UnfavoriteSuccess', '已取消收藏'))
+            : (successMessages?.added ?? loc('FavoriteSuccess', '收藏成功'))
+        );
         mutate();
       } else {
         toast.error(loc('OperationFailed', '操作失败'));
