@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { hasTmpTags, stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
 import type { ReactElement } from 'react';
 
-// Test string from the user
+// Representative TMP rich-text fixture.
 const SONG_TITLE =
   '<color=#FF5AFB>E</color><color=#58C6FF>x</color><color=#404040>-</color>Otogibanashi   <color=#D13B40>[Full Ver.|3:37]</color>';
 
