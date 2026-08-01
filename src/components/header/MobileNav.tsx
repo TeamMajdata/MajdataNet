@@ -81,7 +81,7 @@ export default function MobileNav() {
             onClick={() => setIsMobileToolsOpen(!isMobileToolsOpen)}
             aria-expanded={isMobileToolsOpen}
           >
-            <span className="w-full text-sm text-center">工具</span>
+            <span className="w-full text-sm text-center">{loc('Tools')}</span>
             <span className={`text-2xl font-light ${isMobileToolsOpen ? 'text-[#3b82f6]' : 'text-[#a0a0a0]'}`}>›</span>
           </button>
 
@@ -91,14 +91,14 @@ export default function MobileNav() {
                 <span className="text-sm text-left">{loc('ChartEditor')}</span>
               </Link>
               <Link to="/play" onClick={closeMenu} className="flex justify-start items-center gap-3 hover:bg-linear-to-br hover:from-white/10 hover:to-white/6 px-6 py-3.5 border-transparent border-l-2 w-full min-h-11 font-medium text-[#e5e5e5] text-[0.85rem] hover:text-white no-underline">
-                <span className="text-sm text-left">MajdataPlay</span>
+                <span className="text-sm text-left">{loc('ChartPlayer')}</span>
               </Link>
             </div>
           )}
         </div>
 
         <Link to="https://docs.majdata.net" className={MOBILE_DROPDOWN_ITEM} onClick={closeMenu} target="_blank" rel="noopener noreferrer">
-          <span className="w-full text-sm text-center">文档</span>
+          <span className="w-full text-sm text-center">{loc('Documentation')}</span>
         </Link>
         <Link to="/collection/hiroba" className={MOBILE_DROPDOWN_ITEM} onClick={closeMenu}>
           <span className="w-full text-sm text-center">{loc('CollectionHiroba')}</span>

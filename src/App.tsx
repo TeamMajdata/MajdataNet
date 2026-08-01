@@ -6,7 +6,6 @@ import { UserProvider } from '@/contexts/UserContext';
 import { TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
 import HomePage from './pages/HomePage';
 import ForginsterPage from './pages/ForginsterPage';
-import EditPage from './pages/EditPage';
 import EventsPage from './pages/EventsPage';
 import RankingPage from './pages/RankingPage';
 import UserRankingPage from './pages/ranking/UserRankingPage';
@@ -45,7 +44,7 @@ function App() {
                 <Route path="/login" element={<ForginsterPage />} />
                 <Route path="/register" element={<ForginsterPage />} />
                 <Route path="/forget" element={<ForginsterPage />} />
-                <Route path="/edit" element={<EditPage />} />
+                <Route path="/edit" element={<ExternalRedirect to="https://docs.majdata.net/majdatax/" />} />
                 <Route path="/play" element={<ExternalRedirect to="https://docs.majdata.net/majdataplay/" />} />
                 <Route path="/chart-events" element={<EventsPage />} />
                 <Route path="/ranking" element={<RankingPage />} />
