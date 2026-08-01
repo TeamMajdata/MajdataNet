@@ -5,10 +5,8 @@
  * 根据URL参数id显示特定活动的相关谱面
  */
 
-import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { setLanguage } from '@/utils/i18n';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { PageLayout, SongList, EventBanner, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import { getEventBySearchKeyword } from '@/utils/eventsData';
@@ -16,8 +14,7 @@ import { type Event } from '@/types';
 import { EventCategory } from '@/types/event';
 
 export default function EventTagPage() {
-  const loc = useLoc();
-  const [ready, setReady] = useState(false);
+  const { i18n, isReady } = useI18n();
   const [searchParams] = useSearchParams();
 
   // 获取URL中的id参数
@@ -34,22 +31,16 @@ export default function EventTagPage() {
         href: '/eventTag?id=Original',
         src: '/events/original.png',
         alt: 'Original Songs',
-        title: loc('OriginalSongs'),
+        title: i18n("eventTag/EventTagPage.OriginalSongs"),
         category: EventCategory.PrivateProject,
         createDate: new Date().toISOString().split('T')[0],
         endDate: '2099-12-31',
-        description: loc('OriginalSongsDesc'),
+        description: i18n("eventTag/EventTagPage.OriginalSongsDesc"),
       }
       : getEventBySearchKeyword(eventId)
     : null;
 
-  useEffect(() => {
-    setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
-      setReady(true);
-    });
-  }, []);
-
-  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
+  if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
     <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen">
@@ -61,7 +52,7 @@ export default function EventTagPage() {
         <div className="mx-auto mt-4 sm:mt-6 md:mt-8 px-2 sm:px-3 md:px-4 max-w-300">
           <div className="mb-8">
             <h2 className="m-0 mb-3 sm:mb-4 md:mb-6 font-bold text-white text-xl sm:text-2xl md:text-3xl text-center" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
-              {loc('RelatedCharts')}
+              {i18n("eventTag/EventTagPage.RelatedCharts")}
             </h2>
 
             {/* 渐变分割线 */}

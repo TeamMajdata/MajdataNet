@@ -3,11 +3,10 @@
  * 迁移自 legacy/src/app/space/page.jsx
  */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
-import { setLanguage } from '@/utils/i18n';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
@@ -35,30 +34,23 @@ const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
 
 export default function SpacePage() {
-  const loc = useLoc();
-  const [ready, setReady] = useState(false);
+  const { i18n, isReady } = useI18n();
   const [hasUploadedCharts, setHasUploadedCharts] = useState<boolean | null>(null);
   const [hasRecentPlayed, setHasRecentPlayed] = useState<boolean | null>(null);
   const [searchParams] = useSearchParams();
   const username = searchParams.get('id');
 
-  useEffect(() => {
-    setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
-      setReady(true);
-    });
-  }, []);
-
-  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
+  if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   if (!username) {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-screen">
           <div className="text-center">
-            <h1 className="mb-4 font-bold text-2xl">{loc('Error', '错误')}</h1>
-            <p className="mb-4">{loc('UserNotFound', '未找到用户')}</p>
+            <h1 className="mb-4 font-bold text-2xl">{i18n("space/SpacePage.Error", '错误')}</h1>
+            <p className="mb-4">{i18n("space/SpacePage.UserNotFound", '未找到用户')}</p>
             <Link to="/" className="text-blue-400 hover:text-blue-300 underline">
-              {loc('BackToHome', '返回主页')}
+              {i18n("space/SpacePage.BackToHome", '返回主页')}
             </Link>
           </div>
         </div>
@@ -89,7 +81,7 @@ export default function SpacePage() {
           variants={slideInUp}
         >
           <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-            {loc('RecentlyPlayedCharts', '最近游玩的谱面')}
+            {i18n("space/SpacePage.RecentlyPlayedCharts", '最近游玩的谱面')}
           </h2>
           <div
             className="relative mx-auto my-8 border-0 w-[70%] h-px"
@@ -111,7 +103,7 @@ export default function SpacePage() {
           variants={slideInUp}
         >
           <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-            {loc('UploadedCharts', '已上传的谱面')}
+            {i18n("space/SpacePage.UploadedCharts", '已上传的谱面')}
           </h2>
           <div
             className="relative mx-auto my-8 border-0 w-[70%] h-px"
@@ -136,7 +128,7 @@ export default function SpacePage() {
           variants={slideInUp}
         >
           <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-            {loc('WhoLovesToPlay', '谁爱玩')}
+            {i18n("space/SpacePage.WhoLovesToPlay", '谁爱玩')}
           </h2>
           <div
             className="relative mx-auto my-8 border-0 w-[70%] h-px"
@@ -152,7 +144,7 @@ export default function SpacePage() {
 }
 
 function Introduction({ username }: { username: string }) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const { data, error, isLoading } = useSWR<IntroductionData>(
     endpoints.account.intro(username),
     fetcher
@@ -161,7 +153,7 @@ function Introduction({ username }: { username: string }) {
   if (error) {
     return (
       <div className="mx-auto w-full text-5xl text-center">
-        {loc('ServerError', '服务器错误')}
+        {i18n("space/SpacePage.ServerError", '服务器错误')}
       </div>
     );
   }
@@ -177,7 +169,7 @@ function Introduction({ username }: { username: string }) {
   if (!data) {
     return (
       <div className="mx-auto w-full text-5xl text-center">
-        {loc('UserNotFound', '未找到用户')}
+        {i18n("space/SpacePage.UserNotFound", '未找到用户')}
       </div>
     );
   }
@@ -199,7 +191,7 @@ function Introduction({ username }: { username: string }) {
         <div className="flex-1">
           <h1 className="mb-2 font-bold text-[2rem] text-gray-200 max-md:text-2xl">{data.username}</h1>
           <p className="m-0 text-gray-400 text-sm sm:text-base md:text-right text-center break-words">
-            {loc('JoinAt', '加入于')} {new Date(data.joinDate).toLocaleString()}
+            {i18n("space/SpacePage.JoinAt", '加入于')} {new Date(data.joinDate).toLocaleString()}
           </p>
         </div>
       </div>
@@ -208,7 +200,7 @@ function Introduction({ username }: { username: string }) {
       {data.introduction && (
         <div className="mt-4">
           <h3 className="mb-4 font-semibold text-gray-200 text-xl text-center">
-            {loc('SelfIntro', '自我介绍')}
+            {i18n("space/SpacePage.SelfIntro", '自我介绍')}
           </h3>
           <article className="bg-black/30 p-0 sm:p-2 rounded-xl min-w-0 select-text **:select-text markdown-body">
             <Markdown

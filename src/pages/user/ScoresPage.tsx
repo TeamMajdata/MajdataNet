@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { ScoreCard, PageLayout, LoadingSpinner } from '@/components';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import type { Score } from '@/types';
 import { ComboState } from '@/types';
 import { motion, type Variants } from 'framer-motion';
@@ -82,7 +82,7 @@ const toFilterKey = (comboState: number): ComboStateFilter | null => {
  * 个人成绩页面组件
  */
 export default function PersonalScoresPage() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [sortBy, setSortBy] = useState<SortOption>('timestamp');
   const [currentPage, setCurrentPage] = useState(1);
   const [comboFilter, setComboFilter] = useState<ComboStateFilter[]>(loadComboFilter);
@@ -181,7 +181,7 @@ export default function PersonalScoresPage() {
     return (
       <PageLayout>
         <div className="m-auto w-full text-[50px] text-center">
-          {loc('ServerError', '服务器错误')}
+          {i18n("user/scores/ScoresPage.ServerError", '服务器错误')}
         </div>
       </PageLayout>
     );
@@ -201,7 +201,7 @@ export default function PersonalScoresPage() {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-screen">
-          <p className="text-xl">{loc('NoScores', '暂无成绩记录')}</p>
+          <p className="text-xl">{i18n("user/scores/ScoresPage.NoScores", '暂无成绩记录')}</p>
         </div>
       </PageLayout>
     );
@@ -217,25 +217,25 @@ export default function PersonalScoresPage() {
         variants={slideInUp}
       >
         <h1 className="my-5 sm:my-8 font-semibold text-white text-3xl sm:text-4xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-          {loc('PersonalScores', '我的成绩')}
+          {i18n("user/scores/ScoresPage.PersonalScores", '我的成绩')}
         </h1>
 
         {/* 统计数据卡片 — 基于筛选后数据 */}
         <div className="gap-3 grid grid-cols-2 lg:grid-cols-4 mx-auto mb-6 max-w-3xl">
           <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
-            <div className="mb-1 text-gray-400 text-xs tracking-wide">{loc('TotalDxAcc', 'DX准确率合计')}</div>
+            <div className="mb-1 text-gray-400 text-xs tracking-wide">{i18n("user/scores/ScoresPage.TotalDxAcc", 'DX准确率合计')}</div>
             <div className="font-bold tabular-nums text-purple-400 text-xl sm:text-2xl">{totalDxAcc.toFixed(4)}</div>
           </div>
           <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
-            <div className="mb-1 text-gray-400 text-xs tracking-wide">{loc('TotalClassicAcc', 'Classic准确率合计')}</div>
+            <div className="mb-1 text-gray-400 text-xs tracking-wide">{i18n("user/scores/ScoresPage.TotalClassicAcc", 'Classic准确率合计')}</div>
             <div className="font-bold tabular-nums text-emerald-400 text-xl sm:text-2xl">{totalClassicAcc.toFixed(4)}</div>
           </div>
           <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
-            <div className="mb-1 text-gray-400 text-xs tracking-wide">{loc('TotalDxScore', 'DX分数合计')}</div>
+            <div className="mb-1 text-gray-400 text-xs tracking-wide">{i18n("user/scores/ScoresPage.TotalDxScore", 'DX分数合计')}</div>
             <div className="font-bold tabular-nums text-amber-400 text-xl sm:text-2xl">{totalDxScoreSum.toFixed(0)}</div>
           </div>
           <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
-            <div className="mb-1 text-gray-400 text-xs tracking-wide">{loc('FilteredCount', '筛选结果')}</div>
+            <div className="mb-1 text-gray-400 text-xs tracking-wide">{i18n("user/scores/ScoresPage.FilteredCount", '筛选结果')}</div>
             <div className="font-bold tabular-nums text-white text-xl sm:text-2xl">{filteredData.length}</div>
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function PersonalScoresPage() {
         {/* 第一行：排序依据 */}
         <div className="flex flex-col sm:flex-row flex-wrap justify-center items-stretch sm:items-center gap-3 sm:gap-4 mx-auto mb-4 max-w-4xl">
           <span className="font-medium text-white text-sm">
-            {loc('SortBy', '排序依据')}
+            {i18n("user/scores/ScoresPage.SortBy", '排序依据')}
           </span>
           <div className="flex flex-wrap justify-center gap-2">
             <button
@@ -253,7 +253,7 @@ export default function PersonalScoresPage() {
                 : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
-              {loc('SortByTime', '游玩时间')}
+              {i18n("user/scores/ScoresPage.SortByTime", '游玩时间')}
             </button>
             <button
               onClick={() => handleSortChange('dxAcc')}
@@ -262,7 +262,7 @@ export default function PersonalScoresPage() {
                 : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
-              {loc('SortByDxAcc', 'DX准确率')}
+              {i18n("user/scores/ScoresPage.SortByDxAcc", 'DX准确率')}
             </button>
             <button
               onClick={() => handleSortChange('classicAcc')}
@@ -271,7 +271,7 @@ export default function PersonalScoresPage() {
                 : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
-              {loc('SortByClassicAcc', 'Classic准确率')}
+              {i18n("user/scores/ScoresPage.SortByClassicAcc", 'Classic准确率')}
             </button>
             <button
               onClick={() => handleSortChange('dxScore')}
@@ -280,7 +280,7 @@ export default function PersonalScoresPage() {
                 : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
-              {loc('SortByDxScore', 'DX分数')}
+              {i18n("user/scores/ScoresPage.SortByDxScore", 'DX分数')}
             </button>
             <button
               onClick={() => handleSortChange('comboState')}
@@ -289,7 +289,7 @@ export default function PersonalScoresPage() {
                 : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
                 }`}
             >
-              {loc('SortByCombo', 'Combo状态')}
+              {i18n("user/scores/ScoresPage.SortByCombo", 'Combo状态')}
             </button>
           </div>
         </div>
@@ -297,7 +297,7 @@ export default function PersonalScoresPage() {
         {/* 第二行：Combo状态筛选 */}
         <div className="flex flex-col sm:flex-row flex-wrap justify-center items-stretch sm:items-center gap-3 sm:gap-4 mx-auto mb-8 max-w-4xl">
           <span className="font-medium text-white text-sm">
-            {loc('FilterByCombo', 'Combo筛选')}
+            {i18n("user/scores/ScoresPage.FilterByCombo", 'Combo筛选')}
           </span>
           <div className="flex flex-wrap justify-center gap-2">
             {ALL_COMBO_FILTERS.map((filter) => {
@@ -329,10 +329,10 @@ export default function PersonalScoresPage() {
         {filteredData.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-gray-400 text-lg">
-              {loc('NoFilterResults', '没有符合筛选条件的成绩')}
+              {i18n("user/scores/ScoresPage.NoFilterResults", '没有符合筛选条件的成绩')}
             </p>
             <p className="mt-2 text-gray-500 text-sm">
-              {loc('NoFilterResultsHint', '请尝试调整上方的 Combo 筛选条件')}
+              {i18n("user/scores/ScoresPage.NoFilterResultsHint", '请尝试调整上方的 Combo 筛选条件')}
             </p>
           </div>
         ) : (

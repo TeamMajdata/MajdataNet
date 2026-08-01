@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion } from 'framer-motion';
-import { loc } from '@/utils';
+import { useI18n } from '@/hooks';
 import { UnifiedHeader } from '@/components';
 import AmbientBackground from './AmbientBackground';
 import FloatingButtons from './FloatingButtons';
@@ -17,6 +17,8 @@ export default function PageLayout({
   className = '',
   useAmbientBackground = true,
 }: PageLayoutProps) {
+  const { i18n } = useI18n();
+
   return (
     <>
       {/* Background */}
@@ -59,7 +61,7 @@ export default function PageLayout({
           <div className="mx-auto px-4 max-w-7xl">
             <Link to="/" className="no-underline">
               <div className="inline-flex justify-center items-center bg-[rgba(25,25,30,0.9)] hover:bg-[rgba(35,35,40,0.95)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] px-6 sm:px-8 py-3 sm:py-4 border border-white/10 hover:border-white/20 rounded-xl min-h-11 font-semibold text-[#e5e5e5] transition-all hover:-translate-y-0.5 duration-300">
-                {loc('BackToHome')}
+                {i18n("shared/PageLayout.BackToHome")}
               </div>
             </Link>
           </div>
@@ -73,7 +75,7 @@ export default function PageLayout({
           <div className="flex flex-col items-center gap-3 mb-8">
             {/* Copyright */}
             <div className="font-semibold text-white/90 text-sm text-center">
-              {loc('FooterCopyright')}
+              {i18n("shared/PageLayout.FooterCopyright")}
             </div>
 
             {/* Open Source Info */}
@@ -135,7 +137,7 @@ export default function PageLayout({
 
             {/* Community */}
             <div className="text-white/70 text-xs text-center italic">
-              {loc('FooterCommunity')}
+              {i18n("shared/PageLayout.FooterCommunity")}
             </div>
           </div>
 
@@ -148,7 +150,7 @@ export default function PageLayout({
               className="group-hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)] rounded-xl w-30 h-auto transition-all duration-300"
               loading="lazy"
               src="/bee.webp"
-              alt={loc('MiniGame')}
+              alt={i18n("shared/PageLayout.MiniGame")}
             />
           </Link>
         </footer>

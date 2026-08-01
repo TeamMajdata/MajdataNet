@@ -1,6 +1,6 @@
 import { endpoints } from '@/config/api';
 import useSWR from 'swr';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { LoadingSpinner } from '@/components';
 import type { ScoreData } from '@/types';
 import mmfcParticipants from '@/assets/data/mmfc-participants.json';
@@ -14,7 +14,7 @@ const fetcher = (url: string) =>
  * 显示指定参与者对 mmfc_bot 谱面的游玩总分排名
  */
 export default function MMFCScoreCount() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
   // 获取 mmfc_bot 用户的分数总和数据
   const { data, error, isLoading } = useSWR<ScoreData[]>(
@@ -26,7 +26,7 @@ export default function MMFCScoreCount() {
   if (error) {
     return (
       <div className="flex justify-center items-center p-8 text-red-400">
-        {loc('FailedToLoad', '加载失败')}
+        {i18n("shared/MMFCScoreCount.FailedToLoad", '加载失败')}
       </div>
     );
   }
@@ -42,7 +42,7 @@ export default function MMFCScoreCount() {
   if (!data || data.length === 0) {
     return (
       <div className="flex justify-center items-center p-8 text-white/70">
-        <p>{loc('NoMMFCRankingData', '暂无MMFC排名数据')}</p>
+        <p>{i18n("shared/MMFCScoreCount.NoMMFCRankingData", '暂无MMFC排名数据')}</p>
       </div>
     );
   }
@@ -59,7 +59,7 @@ export default function MMFCScoreCount() {
   if (sortedData.length === 0) {
     return (
       <div className="flex justify-center items-center p-8 text-white/70">
-        <p>{loc('NoMMFCRankingData', '暂无MMFC排名数据')}</p>
+        <p>{i18n("shared/MMFCScoreCount.NoMMFCRankingData", '暂无MMFC排名数据')}</p>
       </div>
     );
   }

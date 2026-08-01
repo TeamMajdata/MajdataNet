@@ -7,7 +7,7 @@ import React, { useState, useMemo } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
 import { endpoints } from '@/config/api';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { getComboState, getLevelName } from '@/utils';
 import { LoadingSpinner } from '@/components';
 import { Link } from 'react-router-dom';
@@ -286,7 +286,7 @@ function RankingCard({
 
 // 空状态组件
 function EmptyState() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
   return (
     <motion.div
@@ -311,7 +311,7 @@ function EmptyState() {
         </svg>
       </div>
       <p className="font-medium text-white/50 text-sm text-center">
-        {loc('NoRecords', '暂无成绩记录')}
+        {i18n("song/ScoreRanking.NoRecords", '暂无成绩记录')}
       </p>
     </motion.div>
   );
@@ -351,7 +351,7 @@ function RankingList({
 
 // ======================== 主组件 ========================
 export function ScoreRanking({ songid }: ScoreListProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [activeLevel, setActiveLevel] = useState<number>(0);
   const [transitionDirection, setTransitionDirection] = useState<1 | -1>(1);
 
@@ -394,7 +394,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
   if (error) {
     return (
       <div className="bg-white/5 p-4 border border-white/10 rounded-xl w-full">
-        <p className="text-white/60 text-sm text-center">{loc('FailedToLoad', '加载失败')}</p>
+        <p className="text-white/60 text-sm text-center">{i18n("song/ScoreRanking.FailedToLoad", '加载失败')}</p>
       </div>
     );
   }
@@ -436,12 +436,12 @@ export function ScoreRanking({ songid }: ScoreListProps) {
               d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
             />
           </svg>
-          {loc('RankingList', '排行榜')}
+          {i18n("song/ScoreRanking.RankingList", '排行榜')}
         </h2>
 
         {/* 统计信息 */}
         <span className="font-medium text-white/40 text-xs">
-          {displayScores.length} {loc('Records', '条记录')}
+          {displayScores.length} {i18n("song/ScoreRanking.Records", '条记录')}
         </span>
       </div>
 

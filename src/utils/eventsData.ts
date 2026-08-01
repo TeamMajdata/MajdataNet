@@ -2,7 +2,7 @@
  * 活动数据处理工具函数
  */
 
-import { loc } from './i18n';
+import { i18n } from './i18n';
 import type { Event, EventWithTimeInfo, CarouselEventsResult, EventCategory } from '@/types';
 import { EVENT_CATEGORY_I18N_KEYS } from '@/types/event';
 
@@ -75,17 +75,17 @@ export function getTimeAgo(createDate: string): string {
   const isFuture = diffTime > 0; // 判断是否为未来时间
 
   if (diffDays < 1) {
-    return loc('TimeToday', '今天');
+    return i18n("chart-events/eventsData.TimeToday", '今天');
   } else if (diffDays === 1) {
-    return isFuture ? `1${loc('TimeDaysLater', '天后')}` : `1${loc('TimeDaysAgo', '天前')}`;
+    return isFuture ? `1${i18n("chart-events/eventsData.TimeDaysLater", '天后')}` : `1${i18n("chart-events/eventsData.TimeDaysAgo", '天前')}`;
   } else if (diffDays < 30) {
-    return isFuture ? `${diffDays}${loc('TimeDaysLater', '天后')}` : `${diffDays}${loc('TimeDaysAgo', '天前')}`;
+    return isFuture ? `${diffDays}${i18n("chart-events/eventsData.TimeDaysLater", '天后')}` : `${diffDays}${i18n("chart-events/eventsData.TimeDaysAgo", '天前')}`;
   } else if (diffDays < 365) {
     const months = Math.floor(diffDays / 30);
-    return isFuture ? `${months}${loc('TimeMonthsLater', '个月后')}` : `${months}${loc('TimeMonthsAgo', '个月前')}`;
+    return isFuture ? `${months}${i18n("chart-events/eventsData.TimeMonthsLater", '个月后')}` : `${months}${i18n("chart-events/eventsData.TimeMonthsAgo", '个月前')}`;
   } else {
     const years = Math.floor(diffDays / 365);
-    return isFuture ? `${years}${loc('TimeYearsLater', '年后')}` : `${years}${loc('TimeYearsAgo', '年前')}`;
+    return isFuture ? `${years}${i18n("chart-events/eventsData.TimeYearsLater", '年后')}` : `${years}${i18n("chart-events/eventsData.TimeYearsAgo", '年前')}`;
   }
 }
 
@@ -307,12 +307,12 @@ export function getRandomOngoingEvents(): EventWithTimeInfo[] {
  */
 export function getEventStatusText(event: Event): string {
   if (isEventUpcoming(event)) {
-    return loc('EventStatusUpcoming', '即将开始');
+    return i18n("chart-events/eventsData.EventStatusUpcoming", '即将开始');
   }
   if (isEventOngoing(event)) {
-    return loc('EventStatusOngoing', '进行中');
+    return i18n("chart-events/eventsData.EventStatusOngoing", '进行中');
   }
-  return loc('EventStatusEnded', '已结束');
+  return i18n("chart-events/eventsData.EventStatusEnded", '已结束');
 }
 
 /**
@@ -335,7 +335,7 @@ export function getCategoryTranslation(category: EventCategory): string {
   const i18nKey = EVENT_CATEGORY_I18N_KEYS[category];
   if (!i18nKey) return '';
   
-  return loc(i18nKey);
+  return i18n(i18nKey);
 }
 
 // 预构建搜索关键词到活动的映射表（性能优化）

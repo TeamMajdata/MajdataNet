@@ -11,7 +11,7 @@ import remarkGfm from 'remark-gfm';
 import 'github-markdown-css/github-markdown-dark.css';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
-import { useLoc, useUserContext } from '@/hooks';
+import { useI18n, useUserContext } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import remarkCenter from '@/utils/remarkCenter';
 import { LoadingSpinner } from '@/components';
@@ -20,7 +20,7 @@ const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
 export default function IntroUploader() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const { user } = useUserContext();
   const [intro, setIntro] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -51,11 +51,11 @@ export default function IntroUploader() {
     const content = formData.get('content') as string;
 
     if (!content || content.trim() === '') {
-      toast.error(loc('NoIntroTypedIn'));
+      toast.error(i18n("user/IntroUploader.NoIntroTypedIn"));
       return;
     }
 
-    const uploading = toast.loading(loc('Uploading'), {
+    const uploading = toast.loading(i18n("user/IntroUploader.Uploading"), {
       hideProgressBar: false,
     });
 
@@ -71,12 +71,12 @@ export default function IntroUploader() {
         },
         withCredentials: true,
       });
-      toast.success(getDisplayMessage(response.data, loc('UploadSuccess', 'Upload succeeded')));
+      toast.success(getDisplayMessage(response.data, i18n("user/IntroUploader.UploadSuccess", 'Upload succeeded')));
       await sleep(2000);
       window.location.reload();
     } catch (e: unknown) {
       const error = e as { response?: { data?: unknown }; message?: string };
-      const message = getDisplayMessage(error.response?.data ?? error.message, loc('UploadFailed', 'Upload failed'));
+      const message = getDisplayMessage(error.response?.data ?? error.message, i18n("user/IntroUploader.UploadFailed", 'Upload failed'));
       toast.error(message, { autoClose: false });
     } finally {
       toast.done(uploading);
@@ -87,8 +87,8 @@ export default function IntroUploader() {
   return (
     <>
       <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">
-        {loc('SelfIntro')}
-        {loc('MarkdownSupported')}
+        {i18n("user/IntroUploader.SelfIntro")}
+        {i18n("user/IntroUploader.MarkdownSupported")}
       </h2>
       <div className="flex flex-wrap justify-center max-w-(--container-max-width) mx-auto my-0 px-(--container-padding)">
         <form className="flex flex-col justify-center w-full" onSubmit={onSubmit}>
@@ -106,7 +106,7 @@ export default function IntroUploader() {
             type="submit"
             disabled={isUploading}
           >
-            {isUploading ? loc('UploadingPlzWait') : loc('Upload')}
+            {isUploading ? i18n("user/IntroUploader.UploadingPlzWait") : i18n("user/IntroUploader.Upload")}
           </button>
         </form>
       </div>
@@ -114,7 +114,7 @@ export default function IntroUploader() {
       {/* HR Divider */}
       <div className="my-8 border-white/20 border-t"></div>
 
-      <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">{loc('Preview')}</h2>
+      <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">{i18n("user/IntroUploader.Preview")}</h2>
       <article className="bg-transparent px-4 markdown-body">
         <Markdown
           remarkPlugins={[remarkGfm, remarkCenter]}

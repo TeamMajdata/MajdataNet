@@ -12,7 +12,9 @@ import {
 import type { NavigationGroup, NavigationLink } from '@/components/header/navigationItems';
 
 vi.mock('@/hooks', () => ({
-  useLoc: () => (key: string, fallback?: string) => fallback ?? key,
+  useI18n: () => ({
+    i18n: (key: string, fallback?: string) => fallback ?? key,
+  }),
 }));
 
 const testGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean };

@@ -2,8 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
-import { setLanguage } from '@/utils/i18n';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import {
   PageLayout,
   CoverPic,
@@ -24,18 +23,11 @@ import { parseTmpRichText } from '@/utils/richTextUtils';
 import type { SongDetailsContainerProps, SongSummary } from '@/types';
 
 export default function SongPage() {
-  const loc = useLoc();
-  const [ready, setReady] = useState(false);
+  const { i18n, isReady } = useI18n();
   const [checkedParam, setCheckedParam] = useState<string | null>(null);
   const [songData, setSongData] = useState<SongSummary | null>(null);
   const [searchParams] = useSearchParams();
   const param = searchParams.get('id');
-
-  useEffect(() => {
-    setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
-      setReady(true);
-    });
-  }, []);
 
   useEffect(() => {
     if (!param) return;
@@ -61,7 +53,7 @@ export default function SongPage() {
 
   const isChecking = param !== checkedParam;
 
-  if (!ready || !param || isChecking) {
+  if (!isReady || !param || isChecking) {
     return (
       <div className="flex justify-center items-center h-screen">
         <LoadingSpinner size={50} />
@@ -73,7 +65,7 @@ export default function SongPage() {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{loc('SongNotFound', '歌曲不存在')}</div>
+          <div className="text-white text-2xl">{i18n("song/SongPage.SongNotFound", '歌曲不存在')}</div>
         </div>
       </PageLayout>
     );
@@ -106,7 +98,7 @@ function SongDetailsContainer({ id, data }: SongDetailsContainerProps & { data: 
 
 
 function SongInfo({ data }: { id: string; data: SongSummary }) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tagButtonRef = useRef<any>(null);
   const [isLoadMajdata, setIsLoadMajdata] = useState(false);
@@ -120,7 +112,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
 
   const shareSong = () => async () => {
     await navigator.clipboard.writeText(window.location.href);
-    toast.success(loc('ClipboardSuccess'));
+    toast.success(i18n("song/SongPage.ClipboardSuccess"));
   };
 
   return (
@@ -140,7 +132,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               textAlign: 'center',
             }}
           >
-            <Tooltip content={loc('SearchForTitle') || '点击搜索该歌曲'}>
+            <Tooltip content={i18n("song/SongPage.SearchForTitle") || '点击搜索该歌曲'}>
               <h1
                 className="inline-block hover:shadow-lg hover:text-shadow drop-shadow-md px-5 py-2.5 rounded-lg font-black hover:text-white text-4xl md:text-5xl text-center tracking-tight transition-all hover:-translate-y-0.5 duration-300 cursor-pointer hover:transform"
                 id={o.id}
@@ -155,7 +147,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               </h1>
             </Tooltip>
 
-            <Tooltip content={loc('SearchForArtist') || '点击搜索该艺术家'}>
+            <Tooltip content={i18n("song/SongPage.SearchForArtist") || '点击搜索该艺术家'}>
               <div className="font-medium text-white/80 text-xl md:text-2xl text-center">
                 <span
                   className="inline-block hover:bg-white/10 hover:shadow-md px-3 py-1 rounded-md hover:text-white transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
@@ -203,14 +195,14 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
 
             <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl min-w-0 transition-all duration-300">
               <h3 className="mb-3 font-bold text-white text-sm uppercase tracking-wider">
-                {loc('Tags') || '标签'}
+                {i18n("song/SongPage.Tags") || '标签'}
               </h3>
               <div className="flex flex-wrap flex-1 gap-2">
                 {(o.tags || o.publicTags) &&
                   (o.tags.length > 0 || o.publicTags.length > 0) ? (
                   <>
                     {o.tags.map((tag, index) => (
-                      <Tooltip content={loc('SearchForTag')} key={index}>
+                      <Tooltip content={i18n("song/SongPage.SearchForTag")} key={index}>
                         <span
                           className="inline-flex items-center bg-[linear-gradient(135deg,rgb(139_69_19/0.3),rgb(101_67_33/0.2))] hover:bg-[linear-gradient(135deg,rgb(139_69_19/0.5),rgb(101_67_33/0.4))] hover:shadow-[0_4px_12px_rgb(139_69_19/0.3)] px-3 py-1 border border-[rgb(139_69_19/0.4)] hover:border-[rgb(139_69_19/0.7)] rounded-full font-medium text-[rgb(255_215_0/0.9)] hover:text-[#ffd700] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                           onClick={() => {
@@ -223,7 +215,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                       </Tooltip>
                     ))}
                     {o.publicTags?.map((tag, index) => (
-                      <Tooltip content={loc('SearchForTag')} key={index}>
+                      <Tooltip content={i18n("song/SongPage.SearchForTag")} key={index}>
                         <span
                           className="inline-flex items-center bg-[linear-gradient(135deg,rgb(34_197_94/0.3),rgb(22_163_74/0.2))] hover:bg-[linear-gradient(135deg,rgb(34_197_94/0.5),rgb(22_163_74/0.4))] hover:shadow-[0_4px_12px_rgb(34_197_94/0.3)] px-3 py-1 border border-[rgb(34_197_94/0.4)] hover:border-[rgb(34_197_94/0.7)] rounded-full font-medium text-[rgb(74_222_128/0.9)] hover:text-[#4ade80] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                           onClick={() => {
@@ -238,7 +230,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                   </>
                 ) : (
                   <span className="text-white/40 text-sm italic">
-                    {loc('NoTags') || '暂无标签'}
+                    {i18n("song/SongPage.NoTags") || '暂无标签'}
                   </span>
                 )}
                 <TagManageTagLauncher
@@ -254,7 +246,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
             <button
               className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
               onClick={OnDownloadClick({ id: o.id, title: o.title })}
-              title={loc('Download')}
+              title={i18n("song/SongPage.Download")}
             >
               <span className="inline-flex justify-center items-center gap-2 w-full">
                 <svg
@@ -266,13 +258,13 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 >
                   <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
                 </svg>
-                <span>{loc('Download') || '下载'}</span>
+                <span>{i18n("song/SongPage.Download") || '下载'}</span>
               </span>
             </button>
             <button
               className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
               onClick={shareSong()}
-              title={loc('Share')}
+              title={i18n("song/SongPage.Share")}
             >
               <span className="inline-flex justify-center items-center gap-2 w-full">
                 <svg
@@ -284,13 +276,13 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 >
                   <path d="M720-80q-50 0-85-35t-35-85q0-7 1-14.5t3-13.5L322-392q-17 15-38 23.5t-44 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 44 8.5t38 23.5l282-164q-2-6-3-13.5t-1-14.5q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-44-8.5T638-672L356-508q2 6 3 13.5t1 14.5q0 7-1 14.5t-3 13.5l282 164q17-15 38-23.5t44-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-640q17 0 28.5-11.5T760-760q0-17-11.5-28.5T720-800q-17 0-28.5 11.5T680-760q0 17 11.5 28.5T720-720ZM240-440q17 0 28.5-11.5T280-480q0-17-11.5-28.5T240-520q-17 0-28.5 11.5T200-480q0 17 11.5 28.5T240-440Zm480 280q17 0 28.5-11.5T760-200q0-17-11.5-28.5T720-240q-17 0-28.5 11.5T680-200q0 17 11.5 28.5T720-160Zm0-600ZM240-480Zm480 280Z" />
                 </svg>
-                <span>{loc('Share') || '分享'}</span>
+                <span>{i18n("song/SongPage.Share") || '分享'}</span>
               </span>
             </button>
             <button
               className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
               onClick={() => setIsCollectionModalOpen(true)}
-              title={loc('Collection') || '收藏'}
+              title={i18n("song/SongPage.Collection") || '收藏'}
             >
               <span className="inline-flex justify-center items-center gap-2 w-full">
                 <svg
@@ -302,7 +294,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 >
                   <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
                 </svg>
-                <span>{loc('Collection') || '收藏'}</span>
+                <span>{i18n("song/SongPage.Collection") || '收藏'}</span>
               </span>
             </button>
             <div style={{ display: 'none' }}>
@@ -320,7 +312,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 title="点击复制"
                 onClick={() => {
                   navigator.clipboard.writeText(o.id);
-                  toast.success(loc('ClipboardSuccess'));
+                  toast.success(i18n("song/SongPage.ClipboardSuccess"));
                 }}
               >
                 {o.id}
@@ -333,14 +325,14 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 title="点击复制"
                 onClick={() => {
                   navigator.clipboard.writeText(o.hash);
-                  toast.success(loc('ClipboardSuccess'));
+                  toast.success(i18n("song/SongPage.ClipboardSuccess"));
                 }}
               >
                 {o.hash}
               </code>
 
               <span className="text-white/40 text-xs">
-                {loc('UploadTime') || '上传时间'}
+                {i18n("song/SongPage.UploadTime") || '上传时间'}
               </span>
               <span className="pl-1.75 w-fit text-white/80 text-xs text-center">
                 {new Date(o.timestamp).toLocaleString()}

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useLoc, useUserContext } from '@/hooks';
+import { useI18n, useUserContext } from '@/hooks';
 import { LoadingSpinner } from '@/components';
 import MajdataLogo from './MajdataLogo';
 import Navigation from './Navigation';
@@ -11,7 +11,7 @@ import AuthSection from './AuthSection';
  * 包含Logo、导航菜单、用户下拉菜单、登录/注册
  */
 export default function UnifiedHeader() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const { user, isLoading, error } = useUserContext();
   const username = user?.username || '';
   const isLoggedIn = !!username && !error;
@@ -44,7 +44,7 @@ export default function UnifiedHeader() {
           {isLoading ? (
             <div className="flex items-center gap-2 opacity-70 px-3 md:px-4 py-2 md:py-3 border border-white/10 rounded-[10px] h-10 md:min-h-10 font-medium text-white/85 text-sm no-underline transition-all duration-200 cursor-default pointer-events-none">
               <LoadingSpinner className="animate-pulse" size={25} />
-              <span className="hidden md:inline text-sm">{loc('Loading')}</span>
+              <span className="hidden md:inline text-sm">{i18n("shared/header.Loading")}</span>
             </div>
           ) : isLoggedIn ? (
             <UserMenu username={username} />
