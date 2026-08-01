@@ -48,7 +48,7 @@ export default function DesktopNav() {
             }`}
           onClick={() => setIsToolsOpen(!isToolsOpen)}
         >
-          <span className="text-sm">工具</span>
+          <span className="text-sm">{loc('Tools')}</span>
           <span className="text-[#a0a0a0] text-[0.7rem]">▼</span>
         </button>
 
@@ -63,12 +63,12 @@ export default function DesktopNav() {
             <span className="text-sm">{loc('ChartEditor')}</span>
           </Link>
           <Link to="/play" className={DROPDOWN_ITEM} onClick={() => setIsToolsOpen(false)}>
-            <span className="text-sm">MajdataPlay</span>
+            <span className="text-sm">{loc('ChartPlayer')}</span>
           </Link>
         </Dropdown>
       </div>
       <Link to="https://docs.majdata.net" className={NAV_LINK} target="_blank" rel="noopener noreferrer">
-        <span className="text-sm">文档</span>
+        <span className="text-sm">{loc('Documentation')}</span>
       </Link>
       <Link to="/collection/hiroba" className={NAV_LINK}>
         <span className="text-sm">{loc('CollectionHiroba')}</span>
