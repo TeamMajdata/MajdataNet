@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { handleLogout as logoutUtil } from '@/utils';
 import { endpoints } from '@/config/api';
 import { DIVIDER } from './styles';
@@ -14,7 +14,7 @@ interface UserMenuProps {
  * 用户下拉菜单组件
  */
 export default function UserMenu({ username }: UserMenuProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -25,7 +25,7 @@ export default function UserMenu({ username }: UserMenuProps) {
         window.location.href = '/';
       },
       (error) => {
-        console.error(loc('LogoutFailed'), error);
+        console.error(i18n("shared/UserMenu.LogoutFailed"), error);
         setIsOpen(false);
         window.location.href = '/';
       }
@@ -42,7 +42,7 @@ export default function UserMenu({ username }: UserMenuProps) {
         }`}
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        aria-label={loc('UserMenu', '用户菜单')}
+        aria-label={i18n("shared/UserMenu.UserMenu", '用户菜单')}
       >
         <img
           className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 object-cover ${isOpen ? 'border-white/60' : 'border-white/30 hover:border-white/60'}`}
@@ -54,23 +54,23 @@ export default function UserMenu({ username }: UserMenuProps) {
 
       <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="right" className="w-[min(18rem,calc(100vw-1.5rem))] md:w-full" containerRef={containerRef}>
         <Link to={`/space?id=${username}`} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
-          <span className="w-full font-medium text-center">{loc('PersonalHomePage')}</span>
+          <span className="w-full font-medium text-center">{i18n("shared/UserMenu.PersonalHomePage")}</span>
         </Link>
         <Link to="/user/scores" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
-          <span className="w-full font-medium text-center">{loc('PersonalScores')}</span>
+          <span className="w-full font-medium text-center">{i18n("shared/UserMenu.PersonalScores")}</span>
         </Link>
         <Link to="/user/charts" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
-          <span className="w-full font-medium text-center">{loc('ChartsManagement')}</span>
+          <span className="w-full font-medium text-center">{i18n("shared/UserMenu.ChartsManagement")}</span>
         </Link>
         <Link to="/user/collections" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
-          <span className="w-full font-medium text-center">{loc('MyCollections', '我的歌单')}</span>
+          <span className="w-full font-medium text-center">{i18n("shared/UserMenu.MyCollections", '我的歌单')}</span>
         </Link>
         <Link to="/user/profile" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
-          <span className="w-full font-medium text-center">{loc('AccountSetting')}</span>
+          <span className="w-full font-medium text-center">{i18n("shared/UserMenu.AccountSetting")}</span>
         </Link>
         <div className={DIVIDER}></div>
         <button onClick={handleLogout} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[rgb(239_68_68/25%)] hover:to-[rgb(220_38_38/20%)] bg-none hover:shadow-[0_2px_8px_rgb(239_68_68/20%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-[#fca5a5] text-sm text-center no-underline cursor-pointer">
-          <span className="w-full font-medium text-center">{loc('Logout')}</span>
+          <span className="w-full font-medium text-center">{i18n("shared/UserMenu.Logout")}</span>
         </button>
       </Dropdown>
     </div>

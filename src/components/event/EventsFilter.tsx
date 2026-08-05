@@ -3,7 +3,7 @@
  * 使用 TailwindCSS 重现原样式
  */
 
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import type { EventsFilterProps } from '@/types';
 import { getCategoryTranslation } from '@/utils';
 
@@ -12,12 +12,12 @@ const EventsFilter: React.FC<EventsFilterProps> = ({
   onCategoryChange, 
   categories 
 }) => {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
   return (
     <div className="mx-auto my-6 sm:my-8 px-0 sm:px-4 max-w-(--container-max-width) text-center">
       <div className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] mb-4 font-semibold text-white/90 text-base">
-        {loc("FilterEventTypes", "活动类型")}
+        {i18n("chart-events/EventsFilter.FilterEventTypes", "活动类型")}
       </div>
       <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
         {categories.map((category) => (

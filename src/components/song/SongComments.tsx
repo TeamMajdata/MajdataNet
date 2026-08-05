@@ -14,7 +14,7 @@ import { LoadingSpinner } from '@/components';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
-import { useLoc, useUserContext } from '@/hooks';
+import { useI18n, useUserContext } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
 import type {
   Comment,
@@ -142,7 +142,7 @@ export function CommentComposer({
   isReply = false,
   isSubmitting = false,
 }: CommentComposerProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [showPreview, setShowPreview] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -185,7 +185,7 @@ export function CommentComposer({
           transition={{ duration: 0.2 }}
           onClick={() => setShowPreview(!showPreview)}
         >
-          {showPreview ? loc('HidePreview') : loc('ShowPreview')}
+          {showPreview ? i18n("song/SongComments.HidePreview") : i18n("song/SongComments.ShowPreview")}
         </motion.button>
       </div>
 
@@ -206,7 +206,7 @@ export function CommentComposer({
               <MarkdownCommentContent content={value} />
             ) : (
               <div className="py-5 text-[#888] text-center italic">
-                {loc('PreviewPlaceholder')}
+                {i18n("song/SongComments.PreviewPlaceholder")}
               </div>
             )}
           </motion.div>
@@ -239,10 +239,10 @@ export function CommentComposer({
             <>
               <LoadingSpinner className="inline-block" size="16px" />
               <div style={{ width: '4px', display: 'inline-block' }}></div>
-              {loc('PleaseWait')}
+              {i18n("song/SongComments.PleaseWait")}
             </>
           ) : (
-            loc('Post')
+            i18n("song/SongComments.Post")
           )}
         </motion.button>
         {isReply && onCancel && (
@@ -264,7 +264,7 @@ export function CommentComposer({
             }}
             transition={{ duration: 0.3 }}
           >
-            {loc('CancelReply')}
+            {i18n("song/SongComments.CancelReply")}
           </motion.button>
         )}
       </div>
@@ -273,14 +273,14 @@ export function CommentComposer({
 }
 
 export function CommentSender({ songid }: CommentSenderProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { mutate } = useSWR(endpoints.maichart.interact(songid));
 
   const onSubmit = async () => {
     if (comment.trim() === '') {
-      toast.error(loc('EmptyComment'));
+      toast.error(i18n("song/SongComments.EmptyComment"));
       return;
     }
 
@@ -289,7 +289,7 @@ export function CommentSender({ songid }: CommentSenderProps) {
     formData.set('content', comment);
 
     setIsSubmitting(true);
-    const sending = toast.loading(loc('Sending'));
+    const sending = toast.loading(i18n("song/SongComments.Sending"));
 
     try {
       const response = await fetch(
@@ -305,17 +305,17 @@ export function CommentSender({ songid }: CommentSenderProps) {
       toast.done(sending);
 
       if (response.status === 200) {
-        toast.success(loc('CommentSuccess'));
+        toast.success(i18n("song/SongComments.CommentSuccess"));
         setComment('');
         mutate();
       } else if (response.status === 400) {
-        toast.error(loc('CommentFailedLoginPrompt'));
+        toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
       } else {
-        toast.error(loc('CommentFailedLoginPrompt'));
+        toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
       }
     } catch {
       toast.done(sending);
-      toast.error(loc('CommentFailedLoginPrompt'));
+      toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
     } finally {
       setIsSubmitting(false);
     }
@@ -335,14 +335,14 @@ export function CommentSender({ songid }: CommentSenderProps) {
       transition={{ duration: 0.5 }}
     >
       <div className="mb-6 text-center">
-        <h3 className="m-0 font-semibold text-white text-2xl" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>{loc('Comment')}</h3>
+        <h3 className="m-0 font-semibold text-white text-2xl" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>{i18n("song/SongComments.Comment")}</h3>
       </div>
       <div className="flex flex-col gap-4">
         <CommentComposer
           value={comment}
           onChange={setComment}
           onSubmit={onSubmit}
-          placeholder={loc('CommentPlaceholder')}
+          placeholder={i18n("song/SongComments.CommentPlaceholder")}
           isSubmitting={isSubmitting}
         />
       </div>
@@ -362,7 +362,7 @@ function CommentCard({
   isRepliesExpanded,
   replyCount = 0,
 }: CommentCardProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const canDelete = currentUser && comment.sender === currentUser;
   const isCommentPending = isPending === comment.id;
   const [isContentExpanded, setIsContentExpanded] = useState(false);
@@ -514,7 +514,7 @@ function CommentCard({
             }}
             onClick={() => onReply(comment)}
             disabled={isCommentPending}
-            title={loc('Reply')}
+            title={i18n("song/SongComments.Reply")}
             onMouseEnter={(e) => {
               if (!isCommentPending) {
                 e.currentTarget.style.color = 'rgb(255 255 255 / 90%)';
@@ -550,7 +550,7 @@ function CommentCard({
             }}
             onClick={() => onDelete(comment)}
             disabled={isCommentPending}
-            title={loc('DeleteComment')}
+            title={i18n("song/SongComments.DeleteComment")}
             onMouseEnter={(e) => {
               if (!isCommentPending) {
                 e.currentTarget.style.color = 'rgb(239 68 68 / 100%)';
@@ -620,7 +620,7 @@ function CommentThread({
   onToggleReplies,
   replyComposer,
 }: CommentThreadProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
   function flattenComments(comments: Comment[] | undefined, parentId: string) {
     const result: Comment[] = [];
@@ -656,7 +656,7 @@ function CommentThread({
         const target = result.find((item) => item.id === c.replyTo);
         if (target) {
           const origContent = c.content;
-          c.contentPrefix = `${loc('ReplyTo')} [@${target.sender}](/space?id=${encodeURIComponent(target.sender)}): `;
+          c.contentPrefix = `${i18n("song/SongComments.ReplyTo")} [@${target.sender}](/space?id=${encodeURIComponent(target.sender)}): `;
           c.contentBody = origContent;
           c.content = c.contentPrefix + c.contentBody;
         }
@@ -803,7 +803,7 @@ function CommentThread({
           }}
           onClick={() => onReply(comment)}
           disabled={isCommentPending}
-          title={loc('Reply')}
+          title={i18n("song/SongComments.Reply")}
           onMouseEnter={(e) => {
             if (!isCommentPending) {
               e.currentTarget.style.background = 'rgb(255 255 255 / 10%)';
@@ -838,7 +838,7 @@ function CommentThread({
             }}
             onClick={() => onDelete(comment)}
             disabled={isCommentPending}
-            title={loc('DeleteComment')}
+            title={i18n("song/SongComments.DeleteComment")}
             onMouseEnter={(e) => {
               if (!isCommentPending) {
                 e.currentTarget.style.background = 'rgb(239 68 68 / 10%)';
@@ -927,7 +927,7 @@ function CommentThread({
 
 // ======================== Comment List ========================
 export function CommentList({ songid }: CommentListProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const { username: currentUser } = useUserContext();
   const [replyTargetId, setReplyTargetId] = useState<string | null>(null);
   const [replyThreadId, setReplyThreadId] = useState<string | null>(null);
@@ -991,7 +991,7 @@ export function CommentList({ songid }: CommentListProps) {
 
   const handleSubmitReply = async () => {
     if (replyContent.trim() === '') {
-      toast.error(loc('EmptyComment'));
+      toast.error(i18n("song/SongComments.EmptyComment"));
       return;
     }
 
@@ -1001,7 +1001,7 @@ export function CommentList({ songid }: CommentListProps) {
     formData.set('replyTo', replyTargetId || '');
 
     setIsSubmitting(true);
-    const sending = toast.loading(loc('Sending'));
+    const sending = toast.loading(i18n("song/SongComments.Sending"));
 
     try {
       const response = await fetch(
@@ -1017,27 +1017,27 @@ export function CommentList({ songid }: CommentListProps) {
       toast.done(sending);
 
       if (response.status === 200) {
-        toast.success(loc('ReplySuccess'));
+        toast.success(i18n("song/SongComments.ReplySuccess"));
         setReplyContent('');
         setReplyThreadId(null);
         setReplyTargetId(null);
         setReplyTargetUser(null);
         mutate();
       } else if (response.status === 400) {
-        toast.error(loc('CommentFailedLoginPrompt'));
+        toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
       } else {
-        toast.error(loc('CommentFailedLoginPrompt'));
+        toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
       }
     } catch {
       toast.done(sending);
-      toast.error(loc('CommentFailedLoginPrompt'));
+      toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (comment: Comment) => {
-    if (!window.confirm(loc('DeleteCommentConfirm'))) {
+    if (!window.confirm(i18n("song/SongComments.DeleteCommentConfirm"))) {
       return;
     }
 
@@ -1059,15 +1059,15 @@ export function CommentList({ songid }: CommentListProps) {
       );
 
       if (response.status === 200) {
-        toast.success(loc('DeleteSuccess'));
+        toast.success(i18n("song/SongComments.DeleteSuccess"));
         mutate();
       } else if (response.status === 400) {
-        toast.error(loc('DeleteFailed') + ': ' + loc('FailedLoginPrompt'));
+        toast.error(i18n("song/SongComments.DeleteFailed") + ': ' + i18n("song/SongComments.FailedLoginPrompt"));
       } else {
-        toast.error(loc('DeleteFailed'));
+        toast.error(i18n("song/SongComments.DeleteFailed"));
       }
     } catch {
-      toast.error(loc('DeleteFailed'));
+      toast.error(i18n("song/SongComments.DeleteFailed"));
     } finally {
       setPendingAction(null);
     }
@@ -1096,7 +1096,7 @@ export function CommentList({ songid }: CommentListProps) {
     <div className="mt-8 w-full">
       {comments.length === 0 ? (
         <div className="px-4 py-12 w-full text-center" style={{ color: 'rgb(255 255 255 / 50%)' }}>
-          <p>{loc('NoComments')}</p>
+          <p>{i18n("song/SongComments.NoComments")}</p>
         </div>
       ) : (
         <div className="flex flex-wrap justify-center">
@@ -1130,8 +1130,8 @@ export function CommentList({ songid }: CommentListProps) {
                         onCancel={handleCancelReply}
                         placeholder={
                           replyTargetUser
-                            ? `${loc('ReplyTo')} @${replyTargetUser}`
-                            : loc('ReplyPlaceholder')
+                            ? `${i18n("song/SongComments.ReplyTo")} @${replyTargetUser}`
+                            : i18n("song/SongComments.ReplyPlaceholder")
                         }
                         autoFocus={true}
                         isReply={true}

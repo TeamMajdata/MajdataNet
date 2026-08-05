@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import {
   NAVIGATION_ITEMS,
   isNavigationItemActive,
@@ -26,7 +26,7 @@ interface NavigationLinkViewProps {
   nested?: boolean;
   pathname: string;
   search: string;
-  translate: Translate;
+  i18n: Translate;
   onNavigate: () => void;
 }
 
@@ -53,7 +53,7 @@ function NavigationLinkView({
   nested = false,
   pathname,
   search,
-  translate,
+  i18n,
   onNavigate,
 }: NavigationLinkViewProps) {
   const active = isNavigationLinkActive(item, pathname, search);
@@ -64,7 +64,7 @@ function NavigationLinkView({
     <>
       {nested && <ActiveMarker active={active} nested />}
       <span className="min-w-0 flex-1 text-left xl:flex-none xl:whitespace-nowrap">
-        {translate(item.labelKey)}
+        {i18n(item.labelKey)}
       </span>
       {!nested && <ActiveMarker active={active} />}
       {item.external && (
@@ -107,7 +107,7 @@ interface NavigationGroupViewProps {
   isOpen: boolean;
   pathname: string;
   search: string;
-  translate: Translate;
+  i18n: Translate;
   menuId: string;
   triggerRef: (element: HTMLButtonElement | null) => void;
   onToggle: () => void;
@@ -119,7 +119,7 @@ function NavigationGroupView({
   isOpen,
   pathname,
   search,
-  translate,
+  i18n,
   menuId,
   triggerRef,
   onToggle,
@@ -140,7 +140,7 @@ function NavigationGroupView({
         data-navigation-group={item.id}
       >
         <span className="min-w-0 flex-1 text-left xl:flex-none xl:whitespace-nowrap">
-          {translate(item.labelKey)}
+          {i18n(item.labelKey)}
         </span>
         <svg
           aria-hidden="true"
@@ -164,7 +164,7 @@ function NavigationGroupView({
               nested
               pathname={pathname}
               search={search}
-              translate={translate}
+              i18n={i18n}
               onNavigate={onNavigate}
             />
           </li>
@@ -176,7 +176,7 @@ function NavigationGroupView({
 
 /** A single semantic navigation tree that reflows for desktop and mobile. */
 function NavigationContent() {
-  const translate = useLoc();
+  const { i18n } = useI18n();
   const location = useLocation();
   const navigationId = useId();
   const navigationRef = useRef<HTMLElement>(null);
@@ -243,13 +243,13 @@ function NavigationContent() {
   };
 
   return (
-    <nav ref={navigationRef} className="relative" aria-label={translate('NavigationMenu', '主导航')}>
+    <nav ref={navigationRef} className="relative" aria-label={i18n("shared/Navigation.NavigationMenu", '主导航')}>
       <button
         ref={menuButtonRef}
         type="button"
         className={`relative grid h-11 w-11 touch-manipulation place-items-center rounded-xl border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 xl:hidden ${isMobileMenuOpen ? 'border-blue-300/30 bg-blue-400/10' : 'border-white/10 bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.07]'}`}
         onClick={toggleMobileMenu}
-        aria-label={translate('NavigationMenu', '主导航')}
+        aria-label={i18n("shared/Navigation.NavigationMenu", '主导航')}
         aria-expanded={isMobileMenuOpen}
         aria-controls={`primary-navigation-${navigationId}`}
         data-navigation-toggle
@@ -274,7 +274,7 @@ function NavigationContent() {
                 isOpen={openGroup === item.id}
                 pathname={location.pathname}
                 search={location.search}
-                translate={translate}
+                i18n={i18n}
                 menuId={`${item.id}-navigation-${navigationId}`}
                 triggerRef={(element) => {
                   groupTriggerRefs.current[item.id] = element;
@@ -291,7 +291,7 @@ function NavigationContent() {
                 item={item}
                 pathname={location.pathname}
                 search={location.search}
-                translate={translate}
+                i18n={i18n}
                 onNavigate={handleNavigate}
               />
             </li>

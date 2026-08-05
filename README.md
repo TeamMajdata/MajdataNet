@@ -16,6 +16,20 @@ MajdataNet v2. 你可以在 [Branch Legacy](https://github.com/TeamMajdata/Majda
 - Framer Motion (动画)
 - i18n (国际化支持)
 
+## i18n 约定
+
+语言包位于 `public/i18n`。每个一级 key 使用 `路由/组件` 命名空间，组件内的文案放在该命名空间对象中：
+
+```json
+{
+  "song/SongPage": {
+    "Download": "Download"
+  }
+}
+```
+
+代码中统一通过 `i18n('路由/组件.key')` 使用，例如 `i18n('song/SongPage.Download')`。提交前运行 `pnpm i18n:check`，检查语言包结构、各语言 key 一致性、源码引用和废弃 key。
+
 ## 快速开始
 
 ### 环境要求

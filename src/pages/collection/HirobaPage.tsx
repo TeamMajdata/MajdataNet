@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageLayout, LoadingSpinner, CollectionCard, Tooltip } from '@/components';
 import { endpoints } from '@/config/api';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { useDebouncedCallback } from 'use-debounce';
 import type { Collection } from '@/types';
 
@@ -19,7 +19,7 @@ const cardVariants = {
 };
 
 export default function CollectionsHirobaPage() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [keyword, setKeyword] = useState('');
   const [currentValue, setCurrentValue] = useState('');
   const [page, setPage] = useState(() => {
@@ -71,7 +71,7 @@ export default function CollectionsHirobaPage() {
       <div className="mx-auto px-0 sm:px-4 py-5 sm:py-8 w-full max-w-7xl min-h-screen min-w-0">
         {/* Header */}
         <div className="flex flex-col gap-2 mb-8">
-          <h1 className="text-left">{loc('CollectionsHiroba', '歌单广场')}</h1>
+          <h1 className="text-left">{i18n("collection/hiroba/HirobaPage.CollectionsHiroba", '歌单广场')}</h1>
         </div>
 
         {/* Search Bar */}
@@ -80,10 +80,10 @@ export default function CollectionsHirobaPage() {
             <input
               type="text"
               className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 py-3 pr-10 pl-11 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
-              placeholder={loc('SearchCollectionsPlaceholder', '搜索歌单...')}
+              placeholder={i18n("collection/hiroba/HirobaPage.SearchCollectionsPlaceholder", '搜索歌单...')}
               value={currentValue}
               onChange={handleInputChange}
-              aria-label={loc('SearchCollectionsPlaceholder', '搜索歌单...')}
+              aria-label={i18n("collection/hiroba/HirobaPage.SearchCollectionsPlaceholder", '搜索歌单...')}
             />
 
             {/* Clear button */}
@@ -96,7 +96,7 @@ export default function CollectionsHirobaPage() {
                   transition={{ duration: 0.15 }}
                   className="top-1/2 right-10 z-10 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-5 h-5 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
                   onClick={handleClearSearch}
-                  aria-label={loc('ClearSearch', '清空搜索')}
+                  aria-label={i18n("collection/hiroba/HirobaPage.ClearSearch", '清空搜索')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 6 6 18" /><path d="m6 6 12 12" />
@@ -110,7 +110,7 @@ export default function CollectionsHirobaPage() {
               content={
                 <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-5 py-4 border border-white/20 rounded-2xl w-70 md:w-[320px]">
                   <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">
-                    {loc('SearchCollectionHint', '按歌单名称或描述搜索')}
+                    {i18n("collection/hiroba/HirobaPage.SearchCollectionHint", '按歌单名称或描述搜索')}
                   </p>
                 </div>
               }
@@ -121,7 +121,7 @@ export default function CollectionsHirobaPage() {
               <div
                 className="top-1/2 right-3 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-5 h-5 font-bold text-[10px] text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
                 role="button"
-                aria-label={loc('SearchCollectionHint', '按歌单名称或描述搜索')}
+                aria-label={i18n("collection/hiroba/HirobaPage.SearchCollectionHint", '按歌单名称或描述搜索')}
               >
                 ?
               </div>
@@ -153,7 +153,7 @@ export default function CollectionsHirobaPage() {
                 <circle cx="12" cy="12" r="10" />
                 <path d="m15 9-6 6" /><path d="m9 9 6 6" />
               </svg>
-              <p className="m-0 text-white/50 text-base">{loc('ServerError', '服务器错误')}</p>
+              <p className="m-0 text-white/50 text-base">{i18n("collection/hiroba/HirobaPage.ServerError", '服务器错误')}</p>
             </motion.div>
           ) : !data || data.length === 0 ? (
             <motion.div
@@ -169,7 +169,7 @@ export default function CollectionsHirobaPage() {
                 <line x1="9" y1="15" x2="15" y2="15" />
               </svg>
               <p className="m-0 text-white/40 text-base">
-                {keyword ? loc('NoSearchResults', '未找到相关歌单') : loc('EmptyData', '暂无数据')}
+                {keyword ? i18n("collection/hiroba/HirobaPage.NoSearchResults", '未找到相关歌单') : i18n("collection/hiroba/HirobaPage.EmptyData", '暂无数据')}
               </p>
             </motion.div>
           ) : (
@@ -204,7 +204,7 @@ export default function CollectionsHirobaPage() {
                 className={`flex justify-center items-center px-4 py-2.5 bg-blue-500/80 border-none rounded-lg text-white cursor-pointer min-w-10 h-9 transition-colors ${page <= 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-50' : 'hover:bg-blue-500'}`}
                 disabled={page <= 0}
                 onClick={() => goToPage(page - 1)}
-                aria-label={loc('PreviousPage', '上一页')}
+                aria-label={i18n("collection/hiroba/HirobaPage.PreviousPage", '上一页')}
               >
                 <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m15 18-6-6 6-6" />
@@ -213,7 +213,7 @@ export default function CollectionsHirobaPage() {
 
               {/* Page input */}
               <div className="flex items-center gap-2">
-                <span className="text-white/60 text-sm">{loc('PageOf', '第')}</span>
+                <span className="text-white/60 text-sm">{i18n("collection/hiroba/HirobaPage.PageOf", '第')}</span>
                 <input
                   ref={pageInputRef}
                   type="number"
@@ -241,9 +241,9 @@ export default function CollectionsHirobaPage() {
                   }}
                   min="0"
                   step="1"
-                  aria-label={loc('Page', '页码')}
+                  aria-label={i18n("collection/hiroba/HirobaPage.Page", '页码')}
                 />
-                <span className="text-white/60 text-sm">{loc('Page', '页')}</span>
+                <span className="text-white/60 text-sm">{i18n("collection/hiroba/HirobaPage.Page", '页')}</span>
               </div>
 
               {/* Next */}
@@ -251,7 +251,7 @@ export default function CollectionsHirobaPage() {
                 className={`flex justify-center items-center px-4 py-2.5 bg-blue-500/80 border-none rounded-lg text-white cursor-pointer min-w-10 h-9 transition-colors ${isLastPage ? 'bg-gray-500/50 cursor-not-allowed opacity-50' : 'hover:bg-blue-500'}`}
                 disabled={!!isLastPage}
                 onClick={() => goToPage(page + 1)}
-                aria-label={loc('NextPage', '下一页')}
+                aria-label={i18n("collection/hiroba/HirobaPage.NextPage", '下一页')}
               >
                 <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m9 18 6-6-6-6" />
@@ -266,7 +266,7 @@ export default function CollectionsHirobaPage() {
                 className="bg-white/10 hover:bg-white/20 px-4 py-2 border border-white/20 rounded-lg w-full sm:w-auto h-10 sm:h-9 text-white text-sm transition-colors cursor-pointer"
                 onClick={() => goToPage(0)}
               >
-                {loc('FrontPage', '首页')}
+                {i18n("collection/hiroba/HirobaPage.FrontPage", '首页')}
               </button>
             </div>
           </div>

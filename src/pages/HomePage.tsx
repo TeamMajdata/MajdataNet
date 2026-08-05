@@ -9,8 +9,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
 
-import { setLanguage } from '@/utils/i18n';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { PageLayout, SongCard, SongList, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import {
@@ -98,15 +97,9 @@ const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
 };
 
 export default function HomePage() {
-  const [ready, setReady] = useState(false);
+  const { isReady } = useI18n();
 
-  useEffect(() => {
-    setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
-      setReady(true);
-    });
-  }, []);
-
-  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
+  if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
     <PageLayout showBackToHome={false}>
@@ -150,7 +143,7 @@ function getDateLocale() {
 
 // PC端专用的 Swiper 组件
 function DesktopEventsSwiper() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const remainingEventsCount = getNonFeaturedEventsCount();
 
   // 获取所有活跃的活动（进行中 + 即将开始）
@@ -228,7 +221,7 @@ function DesktopEventsSwiper() {
                             </span>
                             <span
                               className="whitespace-nowrap"
-                              title={`${loc('EventCreatedPrefix', '创建于')} ${event.createDateFormatted}`}
+                              title={`${i18n("home/HomePage.EventCreatedPrefix", '创建于')} ${event.createDateFormatted}`}
                             >
                               • {event.timeAgo}
                             </span>
@@ -251,9 +244,9 @@ function DesktopEventsSwiper() {
                   </div>
                   <div className="absolute inset-0 flex justify-center items-center bg-black/70 opacity-0 hover:opacity-100 backdrop-blur-lg">
                     <div className="text-white text-center">
-                      <span className="block mb-1 font-semibold text-base">{loc('ViewAllEvents', '查看所有活动')}</span>
+                      <span className="block mb-1 font-semibold text-base">{i18n("home/HomePage.ViewAllEvents", '查看所有活动')}</span>
                       <span className="text-white/80 text-sm">
-                        +{remainingEventsCount} {loc('EventsCount', '个活动')}
+                        +{remainingEventsCount} {i18n("home/HomePage.EventsCount", '个活动')}
                       </span>
                     </div>
                   </div>
@@ -354,17 +347,17 @@ function MobileEventsSwiper() {
 }
 
 function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [isMobile, setIsMobile] = useState(false);
   const [currentValue, setCurrentValue] = useState(initS);
 
 
   const sortOptions = [
-    loc('LatestActivityShort', '互'),
-    loc('LikeCount', '点赞数'),
-    loc('CommentCount', '评论数'),
-    loc('PlayCount', '播放数'),
-    loc('UploadDate', '上传日期'),
+    i18n("home/HomePage.LatestActivityShort", '互'),
+    i18n("home/HomePage.LikeCount", '点赞数'),
+    i18n("home/HomePage.CommentCount", '评论数'),
+    i18n("home/HomePage.PlayCount", '播放数'),
+    i18n("home/HomePage.UploadDate", '上传日期'),
   ];
 
   // 检测是否为移动端
@@ -401,10 +394,10 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   const hintContent = (
     <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-4 sm:px-5 py-4 border border-white/20 rounded-2xl w-[min(17.5rem,calc(100vw-1.5rem))] md:w-[320px]">
       <div className="space-y-2.5 text-left">
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintID', '按 ID 搜索')}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintHash', '按 Hash 搜索')}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintTag', '按标签搜索')}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintUploader', '按上传者搜索')}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{i18n("home/HomePage.SearchHintID", '按 ID 搜索')}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{i18n("home/HomePage.SearchHintHash", '按 Hash 搜索')}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{i18n("home/HomePage.SearchHintTag", '按标签搜索')}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{i18n("home/HomePage.SearchHintUploader", '按上传者搜索')}</p>
       </div>
     </div>
   );
@@ -418,10 +411,10 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
               <input
                 type="text"
                 className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-4 md:px-7 py-3 md:py-4 pr-18 md:pr-14 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-base transition-colors"
-                placeholder={initS === '' ? loc('SearchPlaceholder', '搜索...') : initS}
+                placeholder={initS === '' ? i18n("home/HomePage.SearchPlaceholder", '搜索...') : initS}
                 value={currentValue}
                 onChange={handleInputChange}
-                aria-label={loc('SearchPlaceholder', '搜索...')}
+                aria-label={i18n("home/HomePage.SearchPlaceholder", '搜索...')}
               />
               <AnimatePresence>
                 {currentValue && (
@@ -432,7 +425,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                     transition={{ duration: 0.15 }}
                     className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-7 h-7 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
                     onClick={handleClearSearch}
-                    aria-label={loc('ClearSearch', '清空搜索')}
+                    aria-label={i18n("home/HomePage.ClearSearch", '清空搜索')}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M18 6 6 18" /><path d="m6 6 12 12" />
@@ -466,11 +459,11 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                 onSortChange(val);
               }}
               className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 md:px-3 py-1 border border-white/20 rounded-full outline-none w-28 sm:w-auto min-w-0 md:min-w-20 h-11 md:h-11.25 overflow-hidden text-white text-center whitespace-nowrap appearance-none cursor-pointer"
-              data-mobile-label={loc('SortBy', '排序方式')}
+              data-mobile-label={i18n("home/HomePage.SortBy", '排序方式')}
             >
               {isMobile && (
                 <option value="placeholder" disabled>
-                  {loc('SortBy', '排序方式')}
+                  {i18n("home/HomePage.SortBy", '排序方式')}
                 </option>
               )}
               {sortOptions.map((label, i) => (
@@ -487,7 +480,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
 }
 
 function MainComp() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [searchParams] = useSearchParams();
   const isInitialMount = useRef(true);
   const [activeTab, setActiveTab] = useState<'all' | 'random'>('all');
@@ -564,14 +557,14 @@ function MainComp() {
               }`}
             onClick={() => setActiveTab('all')}
           >
-            {loc('AllCharts', '全部谱面')}
+            {i18n("home/HomePage.AllCharts", '全部谱面')}
           </button>
           <button
             className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'random' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
               }`}
             onClick={() => setActiveTab('random')}
           >
-            {loc('RandomRecommend', '随机推荐')}
+            {i18n("home/HomePage.RandomRecommend", '随机推荐')}
           </button>
         </div>
       </div>
@@ -605,7 +598,7 @@ function MainComp() {
               </button>
 
               <div className="flex justify-center items-center gap-1.5 sm:gap-2 min-w-0">
-                <span className="text-[#ccc] text-sm">{loc('PageOf', '第')}</span>
+                <span className="text-[#ccc] text-sm">{i18n("home/HomePage.PageOf", '第')}</span>
                 <input
                   type="number"
                   value={page}
@@ -618,7 +611,7 @@ function MainComp() {
                   min="0"
                   step="1"
                 />
-                <span className="text-[#ccc] text-sm">{loc('Page', '页')}</span>
+                <span className="text-[#ccc] text-sm">{i18n("home/HomePage.Page", '页')}</span>
               </div>
 
               <button
@@ -640,7 +633,7 @@ function MainComp() {
                 window.scrollTo(0, 200);
               }}
             >
-              {loc('FrontPage', '首页')}
+              {i18n("home/HomePage.FrontPage", '首页')}
             </button>
             <IntegratedDownloadTypeSelector isMobile={true} />
           </div>
@@ -652,7 +645,7 @@ function MainComp() {
               className="bg-blue-500/80 hover:bg-blue-500 px-6 py-2 border-none rounded-lg font-medium text-white cursor-pointer"
               onClick={refreshRandomBatch}
             >
-              {loc('RefreshBatch', '换一批')}
+              {i18n("home/HomePage.RefreshBatch", '换一批')}
             </button>
           </div>
 
@@ -668,7 +661,7 @@ function MainComp() {
 }
 
 function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
   const { data, error, isLoading } = useSWR<Song[]>(
     endpoints.maichart.list,
@@ -699,7 +692,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }, [data, refreshKey]);
 
   if (error) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
+    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{i18n("home/HomePage.ServerError", '服务器错误')}</div>;
   }
 
   if (isLoading) {
@@ -711,7 +704,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }
 
   if (randomSongs.length === 0) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{loc('EmptyData', '暂无数据')}</div>;
+    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{i18n("home/HomePage.EmptyData", '暂无数据')}</div>;
   }
 
   return (
@@ -724,7 +717,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
 }
 
 function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [currentType, setCurrentType] = useState(() => {
     return localStorage.getItem('DownloadType') || 'zip';
   });
@@ -744,7 +737,7 @@ function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
     <div className="flex items-center gap-3">
       {!isMobile && (
         <label className={`${justChanged ? 'text-[#22c55e]' : ''}`}>
-          {loc('DownloadFormat', '下载格式')}
+          {i18n("home/HomePage.DownloadFormat", '下载格式')}
           {justChanged && <span className="ml-2 font-semibold text-[#22c55e] text-sm">✓</span>}
         </label>
       )}
@@ -752,11 +745,11 @@ function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
         value={isMobile ? currentType || 'placeholder' : currentType}
         onChange={handleChange}
         className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
-        data-mobile-label={loc('DownloadFormat', '下载格式')}
+        data-mobile-label={i18n("home/HomePage.DownloadFormat", '下载格式')}
       >
         {isMobile && (
           <option value="placeholder" disabled>
-            {loc('DownloadFormat', '下载格式')}
+            {i18n("home/HomePage.DownloadFormat", '下载格式')}
             {justChanged && ' ✓'}
           </option>
         )}

@@ -1,5 +1,5 @@
 import { PageLayout, AvatarUploader, IntroUploader } from '@/components';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { motion, type Variants } from 'framer-motion';
 
 // slideInUp 动画变体
@@ -17,10 +17,10 @@ const slideInUp: Variants = {
 };
 
 export default function UserProfilePage() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
   return (
-    <PageLayout title={loc('AccountSetting')} showBackToHome={false}>
+    <PageLayout title={i18n("user/profile/ProfilePage.AccountSetting")} showBackToHome={false}>
       {/* Profile Settings */}
       <motion.div
         initial="hidden"
@@ -33,7 +33,7 @@ export default function UserProfilePage() {
           <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-4 sm:px-6 lg:px-10 py-5 sm:py-7 lg:py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all md:hover:-translate-y-0.5 duration-300">
             <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
               <div className="font-semibold text-[#e5e5e5] text-xl">
-                {loc('AvatarSettings')} ({loc('AvatarHint')})
+                {i18n("user/profile/ProfilePage.AvatarSettings")} ({i18n("user/profile/ProfilePage.AvatarHint")})
               </div>
             </div>
             <div className="min-h-37.5">
@@ -45,7 +45,7 @@ export default function UserProfilePage() {
           <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-4 sm:px-6 lg:px-10 py-5 sm:py-7 lg:py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all md:hover:-translate-y-0.5 duration-300">
             <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
               <div className="font-semibold text-[#e5e5e5] text-xl">
-                {loc('PersonalIntro')}
+                {i18n("user/profile/ProfilePage.PersonalIntro")}
               </div>
             </div>
             <div className="min-h-37.5">

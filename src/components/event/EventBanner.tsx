@@ -41,7 +41,7 @@ const EventBanner: React.FC<EventBannerProps> = memo(({ event }) => {
     return {
       timeAgo: createTimeAgo,
     };
-  }, [event]); // 添加 loc 作为依赖，确保语言变化时重新计算
+  }, [event]);
 
   if (!event) return null;
 

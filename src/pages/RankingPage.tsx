@@ -3,25 +3,16 @@
  * 迁移自 legacy/src/app/ranking/page.jsx
  */
 
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { setLanguage } from '@/utils/i18n';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { PageLayout, SongList, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import type { RankingSectionProps } from '@/types';
 
 export default function RankingPage() {
-  const loc = useLoc();
-  const [ready, setReady] = useState(false);
+  const { i18n, isReady } = useI18n();
 
-  useEffect(() => {
-    setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
-      setReady(true);
-    });
-  }, []);
-
-  if (!ready) return (
+  if (!isReady) return (
     <div className="flex justify-center items-center h-[50vh]">
       <LoadingSpinner size={50} />
     </div>
@@ -31,35 +22,35 @@ export default function RankingPage() {
     <PageLayout className="pb-8">
       <div className="mt-(--content-top-spacing) text-center mb-8 sm:mb-12">
         <p className="mx-auto max-w-150 text-[#f7f7f7] text-lg sm:text-2xl leading-relaxed">
-          {loc('RecommendedChartsHint', '这里会选出七天内最有人气的谱面哟！')}
+          {i18n("ranking/RankingPage.RecommendedChartsHint", '这里会选出七天内最有人气的谱面哟！')}
         </p>
       </div>
 
       <div className="flex flex-col gap-6 sm:gap-12">
         <RankingSection
-          title={loc('Play', '游玩')}
-          subtitle={loc('PlayCountHint', '表示游玩次数多少')}
+          title={i18n("ranking/RankingPage.Play", '游玩')}
+          subtitle={i18n("ranking/RankingPage.PlayCountHint", '表示游玩次数多少')}
           sortType="scorep"
           delay="delay-[100ms]"
         />
 
         <RankingSection
-          title={loc('Like', '点赞')}
-          subtitle={loc('LikeCountHint', '被点赞的次数')}
+          title={i18n("ranking/RankingPage.Like", '点赞')}
+          subtitle={i18n("ranking/RankingPage.LikeCountHint", '被点赞的次数')}
           sortType="likep"
           delay="delay-[200ms]"
         />
 
         <RankingSection
-          title={loc('Comment', '评论')}
-          subtitle={loc('CommentCountHint', '被评论的次数')}
+          title={i18n("ranking/RankingPage.Comment", '评论')}
+          subtitle={i18n("ranking/RankingPage.CommentCountHint", '被评论的次数')}
           sortType="commp"
           delay="delay-[300ms]"
         />
 
         <RankingSection
-          title={loc('Download', '下载')}
-          subtitle={loc('DownloadCountHint', '被下载的次数')}
+          title={i18n("ranking/RankingPage.Download", '下载')}
+          subtitle={i18n("ranking/RankingPage.DownloadCountHint", '被下载的次数')}
           sortType="playp"
           delay="delay-[400ms]"
         />

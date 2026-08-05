@@ -3,9 +3,8 @@
  * 使用 TailwindCSS 重现原样式
  */
 
-import { useEffect, useState, useMemo } from 'react';
-import { setLanguage } from '@/utils/i18n';
-import { useLoc } from '@/hooks';
+import { useState, useMemo } from 'react';
+import { useI18n } from '@/hooks';
 import { PageLayout, EnhancedDescription, LoadingSpinner, EventsFilter, TimelineModal } from '@/components';
 import {
   getEventStatusClass,
@@ -16,16 +15,9 @@ import {
 import { EventCategory } from '@/types';
 
 export default function EventsPage() {
-  const loc = useLoc();
-  const [ready, setReady] = useState(false);
+  const { i18n, isReady } = useI18n();
   const [selectedCategory, setSelectedCategory] = useState<EventCategory>(EventCategory.All);
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
-
-  useEffect(() => {
-    setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
-      setReady(true);
-    });
-  }, []);
 
   const allEvents = useMemo(() => {
     return getEventsWithTimeAgo()
@@ -57,20 +49,20 @@ export default function EventsPage() {
     setIsTimelineModalOpen(false);
   };
 
-  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
+  if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
     <PageLayout className="py-4 sm:py-8 min-h-screen mt-(--content-top-spacing)">
       <div className="mx-auto my-0 px-0 sm:px-4 max-w-(--container-max-width) min-w-0">
         <header className="mb-6 sm:mb-12 text-center">
           <p className="m-0 mx-auto max-w-150 text-white/80 text-base sm:text-lg leading-relaxed">
-            {loc('EventsPageSubtitle', '浏览所有活动')}
+            {i18n("chart-events/EventsPage.EventsPageSubtitle", '浏览所有活动')}
             <span
               className="inline-block ml-2 font-medium text-blue-400 hover:text-blue-300 decoration-blue-400/50 hover:decoration-blue-300/80 underline underline-offset-2 transition-all hover:-translate-y-px duration-200 cursor-pointer"
               onClick={handleTimelineClick}
-              title={loc('ViewTimeline', '查看时间轴')}
+              title={i18n("chart-events/EventsPage.ViewTimeline", '查看时间轴')}
             >
-              {loc('Timeline', '时间轴')}
+              {i18n("chart-events/EventsPage.Timeline", '时间轴')}
             </span>
           </p>
         </header>
@@ -121,7 +113,7 @@ export default function EventsPage() {
                       </span>
                       <span
                         className="whitespace-nowrap"
-                        title={`${loc('EventCreatedPrefix', '创建于')} ${event.createDateFormatted}`}
+                        title={`${i18n("chart-events/EventsPage.EventCreatedPrefix", '创建于')} ${event.createDateFormatted}`}
                       >
                         • {event.timeAgo}
                       </span>

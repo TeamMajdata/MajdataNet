@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getActiveEvents, getCategoryTranslation, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import type {
   Event,
   TimelineModalProps,
@@ -20,7 +20,7 @@ import { Link } from 'react-router-dom';
 
 
 const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [ongoingEvents, setOngoingEvents] = useState<Event[]>([]);
   const [timelineData, setTimelineData] = useState<TimelineData>({
     startDate: null,
@@ -417,7 +417,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
             {/* Header */}
             <div className="after:right-4 sm:after:right-10 after:bottom-0 after:left-4 sm:after:left-10 after:absolute relative flex justify-between items-center bg-[rgba(25,25,25,0.8)] after:bg-linear-to-r after:from-transparent after:via-white/20 after:to-transparent px-4 sm:px-7 lg:px-10 py-3 sm:py-5 lg:py-8 border-white/10 border-b after:h-px after:content-['']">
               <h2 className="flex items-center gap-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] m-0 font-bold text-white text-lg sm:text-2xl">
-                {loc("EventTimeline", "活动时间轴")}
+                {i18n("chart-events/TimelineModal.EventTimeline", "活动时间轴")}
               </h2>
               <button
                 className="flex justify-center items-center bg-white/5 hover:bg-red-500/15 hover:shadow-[0_4px_16px_rgba(239,68,68,0.2)] backdrop-blur-lg p-2 sm:p-3 border border-white/10 hover:border-red-500/30 rounded-xl w-11 sm:w-12 h-11 sm:h-12 text-white/70 hover:text-red-500 text-lg sm:text-xl hover:scale-105 active:scale-95 transition-all duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer"
@@ -431,17 +431,17 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
             <div className="flex-1 bg-[rgba(15,15,15,0.3)] px-3 sm:px-6 lg:px-10 py-4 sm:py-8 lg:py-15 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-track-white/5 scrollbar-thumb-white/30">
               {ongoingEvents.length === 0 ? (
                 <div className="px-4 py-12 text-white/70 text-lg text-center">
-                  <p>{loc("NoActiveEvents", "暂无活跃的活动")}</p>
+                  <p>{i18n("chart-events/TimelineModal.NoActiveEvents", "暂无活跃的活动")}</p>
                 </div>
               ) : (
                 <>
                   <div className="mb-5 sm:mb-8 py-3 sm:py-6 text-center">
                     <div className="flex flex-wrap justify-center gap-3 sm:gap-8 lg:gap-12 mb-4 sm:mb-6">
                       <span className="flex items-center gap-2 text-white/90 text-base">
-                        <strong className="font-bold text-white text-lg">{ongoingEvents.length}</strong> {loc("ActiveEvents", "个活跃活动")}
+                        <strong className="font-bold text-white text-lg">{ongoingEvents.length}</strong> {i18n("chart-events/TimelineModal.ActiveEvents", "个活跃活动")}
                       </span>
                       <span className="flex items-center gap-2 text-white/90 text-base">
-                        {loc("TimeSpan", "时间跨度")} <strong className="font-bold text-white text-lg">{timelineData.totalDays}</strong> {loc("Days", "天")}
+                        {i18n("chart-events/TimelineModal.TimeSpan", "时间跨度")} <strong className="font-bold text-white text-lg">{timelineData.totalDays}</strong> {i18n("chart-events/TimelineModal.Days", "天")}
                       </span>
                     </div>
                     <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-6 font-semibold text-white/90 text-sm sm:text-lg">
@@ -500,7 +500,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                                   width: `${event.width}%`,
                                   backgroundColor: getEventColor(event),
                                 }}
-                                title={`${event.title}\n${formatCompactDate(new Date(event.createDate))} - ${formatCompactDate(new Date(event.endDate))}\n${loc("Duration", "持续时间")} ${event.duration} ${loc("Days", "天")}\n${loc("ClickToViewDetails", "点击查看详情")}`}
+                                title={`${event.title}\n${formatCompactDate(new Date(event.createDate))} - ${formatCompactDate(new Date(event.endDate))}\n${i18n("chart-events/TimelineModal.Duration", "持续时间")} ${event.duration} ${i18n("chart-events/TimelineModal.Days", "天")}\n${i18n("chart-events/TimelineModal.ClickToViewDetails", "点击查看详情")}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >

@@ -1,6 +1,6 @@
 import { endpoints } from '@/config/api';
 import useSWR from 'swr';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { LoadingSpinner } from '@/components';
 import type { ScoreCardProps, ScoreCountProps, ScoreData } from '@/types';
 import { Link } from 'react-router-dom';
@@ -14,7 +14,7 @@ const fetcher = (url: string) =>
  * 显示指定上传者的谱面评分排行榜
  */
 export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreCountProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
   const { data, error, isLoading } = useSWR<ScoreData[]>(
     endpoints.stats.scoreSums(uploader, page, pageSize),
@@ -23,7 +23,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   );
 
   if (error) {
-    return <div>{loc('FailedToLoad', '加载失败')}</div>;
+    return <div>{i18n("shared/ScoreCount.FailedToLoad", '加载失败')}</div>;
   }
 
   if (isLoading) {
@@ -33,7 +33,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   }
 
   if (!data || data.length === 0) {
-    return <div className="py-8 text-center">{loc('EmptyData', '空的')}</div>;
+    return <div className="py-8 text-center">{i18n("shared/ScoreCount.EmptyData", '空的')}</div>;
   }
 
   const maxScore = data[0].dxAccSum;

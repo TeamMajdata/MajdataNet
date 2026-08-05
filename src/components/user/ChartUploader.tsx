@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import axios, { AxiosError } from 'axios';
 import { Link } from 'react-router-dom';
 import { endpoints } from '@/config/api';
-import { useLoc, useUserContext } from '@/hooks';
+import { useI18n, useUserContext } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import { getFileKey, hashCandidatesFromBytes } from '@/utils/maidataHash';
 import { motion } from 'framer-motion';
@@ -29,7 +29,7 @@ interface HashStatusResponse {
 }
 
 export default function ChartUploader() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const { user, isLoading: isUserLoading } = useUserContext();
   const [isUploading, setIsUploading] = useState(false);
   const [hashLookup, setHashLookup] = useState<HashLookupState>({ status: 'idle' });
@@ -52,8 +52,8 @@ export default function ChartUploader() {
           status: 'loginRequired',
           fileKey,
           message: isUserLoading
-            ? loc('MaidataHashChecking', 'Checking whether this chart already exists...')
-            : loc('NotLoggedIn', 'Not logged in'),
+            ? i18n("user/ChartUploader.MaidataHashChecking", 'Checking whether this chart already exists...')
+            : i18n("user/ChartUploader.NotLoggedIn", 'Not logged in'),
         };
         setHashLookup(nextState);
         return nextState;
@@ -120,8 +120,8 @@ export default function ChartUploader() {
         status: isUnauthorized ? 'loginRequired' : 'error',
         fileKey,
         message: isUnauthorized
-          ? loc('NotLoggedIn', 'Not logged in')
-          : getDisplayMessage(error.response?.data ?? error.message, loc('MaidataHashLookupFailed', 'Failed to query maidata hash')),
+          ? i18n("user/ChartUploader.NotLoggedIn", 'Not logged in')
+          : getDisplayMessage(error.response?.data ?? error.message, i18n("user/ChartUploader.MaidataHashLookupFailed", 'Failed to query maidata hash')),
       };
       if (hashLookupSeq.current === seq) {
         setHashLookup(nextState);
@@ -173,17 +173,17 @@ export default function ChartUploader() {
 
     if (missedFiles.length > 0) {
       for (const file of missedFiles) {
-        toast.error(loc('NoFileSelected') + file);
+        toast.error(i18n("user/ChartUploader.NoFileSelected") + file);
       }
       return;
     }
 
     if (hashLookup.status === 'exists') {
-      toast.error(loc('MaidataAlreadyExists', 'This chart already exists on the site'), { autoClose: false });
+      toast.error(i18n("user/ChartUploader.MaidataAlreadyExists", 'This chart already exists on the site'), { autoClose: false });
       return;
     }
 
-    const uploading = toast.loading(loc('Uploading'), {
+    const uploading = toast.loading(i18n("user/ChartUploader.Uploading"), {
       hideProgressBar: false,
     });
 
@@ -199,17 +199,17 @@ export default function ChartUploader() {
         },
         withCredentials: true,
       });
-      toast.success(getDisplayMessage(response.data, loc('UploadSuccess', 'Upload succeeded')));
+      toast.success(getDisplayMessage(response.data, i18n("user/ChartUploader.UploadSuccess", 'Upload succeeded')));
       await sleep(2000);
       window.location.reload();
     }
     catch (e: unknown) {
       if (e instanceof AxiosError && e.response?.status === 500) {
-        toast.error(loc('500UploadErrorAndHint'), { autoClose: false });
+        toast.error(i18n("user/ChartUploader.UploadServerErrorHint"), { autoClose: false });
       }
       else {
         const error = e as { response?: { data?: unknown }; message?: string };
-        const message = getDisplayMessage(error.response?.data ?? error.message, loc('UploadFailed', 'Upload failed'));
+        const message = getDisplayMessage(error.response?.data ?? error.message, i18n("user/ChartUploader.UploadFailed", 'Upload failed'));
         toast.error(message, { autoClose: false });
       }
 
@@ -223,18 +223,18 @@ export default function ChartUploader() {
     { label: 'maidata.txt', icon: <MdOutlineDescription className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
     { label: 'bg.png/bg.jpg', icon: <MdOutlineImage className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
     { label: 'track.mp3', icon: <MdOutlineAudioFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
-    { label: loc('BGVideoHint'), icon: <MdOutlineVideoFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
+    { label: i18n("user/ChartUploader.BGVideoHint"), icon: <MdOutlineVideoFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
   ];
   const hashLookupStatusText: Record<HashLookupStatus, string> = {
     idle: '',
-    checking: loc('MaidataHashChecking', 'Checking whether this chart already exists...'),
-    notFound: loc('MaidataHashNotFound', 'No existing chart found'),
+    checking: i18n("user/ChartUploader.MaidataHashChecking", 'Checking whether this chart already exists...'),
+    notFound: i18n("user/ChartUploader.MaidataHashNotFound", 'No existing chart found'),
     exists: hashLookup.chart
-      ? loc('MaidataAlreadyExistsWithTitle', 'This chart already exists on the site') + `: ${hashLookup.chart.title}`
-      : loc('MaidataAlreadyExists', 'This chart already exists on the site'),
-    inheritsHistory: loc('MaidataWillInheritHistory', 'This upload will inherit previous scores or interactions'),
-    loginRequired: hashLookup.message || loc('NotLoggedIn', 'Not logged in'),
-    error: hashLookup.message || loc('MaidataHashLookupFailed', 'Failed to query maidata hash'),
+      ? i18n("user/ChartUploader.MaidataAlreadyExistsWithTitle", 'This chart already exists on the site') + `: ${hashLookup.chart.title}`
+      : i18n("user/ChartUploader.MaidataAlreadyExists", 'This chart already exists on the site'),
+    inheritsHistory: i18n("user/ChartUploader.MaidataWillInheritHistory", 'This upload will inherit previous scores or interactions'),
+    loginRequired: hashLookup.message || i18n("user/ChartUploader.NotLoggedIn", 'Not logged in'),
+    error: hashLookup.message || i18n("user/ChartUploader.MaidataHashLookupFailed", 'Failed to query maidata hash'),
   };
   const hashLookupStatusClass: Record<HashLookupStatus, string> = {
     idle: '',
@@ -261,7 +261,7 @@ export default function ChartUploader() {
             <MdCloudUpload className="text-gray-200 text-2xl" />
           </div>
           <h2 className="font-bold text-gray-200 text-xl">
-            {loc('Upload') || 'Upload Chart'}
+            {i18n("user/ChartUploader.Upload") || 'Upload Chart'}
           </h2>
         </div>
 
@@ -295,7 +295,7 @@ export default function ChartUploader() {
                   className="text-blue-300 hover:text-blue-200 underline"
                   to={`/song?id=${encodeURIComponent(hashLookup.chart.id)}`}
                 >
-                  {loc('View', 'View')}
+                  {i18n("user/ChartUploader.View", 'View')}
                 </Link>
               )}
             </div>
@@ -315,12 +315,12 @@ export default function ChartUploader() {
             {isUploading ? (
               <>
                 <LoadingSpinner className="w-5 h-5 text-gray-400" />
-                {loc('UploadingPlzWait')}
+                {i18n("user/ChartUploader.UploadingPlzWait")}
               </>
             ) : (
               <>
                 <MdCloudUpload className="text-xl" />
-                {loc('Upload')}
+                {i18n("user/ChartUploader.Upload")}
               </>
             )}
           </motion.button>

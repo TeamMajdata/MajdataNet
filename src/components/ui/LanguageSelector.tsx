@@ -5,7 +5,7 @@ import { useI18n } from '@/hooks/useI18n';
 import { LANGUAGE_CONFIG } from '@/config/i18n';
 
 export default function LanguageSelector() {
-  const { language, changeLanguage, t } = useI18n();
+  const { language, changeLanguage, i18n } = useI18n();
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     changeLanguage(e.target.value);
@@ -14,7 +14,7 @@ export default function LanguageSelector() {
   return (
     <div className="inline-flex items-center gap-2">
       <label htmlFor="language-select" className="font-medium text-gray-700 text-sm">
-        {t('Language', '语言')}:
+        {i18n("shared/LanguageSelector.Language", '语言')}:
       </label>
       <select
         id="language-select"

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import type { RecentPlayedData } from '@/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -139,7 +139,7 @@ export function buildActivityData(records: RecentPlayedData[]): ActivityData {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function RecentActivityChart({ records }: { records: RecentPlayedData[] }) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const activity = useMemo(() => buildActivityData(records), [records]);
 
   if (activity.points.length === 0) return null;
@@ -160,15 +160,15 @@ export default function RecentActivityChart({ records }: { records: RecentPlayed
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="text-sm font-bold text-pink-300">
-              {loc('RecentPlayActivity', '最近游玩活跃度')}
+              {i18n("shared/RecentActivityChart.RecentPlayActivity", '最近游玩活跃度')}
             </div>
             <div className="mt-1 text-2xl font-bold text-white">
-              {activity.rangeLabel} · {activity.total} {loc('Times', '次')}
+              {activity.rangeLabel} · {activity.total} {i18n("shared/RecentActivityChart.Times", '次')}
             </div>
           </div>
           <div className="text-left text-sm text-white/60 sm:text-right">
-            <div>{loc('Today', '今日')} {activity.today} {loc('Times', '次')}</div>
-            <div>{loc('LatestPlay', '最近')} {activity.latestLabel}</div>
+            <div>{i18n("shared/RecentActivityChart.Today", '今日')} {activity.today} {i18n("shared/RecentActivityChart.Times", '次')}</div>
+            <div>{i18n("shared/RecentActivityChart.LatestPlay", '最近')} {activity.latestLabel}</div>
           </div>
         </div>
 
