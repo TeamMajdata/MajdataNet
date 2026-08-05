@@ -1,5 +1,16 @@
 ﻿[
   {
+    "id": "LOA3",
+    "href": "/space?id=LOA3",
+    "src": "/events/loa3.png",
+    "alt": "LOA3",
+    "title": "LOA3",
+    "category": 4,
+    "createDate": "2026-08-05",
+    "endDate": "2026-09-30",
+    "description": "动漫主题舞萌自制比赛"
+  },
+  {
     "id": "mmfc14",
     "href": "/space?id=mmfc_bot",
     "src": "/events/MMFC14.jpg",
