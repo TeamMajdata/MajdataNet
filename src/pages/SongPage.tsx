@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import { useI18n } from '@/hooks';
@@ -19,6 +20,7 @@ import {
   LoadingSpinner,
 } from '@/components';
 import { downloadSong } from '@/utils/download';
+import { stripTmpTags } from '@/utils';
 import { parseTmpRichText } from '@/utils/richTextUtils';
 import type { SongDetailsContainerProps, SongSummary } from '@/types';
 
@@ -71,20 +73,48 @@ export default function SongPage() {
     );
   }
 
-  return (
-    <PageLayout>
-      <div
-        className="-z-10 fixed inset-0 bg-cover bg-top-left blur-[20px] brightness-30"
-        style={{ backgroundImage: `url(${endpoints.maichart.image(param!)})` }}
-      />
+  const title = stripTmpTags(songData.title) || songData.id;
+  const artist = songData.artist?.trim();
+  const designer = songData.designer?.trim();
 
-      <SongDetailsContainer id={param} data={songData} />
-      <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
-      <ScoreRanking songid={param} />
-      <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
-      <CommentSender songid={param} />
-      <CommentList songid={param} />
-    </PageLayout>
+  const titleParts = [title, artist].filter(Boolean).join(' - ');
+  const descParts = [
+    artist ? `Artist: ${artist}` : '',
+    designer ? `Chart by ${designer}` : '',
+  ].filter(Boolean);
+  descParts.push('Majdata Net');
+
+  const metaTitle = `${titleParts} | Majdata Net`;
+  const metaDescription = descParts.join(' · ');
+  const metaImage = new URL(endpoints.maichart.image(param), window.location.origin).toString();
+
+  return (
+    <>
+      <Helmet>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:image" content={metaImage} />
+        <meta property="og:url" content={window.location.href} />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={metaImage} />
+      </Helmet>
+      <PageLayout>
+        <div
+          className="-z-10 fixed inset-0 bg-cover bg-top-left blur-[20px] brightness-30"
+          style={{ backgroundImage: `url(${endpoints.maichart.image(param!)})` }}
+        />
+
+        <SongDetailsContainer id={param} data={songData} />
+        <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
+        <ScoreRanking songid={param} />
+        <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
+        <CommentSender songid={param} />
+        <CommentList songid={param} />
+      </PageLayout>
+    </>
   );
 }
 
