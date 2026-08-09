@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { I18nProvider } from './contexts/I18nContext';
 import { UserProvider } from '@/contexts/UserContext';
 import { TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
@@ -34,6 +34,26 @@ function ExternalRedirect({ to }: { to: string }) {
 function App() {
   return (
     <HelmetProvider>
+      <Helmet>
+        <title>Majdata Net</title>
+        <meta
+          name="description"
+          content="Majdata Net - a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。"
+        />
+        <meta property="og:title" content="Majdata Net" />
+        <meta
+          property="og:description"
+          content="a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。"
+        />
+        <meta property="og:url" content="https://majdata.net" />
+        <meta property="og:image" content="/salt.webp" />
+        <meta name="twitter:title" content="Majdata Net" />
+        <meta
+          name="twitter:description"
+          content="a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。"
+        />
+        <meta name="twitter:image" content="/salt.webp" />
+      </Helmet>
       <TooltipProvider delayDuration={200}>
         <I18nProvider>
           <UserProvider>
