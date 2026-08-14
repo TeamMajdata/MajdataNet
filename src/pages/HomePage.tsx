@@ -21,7 +21,6 @@ import {
   getEventStatusClass,
   getEventStatusText,
   getEventsWithTimeAgo,
-  getCategoryTranslation,
 } from "@/utils/eventsData";
 import {
   CalendarClock,
@@ -186,13 +185,35 @@ function LatestEventsStrip() {
 
   if (events.length === 0) return null;
 
+  // 内容较少时不滚动，直接展示
+  if (events.length < 6) {
+    return (
+      <section className="mt-10 w-full">
+        <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+          {events.map((event, index) => (
+            <EventMosaicCard key={event.id} event={event} index={index} />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="mt-10 w-full">
-      {/* 与谱面网格一致：12 列马赛克（3 个一行 / 4 个一行，宽度随机） */}
-      <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
-        {events.map((event, index) => (
-          <EventMosaicCard key={event.id} event={event} index={index} />
-        ))}
+      {/* 网格滚动动画：固定高度 + 纵向无缝循环，hover 暂停 */}
+      <div className="relative h-[480px] overflow-hidden">
+        <div className="events-scroll-track">
+          <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+            {events.map((event, index) => (
+              <EventMosaicCard key={event.id} event={event} index={index} />
+            ))}
+          </div>
+          <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full" aria-hidden="true">
+            {events.map((event, index) => (
+              <EventMosaicCard key={`dup-${event.id}`} event={event} index={index} />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -203,13 +224,7 @@ function EventMosaicCard({ event, index }: { event: EventWithTimeInfo; index: nu
   const colClass = COL_CLASS[spanOf(index)];
 
   return (
-    <motion.div
-      className={colClass}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.45, delay: (index % 5) * 0.05, ease: [0.25, 0.1, 0.25, 1] }}
-    >
+    <div className={colClass}>
       <a
         href={event.href}
         target={event.href.startsWith("http") ? "_blank" : undefined}
@@ -239,11 +254,8 @@ function EventMosaicCard({ event, index }: { event: EventWithTimeInfo; index: nu
           </h3>
           <span className="shrink-0 w-0 h-0.5 mt-2 bg-primary transition-all duration-300 group-hover:w-8" />
         </div>
-        <p className="m-0 mt-1 text-xs text-ink-3 truncate">
-          {getCategoryTranslation(event.category)} · {event.timeAgo}
-        </p>
       </a>
-    </motion.div>
+    </div>
   );
 }
 

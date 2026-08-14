@@ -1,5 +1,29 @@
 /* v4：Swiper 分页点扁平化（无发光、无胶囊拉长） */
 
+/* 主页活动网格纵向无缝滚动动画 */
+@keyframes events-scroll-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+.events-scroll-track {
+  animation: events-scroll-y 45s linear infinite;
+}
+
+.events-scroll-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .events-scroll-track {
+    animation: none;
+  }
+}
+
 .mobile-events-swiper .swiper-pagination,
 .desktop-events-swiper .swiper-pagination {
   bottom: 0;
