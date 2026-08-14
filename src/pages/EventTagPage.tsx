@@ -58,14 +58,14 @@ export default function EventTagPage() {
 
       {/* 活动相关谱面列表 */}
       {searchKeyword && (
-        <div className="mx-auto mt-4 sm:mt-6 md:mt-8 px-2 sm:px-3 md:px-4 max-w-300">
+        <div className="mt-4 sm:mt-6 md:mt-8 px-2 sm:px-3 md:px-4">
           <div className="mb-8">
-            <h2 className="m-0 mb-3 sm:mb-4 md:mb-6 font-bold text-white text-xl sm:text-2xl md:text-3xl text-center" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+            <h2 className="m-0 mb-3 sm:mb-4 md:mb-6 font-bold text-ink text-xl sm:text-2xl md:text-3xl text-center">
               {loc('RelatedCharts')}
             </h2>
 
-            {/* 渐变分割线 */}
-            <div className="relative mx-auto my-8 w-[70%] h-px" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 15%, rgba(255, 255, 255, 0.4) 30%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.4) 70%, rgba(255, 255, 255, 0.2) 85%, transparent 100%)' }}></div>
+            {/* 分割线 */}
+            <div className="relative my-8 w-[70%] h-px bg-line"></div>
 
             <SongList
               url={endpoints.maichart.listSearch(searchKeyword)}

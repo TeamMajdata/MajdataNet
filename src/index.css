@@ -2,127 +2,135 @@
 
 @import "./styles/components/events.css";
 
+/* ============================================================
+   v4 设计 Token（Quiet Flat · 大留白 · 信息层级）
+   通过 @theme 注入 Tailwind：bg-surface / text-ink / border-line 等
+   ============================================================ */
+@theme {
+  /* 背景 */
+  --color-page: #f7f8fa;        /* bg-page    页面底色 */
+  --color-surface: #ffffff;     /* bg-surface 卡片/面板 */
+  --color-surface-2: #eef1f5;   /* bg-surface-2 选中/分区底色 */
+
+  /* 品牌色 */
+  --color-primary: #5c8dc1;     /* bg-primary / text-primary */
+  --color-primary-hover: #4a7daf;
+  --color-primary-soft: #eef4fa;
+
+  /* 文字层级：ink(主) / ink-2(次) / ink-3(弱) */
+  --color-ink: #1f2937;
+  --color-ink-2: #6b7280;
+  --color-ink-3: #9ca3af;
+
+  /* 边框 */
+  --color-line: #e5e7eb;
+  --color-line-strong: #d1d5db;
+
+  /* 语义色（扁平） */
+  --color-ok: #10b981;
+  --color-warn: #f59e0b;
+  --color-danger: #ef4444;
+
+  /* 圆角 */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* 阴影（仅两档） */
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.05);
+  --shadow-card-hover: 0 8px 24px rgb(16 24 40 / 0.08);
+
+  /* 字体 */
+  --font-sans: system-ui, -apple-system, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}
+
+/* ============================================================
+   兼容变量（v2 遗留引用，组件改造完成后逐步移除）
+   ============================================================ */
 :root {
-    --foreground-rgb: 30, 30, 46;
-    --background-start: 245, 245, 250;
-    --shadow: #d0d0d8;
+  --foreground-rgb: 31, 41, 55;      /* #1f2937 */
+  --background-start: 247, 248, 250; /* #f7f8fa */
+  --shadow: #d0d0d8;
 
-    /* 统一容器样式 */
-    --container-max-width: 1200px;
-    --container-padding: 0 1rem;
-    --container-margin: 0 auto;
+  /* 容器（全宽，去掉左右限宽留白） */
+  --container-max-width: 100%;
+  --container-padding: 0 1rem;
+  --container-margin: 0 auto;
 
-    /* 统一毛玻璃效果 */
-    --glassmorphism-bg-primary: rgb(255 255 255 / 85%);
-    --glassmorphism-bg-secondary: rgb(248 248 254 / 90%);
-    --glassmorphism-backdrop: blur(20px) saturate(180%);
-    --glassmorphism-border: 1px solid rgb(0 0 0 / 8%);
-    --glassmorphism-border-radius: 16px;
-    --glassmorphism-shadow: 0 8px 25px rgb(0 0 0 / 10%);
+  /* 旧毛玻璃变量 → 扁平化值（仅保证引用不报错） */
+  --glassmorphism-bg-primary: #ffffff;
+  --glassmorphism-bg-secondary: #ffffff;
+  --glassmorphism-backdrop: none;
+  --glassmorphism-border: 1px solid #e5e7eb;
+  --glassmorphism-border-radius: 12px;
+  --glassmorphism-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
 
-    /* 智能 Header 高度系统 */
-    --header-height-desktop: 70px;
-    --header-height-tablet: 50px;
-    --header-height-mobile: 50px;
-    --header-height-mobile-small: 50px;
+  /* Header 高度 */
+  --header-height: 56px;
+  --content-top-spacing: calc(var(--header-height) + 1rem);
+  --content-top-spacing-large: calc(var(--header-height) + 1.5rem);
 
-    /* 当前生效的 Header 高度（默认桌面端） */
-    --header-height: var(--header-height-desktop);
-
-    /* 智能间距计算 */
-    --content-top-spacing: calc(var(--header-height) + 0.5rem);
-    --content-top-spacing-large: calc(var(--header-height) + 1rem);
-
-    /* 其他样式变量 */
-    --glassmorphism-bg: rgb(255 255 255 / 95%);
-    --glassmorphism-bg-scrolled: rgb(252 252 255 / 85%);
-    --glassmorphism-border-scrolled: rgb(0 0 0 / 10%);
-
-    scrollbar-color: rgb(180 180 190) rgb(var(--background-start));
-    scrollbar-width: thin;
+  scrollbar-color: #b4b4be rgb(var(--background-start));
+  scrollbar-width: thin;
 }
 
-/* 基础文本颜色 */
-div {
+/* 基础文本颜色（放入 @layer base，允许 Tailwind utilities 覆盖） */
+@layer base {
+  div {
     color: rgb(var(--foreground-rgb));
-}
+  }
 
-/* Body 基础样式 */
-body {
-    caret-color: transparent;
-    color-scheme: only light;
-    background-color: #ffffff;
-    background-image:
-        repeating-linear-gradient(
-            90deg,
-            rgba(92, 141, 193, 0.1) 0px,
-            rgba(92, 141, 193, 0.1) 1px,
-            transparent 1px,
-            transparent 21px
-        ),
-        repeating-linear-gradient(
-            0deg,
-            rgba(92, 141, 193, 0.1) 0px,
-            rgba(92, 141, 193, 0.1) 1px,
-            transparent 1px,
-            transparent 21px
-        );
-    background-position: 10px 10px;
-    background-size: 21px 21px;
-    padding-left: 0;
-    padding-top: 4.5rem;
-}
-
-@media (width >= 1280px) {
-    body {
-        padding-left: 240px;
-        padding-top: 0.5rem;
-    }
-}
-
-/* 段落样式 */
-p {
+  p {
     color: rgb(var(--foreground-rgb));
-}
+  }
 
-/* 标题样式 */
-h1 {
-    color: #1e1e2e;
+  h1 {
+    color: #1f2937;
     text-align: center;
     font-size: 2.5rem;
     font-weight: bold;
     user-select: text;
-}
+  }
 
-h2 {
-    color: #1e1e2e;
+  h2 {
+    color: #1f2937;
     text-align: center;
     font-size: 2.5rem;
     font-weight: bold;
     user-select: text;
+  }
 }
 
 @media screen and (width <= 500px) {
-    h1 {
-        font-size: 2rem;
-    }
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Body：纯色背景，无网格、无模糊；顶部为 fixed 顶栏预留空间（紧贴顶栏） */
+body {
+  color-scheme: only light;
+  background-color: var(--color-page);
+  padding-top: 4rem;
 }
 
 /* 移除数字输入框的spinner */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
-    appearance: none;
-    margin: 0;
+  appearance: none;
+  margin: 0;
 }
 
 /* Markdown body 样式 (用于 github-markdown-css 扩展) */
 .markdown-body {
-    box-sizing: border-box;
-    min-width: 200px;
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 45px;
-    background-color: var(--background-start) !important;
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 45px;
+  background-color: rgb(var(--background-start)) !important;
 }
 
 /* 覆盖全局 h1/h2 居中，markdown 内标题默认左对齐 */
@@ -132,31 +140,31 @@ input[type="number"]::-webkit-inner-spin-button {
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-    text-align: left !important;
+  text-align: left !important;
 }
 
 .markdown-body ul {
-    display: block;
-    text-align: left;
-    padding-left: 2em;
-    list-style-type: disc;
+  display: block;
+  text-align: left;
+  padding-left: 2em;
+  list-style-type: disc;
 }
 
 .markdown-body ol {
-    display: block;
-    text-align: left;
-    padding-left: 2em;
-    list-style-type: decimal;
+  display: block;
+  text-align: left;
+  padding-left: 2em;
+  list-style-type: decimal;
 }
 
 .markdown-body ul li,
 .markdown-body ol li {
-    margin-bottom: 8px;
+  margin-bottom: 8px;
 }
 
 /* [c]...[/c] 居中块 */
 .markdown-body .md-center {
-    text-align: center !important;
+  text-align: center !important;
 }
 
 .markdown-body .md-center h1,
@@ -165,17 +173,17 @@ input[type="number"]::-webkit-inner-spin-button {
 .markdown-body .md-center h4,
 .markdown-body .md-center h5,
 .markdown-body .md-center h6 {
-    text-align: center !important;
+  text-align: center !important;
 }
 
 .markdown-body .md-center ul,
 .markdown-body .md-center ol {
-    display: inline-block;
-    text-align: left;
+  display: inline-block;
+  text-align: left;
 }
 
 @media (width <= 767px) {
-    .markdown-body {
-        padding: 15px;
-    }
+  .markdown-body {
+    padding: 15px;
+  }
 }

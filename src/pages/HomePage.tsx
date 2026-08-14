@@ -6,24 +6,21 @@ import React, {
   useCallback,
 } from "react";
 import useSWR from "swr";
-import { motion, AnimatePresence } from "framer-motion";
-import { Tooltip } from "@/components";
+import { motion } from "framer-motion";
 import { useDebouncedCallback } from "use-debounce";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
-import "swiper/swiper-bundle.css";
-
 import { setLanguage } from "@/utils/i18n";
 import { useLoc } from "@/hooks";
-import { PageLayout, SongCard, SongList, LoadingSpinner } from "@/components";
+import { PageLayout, LoadingSpinner, Levels, InteractCount } from "@/components";
 import { endpoints } from "@/config/api";
+import { stripTmpTags } from "@/utils/richTextUtils";
+import { downloadSong } from "@/utils/download";
+import { toast } from "react-toastify";
 import {
   getEventStatusClass,
   getEventStatusText,
-  getActiveEvents,
-  getTimeAgo,
+  getEventsWithTimeAgo,
   getCategoryTranslation,
 } from "@/utils/eventsData";
 import {
@@ -36,8 +33,9 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Download,
 } from "lucide-react";
-import type { SearchBarProps, Song } from "@/types";
+import type { Event, Song } from "@/types";
 
 // 获取用户时区的次日午夜时间戳 (UTC)
 const getNextMidnightTimestamp = (): number => {
@@ -137,8 +135,8 @@ export default function HomePage() {
 
   return (
     <PageLayout showBackToHome={false}>
-      {/* Events Carousel */}
-      <EventsCarousel />
+      {/* Latest Events Strip */}
+      <LatestEventsStrip />
 
       {/* Main Content */}
       <MainComp />
@@ -146,219 +144,140 @@ export default function HomePage() {
   );
 }
 
-function EventsCarousel() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  // 检测是否为移动端
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  // 移动端和PC端都使用Swiper
-  return isMobile ? <MobileEventsSwiper /> : <DesktopEventsSwiper />;
+/** 活动状态徽章（纯色块） */
+function EventStatusBadge({ event }: { event: Event }) {
+  const cls = getEventStatusClass(event);
+  const base =
+    "inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium whitespace-nowrap";
+  if (cls === "status-upcoming") {
+    return (
+      <span className={`${base} bg-primary text-white`}>
+        <CalendarClock size={12} />
+        {getEventStatusText(event)}
+      </span>
+    );
+  }
+  if (cls === "status-ongoing") {
+    return (
+      <span className={`${base} bg-ok text-white`}>
+        <Play size={12} />
+        {getEventStatusText(event)}
+      </span>
+    );
+  }
+  return (
+    <span className={`${base} bg-surface-2 text-ink-3`}>
+      <Flag size={12} />
+      {getEventStatusText(event)}
+    </span>
+  );
 }
 
-function getDateLocale() {
-  const lang = localStorage.getItem("language") || "zh";
-  const localeMap: Record<string, string> = {
-    zh: "zh-CN",
-    en: "en-US",
-    ja: "ja-JP",
-    ko: "ko-KR",
-  };
-  return localeMap[lang] || "zh-CN";
-}
-
-// PC端专用的 Swiper 组件
-function DesktopEventsSwiper() {
-  const ongoingEvents = useMemo(() => {
-    return getActiveEvents().map((event) => ({
-      ...event,
-      timeAgo: getTimeAgo(event.createDate),
-      createDateFormatted: new Date(event.createDate).toLocaleDateString(
-        getDateLocale(),
-        { year: "numeric", month: "long", day: "numeric" },
-      ),
-    }));
+/**
+ * 最新活动横向滚动展示区（title 上方）
+ * 始终展示最近 10 个活动（含已结束），横向滚动
+ */
+function LatestEventsStrip() {
+  const events = useMemo(() => {
+    return getEventsWithTimeAgo()
+      .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
+      .slice(0, 10);
   }, []);
+
+  if (events.length === 0) return null;
 
   return (
-    <section className="mx-auto mt-8 w-full">
-      <Swiper
-        modules={[Pagination, Autoplay]}
-        spaceBetween={0}
-        slidesPerView={1}
-        centeredSlides={true}
-        autoplay={{ delay: 5000, disableOnInteraction: false }}
-        pagination={{ clickable: true, dynamicBullets: true }}
-        loop={ongoingEvents.length > 2}
-        breakpoints={{
-          768: { slidesPerView: 1, spaceBetween: 0 },
-          1024: { slidesPerView: 1, spaceBetween: 0 },
-        }}
-        className="pb-10"
-      >
-        {ongoingEvents.map((event) => (
-          <SwiperSlide key={event.id}>
-            <Link to={event.href} className="block no-underline group">
-              <div className="relative bg-white shadow-md border border-gray-200 rounded-2xl transition-transform duration-300">
-                <img
-                  className="w-full aspect-[1279/372] object-cover"
-                  src={event.src}
-                  alt={event.alt}
-                  loading="lazy"
-                />
-                <span
-                  className={`absolute top-3 right-3 z-10 flex items-center gap-2 font-semibold bg-white rounded-full px-4 py-2 text-xl leading-none ${
-                    getEventStatusClass(event) === "status-upcoming"
-                      ? "text-[#5C8DC1]"
-                      : getEventStatusClass(event) === "status-ongoing"
-                        ? "text-[#10b981]"
-                        : "text-white"
-                  }`}
-                >
-                  {getEventStatusClass(event) === "status-upcoming" ? (
-                    <CalendarClock size={24} />
-                  ) : getEventStatusClass(event) === "status-ongoing" ? (
-                    <Play size={24} />
-                  ) : (
-                    <Flag size={24} />
-                  )}
-                  {getEventStatusText(event)}
-                </span>
-                <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-transparent via-transparent to-black/40 p-4">
-                  <h3 className="m-0 mb-1 font-bold text-white text-4xl leading-tight">
-                    {event.title}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-2 text-white/80 text-xs">
-                    <span className="text-white">
-                      {getCategoryTranslation(event.category)}
-                    </span>
-                    <span className="text-white">{event.timeAgo}</span>
-                  </div>
-                </div>
+    <section className="mt-10 w-full">
+      <div className="flex gap-4 overflow-x-auto pb-3 snap-x">
+        {events.map((event) => (
+          <a
+            key={event.id}
+            href={event.href}
+            target={event.href.startsWith("http") ? "_blank" : undefined}
+            rel="noopener noreferrer"
+            className="group shrink-0 w-72 snap-start no-underline"
+          >
+            <div className="relative overflow-hidden aspect-[16/9] bg-surface-2">
+              <img
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                src={event.src}
+                alt={event.alt}
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="absolute top-2 right-2">
+                <EventStatusBadge event={event} />
               </div>
-            </Link>
-          </SwiperSlide>
+            </div>
+            <h3 className="m-0 mt-2 font-semibold text-ink text-sm truncate">
+              {event.title}
+            </h3>
+            <p className="m-0 mt-0.5 text-xs text-ink-3 truncate">
+              {getCategoryTranslation(event.category)} · {event.timeAgo}
+            </p>
+          </a>
         ))}
-      </Swiper>
+      </div>
     </section>
   );
 }
 
-// 移动端专用的 Swiper 组件
-function MobileEventsSwiper() {
-  // 获取所有活跃的活动（进行中 + 即将开始）
-  const ongoingEvents = useMemo(() => {
-    return getActiveEvents().map((event) => ({
-      ...event,
-      timeAgo: getTimeAgo(event.createDate),
-      createDateFormatted: new Date(event.createDate).toLocaleDateString(
-        getDateLocale(),
-        {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        },
-      ),
-    }));
-  }, []);
-
-  return (
-    <section className="mx-auto mt-8 w-full">
-      <Swiper
-        modules={[Pagination, Autoplay]}
-        spaceBetween={0}
-        slidesPerView={1}
-        centeredSlides={true}
-        autoplay={{ delay: 5000, disableOnInteraction: false }}
-        pagination={{ clickable: true, dynamicBullets: true }}
-        loop={ongoingEvents.length > 1}
-        breakpoints={{
-          768: { slidesPerView: 1, spaceBetween: 0 },
-          1024: { slidesPerView: 1, spaceBetween: 0 },
-        }}
-        className="pb-10"
-      >
-        {ongoingEvents.map((event) => (
-          <SwiperSlide key={event.id}>
-            <Link to={event.href} className="block no-underline group">
-              <div className="relative bg-white shadow-md border border-gray-200 rounded-2xl transition-transform duration-300">
-                <img
-                  className="w-full aspect-[1279/372] object-cover"
-                  src={event.src}
-                  alt={event.alt}
-                  loading="lazy"
-                />
-                <span
-                  className={`absolute top-3 right-3 z-10 flex items-center gap-2 font-semibold bg-white rounded-full px-4 py-2 text-xl leading-none ${
-                    getEventStatusClass(event) === "status-upcoming"
-                      ? "text-[#5C8DC1]"
-                      : getEventStatusClass(event) === "status-ongoing"
-                        ? "text-[#10b981]"
-                        : "text-white"
-                  }`}
-                >
-                  {getEventStatusClass(event) === "status-upcoming" ? (
-                    <CalendarClock size={24} />
-                  ) : getEventStatusClass(event) === "status-ongoing" ? (
-                    <Play size={24} />
-                  ) : (
-                    <Flag size={24} />
-                  )}
-                  {getEventStatusText(event)}
-                </span>
-                <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-transparent via-transparent to-black/40 p-4">
-                  <h3 className="m-0 mb-1 font-bold text-white text-4xl leading-tight">
-                    {event.title}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-2 text-white/80 text-xs">
-                    <span className="text-white">
-                      {getCategoryTranslation(event.category)}
-                    </span>
-                    <span className="text-white">{event.timeAgo}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </section>
-  );
-}
-
-function SearchBar({
-  onChange,
+function CompactSearchInput({
   initS,
+  onDebouncedChange,
+}: {
+  initS: string;
+  onDebouncedChange: (value: string) => void;
+}) {
+  const loc = useLoc();
+  const [currentValue, setCurrentValue] = useState(initS);
+
+  useEffect(() => {
+    setCurrentValue(initS);
+  }, [initS]);
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        className="bg-surface px-4 py-2.5 pr-9 border border-line focus:border-primary rounded-lg outline-none w-36 sm:w-44 md:w-56 h-10 text-sm text-ink placeholder:text-ink-3 transition-colors"
+        placeholder={initS === "" ? loc("SearchPlaceholder", "搜索...") : initS}
+        value={currentValue}
+        onChange={(e) => {
+          setCurrentValue(e.target.value);
+          onDebouncedChange(e.target.value);
+        }}
+        aria-label={loc("SearchPlaceholder", "搜索...")}
+      />
+      {currentValue !== "" && (
+        <button
+          className="top-1/2 right-2.5 absolute flex justify-center items-center bg-surface-2 hover:bg-line border border-line rounded-full w-5 h-5 text-ink-3 text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
+          onClick={() => {
+            setCurrentValue("");
+            onDebouncedChange("");
+          }}
+          aria-label={loc("ClearSearch", "清空搜索")}
+        >
+          ×
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** 右上角紧凑排序选择器 */
+function SortSelect({
   sortType,
   onSortChange,
-}: SearchBarProps) {
+}: {
+  sortType: number;
+  onSortChange: (value: number) => void;
+}) {
   const loc = useLoc();
-  const [isMobile, setIsMobile] = useState(false);
-  const [currentValue, setCurrentValue] = useState(initS);
-  const [isSortOpen, setIsSortOpen] = useState(false);
-  const sortRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   const sortIcons = [Calendar, Heart, MessageCircle, Play];
-
-  // 点击外部关闭排序下拉
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
-        setIsSortOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const sortOptions = [
     loc("UploadDate", "上传日期"),
     loc("LikeCount", "点赞数"),
@@ -366,163 +285,57 @@ function SearchBar({
     loc("PlayCount", "播放数"),
   ];
 
-  // 检测是否为移动端
+  // 点击外部关闭
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
     };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 更新当前值
-  useEffect(() => {
-    setCurrentValue(initS);
-  }, [initS]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCurrentValue(value);
-    onChange(e);
-  };
-
-  const handleClearSearch = () => {
-    setCurrentValue("");
-    const fakeEvent = {
-      target: { value: "" },
-    } as React.ChangeEvent<HTMLInputElement>;
-    onChange(fakeEvent);
-  };
-
-  // 提示内容组件
-  const hintContent = (
-    <div className="bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] px-5 py-4 border border-[#5C8DC1]/20 rounded-2xl w-70 md:w-[320px]">
-      <div className="space-y-2.5 text-left">
-        <p className="m-0 text-[0.85rem] text-gray-600 md:text-[0.9rem] leading-normal">
-          {loc("SearchHintID", "按 ID 搜索")}
-        </p>
-        <p className="m-0 text-[0.85rem] text-gray-600 md:text-[0.9rem] leading-normal">
-          {loc("SearchHintHash", "按 Hash 搜索")}
-        </p>
-        <p className="m-0 text-[0.85rem] text-gray-600 md:text-[0.9rem] leading-normal">
-          {loc("SearchHintTag", "按标签搜索")}
-        </p>
-        <p className="m-0 text-[0.85rem] text-gray-600 md:text-[0.9rem] leading-normal">
-          {loc("SearchHintUploader", "按上传者搜索")}
-        </p>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="mt-4 md:mt-0 mb-4 md:mb-4 px-4 md:px-4 w-full">
-      <div className="relative overflow-visible">
-        <div className="flex flex-row justify-center items-center gap-2 md:gap-6 p-3 md:p-4 w-full">
-          <div className="flex-1 min-w-0">
-            <div className="relative flex items-center w-full">
-              <input
-                type="text"
-                className="bg-white px-6 md:px-7 py-3 md:py-4 pr-10 md:pr-14 border-2 border-gray-200 focus:border-[#5C8DC1] rounded-[30px] outline-none w-full h-11 text-gray-700 placeholder:text-gray-400 text-sm md:text-base transition-colors"
-                placeholder={
-                  initS === "" ? loc("SearchPlaceholder", "搜索...") : initS
-                }
-                value={currentValue}
-                onChange={handleInputChange}
-                aria-label={loc("SearchPlaceholder", "搜索...")}
-              />
-              <AnimatePresence>
-                {currentValue && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.15 }}
-                    className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-gray-100 hover:bg-gray-200 border-none rounded-full w-5 h-5 text-gray-400 hover:text-gray-600 text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
-                    onClick={handleClearSearch}
-                    aria-label={loc("ClearSearch", "清空搜索")}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="10"
-                      height="10"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M18 6 6 18" />
-                      <path d="m6 6 12 12" />
-                    </svg>
-                  </motion.button>
-                )}
-              </AnimatePresence>
-              <Tooltip
-                content={hintContent}
-                side="top"
-                sideOffset={20}
-                plain={true}
-              >
-                <div
-                  className="top-1/2 right-3 z-10 absolute flex justify-center items-center bg-gray-100 hover:bg-[#5C8DC1]/10 active:bg-[#5C8DC1]/15 shadow-sm border border-gray-200 hover:border-[#5C8DC1]/30 rounded-full w-5 h-5 font-bold text-[10px] text-[#5C8DC1] hover:text-[#4A7DAF] leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
-                  role="button"
-                  aria-label="Search Hint Button"
-                >
-                  ?
-                </div>
-              </Tooltip>
-            </div>
-          </div>
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-center gap-1.5 bg-surface hover:bg-primary-soft px-3.5 py-2.5 border border-line hover:border-primary/40 rounded-lg h-10 text-ink-2 hover:text-primary text-xs font-medium whitespace-nowrap transition-colors duration-150 cursor-pointer"
+        aria-label="sort"
+      >
+        {React.createElement(sortIcons[sortType ?? 0], { size: 13 })}
+        <span className="hidden sm:inline">{sortOptions[sortType ?? 0]}</span>
+        <ChevronDown
+          size={12}
+          className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
 
-          <div className="shrink-0 relative" ref={sortRef}>
+      {isOpen && (
+        <div className="top-full right-0 z-30 absolute bg-surface shadow-card border border-line mt-2 py-1.5 rounded-lg min-w-[150px] overflow-hidden">
+          {sortOptions.map((label, i) => (
             <button
-              onClick={() => setIsSortOpen(!isSortOpen)}
-              className="flex items-center justify-center gap-1.5 bg-white hover:bg-gray-50 px-4 md:px-5 py-2 border border-gray-200 hover:border-[#5C8DC1]/30 rounded-full min-h-10 text-gray-700 hover:text-[#5C8DC1] text-xs sm:text-sm font-medium whitespace-nowrap overflow-visible transition-all duration-200 cursor-pointer"
+              key={i}
+              onClick={() => {
+                onSortChange(i);
+                setIsOpen(false);
+              }}
+              className={`flex items-center gap-2 px-4 py-2 w-full text-sm text-left transition-colors duration-150 ${
+                (sortType ?? 0) === i
+                  ? "text-primary bg-primary-soft font-semibold"
+                  : "text-ink-2 hover:text-primary hover:bg-primary-soft"
+              }`}
             >
-              <span className="inline-flex items-center justify-center">
-                {React.createElement(sortIcons[sortType ?? 0], { size: 14 })}
-              </span>
-              <span className="inline-flex items-center">
-                {sortOptions[sortType ?? 0]}
-              </span>
-              <ChevronDown
-                size={12}
-                className={`transition-transform duration-200 ${isSortOpen ? "rotate-180" : ""}`}
-              />
+              {React.createElement(sortIcons[i], { size: 14 })}
+              <span>{label}</span>
             </button>
-
-            {isSortOpen && (
-              <div className="top-full right-0 z-20 absolute bg-white shadow-[0_8px_30px_rgba(0,0,0,0.1),0_2px_8px_rgba(0,0,0,0.04)] mt-2 py-1 border border-gray-200 rounded-xl min-w-[140px] overflow-hidden">
-                {sortOptions.map((label, i) => (
-                  <button
-                    key={i}
-                    onClick={() => {
-                      onSortChange(i);
-                      setIsSortOpen(false);
-                    }}
-                    className={`flex items-center gap-2 px-4 py-2.5 w-full text-sm text-left transition-colors ${
-                      (sortType ?? 0) === i
-                        ? "text-[#5C8DC1] bg-[#5C8DC1]/5 font-semibold"
-                        : "text-gray-600 hover:text-[#5C8DC1] hover:bg-gray-50"
-                    }`}
-                  >
-                    <span className="inline-flex items-center justify-center">
-                      {React.createElement(sortIcons[i], { size: 18 })}
-                    </span>
-                    <span className="inline-flex items-center">{label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }
+
 
 function MainComp() {
   const loc = useLoc();
@@ -603,24 +416,56 @@ function MainComp() {
 
   // 渲染数据
   return (
-    <>
-      <div className="flex justify-center px-4 pt-2 pb-3">
-        <div className="inline-flex bg-gray-100 p-1 border border-gray-200 rounded-full">
+    <div className="relative w-full px-4">
+      {/* 超大标题：最上方、左对齐（右侧留白给右上角控件） */}
+      <motion.h2
+        key={activeTab}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        className="m-0 mb-40 font-black tracking-tight text-ink text-3xl md:text-7xl leading-none select-none text-left! pr-44 md:pr-64"
+      >
+        {activeTab === "all"
+          ? loc("AllCharts", "全部谱面")
+          : loc("RandomRecommend", "随机推荐")}
+      </motion.h2>
+
+      {/* 右上角绝对定位控件（无背景）：搜索/排序/换一批 + Tab（最右，同一行） */}
+      <div className="top-0 right-0 z-20 absolute flex flex-wrap items-center justify-end gap-2">
+        {activeTab === "all" ? (
+          <>
+            <CompactSearchInput
+              initS={Search}
+              onDebouncedChange={(value) => debounced(value)}
+            />
+            <SortSelect sortType={sortType} onSortChange={onSortChange} />
+          </>
+        ) : (
           <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-200 cursor-pointer ${
+            onClick={refreshRandomBatch}
+            className="flex items-center gap-2 bg-surface hover:bg-primary-soft px-4 py-2.5 border border-line hover:border-primary/40 rounded-lg text-ink-2 hover:text-primary text-sm font-medium transition-colors duration-150 cursor-pointer"
+          >
+            {loc("RefreshBatch", "换一批")}
+          </button>
+        )}
+
+        {/* Tab 在最右 */}
+        <div className="inline-flex bg-surface-2 p-1 border border-line rounded-full">
+          <button
+            className={`px-4 md:px-6 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-150 cursor-pointer ${
               activeTab === "all"
-                ? "bg-white text-[#5C8DC1] shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-surface text-primary border border-line shadow-none"
+                : "text-ink-3 hover:text-ink-2 border border-transparent"
             }`}
             onClick={() => setActiveTab("all")}
           >
             {loc("AllCharts", "全部谱面")}
           </button>
           <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-200 cursor-pointer ${
+            className={`px-4 md:px-6 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-150 cursor-pointer ${
               activeTab === "random"
-                ? "bg-white text-[#5C8DC1] shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-surface text-primary border border-line shadow-none"
+                : "text-ink-3 hover:text-ink-2 border border-transparent"
             }`}
             onClick={() => setActiveTab("random")}
           >
@@ -629,92 +474,75 @@ function MainComp() {
         </div>
       </div>
 
-      {activeTab === "all" ? (
-        <>
-          <SearchBar
-            onChange={(e) => debounced(e.target.value)}
-            initS={Search}
-            sortType={sortType}
-            onSortChange={onSortChange}
-          />
+      {/* 内容区 */}
+      <div className="mt-8 md:mt-10">
+        {activeTab === "all" ? (
+          <>
+            <SongGrid
+              url={endpoints.maichart.listSearchAndSort(
+                Search,
+                sortWords[sortType],
+                page,
+              )}
+              page={page}
+              setMax={setMaxpage}
+            />
 
-          <SongList
-            url={endpoints.maichart.listSearchAndSort(
-              Search,
-              sortWords[sortType],
-              page,
-            )}
-            page={page}
-            setMax={setMaxpage}
-          />
-
-          <div className="flex flex-col items-center gap-4 mx-auto mt-8 px-4 max-w-7xl">
-            <div className="flex items-center gap-3 p-4">
-              <button
-                className={`flex items-center justify-center px-4 py-2.5 text-gray-700 hover:text-[#5C8DC1] font-medium text-sm cursor-pointer min-w-[3rem] transition-all duration-200 hover:scale-105 active:scale-95 ${page - 1 < 0 ? "opacity-20 cursor-not-allowed" : ""}`}
-                disabled={page - 1 < 0}
-                onClick={() => {
-                  setPage(page - 1);
-                  window.scrollTo(0, 200);
-                }}
-              >
-                <ChevronLeft size={18} />
-              </button>
-
-              <div className="flex items-center gap-2">
-                <span className="text-gray-400 text-sm">
-                  {loc("PageOf", "第")}
-                </span>
-                <input
-                  type="number"
-                  value={page}
-                  className="bg-gray-50 focus:shadow-[0_0_0_2px_rgba(92,141,193,0.2)] px-3 py-2 border border-gray-200 focus:border-[#5C8DC1] rounded-lg focus:outline-none w-16 font-medium text-gray-700 text-center transition-colors"
-                  onChange={(event) => {
-                    if (event.target.value !== "") {
-                      setPage(parseInt(event.target.value));
-                    } else setPage(0);
+            <div className="flex flex-col items-center gap-6 mx-auto mt-12 px-4 w-full">
+              <div className="flex items-center gap-3 p-4">
+                <button
+                  className={`flex items-center justify-center px-4 py-2.5 bg-surface border border-line hover:border-primary/40 rounded-lg text-ink-2 hover:text-primary font-medium text-sm cursor-pointer min-w-10 transition-colors duration-150 ${page - 1 < 0 ? "opacity-30 cursor-not-allowed" : ""}`}
+                  disabled={page - 1 < 0}
+                  onClick={() => {
+                    setPage(page - 1);
+                    window.scrollTo(0, 200);
                   }}
-                  min="0"
-                  step="1"
-                />
-                <span className="text-gray-400 text-sm">
-                  {loc("Page", "页")}
-                </span>
+                  aria-label={loc("PrevPage", "上一页")}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                <div className="flex items-center gap-2 px-2">
+                  <span className="text-ink-3 text-sm">
+                    {loc("PageOf", "第")}
+                  </span>
+                  <span className="font-semibold text-ink text-sm">
+                    {page + 1}
+                  </span>
+                  <span className="text-ink-3 text-sm">
+                    / {Math.max(maxpage + 1, 1)}
+                  </span>
+                  <span className="text-ink-3 text-sm">
+                    {loc("Page", "页")}
+                  </span>
+                </div>
+
+                <button
+                  className={`flex items-center justify-center px-4 py-2.5 bg-surface border border-line hover:border-primary/40 rounded-lg text-ink-2 hover:text-primary font-medium text-sm cursor-pointer min-w-10 transition-colors duration-150 ${page >= maxpage ? "opacity-30 cursor-not-allowed" : ""}`}
+                  disabled={page >= maxpage}
+                  onClick={() => {
+                    setPage(page + 1);
+                    window.scrollTo(0, 200);
+                  }}
+                  aria-label={loc("NextPage", "下一页")}
+                >
+                  <ChevronRight size={16} />
+                </button>
               </div>
-
-              <button
-                className={`flex items-center justify-center px-4 py-2.5 text-gray-700 hover:text-[#5C8DC1] font-medium text-sm cursor-pointer min-w-[3rem] transition-all duration-200 hover:scale-105 active:scale-95 ${page >= maxpage ? "opacity-20 cursor-not-allowed" : ""}`}
-                disabled={page >= maxpage}
-                onClick={() => {
-                  setPage(page + 1);
-                  window.scrollTo(0, 200);
-                }}
-              >
-                <ChevronRight size={18} />
-              </button>
+              <IntegratedDownloadTypeSelector />
             </div>
-            <IntegratedDownloadTypeSelector />
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="flex justify-center mx-auto mb-6 px-4 max-w-7xl">
-            <button
-              className="flex items-center gap-2 bg-white hover:bg-gray-50 px-5 py-2.5 border border-gray-200 hover:border-[#5C8DC1]/30 rounded-lg text-gray-700 hover:text-[#5C8DC1] text-sm font-medium transition-all duration-200 cursor-pointer"
-              onClick={refreshRandomBatch}
-            >
-              {loc("RefreshBatch", "换一批")}
-            </button>
-          </div>
+          </>
+        ) : (
+          <>
+            <RandomRecommendList refreshKey={randomSeed} />
 
-          <RandomRecommendList refreshKey={randomSeed} />
-
-          <div className="flex justify-center mt-12 px-4">
-            <IntegratedDownloadTypeSelector />
-          </div>
-        </>
-      )}
-    </>
+            <div className="flex justify-center mt-12 px-4">
+              <IntegratedDownloadTypeSelector />
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -774,9 +602,164 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }
 
   return (
-    <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+    <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
       {randomSongs.map((song, index) => (
-        <SongCard key={song.id} song={song} index={index} page={0} />
+        <SongMosaicCard key={song.id} song={song} index={index} page={0} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * 谱面马赛克卡片（全部谱面与随机推荐共用）
+ * 布局：每 7 张一组——前 3 张一行（宽度随机组合，span 3~6，最小 25%）、后 4 张一行（span 3 等宽）
+ */
+// 3 卡行的随机宽度组合（每行和 = 12 列）
+const THREE_CARD_ROWS: number[][] = [
+  [4, 4, 4],
+  [5, 4, 3],
+  [6, 3, 3],
+  [3, 5, 4],
+  [4, 3, 5],
+  [3, 6, 3],
+  [5, 3, 4],
+  [3, 4, 5],
+];
+
+// Tailwind 需要静态类名
+const COL_CLASS: Record<number, string> = {
+  3: "col-span-12 md:col-span-3",
+  4: "col-span-12 md:col-span-4",
+  5: "col-span-12 md:col-span-5",
+  6: "col-span-12 md:col-span-6",
+};
+
+/** 按索引确定每张卡的列跨度（确定性伪随机） */
+function spanOf(index: number): number {
+  const group = Math.floor(index / 7);
+  const pos = index % 7;
+  if (pos < 3) {
+    const combo = THREE_CARD_ROWS[group % THREE_CARD_ROWS.length];
+    return combo[pos];
+  }
+  return 3; // 4 卡行：3/3/3/3 等宽
+}
+
+function SongMosaicCard({ song, index, page = 0 }: { song: Song; index: number; page?: number }) {
+  const colClass = COL_CLASS[spanOf(index)];
+  const aspect = "aspect-[8/3]";
+
+  return (
+    <motion.div
+      className={colClass}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.45, delay: (index % 5) * 0.05, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      <Link
+        to={"/song?id=" + song.id}
+        className="group block no-underline"
+        onClick={() => {
+          localStorage.setItem("lastclickid", song.id);
+          localStorage.setItem("lastclickpage", page.toString());
+        }}
+      >
+        {/* 直角大图 + hover 叠加符号（mix-blend 反色） */}
+        <div className={`relative overflow-hidden ${aspect}`}>
+          <img
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+            src={endpoints.maichart.image(song.id)}
+            alt={stripTmpTags(song.title)}
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="text-5xl md:text-6xl font-light text-white mix-blend-difference select-none">
+              +
+            </span>
+          </div>
+          {/* 难度徽章（叠加在图片右上角，无圆角无间距） */}
+          <div className="absolute top-3 right-3 z-10 flex flex-wrap items-center max-w-[60%]">
+            <Levels levels={song.levels} songid={song.id} isPlayer={false} />
+          </div>
+          {/* 下载按钮（透明背景） */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              downloadSong({ id: song.id, title: stripTmpTags(song.title), toast });
+            }}
+            className="absolute bottom-3 right-3 z-10 flex items-center justify-center rounded-full w-12 h-12 text-white cursor-pointer transition-all duration-150 hover:text-primary hover:bg-white/15"
+            aria-label="download"
+          >
+            <Download size={20} />
+          </button>
+        </div>
+
+        {/* 信息区：标题 + 分类 + 互动 */}
+        <div className="flex items-start justify-between gap-3 mt-3">
+          <h3 className="m-0 font-semibold text-ink text-base md:text-lg truncate leading-snug">
+            {stripTmpTags(song.title)}
+          </h3>
+          <span className="shrink-0 w-0 h-0.5 mt-2 bg-primary transition-all duration-300 group-hover:w-8" />
+        </div>
+        <p className="m-0 mt-1 text-xs text-ink-3 truncate">
+          {song.artist === "" || song.artist == null ? "-" : song.artist} · {song.uploader}
+        </p>
+        <div className="mt-3">
+          <InteractCount songid={song.id} />
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+/**
+ * 全部谱面网格（与随机推荐统一为马赛克样式，仅用于主页「全部谱面」Tab）
+ */
+function SongGrid({ url, page, setMax }: { url: string; page: number; setMax: (n: number) => void }) {
+  const loc = useLoc();
+
+  const fetcher = (u: string) =>
+    fetch(u, { mode: "cors", credentials: "include" }).then((res) => res.json());
+
+  const { data, error, isLoading } = useSWR<Song[]>(url, fetcher, {
+    revalidateOnFocus: false,
+  });
+
+  if (error) {
+    return (
+      <div className="m-auto w-full py-16 text-center text-ink-2 text-lg">
+        {loc("ServerError", "服务器错误")}
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20 w-full">
+        <LoadingSpinner size="50px" />
+      </div>
+    );
+  }
+
+  if (data && data.length < 30 && data.length > 0) {
+    setMax(page);
+  }
+
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return (
+      <div className="m-auto w-full py-16 text-center text-ink-2 text-lg">
+        {loc("EmptyData", "暂无数据")}
+      </div>
+    );
+  }
+
+  return (
+    <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+      {data.map((song, index) => (
+        <SongMosaicCard key={song.id} song={song} index={index} page={page} />
       ))}
     </div>
   );
@@ -786,11 +769,11 @@ function IntegratedDownloadTypeSelector() {
   const [currentType, setCurrentType] = useState(() => {
     return localStorage.getItem("DownloadType") || "zip";
   });
-  const [setJustChanged] = useState(false);
+  const [, setJustChanged] = useState(false);
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="flex bg-gray-100 rounded-full p-0.5">
+      <div className="flex bg-surface-2 border border-line rounded-full p-1">
         <button
           onClick={() => {
             localStorage.setItem("DownloadType", "zip");
@@ -798,10 +781,10 @@ function IntegratedDownloadTypeSelector() {
             setJustChanged(true);
             setTimeout(() => setJustChanged(false), 2000);
           }}
-          className={`px-3 md:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+          className={`px-4 md:px-5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-150 cursor-pointer ${
             currentType === "zip"
-              ? "bg-white text-[#5C8DC1] shadow-sm"
-              : "text-gray-500 hover:text-gray-700"
+              ? "bg-surface text-primary border border-line shadow-none"
+              : "text-ink-3 hover:text-ink-2 border border-transparent"
           }`}
         >
           ZIP
@@ -813,10 +796,10 @@ function IntegratedDownloadTypeSelector() {
             setJustChanged(true);
             setTimeout(() => setJustChanged(false), 2000);
           }}
-          className={`px-3 md:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+          className={`px-4 md:px-5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-150 cursor-pointer ${
             currentType === "adx"
-              ? "bg-white text-[#5C8DC1] shadow-sm"
-              : "text-gray-500 hover:text-gray-700"
+              ? "bg-surface text-primary border border-line shadow-none"
+              : "text-ink-3 hover:text-ink-2 border border-transparent"
           }`}
         >
           ADX

@@ -44,8 +44,8 @@ const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
 
     return (
       <motion.div
-        className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] mt-2 w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-gray-500 overflow-hidden cursor-pointer select-none ${newClassName}`}
-        whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
+        className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] mt-2 w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-line-strong overflow-hidden cursor-pointer select-none ${newClassName}`}
+        whileHover={{ scale: 1.1 }}
         transition={{ duration: 0.125, ease: 'easeInOut' }}
       >
         <TagManageButton
@@ -77,9 +77,9 @@ export function TagManageTagLauncher({ onClick }: TagManageTagLauncherProps) {
 const TagManageButton = forwardRef<HTMLDivElement, TagManageButtonProps>(
   function TagManageButton({ onClick, newClassName }, ref) {
     return (
-      <div ref={ref} onClick={onClick} className={`fill-white stroke-white w-full h-full p-0.75 ${newClassName || ''}`}>
+      <div ref={ref} onClick={onClick} className={`fill-ink stroke-ink w-full h-full p-0.75 ${newClassName || ''}`}>
         <svg
-          className="fill-white stroke-white w-full h-full"
+          className="fill-ink stroke-ink w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
           height="24"
           viewBox="-20 -20 512 512"
@@ -98,7 +98,7 @@ const TagManageTag = forwardRef<HTMLButtonElement, TagManageTagProps>(
       <motion.button
         ref={ref}
         onMouseDown={onClick}
-        className="bg-green-600 hover:bg-green-500 px-2.5 py-0.75 rounded-xl text-white text-xs transition-colors duration-200 cursor-pointer"
+        className="bg-ok hover:bg-ok hover:opacity-90 px-2.5 py-0.75 rounded-lg text-white text-xs transition-colors duration-200 cursor-pointer"
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.2 }}
       >
@@ -339,19 +339,17 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
         onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: 'rgba(var(--background-start), 0.8)',
-          backdropFilter: 'blur(10px)',
+          backgroundColor: '#ffffff',
           position: 'fixed',
           left: position.x + 'px',
           top: position.y + 'px',
           width: '400px',
           minHeight: '300px',
-          textShadow: '0 0',
           borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          boxShadow: '0 8px 24px rgb(16 24 40 / 0.08)',
           zIndex: 1001,
           cursor: dragging ? 'grabbing' : 'default',
-          border: '1px solid whitesmoke',
+          border: '1px solid #e5e7eb',
           fontSize: '1rem',
         }}
       >
@@ -362,7 +360,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
           }}
           style={{
             padding: '16px',
-            borderBottom: '1px solid #eee',
+            borderBottom: '1px solid #e5e7eb',
             cursor: 'grab',
             userSelect: 'none',
           }}
@@ -371,13 +369,13 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
         </div>
         <div style={{ padding: '16px' }}>
           <div className="flex flex-wrap items-center gap-1.5 my-1">
-            <div className="min-w-12 font-semibold text-white text-sm">Tags:</div>
-            <div className="flex flex-wrap flex-1 gap-1.5 mt-1 text-white/70 text-sm text-left wrap-break-word">
+            <div className="min-w-12 font-semibold text-ink text-sm">Tags:</div>
+            <div className="flex flex-wrap flex-1 gap-1.5 mt-1 text-ink-2 text-sm text-left wrap-break-word">
               {tags && tags.length > 0 ? (
                 tags.map((tag, index) => (
                   <Tooltip content={loc('DeleteTag')} key={index}>
                     <span
-                      className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-0.75 rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
+                      className={isInPrivatePage ? 'bg-surface-2 hover:bg-surface-2 px-2.5 py-0.75 rounded-lg text-ink text-xs cursor-pointer transition-colors duration-200' : 'bg-primary-soft hover:bg-primary-soft px-2.5 py-0.75 rounded-lg text-primary text-xs cursor-pointer transition-colors duration-200'}
                       onClick={() => {
                         dispatch({ type: 'REMOVE_TAG', payload: index });
                       }}
@@ -387,7 +385,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                   </Tooltip>
                 ))
               ) : (
-                <span style={{ color: '#999', fontStyle: 'italic' }}>{loc('NoTags')}</span>
+                <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>{loc('NoTags')}</span>
               )}
             </div>
           </div>
@@ -402,7 +400,8 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                 flex: 1,
                 padding: '6px 8px',
                 borderRadius: '4px',
-                border: '1px solid #ccc',
+                border: '1px solid #d1d5db',
+                backgroundColor: '#ffffff',
               }}
             />
             <button
@@ -413,7 +412,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                   setNewTag(''); // 清空输入框
                 }
               }}
-              style={{ padding: '6px 12px' }}
+              style={{ padding: '6px 12px', border: '1px solid #e5e7eb', borderRadius: '6px', backgroundColor: '#ffffff', cursor: 'pointer' }}
             >
               {loc('AddTag')}
             </button>
@@ -435,8 +434,9 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                 style={{
                   padding: '6px 12px',
                   borderRadius: '6px',
-                  border: activeCategory === cat ? '1px solid #007bff' : '1px solid #ccc',
-                  backgroundColor: activeCategory === cat ? 'black' : 'black',
+                  border: activeCategory === cat ? '1px solid #5c8dc1' : '1px solid #e5e7eb',
+                  backgroundColor: activeCategory === cat ? '#5c8dc1' : '#ffffff',
+                  color: activeCategory === cat ? '#ffffff' : '#1f2937',
                   cursor: 'pointer',
                 }}
               >
@@ -453,7 +453,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
               .filter((tag) => !tags.includes(tag))
               .map((tag) => (
                 <span
-                  className="bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs transition-colors duration-200 cursor-pointer"
+                  className="bg-surface-2 hover:bg-surface-2 px-2.5 py-0.75 rounded-lg text-ink text-xs transition-colors duration-200 cursor-pointer"
                   key={tag}
                   onClick={() => {
                     dispatch({ type: 'ADD_TAG', payload: tag });
@@ -464,7 +464,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
               ))}
           </div>
           <br />
-          <div className="relative bg-[linear-gradient(90deg,transparent_0%,rgb(255_255_255/20%)*15%,rgb(255_255_255*/_40%)*30%,rgb(255_255_255*/_60%)*50%,rgb(255_255_255*/_40%)*70%,rgb(255_255_255*/_20%)_85%,transparent_100%)] mx-auto my-8 max-[480px]:my-5 max-[768px]:my-6 border-0 w-[70%] max-[480px]:w-[90%] max-[768px]:w-[80%] h-px" />
+          <div className="bg-line mx-auto my-8 max-[480px]:my-5 max-[768px]:my-6 border-0 w-[70%] max-[480px]:w-[90%] max-[768px]:w-[80%] h-px" />
           <div
             style={{
               display: 'flex',
@@ -475,8 +475,10 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
             <button
               style={{
                 padding: '6px 12px',
-                border: '1px solid whitesmoke',
+                border: '1px solid #e5e7eb',
                 borderRadius: '5px',
+                backgroundColor: '#ffffff',
+                cursor: 'pointer',
               }}
               onClick={uploadTags}
             >

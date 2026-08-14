@@ -73,7 +73,7 @@ const CollectionCardContent = memo(
     return (
       <div className="relative">
         <div
-          className={`flex bg-[rgba(20,20,25,0.8)] shadow-lg hover:shadow-xl border rounded-xl w-full h-35 overflow-hidden transition-all ${isManaging ? "cursor-default border-red-500/30" : "cursor-pointer border-white/10 hover:-translate-y-1"}`}
+          className={`flex hover:shadow-card-hover rounded-xl w-full h-35 overflow-hidden transition-all ${isManaging ? "cursor-default" : "cursor-pointer hover:-translate-y-1"}`}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => {
             setIsHovered(false);
@@ -85,7 +85,7 @@ const CollectionCardContent = memo(
           }}
         >
           {/* Left side: Cover */}
-          <div className="relative bg-black/40 w-35 h-35 shrink-0">
+          <div className="relative bg-surface-2 w-35 h-35 shrink-0">
             {isLoading ? (
               <div className="flex justify-center items-center w-full h-full">
                 <LoadingSpinner size="30px" />
@@ -93,7 +93,7 @@ const CollectionCardContent = memo(
             ) : data && data.items && data.items.length > 0 ? (
               <CoverPic id={data.items[currentCoverIndex].id} />
             ) : (
-              <div className="flex flex-col justify-center items-center bg-black/60 w-full h-full text-white/50 text-xs">
+              <div className="flex flex-col justify-center items-center bg-surface-2 w-full h-full text-ink-3 text-xs">
                 <span>{loc("NoCover", "无封面")}</span>
               </div>
             )}
@@ -102,21 +102,21 @@ const CollectionCardContent = memo(
           {/* Right side: Info */}
           <div className="flex flex-col flex-1 p-3 overflow-hidden text-sm">
             <div
-              className="font-bold text-white text-lg truncate"
+              className="font-bold text-ink text-lg truncate"
               title={collection.name}
             >
               {collection.name}
             </div>
             <div
-              className="flex-1 mt-1 text-gray-400 line-clamp-2"
+              className="flex-1 mt-1 text-ink-2 line-clamp-2"
               title={collection.description || ""}
             >
               {collection.description || loc("NoDescription", "暂无描述")}
             </div>
-            <div className="mt-1 text-gray-500 truncate">
+            <div className="mt-1 text-ink-3 truncate">
               {loc("CreatorLabel", "创建者")}: {collection.createdBy}
             </div>
-            <div className="mt-1 text-gray-500 truncate">
+            <div className="mt-1 text-ink-3 truncate">
               {loc("CountLabel", "数量")}: {collection.count}
             </div>
           </div>
@@ -134,10 +134,10 @@ const CollectionCardContent = memo(
               toggleFavorite(collection.id);
             }}
             disabled={isFavoriteLoading}
-            className={`absolute top-2 right-2 z-10 flex justify-center items-center border-none rounded-full w-7 h-7 text-sm cursor-pointer shadow-lg backdrop-blur-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`absolute top-2 right-2 z-10 flex justify-center items-center border rounded-full w-7 h-7 text-sm cursor-pointer shadow-card transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
               isFavorited
-                ? "bg-pink-500/70 hover:bg-pink-500 text-white"
-                : "bg-black/30 hover:bg-black/50 text-white/60 hover:text-white"
+                ? "bg-pink-500 hover:bg-pink-600 border-pink-500 text-white"
+                : "bg-surface border-line text-ink-3 hover:text-pink-500 hover:border-pink-400"
             }`}
             title={
               isFavorited
@@ -192,7 +192,7 @@ const CollectionCardContent = memo(
                 e.stopPropagation();
                 setConfirmDelete(true);
               }}
-              className="top-2 right-2 z-10 absolute flex justify-center items-center bg-red-500/70 hover:bg-red-500 shadow-lg backdrop-blur-sm border-none rounded-full w-7 h-7 text-white text-sm transition-colors cursor-pointer"
+              className="top-2 right-2 z-10 absolute flex justify-center items-center bg-danger hover:bg-danger shadow-card border-none rounded-full w-7 h-7 text-white text-sm transition-colors cursor-pointer"
               title={loc("Delete", "删除")}
             >
               <svg
@@ -224,9 +224,9 @@ const CollectionCardContent = memo(
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/75 backdrop-blur-sm rounded-xl"
+              className="z-20 absolute inset-0 flex flex-col justify-center items-center bg-surface border border-line rounded-xl"
             >
-              <p className="mb-3 font-medium text-white text-sm">
+              <p className="mb-3 font-medium text-ink text-sm">
                 {loc("ConfirmDeleteCollection", "确认删除此歌单？")}
               </p>
               <div className="flex gap-2">
@@ -236,7 +236,7 @@ const CollectionCardContent = memo(
                     handleDelete();
                   }}
                   disabled={isDeleting}
-                  className="bg-red-500/80 hover:bg-red-500 disabled:opacity-50 px-4 py-1.5 border-none rounded-lg font-medium text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+                  className="bg-danger hover:bg-danger disabled:opacity-50 px-4 py-1.5 border-none rounded-md font-medium text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
                 >
                   {isDeleting ? "..." : loc("Confirm", "确认")}
                 </button>
@@ -246,7 +246,7 @@ const CollectionCardContent = memo(
                     setConfirmDelete(false);
                   }}
                   disabled={isDeleting}
-                  className="bg-white/10 hover:bg-white/20 px-4 py-1.5 border-none rounded-lg text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+                  className="bg-surface border border-line hover:border-primary px-4 py-1.5 rounded-md text-ink-2 hover:text-primary text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
                 >
                   {loc("Cancel", "取消")}
                 </button>

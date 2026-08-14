@@ -60,7 +60,7 @@ export default function Tooltip({
                 className={
                   plain
                     ? 'z-9999 origin-(--radix-tooltip-content-transform-origin)'
-                    : 'bg-black/85 backdrop-blur-sm px-3 py-1.5 rounded-lg text-white text-sm shadow-lg z-9999 origin-(--radix-tooltip-content-transform-origin)'
+                    : 'bg-[#1f2937] px-3 py-1.5 rounded-lg text-white text-sm z-9999 origin-(--radix-tooltip-content-transform-origin)'
                 }
               >
                 {content}

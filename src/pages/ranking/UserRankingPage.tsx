@@ -16,7 +16,7 @@ export default function UserRankingPage() {
   if (!ready) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner className="border-white border-b-2 rounded-full w-12 h-12" />
+        <LoadingSpinner className="w-12 h-12" />
       </div>
     );
   }
@@ -25,37 +25,19 @@ export default function UserRankingPage() {
     <PageLayout className="pb-8">
       {/* 页面标题和说明 */}
       <div className="mt-8 mb-8 text-center">
-        <h1
-          className="mb-4 font-bold text-white text-4xl"
-          style={{
-            textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-          }}
-        >
+        <h1 className="mb-4 font-bold text-ink text-[2rem]">
           {loc('UserRankingTitle', '用户排行榜')}
         </h1>
-        <p
-          className="mx-auto mt-4 max-w-2xl text-white/80 text-xl leading-relaxed"
-          style={{
-            textShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
-          }}
-        >
+        <p className="mt-4 max-w-2xl text-ink-2 text-lg leading-relaxed">
           {loc('UserRankingDescription', '这里展示所有用户的总分排名')}
         </p>
       </div>
 
       {/* 排名列表 */}
-      <div
-        className="mx-auto px-4 max-w-7xl"
-        style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '16px',
-          padding: '2rem',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-        }}
-      >
-        <ScoreCount uploader="" page={0} pageSize={100} />
+      <div className="px-4">
+        <div className="rounded-xl p-5 md:p-8">
+          <ScoreCount uploader="" page={0} pageSize={100} />
+        </div>
       </div>
     </PageLayout>
   );

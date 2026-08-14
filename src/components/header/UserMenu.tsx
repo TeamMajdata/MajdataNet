@@ -19,7 +19,7 @@ interface UserMenuProps {
 }
 
 /**
- * 用户下拉菜单组件
+ * 用户下拉菜单组件（v4：白底扁平面板）
  */
 export default function UserMenu({ username }: UserMenuProps) {
   const loc = useLoc();
@@ -43,14 +43,13 @@ export default function UserMenu({ username }: UserMenuProps) {
   return (
     <div className="relative" ref={containerRef}>
       <button
-        className="cursor-pointer border-none bg-none p-0 transition-transform hover:scale-110 active:scale-95"
+        className="cursor-pointer border-none bg-none p-0 transition-transform hover:scale-105 active:scale-95"
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={username}
       >
         <img
-          className={`w-9 h-9 rounded-full object-cover ring-2 ring-offset-1 transition-all ${
-            isOpen
-              ? "ring-[#5C8DC1] ring-offset-[#5C8DC1]/15"
-              : "ring-black/10 ring-offset-transparent hover:ring-[#5C8DC1]/50"
+          className={`w-9 h-9 rounded-full object-cover border transition-all ${
+            isOpen ? "border-primary" : "border-line hover:border-primary"
           }`}
           src={endpoints.account.icon(username)}
           alt={username}
@@ -60,55 +59,46 @@ export default function UserMenu({ username }: UserMenuProps) {
       <Dropdown
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        variant="auto"
-        className="w-full"
+        variant="user"
+        className="w-56"
         containerRef={containerRef}
       >
-        <div className="hidden xl:flex flex-row items-end gap-1 absolute bottom-4 left-4">
-          <img
-            className="w-20 h-20 rounded-full object-cover ring-2 ring-white border-4 border-[#5C8DC1]"
-            src={endpoints.account.icon(username)}
-            alt={username}
-          />
-          <span className="font-semibold text-white text-6xl">{username}</span>
+        <div className="flex flex-col p-1.5 gap-0.5">
+          {/* 用户信息头部 */}
+          <div className="flex items-center gap-3 px-3 py-3 mb-1">
+            <img
+              className="w-10 h-10 rounded-full object-cover border border-line"
+              src={endpoints.account.icon(username)}
+              alt={username}
+            />
+            <span className="font-semibold text-ink truncate">{username}</span>
+          </div>
+          <Link to={`/space?id=${username}`} className={DESKTOP_DROPDOWN_ITEM}>
+            <User className="w-4 h-4" />
+            <span>{loc("PersonalHomePage")}</span>
+          </Link>
+          <Link to="/user/scores" className={DESKTOP_DROPDOWN_ITEM}>
+            <BarChart3 className="w-4 h-4" />
+            <span>{loc("PersonalScores")}</span>
+          </Link>
+          <Link to="/user/charts" className={DESKTOP_DROPDOWN_ITEM}>
+            <Music className="w-4 h-4" />
+            <span>{loc("ChartsManagement")}</span>
+          </Link>
+          <Link to="/user/collections" className={DESKTOP_DROPDOWN_ITEM}>
+            <FolderHeart className="w-4 h-4" />
+            <span>{loc("MyCollections", "我的歌单")}</span>
+          </Link>
+          <Link to="/user/profile" className={DESKTOP_DROPDOWN_ITEM}>
+            <Settings className="w-4 h-4" />
+            <span>{loc("AccountSetting")}</span>
+          </Link>
+          <div className={DIVIDER}></div>
+          <button onClick={handleLogout} className={DESKTOP_DROPDOWN_ITEM}>
+            <LogOut className="w-4 h-4 text-danger" />
+            <span className="text-danger">{loc("Logout")}</span>
+          </button>
         </div>
-        <Link to={`/space?id=${username}`} className={DESKTOP_DROPDOWN_ITEM}>
-          <User className="w-8 h-8 text-white" />
-          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
-            {loc("PersonalHomePage")}
-          </span>
-        </Link>
-        <Link to="/user/scores" className={DESKTOP_DROPDOWN_ITEM}>
-          <BarChart3 className="w-8 h-8 text-white" />
-          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
-            {loc("PersonalScores")}
-          </span>
-        </Link>
-        <Link to="/user/charts" className={DESKTOP_DROPDOWN_ITEM}>
-          <Music className="w-8 h-8 text-white" />
-          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
-            {loc("ChartsManagement")}
-          </span>
-        </Link>
-        <Link to="/user/collections" className={DESKTOP_DROPDOWN_ITEM}>
-          <FolderHeart className="w-8 h-8 text-white" />
-          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
-            {loc("MyCollections", "我的歌单")}
-          </span>
-        </Link>
-        <Link to="/user/profile" className={DESKTOP_DROPDOWN_ITEM}>
-          <Settings className="w-8 h-8 text-white" />
-          <span className="text-2xl font-black text-white/50 group-hover:text-white [-webkit-text-stroke:0.4px_rgba(255,255,255,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
-            {loc("AccountSetting")}
-          </span>
-        </Link>
-        <div className={DIVIDER}></div>
-        <button onClick={handleLogout} className={DESKTOP_DROPDOWN_ITEM}>
-          <LogOut className="w-8 h-8 text-red-300" />
-          <span className="text-2xl font-black text-red-300/50 group-hover:text-red-300 [-webkit-text-stroke:0.4px_rgba(252,165,165,0.5)] group-hover:[-webkit-text-stroke:0] transition-all duration-300">
-            {loc("Logout")}
-          </span>
-        </button>
       </Dropdown>
     </div>
   );

@@ -60,15 +60,15 @@ export default function SongDifficultyLevels({
     "UTAGE",
   ];
 
-  // 难度渐变背景映射（清新亮色）
-  const levelGradients = [
-    "linear-gradient(90deg, rgb(147 197 253 / 50%), rgb(191 219 254 / 30%))",
-    "linear-gradient(90deg, rgb(134 239 172 / 50%), rgb(187 247 208 / 30%))",
-    "linear-gradient(90deg, rgb(253 224 71 / 50%), rgb(254 240 138 / 30%))",
-    "linear-gradient(90deg, rgb(252 165 165 / 50%), rgb(254 202 202 / 30%))",
-    "linear-gradient(90deg, rgb(196 181 253 / 50%), rgb(221 214 254 / 30%))",
-    "linear-gradient(90deg, rgb(244 168 222 / 50%), rgb(249 199 239 / 30%))",
-    "linear-gradient(90deg, rgb(199 210 254 / 50%), rgb(224 231 255 / 30%))",
+  // 难度背景映射（清新亮色，扁平）
+  const levelBackgrounds = [
+    "rgb(191 219 254 / 55%)",
+    "rgb(187 247 208 / 55%)",
+    "rgb(254 240 138 / 55%)",
+    "rgb(254 202 202 / 55%)",
+    "rgb(221 214 254 / 55%)",
+    "rgb(249 199 239 / 55%)",
+    "rgb(224 231 255 / 55%)",
   ];
 
   return (
@@ -81,18 +81,18 @@ export default function SongDifficultyLevels({
             key={index}
             className={`flex flex-row items-center justify-between gap-3 px-4 py-2 rounded-full w-40 shrink-0 transition-all duration-200 ease-out min-h-10 ${
               isPlayer
-                ? "cursor-pointer hover:translate-x-1 hover:shadow-lg"
+                ? "cursor-pointer hover:translate-x-1 hover:shadow-card"
                 : ""
             }`}
-            style={{ background: levelGradients[index] }}
+            style={{ background: levelBackgrounds[index] }}
             id={`lv${index}`}
             onClick={levelClickCallback}
             title={`${levelNames[index]} ${level}`}
           >
-            <span className="flex-1 font-semibold text-gray-700 text-xs uppercase tracking-wide">
+            <span className="flex-1 font-semibold text-ink-2 text-xs uppercase tracking-wide">
               {levelNames[index]}
             </span>
-            <span className="min-w-8 font-bold text-gray-800 text-2xl text-right">
+            <span className="min-w-8 font-bold text-ink text-2xl text-right">
               {renderLevel(level)}
             </span>
           </div>

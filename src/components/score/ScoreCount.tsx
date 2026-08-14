@@ -28,7 +28,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
 
   if (isLoading) {
     return <div className="flex justify-center items-center min-h-20">
-      <LoadingSpinner className="border-white border-b-2 rounded-full w-8 h-8" />
+      <LoadingSpinner className="w-8 h-8" />
     </div>;
   }
 
@@ -76,41 +76,22 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
         className="block text-inherit no-underline"
       >
         <div
-          className="relative p-3 h-full transition-all duration-300 ease-out"
-          style={{
-            background: 'var(--glassmorphism-bg-secondary)',
-            backdropFilter: 'var(--glassmorphism-backdrop)',
-            border: isFirst ? '2px solid rgba(255, 215, 0, 0.5)' : 'var(--glassmorphism-border)',
-            borderRadius: 'var(--glassmorphism-border-radius)',
-            boxShadow: isFirst
-              ? '0 4px 20px rgba(255, 215, 0, 0.3), var(--glassmorphism-shadow)'
-              : 'var(--glassmorphism-shadow)',
-          }}
+          className={`relative p-3 h-full rounded-lg transition-all duration-300 ease-out ${isFirst ? 'border-2 border-warn/50' : ''}`}
           onMouseEnter={(e) => {
             const el = e.currentTarget as HTMLElement;
             el.style.transform = 'translateY(-4px) scale(1.02)';
-            el.style.boxShadow = isFirst
-              ? '0 8px 30px rgba(255, 215, 0, 0.4), 0 4px 12px rgb(0 0 0 / 20%)'
-              : '0 8px 25px rgb(0 0 0 / 30%), 0 4px 12px rgb(0 0 0 / 20%)';
+            el.style.boxShadow = '0 8px 24px rgb(16 24 40 / 0.08)';
           }}
           onMouseLeave={(e) => {
             const el = e.currentTarget as HTMLElement;
             el.style.transform = 'translateY(0) scale(1)';
-            el.style.boxShadow = isFirst
-              ? '0 4px 20px rgba(255, 215, 0, 0.3), var(--glassmorphism-shadow)'
-              : 'var(--glassmorphism-shadow)';
+            el.style.boxShadow = '0 1px 2px rgb(16 24 40 / 0.05)';
           }}
         >
           {/* 第一名标记 */}
           {isFirst && (
             <div
-              className="top-2 right-2 absolute px-2 py-1 rounded font-bold text-sm"
-              style={{
-                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-                color: '#000',
-                textShadow: '0 1px 2px rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 2px 8px rgba(255, 215, 0, 0.5)',
-              }}
+              className="top-2 right-2 absolute px-2 py-1 rounded font-bold text-sm bg-warn text-white"
             >
               1st
             </div>
@@ -119,9 +100,8 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
           {/* 玩家头像 */}
           <div className="flex justify-center mb-2">
             <img
-              className="border-2 rounded-full w-16 h-16 object-cover transition-all duration-300"
+              className={`border-2 rounded-full w-16 h-16 object-cover transition-all duration-300 ${isFirst ? 'border-warn/60' : 'border-line'}`}
               style={{
-                borderColor: isFirst ? 'rgba(255, 215, 0, 0.6)' : 'rgb(255 255 255 / 20%)',
                 aspectRatio: '1',
               }}
               src={endpoints.account.icon(username)}
@@ -130,42 +110,26 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
           </div>
 
           {/* 用户名 */}
-          <div
-            className="mb-2 px-1 font-semibold text-white text-sm text-center truncate"
-            style={{
-              textShadow: '0 1px 2px rgb(0 0 0 / 30%)',
-            }}
-          >
+          <div className="mb-2 px-1 font-semibold text-ink text-sm text-center truncate">
             {username}
           </div>
 
           {/* 分数 */}
-          <div
-            className="font-bold text-white text-lg text-center"
-            style={{
-              textShadow: '0 1px 2px rgb(0 0 0 / 30%)',
-              color: isFirst ? '#FFD700' : 'white',
-            }}
-          >
+          <div className={`font-bold text-lg text-center ${isFirst ? 'text-warn' : 'text-ink'}`}>
             {scoresum.toFixed(4)}%
           </div>
 
           {/* 进度条 */}
           <div
-            className="mt-2 rounded-full overflow-hidden"
+            className="mt-2 rounded-full overflow-hidden bg-surface-2"
             style={{
               height: '4px',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
             }}
           >
             <div
+              className={`h-full transition-all duration-300 ${isFirst ? 'bg-warn' : 'bg-primary'}`}
               style={{
                 width: `${percentage}%`,
-                height: '100%',
-                background: isFirst
-                  ? 'linear-gradient(90deg, #FFD700 0%, #FFA500 100%)'
-                  : 'rgba(255, 255, 255, 0.5)',
-                transition: 'width 0.3s ease',
               }}
             />
           </div>

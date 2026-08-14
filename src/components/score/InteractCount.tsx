@@ -36,9 +36,9 @@ export default function InteractCount({ songid }: InteractCountProps) {
   return (
     <div className="flex items-center gap-2.5">
       {/* 播放次数 */}
-      <div className="flex items-center gap-0.5 text-[#5C8DC1]">
+      <div className="flex items-center gap-0.5 text-primary">
         <Play size={12} />
-        <span className="text-[0.75rem] text-gray-500 font-medium">
+        <span className="text-[0.75rem] text-ink-3 font-medium">
           {playcount}
         </span>
       </div>
@@ -47,10 +47,10 @@ export default function InteractCount({ songid }: InteractCountProps) {
       <div className="flex items-center gap-0.5">
         <ThumbsUp
           size={12}
-          className={likeHighlight ? "text-yellow-500" : "text-[#5C8DC1]"}
+          className={likeHighlight ? "text-warn" : "text-primary"}
         />
         <span
-          className={`text-[0.75rem] font-medium ${likeHighlight ? "text-yellow-600" : "text-gray-500"}`}
+          className={`text-[0.75rem] font-medium ${likeHighlight ? "text-warn" : "text-ink-3"}`}
         >
           {likecount}
         </span>
@@ -60,10 +60,10 @@ export default function InteractCount({ songid }: InteractCountProps) {
       <div className="flex items-center gap-0.5">
         <MessageCircle
           size={12}
-          className={commentHighlight ? "text-yellow-500" : "text-[#5C8DC1]"}
+          className={commentHighlight ? "text-warn" : "text-primary"}
         />
         <span
-          className={`text-[0.75rem] font-medium ${commentHighlight ? "text-yellow-600" : "text-gray-500"}`}
+          className={`text-[0.75rem] font-medium ${commentHighlight ? "text-warn" : "text-ink-3"}`}
         >
           {commentcount}
         </span>

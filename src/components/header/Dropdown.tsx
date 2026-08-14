@@ -20,23 +20,24 @@ type VariantStyle = {
 };
 
 const variantStyles: Record<string, VariantStyle> = {
+  // v4：桌面下拉统一为白底弹出面板
   desktop: {
-    position: "fixed left-0 top-0 bottom-0 z-1001",
-    open: "translate-x-0",
-    closed: "-translate-x-full",
-    base: "bg-[#5C8DC1] !w-64 h-full transition-transform duration-300 ease-out flex flex-col items-center justify-center",
+    position: "absolute left-0 top-full mt-2 z-1001 w-full",
+    open: "opacity-100 translate-y-0",
+    closed: "opacity-0 -translate-y-1",
+    base: "bg-surface shadow-card border border-line rounded-lg min-w-48 transition-all duration-150 ease-out origin-top",
   },
   mobile: {
     position: "absolute right-0 top-full mt-2 z-1001",
     open: "opacity-100 scale-100",
     closed: "opacity-0 scale-95",
-    base: "bg-white shadow-lg border border-gray-200 rounded-xl min-w-48 transition-all duration-200 ease-out origin-bottom-right",
+    base: "bg-surface shadow-card border border-line rounded-lg min-w-48 transition-all duration-150 ease-out origin-top-right",
   },
   user: {
-    position: "absolute right-0 bottom-full mb-2 z-1001",
+    position: "absolute right-0 top-full mt-2 z-1001",
     open: "opacity-100 scale-100",
     closed: "opacity-0 scale-95",
-    base: "bg-white shadow-lg border border-gray-200 rounded-xl min-w-48 transition-all duration-200 ease-out origin-bottom-left",
+    base: "bg-surface shadow-card border border-line rounded-lg min-w-48 transition-all duration-150 ease-out origin-top-right",
   },
 };
 
@@ -48,8 +49,7 @@ function getStyle(variant: string, isDesktop: boolean): VariantStyle {
 }
 
 /**
- * 通用下拉菜单组件
- * 桌面端显示为侧边滑出面板，移动端为弹出菜单
+ * 通用下拉菜单组件（v4：白底扁平面板，无毛玻璃 / 无滑出装饰）
  */
 export default function Dropdown({
   isOpen,
@@ -80,7 +80,7 @@ export default function Dropdown({
       });
     } else {
       setAnimateIn(false);
-      const timer = setTimeout(() => setRender(false), 300);
+      const timer = setTimeout(() => setRender(false), 200);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -117,16 +117,6 @@ export default function Dropdown({
         animateIn ? style.open : style.closed
       } ${className}`}
     >
-      {resolved === "desktop" && (
-        <svg
-          className="absolute -right-20 top-0 h-full pointer-events-none"
-          viewBox="0 0 100 1024"
-          preserveAspectRatio="none"
-          width="80"
-        >
-          <path d="M0 0L99.5 1024L0 1024L0 0Z" fill="#5C8DC1" opacity="1" />
-        </svg>
-      )}
       {children}
     </div>
   );

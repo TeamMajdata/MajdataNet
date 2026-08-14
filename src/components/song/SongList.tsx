@@ -1,7 +1,7 @@
 /**
- * SongList 组件 - 歌曲列表
- * 迁移自 legacy/src/app/widgets/SongList.jsx
- */
+* SongList 组件 - 歌曲列表
+* 迁移自 legacy/src/app/widgets/SongList.jsx
+*/
 
 import useSWR from 'swr';
 import { useLoc } from '@/hooks';
@@ -39,7 +39,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
   }
 
   return (
-    <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+<div className="justify-center gap-5 grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] w-full">
       {data.map((song, index) => (
         <SongCard
           key={song.id}

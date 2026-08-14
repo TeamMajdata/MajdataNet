@@ -12,7 +12,7 @@ export default function UserInfo() {
 
   if (error || !user?.username) {
     return (
-      <div className="hover:bg-[rgb(46,46,46)] hover:shadow-[2px_2px_5px_gray] m-[10px] p-[5px] border border-transparent hover:border-[whitesmoke] rounded-[10px] text-[gainsboro] hover:text-white transition-all duration-200">
+      <div className="hover:bg-surface-2 m-[10px] p-[5px] border border-transparent hover:border-line rounded-[10px] text-ink-2 hover:text-ink transition-colors duration-200">
         <Link to="/login">{loc('Login')}</Link>
       </div>
     );
@@ -20,14 +20,14 @@ export default function UserInfo() {
 
   if (isLoading) {
     return (
-      <div className="hover:bg-[rgb(46,46,46)] hover:shadow-[2px_2px_5px_gray] m-[10px] p-[5px] border border-transparent hover:border-[whitesmoke] rounded-[10px] text-[gainsboro] hover:text-white transition-all duration-200">
+      <div className="hover:bg-surface-2 m-[10px] p-[5px] border border-transparent hover:border-line rounded-[10px] text-ink-2 hover:text-ink transition-colors duration-200">
         <Link to="/login">...</Link>
       </div>
     );
   }
 
   return (
-    <div className="hover:bg-[rgb(46,46,46)] hover:shadow-[2px_2px_5px_gray] m-[10px] p-[5px] border border-transparent hover:border-[whitesmoke] rounded-[10px] text-[gainsboro] hover:text-white transition-all duration-200">
+    <div className="hover:bg-surface-2 m-[10px] p-[5px] border border-transparent hover:border-line rounded-[10px] text-ink-2 hover:text-ink transition-colors duration-200">
       <Link to="/user">
         <img
           className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"

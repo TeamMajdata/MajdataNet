@@ -25,7 +25,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
     return <div>..?</div>;
   }
   if (isLoading) {
-    return <div className="flex justify-center items-center py-8"><LoadingSpinner className="border-4 border-white/30 border-t-white rounded-full w-8 h-8" /></div>;
+    return <div className="flex justify-center items-center py-8"><LoadingSpinner className="border-4 border-line border-t-primary rounded-full w-8 h-8" /></div>;
   }
   if (data === '' || data === undefined || data.likes === undefined || data.disLikeCount === undefined) {
     return <div>failed to load</div>;
@@ -96,18 +96,21 @@ export function LikeSender({ songid }: LikeSenderProps) {
     <div className="p-0">
       <div className="flex flex-col gap-2 p-0">
         <div className="flex justify-between items-center pt-3">
-          <h4 className="font-bold text-white/95 text-base text-left tracking-widest">{loc('LikedBy')}</h4>
+          <h4 className="font-bold text-ink text-base text-left tracking-widest">{loc('LikedBy')}</h4>
           <div className="flex items-center gap-1.5 mr-1.25 ml-1.25">
             <button
-              className="flex items-center gap-1.5 bg-white/14 hover:bg-white/20 disabled:opacity-60 hover:shadow-[0_8px_25px_rgb(0,0,0,0.25),0_2px_8px_rgb(0,0,0,0.15)] backdrop-blur-md px-2.5 py-1.5 border border-white/22 hover:border-white/35 rounded-lg font-semibold text-xs transition-all hover:-translate-y-0.5 duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 bg-surface border border-line hover:border-primary disabled:opacity-60 px-2.5 py-1.5 rounded-md font-semibold text-ink-2 text-xs transition-colors disabled:cursor-not-allowed"
               id="submitbuttonlike"
               type="button"
               onClick={() => onSubmit('like')}
               disabled={isLikeLoading || isDislikeLoading}
               style={{
                 background: data.isLiked
-                  ? 'linear-gradient(135deg, #10b981, #059669)'
+                  ? '#10b981'
                   : '',
+                color: data.isLiked
+                  ? '#ffffff'
+                  : undefined,
               }}
             >
               {isLikeLoading ? (
@@ -127,15 +130,18 @@ export function LikeSender({ songid }: LikeSenderProps) {
             </button>
 
             <button
-              className="flex items-center gap-1.5 bg-white/14 hover:bg-white/20 disabled:opacity-60 hover:shadow-[0_8px_25px_rgb(0,0,0,0.25),0_2px_8px_rgb(0,0,0,0.15)] backdrop-blur-md px-2.5 py-1.5 border border-white/22 hover:border-white/35 rounded-lg font-semibold text-xs transition-all hover:-translate-y-0.5 duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 bg-surface border border-line hover:border-danger disabled:opacity-60 px-2.5 py-1.5 rounded-md font-semibold text-ink-2 text-xs transition-colors disabled:cursor-not-allowed"
               id="submitbuttondislike"
               type="button"
               onClick={() => onSubmit('dislike')}
               disabled={isLikeLoading || isDislikeLoading}
               style={{
                 background: data.isDisLiked
-                  ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                  ? '#ef4444'
                   : '',
+                color: data.isDisLiked
+                  ? '#ffffff'
+                  : undefined,
               }}
             >
               {isDislikeLoading ? (
@@ -182,7 +188,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
                       className="inline-block relative hover:scale-110 transition-all hover:-translate-y-1"
                     >
                       <img
-                        className="hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/30 rounded-full w-8 min-w-8 h-8 min-h-8 transition-all"
+                        className="border border-line hover:border-primary rounded-full w-8 min-w-8 h-8 min-h-8 transition-all"
                         src={endpoints.account.icon(username)}
                         alt={username}
                         title={username}
@@ -199,7 +205,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
                     }}
                   >
                     <div
-                      className="flex justify-center items-center hover:shadow-[0_4px_15px_rgb(0,0,0,0.3)] border-2 border-white/20 hover:border-white/30 rounded-full w-8 min-w-8 h-8 min-h-8 font-semibold text-xs transition-all"
+                      className="flex justify-center items-center border border-line rounded-full w-8 min-w-8 h-8 min-h-8 font-semibold text-ink-2 text-xs transition-all"
                       title={`还有 ${data.likes.length - 40} 位用户点赞`}
                     >
                       +{data.likes.length - 40}
@@ -209,7 +215,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
               </>
             ) : (
               <div className="flex flex-col justify-center items-start opacity-60 p-4 text-left transition-all">
-                <p className="m-0 text-gray-400 text-sm italic">{loc('BeFirstToLike')}</p>
+                <p className="m-0 text-ink-3 text-sm italic">{loc('BeFirstToLike')}</p>
               </div>
             )}
           </motion.div>

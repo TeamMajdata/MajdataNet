@@ -268,7 +268,7 @@ export default function CollectionPage() {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{loc('InvalidParams', '参数错误')}</div>
+          <div className="text-ink text-2xl">{loc('InvalidParams', '参数错误')}</div>
         </div>
       </PageLayout>
     );
@@ -278,7 +278,7 @@ export default function CollectionPage() {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{loc('ServerError', '服务器错误')}</div>
+          <div className="text-ink text-2xl">{loc('ServerError', '服务器错误')}</div>
         </div>
       </PageLayout>
     );
@@ -298,7 +298,7 @@ export default function CollectionPage() {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{loc('CollectionNotFound', '歌单不存在')}</div>
+          <div className="text-ink text-2xl">{loc('CollectionNotFound', '歌单不存在')}</div>
         </div>
       </PageLayout>
     );
@@ -306,7 +306,7 @@ export default function CollectionPage() {
 
   return (
     <PageLayout>
-      <div className="mx-auto px-4 py-8 w-full max-w-7xl">
+      <div className="px-4 py-8 w-full">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-start">
@@ -316,10 +316,10 @@ export default function CollectionPage() {
                   type="text"
                   value={currentName}
                   onChange={(e) => setNameDraft(e.target.value)}
-                  className="bg-transparent py-1 border-white/20 focus:border-blue-500 border-b-2 outline-none w-full font-bold text-white text-3xl"
+                  className="bg-transparent py-1 border-line-strong focus:border-primary border-b-2 outline-none w-full font-bold text-ink text-3xl"
                 />
               ) : (
-                <h1 className="font-bold text-white text-3xl">{collectionData.name}</h1>
+                <h1 className="font-bold text-ink text-3xl">{collectionData.name}</h1>
               )}
               {isManaging ? (
                 <input
@@ -327,14 +327,14 @@ export default function CollectionPage() {
                   value={currentDescription}
                   onChange={(e) => setDescriptionDraft(e.target.value)}
                   placeholder={loc('DescriptionPlaceholder', '描述（可选）')}
-                  className="bg-transparent mt-2 py-1 border-white/10 focus:border-white/30 border-b outline-none w-full text-white/60 placeholder:text-white/30 text-sm"
+                  className="bg-transparent mt-2 py-1 border-line focus:border-primary border-b outline-none w-full text-ink-2 placeholder:text-ink-3 text-sm"
                 />
               ) : (
                 collectionData.description && (
-                  <p className="mt-2 text-white/60">{collectionData.description}</p>
+                  <p className="mt-2 text-ink-2">{collectionData.description}</p>
                 )
               )}
-              <div className="mt-2 text-white/40 text-sm">
+              <div className="mt-2 text-ink-3 text-sm">
                 {loc('Creator', '创建者')}: {collectionData.createdBy} · {displaySongs.length}{' '}
                 {loc('Songs', '首')} · {currentVisibility === 1 ? loc('Public', '公开') : loc('Private', '私有')}
               </div>
@@ -342,7 +342,7 @@ export default function CollectionPage() {
             {isCreator && !isManaging && (
               <button
                 onClick={() => setIsManaging(true)}
-                className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md px-4 py-2 border border-white/20 rounded-xl font-bold text-white transition-all cursor-pointer"
+                className="bg-surface hover:border-primary shadow-card px-4 py-2 border border-line rounded-lg font-semibold text-ink-2 hover:text-primary transition-colors cursor-pointer"
               >
                 {loc('Manage', '管理')}
               </button>
@@ -354,11 +354,11 @@ export default function CollectionPage() {
         {isManaging && (
           <>
             <div className="flex justify-center mb-4">
-              <div className="inline-flex bg-[rgba(20,20,25,0.7)] p-1 border border-white/10 rounded-full">
+              <div className="inline-flex bg-surface-2 p-1 border border-line rounded-full">
                 <button
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${currentVisibility === 0
-                    ? 'bg-blue-500/80 text-white'
-                    : 'text-white/80 hover:text-white'
+                    ? 'bg-primary text-white'
+                    : 'text-ink-2 hover:text-ink'
                     }`}
                   onClick={() => setVisibilityDraft(0)}
                 >
@@ -366,8 +366,8 @@ export default function CollectionPage() {
                 </button>
                 <button
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${currentVisibility === 1
-                    ? 'bg-blue-500/80 text-white'
-                    : 'text-white/80 hover:text-white'
+                    ? 'bg-primary text-white'
+                    : 'text-ink-2 hover:text-ink'
                     }`}
                   onClick={() => setVisibilityDraft(1)}
                 >
@@ -387,7 +387,7 @@ export default function CollectionPage() {
                       debouncedSearch();
                     }}
                     placeholder={loc('SearchToAdd', '搜索歌曲以添加...')}
-                    className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-6 py-3 pr-10 border-2 border-white/15 rounded-[30px] outline-none w-full text-white placeholder:text-white/60 text-sm"
+                    className="bg-surface px-6 py-3 pr-10 border border-line focus:border-primary rounded-full outline-none w-full text-ink placeholder:text-ink-3 text-sm"
                   />
                   {searchQuery && (
                     <button
@@ -396,7 +396,7 @@ export default function CollectionPage() {
                         setSearchPage(0);
                         setSearchMaxPage(999999);
                       }}
-                      className="top-1/2 right-3 absolute bg-transparent border-none text-white/60 hover:text-white/90 text-xl -translate-y-1/2 cursor-pointer"
+                      className="top-1/2 right-3 absolute bg-transparent border-none text-ink-3 hover:text-ink text-xl -translate-y-1/2 cursor-pointer"
                     >
                       ×
                     </button>
@@ -405,7 +405,7 @@ export default function CollectionPage() {
                 <select
                   value={searchSortType}
                   onChange={(e) => setSearchSortType(parseInt(e.target.value))}
-                  className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 py-1 border border-white/20 rounded-full outline-none h-10 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer shrink-0"
+                  className="bg-surface px-2 py-1 border border-line rounded-full outline-none h-10 overflow-hidden text-ink text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer shrink-0"
                 >
                   {searchSortOptions.map((label, i) => (
                     <option key={i} value={i}>{label}</option>
@@ -422,7 +422,7 @@ export default function CollectionPage() {
 
             {searchResults.length > 0 && (
               <>
-                <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+<div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] w-full">
                   {searchResults.map((song, index) => {
                     const isAdded = allExistingIds.has(song.id);
                     return (
@@ -437,9 +437,9 @@ export default function CollectionPage() {
                             else handleAddSong(song);
                           }}
                           disabled={!!addingSongId}
-                          className={`top-2 right-2 z-10 absolute flex justify-center items-center shadow-lg border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer transition-colors ${isAdded
-                            ? 'bg-red-500/80 hover:bg-red-500'
-                            : 'bg-blue-500/80 hover:bg-blue-500 disabled:bg-white/10 disabled:cursor-not-allowed'
+                          className={`top-2 right-2 z-10 absolute flex justify-center items-center shadow-card border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer transition-colors ${isAdded
+                            ? 'bg-danger hover:bg-danger'
+                            : 'bg-primary hover:bg-primary-hover disabled:bg-surface-2 disabled:cursor-not-allowed'
                             }`}
                           title={isAdded ? loc('RemoveFromCollection', '从歌单移除') : loc('Add', '添加')}
                         >
@@ -453,17 +453,17 @@ export default function CollectionPage() {
                 {/* 搜索结果分页 */}
                 <div className="flex justify-center items-center gap-3 mt-4 mb-4">
                   <button
-                    className={`px-4 py-1.5 bg-blue-500/80 border-none rounded-lg text-white text-sm cursor-pointer ${searchPage <= 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+                    className={`px-4 py-1.5 border-none rounded-md text-sm cursor-pointer ${searchPage <= 0 ? 'bg-surface-2 text-ink-3 cursor-not-allowed opacity-60' : 'bg-primary text-white'}`}
                     disabled={searchPage <= 0}
                     onClick={() => setSearchPage((p) => p - 1)}
                   >
                     ←
                   </button>
-                  <span className="text-white/60 text-sm">
+                  <span className="text-ink-2 text-sm">
                     {searchPage + 1}
                   </span>
                   <button
-                    className={`px-4 py-1.5 bg-blue-500/80 border-none rounded-lg text-white text-sm cursor-pointer ${searchPage >= searchMaxPage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+                    className={`px-4 py-1.5 border-none rounded-md text-sm cursor-pointer ${searchPage >= searchMaxPage ? 'bg-surface-2 text-ink-3 cursor-not-allowed opacity-60' : 'bg-primary text-white'}`}
                     disabled={searchPage >= searchMaxPage}
                     onClick={() => setSearchPage((p) => p + 1)}
                   >
@@ -476,15 +476,15 @@ export default function CollectionPage() {
         )}
 
         {/* 分割线 */}
-        <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mb-6 h-px" />
+        <div className="bg-line mb-6 h-px" />
 
         {/* 歌曲网格 */}
         {displaySongs.length === 0 ? (
-          <div className="py-20 text-white/60 text-xl text-center">
+          <div className="py-20 text-ink-2 text-xl text-center">
             {loc('EmptyCollection', '歌单为空')}
           </div>
         ) : (
-          <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+<div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] w-full">
             {displaySongs.map((song, index) => (
               <div key={song.id} className="relative">
                 <SongCard song={song} index={index} disableLink={isManaging} />
@@ -496,7 +496,7 @@ export default function CollectionPage() {
                       e.stopPropagation();
                       handleRemoveSong(song.id);
                     }}
-                    className="top-2 right-2 z-10 absolute flex justify-center items-center bg-red-500/80 hover:bg-red-500 shadow-lg border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer"
+                    className="top-2 right-2 z-10 absolute flex justify-center items-center bg-danger hover:bg-danger shadow-card border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer"
                     title={loc('RemoveFromCollection', '从歌单移除')}
                   >
                     ×
@@ -512,14 +512,14 @@ export default function CollectionPage() {
           <div className="flex justify-center items-center gap-4 mt-10">
             <button
               onClick={handleCancel}
-              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md px-6 py-2.5 border border-white/20 rounded-xl font-bold text-white transition-all cursor-pointer"
+              className="bg-surface hover:border-primary shadow-card px-6 py-2.5 border border-line rounded-lg font-semibold text-ink-2 hover:text-primary transition-colors cursor-pointer"
             >
               {loc('Cancel', '取消')}
             </button>
             <button
               onClick={handleSubmit}
               disabled={!hasChanges || isSubmitting}
-              className="bg-blue-500/80 hover:bg-blue-500 disabled:bg-white/10 px-6 py-2.5 border-none rounded-xl font-bold text-white disabled:text-white/30 transition-all cursor-pointer disabled:cursor-not-allowed"
+              className="bg-primary hover:bg-primary-hover disabled:bg-surface-2 px-6 py-2.5 border-none rounded-lg font-bold text-white disabled:text-ink-3 transition-colors cursor-pointer disabled:cursor-not-allowed"
             >
               {isSubmitting ? '...' : loc('Submit', '提交')}
             </button>

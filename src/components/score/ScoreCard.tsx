@@ -67,13 +67,10 @@ function SimpleLikeButton({ songid }: { songid: string }) {
     <button
       onClick={handleLike}
       disabled={isLoading}
-      className="flex items-center gap-1.5 bg-white/10 hover:bg-white/15 disabled:opacity-60 px-2 py-1 border border-white/20 rounded-md font-semibold text-xs transition-all duration-200 disabled:cursor-not-allowed"
-      style={{
-        background: isLiked
-          ? 'linear-gradient(135deg, #10b981, #059669)'
-          : '',
-        borderColor: isLiked ? '#10b981' : '',
-      }}
+      className={`flex items-center gap-1.5 px-2 py-1 border rounded-md font-semibold text-xs transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${isLiked
+        ? 'bg-ok border-ok text-white'
+        : 'bg-surface border-line text-ink-2 hover:text-primary hover:border-primary/40'
+        }`}
     >
       {isLoading ? (
         <LoadingSpinner className="w-3.5 h-3.5" />
@@ -170,31 +167,27 @@ export function ScoreCard({
   const isAp = comboStateText === 'AP' || comboStateText === 'AP+';
   const isFc = comboStateText === 'FC' || comboStateText === 'FC+';
   const comboCardClass = showComboEffects && isAp
-    ? 'border-amber-400/60 shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_0_22px_rgb(251_191_36/0.28),0_0_42px_rgb(251_191_36/0.14),inset_0_0_18px_rgb(251_191_36/0.16)]'
+    ? 'border-warn/60 shadow-card'
     : showComboEffects && isFc
-      ? 'border-blue-400/60 shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_0_20px_rgb(56_189_248/0.26),0_0_40px_rgb(59_130_246/0.14),inset_0_0_18px_rgb(56_189_248/0.14)]'
-      : 'border-white/10 shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset]';
-  const comboGlowClass = showComboEffects && isAp
-    ? 'bg-[radial-gradient(circle_at_88%_15%,rgb(251_191_36/0.24),transparent_34%)]'
-    : showComboEffects && isFc
-      ? 'bg-[radial-gradient(circle_at_88%_15%,rgb(56_189_248/0.22),transparent_34%)]'
-      : '';
+      ? 'border-primary/60 shadow-card'
+      : 'border-line shadow-card';
+  const comboGlowClass = '';
   const scoreTextClass = showComboEffects && isAp
-    ? 'text-amber-300 drop-shadow-[0_0_10px_rgb(251_191_36/0.45)]'
+    ? 'text-warn'
     : showComboEffects && isFc
-      ? 'text-sky-300 drop-shadow-[0_0_10px_rgb(56_189_248/0.42)]'
+      ? 'text-primary'
       : '';
   const comboBadgeClass = showComboEffects && isAp
-    ? 'bg-gradient-to-r from-amber-400 to-yellow-300 text-black shadow-[0_0_12px_rgb(251_191_36/0.44)]'
+    ? 'bg-warn text-white'
     : showComboEffects && isFc
-      ? 'bg-gradient-to-r from-blue-500 to-sky-300 text-white shadow-[0_0_12px_rgb(56_189_248/0.42)]'
-      : 'bg-white/15 text-white/85';
+      ? 'bg-primary text-white'
+      : 'bg-surface-2 text-ink-2';
 
   return (
     <LazyLoad height={165} width={352} offset={300}>
       <div
         className={`
-          relative bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass}
+          relative ${comboGlowClass}
           ${comboCardClass}
           m-auto p-[0.8rem] border rounded-[10px] w-[20rem] h-40 overflow-hidden
           transition-transform hover:-translate-y-1.25 duration-250 ease-in-out
@@ -248,7 +241,7 @@ export function ScoreCard({
             )}
             {resolvedRank && (
               <span
-                className="bg-linear-to-r from-yellow-300 to-amber-500 shadow-[0_0_12px_rgb(251_191_36/0.35)] px-1.5 py-0.5 rounded font-bold text-[0.65rem] text-black leading-none"
+                className="bg-warn px-1.5 py-0.5 rounded font-bold text-[0.65rem] text-white leading-none"
                 title={resolvedRankTotal ? `#${resolvedRank} / ${resolvedRankTotal}` : `#${resolvedRank}`}
               >
                 #{resolvedRank}

@@ -403,7 +403,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="z-1000 fixed inset-0 flex justify-center items-center bg-black/80 backdrop-blur-md p-4"
+          className="z-1000 fixed inset-0 flex justify-center items-center bg-black/40 p-4"
           onClick={onClose}
         >
           <motion.div
@@ -411,16 +411,16 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-            className="flex flex-col bg-[rgba(20,20,20,0.95)] shadow-[0_24px_80px_rgba(0,0,0,0.8),0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-2xl border border-white/15 rounded-2xl w-225 max-w-[95vw] max-h-[90vh] overflow-hidden"
+            className="flex flex-col bg-surface shadow-card-hover border border-line rounded-xl w-225 max-w-[95vw] max-h-[90vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="after:right-10 after:bottom-0 after:left-10 after:absolute relative flex justify-between items-center bg-[rgba(25,25,25,0.8)] after:bg-linear-to-r after:from-transparent after:via-white/20 after:to-transparent px-10 py-8 pb-6 border-white/10 border-b after:h-px after:content-['']">
-              <h2 className="flex items-center gap-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] m-0 font-bold text-white text-2xl">
+            <div className="relative flex justify-between items-center bg-surface-2 px-10 py-8 pb-6 border-line border-b">
+              <h2 className="flex items-center gap-3 m-0 font-bold text-ink text-2xl">
                 {loc("EventTimeline", "活动时间轴")}
               </h2>
               <button
-                className="flex justify-center items-center bg-white/5 hover:bg-red-500/15 hover:shadow-[0_4px_16px_rgba(239,68,68,0.2)] backdrop-blur-lg p-3 border border-white/10 hover:border-red-500/30 rounded-xl w-12 h-12 text-white/70 hover:text-red-500 text-xl hover:scale-105 active:scale-95 transition-all duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer"
+                className="flex justify-center items-center bg-surface hover:border-danger/50 p-3 border border-line rounded-md w-12 h-12 text-ink-3 hover:text-danger text-xl transition-colors duration-200 cursor-pointer"
                 onClick={onClose}
               >
                 ✕
@@ -428,27 +428,27 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 bg-[rgba(15,15,15,0.3)] px-10 py-15 overflow-y-auto scrollbar-thin scrollbar-track-white/5 scrollbar-thumb-white/30">
+            <div className="flex-1 bg-surface px-10 py-15 overflow-y-auto">
               {ongoingEvents.length === 0 ? (
-                <div className="px-4 py-12 text-white/70 text-lg text-center">
+                <div className="px-4 py-12 text-ink-2 text-lg text-center">
                   <p>{loc("NoActiveEvents", "暂无活跃的活动")}</p>
                 </div>
               ) : (
                 <>
                   <div className="mb-8 py-6 text-center">
                     <div className="flex flex-wrap justify-center gap-12 mb-6">
-                      <span className="flex items-center gap-2 text-white/90 text-base">
-                        <strong className="font-bold text-white text-lg">{ongoingEvents.length}</strong> {loc("ActiveEvents", "个活跃活动")}
+                      <span className="flex items-center gap-2 text-ink-2 text-base">
+                        <strong className="font-bold text-ink text-lg">{ongoingEvents.length}</strong> {loc("ActiveEvents", "个活跃活动")}
                       </span>
-                      <span className="flex items-center gap-2 text-white/90 text-base">
-                        {loc("TimeSpan", "时间跨度")} <strong className="font-bold text-white text-lg">{timelineData.totalDays}</strong> {loc("Days", "天")}
+                      <span className="flex items-center gap-2 text-ink-2 text-base">
+                        {loc("TimeSpan", "时间跨度")} <strong className="font-bold text-ink text-lg">{timelineData.totalDays}</strong> {loc("Days", "天")}
                       </span>
                     </div>
-                    <div className="flex justify-center items-center gap-6 font-semibold text-white/90 text-lg">
+                    <div className="flex justify-center items-center gap-6 font-semibold text-ink-2 text-lg">
                       <span>
                         {timelineData.startDate && formatDate(timelineData.startDate)}
                       </span>
-                      <span className="font-light text-white/60 text-xl">—</span>
+                      <span className="font-light text-ink-3 text-xl">—</span>
                       <span>
                         {timelineData.endDate && formatDate(timelineData.endDate)}
                       </span>
@@ -462,9 +462,9 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                         {timelineData.timeScale.map((tick, index) => (
                           <div
                             key={index}
-                            className={`absolute top-0 bottom-0 ${tick.isMonth ? 'w-px bg-white/15' :
-                              tick.isWeek ? 'w-px bg-white/8' :
-                                'w-px bg-white/3'
+                            className={`absolute top-0 bottom-0 ${tick.isMonth ? 'w-px bg-line-strong' :
+                              tick.isWeek ? 'w-px bg-line' :
+                                'w-px bg-line/50'
                               }`}
                             style={{ left: `${tick.position}%` }}
                           />
@@ -474,9 +474,9 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                       {/* Events */}
                       <div className="flex flex-col gap-2 mr-0 px-2.5 py-5 pr-10 text-left">
                         {timelineData.events.map((event) => (
-                          <div key={event.id} className="flex items-center gap-4 py-2 border-white/5 border-b last:border-b-0 min-h-10">
+                          <div key={event.id} className="flex items-center gap-4 py-2 border-line border-b last:border-b-0 min-h-10">
                             <div className="flex-[0_0_180px] text-center">
-                              <div className="mb-1 overflow-hidden font-semibold text-[0.85rem] text-white text-ellipsis leading-tight whitespace-nowrap">
+                              <div className="mb-1 overflow-hidden font-semibold text-[0.85rem] text-ink text-ellipsis leading-tight whitespace-nowrap">
                                 {event.title}
                               </div>
                               <div className="flex flex-col gap-0.5 text-[0.7rem]">
@@ -486,15 +486,15 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                                 >
                                   {getCategoryTranslation(event.category)}
                                 </span>
-                                <span className="text-[0.65rem] text-white/60">
+                                <span className="text-[0.65rem] text-ink-3">
                                   {formatCompactDate(new Date(event.createDate))} - {formatCompactDate(new Date(event.endDate))}
                                 </span>
                               </div>
                             </div>
-                            <div className="relative flex-1 bg-white/3 pr-0 border border-white/8 rounded-md h-6">
+                            <div className="relative flex-1 bg-surface-2 pr-0 border border-line rounded-md h-6">
                               <Link
                                 to={event.href}
-                                className="block top-0 after:top-1 after:right-1 hover:z-10 absolute after:absolute after:bg-white/30 after:opacity-0 hover:after:opacity-100 shadow-[0_2px_8px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)] hover:brightness-115 rounded-md after:rounded-full after:w-3 h-full after:h-3 overflow-hidden no-underline after:content-[''] active:scale-[0.98] transition-all after:transition-opacity hover:-translate-y-0.5 active:-translate-y-px duration-300 after:duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer"
+                                className="block top-0 absolute hover:-translate-y-0.5 active:scale-[0.98] rounded-md h-full overflow-hidden no-underline transition-transform duration-300 cursor-pointer"
                                 style={{
                                   left: `${event.startOffset}%`,
                                   width: `${event.width}%`,
@@ -505,13 +505,9 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
                                 rel="noopener noreferrer"
                               >
                                 <div className="relative flex items-center px-2 w-full h-full">
-                                  <span className="z-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] overflow-hidden font-semibold text-[0.7rem] text-white text-ellipsis whitespace-nowrap">
+                                  <span className="z-2 overflow-hidden font-semibold text-[0.7rem] text-white text-ellipsis whitespace-nowrap">
                                     {event.title}
                                   </span>
-                                  <div
-                                    className="top-0 left-0 absolute bg-linear-to-r from-white/20 via-white/10 to-white/20 opacity-60 rounded-md h-full"
-                                    style={{ width: '100%' }}
-                                  />
                                 </div>
                               </Link>
                             </div>

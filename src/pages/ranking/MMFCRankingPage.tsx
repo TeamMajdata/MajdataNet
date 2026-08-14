@@ -17,7 +17,7 @@ export default function MMFCRankingPage() {
   if (!ready) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner className="border-white border-b-2 rounded-full w-12 h-12" />
+        <LoadingSpinner className="w-12 h-12" />
       </div>
     );
   }
@@ -43,38 +43,20 @@ export default function MMFCRankingPage() {
       </div>
 
       {/* 打榜排名 */}
-      <div
-        className="mx-auto mt-8 px-4 max-w-5xl"
-        style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '16px',
-          padding: '2rem',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-        }}
-      >
-        <div className="mb-6 text-center">
-          <h2
-            className="mb-2 font-bold text-white text-3xl"
-            style={{
-              textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-            }}
-          >
-            {loc('MMFCRankingListTitle', '打榜排名')}
-          </h2>
-          <p
-            className="text-white/70 text-base"
-            style={{
-              textShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
-            }}
-          >
-            {loc('MMFCRankingListDescription', '参赛选手对 mmfc_bot 谱面的游玩总分排名')}
-          </p>
-        </div>
+      <div className="mx-auto mt-8 px-4 max-w-5xl">
+        <div className="rounded-xl p-5 md:p-8">
+          <div className="mb-6 text-center">
+            <h2 className="mb-2 font-bold text-ink text-2xl md:text-3xl">
+              {loc('MMFCRankingListTitle', '打榜排名')}
+            </h2>
+            <p className="text-ink-2 text-base">
+              {loc('MMFCRankingListDescription', '参赛选手对 mmfc_bot 谱面的游玩总分排名')}
+            </p>
+          </div>
 
-        {/* 显示指定用户对 mmfc_bot 谱面的游玩总分排名 */}
-        <MMFCScoreCount />
+          {/* 显示指定用户对 mmfc_bot 谱面的游玩总分排名 */}
+          <MMFCScoreCount />
+        </div>
       </div>
     </PageLayout>
   );

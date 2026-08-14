@@ -63,10 +63,10 @@ export default function EventsPage() {
     <PageLayout className="py-8 min-h-screen mt-(--content-top-spacing)">
       <div className="mx-auto my-0 px-4 max-w-(--container-max-width)">
         <header className="mb-12 text-center">
-          <p className="m-0 mx-auto max-w-150 text-white/80 text-lg leading-relaxed">
+          <p className="m-0 mx-auto max-w-150 text-ink-2 text-lg leading-relaxed">
             {loc('EventsPageSubtitle', '浏览所有活动')}
             <span
-              className="inline-block ml-2 font-medium text-blue-400 hover:text-blue-300 decoration-blue-400/50 hover:decoration-blue-300/80 underline underline-offset-2 transition-all hover:-translate-y-px duration-200 cursor-pointer"
+              className="inline-block ml-2 font-medium text-primary hover:text-primary-hover underline underline-offset-2 transition-colors duration-200 cursor-pointer"
               onClick={handleTimelineClick}
               title={loc('ViewTimeline', '查看时间轴')}
             >
@@ -85,48 +85,48 @@ export default function EventsPage() {
           {filteredEvents.map((event) => (
             <div
               key={event.id}
-              className="relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 rounded-2xl h-auto aspect-1279/372 overflow-hidden hover:scale-[1.03] transition-all hover:-translate-y-3 duration-[0.4s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer will-change-transform"
+              className="group rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
               onClick={() => window.location.href = event.href}
             >
-              <div className="relative w-full h-full overflow-hidden">
+              <div className="overflow-hidden">
                 <img
-                  className="block w-full h-full object-cover hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform"
+                  className="block w-full aspect-[1279/372] object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                   src={event.src}
                   alt={event.alt}
                   loading="lazy"
                   decoding="async"
                 />
-                <div className="absolute inset-0 flex flex-col justify-center bg-linear-to-b from-black/40 via-black/20 to-black/80 opacity-0 hover:opacity-100 px-6 py-2 transition-all translate-y-2.5 hover:translate-y-0 duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-[opacity,transform]">
-                  <div className="text-left">
-                    <h3 className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] m-0 mb-3 font-bold text-white text-2xl leading-tight">
-                      {event.title}
-                    </h3>
-                    <EnhancedDescription
-                      text={event.description}
-                      className="drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] m-0 mb-4 text-white/90 text-base leading-relaxed"
-                    />
-                    <div className="flex flex-wrap items-center gap-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] text-white/80 text-sm">
-                      <span className="whitespace-nowrap">
-                        {getCategoryTranslation(event.category)}
-                      </span>
-                      <span
-                        className={`font-semibold text-sm px-2 py-0.5 rounded-md inline-block mr-2 ${getEventStatusClass(event) === 'status-upcoming'
-                          ? 'text-amber-400 bg-amber-400/20 border border-amber-400/40 shadow-[0_0_8px_rgba(251,191,36,0.2)]'
-                          : getEventStatusClass(event) === 'status-ongoing'
-                            ? 'text-emerald-400 bg-emerald-400/20 border border-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
-                            : 'text-gray-400 bg-gray-400/20 border border-gray-400/40'
-                          }`}
-                      >
-                        • {getEventStatusText(event)}
-                      </span>
-                      <span
-                        className="whitespace-nowrap"
-                        title={`${loc('EventCreatedPrefix', '创建于')} ${event.createDateFormatted}`}
-                      >
-                        • {event.timeAgo}
-                      </span>
-                    </div>
-                  </div>
+              </div>
+              <div className="p-5 md:p-6 text-left">
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="m-0 font-bold text-ink text-xl md:text-2xl leading-tight">
+                    {event.title}
+                  </h3>
+                  <span
+                    className={`inline-block px-2.5 py-1 rounded-md font-semibold text-xs whitespace-nowrap shrink-0 ${getEventStatusClass(event) === 'status-upcoming'
+                      ? 'bg-primary text-white'
+                      : getEventStatusClass(event) === 'status-ongoing'
+                        ? 'bg-ok text-white'
+                        : 'bg-surface-2 text-ink-3'
+                      }`}
+                  >
+                    {getEventStatusText(event)}
+                  </span>
+                </div>
+                <EnhancedDescription
+                  text={event.description}
+                  className="m-0 mt-3 mb-4 text-ink-2 text-base leading-relaxed"
+                />
+                <div className="flex flex-wrap items-center gap-3 text-xs text-ink-3">
+                  <span className="font-medium text-primary whitespace-nowrap">
+                    {getCategoryTranslation(event.category)}
+                  </span>
+                  <span
+                    className="whitespace-nowrap"
+                    title={`${loc('EventCreatedPrefix', '创建于')} ${event.createDateFormatted}`}
+                  >
+                    • {event.timeAgo}
+                  </span>
                 </div>
               </div>
             </div>

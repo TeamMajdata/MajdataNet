@@ -16,26 +16,23 @@ import { AnimatePresence, motion } from "framer-motion";
 type TabType = "login" | "register" | "forget";
 
 const TAB_ORDER: TabType[] = ["login", "register", "forget"];
-const AUTH_CARD_CLASSNAME = "p-8 md:p-12";
+const AUTH_CARD_CLASSNAME = "bg-surface border border-line shadow-card p-8 md:p-12 rounded-xl";
 
 const tabTransitionVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? 64 : -64,
     opacity: 0,
     scale: 0.98,
-    filter: "blur(8px)",
   }),
   center: {
     x: 0,
     opacity: 1,
     scale: 1,
-    filter: "blur(0px)",
   },
   exit: (direction: number) => ({
     x: direction > 0 ? -64 : 64,
     opacity: 0,
     scale: 0.985,
-    filter: "blur(8px)",
   }),
 };
 
@@ -95,32 +92,32 @@ export default function ForginsterPage() {
   return (
     <PageLayout className="flex justify-center items-center min-h-[60vh]">
       <div className="mx-auto[calc(var(--header-height)+1rem)] px-4 py-8 w-full max-w-2xl">
-        <div className="flex bg-gray-100 mb-6 p-1 rounded-full max-w-md mx-auto">
+        <div className="flex bg-surface-2 border border-line mb-6 p-1 rounded-full max-w-md mx-auto">
           <button
-            className={`flex-1 py-3 px-4 rounded-full font-medium text-sm transition-all hover:scale-105 active:scale-95 ${
+            className={`flex-1 py-3 px-4 rounded-full font-medium text-sm transition-colors ${
               activeTab === "login"
-                ? "bg-[#5C8DC1] text-white"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-primary text-white"
+                : "text-ink-3 hover:text-ink-2"
             }`}
             onClick={() => switchTab("login")}
           >
             {loc("Login", "登录")}
           </button>
           <button
-            className={`flex-1 py-3 px-4 rounded-full font-medium text-sm transition-all hover:scale-105 active:scale-95 ${
+            className={`flex-1 py-3 px-4 rounded-full font-medium text-sm transition-colors ${
               activeTab === "register"
-                ? "bg-[#5C8DC1] text-white"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-primary text-white"
+                : "text-ink-3 hover:text-ink-2"
             }`}
             onClick={() => switchTab("register")}
           >
             {loc("Register", "注册")}
           </button>
           <button
-            className={`flex-1 py-3 px-4 rounded-full font-medium text-sm transition-all hover:scale-105 active:scale-95 ${
+            className={`flex-1 py-3 px-4 rounded-full font-medium text-sm transition-colors ${
               activeTab === "forget"
-                ? "bg-[#5C8DC1] text-white"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-primary text-white"
+                : "text-ink-3 hover:text-ink-2"
             }`}
             onClick={() => switchTab("forget")}
           >
@@ -246,25 +243,25 @@ function LoginTab() {
   return (
     <div className={AUTH_CARD_CLASSNAME + " relative"}>
       <div className="mb-8 text-center">
-        <h2 className="m-0 mb-2 font-bold text-gray-800 text-3xl">
+        <h2 className="m-0 mb-2 font-bold text-ink text-3xl">
           {loc("WelcomeBack", "欢迎回来")}
         </h2>
-        <p className="m-0 text-gray-400 text-sm">
+        <p className="m-0 text-ink-3 text-sm">
           {loc("LoginSubtitle", "登录到你的账户")}
         </p>
       </div>
       {isSubmitting && (
-        <div className="z-10 absolute inset-0 flex justify-center items-center bg-white/90 backdrop-blur-sm rounded-[20px]">
+        <div className="z-10 absolute inset-0 flex justify-center items-center bg-surface/90 rounded-xl">
           <LoadingSpinner size="36px" />
         </div>
       )}
       <form className="flex flex-col gap-6" onSubmit={onSubmit}>
         <div className="flex flex-col gap-2">
-          <label className="font-medium text-gray-600 text-sm">
+          <label className="font-medium text-ink-2 text-sm">
             {loc("Username", "用户名")}
           </label>
           <input
-            className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+            className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
             type="text"
             name="username"
             placeholder={loc("EnterUsername", "输入用户名")}
@@ -272,11 +269,11 @@ function LoginTab() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-medium text-gray-600 text-sm">
+          <label className="font-medium text-ink-2 text-sm">
             {loc("Password", "密码")}
           </label>
           <input
-            className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+            className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
             type="password"
             name="password"
             placeholder={loc("EnterPassword", "输入密码")}
@@ -285,13 +282,13 @@ function LoginTab() {
         </div>
         <div className="flex flex-row items-center gap-2">
           <input className="w-4 h-4" type="checkbox" name="rememberMe"></input>
-          <label className="font-medium text-gray-600 text-sm">
+          <label className="font-medium text-ink-2 text-sm">
             {loc("RememberMe", "记住我")}
           </label>
         </div>
 
         <button
-          className="relative bg-linear-to-r from-[#5C8DC1] hover:from-[#4A7DAF] to-[#4A7DAF] hover:to-[#3A6D9F] disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(92_141_193/30%)] mt-2 p-4 border-none rounded-full overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed"
+          className="relative bg-primary hover:bg-primary-hover disabled:opacity-50 mt-2 p-4 border-none rounded-md font-semibold text-white transition-colors cursor-pointer disabled:cursor-not-allowed"
           type="submit"
           disabled={isSubmitting}
         >
@@ -365,20 +362,20 @@ function RegisterTab() {
   return (
     <div className={AUTH_CARD_CLASSNAME}>
       <div className="mb-8 text-center">
-        <h2 className="m-0 mb-2 font-bold text-gray-800 text-3xl">
+        <h2 className="m-0 mb-2 font-bold text-ink text-3xl">
           {loc("CreateAccount", "创建账户")}
         </h2>
-        <p className="m-0 text-gray-400 text-sm">
+        <p className="m-0 text-ink-3 text-sm">
           {loc("RegisterSubtitle", "注册一个新账户")}
         </p>
       </div>
       <form className="flex flex-col gap-6" onSubmit={onSubmit}>
         <div className="flex flex-col gap-2">
-          <label className="font-medium text-gray-600 text-sm">
+          <label className="font-medium text-ink-2 text-sm">
             {loc("Username", "用户名")}
           </label>
           <input
-            className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+            className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
             type="text"
             name="username"
             placeholder={loc("EnterUsername", "输入用户名")}
@@ -386,11 +383,11 @@ function RegisterTab() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-medium text-gray-600 text-sm">
+          <label className="font-medium text-ink-2 text-sm">
             {loc("Password", "密码")}
           </label>
           <input
-            className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+            className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
             type="password"
             name="password"
             placeholder={loc("EnterPassword", "输入密码")}
@@ -398,11 +395,11 @@ function RegisterTab() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-medium text-gray-600 text-sm">
+          <label className="font-medium text-ink-2 text-sm">
             {loc("ConfirmPassword", "确认密码")}
           </label>
           <input
-            className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+            className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
             type="password"
             name="password2"
             placeholder={loc("ReEnterPassword", "再次输入密码")}
@@ -410,11 +407,11 @@ function RegisterTab() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-medium text-gray-600 text-sm">
+          <label className="font-medium text-ink-2 text-sm">
             {loc("E-Mail", "邮箱")}
           </label>
           <input
-            className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+            className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
             type="email"
             name="email"
             placeholder={loc("EnterEmail", "输入邮箱")}
@@ -433,7 +430,7 @@ function RegisterTab() {
           ></div>
         </div>
         <button
-          className="relative bg-linear-to-r from-[#5C8DC1] hover:from-[#4A7DAF] to-[#4A7DAF] hover:to-[#3A6D9F] disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(92_141_193/30%)] mt-2 p-4 border-none rounded-full overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed"
+          className="relative bg-primary hover:bg-primary-hover disabled:opacity-50 mt-2 p-4 border-none rounded-md font-semibold text-white transition-colors cursor-pointer disabled:cursor-not-allowed"
           type="submit"
           disabled={isPosting}
         >
@@ -540,12 +537,12 @@ function ForgetTab({ otp }: { otp: string | null }) {
   return (
     <div className={AUTH_CARD_CLASSNAME}>
       <div className="mb-8 text-center">
-        <h2 className="m-0 mb-2 font-bold text-gray-800 text-3xl">
+        <h2 className="m-0 mb-2 font-bold text-ink text-3xl">
           {hasOtp
             ? loc("ResetPasswordTitle", "重设密码")
             : loc("ForgetPasswordTitle", "找回密码")}
         </h2>
-        <p className="m-0 text-gray-400 text-sm">
+        <p className="m-0 text-ink-3 text-sm">
           {hasOtp
             ? loc("ResetPasswordSubtitle", "请输入新的密码")
             : loc("ForgetPasswordSubtitle", "请输入注册时使用的用户名和邮箱")}
@@ -555,11 +552,11 @@ function ForgetTab({ otp }: { otp: string | null }) {
         {hasOtp && (
           <>
             <div className="flex flex-col gap-2">
-              <label className="font-medium text-gray-600 text-sm">
+              <label className="font-medium text-ink-2 text-sm">
                 {loc("Password", "密码")}
               </label>
               <input
-                className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+                className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
                 type="password"
                 name="newpassword"
                 placeholder={loc("EnterPassword", "输入密码")}
@@ -567,11 +564,11 @@ function ForgetTab({ otp }: { otp: string | null }) {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="font-medium text-gray-600 text-sm">
+              <label className="font-medium text-ink-2 text-sm">
                 {loc("ConfirmPassword", "确认密码")}
               </label>
               <input
-                className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+                className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
                 type="password"
                 name="repeatpassword"
                 placeholder={loc("ReEnterPassword", "再次输入密码")}
@@ -583,11 +580,11 @@ function ForgetTab({ otp }: { otp: string | null }) {
         {!hasOtp && (
           <>
             <div className="flex flex-col gap-2">
-              <label className="font-medium text-gray-600 text-sm">
+              <label className="font-medium text-ink-2 text-sm">
                 {loc("Username", "用户名")}
               </label>
               <input
-                className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+                className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
                 type="text"
                 name="username"
                 placeholder={loc("EnterUsername", "输入用户名")}
@@ -595,11 +592,11 @@ function ForgetTab({ otp }: { otp: string | null }) {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="font-medium text-gray-600 text-sm">
+              <label className="font-medium text-ink-2 text-sm">
                 {loc("E-Mail", "邮箱")}
               </label>
               <input
-                className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+                className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
                 type="email"
                 name="email"
                 placeholder={loc("EnterEmail", "输入邮箱")}
@@ -609,11 +606,11 @@ function ForgetTab({ otp }: { otp: string | null }) {
           </>
         )}
         <div className="flex flex-col gap-2">
-          <label className="font-medium text-gray-600 text-sm">
+          <label className="font-medium text-ink-2 text-sm">
             {loc("VerificationCode", "验证码")}
           </label>
           <input
-            className="bg-gray-50 focus:shadow-[0_0_15px_rgb(92_141_193/15%)] p-4 border-2 border-black/10 focus:border-[#5C8DC1] rounded-xl outline-none text-gray-800 placeholder:text-gray-400 transition-all focus:-translate-y-0.5"
+            className="bg-surface p-4 border border-line focus:border-primary rounded-md outline-none text-ink placeholder:text-ink-3 transition-colors"
             type="text"
             name="otp"
             value={formOtp}
@@ -623,7 +620,7 @@ function ForgetTab({ otp }: { otp: string | null }) {
         </div>
 
         <button
-          className="relative bg-linear-to-r from-[#5C8DC1] hover:from-[#4A7DAF] to-[#4A7DAF] hover:to-[#3A6D9F] disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(92_141_193/30%)] mt-2 p-4 border-none rounded-full overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed"
+          className="relative bg-primary hover:bg-primary-hover disabled:opacity-50 mt-2 p-4 border-none rounded-md font-semibold text-white transition-colors cursor-pointer disabled:cursor-not-allowed"
           type="submit"
           disabled={isSubmitting}
         >
