@@ -200,15 +200,15 @@ function LatestEventsStrip() {
 
   return (
     <section className="mt-10 w-full">
-      {/* 网格滚动动画：固定高度 + 纵向无缝循环，hover 暂停 */}
-      <div className="relative h-[480px] overflow-hidden">
-        <div className="events-scroll-track">
-          <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+      {/* 网格左右滚动动画：横向无缝循环，hover 暂停 */}
+      <div className="relative overflow-hidden">
+        <div className="events-scroll-track flex">
+          <div className="grid grid-cols-12 gap-x-6 gap-y-12 w-[100vw] px-4 shrink-0">
             {events.map((event, index) => (
               <EventMosaicCard key={event.id} event={event} index={index} />
             ))}
           </div>
-          <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full" aria-hidden="true">
+          <div className="grid grid-cols-12 gap-x-6 gap-y-12 w-[100vw] px-4 shrink-0" aria-hidden="true">
             {events.map((event, index) => (
               <EventMosaicCard key={`dup-${event.id}`} event={event} index={index} />
             ))}

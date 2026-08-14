@@ -1,17 +1,17 @@
 /* v4：Swiper 分页点扁平化（无发光、无胶囊拉长） */
 
-/* 主页活动网格纵向无缝滚动动画 */
-@keyframes events-scroll-y {
+/* 主页活动网格左右无缝滚动动画 */
+@keyframes events-scroll-x {
   from {
-    transform: translateY(0);
+    transform: translateX(0);
   }
   to {
-    transform: translateY(-50%);
+    transform: translateX(-50%);
   }
 }
 
 .events-scroll-track {
-  animation: events-scroll-y 45s linear infinite;
+  animation: events-scroll-x 45s linear infinite;
 }
 
 .events-scroll-track:hover {
