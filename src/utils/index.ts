@@ -29,6 +29,7 @@ export {
   setLanguage,
   getTranslatedString,
   loc,
+  i18n,
   getCurrentLanguage,
   getBrowserLanguage,
   initializeLanguage,

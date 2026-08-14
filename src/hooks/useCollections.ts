@@ -7,14 +7,14 @@ import { useMemo, useState, useCallback } from 'react';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import { endpoints } from '@/config/api';
-import { useLoc, useUserContext } from '@/hooks';
+import { useI18n, useUserContext } from '@/hooks';
 import type { Collection, CollectionDanInfo } from '@/types';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
 export function useCollections() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const { username } = useUserContext();
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
@@ -98,16 +98,16 @@ export function useCollections() {
         if (res.ok) {
           toast.success(
             isIn
-              ? loc('RemoveFromCollection', '已从收藏夹移除')
-              : loc('AddToCollectionSuccess', '已添加到收藏夹')
+              ? i18n("shared/useCollections.RemoveFromCollection", '已从收藏夹移除')
+              : i18n("shared/useCollections.AddToCollectionSuccess", '已添加到收藏夹')
           );
           mutateCollections();
           mutateHashLists();
         } else {
-          toast.error(loc('OperationFailed', '操作失败'));
+          toast.error(i18n("shared/useCollections.OperationFailed", '操作失败'));
         }
       } catch {
-        toast.error(loc('OperationFailed', '操作失败'));
+        toast.error(i18n("shared/useCollections.OperationFailed", '操作失败'));
       } finally {
         setPendingIds((prev) => {
           const next = new Set(prev);
@@ -116,7 +116,7 @@ export function useCollections() {
         });
       }
     },
-    [username, isSongInCollection, mutateCollections, mutateHashLists, loc]
+    [username, isSongInCollection, mutateCollections, mutateHashLists, i18n]
   );
 
   const isPending = useCallback((id: string) => pendingIds.has(id), [pendingIds]);

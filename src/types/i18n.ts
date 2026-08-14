@@ -1,27 +1,18 @@
-/**
- * 国际化相关类型定义
- */
-
-// 支持的语言列表
+/** 支持的语言。 */
 export const SUPPORTED_LANGUAGES = ['en', 'zh', 'ja', 'ko'] as const;
 
-// 语言类型
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
-// 语言缓存接口
-export interface LanguageCache {
-  [key: string]: TranslationDictionary;
-}
+/** 语言包以“路由/组件”为命名空间，命名空间内保存具体文案。 */
+export type TranslationDictionary = Record<string, Record<string, string>>;
 
-// 翻译字典接口
-export interface TranslationDictionary {
-  [key: string]: string;
-}
+export type LanguageCache = Partial<Record<Language, TranslationDictionary>>;
 
-// I18n Context 值接口
+export type I18nFunction = (key: string, fallback?: string) => string;
+
 export interface I18nContextValue {
   language: Language;
-  changeLanguage: (lang: string) => Promise<void>;
-  t: (key: string, fallback?: string) => string;
+  changeLanguage: (language: string) => Promise<void>;
+  i18n: I18nFunction;
   isReady: boolean;
 }

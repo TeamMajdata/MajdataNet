@@ -16,11 +16,11 @@ export type EventCategory = typeof EventCategory[keyof typeof EventCategory];
 
 // 活动类别国际化 key 映射数组
 export const EVENT_CATEGORY_I18N_KEYS = [
-  'FilterAll',
-  'EventCategoryUniversity',
-  'EventCategoryMajor',
-  'EventCategoryPrivateProject',
-  'EventCategoryPrivateContest',
+  'chart-events/eventsData.FilterAll',
+  'chart-events/eventsData.EventCategoryUniversity',
+  'chart-events/eventsData.EventCategoryMajor',
+  'chart-events/eventsData.EventCategoryPrivateProject',
+  'chart-events/eventsData.EventCategoryPrivateContest',
 ] as const;
 
 // 活动接口

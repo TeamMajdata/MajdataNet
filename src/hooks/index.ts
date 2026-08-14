@@ -7,3 +7,4 @@ export { UserProvider } from '@/contexts/UserContext';
 export { useUserContext, useUsername } from './useUserContext';
 export { useFavorites } from './useFavorites';
 export { useCollections } from './useCollections';
+export { useTheme } from './useTheme';

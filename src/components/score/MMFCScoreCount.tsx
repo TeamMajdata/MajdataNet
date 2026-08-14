@@ -25,7 +25,7 @@ export default function MMFCScoreCount() {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center p-8 text-red-400">
+      <div className="flex justify-center items-center p-8 text-danger">
         {loc('FailedToLoad', '加载失败')}
       </div>
     );
@@ -34,14 +34,14 @@ export default function MMFCScoreCount() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-100">
-        <LoadingSpinner className="border-white border-b-2 rounded-full w-12 h-12" />
+        <LoadingSpinner className="w-12 h-12" />
       </div>
     );
   }
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex justify-center items-center p-8 text-white/70">
+      <div className="flex justify-center items-center p-8 text-ink-2">
         <p>{loc('NoMMFCRankingData', '暂无MMFC排名数据')}</p>
       </div>
     );
@@ -58,7 +58,7 @@ export default function MMFCScoreCount() {
 
   if (sortedData.length === 0) {
     return (
-      <div className="flex justify-center items-center p-8 text-white/70">
+      <div className="flex justify-center items-center p-8 text-ink-2">
         <p>{loc('NoMMFCRankingData', '暂无MMFC排名数据')}</p>
       </div>
     );
@@ -66,7 +66,7 @@ export default function MMFCScoreCount() {
 
   return (
     <div
-      className="mx-auto px-0 sm:px-4 max-w-4xl"
+      className="mx-auto px-4 max-w-4xl"
       style={{
         marginTop: '2rem',
       }}
@@ -101,24 +101,21 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
   const isThird = rank === 3;
   const isTopThree = isFirst || isSecond || isThird;
 
-  // 根据排名确定边框和光效颜色
-  let borderColor = 'rgba(255, 255, 255, 0.1)';
-  let glowColor = 'rgba(255, 255, 255, 0)';
-  let rankColor = 'rgba(255, 255, 255, 0.8)';
-  let rankGradient = '';
+  // 根据排名确定边框和文字颜色（扁平化）
+  let borderColorClass = 'border-line';
+  let borderColorHex = 'var(--line)';
+  let rankColorClass = 'text-ink-3';
 
   if (isFirst) {
-    // 第一名：金色
-    borderColor = 'rgba(251, 191, 36, 0.45)';
-    glowColor = 'rgba(251, 191, 36, 0.32)';
-    rankColor = '#fbbf24';
-    rankGradient = 'linear-gradient(135deg, #fbbf24 0%, #fcd34d 50%, #fbbf24 100%)';
+    // 第一名：金色（warn）
+    borderColorClass = 'border-warn/50';
+    borderColorHex = 'rgba(245, 158, 11, 0.5)';
+    rankColorClass = 'text-warn';
   } else if (isSecond || isThird) {
-    // 第二、第三名：蓝色
-    borderColor = 'rgba(59, 130, 246, 0.45)';
-    glowColor = 'rgba(59, 130, 246, 0.32)';
-    rankColor = '#3b82f6';
-    rankGradient = 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%)';
+    // 第二、第三名：品牌蓝
+    borderColorClass = 'border-primary/50';
+    borderColorHex = 'rgba(92, 141, 193, 0.5)';
+    rankColorClass = 'text-primary';
   }
 
   return (
@@ -127,61 +124,32 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
       className="block text-inherit no-underline"
     >
       <div
-        className="relative flex items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 min-w-0 transition-all duration-300 ease-out"
-        style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
-          backdropFilter: 'blur(10px)',
-          border: `1.5px solid ${borderColor}`,
-          borderRadius: '12px',
-          boxShadow: isTopThree
-            ? `0 2px 8px rgba(0, 0, 0, 0.12), 0 0 10px 2px ${glowColor}, 0 0 6px 1px ${glowColor}, inset 0 0 8px 1px ${glowColor}`
-            : '0 4px 15px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1)',
-        }}
+        className={`relative flex items-center gap-4 px-6 py-4 rounded-lg transition-all duration-300 ease-out ${isTopThree ? `border-2 ${borderColorClass}` : ''}`}
         onMouseEnter={(e) => {
           const el = e.currentTarget as HTMLElement;
           el.style.transform = 'translateY(-2px)';
+          el.style.boxShadow = '0 8px 24px rgb(16 24 40 / 0.08)';
           if (isFirst) {
-            el.style.borderColor = 'rgba(251, 191, 36, 0.65)';
-            el.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 20px rgba(251, 191, 36, 0.25), inset 0 0 20px rgba(251, 191, 36, 0.12)';
+            el.style.borderColor = 'rgba(245, 158, 11, 0.65)';
           } else if (isSecond || isThird) {
-            el.style.borderColor = 'rgba(59, 130, 246, 0.65)';
-            el.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.18), 0 0 16px 3px rgba(59, 130, 246, 0.45), 0 0 10px 2px rgba(59, 130, 246, 0.32), inset 0 0 12px 2px rgba(59, 130, 246, 0.22)';
+            el.style.borderColor = 'rgba(92, 141, 193, 0.65)';
           } else {
-            el.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2)';
-            el.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            el.style.borderColor = 'var(--line-strong)';
           }
         }}
         onMouseLeave={(e) => {
           const el = e.currentTarget as HTMLElement;
           el.style.transform = 'translateY(0)';
-          el.style.borderColor = borderColor;
-          el.style.boxShadow = isTopThree
-            ? `0 2px 8px rgba(0, 0, 0, 0.12), 0 0 10px 2px ${glowColor}, 0 0 6px 1px ${glowColor}, inset 0 0 8px 1px ${glowColor}`
-            : '0 4px 15px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1)';
+          el.style.borderColor = borderColorHex;
+          el.style.boxShadow = '0 1px 2px rgb(16 24 40 / 0.05)';
         }}
       >
         {/* 排名显示 */}
-        <div className="flex justify-center items-center min-w-12 sm:min-w-20 shrink-0">
+        <div className="flex justify-center items-center min-w-20 shrink-0">
           <span
-            className="font-bold transition-all duration-300"
+            className={`font-bold transition-all duration-300 ${rankColorClass}`}
             style={{
               fontSize: isFirst ? '1.8rem' : isSecond ? '1.7rem' : isThird ? '1.65rem' : '1.4rem',
-              color: rankColor,
-              ...(isTopThree && {
-                background: rankGradient,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                filter: isFirst
-                  ? 'drop-shadow(0 0 8px rgba(251, 191, 36, 0.6))'
-                  : 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))',
-                textShadow: isFirst
-                  ? '0 0 12px rgba(251, 191, 36, 0.7), 0 0 20px rgba(251, 191, 36, 0.5), 0 2px 4px rgba(0, 0, 0, 0.5)'
-                  : '0 0 10px rgba(59, 130, 246, 0.6), 0 0 18px rgba(59, 130, 246, 0.4), 0 2px 4px rgba(0, 0, 0, 0.5)',
-              }),
-              ...(!isTopThree && {
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
-              })
             }}
           >
             #{rank}
@@ -191,45 +159,34 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         {/* 玩家信息 */}
         <div className="flex flex-1 items-center gap-3 min-w-0">
           <img
-            className="border-2 rounded-full w-10 sm:w-12 h-10 sm:h-12 object-cover transition-all duration-300 shrink-0"
+            className={`border-2 rounded-full w-12 h-12 object-cover transition-all duration-300 shrink-0 ${isTopThree ? (isFirst ? 'border-warn/40' : 'border-primary/40') : 'border-line'}`}
             style={{
-              borderColor: isTopThree ? (isFirst ? 'rgba(251, 191, 36, 0.4)' : 'rgba(59, 130, 246, 0.4)') : 'rgba(255, 255, 255, 0.2)',
               aspectRatio: '1',
             }}
             src={endpoints.account.icon(username)}
             alt={username}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLElement;
-              el.style.borderColor = isTopThree ? (isFirst ? 'rgba(251, 191, 36, 0.6)' : 'rgba(59, 130, 246, 0.6)') : 'rgba(255, 255, 255, 0.4)';
-              el.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.3)';
+              el.style.borderColor = isTopThree ? (isFirst ? 'rgba(245, 158, 11, 0.6)' : 'rgba(92, 141, 193, 0.6)') : 'var(--line-strong)';
+              el.style.boxShadow = '0 4px 12px rgb(16 24 40 / 0.1)';
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLElement;
-              el.style.borderColor = isTopThree ? (isFirst ? 'rgba(251, 191, 36, 0.4)' : 'rgba(59, 130, 246, 0.4)') : 'rgba(255, 255, 255, 0.2)';
+              el.style.borderColor = isTopThree ? (isFirst ? 'rgba(245, 158, 11, 0.4)' : 'rgba(92, 141, 193, 0.4)') : 'var(--line)';
               el.style.boxShadow = 'none';
             }}
           />
 
           <div className="flex flex-col flex-1 gap-1 min-w-0 overflow-hidden">
-            <span
-              className="overflow-hidden font-semibold text-white text-sm sm:text-lg text-ellipsis whitespace-nowrap"
-              style={{
-                textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-              }}
-            >
+            <span className="overflow-hidden font-semibold text-ink text-lg text-ellipsis whitespace-nowrap">
               {username}
             </span>
           </div>
         </div>
 
         {/* 分数显示 */}
-        <div className="flex flex-col items-end gap-1 text-right min-w-0 shrink-0">
-          <div
-            className="font-bold text-white text-base sm:text-2xl"
-            style={{
-              textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-            }}
-          >
+        <div className="flex flex-col items-end gap-1 text-right shrink-0">
+          <div className="font-bold text-ink text-2xl">
             {scoresum.toFixed(4)}%
           </div>
         </div>

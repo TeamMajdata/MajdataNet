@@ -1,37 +1,50 @@
-import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
-import useSWR from 'swr';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Tooltip } from '@/components';
-import { useDebouncedCallback } from 'use-debounce';
-import { Link, useSearchParams } from 'react-router-dom';
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import useSWR from "swr";
+import { motion, AnimatePresence } from "framer-motion";
+import { useDebouncedCallback } from "use-debounce";
+import { Link, useSearchParams } from "react-router-dom";
 
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination } from 'swiper/modules';
-import 'swiper/swiper-bundle.css';
-
-import { setLanguage } from '@/utils/i18n';
-import { useLoc } from '@/hooks';
-import { PageLayout, SongCard, SongList, LoadingSpinner } from '@/components';
-import { endpoints } from '@/config/api';
+import { setLanguage } from "@/utils/i18n";
+import { useLoc } from "@/hooks";
+import { PageLayout, LoadingSpinner, Levels, InteractCount } from "@/components";
+import { endpoints } from "@/config/api";
+import { stripTmpTags } from "@/utils/richTextUtils";
+import { downloadSong } from "@/utils/download";
+import { toast } from "react-toastify";
 import {
   getEventStatusClass,
   getEventStatusText,
-  getNonFeaturedEventsCount,
-  getActiveEvents,
-  getTimeAgo,
-  getCategoryTranslation,
-} from '@/utils/eventsData';
-import type { SearchBarProps, Song } from '@/types';
+  getEventsWithTimeAgo,
+  isEventOngoing,
+  isEventUpcoming,
+} from "@/utils/eventsData";
+import {
+  CalendarClock,
+  Calendar,
+  Heart,
+  MessageCircle,
+  Flag,
+  Play,
+  ChevronDown,
+  Download,
+} from "lucide-react";
+import type { Event, EventWithTimeInfo, Song } from "@/types";
 
 // 获取用户时区的次日午夜时间戳 (UTC)
 const getNextMidnightTimestamp = (): number => {
   const now = new Date();
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
     timeZone: userTimeZone,
   });
 
@@ -44,19 +57,22 @@ const getNextMidnightTimestamp = (): number => {
   const userLocalDate = new Date(
     parseInt(dateObj.year),
     parseInt(dateObj.month) - 1,
-    parseInt(dateObj.day)
+    parseInt(dateObj.day),
   );
 
   const tomorrow = new Date(userLocalDate);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const millisUntilMidnight = tomorrow.getTime() - now.getTime() + (now.getTime() - userLocalDate.getTime());
+  const millisUntilMidnight =
+    tomorrow.getTime() -
+    now.getTime() +
+    (now.getTime() - userLocalDate.getTime());
   return now.getTime() + millisUntilMidnight;
 };
 
 const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
-  const cacheKey = 'homeSongListCache';
-  const cacheExpireTimeKey = 'homeSongListCacheExpireTime';
+  const cacheKey = "homeSongListCache";
+  const cacheExpireTimeKey = "homeSongListCacheExpireTime";
 
   // 1. 尝试从 localStorage 读取缓存
   try {
@@ -75,12 +91,13 @@ const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
       }
     }
   } catch (e) {
-    console.error('缓存读取错误:', e)
+    console.error("缓存读取错误:", e);
   }
 
   // 2. 缓存不存在或已过期，发起请求
-  const data = await fetch(url, { mode: 'cors', credentials: 'include' })
-    .then((res) => res.json());
+  const data = await fetch(url, { mode: "cors", credentials: "include" }).then(
+    (res) => res.json(),
+  );
 
   // 3. 请求成功后存入 localStorage，同时存储时间戳和过期时间
   if (Array.isArray(data) && data.length > 0) {
@@ -90,7 +107,7 @@ const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
       localStorage.setItem(cacheKey, JSON.stringify(data));
       localStorage.setItem(cacheExpireTimeKey, nextMidnightTime.toString());
     } catch (e) {
-      console.error('缓存保存错误:', e)
+      console.error("缓存保存错误:", e);
     }
   }
 
@@ -101,17 +118,24 @@ export default function HomePage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
-      setReady(true);
-    });
+    setLanguage(localStorage.getItem("language") || navigator.language).then(
+      () => {
+        setReady(true);
+      },
+    );
   }, []);
 
-  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
+  if (!ready)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingSpinner size="50px" />
+      </div>
+    );
 
   return (
     <PageLayout showBackToHome={false}>
-      {/* Events Carousel */}
-      <EventsCarousel />
+      {/* Latest Events Strip */}
+      <LatestEventsStrip />
 
       {/* Main Content */}
       <MainComp />
@@ -119,399 +143,343 @@ export default function HomePage() {
   );
 }
 
-function EventsCarousel() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  // 检测是否为移动端
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // 移动端和PC端都使用Swiper
-  return isMobile ? <MobileEventsSwiper /> : <DesktopEventsSwiper />;
+/** 活动状态徽章（纯色块） */
+function EventStatusBadge({ event }: { event: Event }) {
+  const cls = getEventStatusClass(event);
+  const base =
+    "inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium whitespace-nowrap";
+  if (cls === "status-upcoming") {
+    return (
+      <span className={`${base} bg-primary text-white`}>
+        <CalendarClock size={12} />
+        {getEventStatusText(event)}
+      </span>
+    );
+  }
+  if (cls === "status-ongoing") {
+    return (
+      <span className={`${base} bg-ok text-white`}>
+        <Play size={12} />
+        {getEventStatusText(event)}
+      </span>
+    );
+  }
+  return (
+    <span className={`${base} bg-surface-2 text-ink-3`}>
+      <Flag size={12} />
+      {getEventStatusText(event)}
+    </span>
+  );
 }
 
-function getDateLocale() {
-  const lang = localStorage.getItem('language') || 'zh';
-  const localeMap: Record<string, string> = {
-    zh: 'zh-CN',
-    en: 'en-US',
-    ja: 'ja-JP',
-    ko: 'ko-KR',
-  };
-  return localeMap[lang] || 'zh-CN';
-};
-
-// PC端专用的 Swiper 组件
-function DesktopEventsSwiper() {
-  const loc = useLoc();
-  const remainingEventsCount = getNonFeaturedEventsCount();
-
-  // 获取所有活跃的活动（进行中 + 即将开始）
-  const ongoingEvents = useMemo(() => {
-    return getActiveEvents().map((event) => ({
-      ...event,
-      timeAgo: getTimeAgo(event.createDate),
-      createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(), {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-    }));
+/**
+ * 最新活动横向滚动展示区（title 上方）
+ * 始终展示最近 10 个活动（含已结束），横向滚动
+ */
+function LatestEventsStrip() {
+  const events = useMemo(() => {
+    // 优先进行中 > 即将开始 > 已结束；同状态按日期倒序；最多两行（3+4 = 7 个）
+    return getEventsWithTimeAgo()
+      .sort((a, b) => {
+        const rank = (e: Event) => {
+          if (isEventOngoing(e)) return 0;
+          if (isEventUpcoming(e)) return 1;
+          return 2;
+        };
+        const r = rank(a) - rank(b);
+        if (r !== 0) return r;
+        return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
+      })
+      .slice(0, 7);
   }, []);
 
-  return (
-    <section className="mx-auto mt-8 px-4 max-w-7xl">
-      <div className="w-full">
-        <div className="relative w-full">
-          <Swiper
-            modules={[Pagination, Autoplay]}
-            spaceBetween={16}
-            slidesPerView={2}
-            centeredSlides={false}
-            autoplay={{
-              delay: 5000,
-              disableOnInteraction: false,
-            }}
-            pagination={{
-              clickable: true,
-              dynamicBullets: true,
-            }}
-            navigation={false}
-            loop={ongoingEvents.length > 2}
-            breakpoints={{
-              1024: {
-                slidesPerView: 2,
-                spaceBetween: 16,
-              },
-              1280: {
-                slidesPerView: 2,
-                spaceBetween: 20,
-              },
-              1440: {
-                slidesPerView: 2,
-                spaceBetween: 24,
-              },
-            }}
-            className="pb-12 desktop-events-swiper"
-          >
-            {/* 活跃的活动（进行中 + 即将开始） */}
-            {ongoingEvents.map((event) => (
-              <SwiperSlide key={event.id} className="flex h-auto">
-                <div className="relative flex-1 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
-                  <Link to={event.href} className="block relative w-full h-full text-inherit no-underline">
-                    <div className="relative w-full h-full overflow-hidden">
-                      <img
-                        className="block w-full h-full object-cover"
-                        src={event.src}
-                        alt={event.alt}
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-black/50 via-30% via-black/30 to-black/90 opacity-0 hover:opacity-100 p-4">
-                        <div className="text-left">
-                          <h3 className="m-0 mb-2 font-bold text-white text-xl leading-tight">{event.title}</h3>
-                          <div className="flex flex-wrap items-center gap-2 text-white/90 text-sm">
-                            <span className="whitespace-nowrap">
-                              {getCategoryTranslation(event.category)}
-                            </span>
-                            <span className={`font-semibold text-[0.85rem] px-1.5 py-0.5 rounded inline-block ${getEventStatusClass(event) === 'status-upcoming' ? 'text-[#fbbf24] bg-[rgba(251,191,36,0.15)] border border-[rgba(251,191,36,0.3)]' :
-                              getEventStatusClass(event) === 'status-ongoing' ? 'text-[#10b981] bg-[rgba(16,185,129,0.15)] border border-[rgba(16,185,129,0.3)]' :
-                                'text-[#9ca3af] bg-[rgba(156,163,175,0.15)] border border-[rgba(156,163,175,0.3)]'
-                              }`}>
-                              • {getEventStatusText(event)}
-                            </span>
-                            <span
-                              className="whitespace-nowrap"
-                              title={`${loc('EventCreatedPrefix', '创建于')} ${event.createDateFormatted}`}
-                            >
-                              • {event.timeAgo}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              </SwiperSlide>
-            ))}
+  if (events.length === 0) return null;
 
-            {/* More 页面作为 Swiper 的最后一页 */}
-            <SwiperSlide className="flex h-auto">
-              <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
-                <Link to="/chart-events" className="block relative w-full h-full text-inherit no-underline">
-                  <div className="flex flex-col justify-center items-center h-full text-white/70">
-                    <div className="mb-2 text-[2rem]">→</div>
-                    <div className="font-semibold text-lg tracking-wider">more</div>
-                  </div>
-                  <div className="absolute inset-0 flex justify-center items-center bg-black/70 opacity-0 hover:opacity-100 backdrop-blur-lg">
-                    <div className="text-white text-center">
-                      <span className="block mb-1 font-semibold text-base">{loc('ViewAllEvents', '查看所有活动')}</span>
-                      <span className="text-white/80 text-sm">
-                        +{remainingEventsCount} {loc('EventsCount', '个活动')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            </SwiperSlide>
-          </Swiper>
+  // 内容较少时不滚动，直接展示
+  if (events.length < 6) {
+    return (
+      <section className="mt-10 mb-20 w-full">
+        <EventMosaicWithBrandTitle events={events} />
+      </section>
+    );
+  }
+
+  return (
+    <section className="mt-10 mb-20 w-full">
+      {/* 网格左右滚动动画：横向无缝循环，hover 暂停 */}
+      <div className="relative overflow-hidden">
+        <div className="events-scroll-track flex w-max">
+          <div className="w-[100vw] px-4 shrink-0">
+            <EventMosaicWithBrandTitle events={events} />
+          </div>
+          <div className="w-[100vw] px-4 shrink-0" aria-hidden="true">
+            <EventMosaicWithBrandTitle events={events} />
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-// 移动端专用的 Swiper 组件
-function MobileEventsSwiper() {
-  // 获取所有活跃的活动（进行中 + 即将开始）
-  const ongoingEvents = useMemo(() => {
-    return getActiveEvents().map((event) => ({
-      ...event,
-      timeAgo: getTimeAgo(event.createDate),
-      createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(), {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-    }));
-  }, []);
-
+/**
+ * 两行活动马赛克 + 两行之间的 MAJDATA.NET 品牌大标题（放大版顶栏字标）
+ * 第一行 3 张（span 3~6 随机组合），第二行 4 张（span 3 等宽）
+ */
+function EventMosaicWithBrandTitle({ events }: { events: EventWithTimeInfo[] }) {
   return (
-    <section className="mx-auto mt-2 sm:mt-4 px-0 sm:px-4 max-w-7xl">
-      <div className="relative w-full">
-        <div className="relative w-full">
-          <Swiper
-            modules={[Pagination, Autoplay]}
-            spaceBetween={12}
-            slidesPerView={1}
-            centeredSlides={true}
-            autoplay={{
-              delay: 5000,
-              disableOnInteraction: false,
-            }}
-            pagination={{
-              clickable: true,
-              dynamicBullets: true,
-            }}
-            navigation={false}
-            loop={ongoingEvents.length > 1}
-            breakpoints={{
-              480: {
-                slidesPerView: 1.2,
-                spaceBetween: 20,
-              },
-              600: {
-                slidesPerView: 1.5,
-                spaceBetween: 24,
-              },
-              768: {
-                slidesPerView: 2,
-                spaceBetween: 24,
-              },
-            }}
-            className="pb-9 sm:pb-12 overflow-visible mobile-events-swiper"
-          >
-            {/* 活跃的活动（进行中 + 即将开始） */}
-            {ongoingEvents.map((event) => (
-              <SwiperSlide key={event.id} className="flex h-auto">
-                <Link to={event.href} className="block w-full h-full text-inherit no-underline">
-                  <div className="relative bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl border border-white/10 rounded-xl w-full aspect-1279/372 overflow-hidden">
-                    <div className="relative w-full h-full overflow-hidden">
-                      <img
-                        className="w-full h-full object-cover"
-                        src={event.src}
-                        alt={event.alt}
-                        loading="lazy"
-                      />
-                    </div>
-                  </div>
-                </Link>
-              </SwiperSlide>
-            ))}
-
-            {/* More 页面作为 Swiper 的最后一页 */}
-            <SwiperSlide className="flex h-auto">
-              <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
-                <Link to="/chart-events" className="block relative w-full h-full text-inherit no-underline">
-                  <div className="flex flex-col justify-center items-center h-full text-white/70">
-                    <div className="text-[2rem] leading-none">→</div>
-                    <div className="font-semibold text-lg leading-none tracking-wider">MORE</div>
-                  </div>
-                </Link>
-              </div>
-            </SwiperSlide>
-          </Swiper>
-        </div>
+    <>
+      {/* 第一行：前 3 张 */}
+      <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+        {events.slice(0, 3).map((event, index) => (
+          <EventMosaicCard key={event.id} event={event} index={index} />
+        ))}
       </div>
-    </section>
+
+      {/* MAJDATA.NET 大标题 */}
+      {events.length > 3 && (
+        <div className="relative flex justify-center items-center py-6 md:py-8 select-none">
+          <img
+            src="/icons/now_loading.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute top-[28%] left-1/2 w-16 h-16 md:w-24 md:h-24 -translate-x-1/2 -translate-y-1/2"
+          />
+          <span className="relative z-10 pt-10 font-black tracking-tight text-ink text-4xl md:text-6xl">
+            MAJDATA<span className="text-ink-3">.NET</span>
+          </span>
+        </div>
+      )}
+
+      {/* 第二行：剩余 4 张 */}
+      {events.length > 3 && (
+        <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+          {events.slice(3, 7).map((event, index) => (
+            <EventMosaicCard key={event.id} event={event} index={index + 3} />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
-function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) {
+/** 活动马赛克卡（与谱面卡片同款：直角大图 + hover 符号 + 状态徽章） */
+function EventMosaicCard({ event, index }: { event: EventWithTimeInfo; index: number }) {
+  const colClass = COL_CLASS[spanOf(index)];
+
+  return (
+    <div className={colClass}>
+      <a
+        href={event.href}
+        target={event.href.startsWith("http") ? "_blank" : undefined}
+        rel="noopener noreferrer"
+        className="group block no-underline"
+      >
+        <div className="relative overflow-hidden aspect-[8/3]">
+          <img
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+            src={event.src}
+            alt={event.alt}
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="text-5xl md:text-6xl font-light text-white mix-blend-difference select-none">
+              +
+            </span>
+          </div>
+          <div className="absolute top-2 right-2">
+            <EventStatusBadge event={event} />
+          </div>
+        </div>
+        <div className="flex items-start justify-between gap-3 mt-3">
+          <h3 className="m-0 font-semibold text-ink text-base md:text-lg truncate leading-snug">
+            {event.title}
+          </h3>
+          <span className="shrink-0 w-0 h-0.5 mt-2 bg-primary transition-all duration-300 group-hover:w-8" />
+        </div>
+      </a>
+    </div>
+  );
+}
+
+function CompactSearchInput({
+  initS,
+  onDebouncedChange,
+}: {
+  initS: string;
+  onDebouncedChange: (value: string) => void;
+}) {
   const loc = useLoc();
-  const [isMobile, setIsMobile] = useState(false);
   const [currentValue, setCurrentValue] = useState(initS);
+  const [isFocused, setIsFocused] = useState(false);
 
-
-  const sortOptions = [
-    loc('LatestActivityShort', '互'),
-    loc('LikeCount', '点赞数'),
-    loc('CommentCount', '评论数'),
-    loc('PlayCount', '播放数'),
-    loc('UploadDate', '上传日期'),
-  ];
-
-  // 检测是否为移动端
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // 更新当前值
   useEffect(() => {
     setCurrentValue(initS);
   }, [initS]);
 
-
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCurrentValue(value);
-    onChange(e);
-  };
-
-  const handleClearSearch = () => {
-    setCurrentValue('');
-    const fakeEvent = { target: { value: '' } } as React.ChangeEvent<HTMLInputElement>;
-    onChange(fakeEvent);
-  };
-
-  // 提示内容组件
-  const hintContent = (
-    <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-4 sm:px-5 py-4 border border-white/20 rounded-2xl w-[min(17.5rem,calc(100vw-1.5rem))] md:w-[320px]">
-      <div className="space-y-2.5 text-left">
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintID', '按 ID 搜索')}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintHash', '按 Hash 搜索')}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintTag', '按标签搜索')}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{loc('SearchHintUploader', '按上传者搜索')}</p>
-      </div>
-    </div>
-  );
+  const searchHints = [
+    loc("SearchHintID", "id:xxxx 可以按id查询谱面"),
+    loc("SearchHintHash", "hash:xxxx 可以按hash查询谱面"),
+    loc("SearchHintTag", "tag:xxxx 可以只看这个tag的谱面"),
+    loc("SearchHintUploader", "uploader:xxxx 可以只看他传的谱面"),
+  ];
 
   return (
-    <div className="mt-3 md:mt-0 mb-4 px-0 sm:px-4 w-full min-w-0">
-      <div className="relative border border-white/10 rounded-[20px] overflow-visible">
-        <div className="flex flex-row justify-center items-center gap-2 md:gap-6 p-2 sm:p-3 md:p-4 w-full min-w-0">
-          <div className="flex-1 min-w-0">
-            <div className="relative flex items-center w-full">
-              <input
-                type="text"
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-4 md:px-7 py-3 md:py-4 pr-18 md:pr-14 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-base transition-colors"
-                placeholder={initS === '' ? loc('SearchPlaceholder', '搜索...') : initS}
-                value={currentValue}
-                onChange={handleInputChange}
-                aria-label={loc('SearchPlaceholder', '搜索...')}
-              />
-              <AnimatePresence>
-                {currentValue && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.15 }}
-                    className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-7 h-7 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
-                    onClick={handleClearSearch}
-                    aria-label={loc('ClearSearch', '清空搜索')}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                    </svg>
-                  </motion.button>
-                )}
-              </AnimatePresence>
-              <Tooltip
-                content={hintContent}
-                side="top"
-                sideOffset={20}
-                plain={true}
-              >
-                <div
-                  className="top-1/2 right-2 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-7 h-7 font-bold text-xs text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer touch-manipulation"
-                  role="button"
-                  aria-label='Search Hint Button'
-                >
-                  ?
-                </div>
-              </Tooltip>
-            </div>
-          </div>
+    <div className="relative">
+      <input
+        type="text"
+        className="bg-surface px-4 py-2.5 pr-9 border border-line focus:border-primary rounded-lg outline-none w-36 sm:w-44 md:w-56 h-10 text-sm text-ink placeholder:text-ink-3 transition-colors"
+        placeholder={initS === "" ? loc("SearchPlaceholder", "搜索...") : initS}
+        value={currentValue}
+        onChange={(e) => {
+          setCurrentValue(e.target.value);
+          onDebouncedChange(e.target.value);
+        }}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        aria-label={loc("SearchPlaceholder", "搜索...")}
+      />
+      {currentValue !== "" && (
+        <button
+          className="top-1/2 right-2.5 absolute flex justify-center items-center bg-surface-2 hover:bg-line border border-line rounded-full w-5 h-5 text-ink-3 text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
+          onClick={() => {
+            setCurrentValue("");
+            onDebouncedChange("");
+          }}
+          aria-label={loc("ClearSearch", "清空搜索")}
+        >
+          ×
+        </button>
+      )}
 
-          <div className="shrink-0">
-            <select
-              value={isMobile ? (sortType === undefined ? 'placeholder' : sortType) : sortType}
-              onChange={(e) => {
-                if (e.target.value === 'placeholder') return;
-                const val = parseInt(e.target.value);
-                onSortChange(val);
-              }}
-              className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 md:px-3 py-1 border border-white/20 rounded-full outline-none w-28 sm:w-auto min-w-0 md:min-w-20 h-11 md:h-11.25 overflow-hidden text-white text-center whitespace-nowrap appearance-none cursor-pointer"
-              data-mobile-label={loc('SortBy', '排序方式')}
-            >
-              {isMobile && (
-                <option value="placeholder" disabled>
-                  {loc('SortBy', '排序方式')}
-                </option>
-              )}
-              {sortOptions.map((label, i) => (
-                <option key={i} value={i}>
-                  {label}
-                </option>
+      {/* 聚焦时的参数使用说明气泡 */}
+      <AnimatePresence>
+        {isFocused && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="top-full right-0 z-30 absolute bg-surface shadow-card border border-line mt-2 p-3 rounded-lg min-w-52 md:min-w-64"
+          >
+            <div className="flex flex-col gap-1.5">
+              {searchHints.map((hint) => (
+                <span key={hint} className="text-xs text-ink-2 leading-snug">
+                  {hint}
+                </span>
               ))}
-            </select>
-          </div>
-        </div>
-      </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
+/** 右上角紧凑排序选择器 */
+function SortSelect({
+  sortType,
+  onSortChange,
+}: {
+  sortType: number;
+  onSortChange: (value: number) => void;
+}) {
+  const loc = useLoc();
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const sortIcons = [Calendar, Heart, MessageCircle, Play];
+  const sortOptions = [
+    loc("UploadDate", "上传日期"),
+    loc("LikeCount", "点赞数"),
+    loc("CommentCount", "评论数"),
+    loc("PlayCount", "播放数"),
+  ];
+
+  // 点击外部关闭
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-center gap-1.5 bg-surface hover:bg-primary-soft px-3.5 py-2.5 border border-line hover:border-primary/40 rounded-lg h-10 text-ink-2 hover:text-primary text-xs font-medium whitespace-nowrap transition-colors duration-150 cursor-pointer"
+        aria-label="sort"
+      >
+        {React.createElement(sortIcons[sortType ?? 0], { size: 13 })}
+        <span className="hidden sm:inline">{sortOptions[sortType ?? 0]}</span>
+        <ChevronDown
+          size={12}
+          className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="top-full right-0 z-30 absolute bg-surface shadow-card border border-line mt-2 py-1.5 rounded-lg min-w-[150px] overflow-hidden">
+          {sortOptions.map((label, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                onSortChange(i);
+                setIsOpen(false);
+              }}
+              className={`flex items-center gap-2 px-4 py-2 w-full text-sm text-left transition-colors duration-150 ${
+                (sortType ?? 0) === i
+                  ? "text-primary bg-primary-soft font-semibold"
+                  : "text-ink-2 hover:text-primary hover:bg-primary-soft"
+              }`}
+            >
+              {React.createElement(sortIcons[i], { size: 14 })}
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 function MainComp() {
   const loc = useLoc();
   const [searchParams] = useSearchParams();
   const isInitialMount = useRef(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'random'>('all');
+  const [activeTab, setActiveTab] = useState<"all" | "random">(() => {
+    const stored = localStorage.getItem("homeActiveTab");
+    return stored === "random" ? "random" : "all";
+  });
 
   // 从 localStorage 或 URL 参数初始化状态
   const [Search, setSearch] = useState(() => {
-    const urlSearchParam = searchParams.get('search');
-    const initialValue = urlSearchParam || localStorage.getItem('search') || '';
+    const urlSearchParam = searchParams.get("search");
+    const initialValue = urlSearchParam || localStorage.getItem("search") || "";
     // 保存URL参数到localStorage
     if (urlSearchParam) {
-      localStorage.setItem('search', urlSearchParam);
+      localStorage.setItem("search", urlSearchParam);
     }
     return initialValue;
   });
-  const [page, setPage] = useState(() => {
-    const stored = localStorage.getItem('lastclickpage');
-    return parseInt(stored || '0');
-  });
-  const [maxpage, setMaxpage] = useState(999999);
+  // 全部谱面：无限滚动（累积列表 + 滚动加载下一页）
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [loadedPage, setLoadedPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const [sortType, setSortType] = useState(() => {
-    const stored = localStorage.getItem('sort');
+    const stored = localStorage.getItem("sort");
     return stored ? parseInt(stored) : 0;
   });
-  const [randomSeed, setRandomSeed] = useState(() => Math.floor(Math.random() * 1000000));
+  const [randomSeed, setRandomSeed] = useState(() =>
+    Math.floor(Math.random() * 1000000),
+  );
 
   // 处理 URL 参数变化（跳过初始挂载）
   useEffect(() => {
@@ -520,11 +488,11 @@ function MainComp() {
       return;
     }
 
-    const urlSearchParam = searchParams.get('search');
+    const urlSearchParam = searchParams.get("search");
     if (urlSearchParam) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearch(urlSearchParam);
-      localStorage.setItem('search', urlSearchParam);
+      localStorage.setItem("search", urlSearchParam);
     }
   }, [searchParams]);
 
@@ -532,138 +500,196 @@ function MainComp() {
     // function
     (value: string) => {
       setSearch(value);
-      setPage(0);
-      setMaxpage(9999999999999);
-      localStorage.setItem('search', value);
-      localStorage.setItem('lastclickpage', '0');
+      localStorage.setItem("search", value);
+      localStorage.setItem("lastclickpage", "0");
     },
     // delay in ms
-    500
+    500,
   );
 
   const onSortChange = (val: number) => {
     setSortType(val);
-    localStorage.setItem('sort', val.toString());
-    setPage(0);
-    localStorage.setItem('lastclickpage', '0');
+    localStorage.setItem("sort", val.toString());
+    localStorage.setItem("lastclickpage", "0");
   };
 
-  const sortWords = ['', 'likep', 'commp', 'playp', 'timep'];
+  const sortWords = ["", "likep", "commp", "playp"];
+
+  // 全部谱面：构造第 p 页列表 URL
+  const songListUrl = useCallback(
+    (p: number) => endpoints.maichart.listSearchAndSort(Search, sortWords[sortType], p),
+    [Search, sortType],
+  );
+
+  // 搜索 / 排序变化时重置并加载第一页
+  useEffect(() => {
+    let cancelled = false;
+    setSongs([]);
+    setLoadedPage(0);
+    setHasMore(true);
+    setIsLoadingMore(true);
+    fetch(songListUrl(0), { mode: "cors", credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (!Array.isArray(data) || data.length === 0) {
+          setHasMore(false);
+          setSongs([]);
+        } else {
+          setSongs(data);
+          if (data.length < 30) setHasMore(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setHasMore(false);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingMore(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [songListUrl]);
+
+  // 加载下一页并追加
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+    try {
+      const next = loadedPage + 1;
+      const data = await fetch(songListUrl(next), {
+        mode: "cors",
+        credentials: "include",
+      }).then((res) => res.json());
+      if (!Array.isArray(data) || data.length === 0) {
+        setHasMore(false);
+        return;
+      }
+      setSongs((prev) => [...prev, ...data]);
+      setLoadedPage(next);
+      if (data.length < 30) setHasMore(false);
+    } catch {
+      setHasMore(false);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore, loadedPage, songListUrl]);
+
+  // 滚动到底部自动加载下一页
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: "500px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore]);
 
   const refreshRandomBatch = useCallback(() => {
     setRandomSeed((prev) => prev + 1);
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("homeActiveTab", activeTab);
+  }, [activeTab]);
+
   // 渲染数据
   return (
-    <>
-      <div className="flex justify-center px-4 pt-2 pb-3">
-        <div className="inline-flex bg-[rgba(20,20,25,0.7)] p-1 border border-white/10 rounded-full">
+    <div className="relative w-full px-4">
+      {/* 超大标题：最上方、左对齐（右侧留白给右上角控件） */}
+      <motion.h2
+        key={activeTab}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        className="m-0 mb-40 font-black tracking-tight text-ink text-3xl md:text-7xl leading-none select-none text-left! pr-44 md:pr-64"
+      >
+        {activeTab === "all"
+          ? loc("AllCharts", "全部谱面")
+          : loc("RandomRecommend", "随机推荐")}
+      </motion.h2>
+
+      {/* 右上角绝对定位控件（无背景）：搜索/排序/换一批 + Tab（最右，同一行） */}
+      <div className="top-0 right-0 z-20 absolute flex flex-wrap items-center justify-end gap-2">
+        {activeTab === "all" ? (
+          <>
+            <CompactSearchInput
+              initS={Search}
+              onDebouncedChange={(value) => debounced(value)}
+            />
+            <SortSelect sortType={sortType} onSortChange={onSortChange} />
+          </>
+        ) : (
           <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'all' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
-              }`}
-            onClick={() => setActiveTab('all')}
+            onClick={refreshRandomBatch}
+            className="flex items-center gap-2 bg-surface hover:bg-primary-soft px-4 py-2.5 border border-line hover:border-primary/40 rounded-lg text-ink-2 hover:text-primary text-sm font-medium transition-colors duration-150 cursor-pointer"
           >
-            {loc('AllCharts', '全部谱面')}
+            {loc("RefreshBatch", "换一批")}
+          </button>
+        )}
+
+        {/* Tab 在最右 */}
+        <div className="inline-flex bg-surface-2 p-1 border border-line rounded-full">
+          <button
+            className={`px-4 md:px-6 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-150 cursor-pointer ${
+              activeTab === "all"
+                ? "bg-surface text-primary border border-line shadow-none"
+                : "text-ink-3 hover:text-ink-2 border border-transparent"
+            }`}
+            onClick={() => setActiveTab("all")}
+          >
+            {loc("AllCharts", "全部谱面")}
           </button>
           <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'random' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
-              }`}
-            onClick={() => setActiveTab('random')}
+            className={`px-4 md:px-6 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-150 cursor-pointer ${
+              activeTab === "random"
+                ? "bg-surface text-primary border border-line shadow-none"
+                : "text-ink-3 hover:text-ink-2 border border-transparent"
+            }`}
+            onClick={() => setActiveTab("random")}
           >
-            {loc('RandomRecommend', '随机推荐')}
+            {loc("RandomRecommend", "随机推荐")}
           </button>
+        </div>
+
+        {/* ADX / ZIP 下载类型选择（Tab 下方一行） */}
+        <div className="flex justify-end w-full">
+          <IntegratedDownloadTypeSelector />
         </div>
       </div>
 
-      {activeTab === 'all' ? (
-        <>
-          <SearchBar
-            onChange={(e) => debounced(e.target.value)}
-            initS={Search}
-            sortType={sortType}
-            onSortChange={onSortChange}
-          />
-
-          <SongList
-            url={endpoints.maichart.listSearchAndSort(Search, sortWords[sortType], page)}
-            page={page}
-            setMax={setMaxpage}
-          />
-
-          <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
-            <div className="gap-2 sm:gap-4 grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] sm:flex items-center bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-2.5 sm:p-6 border border-white/10 rounded-xl w-full sm:w-auto max-w-md">
-              <button
-                className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-                disabled={page - 1 < 0}
-                onClick={() => {
-                  setPage(page - 1);
-                  window.scrollTo(0, 200);
-                }}
-              >
-                ←
-              </button>
-
-              <div className="flex justify-center items-center gap-1.5 sm:gap-2 min-w-0">
-                <span className="text-[#ccc] text-sm">{loc('PageOf', '第')}</span>
-                <input
-                  type="number"
-                  value={page}
-                  className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
-                  onChange={(event) => {
-                    if (event.target.value !== '') {
-                      setPage(parseInt(event.target.value));
-                    } else setPage(0);
-                  }}
-                  min="0"
-                  step="1"
-                />
-                <span className="text-[#ccc] text-sm">{loc('Page', '页')}</span>
-              </div>
-
-              <button
-                className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${page >= maxpage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-                disabled={page >= maxpage}
-                onClick={() => {
-                  setPage(page + 1);
-                  window.scrollTo(0, 200);
-                }}
-              >
-                →
-              </button>
+      {/* 内容区 */}
+      <div className="mt-8 md:mt-10">
+        {activeTab === "all" ? (
+          <>
+            <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+              {songs.map((song, index) => (
+                <SongMosaicCard key={song.id} song={song} index={index} page={loadedPage} />
+              ))}
             </div>
 
-            <button
-              className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer"
-              onClick={() => {
-                setPage(0);
-                window.scrollTo(0, 200);
-              }}
-            >
-              {loc('FrontPage', '首页')}
-            </button>
-            <IntegratedDownloadTypeSelector isMobile={true} />
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="flex flex-col items-center gap-4 mx-auto mb-6 px-4 max-w-7xl">
-            <button
-              className="bg-blue-500/80 hover:bg-blue-500 px-6 py-2 border-none rounded-lg font-medium text-white cursor-pointer"
-              onClick={refreshRandomBatch}
-            >
-              {loc('RefreshBatch', '换一批')}
-            </button>
-          </div>
-
-          <RandomRecommendList refreshKey={randomSeed} />
-
-          <div className="flex justify-center mt-12 px-4">
-            <IntegratedDownloadTypeSelector isMobile={true} />
-          </div>
-        </>
-      )}
-    </>
+            {/* 底部 sentinel：滚动到此处自动加载下一页 */}
+            <div ref={sentinelRef} className="flex justify-center items-center py-16 w-full">
+              {isLoadingMore ? (
+                <LoadingSpinner size="40px" />
+              ) : !hasMore ? (
+                <span className="text-ink-3 text-sm">{loc("AllLoaded", "已加载全部")}</span>
+              ) : (
+                <span className="text-ink-3 text-sm">↓</span>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <RandomRecommendList refreshKey={randomSeed} />
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -675,7 +701,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
     cachedSongListFetcher,
     {
       revalidateOnFocus: false,
-    }
+    },
   );
 
   const randomSongs = useMemo(() => {
@@ -699,7 +725,11 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }, [data, refreshKey]);
 
   if (error) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
+    return (
+      <div className="m-auto w-full text-[50px] text-center">
+        {loc("ServerError", "服务器错误")}
+      </div>
+    );
   }
 
   if (isLoading) {
@@ -711,58 +741,167 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }
 
   if (randomSongs.length === 0) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{loc('EmptyData', '暂无数据')}</div>;
+    return (
+      <div className="m-auto w-full text-[50px] text-center">
+        {loc("EmptyData", "暂无数据")}
+      </div>
+    );
   }
 
   return (
-    <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+    <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
       {randomSongs.map((song, index) => (
-        <SongCard key={song.id} song={song} index={index} page={0} />
+        <SongMosaicCard key={song.id} song={song} index={index} page={0} />
       ))}
     </div>
   );
 }
 
-function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
-  const loc = useLoc();
-  const [currentType, setCurrentType] = useState(() => {
-    return localStorage.getItem('DownloadType') || 'zip';
-  });
-  const [justChanged, setJustChanged] = useState(false);
+/**
+ * 谱面马赛克卡片（全部谱面与随机推荐共用）
+ * 布局：每 7 张一组——前 3 张一行（宽度随机组合，span 3~6，最小 25%）、后 4 张一行（span 3 等宽）
+ */
+// 3 卡行的随机宽度组合（每行和 = 12 列）
+const THREE_CARD_ROWS: number[][] = [
+  [4, 4, 4],
+  [5, 4, 3],
+  [6, 3, 3],
+  [3, 5, 4],
+  [4, 3, 5],
+  [3, 6, 3],
+  [5, 3, 4],
+  [3, 4, 5],
+];
 
-  const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newtype = e.target.value;
-    if (newtype === 'placeholder') return;
-    localStorage.setItem('DownloadType', newtype);
-    setCurrentType(newtype);
+// Tailwind 需要静态类名
+const COL_CLASS: Record<number, string> = {
+  3: "col-span-12 md:col-span-3",
+  4: "col-span-12 md:col-span-4",
+  5: "col-span-12 md:col-span-5",
+  6: "col-span-12 md:col-span-6",
+};
 
-    setJustChanged(true);
-    setTimeout(() => setJustChanged(false), 2000);
-  };
+/** 按索引确定每张卡的列跨度（确定性伪随机） */
+function spanOf(index: number): number {
+  const group = Math.floor(index / 7);
+  const pos = index % 7;
+  if (pos < 3) {
+    const combo = THREE_CARD_ROWS[group % THREE_CARD_ROWS.length];
+    return combo[pos];
+  }
+  return 3; // 4 卡行：3/3/3/3 等宽
+}
+
+function SongMosaicCard({ song, index, page = 0 }: { song: Song; index: number; page?: number }) {
+  const colClass = COL_CLASS[spanOf(index)];
+  const aspect = "aspect-[8/3]";
 
   return (
-    <div className="flex items-center gap-3">
-      {!isMobile && (
-        <label className={`${justChanged ? 'text-[#22c55e]' : ''}`}>
-          {loc('DownloadFormat', '下载格式')}
-          {justChanged && <span className="ml-2 font-semibold text-[#22c55e] text-sm">✓</span>}
-        </label>
-      )}
-      <select
-        value={isMobile ? currentType || 'placeholder' : currentType}
-        onChange={handleChange}
-        className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
-        data-mobile-label={loc('DownloadFormat', '下载格式')}
+    <motion.div
+      className={colClass}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.45, delay: (index % 5) * 0.05, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      <Link
+        to={"/song?id=" + song.id}
+        className="group block no-underline"
+        onClick={() => {
+          localStorage.setItem("lastclickid", song.id);
+          localStorage.setItem("lastclickpage", page.toString());
+        }}
       >
-        {isMobile && (
-          <option value="placeholder" disabled>
-            {loc('DownloadFormat', '下载格式')}
-            {justChanged && ' ✓'}
-          </option>
-        )}
-        <option value="zip">ZIP</option>
-        <option value="adx">ADX</option>
-      </select>
+        {/* 直角大图 + hover 叠加符号（mix-blend 反色） */}
+        <div className={`relative overflow-hidden ${aspect}`}>
+          <img
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+            src={endpoints.maichart.image(song.id)}
+            alt={stripTmpTags(song.title)}
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="text-5xl md:text-6xl font-light text-white mix-blend-difference select-none">
+              +
+            </span>
+          </div>
+          {/* 难度徽章（叠加在图片右上角，无圆角无间距） */}
+          <div className="absolute top-3 right-3 z-10 flex flex-wrap items-center max-w-[60%]">
+            <Levels levels={song.levels} songid={song.id} isPlayer={false} />
+          </div>
+          {/* 下载按钮（透明背景） */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              downloadSong({ id: song.id, title: stripTmpTags(song.title), toast });
+            }}
+            className="absolute bottom-3 right-3 z-10 flex items-center justify-center rounded-full w-12 h-12 text-white cursor-pointer transition-all duration-150 hover:text-primary hover:bg-white/15"
+            aria-label="download"
+          >
+            <Download size={20} />
+          </button>
+        </div>
+
+        {/* 信息区：标题 + 分类 + 互动 */}
+        <div className="flex items-start justify-between gap-3 mt-3">
+          <h3 className="m-0 font-semibold text-ink text-base md:text-lg truncate leading-snug">
+            {stripTmpTags(song.title)}
+          </h3>
+          <span className="shrink-0 w-0 h-0.5 mt-2 bg-primary transition-all duration-300 group-hover:w-8" />
+        </div>
+        <p className="m-0 mt-1 text-xs text-ink-3 truncate">
+          {song.artist === "" || song.artist == null ? "-" : song.artist} · {song.uploader}
+        </p>
+        <div className="mt-3">
+          <InteractCount songid={song.id} />
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+function IntegratedDownloadTypeSelector() {
+  const [currentType, setCurrentType] = useState(() => {
+    return localStorage.getItem("DownloadType") || "zip";
+  });
+  const [, setJustChanged] = useState(false);
+
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="flex bg-surface-2 border border-line rounded-full p-1">
+        <button
+          onClick={() => {
+            localStorage.setItem("DownloadType", "zip");
+            setCurrentType("zip");
+            setJustChanged(true);
+            setTimeout(() => setJustChanged(false), 2000);
+          }}
+          className={`px-4 md:px-5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-150 cursor-pointer ${
+            currentType === "zip"
+              ? "bg-surface text-primary border border-line shadow-none"
+              : "text-ink-3 hover:text-ink-2 border border-transparent"
+          }`}
+        >
+          ZIP
+        </button>
+        <button
+          onClick={() => {
+            localStorage.setItem("DownloadType", "adx");
+            setCurrentType("adx");
+            setJustChanged(true);
+            setTimeout(() => setJustChanged(false), 2000);
+          }}
+          className={`px-4 md:px-5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-150 cursor-pointer ${
+            currentType === "adx"
+              ? "bg-surface text-primary border border-line shadow-none"
+              : "text-ink-3 hover:text-ink-2 border border-transparent"
+          }`}
+        >
+          ADX
+        </button>
+      </div>
     </div>
   );
 }

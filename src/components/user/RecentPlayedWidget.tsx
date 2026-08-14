@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { ScoreCard, LoadingSpinner } from '@/components';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
 import { motion } from 'framer-motion';
 import RecentActivityChart, { parseRecentTime } from '@/components/chart/RecentActivityChart';
@@ -15,8 +15,8 @@ const fetcher = async (...args: Parameters<typeof fetch>) =>
 // ─── Data conversion ─────────────────────────────────────────────────────────
 
 /**
- * 将 RecentPlayedData 转换为 Score 类型
- */
+* 将 RecentPlayedData 转换为 Score 类型
+*/
 function convertToScore(data: RecentPlayedData): Score {
   const chartLevel = parseInt(data.level);
   const levels = new Array(chartLevel + 1).fill('');
@@ -51,11 +51,11 @@ function convertToScore(data: RecentPlayedData): Score {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 /**
- * 最近游玩记录组件
- * 显示指定用户最近游玩的谱面、成绩与活跃度折线图
- */
+* 最近游玩记录组件
+* 显示指定用户最近游玩的谱面、成绩与活跃度折线图
+*/
 export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPlayedWidgetProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
   const { data, error, isLoading } = useSWR<RecentPlayedData[]>(
     endpoints.account.recent(username),
@@ -83,7 +83,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   if (error) {
     return (
       <div className="m-auto w-full text-[50px] text-center">
-        {loc('ServerError', '服务器错误')}
+        {i18n("user/RecentPlayedWidget.ServerError", '服务器错误')}
       </div>
     );
   }
@@ -97,7 +97,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   }
 
   if (!data || data.length === 0) {
-    return <p>{loc('NoRecentRecords', '暂无最近游玩记录')}</p>;
+    return <p>{i18n("user/RecentPlayedWidget.NoRecentRecords", '暂无最近游玩记录')}</p>;
   }
 
   // ── Score cards ──────────────────────────────────────────────────────────
@@ -115,7 +115,6 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
       >
         <ScoreCard
           score={score}
-          showLikeButton={true}
           showComboEffects={true}
           showRank={true}
           rankUsername={username}
@@ -127,7 +126,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   return (
     <>
       <RecentActivityChart records={sortedData} />
-      <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+<div className="gap-3 flex flex-col w-full">
         {scoreCards}
       </div>
     </>

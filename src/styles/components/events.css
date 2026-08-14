@@ -1,62 +1,57 @@
-.mobile-events-swiper .swiper-pagination {
-  bottom: 0.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  position: relative;
-  width: auto;
-  margin-top: 1rem;
+/* v4：Swiper 分页点扁平化（无发光、无胶囊拉长） */
+
+/* 主页活动网格左右无缝滚动动画 */
+@keyframes events-scroll-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
-.mobile-events-swiper .swiper-pagination-bullet {
-  background: rgb(255 255 255 / 40%);
-  border: 1px solid rgb(255 255 255 / 20%);
-  opacity: 1;
-  width: 8px;
-  height: 8px;
-  margin: 0 4px;
-  transition: all 0.3s ease;
+.events-scroll-track {
+  animation: events-scroll-x 45s linear infinite;
 }
 
-.mobile-events-swiper .swiper-pagination-bullet-active {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  width: 20px;
-  border-radius: 10px;
+.events-scroll-track:hover {
+  animation-play-state: paused;
 }
 
-/* PC端 Swiper 分页器样式 */
+@media (prefers-reduced-motion: reduce) {
+  .events-scroll-track {
+    animation: none;
+  }
+}
+
+.mobile-events-swiper .swiper-pagination,
 .desktop-events-swiper .swiper-pagination {
   bottom: 0;
   position: relative;
   margin-top: 1.5rem;
 }
 
+.mobile-events-swiper .swiper-pagination-bullet,
 .desktop-events-swiper .swiper-pagination-bullet {
-  background: rgb(255 255 255 / 30%);
-  border: 1px solid rgb(255 255 255 / 20%);
+  background: #d1d5db;
+  border: none;
   opacity: 1;
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   margin: 0 4px;
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 9999px;
+  transition: background-color 0.15s ease;
 }
 
+.mobile-events-swiper .swiper-pagination-bullet:hover,
 .desktop-events-swiper .swiper-pagination-bullet:hover {
-  background: rgb(255 255 255 / 60%);
-  border-color: rgb(255 255 255 / 40%);
-  transform: scale(1.2);
+  background: #9ca3af;
 }
 
+.mobile-events-swiper .swiper-pagination-bullet-active,
 .desktop-events-swiper .swiper-pagination-bullet-active {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  width: 24px;
-  border-radius: 6px;
-  transform: scale(1);
-}
-
-.desktop-events-swiper .swiper-pagination-bullet-active:hover {
-  background: #2563eb;
-  border-color: #2563eb;
-  transform: scale(1);
+  background: #5c8dc1;
+  width: 8px;
+  border-radius: 9999px;
+  transform: none;
 }

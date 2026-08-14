@@ -23,3 +23,10 @@ dist-ssr
 *.sw?
 /.vs
 .claude/
+
+# 设计文档（不跟踪）
+DESIGN.md
+UIDESIGN.md
+
+# 参考文件（含敏感信息，不跟踪）
+Work _ Studio Freight.txt

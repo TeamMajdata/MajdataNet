@@ -18,28 +18,16 @@ const fetcher = (url: string) =>
 
 const listSwapVariants = {
   enter: (direction: number) => ({
-    opacity: 0.34,
-    x: direction > 0 ? 82 : -82,
-    scale: 0.92,
-    rotateX: 0,
-    rotateY: direction > 0 ? -10 : 10,
-    filter: 'blur(3px)'
+    opacity: 0.5,
+    x: direction > 0 ? 48 : -48,
   }),
   center: {
     opacity: 1,
     x: 0,
-    scale: 1,
-    rotateX: 0,
-    rotateY: 0,
-    filter: 'blur(0px)'
   },
   exit: (direction: number) => ({
-    opacity: 0.26,
-    x: direction > 0 ? -78 : 78,
-    scale: 0.91,
-    rotateX: 0,
-    rotateY: direction > 0 ? 9 : -9,
-    filter: 'blur(3px)'
+    opacity: 0,
+    x: direction > 0 ? -48 : 48,
   })
 };
 
@@ -73,7 +61,7 @@ function LevelTabBar({
   return (
     <div className="relative">
       {/* 背景装饰 */}
-      <div className="absolute inset-0 bg-linear-to-b from-white/5 to-transparent rounded-xl" />
+      <div className="absolute inset-0 bg-surface-2 rounded-lg" />
 
       {/* TabBar 容器 */}
       <div className="relative flex items-center gap-1 p-1.5 overflow-x-auto scrollbar-hide">
@@ -86,11 +74,11 @@ function LevelTabBar({
               key={levelIndex}
               onClick={() => onSelect(levelIndex)}
               className={`
-                relative flex flex-col items-center justify-center min-w-14 px-3 py-2 rounded-lg
+                relative flex flex-col items-center justify-center min-w-14 px-3 py-2 rounded-md
                 transition-all duration-200 ease-out whitespace-nowrap shrink-0
                 ${isActive
-                  ? 'bg-white/20 shadow-[0_4px_12px_rgb(0_0_0/0.25),inset_0_1px_0_rgb(255_255_255/0.15)] border border-white/25'
-                  : 'bg-white/8 hover:bg-white/12 border border-transparent hover:border-white/15'
+                  ? 'bg-primary shadow-card border border-primary'
+                  : 'bg-surface hover:bg-surface-2 border border-transparent hover:border-line'
                 }
               `}
             >
@@ -98,7 +86,7 @@ function LevelTabBar({
               <span
                 className={`
                   text-xs font-semibold tracking-wide transition-colors duration-200
-                  ${isActive ? 'text-white' : 'text-white/60'}
+                  ${isActive ? 'text-white' : 'text-ink-2'}
                 `}
               >
                 {getLevelName(levelIndex)}
@@ -108,7 +96,7 @@ function LevelTabBar({
               <span
                 className={`
                   text-sm font-bold transition-colors duration-200 mt-0.5
-                  ${isActive ? 'text-white' : 'text-white/50'}
+                  ${isActive ? 'text-white' : 'text-ink-3'}
                 `}
               >
                 {levelValue}
@@ -118,7 +106,7 @@ function LevelTabBar({
               {isActive && (
                 <motion.div
                   layoutId="activeTabIndicator"
-                  className="bottom-0 left-1/2 absolute bg-linear-to-r from-transparent via-white/80 to-transparent rounded-full w-8 h-0.5 -translate-x-1/2"
+                  className="bottom-0 left-1/2 absolute bg-primary rounded-full w-8 h-0.5 -translate-x-1/2"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />
               )}
@@ -130,7 +118,7 @@ function LevelTabBar({
   );
 }
 
-// 排行榜卡片组件
+// 排行榜卡片组件（一行一个）
 function RankingCard({
   score,
   rank
@@ -145,34 +133,24 @@ function RankingCard({
     if (comboState === 'AP+' || comboState === 'AP') {
       return {
         border: 'border-amber-500/50',
-        shadow: 'shadow-[0_4px_16px_rgb(251_191_36/0.25),0_0_20px_rgb(251_191_36/0.15)]',
-        badge: 'bg-gradient-to-r from-amber-500 to-amber-400',
-        textClass: 'text-amber-400'
+        badge: 'bg-amber-500',
+        textClass: 'text-amber-600'
       };
     } else if (comboState === 'FC+' || comboState === 'FC') {
       return {
         border: 'border-blue-400/50',
-        shadow: 'shadow-[0_4px_16px_rgb(59_130_246/0.25),0_0_20px_rgb(59_130_246/0.15)]',
-        badge: 'bg-gradient-to-r from-blue-500 to-blue-400',
-        textClass: 'text-blue-400'
+        badge: 'bg-blue-500',
+        textClass: 'text-primary'
       };
     }
     return {
-      border: 'border-white/10',
-      shadow: '',
-      badge: 'bg-white/20',
-      textClass: 'text-white/80'
+      border: 'border-line',
+      badge: 'bg-surface-2',
+      textClass: 'text-ink-2'
     };
   };
 
   const styles = getComboStyles();
-
-  const topThreeAvatarClass =
-    rank === 1
-      ? 'border-amber-400 shadow-[0_0_0_1px_rgb(251_191_36/0.35),0_0_12px_rgb(251_191_36/0.45),0_0_22px_rgb(251_191_36/0.2)]'
-      : rank === 2
-        ? 'border-gray-300 shadow-[0_0_0_1px_rgb(209_213_219/0.35),0_0_12px_rgb(209_213_219/0.4),0_0_22px_rgb(209_213_219/0.18)]'
-        : 'border-amber-600 shadow-[0_0_0_1px_rgb(217_119_6/0.35),0_0_12px_rgb(217_119_6/0.4),0_0_22px_rgb(217_119_6/0.2)]';
 
   // 显示状态文本
   const getDisplayText = () => {
@@ -181,12 +159,14 @@ function RankingCard({
     return 'Clear';
   };
 
-  // Top 3 特殊样式
-  const getRankBadgeStyle = () => {
-    if (rank === 1) return 'bg-gradient-to-br from-yellow-400 to-amber-500 text-black';
-    if (rank === 2) return 'bg-gradient-to-br from-gray-300 to-gray-400 text-black';
-    if (rank === 3) return 'bg-gradient-to-br from-amber-600 to-amber-700 text-white';
-    return 'bg-white/15 text-white/70';
+  // 前三名品牌蓝配色（按名次递减饱和度），其余灰色
+  const rankConfig = {
+    1: { badge: 'bg-primary text-white', avatar: 'border-primary' },
+    2: { badge: 'bg-primary/70 text-white', avatar: 'border-primary/60' },
+    3: { badge: 'bg-primary/40 text-white', avatar: 'border-primary/40' },
+  }[rank] ?? {
+    badge: 'bg-surface-2 text-ink-3',
+    avatar: 'border-line group-hover:border-line-strong',
   };
 
   return (
@@ -199,23 +179,22 @@ function RankingCard({
     >
       <div
         className={`
-          group relative flex items-center gap-3 p-3 rounded-xl
-          bg-white/8 hover:bg-white/12 backdrop-blur-md
-          border ${styles.border} ${styles.shadow}
+          group relative flex items-center gap-3 p-3 rounded-lg
+          bg-surface hover:bg-surface-2
+          border ${styles.border}
           transition-all duration-200 ease-out
-          hover:shadow-[0_8px_25px_rgb(0_0_0/0.3)]
           hover:-translate-y-0.5
         `}
       >
-        {/* 排名标记 */}
+        {/* 排名徽章 */}
         <div
           className={`
-            flex items-center justify-center min-w-9 h-9 rounded-lg
-            font-bold text-sm ${getRankBadgeStyle()}
-            transition-transform duration-200 group-hover:scale-105
+            flex items-center justify-center w-9 h-9 rounded-lg shrink-0
+            font-black text-sm transition-transform duration-200 group-hover:scale-105
+            ${rankConfig.badge}
           `}
         >
-          #{rank}
+          {rank}
         </div>
 
         {/* 玩家信息 */}
@@ -230,7 +209,7 @@ function RankingCard({
                 w-10 h-10 rounded-full object-cover
                 border-2 transition-all duration-200
                 group-hover:scale-105
-                ${rank <= 3 ? topThreeAvatarClass : 'border-white/20 group-hover:border-white/40'}
+                ${rankConfig.avatar}
               `}
               src={endpoints.account.icon(score.player.username)}
               alt={score.player.username}
@@ -240,20 +219,15 @@ function RankingCard({
           {/* 用户名 */}
           <div className="flex flex-col flex-1 min-w-0">
             <span
-              className={`
+              className="
                 font-semibold text-sm truncate
                 transition-colors duration-200
-                group-hover:text-white
-                ${rank <= 3 ? 'text-white' : 'text-white/90'}
-              `}
+                group-hover:text-primary
+                text-ink
+              "
             >
               {score.player.username}
             </span>
-            {rank <= 3 && (
-              <span className="font-medium text-[10px] text-white/50">
-                {rank === 1 ? '1st Place' : rank === 2 ? '2nd Place' : '3rd Place'}
-              </span>
-            )}
           </div>
         </Link>
 
@@ -271,8 +245,8 @@ function RankingCard({
             className={`
               text-[10px] font-semibold px-1.5 py-0.5 rounded
               ${score.acc < 80
-                ? 'bg-red-500/30 text-red-300'
-                : styles.badge + ' text-white/90'
+                ? 'bg-danger/10 text-danger'
+                : styles.badge + ' text-white'
               }
             `}
           >
@@ -294,9 +268,9 @@ function EmptyState() {
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col justify-center items-center px-4 py-16"
     >
-      <div className="flex justify-center items-center bg-white/5 mb-4 rounded-full w-16 h-16">
+      <div className="flex justify-center items-center bg-surface-2 mb-4 rounded-full w-16 h-16">
         <svg
-          className="w-8 h-8 text-white/30"
+          className="w-8 h-8 text-ink-3"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -310,7 +284,7 @@ function EmptyState() {
           />
         </svg>
       </div>
-      <p className="font-medium text-white/50 text-sm text-center">
+      <p className="font-medium text-ink-3 text-sm text-center">
         {loc('NoRecords', '暂无成绩记录')}
       </p>
     </motion.div>
@@ -393,17 +367,17 @@ export function ScoreRanking({ songid }: ScoreListProps) {
   // 处理加载状态
   if (error) {
     return (
-      <div className="bg-white/5 p-4 border border-white/10 rounded-xl w-full">
-        <p className="text-white/60 text-sm text-center">{loc('FailedToLoad', '加载失败')}</p>
+      <div className="p-4 rounded-lg w-full">
+        <p className="text-ink-2 text-sm text-center">{loc('FailedToLoad', '加载失败')}</p>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="bg-white/5 p-4 border border-white/10 rounded-xl w-full">
+      <div className="p-4 rounded-lg w-full">
         <div className="flex justify-center items-center py-12">
-          <LoadingSpinner className="border-2 border-white/20 border-t-white/60 rounded-full w-8 h-8" />
+          <LoadingSpinner className="border-2 border-line border-t-primary rounded-full w-8 h-8" />
         </div>
       </div>
     );
@@ -411,7 +385,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
 
   if (!data || !data.scores) {
     return (
-      <div className="bg-white/5 p-4 border border-white/10 rounded-xl w-full">
+      <div className="p-4 rounded-lg w-full">
         <EmptyState />
       </div>
     );
@@ -421,9 +395,9 @@ export function ScoreRanking({ songid }: ScoreListProps) {
     <div className="space-y-4 w-full">
       {/* 标题 */}
       <div className="flex justify-between items-center">
-        <h2 className="flex items-center gap-2 font-bold text-white text-xl">
+        <h2 className="flex items-center gap-2 font-bold text-ink text-xl">
           <svg
-            className="w-5 h-5 text-white/70"
+            className="w-5 h-5 text-ink-2"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -440,7 +414,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
         </h2>
 
         {/* 统计信息 */}
-        <span className="font-medium text-white/40 text-xs">
+        <span className="font-medium text-ink-3 text-xs">
           {displayScores.length} {loc('Records', '条记录')}
         </span>
       </div>
@@ -461,16 +435,16 @@ export function ScoreRanking({ songid }: ScoreListProps) {
 
       {/* 当前选中等级的标题 */}
       <div className="flex items-center gap-2 px-1">
-        <div className="bg-linear-to-b from-white/60 to-white/20 rounded-full w-1 h-4" />
-        <span className="font-semibold text-white/70 text-sm">
+        <div className="bg-primary rounded-full w-1 h-4" />
+        <span className="font-semibold text-ink-2 text-sm">
           {getLevelName(resolvedActiveLevel)}
           {' · '}
-          <span className="text-white/50">{levels[resolvedActiveLevel] || '-'}</span>
+          <span className="text-ink-3">{levels[resolvedActiveLevel] || '-'}</span>
         </span>
       </div>
 
       {/* 排行榜内容 */}
-      <div className="relative mx-auto w-full max-w-4xl min-h-50" style={{ perspective: 1400 }}>
+      <div className="relative mx-auto w-full max-w-4xl min-h-50">
         <div className="relative overflow-hidden">
           <AnimatePresence mode="wait" custom={transitionDirection}>
             {validLevels.length > 0 ? (
@@ -483,10 +457,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
                 exit="exit"
                 transition={{
                   x: { type: 'spring', stiffness: 260, damping: 28 },
-                  opacity: { duration: 0.18 },
-                  scale: { duration: 0.22 },
-                  rotateY: { duration: 0.24 },
-                  filter: { duration: 0.2 }
+                  opacity: { duration: 0.18 }
                 }}
                 className="relative origin-top"
               >

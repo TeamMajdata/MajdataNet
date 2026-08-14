@@ -29,13 +29,13 @@ export default function RankingPage() {
 
   return (
     <PageLayout className="pb-8">
-      <div className="mt-(--content-top-spacing) text-center mb-8 sm:mb-12">
-        <p className="mx-auto max-w-150 text-[#f7f7f7] text-lg sm:text-2xl leading-relaxed">
+      <div className="mt-(--content-top-spacing) text-center mb-12">
+        <p className="mx-auto max-w-150 text-ink-2 text-xl leading-relaxed">
           {loc('RecommendedChartsHint', '这里会选出七天内最有人气的谱面哟！')}
         </p>
       </div>
 
-      <div className="flex flex-col gap-6 sm:gap-12">
+      <div className="flex flex-col gap-12">
         <RankingSection
           title={loc('Play', '游玩')}
           subtitle={loc('PlayCountHint', '表示游玩次数多少')}
@@ -80,18 +80,14 @@ function RankingSection({ title, subtitle, sortType, delay = '' }: RankingSectio
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut", delay: delayMs }}
       className={`
-        bg-[rgba(30,30,30,0.6)] 
-        backdrop-blur-md 
-        rounded-2xl 
-        p-4 sm:p-6 md:p-8
-        border border-white/10 
-        shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+        rounded-xl
+        p-6 md:p-8
       `}
     >
-      <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
+      <div className="flex items-center gap-4 mb-6 pb-4 border-line border-b">
         <div>
-          <h2 className="m-0 font-semibold text-[#e5e5e5] text-2xl">{title}</h2>
-          <p className="m-0 mt-1 text-[#a0a0a0] text-sm">{subtitle}</p>
+          <h2 className="m-0 font-semibold text-ink text-2xl">{title}</h2>
+          <p className="m-0 mt-1 text-ink-2 text-sm">{subtitle}</p>
         </div>
       </div>
       <SongList

@@ -1,6 +1,7 @@
 import { PageLayout, AvatarUploader, IntroUploader } from '@/components';
 import { useLoc } from '@/hooks';
 import { motion, type Variants } from 'framer-motion';
+import { Image as ImageIcon, FileText } from 'lucide-react';
 
 // slideInUp 动画变体
 const slideInUp: Variants = {
@@ -21,36 +22,41 @@ export default function UserProfilePage() {
 
   return (
     <PageLayout title={loc('AccountSetting')} showBackToHome={false}>
-      {/* Profile Settings */}
+      {/* 单栏布局：头像设置 + 个人简介，一行一张 */}
       <motion.div
         initial="hidden"
         animate="visible"
         custom={0.3}
         variants={slideInUp}
       >
-        <div className="flex flex-col gap-8 mx-auto my-0 w-full">
+        <div className="gap-6 flex flex-col mx-auto my-0 w-full max-w-5xl">
           {/* Avatar Settings Card */}
-          <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-4 sm:px-6 lg:px-10 py-5 sm:py-7 lg:py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all md:hover:-translate-y-0.5 duration-300">
-            <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
-              <div className="font-semibold text-[#e5e5e5] text-xl">
-                {loc('AvatarSettings')} ({loc('AvatarHint')})
+          <div className="bg-surface border border-line rounded-xl shadow-card hover:shadow-card-hover px-6 md:px-8 py-6 md:py-8 transition-all hover:-translate-y-0.5 duration-300">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-line border-b">
+              <div className="bg-primary-soft p-2 rounded-md">
+                <ImageIcon className="text-primary text-xl" />
               </div>
+              <div className="font-semibold text-ink text-xl">
+                {loc('AvatarSettings')}
+              </div>
+              <span className="text-ink-3 text-xs font-normal ml-auto">
+                {loc('AvatarHint')}
+              </span>
             </div>
-            <div className="min-h-37.5">
-              <AvatarUploader />
-            </div>
+            <AvatarUploader />
           </div>
 
           {/* Personal Introduction Card */}
-          <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-4 sm:px-6 lg:px-10 py-5 sm:py-7 lg:py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all md:hover:-translate-y-0.5 duration-300">
-            <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
-              <div className="font-semibold text-[#e5e5e5] text-xl">
+          <div className="bg-surface border border-line rounded-xl shadow-card hover:shadow-card-hover px-6 md:px-8 py-6 md:py-8 transition-all hover:-translate-y-0.5 duration-300">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-line border-b">
+              <div className="bg-primary-soft p-2 rounded-md">
+                <FileText className="text-primary text-xl" />
+              </div>
+              <div className="font-semibold text-ink text-xl">
                 {loc('PersonalIntro')}
               </div>
             </div>
-            <div className="min-h-37.5">
-              <IntroUploader />
-            </div>
+            <IntroUploader />
           </div>
         </div>
       </motion.div>

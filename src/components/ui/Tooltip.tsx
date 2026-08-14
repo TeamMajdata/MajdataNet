@@ -60,11 +60,11 @@ export default function Tooltip({
                 className={
                   plain
                     ? 'z-9999 origin-(--radix-tooltip-content-transform-origin)'
-                    : 'bg-black/85 backdrop-blur-sm px-3 py-1.5 rounded-lg text-white text-sm shadow-lg z-9999 origin-(--radix-tooltip-content-transform-origin)'
+                    : 'bg-ink px-3 py-1.5 rounded-lg text-white text-sm z-9999 origin-(--radix-tooltip-content-transform-origin dark:bg-surface dark:text-ink dark:border dark:border-line'
                 }
               >
                 {content}
-                {!plain && <TooltipPrimitive.Arrow className="fill-black/85" />}
+                {!plain && <TooltipPrimitive.Arrow className="fill-ink dark:fill-surface" />}
               </motion.div>
             </TooltipPrimitive.Content>
           </TooltipPrimitive.Portal>

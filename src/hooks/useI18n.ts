@@ -55,6 +55,7 @@ export function useI18n() {
     changeLanguage,
     t,
     loc: t, // 别名
+    i18n: t, // main 兼容别名
     isReady,
   };
 }

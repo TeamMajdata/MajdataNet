@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -b && vite build",
+    "i18n:check": "node scripts/check-i18n.mjs",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,6 +20,7 @@
     "github-markdown-css": "^5.9.0",
     "js-md5": "^0.8.3",
     "jszip": "^3.10.1",
+    "lucide-react": "^1.19.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-helmet-async": "^2.0.5",

@@ -129,38 +129,38 @@ export default function AvatarUploader() {
 
   return (
     <div className="w-full">
-      <div className="flex lg:flex-row flex-col items-center gap-6 lg:gap-8">
+      <div className="flex items-center gap-8">
         {/* Current Avatar */}
-        <div className="flex flex-col flex-[0_0_auto] justify-center items-center gap-3 lg:gap-4 h-auto lg:h-55">
+        <div className="flex flex-col flex-[0_0_auto] justify-center items-center gap-4 h-55">
           <img
-            className="shadow-[0_6px_20px_rgba(0,0,0,0.4)] border-4 border-white/20 rounded-full w-30 lg:w-40 h-30 lg:h-40 object-cover transition-all duration-300"
+            className="shadow-card border-4 border-line rounded-full w-40 h-40 object-cover transition-all duration-300"
             src={currentAvatarUrl}
             alt={loc('CurrentAvatar')}
           />
-          <div className="bg-white/5 px-4 py-2 border border-white/10 rounded-[20px] font-semibold text-[#b0b0b0] text-base text-center">
+          <div className="bg-surface-2 border border-line rounded-full px-4 py-2 font-semibold text-ink-3 text-base text-center">
             {loc('CurrentAvatar')}
           </div>
         </div>
 
         {/* Preview Avatar */}
-        <div className="flex flex-col flex-1 justify-center items-center gap-3 lg:gap-4">
+        <div className="flex flex-col flex-1 justify-center items-center gap-4">
           <div className="flex flex-col justify-center items-center gap-4">
             <img
-              className={`w-30 lg:w-40 h-30 lg:h-40 rounded-full object-cover border-4 transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${previewUrl
-                ? 'border-[rgba(59,130,246,0.8)] shadow-[0_6px_25px_rgba(59,130,246,0.5)]'
-                : 'border-white/20'
+              className={`w-40 h-40 rounded-full object-cover border-4 transition-all duration-300 shadow-card ${previewUrl
+                ? 'border-primary'
+                : 'border-line'
                 }`}
               src={previewAvatarUrl}
               alt={loc('PreviewAvatar')}
             />
-            <div className="bg-white/5 px-4 py-2 border border-white/10 rounded-[20px] font-semibold text-[#b0b0b0] text-base text-center">
+            <div className="bg-surface-2 border border-line rounded-full px-4 py-2 font-semibold text-ink-3 text-base text-center">
               {loc('PreviewAvatar')}
             </div>
           </div>
         </div>
 
         {/* Upload Controls */}
-        <div className="flex flex-col flex-none lg:flex-[0_0_280px] justify-center items-stretch gap-4 lg:gap-6 w-full max-w-75 lg:max-w-none h-auto lg:h-55">
+        <div className="flex flex-col flex-[0_0_280px] justify-center items-stretch gap-6 h-55">
           <input
             ref={fileInputRef}
             type="file"
@@ -173,7 +173,7 @@ export default function AvatarUploader() {
             <button
               type="button"
               onClick={triggerFileSelect}
-              className="flex justify-center items-center disabled:bg-[#6b7280] bg-linear-to-br from-[#667eea] to-[#764ba2] disabled:opacity-50 hover:shadow-[0_8px_25px_rgba(102,126,234,0.4)] disabled:shadow-none px-6 py-4 border-0 rounded-[10px] w-full font-bold text-white disabled:text-[#9ca3af] text-base tracking-[0.02em] disabled:transform-none transition-all hover:-translate-y-0.5 duration-300 cursor-pointer disabled:cursor-not-allowed"
+              className="flex justify-center items-center disabled:bg-surface-2 disabled:text-ink-3 disabled:cursor-not-allowed bg-primary hover:bg-primary-hover px-6 py-4 border-0 rounded-md w-full font-bold text-white text-base transition-colors cursor-pointer"
               disabled={isUploading}
             >
               {selectedFile ? loc('ChangeFile') : loc('SelectFile')}
@@ -182,7 +182,7 @@ export default function AvatarUploader() {
             <button
               type="button"
               onClick={handleUpload}
-              className="flex justify-center items-center disabled:bg-[#6b7280] bg-linear-to-br from-[#11998e] to-[#38ef7d] disabled:opacity-50 hover:shadow-[0_8px_25px_rgba(17,153,142,0.4)] disabled:shadow-none px-6 py-4 border-0 rounded-[10px] w-full font-bold text-white disabled:text-[#9ca3af] text-base tracking-[0.02em] disabled:transform-none transition-all hover:-translate-y-0.5 duration-300 cursor-pointer disabled:cursor-not-allowed"
+              className="flex justify-center items-center disabled:bg-surface-2 disabled:text-ink-3 disabled:cursor-not-allowed bg-ok hover:bg-ok/85 px-6 py-4 border-0 rounded-md w-full font-bold text-white text-base transition-colors cursor-pointer"
               disabled={!selectedFile || isUploading}
             >
               {isUploading ? loc('UploadingPlzWait') : loc('Upload')}
@@ -191,7 +191,7 @@ export default function AvatarUploader() {
             <button
               type="button"
               onClick={handleCancel}
-              className="flex justify-center items-center disabled:bg-[#6b7280] bg-linear-to-br from-[#ff6b6b] to-[#ee5a24] disabled:opacity-50 hover:shadow-[0_8px_25px_rgba(255,107,107,0.4)] disabled:shadow-none px-6 py-4 border-0 rounded-[10px] w-full font-bold text-white disabled:text-[#9ca3af] text-base tracking-[0.02em] disabled:transform-none transition-all hover:-translate-y-0.5 duration-300 cursor-pointer disabled:cursor-not-allowed"
+              className="flex justify-center items-center disabled:bg-surface-2 disabled:text-ink-3 disabled:cursor-not-allowed bg-danger hover:bg-danger/85 px-6 py-4 border-0 rounded-md w-full font-bold text-white text-base transition-colors cursor-pointer"
               disabled={!selectedFile || isUploading}
             >
               {loc('Cancel')}
@@ -200,14 +200,14 @@ export default function AvatarUploader() {
 
           {selectedFile && (
             <div className="flex flex-col justify-center items-start gap-1 py-2 w-full max-h-15 overflow-hidden">
-              <span className="w-full max-h-[2.4rem] overflow-hidden overflow-wrap-anywhere font-medium text-[#e0e0e0] text-xs text-left break-all line-clamp-2 leading-tight">
+              <span className="w-full max-h-[2.4rem] overflow-hidden overflow-wrap-anywhere font-medium text-ink text-xs text-left break-all line-clamp-2 leading-tight">
                 {selectedFile.name}
               </span>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-[#b0b0b0] text-[0.7rem] shrink-0">
+                <span className="font-semibold text-ink-3 text-[0.7rem] shrink-0">
                   {loc('FileSize')}
                 </span>
-                <span className="text-[#a0a0a0] text-[0.7rem] shrink-0">
+                <span className="text-ink-3 text-[0.7rem] shrink-0">
                   {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                 </span>
               </div>
@@ -216,6 +216,33 @@ export default function AvatarUploader() {
         </div>
       </div>
 
+      {/* Mobile Responsive */}
+      <style>{`
+        @media (max-width: 768px) {
+          .w-full > div:first-child {
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+          }
+          .w-full > div:first-child > div:first-child {
+            height: auto;
+            justify-content: flex-start;
+          }
+          .w-full > div:first-child > div:nth-child(2) {
+            height: 180px;
+          }
+          .w-full > div:first-child img {
+            width: 120px;
+            height: 120px;
+          }
+          .w-full > div:first-child > div:last-child {
+            flex: none;
+            max-width: 300px;
+            height: auto;
+            justify-content: flex-start;
+          }
+        }
+      `}</style>
     </div>
   );
 }
