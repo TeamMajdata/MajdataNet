@@ -32,8 +32,6 @@ import {
   Flag,
   Play,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Download,
 } from "lucide-react";
 import type { Event, EventWithTimeInfo, Song } from "@/types";
@@ -405,11 +403,12 @@ function MainComp() {
     }
     return initialValue;
   });
-  const [page, setPage] = useState(() => {
-    const stored = localStorage.getItem("lastclickpage");
-    return parseInt(stored || "0");
-  });
-  const [maxpage, setMaxpage] = useState(999999);
+  // 全部谱面：无限滚动（累积列表 + 滚动加载下一页）
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [loadedPage, setLoadedPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const [sortType, setSortType] = useState(() => {
     const stored = localStorage.getItem("sort");
     return stored ? parseInt(stored) : 0;
@@ -437,8 +436,6 @@ function MainComp() {
     // function
     (value: string) => {
       setSearch(value);
-      setPage(0);
-      setMaxpage(9999999999999);
       localStorage.setItem("search", value);
       localStorage.setItem("lastclickpage", "0");
     },
@@ -449,11 +446,84 @@ function MainComp() {
   const onSortChange = (val: number) => {
     setSortType(val);
     localStorage.setItem("sort", val.toString());
-    setPage(0);
     localStorage.setItem("lastclickpage", "0");
   };
 
   const sortWords = ["", "likep", "commp", "playp"];
+
+  // 全部谱面：构造第 p 页列表 URL
+  const songListUrl = useCallback(
+    (p: number) => endpoints.maichart.listSearchAndSort(Search, sortWords[sortType], p),
+    [Search, sortType],
+  );
+
+  // 搜索 / 排序变化时重置并加载第一页
+  useEffect(() => {
+    let cancelled = false;
+    setSongs([]);
+    setLoadedPage(0);
+    setHasMore(true);
+    setIsLoadingMore(true);
+    fetch(songListUrl(0), { mode: "cors", credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (!Array.isArray(data) || data.length === 0) {
+          setHasMore(false);
+          setSongs([]);
+        } else {
+          setSongs(data);
+          if (data.length < 30) setHasMore(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setHasMore(false);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingMore(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [songListUrl]);
+
+  // 加载下一页并追加
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+    try {
+      const next = loadedPage + 1;
+      const data = await fetch(songListUrl(next), {
+        mode: "cors",
+        credentials: "include",
+      }).then((res) => res.json());
+      if (!Array.isArray(data) || data.length === 0) {
+        setHasMore(false);
+        return;
+      }
+      setSongs((prev) => [...prev, ...data]);
+      setLoadedPage(next);
+      if (data.length < 30) setHasMore(false);
+    } catch {
+      setHasMore(false);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore, loadedPage, songListUrl]);
+
+  // 滚动到底部自动加载下一页
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: "500px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore]);
 
   const refreshRandomBatch = useCallback(() => {
     setRandomSeed((prev) => prev + 1);
@@ -527,57 +597,24 @@ function MainComp() {
       <div className="mt-8 md:mt-10">
         {activeTab === "all" ? (
           <>
-            <SongGrid
-              url={endpoints.maichart.listSearchAndSort(
-                Search,
-                sortWords[sortType],
-                page,
+            <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+              {songs.map((song, index) => (
+                <SongMosaicCard key={song.id} song={song} index={index} page={loadedPage} />
+              ))}
+            </div>
+
+            {/* 底部 sentinel：滚动到此处自动加载下一页 */}
+            <div ref={sentinelRef} className="flex justify-center items-center py-16 w-full">
+              {isLoadingMore ? (
+                <LoadingSpinner size="40px" />
+              ) : !hasMore ? (
+                <span className="text-ink-3 text-sm">{loc("AllLoaded", "已加载全部")}</span>
+              ) : (
+                <span className="text-ink-3 text-sm">↓</span>
               )}
-              page={page}
-              setMax={setMaxpage}
-            />
+            </div>
 
-            <div className="flex flex-col items-center gap-6 mx-auto mt-12 px-4 w-full">
-              <div className="flex items-center gap-3 p-4">
-                <button
-                  className={`flex items-center justify-center px-4 py-2.5 bg-surface border border-line hover:border-primary/40 rounded-lg text-ink-2 hover:text-primary font-medium text-sm cursor-pointer min-w-10 transition-colors duration-150 ${page - 1 < 0 ? "opacity-30 cursor-not-allowed" : ""}`}
-                  disabled={page - 1 < 0}
-                  onClick={() => {
-                    setPage(page - 1);
-                    window.scrollTo(0, 200);
-                  }}
-                  aria-label={loc("PrevPage", "上一页")}
-                >
-                  <ChevronLeft size={16} />
-                </button>
-
-                <div className="flex items-center gap-2 px-2">
-                  <span className="text-ink-3 text-sm">
-                    {loc("PageOf", "第")}
-                  </span>
-                  <span className="font-semibold text-ink text-sm">
-                    {page + 1}
-                  </span>
-                  <span className="text-ink-3 text-sm">
-                    / {Math.max(maxpage + 1, 1)}
-                  </span>
-                  <span className="text-ink-3 text-sm">
-                    {loc("Page", "页")}
-                  </span>
-                </div>
-
-                <button
-                  className={`flex items-center justify-center px-4 py-2.5 bg-surface border border-line hover:border-primary/40 rounded-lg text-ink-2 hover:text-primary font-medium text-sm cursor-pointer min-w-10 transition-colors duration-150 ${page >= maxpage ? "opacity-30 cursor-not-allowed" : ""}`}
-                  disabled={page >= maxpage}
-                  onClick={() => {
-                    setPage(page + 1);
-                    window.scrollTo(0, 200);
-                  }}
-                  aria-label={loc("NextPage", "下一页")}
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
+            <div className="flex justify-center mt-4 px-4">
               <IntegratedDownloadTypeSelector />
             </div>
           </>
@@ -761,56 +798,6 @@ function SongMosaicCard({ song, index, page = 0 }: { song: Song; index: number; 
         </div>
       </Link>
     </motion.div>
-  );
-}
-
-/**
- * 全部谱面网格（与随机推荐统一为马赛克样式，仅用于主页「全部谱面」Tab）
- */
-function SongGrid({ url, page, setMax }: { url: string; page: number; setMax: (n: number) => void }) {
-  const loc = useLoc();
-
-  const fetcher = (u: string) =>
-    fetch(u, { mode: "cors", credentials: "include" }).then((res) => res.json());
-
-  const { data, error, isLoading } = useSWR<Song[]>(url, fetcher, {
-    revalidateOnFocus: false,
-  });
-
-  if (error) {
-    return (
-      <div className="m-auto w-full py-16 text-center text-ink-2 text-lg">
-        {loc("ServerError", "服务器错误")}
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-20 w-full">
-        <LoadingSpinner size="50px" />
-      </div>
-    );
-  }
-
-  if (data && data.length < 30 && data.length > 0) {
-    setMax(page);
-  }
-
-  if (!data || !Array.isArray(data) || data.length === 0) {
-    return (
-      <div className="m-auto w-full py-16 text-center text-ink-2 text-lg">
-        {loc("EmptyData", "暂无数据")}
-      </div>
-    );
-  }
-
-  return (
-    <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
-      {data.map((song, index) => (
-        <SongMosaicCard key={song.id} song={song} index={index} page={page} />
-      ))}
-    </div>
   );
 }
 
