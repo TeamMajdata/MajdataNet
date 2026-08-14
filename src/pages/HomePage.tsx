@@ -21,6 +21,8 @@ import {
   getEventStatusClass,
   getEventStatusText,
   getEventsWithTimeAgo,
+  isEventOngoing,
+  isEventUpcoming,
 } from "@/utils/eventsData";
 import {
   CalendarClock,
@@ -178,9 +180,19 @@ function EventStatusBadge({ event }: { event: Event }) {
  */
 function LatestEventsStrip() {
   const events = useMemo(() => {
+    // 优先进行中 > 即将开始 > 已结束；同状态按日期倒序；最多两行（3+4 = 7 个）
     return getEventsWithTimeAgo()
-      .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
-      .slice(0, 10);
+      .sort((a, b) => {
+        const rank = (e: Event) => {
+          if (isEventOngoing(e)) return 0;
+          if (isEventUpcoming(e)) return 1;
+          return 2;
+        };
+        const r = rank(a) - rank(b);
+        if (r !== 0) return r;
+        return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
+      })
+      .slice(0, 7);
   }, []);
 
   if (events.length === 0) return null;
