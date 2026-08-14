@@ -369,5 +369,7 @@
   "Docs": "ドキュメント",
   "CloseMenu": "閉じる",
   "Menu": "メニュー",
-  "AllLoaded": "すべて読み込みました"
+  "AllLoaded": "すべて読み込みました",
+  "Uploader": "アップロード者",
+  "PlayPreview": "プレビュー"
 }

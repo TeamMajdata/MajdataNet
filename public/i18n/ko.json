@@ -369,5 +369,7 @@
   "Docs": "문서",
   "CloseMenu": "닫기",
   "Menu": "메뉴",
-  "AllLoaded": "모두 불러왔습니다"
+  "AllLoaded": "모두 불러왔습니다",
+  "Uploader": "업로더",
+  "PlayPreview": "미리보기"
 }
