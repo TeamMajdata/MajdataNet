@@ -174,12 +174,6 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 </span>
               </p>
             </Tooltip>
-            <p className="mt-2 m-0 text-sm text-ink-3">
-              <Link to={'/space?id=' + o.uploader} className="text-primary hover:text-primary-hover no-underline transition-colors">
-                {o.uploader}
-              </Link>
-              {o.designer ? ` · ${o.designer}` : ''}
-            </p>
           </div>
 
           {/* 难度 */}
