@@ -18,6 +18,7 @@ import {
   CollectionModal,
   LoadingSpinner,
 } from '@/components';
+import { Download, Share, Bookmark, Play } from 'lucide-react';
 import { downloadSong } from '@/utils/download';
 import { parseTmpRichText } from '@/utils/richTextUtils';
 import type { SongDetailsContainerProps, SongSummary } from '@/types';
@@ -187,15 +188,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               onClick={OnDownloadClick({ id: o.id, title: o.title })}
               title={loc('Download')}
             >
-              <svg
-                className="fill-current"
-                xmlns="http://www.w3.org/2000/svg"
-                height="20"
-                viewBox="0 -960 960 960"
-                width="20"
-              >
-                <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-              </svg>
+              <Download size={20} />
               <span>{loc('Download') || '下载'}</span>
             </button>
             <button
@@ -203,15 +196,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               onClick={shareSong()}
               title={loc('Share')}
             >
-              <svg
-                className="fill-current"
-                xmlns="http://www.w3.org/2000/svg"
-                height="20"
-                viewBox="0 -960 960 960"
-                width="20"
-              >
-                <path d="M720-80q-50 0-85-35t-35-85q0-7 1-14.5t3-13.5L322-392q-17 15-38 23.5t-44 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 44 8.5t38 23.5l282-164q-2-6-3-13.5t-1-14.5q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-44-8.5T638-672L356-508q2 6 3 13.5t1 14.5q0 7-1 14.5t-3 13.5l282 164q17-15 38-23.5t44-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-640q17 0 28.5-11.5T760-760q0-17-11.5-28.5T720-800q-17 0-28.5 11.5T680-760q0 17 11.5 28.5T720-720ZM240-440q17 0 28.5-11.5T280-480q0-17-11.5-28.5T240-520q-17 0-28.5 11.5T200-480q0 17 11.5 28.5T240-440Zm480 280q17 0 28.5-11.5T760-200q0-17-11.5-28.5T720-240q-17 0-28.5 11.5T680-200q0 17 11.5 28.5T720-160Zm0-600ZM240-480Zm480 280Z" />
-              </svg>
+              <Share size={20} />
               <span>{loc('Share') || '分享'}</span>
             </button>
             <button
@@ -219,15 +204,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               onClick={() => setIsCollectionModalOpen(true)}
               title={loc('Collection') || '收藏'}
             >
-              <svg
-                className="fill-current"
-                xmlns="http://www.w3.org/2000/svg"
-                height="20"
-                viewBox="0 -960 960 960"
-                width="20"
-              >
-                <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
-              </svg>
+              <Bookmark size={20} />
               <span>{loc('Collection') || '收藏'}</span>
             </button>
           </div>
@@ -358,15 +335,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               title={loc('PlayPreview') || '预览'}
             >
               <span className="inline-flex flex-col items-center gap-3 text-ink-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="64px"
-                  viewBox="0 -960 960 960"
-                  width="64px"
-                  fill="#9ca3af"
-                >
-                  <path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
-                </svg>
+                <Play size={40} />
                 <span className="text-sm font-medium">{loc('PlayPreview', '预览')}</span>
               </span>
             </button>
