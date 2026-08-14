@@ -332,7 +332,7 @@ export default function PersonalScoresPage() {
           </div>
         ) : (
           <>
-<div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] w-full">
+<div className="gap-3 flex flex-col w-full">
               {paginatedData.map((score) => (
                 <motion.div
                   key={`${score.hash}-${score.timestamp}`}
@@ -343,7 +343,6 @@ export default function PersonalScoresPage() {
                 >
                   <ScoreCard
                     score={score}
-                    showLikeButton={true}
                     showComboEffects={true}
                     showRank={true}
                   />

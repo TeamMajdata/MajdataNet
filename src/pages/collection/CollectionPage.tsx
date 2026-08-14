@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import useSWR from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 import { motion } from 'framer-motion';
-import { PageLayout, SongCard, LoadingSpinner } from '@/components';
+import { PageLayout, SongMosaicCard, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import { setLanguage } from '@/utils/i18n';
 import { useLoc, useUserContext } from '@/hooks';
@@ -422,12 +422,12 @@ export default function CollectionPage() {
 
             {searchResults.length > 0 && (
               <>
-<div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] w-full">
+                <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
                   {searchResults.map((song, index) => {
                     const isAdded = allExistingIds.has(song.id);
                     return (
-                      <div key={song.id} className="relative">
-                        <SongCard song={song} index={index} disableLink />
+                      <div key={song.id} className="relative col-span-12 md:col-span-2">
+                        <SongMosaicCard song={song} index={index} />
                         <motion.button
                           whileHover={{ scale: 1.15 }}
                           whileTap={{ scale: 0.9 }}
@@ -437,7 +437,7 @@ export default function CollectionPage() {
                             else handleAddSong(song);
                           }}
                           disabled={!!addingSongId}
-                          className={`top-2 right-2 z-10 absolute flex justify-center items-center shadow-card border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer transition-colors ${isAdded
+                          className={`top-3 left-3 z-20 absolute flex justify-center items-center shadow-card border-none rounded-full w-7 h-7 font-bold text-white text-base leading-none cursor-pointer transition-colors ${isAdded
                             ? 'bg-danger hover:bg-danger'
                             : 'bg-primary hover:bg-primary-hover disabled:bg-surface-2 disabled:cursor-not-allowed'
                             }`}
@@ -484,10 +484,10 @@ export default function CollectionPage() {
             {loc('EmptyCollection', '歌单为空')}
           </div>
         ) : (
-<div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] w-full">
+          <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
             {displaySongs.map((song, index) => (
-              <div key={song.id} className="relative">
-                <SongCard song={song} index={index} disableLink={isManaging} />
+              <div key={song.id} className="relative col-span-12 md:col-span-2">
+                <SongMosaicCard song={song} index={index} />
                 {isManaging && (
                   <motion.button
                     whileHover={{ scale: 1.15 }}
@@ -496,7 +496,7 @@ export default function CollectionPage() {
                       e.stopPropagation();
                       handleRemoveSong(song.id);
                     }}
-                    className="top-2 right-2 z-10 absolute flex justify-center items-center bg-danger hover:bg-danger shadow-card border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer"
+                    className="top-3 left-3 z-20 absolute flex justify-center items-center bg-danger hover:bg-danger shadow-card border-none rounded-full w-7 h-7 font-bold text-white text-base leading-none cursor-pointer"
                     title={loc('RemoveFromCollection', '从歌单移除')}
                   >
                     ×

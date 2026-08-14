@@ -25,7 +25,7 @@ export type ActivityData = {
 const CHART_WIDTH = 920;
 const CHART_HEIGHT = 260;
 const CHART_PADDING = { top: 34, right: 28, bottom: 44, left: 44 };
-const ACTIVITY_LINE_COLOR = '#5c8dc1';
+const ACTIVITY_LINE_COLOR = 'var(--primary)';
 
 // ─── Time utilities ───────────────────────────────────────────────────────────
 
@@ -56,16 +56,8 @@ function buildSmoothPath(points: ActivityPoint[]): string {
 
   const commands = [`M ${points[0].x} ${points[0].y}`];
   for (let i = 0; i < points.length - 1; i += 1) {
-    const current = points[i];
     const next = points[i + 1];
-    const previous = points[i - 1] || current;
-    const following = points[i + 2] || next;
-    const smoothing = 0.2;
-    const cp1x = current.x + (next.x - previous.x) * smoothing;
-    const cp1y = current.y + (next.y - previous.y) * smoothing;
-    const cp2x = next.x - (following.x - current.x) * smoothing;
-    const cp2y = next.y - (following.y - current.y) * smoothing;
-    commands.push(`C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${next.x} ${next.y}`);
+    commands.push(`L ${next.x} ${next.y}`);
   }
 
   return commands.join(' ');
@@ -187,10 +179,10 @@ export default function RecentActivityChart({ records }: { records: RecentPlayed
                 y1={line.y}
                 x2={CHART_WIDTH - CHART_PADDING.right}
                 y2={line.y}
-                stroke="#e5e7eb"
+                stroke="var(--line)"
                 strokeDasharray="6 8"
               />
-              <text x={CHART_PADDING.left - 12} y={line.y + 5} textAnchor="end" className="fill-[#9ca3af] text-[13px]">
+              <text x={CHART_PADDING.left - 12} y={line.y + 5} textAnchor="end" className="fill-[var(--ink-3)] text-[13px]">
                 {line.value}
               </text>
             </g>
@@ -203,8 +195,8 @@ export default function RecentActivityChart({ records }: { records: RecentPlayed
             <g key={`${point.label}-${index}`}>
               {point.value > 0 && (
                 <>
-                  <circle cx={point.x} cy={point.y} r="5.5" fill={ACTIVITY_LINE_COLOR} stroke="#ffffff" strokeWidth="2" />
-                  <text x={point.x} y={point.y - 12} textAnchor="middle" className="fill-[#1f2937] text-[15px] font-bold">
+                  <circle cx={point.x} cy={point.y} r="5.5" fill={ACTIVITY_LINE_COLOR} stroke="var(--surface)" strokeWidth="2" />
+                  <text x={point.x} y={point.y - 12} textAnchor="middle" className="fill-[var(--ink)] text-[15px] font-bold">
                     {point.value}
                   </text>
                 </>
@@ -215,7 +207,7 @@ export default function RecentActivityChart({ records }: { records: RecentPlayed
                   y={CHART_HEIGHT - 13}
                   textAnchor="middle"
                   transform={activity.points.length > 14 ? `rotate(35 ${point.x} ${CHART_HEIGHT - 13})` : undefined}
-                  className="fill-[#6b7280] text-[13px]"
+                  className="fill-[var(--ink-2)] text-[13px]"
                 >
                   {point.label}
                 </text>

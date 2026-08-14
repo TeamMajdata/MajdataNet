@@ -3,33 +3,37 @@
 @import "./styles/components/events.css";
 
 /* ============================================================
-   v4 设计 Token（Quiet Flat · 大留白 · 信息层级）
-   通过 @theme 注入 Tailwind：bg-surface / text-ink / border-line 等
+   v5 设计 Token（Quiet Flat · 大留白 · 信息层级 · 亮/暗双主题）
+   @theme 注入 Tailwind：bg-surface / text-ink / border-line 等
+   token 值引用运行时 CSS 变量（--surface 等），
+   通过 html.dark 一键切换暗色主题
    ============================================================ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* 背景 */
-  --color-page: #f7f8fa;        /* bg-page    页面底色 */
-  --color-surface: #ffffff;     /* bg-surface 卡片/面板 */
-  --color-surface-2: #eef1f5;   /* bg-surface-2 选中/分区底色 */
+  --color-page: var(--page);          /* bg-page    页面底色 */
+  --color-surface: var(--surface);    /* bg-surface 卡片/面板 */
+  --color-surface-2: var(--surface-2);/* bg-surface-2 选中/分区底色 */
 
   /* 品牌色 */
-  --color-primary: #5c8dc1;     /* bg-primary / text-primary */
-  --color-primary-hover: #4a7daf;
-  --color-primary-soft: #eef4fa;
+  --color-primary: var(--primary);     /* bg-primary / text-primary */
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
 
   /* 文字层级：ink(主) / ink-2(次) / ink-3(弱) */
-  --color-ink: #1f2937;
-  --color-ink-2: #6b7280;
-  --color-ink-3: #9ca3af;
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
 
   /* 边框 */
-  --color-line: #e5e7eb;
-  --color-line-strong: #d1d5db;
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
 
   /* 语义色（扁平） */
-  --color-ok: #10b981;
-  --color-warn: #f59e0b;
-  --color-danger: #ef4444;
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
 
   /* 圆角 */
   --radius-sm: 6px;
@@ -37,9 +41,9 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
 
-  /* 阴影（仅两档） */
-  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.05);
-  --shadow-card-hover: 0 8px 24px rgb(16 24 40 / 0.08);
+  /* 阴影（仅两档；深色模式使用亮色阴影） */
+  --shadow-card: var(--shadow-card-val);
+  --shadow-card-hover: var(--shadow-card-hover-val);
 
   /* 字体 */
   --font-sans: system-ui, -apple-system, "Segoe UI", "PingFang SC",
@@ -47,9 +51,38 @@
 }
 
 /* ============================================================
-   兼容变量（v2 遗留引用，组件改造完成后逐步移除）
+   亮色主题（默认）
    ============================================================ */
 :root {
+  /* 背景 */
+  --page: #f7f8fa;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+
+  /* 品牌色 */
+  --primary: #5c8dc1;
+  --primary-hover: #4a7daf;
+  --primary-soft: #eef4fa;
+
+  /* 文字层级 */
+  --ink: #1f2937;
+  --ink-2: #6b7280;
+  --ink-3: #9ca3af;
+
+  /* 边框 */
+  --line: #e5e7eb;
+  --line-strong: #d1d5db;
+
+  /* 语义色 */
+  --ok: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+
+  /* 阴影 */
+  --shadow-card-val: 0 1px 2px rgb(16 24 40 / 0.05);
+  --shadow-card-hover-val: 0 8px 24px rgb(16 24 40 / 0.08);
+
+  /* 兼容变量（v2 遗留） */
   --foreground-rgb: 31, 41, 55;      /* #1f2937 */
   --background-start: 247, 248, 250; /* #f7f8fa */
   --shadow: #d0d0d8;
@@ -72,8 +105,72 @@
   --content-top-spacing: calc(var(--header-height) + 1rem);
   --content-top-spacing-large: calc(var(--header-height) + 1.5rem);
 
+  color-scheme: light;
   scrollbar-color: #b4b4be rgb(var(--background-start));
   scrollbar-width: thin;
+}
+
+/* ============================================================
+   暗色主题（html.dark）
+   ============================================================ */
+.dark {
+  /* 背景 */
+  --page: #12141a;
+  --surface: #1b1e26;
+  --surface-2: #242833;
+
+  /* 品牌色（暗色下稍微提亮） */
+  --primary: #6f9fd4;
+  --primary-hover: #83aede;
+  --primary-soft: #243041;
+
+  /* 文字层级 */
+  --ink: #e6e9ef;
+  --ink-2: #a4abba;
+  --ink-3: #6f7787;
+
+  /* 边框 */
+  --line: #2c3140;
+  --line-strong: #3b4152;
+
+  /* 语义色 */
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --danger: #f87171;
+
+  /* 阴影（亮色，深色背景上可见） */
+  --shadow-card-val: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-card-hover-val: 0 8px 24px rgb(0 0 0 / 0.5);
+
+  /* 兼容变量 */
+  --foreground-rgb: 230, 233, 239;    /* #e6e9ef */
+  --background-start: 18, 20, 26;     /* #12141a */
+  --shadow: #000000;
+
+  --glassmorphism-bg-primary: #1b1e26;
+  --glassmorphism-bg-secondary: #1b1e26;
+  --glassmorphism-border: 1px solid #2c3140;
+  --glassmorphism-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+
+  color-scheme: dark;
+  scrollbar-color: #4a5162 rgb(var(--background-start));
+
+  /* GitHub markdown 暗色变量覆盖 */
+  --color-canvas-default: #1b1e26;
+  --color-canvas-subtle: #242833;
+  --color-canvas-inset: #12141a;
+  --color-canvas-overlay: #1b1e26;
+  --color-fg-default: #e6e9ef;
+  --color-fg-muted: #a4abba;
+  --color-fg-subtle: #6f7787;
+  --color-border-default: #2c3140;
+  --color-border-muted: #2c3140;
+  --color-accent-fg: #6f9fd4;
+  --color-accent-emphasis: #6f9fd4;
+  --color-danger-fg: #f87171;
+  --color-success-fg: #34d399;
+  --color-attention-fg: #fbbf24;
+  --color-neutral-muted: rgb(110 118 129 / 0.4);
 }
 
 /* 基础文本颜色（放入 @layer base，允许 Tailwind utilities 覆盖） */
@@ -87,7 +184,7 @@
   }
 
   h1 {
-    color: #1f2937;
+    color: var(--ink);
     text-align: center;
     font-size: 2.5rem;
     font-weight: bold;
@@ -95,7 +192,7 @@
   }
 
   h2 {
-    color: #1f2937;
+    color: var(--ink);
     text-align: center;
     font-size: 2.5rem;
     font-weight: bold;
@@ -111,9 +208,9 @@
 
 /* Body：纯色背景，无网格、无模糊；顶部为 fixed 顶栏预留空间（紧贴顶栏） */
 body {
-  color-scheme: only light;
   background-color: var(--color-page);
   padding-top: 4rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* 移除数字输入框的spinner */
@@ -130,7 +227,8 @@ input[type="number"]::-webkit-inner-spin-button {
   max-width: 100%;
   margin: 0 auto;
   padding: 45px;
-  background-color: rgb(var(--background-start)) !important;
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
 }
 
 /* 覆盖全局 h1/h2 居中，markdown 内标题默认左对齐 */
@@ -141,6 +239,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .markdown-body h5,
 .markdown-body h6 {
   text-align: left !important;
+  color: var(--ink) !important;
 }
 
 .markdown-body ul {

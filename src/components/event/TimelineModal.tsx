@@ -19,7 +19,7 @@ import { EventCategory } from "@/types/event";
 import { Link } from 'react-router-dom';
 
 
-const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
+const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose, inline = false }) => {
   const loc = useLoc();
   const [ongoingEvents, setOngoingEvents] = useState<Event[]>([]);
   const [timelineData, setTimelineData] = useState<TimelineData>({
@@ -299,7 +299,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
   };
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen && !inline) return;
 
     const events = getActiveEvents();
     if (events.length === 0) {
@@ -339,7 +339,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
       isCompressed: compressedTimelineData.isCompressed
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isOpen, inline]);
 
   // 获取当前语言的locale
   const getDateLocale = (): string => {
@@ -353,14 +353,6 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
     return localeMap[lang] || "zh-CN";
   };
 
-  // 格式化日期显示
-  const formatDate = (date: Date): string => {
-    return date.toLocaleDateString(getDateLocale(), {
-      month: "short",
-      day: "numeric"
-    });
-  };
-
   // 格式化紧凑日期显示
   const formatCompactDate = (date: Date): string => {
     return date.toLocaleDateString(getDateLocale(), {
@@ -369,17 +361,25 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
     });
   };
 
+  // 判断是否为今天（按本地日期比较）
+  const isToday = (date: Date): boolean => {
+    const now = new Date();
+    return date.getFullYear() === now.getFullYear()
+      && date.getMonth() === now.getMonth()
+      && date.getDate() === now.getDate();
+  };
+
   // 获取事件颜色
   const getEventColor = (event: TimelineEvent): string => {
     const baseColors: Record<EventCategory, string> = {
-      [EventCategory.All]: "#6b7280",
+      [EventCategory.All]: "var(--ink-2)",
       [EventCategory.Major]: "#3b82f6",
       [EventCategory.PrivateContest]: "#10b981",
       [EventCategory.University]: "#f59e0b",
       [EventCategory.PrivateProject]: "#8b5cf6",
     };
 
-    const baseColor = baseColors[event.category] || "#6b7280";
+    const baseColor = baseColors[event.category] || "var(--ink-2)";
 
     if (event.isUpcoming) {
       const upcomingColors: Record<string, string> = {
@@ -387,13 +387,108 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
         "#10b981": "#6ee7b7",
         "#f59e0b": "#fbbf24",
         "#8b5cf6": "#c4b5fd",
-        "#6b7280": "#9ca3af"
+        "var(--ink-2)": "var(--ink-3)"
       };
-      return upcomingColors[baseColor] || "#9ca3af";
+      return upcomingColors[baseColor] || "var(--ink-3)";
     }
 
     return baseColor;
   };
+
+  // 时间轴内容区块（inline 与弹窗共用）
+  const timelineContent = (
+    <div className={`flex-1 overflow-y-auto ${inline ? 'px-4 py-4 md:px-6' : 'bg-surface px-10 py-15'}`}>
+      {ongoingEvents.length === 0 ? (
+        <div className="px-4 py-12 text-ink-2 text-lg text-center">
+          <p>{loc("NoActiveEvents", "暂无活跃的活动")}</p>
+        </div>
+      ) : (
+        <>
+          <div className="mb-10">
+            <div className="relative overflow-hidden">
+              {/* 轨道上方：开始 / 结束时间（绝对定位，与轨道条同列结构） */}
+              {timelineData.startDate && timelineData.endDate && (
+                <div className="top-0 left-0 right-0 z-10 absolute pointer-events-none">
+                  <div className="flex items-center gap-4 px-2.5 pr-10 text-[0.7rem] font-medium text-ink-3">
+                    <div className="flex-[0_0_180px]" />
+                    <div className="relative flex flex-1 items-center px-2 justify-between">
+                      <span className="whitespace-nowrap">
+                        {formatCompactDate(timelineData.startDate)}
+                      </span>
+                      <span className="whitespace-nowrap">
+                        {formatCompactDate(timelineData.endDate)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Grid Lines */}
+              <div className="absolute inset-0 pointer-events-none">
+                {timelineData.timeScale.map((tick, index) => (
+                  <div
+                    key={index}
+                    className={`absolute top-0 bottom-0 ${isToday(tick.date) ? 'w-0.5 bg-danger' :
+                      tick.isMonth ? 'w-px bg-line-strong' :
+                        tick.isWeek ? 'w-px bg-line' :
+                          'w-px bg-line/50'
+                      }`}
+                    style={{ left: `${tick.position}%` }}
+                  />
+                ))}
+              </div>
+
+              {/* Events */}
+              <div className="flex flex-col gap-2 mr-0 px-2.5 py-5 pr-10 text-left">
+                {timelineData.events.map((event) => (
+                  <div key={event.id} className="flex items-center gap-4 py-2 border-line border-b last:border-b-0 min-h-10">
+                    <div className="flex-[0_0_180px] text-left">
+                      <div className="mb-1 overflow-hidden font-semibold text-[0.85rem] text-ink text-ellipsis leading-tight whitespace-nowrap">
+                        {event.title}
+                      </div>
+                      <div className="flex flex-col gap-0.5 text-[0.7rem]">
+                        <span
+                          className="font-medium"
+                          style={{ color: getEventColor(event) }}
+                        >
+                          {getCategoryTranslation(event.category)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="relative flex-1 bg-surface-2 pr-0 border border-line rounded-md h-6">
+                      <Link
+                        to={event.href}
+                        className="block top-0 absolute hover:-translate-y-0.5 active:scale-[0.98] rounded-md h-full overflow-hidden no-underline transition-transform duration-300 cursor-pointer"
+                        style={{
+                          left: `${event.startOffset}%`,
+                          width: `${event.width}%`,
+                          backgroundColor: getEventColor(event),
+                        }}
+                        title={`${event.title}\n${formatCompactDate(new Date(event.createDate))} - ${formatCompactDate(new Date(event.endDate))}\n${loc("Duration", "持续时间")} ${event.duration} ${loc("Days", "天")}\n${loc("ClickToViewDetails", "点击查看详情")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="relative flex items-center px-2 w-full h-full">
+                          <span className="z-2 overflow-hidden font-semibold text-[0.7rem] text-white text-ellipsis whitespace-nowrap">
+                            {event.title}
+                          </span>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  // inline 模式：直接渲染为页面区块（无背景、无标题栏，仅时间轴内容）
+  if (inline) {
+    return timelineContent;
+  }
 
   return (
     <AnimatePresence>
@@ -427,98 +522,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
               </button>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 bg-surface px-10 py-15 overflow-y-auto">
-              {ongoingEvents.length === 0 ? (
-                <div className="px-4 py-12 text-ink-2 text-lg text-center">
-                  <p>{loc("NoActiveEvents", "暂无活跃的活动")}</p>
-                </div>
-              ) : (
-                <>
-                  <div className="mb-8 py-6 text-center">
-                    <div className="flex flex-wrap justify-center gap-12 mb-6">
-                      <span className="flex items-center gap-2 text-ink-2 text-base">
-                        <strong className="font-bold text-ink text-lg">{ongoingEvents.length}</strong> {loc("ActiveEvents", "个活跃活动")}
-                      </span>
-                      <span className="flex items-center gap-2 text-ink-2 text-base">
-                        {loc("TimeSpan", "时间跨度")} <strong className="font-bold text-ink text-lg">{timelineData.totalDays}</strong> {loc("Days", "天")}
-                      </span>
-                    </div>
-                    <div className="flex justify-center items-center gap-6 font-semibold text-ink-2 text-lg">
-                      <span>
-                        {timelineData.startDate && formatDate(timelineData.startDate)}
-                      </span>
-                      <span className="font-light text-ink-3 text-xl">—</span>
-                      <span>
-                        {timelineData.endDate && formatDate(timelineData.endDate)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mb-10">
-                    <div className="relative overflow-hidden">
-                      {/* Grid Lines */}
-                      <div className="absolute inset-0 pointer-events-none">
-                        {timelineData.timeScale.map((tick, index) => (
-                          <div
-                            key={index}
-                            className={`absolute top-0 bottom-0 ${tick.isMonth ? 'w-px bg-line-strong' :
-                              tick.isWeek ? 'w-px bg-line' :
-                                'w-px bg-line/50'
-                              }`}
-                            style={{ left: `${tick.position}%` }}
-                          />
-                        ))}
-                      </div>
-
-                      {/* Events */}
-                      <div className="flex flex-col gap-2 mr-0 px-2.5 py-5 pr-10 text-left">
-                        {timelineData.events.map((event) => (
-                          <div key={event.id} className="flex items-center gap-4 py-2 border-line border-b last:border-b-0 min-h-10">
-                            <div className="flex-[0_0_180px] text-center">
-                              <div className="mb-1 overflow-hidden font-semibold text-[0.85rem] text-ink text-ellipsis leading-tight whitespace-nowrap">
-                                {event.title}
-                              </div>
-                              <div className="flex flex-col gap-0.5 text-[0.7rem]">
-                                <span
-                                  className="font-medium"
-                                  style={{ color: getEventColor(event) }}
-                                >
-                                  {getCategoryTranslation(event.category)}
-                                </span>
-                                <span className="text-[0.65rem] text-ink-3">
-                                  {formatCompactDate(new Date(event.createDate))} - {formatCompactDate(new Date(event.endDate))}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="relative flex-1 bg-surface-2 pr-0 border border-line rounded-md h-6">
-                              <Link
-                                to={event.href}
-                                className="block top-0 absolute hover:-translate-y-0.5 active:scale-[0.98] rounded-md h-full overflow-hidden no-underline transition-transform duration-300 cursor-pointer"
-                                style={{
-                                  left: `${event.startOffset}%`,
-                                  width: `${event.width}%`,
-                                  backgroundColor: getEventColor(event),
-                                }}
-                                title={`${event.title}\n${formatCompactDate(new Date(event.createDate))} - ${formatCompactDate(new Date(event.endDate))}\n${loc("Duration", "持续时间")} ${event.duration} ${loc("Days", "天")}\n${loc("ClickToViewDetails", "点击查看详情")}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <div className="relative flex items-center px-2 w-full h-full">
-                                  <span className="z-2 overflow-hidden font-semibold text-[0.7rem] text-white text-ellipsis whitespace-nowrap">
-                                    {event.title}
-                                  </span>
-                                </div>
-                              </Link>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+            {timelineContent}
           </motion.div>
         </motion.div>
       )}

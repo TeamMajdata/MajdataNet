@@ -5,7 +5,7 @@ import { endpoints } from '@/config/api';
 import { useLoc } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import { motion } from 'framer-motion';
-import { MdOutlineAudioFile, MdOutlineDescription, MdOutlineImage, MdOutlineVideoFile, MdCloudUpload } from 'react-icons/md';
+import { FileText, Image as ImageIcon, Music, Video, UploadCloud } from 'lucide-react';
 import { LoadingSpinner } from '@/components';
 
 export default function ChartUploader() {
@@ -77,10 +77,10 @@ export default function ChartUploader() {
   }
 
   const uploadFields = [
-    { label: 'maidata.txt', icon: <MdOutlineDescription className="text-ink-3 group-hover:text-primary text-2xl transition-colors" /> },
-    { label: 'bg.png/bg.jpg', icon: <MdOutlineImage className="text-ink-3 group-hover:text-primary text-2xl transition-colors" /> },
-    { label: 'track.mp3', icon: <MdOutlineAudioFile className="text-ink-3 group-hover:text-primary text-2xl transition-colors" /> },
-    { label: loc('BGVideoHint'), icon: <MdOutlineVideoFile className="text-ink-3 group-hover:text-primary text-2xl transition-colors" /> },
+    { label: 'maidata.txt', icon: <FileText className="text-ink-3 group-hover:text-primary text-xl transition-colors" /> },
+    { label: 'bg.png/bg.jpg', icon: <ImageIcon className="text-ink-3 group-hover:text-primary text-xl transition-colors" /> },
+    { label: 'track.mp3', icon: <Music className="text-ink-3 group-hover:text-primary text-xl transition-colors" /> },
+    { label: loc('BGVideoHint'), icon: <Video className="text-ink-3 group-hover:text-primary text-xl transition-colors" /> },
   ];
 
   return (
@@ -94,7 +94,7 @@ export default function ChartUploader() {
 
         <div className="flex items-center gap-3 mb-6 pb-4 border-line border-b">
           <div className="bg-primary-soft p-2 rounded-md">
-            <MdCloudUpload className="text-primary text-2xl" />
+            <UploadCloud className="text-primary text-xl" />
           </div>
           <h2 className="font-bold text-ink text-xl">
             {loc('Upload') || 'Upload Chart'}
@@ -139,7 +139,7 @@ export default function ChartUploader() {
               </>
             ) : (
               <>
-                <MdCloudUpload className="text-xl" />
+                <UploadCloud className="w-5 h-5" />
                 {loc('Upload')}
               </>
             )}

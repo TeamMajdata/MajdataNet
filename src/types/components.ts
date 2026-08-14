@@ -177,6 +177,8 @@ export interface RecentPlayedWidgetProps {
 export interface TimelineModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** inline 模式：直接渲染为页面区块（无遮罩/无关闭按钮），不需要 isOpen */
+  inline?: boolean;
 }
 
 // ======================== 标签管理组件 ========================

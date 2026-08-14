@@ -24,6 +24,7 @@ export { ScoreCard } from './score/ScoreCard';
 // 列表和展示组件
 export { default as SongList } from './song/SongList';
 export { default as SongCard } from './song/SongCard';
+export { default as SongMosaicCard } from './song/SongMosaicCard';
 export { default as Majdata } from './song/Majdata';
 export { default as MiniGame } from './song/MiniGame';
 export { default as RecentPlayedWidget } from './user/RecentPlayedWidget';

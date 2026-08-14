@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import useSWR from "swr";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useDebouncedCallback } from "use-debounce";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -199,11 +199,7 @@ function LatestEventsStrip() {
   if (events.length < 6) {
     return (
       <section className="mt-10 mb-20 w-full">
-        <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
-          {events.map((event, index) => (
-            <EventMosaicCard key={event.id} event={event} index={index} />
-          ))}
-        </div>
+        <EventMosaicWithBrandTitle events={events} />
       </section>
     );
   }
@@ -212,20 +208,57 @@ function LatestEventsStrip() {
     <section className="mt-10 mb-20 w-full">
       {/* 网格左右滚动动画：横向无缝循环，hover 暂停 */}
       <div className="relative overflow-hidden">
-        <div className="events-scroll-track flex">
-          <div className="grid grid-cols-12 gap-x-6 gap-y-12 w-[100vw] px-4 shrink-0">
-            {events.map((event, index) => (
-              <EventMosaicCard key={event.id} event={event} index={index} />
-            ))}
+        <div className="events-scroll-track flex w-max">
+          <div className="w-[100vw] px-4 shrink-0">
+            <EventMosaicWithBrandTitle events={events} />
           </div>
-          <div className="grid grid-cols-12 gap-x-6 gap-y-12 w-[100vw] px-4 shrink-0" aria-hidden="true">
-            {events.map((event, index) => (
-              <EventMosaicCard key={`dup-${event.id}`} event={event} index={index} />
-            ))}
+          <div className="w-[100vw] px-4 shrink-0" aria-hidden="true">
+            <EventMosaicWithBrandTitle events={events} />
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * 两行活动马赛克 + 两行之间的 MAJDATA.NET 品牌大标题（放大版顶栏字标）
+ * 第一行 3 张（span 3~6 随机组合），第二行 4 张（span 3 等宽）
+ */
+function EventMosaicWithBrandTitle({ events }: { events: EventWithTimeInfo[] }) {
+  return (
+    <>
+      {/* 第一行：前 3 张 */}
+      <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+        {events.slice(0, 3).map((event, index) => (
+          <EventMosaicCard key={event.id} event={event} index={index} />
+        ))}
+      </div>
+
+      {/* MAJDATA.NET 大标题 */}
+      {events.length > 3 && (
+        <div className="relative flex justify-center items-center py-6 md:py-8 select-none">
+          <img
+            src="/icons/now_loading.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute top-[28%] left-1/2 w-16 h-16 md:w-24 md:h-24 -translate-x-1/2 -translate-y-1/2"
+          />
+          <span className="relative z-10 pt-10 font-black tracking-tight text-ink text-4xl md:text-6xl">
+            MAJDATA<span className="text-ink-3">.NET</span>
+          </span>
+        </div>
+      )}
+
+      {/* 第二行：剩余 4 张 */}
+      {events.length > 3 && (
+        <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+          {events.slice(3, 7).map((event, index) => (
+            <EventMosaicCard key={event.id} event={event} index={index + 3} />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -278,10 +311,18 @@ function CompactSearchInput({
 }) {
   const loc = useLoc();
   const [currentValue, setCurrentValue] = useState(initS);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     setCurrentValue(initS);
   }, [initS]);
+
+  const searchHints = [
+    loc("SearchHintID", "id:xxxx 可以按id查询谱面"),
+    loc("SearchHintHash", "hash:xxxx 可以按hash查询谱面"),
+    loc("SearchHintTag", "tag:xxxx 可以只看这个tag的谱面"),
+    loc("SearchHintUploader", "uploader:xxxx 可以只看他传的谱面"),
+  ];
 
   return (
     <div className="relative">
@@ -294,6 +335,8 @@ function CompactSearchInput({
           setCurrentValue(e.target.value);
           onDebouncedChange(e.target.value);
         }}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         aria-label={loc("SearchPlaceholder", "搜索...")}
       />
       {currentValue !== "" && (
@@ -308,6 +351,27 @@ function CompactSearchInput({
           ×
         </button>
       )}
+
+      {/* 聚焦时的参数使用说明气泡 */}
+      <AnimatePresence>
+        {isFocused && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="top-full right-0 z-30 absolute bg-surface shadow-card border border-line mt-2 p-3 rounded-lg min-w-52 md:min-w-64"
+          >
+            <div className="flex flex-col gap-1.5">
+              {searchHints.map((hint) => (
+                <span key={hint} className="text-xs text-ink-2 leading-snug">
+                  {hint}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -591,6 +655,11 @@ function MainComp() {
             {loc("RandomRecommend", "随机推荐")}
           </button>
         </div>
+
+        {/* ADX / ZIP 下载类型选择（Tab 下方一行） */}
+        <div className="flex justify-end w-full">
+          <IntegratedDownloadTypeSelector />
+        </div>
       </div>
 
       {/* 内容区 */}
@@ -613,18 +682,10 @@ function MainComp() {
                 <span className="text-ink-3 text-sm">↓</span>
               )}
             </div>
-
-            <div className="flex justify-center mt-4 px-4">
-              <IntegratedDownloadTypeSelector />
-            </div>
           </>
         ) : (
           <>
             <RandomRecommendList refreshKey={randomSeed} />
-
-            <div className="flex justify-center mt-12 px-4">
-              <IntegratedDownloadTypeSelector />
-            </div>
           </>
         )}
       </div>

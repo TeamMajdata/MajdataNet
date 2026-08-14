@@ -3,6 +3,7 @@
  */
 import { useI18n } from '@/hooks/useI18n';
 import { LANGUAGE_CONFIG } from '@/config/i18n';
+import { Languages } from 'lucide-react';
 
 export default function LanguageSelector() {
   const { language, changeLanguage, i18n } = useI18n();
@@ -12,15 +13,14 @@ export default function LanguageSelector() {
   };
 
   return (
-    <div className="inline-flex items-center gap-2">
-      <label htmlFor="language-select" className="font-medium text-gray-700 text-sm">
-        {i18n("shared/LanguageSelector.Language", '语言')}:
-      </label>
+    <div className="inline-flex items-center gap-2.5">
+      <Languages size={18} className="shrink-0 text-ink-2" />
       <select
         id="language-select"
         value={language}
         onChange={handleLanguageChange}
-        className="bg-white shadow-sm px-3 py-2 border border-gray-300 hover:border-gray-400 focus:border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 transition-colors"
+        aria-label={i18n('Language', 'Language')}
+        className="bg-surface hover:border-primary/40 px-3 py-2 border border-line rounded-lg text-ink text-sm transition-colors outline-none focus:border-primary"
       >
         {Object.entries(LANGUAGE_CONFIG).map(([code, config]) => (
           <option key={code} value={code}>

@@ -19,7 +19,13 @@ function normalizeLanguage(language: string): Language {
 function isTranslationDictionary(value: unknown): value is TranslationDictionary {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
 
-  return Object.values(value).every((namespace) => (
+  const entries = Object.values(value);
+
+  // 扁平结构：{ Key: "文案" }（当前语言包实际使用，loc/getTranslatedString 消费）
+  if (entries.every((entry) => typeof entry === 'string')) return true;
+
+  // 命名空间结构：{ "路由/组件": { Key: "文案" } }（新约定，i18n() 消费）
+  return entries.every((namespace) => (
     namespace !== null
     && typeof namespace === 'object'
     && !Array.isArray(namespace)
@@ -122,6 +128,10 @@ export function i18n(key: string, fallback?: string): string {
     ?? languageCache[DEFAULT_LANGUAGE]?.[namespace]?.[translationKey];
 
   if (translated === undefined) {
+    // 兼容扁平结构语言包：命名空间 key 的末段作为扁平 key 再查一次
+    const flatValue = getTranslatedString(translationKey, '');
+    if (flatValue !== '') return flatValue;
+
     const warningKey = `${currentLanguage}:${key}`;
     if (!warnedKeys.has(warningKey)) {
       console.warn(`[i18n] Missing translation: ${warningKey}`);

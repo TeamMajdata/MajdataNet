@@ -3,93 +3,17 @@
  * 展示单个成绩的卡片
  */
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
-import { toast } from 'react-toastify';
-import { LoadingSpinner } from '@/components';
 import { CoverPic, Level, LazyLoad } from '@/components';
 import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';
-import { useI18n, useUsername } from '@/hooks';
+import { useUsername } from '@/hooks';
 import type { Score, ChartScore } from '@/types';
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
-
-function SimpleLikeButton({ songid }: { songid: string }) {
-  const { i18n } = useI18n();
-  const [isLoading, setIsLoading] = useState(false);
-  const { data, error, isLoading: isFetching, mutate } = useSWR(
-    endpoints.maichart.interact(songid),
-    fetcher
-  );
-
-  if (error || isFetching) return null;
-  if (!data || data.likes === undefined) return null;
-
-  const likecount = data.likes.length;
-  const isLiked = data.isLiked;
-
-  const handleLike = async () => {
-    if (isLoading) return;
-
-    const formData = new FormData();
-    formData.set('type', 'like');
-    formData.set('content', 'like');
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(
-        endpoints.maichart.interact(songid),
-        {
-          method: 'POST',
-          body: formData,
-          mode: 'cors',
-          credentials: 'include',
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success(isLiked ? i18n("shared/ScoreCard.CancelSuccess") : i18n("shared/ScoreCard.LikeAction") + i18n("shared/ScoreCard.Success"));
-        mutate();
-      } else {
-        toast.error(i18n("shared/ScoreCard.LikeAction") + i18n("shared/ScoreCard.FailedLoginPrompt"));
-      }
-    } catch {
-      toast.error(i18n("shared/ScoreCard.LikeAction") + i18n("shared/ScoreCard.FailedLoginPrompt"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <button
-      onClick={handleLike}
-      disabled={isLoading}
-      className={`flex items-center gap-1.5 px-2 py-1 border rounded-md font-semibold text-xs transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${isLiked
-        ? 'bg-ok border-ok text-white'
-        : 'bg-surface border-line text-ink-2 hover:text-primary hover:border-primary/40'
-        }`}
-    >
-      {isLoading ? (
-        <LoadingSpinner className="w-3.5 h-3.5" />
-      ) : (
-        <svg
-          className="w-3.5 h-3.5"
-          xmlns="http://www.w3.org/2000/svg"
-          height="14"
-          viewBox="0 -960 960 960"
-          width="14"
-          fill="currentColor"
-        >
-          <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
-        </svg>
-      )}
-      <span className="text-xs">{likecount}</span>
-    </button>
-  );
-}
 
 /**
  * 从谱面成绩列表中查找指定用户的排名
@@ -125,7 +49,6 @@ function findUserRank(
 
 export interface ScoreCardProps {
   score: Score;
-  showLikeButton?: boolean;
   showComboEffects?: boolean;
   showRank?: boolean;
   rankUsername?: string;
@@ -136,7 +59,6 @@ export interface ScoreCardProps {
  */
 export function ScoreCard({
   score,
-  showLikeButton = true,
   showComboEffects = false,
   showRank = false,
   rankUsername,
@@ -184,24 +106,37 @@ export function ScoreCard({
       : 'bg-surface-2 text-ink-2';
 
   return (
-    <LazyLoad height={165} width={352} offset={300}>
+    <LazyLoad height={104} offset={300}>
       <div
         className={`
           relative ${comboGlowClass}
           ${comboCardClass}
-          m-auto p-[0.8rem] border rounded-[10px] w-full max-w-[20rem] h-40 overflow-hidden
-          transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out
+          m-auto flex items-center gap-4 p-3 border rounded-xl w-full overflow-hidden
+          transition-transform md:hover:-translate-y-0.5 duration-250 ease-in-out
         `}
       >
-        <CoverPic id={score.chartInfo.id} />
-        <div className="ml-[8.9rem]">
-          <div className="mb-1.25 font-bold text-base truncate">
-            <Link to={'/song?id=' + score.chartInfo.id}>
-              {score.chartInfo.title}
-            </Link>
+        {/* 封面（方形缩略图，覆盖 CoverPic 的圆形/左浮样式） */}
+        <div className="relative shrink-0 w-16 md:w-20 aspect-square [&_img]:!rounded-lg [&_img]:!float-none [&_img]:!border-0">
+          <CoverPic id={score.chartInfo.id} />
+        </div>
+
+        {/* 歌曲信息区 */}
+        <div className="flex flex-col flex-1 min-w-0 gap-0.5">
+          <div className="flex items-center gap-2 min-w-0">
+            <Level
+              level={score.chartLevel.toString()}
+              difficulty={score.chartInfo.levels[score.chartLevel]}
+              songid={score.chartInfo.id}
+              isPlayer={false}
+            />
+            <div className="font-bold text-base md:text-lg truncate leading-snug">
+              <Link to={'/song?id=' + score.chartInfo.id}>
+                {score.chartInfo.title}
+              </Link>
+            </div>
           </div>
 
-          <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
+          <div className="text-[0.8rem] md:text-sm truncate italic text-ink-2">
             <Link to={'/song?id=' + score.chartInfo.id}>
               {score.chartInfo.artist === '' || score.chartInfo.artist == null
                 ? '-'
@@ -209,31 +144,29 @@ export function ScoreCard({
             </Link>
           </div>
 
-          <div className="mb-2 text-[0.8rem] truncate">
-            <Link to={'/space?id=' + score.chartInfo.uploader}>
+          <div className="flex items-center gap-2 text-[0.8rem] md:text-sm truncate text-ink-3">
+            <span className="flex items-center gap-1 min-w-0">
               <img
-                className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
+                className="inline-block rounded-full w-[1.1rem] h-[1.1rem] overflow-hidden shrink-0"
                 src={endpoints.account.icon(score.chartInfo.uploader)}
                 alt={score.chartInfo.uploader}
               />
-              {score.chartInfo.designer}
-            </Link>
+              <Link to={'/space?id=' + score.chartInfo.uploader} className="no-underline hover:text-primary truncate">
+                {score.chartInfo.designer}
+              </Link>
+            </span>
           </div>
+        </div>
 
-          <Level
-            level={score.chartLevel.toString()}
-            difficulty={score.chartInfo.levels[score.chartLevel]}
-            songid={score.chartInfo.id}
-            isPlayer={false}
-          />
-
-          <div className="flex flex-wrap items-center gap-1 mt-1">
-            <div
-              className={`float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none ${scoreTextClass}`}
-              title={`DX: ${score.acc.dx.toFixed(4)}`}
-            >
-              {score.acc.dx.toFixed(4)}
-            </div>
+        {/* 分数信息区（右侧，类似排行榜） */}
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <div
+            className={`font-black text-lg md:text-2xl tabular-nums leading-none ${scoreTextClass || 'text-ink'}`}
+            title={`DX: ${score.acc.dx.toFixed(4)}`}
+          >
+            {score.acc.dx.toFixed(4)}%
+          </div>
+          <div className="flex items-center gap-1.5">
             {comboStateText && (
               <span className={`rounded px-1.5 py-0.5 text-[0.65rem] font-bold leading-none ${comboBadgeClass}`}>
                 {comboStateText}
@@ -248,12 +181,6 @@ export function ScoreCard({
               </span>
             )}
           </div>
-
-          {showLikeButton && (
-            <div className="flex flex-wrap gap-1 mt-1">
-              <SimpleLikeButton songid={score.chartInfo.id} />
-            </div>
-          )}
         </div>
       </div>
     </LazyLoad>

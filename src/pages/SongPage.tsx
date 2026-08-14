@@ -333,7 +333,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
             <MajdataView id={o.id} data={o} />
           ) : (
             <button
-              className="flex items-center justify-center bg-surface border border-line hover:border-primary/40 rounded-lg w-full aspect-video transition-colors duration-200 cursor-pointer"
+              className="flex items-center justify-center bg-surface border border-line hover:border-primary/40 rounded-lg w-full max-w-[600px] aspect-video transition-colors duration-200 cursor-pointer"
               onClick={() => setIsLoadMajdata(true)}
               title={loc('PlayPreview') || '预览'}
             >

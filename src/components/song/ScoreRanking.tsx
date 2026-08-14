@@ -118,7 +118,7 @@ function LevelTabBar({
   );
 }
 
-// 排行榜卡片组件
+// 排行榜卡片组件（一行一个）
 function RankingCard({
   score,
   rank
@@ -133,34 +133,24 @@ function RankingCard({
     if (comboState === 'AP+' || comboState === 'AP') {
       return {
         border: 'border-amber-500/50',
-        shadow: '',
         badge: 'bg-amber-500',
         textClass: 'text-amber-600'
       };
     } else if (comboState === 'FC+' || comboState === 'FC') {
       return {
         border: 'border-blue-400/50',
-        shadow: '',
         badge: 'bg-blue-500',
         textClass: 'text-primary'
       };
     }
     return {
       border: 'border-line',
-      shadow: '',
       badge: 'bg-surface-2',
       textClass: 'text-ink-2'
     };
   };
 
   const styles = getComboStyles();
-
-  const topThreeAvatarClass =
-    rank === 1
-      ? 'border-amber-400'
-      : rank === 2
-        ? 'border-ink-3'
-        : 'border-amber-600';
 
   // 显示状态文本
   const getDisplayText = () => {
@@ -169,12 +159,14 @@ function RankingCard({
     return 'Clear';
   };
 
-  // Top 3 特殊样式
-  const getRankBadgeStyle = () => {
-    if (rank === 1) return 'bg-amber-400 text-white';
-    if (rank === 2) return 'bg-gray-300 text-white';
-    if (rank === 3) return 'bg-amber-600 text-white';
-    return 'bg-surface-2 text-ink-3';
+  // 前三名品牌蓝配色（按名次递减饱和度），其余灰色
+  const rankConfig = {
+    1: { badge: 'bg-primary text-white', avatar: 'border-primary' },
+    2: { badge: 'bg-primary/70 text-white', avatar: 'border-primary/60' },
+    3: { badge: 'bg-primary/40 text-white', avatar: 'border-primary/40' },
+  }[rank] ?? {
+    badge: 'bg-surface-2 text-ink-3',
+    avatar: 'border-line group-hover:border-line-strong',
   };
 
   return (
@@ -189,20 +181,20 @@ function RankingCard({
         className={`
           group relative flex items-center gap-3 p-3 rounded-lg
           bg-surface hover:bg-surface-2
-          border ${styles.border} ${styles.shadow}
+          border ${styles.border}
           transition-all duration-200 ease-out
           hover:-translate-y-0.5
         `}
       >
-        {/* 排名标记 */}
+        {/* 排名徽章 */}
         <div
           className={`
-            flex items-center justify-center min-w-9 h-9 rounded-lg
-            font-bold text-sm ${getRankBadgeStyle()}
-            transition-transform duration-200 group-hover:scale-105
+            flex items-center justify-center w-9 h-9 rounded-lg shrink-0
+            font-black text-sm transition-transform duration-200 group-hover:scale-105
+            ${rankConfig.badge}
           `}
         >
-          #{rank}
+          {rank}
         </div>
 
         {/* 玩家信息 */}
@@ -217,7 +209,7 @@ function RankingCard({
                 w-10 h-10 rounded-full object-cover
                 border-2 transition-all duration-200
                 group-hover:scale-105
-                ${rank <= 3 ? topThreeAvatarClass : 'border-line group-hover:border-line-strong'}
+                ${rankConfig.avatar}
               `}
               src={endpoints.account.icon(score.player.username)}
               alt={score.player.username}
@@ -227,20 +219,15 @@ function RankingCard({
           {/* 用户名 */}
           <div className="flex flex-col flex-1 min-w-0">
             <span
-              className={`
+              className="
                 font-semibold text-sm truncate
                 transition-colors duration-200
                 group-hover:text-primary
                 text-ink
-              `}
+              "
             >
               {score.player.username}
             </span>
-            {rank <= 3 && (
-              <span className="font-medium text-[10px] text-ink-3">
-                {rank === 1 ? '1st Place' : rank === 2 ? '2nd Place' : '3rd Place'}
-              </span>
-            )}
           </div>
         </Link>
 

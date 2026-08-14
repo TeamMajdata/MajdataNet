@@ -103,7 +103,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
 
   // 根据排名确定边框和文字颜色（扁平化）
   let borderColorClass = 'border-line';
-  let borderColorHex = '#e5e7eb';
+  let borderColorHex = 'var(--line)';
   let rankColorClass = 'text-ink-3';
 
   if (isFirst) {
@@ -134,7 +134,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
           } else if (isSecond || isThird) {
             el.style.borderColor = 'rgba(92, 141, 193, 0.65)';
           } else {
-            el.style.borderColor = '#d1d5db';
+            el.style.borderColor = 'var(--line-strong)';
           }
         }}
         onMouseLeave={(e) => {
@@ -167,12 +167,12 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
             alt={username}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLElement;
-              el.style.borderColor = isTopThree ? (isFirst ? 'rgba(245, 158, 11, 0.6)' : 'rgba(92, 141, 193, 0.6)') : '#d1d5db';
+              el.style.borderColor = isTopThree ? (isFirst ? 'rgba(245, 158, 11, 0.6)' : 'rgba(92, 141, 193, 0.6)') : 'var(--line-strong)';
               el.style.boxShadow = '0 4px 12px rgb(16 24 40 / 0.1)';
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLElement;
-              el.style.borderColor = isTopThree ? (isFirst ? 'rgba(245, 158, 11, 0.4)' : 'rgba(92, 141, 193, 0.4)') : '#e5e7eb';
+              el.style.borderColor = isTopThree ? (isFirst ? 'rgba(245, 158, 11, 0.4)' : 'rgba(92, 141, 193, 0.4)') : 'var(--line)';
               el.style.boxShadow = 'none';
             }}
           />

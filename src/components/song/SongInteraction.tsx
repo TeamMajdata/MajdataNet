@@ -106,10 +106,10 @@ export function LikeSender({ songid }: LikeSenderProps) {
               disabled={isLikeLoading || isDislikeLoading}
               style={{
                 background: data.isLiked
-                  ? '#10b981'
+                  ? 'var(--ok)'
                   : '',
                 color: data.isLiked
-                  ? '#ffffff'
+                  ? 'var(--surface)'
                   : undefined,
               }}
             >
@@ -137,10 +137,10 @@ export function LikeSender({ songid }: LikeSenderProps) {
               disabled={isLikeLoading || isDislikeLoading}
               style={{
                 background: data.isDisLiked
-                  ? '#ef4444'
+                  ? 'var(--danger)'
                   : '',
                 color: data.isDisLiked
-                  ? '#ffffff'
+                  ? 'var(--surface)'
                   : undefined,
               }}
             >

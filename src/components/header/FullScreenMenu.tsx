@@ -4,6 +4,7 @@ import { X, LogOut } from "lucide-react";
 import { useLoc, useUserContext } from "@/hooks";
 import { handleLogout as logoutUtil } from "@/utils";
 import { endpoints } from "@/config/api";
+import { getCurrentLanguage } from "@/utils/i18n";
 
 interface FullScreenMenuProps {
   isOpen: boolean;
@@ -13,9 +14,42 @@ interface FullScreenMenuProps {
 interface MenuGroup {
   index: string;
   title: string;
+  en?: string;
   to?: string;
   external?: boolean;
   subs?: { label: string; to: string }[];
+}
+
+/**
+ * 英文线框底字：透明填充 + 上下渐变主题色描边（SVG，支持渐变 stroke）
+ */
+function EnOutlineText({ text }: { text: string }) {
+  const gradId = `menu-en-stroke-${text.replace(/[^a-zA-Z]/g, '')}`;
+  return (
+    <svg
+      aria-hidden="true"
+      className="pointer-events-none absolute left-0 top-0 overflow-visible"
+      width="900"
+      height="90"
+    >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgba(92, 141, 193, 0.3)" />
+          <stop offset="100%" stopColor="rgba(211, 228, 244, 0.3)" />
+        </linearGradient>
+      </defs>
+      <text
+        x="0"
+        y="0.85em"
+        fill="none"
+        stroke={`url(#${gradId})`}
+        strokeWidth="1.5"
+        className="font-sans font-black tracking-tight whitespace-nowrap text-[2.4rem] md:text-[4.2rem] leading-none"
+      >
+        {text}
+      </text>
+    </svg>
+  );
 }
 
 /**
@@ -33,11 +67,13 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
     {
       index: "01",
       title: loc("NavHome", "Home"),
+      en: "Home",
       to: "/",
     },
     {
       index: "02",
       title: loc("Rankings", "Rankings"),
+      en: "Rankings",
       subs: [
         { label: loc("Recommend", "Recommend"), to: "/ranking" },
         { label: loc("UserRankingTitle", "User Ranking"), to: "/ranking/user" },
@@ -47,6 +83,7 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
     {
       index: "03",
       title: loc("Tools", "Tools"),
+      en: "Tools",
       subs: [
         { label: loc("ChartEditor", "Chart Editor"), to: "/edit" },
         { label: "MajdataPlay", to: "/play" },
@@ -55,25 +92,32 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
     {
       index: "04",
       title: loc("CollectionHiroba", "Collections"),
+      en: "Collections",
       to: "/collection/hiroba",
     },
     {
       index: "05",
       title: loc("Contest", "Events"),
+      en: "Events",
       to: "/chart-events",
     },
     {
       index: "06",
       title: loc("OriginalSongs", "Original"),
+      en: "Original",
       to: "/eventTag?id=Original",
     },
     {
       index: "07",
       title: loc("Docs", "Docs"),
+      en: "Docs",
       external: true,
       to: "https://docs.majdata.net",
     },
   ];
+
+  // 非英语时在超大标题底下叠加英文线框字
+  const isEnglish = getCurrentLanguage() === "en";
 
   const handleLogout = async () => {
     await logoutUtil(
@@ -96,7 +140,8 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-          className="fixed inset-0 z-[1200] bg-surface text-ink flex flex-col overflow-y-auto"
+          className="fixed inset-0 z-[1200] text-ink flex flex-col overflow-y-auto"
+          style={{ background: 'linear-gradient(to right, var(--surface) 0%, var(--surface) 45%, transparent 100%)' }}
         >
           {/* 顶部条 */}
           <div className="flex items-center justify-between px-6 md:px-12 py-5">
@@ -124,6 +169,13 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
             </button>
           </div>
 
+          {/* 顶部右侧白色渐变条 */}
+          <div
+            aria-hidden="true"
+            className="top-0 -z-2 right-0 absolute w-full h-20 pointer-events-none"
+            style={{ background: 'linear-gradient(to left, var(--surface) 0%, transparent 100%)' }}
+          />
+
           {/* 超大文字导航 */}
           <nav className="flex-1 flex flex-col justify-center px-6 md:px-12 py-8 gap-2 md:gap-3">
             {groups.map((g, i) => (
@@ -144,14 +196,24 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={onClose}
-                    className="text-[2.4rem] md:text-[4.2rem] leading-none font-black text-ink-2 hover:text-primary tracking-tight no-underline transition-all duration-200"
+                    className="relative inline-block text-[2.4rem] md:text-[4.2rem] leading-none font-black text-ink-2 hover:text-primary tracking-tight no-underline transition-all duration-200"
                   >
-                    {g.title}
+                    {!isEnglish && g.en && (
+                      <span aria-hidden="true" className="absolute left-0 top-0 pointer-events-none select-none">
+                        <EnOutlineText text={g.en} />
+                      </span>
+                    )}
+                    <span className="relative z-10">{g.title}</span>
                   </a>
                 ) : g.subs ? (
                   <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
-                    <span className="text-[2.4rem] md:text-[4.2rem] leading-none font-black text-ink-2 group-hover:text-primary tracking-tight transition-all duration-200">
-                      {g.title}
+                    <span className="relative inline-block text-[2.4rem] md:text-[4.2rem] leading-none font-black text-ink-2 group-hover:text-primary tracking-tight transition-all duration-200">
+                      {!isEnglish && g.en && (
+                        <span aria-hidden="true" className="absolute left-0 top-0 pointer-events-none select-none">
+                          <EnOutlineText text={g.en} />
+                        </span>
+                      )}
+                      <span className="relative z-10">{g.title}</span>
                     </span>
                     <div className="flex flex-col gap-0.5">
                       {g.subs.map((s) => (
@@ -174,13 +236,18 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
                   <Link
                     to={g.to!}
                     onClick={onClose}
-                    className={`text-[2.4rem] md:text-[4.2rem] leading-none font-black tracking-tight no-underline transition-all duration-200 ${
+                    className={`relative inline-block text-[2.4rem] md:text-[4.2rem] leading-none font-black tracking-tight no-underline transition-all duration-200 ${
                       pathname === g.to
                         ? "text-primary"
                         : "text-ink-2 hover:text-primary"
                     }`}
                   >
-                    {g.title}
+                    {!isEnglish && g.en && (
+                      <span aria-hidden="true" className="absolute left-0 top-0 pointer-events-none select-none">
+                        <EnOutlineText text={g.en} />
+                      </span>
+                    )}
+                    <span className="relative z-10">{g.title}</span>
                   </Link>
                 )}
               </motion.div>

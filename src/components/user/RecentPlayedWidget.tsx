@@ -115,7 +115,6 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
       >
         <ScoreCard
           score={score}
-          showLikeButton={true}
           showComboEffects={true}
           showRank={true}
           rankUsername={username}
@@ -127,7 +126,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   return (
     <>
       <RecentActivityChart records={sortedData} />
-<div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] w-full">
+<div className="gap-3 flex flex-col w-full">
         {scoreCards}
       </div>
     </>

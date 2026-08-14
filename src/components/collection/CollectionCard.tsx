@@ -73,7 +73,7 @@ const CollectionCardContent = memo(
     return (
       <div className="relative">
         <div
-          className={`flex hover:shadow-card-hover rounded-xl w-full h-35 overflow-hidden transition-all ${isManaging ? "cursor-default" : "cursor-pointer hover:-translate-y-1"}`}
+          className={`flex bg-surface hover:shadow-card-hover w-full h-35 overflow-hidden border border-line shadow-card transition-all ${isManaging ? "cursor-default" : "cursor-pointer hover:-translate-y-1"}`}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => {
             setIsHovered(false);
@@ -84,8 +84,8 @@ const CollectionCardContent = memo(
             navigate("/collection?id=" + collection.id);
           }}
         >
-          {/* Left side: Cover */}
-          <div className="relative bg-surface-2 w-35 h-35 shrink-0">
+          {/* Left side: Cover（方形，覆盖 CoverPic 的圆形样式） */}
+          <div className="relative bg-surface-2 w-35 h-35 shrink-0 [&_img]:!rounded-none [&_img]:!float-none [&_img]:!border-0">
             {isLoading ? (
               <div className="flex justify-center items-center w-full h-full">
                 <LoadingSpinner size="30px" />

@@ -339,7 +339,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
         onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: '#ffffff',
+          backgroundColor: 'var(--surface)',
           position: 'fixed',
           left: position.x + 'px',
           top: position.y + 'px',
@@ -349,7 +349,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
           boxShadow: '0 8px 24px rgb(16 24 40 / 0.08)',
           zIndex: 1001,
           cursor: dragging ? 'grabbing' : 'default',
-          border: '1px solid #e5e7eb',
+          border: '1px solid var(--line)',
           fontSize: '1rem',
         }}
       >
@@ -360,7 +360,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
           }}
           style={{
             padding: '16px',
-            borderBottom: '1px solid #e5e7eb',
+            borderBottom: '1px solid var(--line)',
             cursor: 'grab',
             userSelect: 'none',
           }}
@@ -385,7 +385,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                   </Tooltip>
                 ))
               ) : (
-                <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>{loc('NoTags')}</span>
+                <span style={{ color: 'var(--ink-3)', fontStyle: 'italic' }}>{loc('NoTags')}</span>
               )}
             </div>
           </div>
@@ -400,8 +400,8 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                 flex: 1,
                 padding: '6px 8px',
                 borderRadius: '4px',
-                border: '1px solid #d1d5db',
-                backgroundColor: '#ffffff',
+                border: '1px solid var(--line-strong)',
+                backgroundColor: 'var(--surface)',
               }}
             />
             <button
@@ -412,7 +412,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                   setNewTag(''); // 清空输入框
                 }
               }}
-              style={{ padding: '6px 12px', border: '1px solid #e5e7eb', borderRadius: '6px', backgroundColor: '#ffffff', cursor: 'pointer' }}
+              style={{ padding: '6px 12px', border: '1px solid var(--line)', borderRadius: '6px', backgroundColor: 'var(--surface)', cursor: 'pointer' }}
             >
               {loc('AddTag')}
             </button>
@@ -434,9 +434,9 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                 style={{
                   padding: '6px 12px',
                   borderRadius: '6px',
-                  border: activeCategory === cat ? '1px solid #5c8dc1' : '1px solid #e5e7eb',
-                  backgroundColor: activeCategory === cat ? '#5c8dc1' : '#ffffff',
-                  color: activeCategory === cat ? '#ffffff' : '#1f2937',
+                  border: activeCategory === cat ? '1px solid var(--primary)' : '1px solid var(--line)',
+                  backgroundColor: activeCategory === cat ? 'var(--primary)' : 'var(--surface)',
+                  color: activeCategory === cat ? 'var(--surface)' : 'var(--ink)',
                   cursor: 'pointer',
                 }}
               >
@@ -475,9 +475,9 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
             <button
               style={{
                 padding: '6px 12px',
-                border: '1px solid #e5e7eb',
+                border: '1px solid var(--line)',
                 borderRadius: '5px',
-                backgroundColor: '#ffffff',
+                backgroundColor: 'var(--surface)',
                 cursor: 'pointer',
               }}
               onClick={uploadTags}
