@@ -1,4 +1,4 @@
-{
+﻿{
   "AccountSetting": "個人設定",
   "AvatarHint": "5MB以内",
   "Back": "戻る",
@@ -359,5 +359,14 @@
   "CreateFailed": "作成に失敗しました",
   "Submit": "送信",
   "Tools": "ツール",
-  "500UploadErrorAndHint": "アップロードに失敗しました。主サイトに行ってアップロードしてください"
+  "500UploadErrorAndHint": "アップロードに失敗しました。主サイトに行ってアップロードしてください",
+  "AllCharts": "すべての譜面",
+  "RandomRecommend": "ランダムおすすめ",
+  "RefreshBatch": "更新",
+  "ClearSearch": "検索をクリア",
+  "PrevPage": "前へ",
+  "NavHome": "ホーム",
+  "Docs": "ドキュメント",
+  "CloseMenu": "閉じる",
+  "Menu": "メニュー"
 }

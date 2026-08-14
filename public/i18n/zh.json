@@ -1,4 +1,4 @@
-{
+﻿{
   "AccountSetting": "个人设置",
   "AvatarHint": "5MB之内",
   "Back": "返回",
@@ -369,5 +369,14 @@
   "CreateFailed": "创建失败",
   "Submit": "提交",
   "Tools": "工具",
-  "500UploadErrorAndHint": "上传失败, 请前往主站上传"
+  "500UploadErrorAndHint": "上传失败, 请前往主站上传",
+  "AllCharts": "全部谱面",
+  "RandomRecommend": "随机推荐",
+  "RefreshBatch": "换一批",
+  "ClearSearch": "清空搜索",
+  "PrevPage": "上一页",
+  "NavHome": "首页",
+  "Docs": "文档",
+  "CloseMenu": "关闭",
+  "Menu": "菜单"
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useUserContext } from "@/hooks";
+import { useUserContext, useLoc } from "@/hooks";
 import { LoadingSpinner } from "@/components";
 import FullScreenMenu from "./FullScreenMenu";
 import UserMenu from "./UserMenu";
@@ -11,6 +11,7 @@ import AuthSection from "./AuthSection";
  */
 export default function UnifiedHeader() {
   const { user, isLoading, error } = useUserContext();
+  const loc = useLoc();
   const username = user?.username || "";
   const isLoggedIn = !!username && !error;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,7 +49,7 @@ export default function UnifiedHeader() {
                 <span className="block w-5 h-0.5 bg-current" />
                 <span className="block w-5 h-0.5 bg-current" />
               </span>
-              <span className="hidden sm:inline">MENU</span>
+              <span className="hidden sm:inline">{loc("Menu", "MENU")}</span>
             </button>
           </div>
         </div>

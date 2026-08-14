@@ -32,7 +32,7 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
   const groups: MenuGroup[] = [
     {
       index: "01",
-      title: "Home",
+      title: loc("NavHome", "Home"),
       to: "/",
     },
     {
@@ -69,7 +69,7 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
     },
     {
       index: "07",
-      title: "Docs",
+      title: loc("Docs", "Docs"),
       external: true,
       to: "https://docs.majdata.net",
     },
@@ -120,7 +120,7 @@ export default function FullScreenMenu({ isOpen, onClose }: FullScreenMenuProps)
               aria-label="close menu"
             >
               <X size={20} />
-              <span className="hidden sm:inline">CLOSE</span>
+              <span className="hidden sm:inline">{loc("CloseMenu", "CLOSE")}</span>
             </button>
           </div>
 

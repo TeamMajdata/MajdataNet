@@ -1,4 +1,4 @@
-{
+﻿{
   "AccountSetting": "설정",
   "AvatarHint": "5MB 이하",
   "Back": "뒤로",
@@ -359,5 +359,14 @@
   "CreateFailed": "생성 실패",
   "Submit": "제출",
   "Tools": "도구",
-  "500UploadErrorAndHint": "업로드 실패, 주 사이트로 가서 업로드하세요"
+  "500UploadErrorAndHint": "업로드 실패, 주 사이트로 가서 업로드하세요",
+  "AllCharts": "전체 채보",
+  "RandomRecommend": "랜덤 추천",
+  "RefreshBatch": "새로고침",
+  "ClearSearch": "검색 지우기",
+  "PrevPage": "이전",
+  "NavHome": "홈",
+  "Docs": "문서",
+  "CloseMenu": "닫기",
+  "Menu": "메뉴"
 }

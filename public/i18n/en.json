@@ -1,4 +1,4 @@
-{
+﻿{
   "AccountSetting": "Setting",
   "AvatarHint": "Within 5MB",
   "Back": "Back",
@@ -364,5 +364,12 @@
   "ExitManage": "Exit Manage",
   "AllCharts": "All Charts",
   "RandomRecommend": "Random Recommend",
-  "500UploadErrorAndHint": "Upload failed, please go to the main site to upload"
+  "500UploadErrorAndHint": "Upload failed, please go to the main site to upload",
+  "RefreshBatch": "Refresh",
+  "ClearSearch": "Clear Search",
+  "PrevPage": "Previous",
+  "NavHome": "Home",
+  "Docs": "Docs",
+  "CloseMenu": "CLOSE",
+  "Menu": "MENU"
 }
