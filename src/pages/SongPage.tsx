@@ -81,16 +81,6 @@ export default function SongPage() {
 
   return (
     <PageLayout>
-      {/* 返回上一页 */}
-      <button
-        onClick={() => window.history.back()}
-        className="flex items-center gap-2 mb-8 text-ink-2 hover:text-primary text-sm font-medium cursor-pointer bg-none border-none transition-colors duration-150"
-        aria-label={loc('Back', '返回')}
-      >
-        <ArrowLeft size={18} />
-        {loc('Back', '返回')}
-      </button>
-
       <SongDetailsContainer id={param} data={songData} />
       <div className="bg-line mt-10 h-px"></div>
       <ScoreRanking songid={param} />
@@ -133,6 +123,15 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
       {/* ===== Hero：大封面 + 超大标题 ===== */}
       <section className="gap-10 grid grid-cols-1 lg:grid-cols-[280px_1fr] items-start">
         <div className="justify-self-center lg:justify-self-start">
+          {/* 返回上一页（对齐封面左上角） */}
+          <button
+            onClick={() => window.history.back()}
+            className="flex items-center gap-2 mb-4 text-ink-2 hover:text-primary text-sm font-medium cursor-pointer bg-none border-none transition-colors duration-150"
+            aria-label={loc('Back', '返回')}
+          >
+            <ArrowLeft size={18} />
+            {loc('Back', '返回')}
+          </button>
           <div className="relative overflow-hidden aspect-square w-56 md:w-72">
             <img
               className="absolute inset-0 w-full h-full object-cover"
