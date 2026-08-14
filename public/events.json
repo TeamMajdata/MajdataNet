@@ -1,5 +1,93 @@
 ﻿[
   {
+    "id": "LOA3",
+    "href": "/space?id=LOA3",
+    "src": "/events/loa3.png",
+    "alt": "LOA3",
+    "title": "LOA3",
+    "category": 4,
+    "createDate": "2026-08-05",
+    "endDate": "2026-09-30",
+    "description": "动漫主题舞萌自制比赛"
+  },
+  {
+    "id": "mmfc14",
+    "href": "/space?id=mmfc_bot",
+    "src": "/events/MMFC14.jpg",
+    "alt": "MMFC14",
+    "title": "MMFC14",
+    "category": 2,
+    "createDate": "2026-07-31",
+    "endDate": "2026-09-19",
+    "description": "华语主题个人战——第14届舞萌自制月赛「华声幻想域」"
+  },
+  {
+    "id": "zppz5",
+    "href": "/space?id=zppz5",
+    "src": "/events/zppz5.png",
+    "alt": "这谱谱这无名战5",
+    "title": "这谱谱这无名战5",
+    "category": 4,
+    "createDate": "2026-08-01",
+    "endDate": "2026-10-01",
+    "description": ""
+  },
+  {
+    "id": "agcc5",
+    "href": "/space?id=AGCC",
+    "src": "/events/agcc5.jpg",
+    "alt": "agcc",
+    "title": "AGCC5",
+    "category": 1,
+    "createDate": "2026-07-25",
+    "endDate": "2026-08-22",
+    "description": ""
+  },
+  {
+    "id": "KOL21",
+    "href": "/space?id=KOL_NEW%203",
+    "src": "/events/kol3.jpg",
+    "alt": "KOL21",
+    "title": "KOL21",
+    "category": 4,
+    "createDate": "2026-05-21",
+    "endDate": "2026-08-07",
+    "description": "KOL21 谱面创作高校『文化祭』"
+  },
+  {
+    "id": "LVDX",
+    "href": "/space?id=Team%20Linked%20VERSE%20DX",
+    "src": "/events/lvdx.webp",
+    "alt": "Linked VERSE DX",
+    "title": "Linked VERSE DX",
+    "category": 4,
+    "createDate": "2026-06-24",
+    "endDate": "2026-07-23",
+    "description": "此為用maimai自制譜還原Linked VERSE的活動"
+  },
+  {
+    "id": "ZJU4",
+    "href": "https://mugzju.top/",
+    "src": "/events/ZJU4.png",
+    "alt": "ZJU4",
+    "title": "ZJU无名战4th",
+    "category": 1,
+    "createDate": "2026-06-22",
+    "endDate": "2026-07-15",
+    "description": "ZJU无名战4th是浙江大学音游同好会举办的maimai自制谱比赛。本届主题为会场改谱制，由会场内互评提供初稿意见并可以进行一次谱面修改，然后选出正赛谱面，再经由实测组评委评审后与互评成绩加权得到最终评分。想要预览所有谱面，可以访问会场链接：https://mugzju.top/"
+  },
+  {
+    "id": "hurricane20260618",
+    "href": "/space?id=maimaiUMBRELLA%20offical",
+    "src": "/events/hurricane20260618.jpg",
+    "alt": "MAiMAiumb HuRRICANE",
+    "title": "MAiMAiumb HuRRICANE",
+    "category": 4,
+    "createDate": "2026-06-18",
+    "endDate": "2026-12-31",
+    "description": "倾盆大雨之后,将是更具癫狂的飓风,而风暴之中的那一束脆弱的雨伞,能否带着你们走向远方呢------本频道为umb制作组制作的自制版本：意为使用舞萌官方更新模式，分段式更新谱面以及相关内容的自制谱合集。欢迎各位玩家品尝谱师组精心（？）制作的谱面吧❤️ 最新/往期资讯q群：1058658498"
+  },
+  {
     "id": "paradise260628",
     "href": "/space?id=乐园杯",
     "src": "/events/paradise260628.png",
@@ -7,7 +95,7 @@
     "title": "乐园杯",
     "category": 4,
     "createDate": "2026-06-28",
-    "endDate": "2026-07-24",
+    "endDate": "2026-08-24",
     "description": "1kHz-4kHz频段的声波传递着人类灵魂深处的呐喊，所以，愿你在此地找到属于自己情感的归宿"
   },
   {

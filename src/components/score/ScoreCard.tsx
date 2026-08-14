@@ -11,14 +11,14 @@ import { LoadingSpinner } from '@/components';
 import { CoverPic, Level, LazyLoad } from '@/components';
 import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';
-import { useLoc, useUsername } from '@/hooks';
+import { useI18n, useUsername } from '@/hooks';
 import type { Score, ChartScore } from '@/types';
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
 
 function SimpleLikeButton({ songid }: { songid: string }) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
   const { data, error, isLoading: isFetching, mutate } = useSWR(
     endpoints.maichart.interact(songid),
@@ -51,13 +51,13 @@ function SimpleLikeButton({ songid }: { songid: string }) {
       );
 
       if (response.status === 200) {
-        toast.success(isLiked ? loc('CancelSuccess') : loc('LikeAction') + loc('Success'));
+        toast.success(isLiked ? i18n("shared/ScoreCard.CancelSuccess") : i18n("shared/ScoreCard.LikeAction") + i18n("shared/ScoreCard.Success"));
         mutate();
       } else {
-        toast.error(loc('LikeAction') + loc('FailedLoginPrompt'));
+        toast.error(i18n("shared/ScoreCard.LikeAction") + i18n("shared/ScoreCard.FailedLoginPrompt"));
       }
     } catch {
-      toast.error(loc('LikeAction') + loc('FailedLoginPrompt'));
+      toast.error(i18n("shared/ScoreCard.LikeAction") + i18n("shared/ScoreCard.FailedLoginPrompt"));
     } finally {
       setIsLoading(false);
     }
@@ -189,8 +189,8 @@ export function ScoreCard({
         className={`
           relative ${comboGlowClass}
           ${comboCardClass}
-          m-auto p-[0.8rem] border rounded-[10px] w-[20rem] h-40 overflow-hidden
-          transition-transform hover:-translate-y-1.25 duration-250 ease-in-out
+          m-auto p-[0.8rem] border rounded-[10px] w-full max-w-[20rem] h-40 overflow-hidden
+          transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out
         `}
       >
         <CoverPic id={score.chartInfo.id} />

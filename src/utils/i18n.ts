@@ -1,121 +1,178 @@
-/**
- * 国际化工具函数
- */
+import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES } from '@/config/i18n';
 import type { Language, LanguageCache, TranslationDictionary } from '@/types/i18n';
-import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES } from '../config/i18n';
 
-// 语言缓存
-// eslint-disable-next-line prefer-const
-let languageCache: LanguageCache = {};
+const languageCache: LanguageCache = {};
+const pendingLoads = new Map<Language, Promise<TranslationDictionary>>();
+const warnedKeys = new Set<string>();
+
 let currentLanguage: Language = DEFAULT_LANGUAGE;
-const warnedMissingKeys = new Set<string>();
+let latestLanguageRequest = 0;
 
-/**
- * 设置当前语言
- * @param lang 语言代码
- */
-export async function setLanguage(lang: string): Promise<void> {
-  // 提取语言代码（前两个字符）
-  const langCode = lang.slice(0, 2).toLowerCase() as Language;
+function normalizeLanguage(language: string): Language {
+  const languageCode = language.slice(0, 2).toLowerCase() as Language;
+  if (SUPPORTED_LANGUAGES.includes(languageCode)) return languageCode;
 
-  // 检查是否为支持的语言
-  if (!SUPPORTED_LANGUAGES.includes(langCode)) {
-    console.warn(`[i18n] Unsupported language: ${langCode}, falling back to ${DEFAULT_LANGUAGE}`);
-    return setLanguage(DEFAULT_LANGUAGE);
+  console.warn(`[i18n] Unsupported language: ${languageCode}; using ${DEFAULT_LANGUAGE}`);
+  return DEFAULT_LANGUAGE;
+}
+
+function isTranslationDictionary(value: unknown): value is TranslationDictionary {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+
+  return Object.values(value).every((namespace) => (
+    namespace !== null
+    && typeof namespace === 'object'
+    && !Array.isArray(namespace)
+    && Object.values(namespace).every((translation) => typeof translation === 'string')
+  ));
+}
+
+async function loadLanguage(language: Language): Promise<TranslationDictionary> {
+  const cached = languageCache[language];
+  if (cached) return cached;
+
+  const pending = pendingLoads.get(language);
+  if (pending) return pending;
+
+  const request = fetch(`/i18n/${language}.json`)
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const dictionary: unknown = await response.json();
+      if (!isTranslationDictionary(dictionary)) {
+        throw new Error('invalid language file structure');
+      }
+
+      languageCache[language] = dictionary;
+      return dictionary;
+    })
+    .finally(() => pendingLoads.delete(language));
+
+  pendingLoads.set(language, request);
+  return request;
+}
+
+function saveLanguage(language: Language): void {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
   }
+}
 
-  // 如果已缓存，直接切换
-  if (languageCache[langCode]) {
-    currentLanguage = langCode;
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, langCode);
-    return;
-  }
+/** 加载并切换语言；相同语言的并发请求会自动合并。 */
+export async function setLanguage(language: string): Promise<Language> {
+  const requestId = ++latestLanguageRequest;
+  const nextLanguage = normalizeLanguage(language);
+  let resolvedLanguage = nextLanguage;
 
-  // 加载语言文件
   try {
-    const response = await fetch(`/i18n/${langCode}.json`);
-    if (!response.ok) {
-      throw new Error('Language file not found');
-    }
-
-    const translations: TranslationDictionary = await response.json();
-    languageCache[langCode] = translations;
-    currentLanguage = langCode;
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, langCode);
+    await loadLanguage(nextLanguage);
   } catch (error) {
-    console.error(`[i18n] Failed to load language: ${langCode}`, error);
-    languageCache[langCode] = {}; // 降级到空字典
-    currentLanguage = langCode;
-  }
-}
+    console.error(`[i18n] Failed to load ${nextLanguage}`, error);
 
-/**
- * 获取翻译字符串
- * @param key 翻译键
- * @param fallback 找不到时返回的默认值（可选）
- * @returns 翻译后的字符串
- */
-export function getTranslatedString(key: string, fallback?: string): string {
-  const translations = languageCache[currentLanguage] || {};
-
-  if (!translations[key]) {
-    if (!warnedMissingKeys.has(key)) {
-      console.warn(`[i18n] Missing translation key: ${key} in ${currentLanguage}`);
-      warnedMissingKeys.add(key);
+    if (nextLanguage !== DEFAULT_LANGUAGE) {
+      try {
+        await loadLanguage(DEFAULT_LANGUAGE);
+      } catch (fallbackError) {
+        console.error(`[i18n] Failed to load fallback ${DEFAULT_LANGUAGE}`, fallbackError);
+      }
     }
-    return fallback || key;
+    resolvedLanguage = DEFAULT_LANGUAGE;
   }
 
-  return translations[key];
+  // A slower, older request must not overwrite a newer language selection.
+  if (requestId !== latestLanguageRequest) return currentLanguage;
+
+  currentLanguage = resolvedLanguage;
+  saveLanguage(currentLanguage);
+  return currentLanguage;
+}
+
+function splitTranslationKey(key: string): [namespace: string, translationKey: string] | null {
+  const separatorIndex = key.lastIndexOf('.');
+  if (separatorIndex <= 0 || separatorIndex === key.length - 1) return null;
+
+  const namespace = key.slice(0, separatorIndex);
+  const translationKey = key.slice(separatorIndex + 1);
+  if (!namespace.includes('/')) return null;
+  return [namespace, translationKey];
 }
 
 /**
- * 简短别名：获取翻译字符串
+ * 获取文案。key 必须使用 `路由/组件.key`，例如：
+ * `i18n('song/SongPage.Download')`。
  */
-export const loc = getTranslatedString;
+export function i18n(key: string, fallback?: string): string {
+  const keyParts = splitTranslationKey(key);
+  if (!keyParts) {
+    const warningKey = `invalid:${key}`;
+    if (!warnedKeys.has(warningKey)) {
+      console.warn(`[i18n] Invalid key format: ${key}; expected route/component.key`);
+      warnedKeys.add(warningKey);
+    }
+    return fallback ?? key;
+  }
 
-/**
- * 获取当前语言
- */
+  const [namespace, translationKey] = keyParts;
+  const currentDictionary = languageCache[currentLanguage];
+  if (!currentDictionary) return fallback ?? key;
+
+  const translated = currentDictionary[namespace]?.[translationKey]
+    ?? languageCache[DEFAULT_LANGUAGE]?.[namespace]?.[translationKey];
+
+  if (translated === undefined) {
+    const warningKey = `${currentLanguage}:${key}`;
+    if (!warnedKeys.has(warningKey)) {
+      console.warn(`[i18n] Missing translation: ${warningKey}`);
+      warnedKeys.add(warningKey);
+    }
+    return fallback ?? key;
+  }
+
+  return translated;
+}
+
 export function getCurrentLanguage(): Language {
   return currentLanguage;
 }
 
-/**
- * 获取浏览器首选语言
- */
 export function getBrowserLanguage(): Language {
-  const browserLang = navigator.language.slice(0, 2).toLowerCase() as Language;
-  return SUPPORTED_LANGUAGES.includes(browserLang) ? browserLang : DEFAULT_LANGUAGE;
+  if (typeof navigator === 'undefined') return DEFAULT_LANGUAGE;
+  return normalizeLanguage(navigator.language);
 }
 
-/**
- * 初始化语言（从localStorage或浏览器语言）
- */
 export async function initializeLanguage(): Promise<Language> {
-  const savedLang = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  const preferredLang = savedLang || navigator.language;
+  const savedLanguage = typeof localStorage === 'undefined'
+    ? null
+    : localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  return setLanguage(savedLanguage ?? getBrowserLanguage());
+}
 
-  await setLanguage(preferredLang);
-  return currentLanguage;
+export async function preloadLanguage(language: Language): Promise<void> {
+  try {
+    await loadLanguage(language);
+  } catch (error) {
+    console.error(`[i18n] Failed to preload ${language}`, error);
+  }
 }
 
 /**
- * 预加载语言文件
- * @param lang 语言代码
+ * —— 兼容层：旧扁平 key ——
+ * 我们的 UI 大量使用 loc(key, fallback)（扁平 key + 扁平 JSON）。
+ * 扁平 key 直接查当前语言字典顶层；找不到时回退默认语言 / fallback / key。
  */
-export async function preloadLanguage(lang: Language): Promise<void> {
-  if (languageCache[lang]) {
-    return; // 已加载
+export function getTranslatedString(key: string, fallback?: string): string {
+  const currentDictionary = languageCache[currentLanguage] as Record<string, unknown> | undefined;
+  if (currentDictionary) {
+    const v = currentDictionary[key];
+    if (typeof v === 'string') return v;
   }
-
-  try {
-    const response = await fetch(`/i18n/${lang}.json`);
-    if (response.ok) {
-      languageCache[lang] = await response.json();
-      console.log(`[i18n] Preloaded ${lang}`);
-    }
-  } catch (error) {
-    console.error(`[i18n] Failed to preload ${lang}`, error);
-  }
+  const defaultDictionary = languageCache[DEFAULT_LANGUAGE] as Record<string, unknown> | undefined;
+  const dv = defaultDictionary?.[key];
+  if (typeof dv === 'string') return dv;
+  return fallback ?? key;
 }
+
+/** 旧版翻译函数简写别名（扁平 key） */
+export const loc = getTranslatedString;
