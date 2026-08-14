@@ -121,7 +121,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
   return (
     <div className="p-6 md:p-10">
       {/* ===== Hero：大封面 + 超大标题 ===== */}
-      <section className="gap-10 grid grid-cols-1 lg:grid-cols-[280px_1fr] items-start">
+      <section className="gap-10 grid grid-cols-1 lg:grid-cols-[280px_1fr] items-end">
         <div className="justify-self-center lg:justify-self-start">
           {/* 返回上一页（对齐封面左上角） */}
           <button
