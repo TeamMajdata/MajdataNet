@@ -200,7 +200,7 @@ function LatestEventsStrip() {
   // 内容较少时不滚动，直接展示
   if (events.length < 6) {
     return (
-      <section className="mt-10 w-full">
+      <section className="mt-10 mb-20 w-full">
         <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
           {events.map((event, index) => (
             <EventMosaicCard key={event.id} event={event} index={index} />
@@ -211,7 +211,7 @@ function LatestEventsStrip() {
   }
 
   return (
-    <section className="mt-10 w-full">
+    <section className="mt-10 mb-20 w-full">
       {/* 网格左右滚动动画：横向无缝循环，hover 暂停 */}
       <div className="relative overflow-hidden">
         <div className="events-scroll-track flex">
