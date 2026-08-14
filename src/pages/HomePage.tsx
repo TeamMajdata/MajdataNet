@@ -35,7 +35,7 @@ import {
   ChevronRight,
   Download,
 } from "lucide-react";
-import type { Event, Song } from "@/types";
+import type { Event, EventWithTimeInfo, Song } from "@/types";
 
 // 获取用户时区的次日午夜时间戳 (UTC)
 const getNextMidnightTimestamp = (): number => {
@@ -188,37 +188,62 @@ function LatestEventsStrip() {
 
   return (
     <section className="mt-10 w-full">
-      <div className="flex gap-4 overflow-x-auto pb-3 snap-x">
-        {events.map((event) => (
-          <a
-            key={event.id}
-            href={event.href}
-            target={event.href.startsWith("http") ? "_blank" : undefined}
-            rel="noopener noreferrer"
-            className="group shrink-0 w-72 snap-start no-underline"
-          >
-            <div className="relative overflow-hidden aspect-[16/9] bg-surface-2">
-              <img
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                src={event.src}
-                alt={event.alt}
-                loading="lazy"
-                decoding="async"
-              />
-              <div className="absolute top-2 right-2">
-                <EventStatusBadge event={event} />
-              </div>
-            </div>
-            <h3 className="m-0 mt-2 font-semibold text-ink text-sm truncate">
-              {event.title}
-            </h3>
-            <p className="m-0 mt-0.5 text-xs text-ink-3 truncate">
-              {getCategoryTranslation(event.category)} · {event.timeAgo}
-            </p>
-          </a>
+      {/* 与谱面网格一致：12 列马赛克（3 个一行 / 4 个一行，宽度随机） */}
+      <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+        {events.map((event, index) => (
+          <EventMosaicCard key={event.id} event={event} index={index} />
         ))}
       </div>
     </section>
+  );
+}
+
+/** 活动马赛克卡（与谱面卡片同款：直角大图 + hover 符号 + 状态徽章） */
+function EventMosaicCard({ event, index }: { event: EventWithTimeInfo; index: number }) {
+  const colClass = COL_CLASS[spanOf(index)];
+
+  return (
+    <motion.div
+      className={colClass}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.45, delay: (index % 5) * 0.05, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      <a
+        href={event.href}
+        target={event.href.startsWith("http") ? "_blank" : undefined}
+        rel="noopener noreferrer"
+        className="group block no-underline"
+      >
+        <div className="relative overflow-hidden aspect-[8/3]">
+          <img
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+            src={event.src}
+            alt={event.alt}
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="text-5xl md:text-6xl font-light text-white mix-blend-difference select-none">
+              +
+            </span>
+          </div>
+          <div className="absolute top-2 right-2">
+            <EventStatusBadge event={event} />
+          </div>
+        </div>
+        <div className="flex items-start justify-between gap-3 mt-3">
+          <h3 className="m-0 font-semibold text-ink text-base md:text-lg truncate leading-snug">
+            {event.title}
+          </h3>
+          <span className="shrink-0 w-0 h-0.5 mt-2 bg-primary transition-all duration-300 group-hover:w-8" />
+        </div>
+        <p className="m-0 mt-1 text-xs text-ink-3 truncate">
+          {getCategoryTranslation(event.category)} · {event.timeAgo}
+        </p>
+      </a>
+    </motion.div>
   );
 }
 
