@@ -15,8 +15,8 @@ const fetcher = async (...args: Parameters<typeof fetch>) =>
 // ─── Data conversion ─────────────────────────────────────────────────────────
 
 /**
- * 将 RecentPlayedData 转换为 Score 类型
- */
+* 将 RecentPlayedData 转换为 Score 类型
+*/
 function convertToScore(data: RecentPlayedData): Score {
   const chartLevel = parseInt(data.level);
   const levels = new Array(chartLevel + 1).fill('');
@@ -51,9 +51,9 @@ function convertToScore(data: RecentPlayedData): Score {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 /**
- * 最近游玩记录组件
- * 显示指定用户最近游玩的谱面、成绩与活跃度折线图
- */
+* 最近游玩记录组件
+* 显示指定用户最近游玩的谱面、成绩与活跃度折线图
+*/
 export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPlayedWidgetProps) {
   const { i18n } = useI18n();
 
@@ -115,7 +115,6 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
       >
         <ScoreCard
           score={score}
-          showLikeButton={true}
           showComboEffects={true}
           showRank={true}
           rankUsername={username}
@@ -127,7 +126,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   return (
     <>
       <RecentActivityChart records={sortedData} />
-      <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+<div className="gap-3 flex flex-col w-full">
         {scoreCards}
       </div>
     </>

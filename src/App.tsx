@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { I18nProvider } from './contexts/I18nContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { UserProvider } from '@/contexts/UserContext';
 import { TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
 import HomePage from './pages/HomePage';
@@ -55,8 +56,9 @@ function App() {
         <meta name="twitter:image" content="/salt.webp" />
       </Helmet>
       <TooltipProvider delayDuration={200}>
-        <I18nProvider>
-          <UserProvider>
+        <ThemeProvider>
+          <I18nProvider>
+            <UserProvider>
             <Router>
               <ScrollToTopListener />
               <Routes>
@@ -88,6 +90,7 @@ function App() {
             </Router>
           </UserProvider>
         </I18nProvider>
+        </ThemeProvider>
       </TooltipProvider>
     </HelmetProvider>
   );

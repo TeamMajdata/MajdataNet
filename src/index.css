@@ -2,119 +2,215 @@
 
 @import "./styles/components/events.css";
 
-:root {
-  --foreground-rgb: 255, 255, 255, 100;
-  --background-start: 20, 20, 20;
-  --shadow: #181818;
+/* ============================================================
+   v5 设计 Token（Quiet Flat · 大留白 · 信息层级 · 亮/暗双主题）
+   @theme 注入 Tailwind：bg-surface / text-ink / border-line 等
+   token 值引用运行时 CSS 变量（--surface 等），
+   通过 html.dark 一键切换暗色主题
+   ============================================================ */
+@custom-variant dark (&:where(.dark, .dark *));
 
-  /* 统一容器样式 */
-  --container-max-width: 1200px;
+@theme {
+  /* 背景 */
+  --color-page: var(--page);          /* bg-page    页面底色 */
+  --color-surface: var(--surface);    /* bg-surface 卡片/面板 */
+  --color-surface-2: var(--surface-2);/* bg-surface-2 选中/分区底色 */
+
+  /* 品牌色 */
+  --color-primary: var(--primary);     /* bg-primary / text-primary */
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+
+  /* 文字层级：ink(主) / ink-2(次) / ink-3(弱) */
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+
+  /* 边框 */
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  /* 语义色（扁平） */
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+
+  /* 圆角 */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* 阴影（仅两档；深色模式使用亮色阴影） */
+  --shadow-card: var(--shadow-card-val);
+  --shadow-card-hover: var(--shadow-card-hover-val);
+
+  /* 字体 */
+  --font-sans: system-ui, -apple-system, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}
+
+/* ============================================================
+   亮色主题（默认）
+   ============================================================ */
+:root {
+  /* 背景 */
+  --page: #f7f8fa;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+
+  /* 品牌色 */
+  --primary: #5c8dc1;
+  --primary-hover: #4a7daf;
+  --primary-soft: #eef4fa;
+
+  /* 文字层级 */
+  --ink: #1f2937;
+  --ink-2: #6b7280;
+  --ink-3: #9ca3af;
+
+  /* 边框 */
+  --line: #e5e7eb;
+  --line-strong: #d1d5db;
+
+  /* 语义色 */
+  --ok: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+
+  /* 阴影 */
+  --shadow-card-val: 0 1px 2px rgb(16 24 40 / 0.05);
+  --shadow-card-hover-val: 0 8px 24px rgb(16 24 40 / 0.08);
+
+  /* 兼容变量（v2 遗留） */
+  --foreground-rgb: 31, 41, 55;      /* #1f2937 */
+  --background-start: 247, 248, 250; /* #f7f8fa */
+  --shadow: #d0d0d8;
+
+  /* 容器（全宽，去掉左右限宽留白） */
+  --container-max-width: 100%;
   --container-padding: 0 1rem;
   --container-margin: 0 auto;
 
-  /* 统一毛玻璃效果 */
-  --glassmorphism-bg-primary: rgb(15 15 20 / 85%);
-  --glassmorphism-bg-secondary: rgb(30 30 30 / 90%);
-  --glassmorphism-backdrop: blur(20px) saturate(180%);
-  --glassmorphism-border: 1px solid rgb(255 255 255 / 12%);
-  --glassmorphism-border-radius: 16px;
-  --glassmorphism-shadow: 0 8px 25px rgb(0 0 0 / 30%);
+  /* 旧毛玻璃变量 → 扁平化值（仅保证引用不报错） */
+  --glassmorphism-bg-primary: #ffffff;
+  --glassmorphism-bg-secondary: #ffffff;
+  --glassmorphism-backdrop: none;
+  --glassmorphism-border: 1px solid #e5e7eb;
+  --glassmorphism-border-radius: 12px;
+  --glassmorphism-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
 
-  /* 智能 Header 高度系统 */
-  --header-height-desktop: 70px;
-  --header-height-tablet: 50px;
-  --header-height-mobile: 50px;
-  --header-height-mobile-small: 50px;
+  /* Header 高度 */
+  --header-height: 56px;
+  --content-top-spacing: calc(var(--header-height) + 1rem);
+  --content-top-spacing-large: calc(var(--header-height) + 1.5rem);
 
-  /* 当前生效的 Header 高度（默认桌面端） */
-  --header-height: var(--header-height-desktop);
-
-  /* 智能间距计算 */
-  --content-top-spacing: calc(var(--header-height) + 0.5rem);
-  --content-top-spacing-large: calc(var(--header-height) + 1rem);
-
-  /* 其他样式变量 */
-  --glassmorphism-bg: rgb(15 15 20 / 95%);
-  --glassmorphism-bg-scrolled: rgb(10 12 18 / 85%);
-  --glassmorphism-border-scrolled: rgb(255 255 255 / 15%);
-
-  scrollbar-color: rgb(50 50 50) rgb(var(--background-start));
+  color-scheme: light;
+  scrollbar-color: #b4b4be rgb(var(--background-start));
   scrollbar-width: thin;
 }
 
-/* 基础文本颜色 */
-div {
-  color: rgb(var(--foreground-rgb));
+/* ============================================================
+   暗色主题（html.dark）
+   ============================================================ */
+.dark {
+  /* 背景 */
+  --page: #12141a;
+  --surface: #1b1e26;
+  --surface-2: #242833;
+
+  /* 品牌色（暗色下稍微提亮） */
+  --primary: #6f9fd4;
+  --primary-hover: #83aede;
+  --primary-soft: #243041;
+
+  /* 文字层级 */
+  --ink: #e6e9ef;
+  --ink-2: #a4abba;
+  --ink-3: #6f7787;
+
+  /* 边框 */
+  --line: #2c3140;
+  --line-strong: #3b4152;
+
+  /* 语义色 */
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --danger: #f87171;
+
+  /* 阴影（亮色，深色背景上可见） */
+  --shadow-card-val: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-card-hover-val: 0 8px 24px rgb(0 0 0 / 0.5);
+
+  /* 兼容变量 */
+  --foreground-rgb: 230, 233, 239;    /* #e6e9ef */
+  --background-start: 18, 20, 26;     /* #12141a */
+  --shadow: #000000;
+
+  --glassmorphism-bg-primary: #1b1e26;
+  --glassmorphism-bg-secondary: #1b1e26;
+  --glassmorphism-border: 1px solid #2c3140;
+  --glassmorphism-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+
+  color-scheme: dark;
+  scrollbar-color: #4a5162 rgb(var(--background-start));
+
+  /* GitHub markdown 暗色变量覆盖 */
+  --color-canvas-default: #1b1e26;
+  --color-canvas-subtle: #242833;
+  --color-canvas-inset: #12141a;
+  --color-canvas-overlay: #1b1e26;
+  --color-fg-default: #e6e9ef;
+  --color-fg-muted: #a4abba;
+  --color-fg-subtle: #6f7787;
+  --color-border-default: #2c3140;
+  --color-border-muted: #2c3140;
+  --color-accent-fg: #6f9fd4;
+  --color-accent-emphasis: #6f9fd4;
+  --color-danger-fg: #f87171;
+  --color-success-fg: #34d399;
+  --color-attention-fg: #fbbf24;
+  --color-neutral-muted: rgb(110 118 129 / 0.4);
 }
 
-/* Body 基础样式 */
-body {
-  caret-color: transparent;
-  color-scheme: only dark;
-  background-color: rgb(var(--background-start));
-  padding-top: var(--content-top-spacing-large);
-  min-width: 0;
-  min-height: 100dvh;
-  overflow-x: clip;
-  text-size-adjust: 100%;
-}
+/* 基础文本颜色（放入 @layer base，允许 Tailwind utilities 覆盖） */
+@layer base {
+  div {
+    color: rgb(var(--foreground-rgb));
+  }
 
-#root {
-  min-width: 0;
-  min-height: 100dvh;
-}
+  p {
+    color: rgb(var(--foreground-rgb));
+  }
 
-img,
-video,
-iframe {
-  max-width: 100%;
-}
+  h1 {
+    color: var(--ink);
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    user-select: text;
+  }
 
-button,
-a,
-input,
-select,
-textarea {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* 段落样式 */
-p {
-  color: rgb(var(--foreground-rgb));
-}
-
-/* 标题样式 */
-h1 {
-  color: whitesmoke;
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: bold;
-  user-select: text;
-}
-
-h2 {
-  color: whitesmoke;
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: bold;
-  user-select: text;
+  h2 {
+    color: var(--ink);
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    user-select: text;
+  }
 }
 
 @media screen and (width <= 500px) {
   h1 {
-    font-size: 1.875rem;
-    line-height: 1.15;
-  }
-
-  h2 {
-    font-size: 1.75rem;
-    line-height: 1.2;
+    font-size: 2rem;
   }
 }
 
-/* 禁用状态样式 */
-*:disabled {
-  background-color: rgb(92 0 0);
+/* Body：纯色背景，无网格、无模糊；顶部为 fixed 顶栏预留空间（紧贴顶栏） */
+body {
+  background-color: var(--color-page);
+  padding-top: 4rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* 移除数字输入框的spinner */
@@ -131,7 +227,8 @@ input[type="number"]::-webkit-inner-spin-button {
   max-width: 100%;
   margin: 0 auto;
   padding: 45px;
-  background-color: var(--background-start) !important;
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
 }
 
 /* 覆盖全局 h1/h2 居中，markdown 内标题默认左对齐 */
@@ -142,6 +239,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .markdown-body h5,
 .markdown-body h6 {
   text-align: left !important;
+  color: var(--ink) !important;
 }
 
 .markdown-body ul {
@@ -184,43 +282,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 @media (width <= 767px) {
-  :root {
-    --container-padding: 0 0.75rem;
-    --header-height: var(--header-height-mobile);
-    --content-top-spacing: 0.75rem;
-    --content-top-spacing-large: calc(var(--header-height) + env(safe-area-inset-top) + 0.75rem);
-  }
-
   .markdown-body {
-    min-width: 0;
-    padding: 0.875rem;
-    overflow-wrap: anywhere;
-  }
-
-  .markdown-body pre,
-  .markdown-body table {
-    max-width: 100%;
-    overflow-x: auto;
-  }
-
-  .markdown-body img {
-    height: auto;
-  }
-
-  input:not([type="checkbox"]):not([type="radio"]),
-  select,
-  textarea {
-    font-size: 1rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    padding: 15px;
   }
 }

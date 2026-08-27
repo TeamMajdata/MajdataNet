@@ -27,6 +27,8 @@ export { getDisplayMessage } from './httpMessage';
 // 国际化工具
 export {
   setLanguage,
+  getTranslatedString,
+  loc,
   i18n,
   getCurrentLanguage,
   getBrowserLanguage,

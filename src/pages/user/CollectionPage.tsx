@@ -2,7 +2,7 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { PageLayout, LoadingSpinner, CollectionCard, CollectionModal } from '@/components';
 import { endpoints } from '@/config/api';
-import { useI18n, useUserContext, useFavorites } from '@/hooks';
+import { useLoc, useUserContext, useFavorites } from '@/hooks';
 import { motion, type Variants } from 'framer-motion';
 import type { Collection } from '@/types';
 
@@ -22,7 +22,7 @@ const slideInUp: Variants = {
 };
 
 export default function UserCollectionPage() {
-  const { i18n } = useI18n();
+  const loc = useLoc();
   const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState<'mine' | 'favorites'>('mine');
   const [isManaging, setIsManaging] = useState(false);
@@ -49,13 +49,13 @@ export default function UserCollectionPage() {
   if (!user) return null;
 
   const tabItems = [
-    { key: 'favorites' as const, label: i18n("user/collections/CollectionPage.MyFavCollections", '订阅的歌单') },
-    { key: 'mine' as const, label: i18n("user/collections/CollectionPage.MyCollections", '我的歌单') },
+    { key: 'favorites' as const, label: loc('MyFavCollections', '订阅的歌单') },
+    { key: 'mine' as const, label: loc('MyCollections', '我的歌单') },
   ];
 
   return (
     <PageLayout>
-      <div className="mx-auto px-4 py-8 w-full max-w-7xl min-h-screen">
+      <div className="px-4 py-8 w-full min-h-screen">
         <motion.div
           className="flex sm:flex-row flex-col justify-between items-start sm:items-center gap-4 mb-8"
           initial="hidden"
@@ -63,34 +63,34 @@ export default function UserCollectionPage() {
           custom={0}
           variants={slideInUp}
         >
-          <h1 className="font-bold text-white text-2xl md:text-3xl">
-            {activeTab === 'mine' ? i18n("user/collections/CollectionPage.MyCollections", '我的歌单') : i18n("user/collections/CollectionPage.MyFavCollections", '订阅的歌单')}
+          <h1 className="font-bold text-ink text-2xl md:text-3xl">
+            {activeTab === 'mine' ? loc('MyCollections', '我的歌单') : loc('MyFavCollections', '订阅的歌单')}
           </h1>
           <div className="flex items-center gap-3">
             {isManaging && (
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-blue-500/80 hover:bg-blue-500 px-4 py-2 border border-blue-500/80 rounded-xl font-medium text-white text-sm transition-all cursor-pointer"
+                className="bg-primary hover:bg-primary-hover px-4 py-2 border border-primary rounded-md font-medium text-white text-sm transition-all cursor-pointer"
               >
-                + {i18n("user/collections/CollectionPage.NewCollection", '新建歌单')}
+                + {loc('NewCollection', '新建歌单')}
               </button>
             )}
             {activeTab === 'mine' && (
               <button
                 onClick={() => setIsManaging((prev) => !prev)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer border ${isManaging
-                  ? 'bg-red-500/80 text-white border-red-500/80'
-                  : 'bg-white/10 text-white/80 border-white/20 hover:bg-white/15'
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer border ${isManaging
+                  ? 'bg-danger text-white border-danger'
+                  : 'bg-surface text-ink-2 border-line hover:text-primary hover:border-primary/40'
                   }`}
               >
-                {isManaging ? i18n("user/collections/CollectionPage.ExitManage", '退出管理') : i18n("user/collections/CollectionPage.Manage", '管理模式')}
+                {isManaging ? loc('ExitManage', '退出管理') : loc('Manage', '管理模式')}
               </button>
             )}
           </div>
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-white/5 mb-6 p-1 border border-white/10 rounded-xl">
+        <div className="flex gap-1 bg-surface-2 mb-6 p-1 border border-line rounded-lg">
           {tabItems.map((tab) => (
             <button
               key={tab.key}
@@ -98,9 +98,9 @@ export default function UserCollectionPage() {
                 setActiveTab(tab.key);
                 setIsManaging(false);
               }}
-              className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border-none ${activeTab === tab.key
-                ? 'bg-white/15 text-white shadow-sm'
-                : 'bg-transparent text-white/60 hover:text-white/80 hover:bg-white/5'
+              className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer border-none ${activeTab === tab.key
+                ? 'bg-surface text-ink shadow-card'
+                : 'bg-transparent text-ink-3 hover:text-ink hover:bg-surface'
                 }`}
             >
               {tab.label}
@@ -110,9 +110,9 @@ export default function UserCollectionPage() {
 
         {/* Management mode hint bar */}
         {activeTab === 'mine' && isManaging && (
-          <div className="flex items-center gap-2 bg-red-500/10 mb-6 px-4 py-2.5 border border-red-500/20 rounded-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-            <span className="text-red-300/80 text-sm">{i18n("user/collections/CollectionPage.ManageHint", '管理模式：点击歌单右上角按钮可删除歌单')}</span>
+          <div className="flex items-center gap-2 bg-danger/10 mb-6 px-4 py-2.5 border border-danger/30 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-danger shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+            <span className="text-danger text-sm">{loc('ManageHint', '管理模式：点击歌单右上角按钮可删除歌单')}</span>
           </div>
         )}
 
@@ -123,9 +123,9 @@ export default function UserCollectionPage() {
                 <LoadingSpinner size="50px" />
               </div>
             ) : error ? (
-    <div className="m-auto w-full text-2xl sm:text-[50px] text-white text-center">{i18n("user/collections/CollectionPage.ServerError", '服务器错误')}</div>
+              <div className="m-auto w-full text-[50px] text-ink-3 text-center">{loc('ServerError', '服务器错误')}</div>
             ) : !data || data.length === 0 ? (
-    <div className="m-auto w-full text-2xl sm:text-[50px] text-white text-center">{i18n("user/collections/CollectionPage.EmptyData", '暂无数据')}</div>
+              <div className="m-auto w-full text-[50px] text-ink-3 text-center">{loc('EmptyData', '暂无数据')}</div>
             ) : (
               <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {data.map((collection) => (
@@ -146,7 +146,7 @@ export default function UserCollectionPage() {
                 setPage={setPage}
                 storageKey="lastMyCollectionPage"
                 isLastPage={isLastPage}
-                i18n={i18n}
+                loc={loc}
               />
             )}
           </>
@@ -157,7 +157,7 @@ export default function UserCollectionPage() {
                 <LoadingSpinner size="50px" />
               </div>
             ) : !favorites || favorites.length === 0 ? (
-    <div className="m-auto w-full text-2xl sm:text-[50px] text-white text-center">{i18n("user/collections/CollectionPage.EmptyFavorites", '暂无收藏')}</div>
+              <div className="m-auto w-full text-[50px] text-ink-3 text-center">{loc('EmptyFavorites', '暂无收藏')}</div>
             ) : (
               <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {favorites.map((collection) => (
@@ -176,7 +176,7 @@ export default function UserCollectionPage() {
                 setPage={setFavPage}
                 storageKey="lastMyFavoritePage"
                 isLastPage={isFavLastPage}
-                i18n={i18n}
+                loc={loc}
               />
             )}
           </>
@@ -193,12 +193,12 @@ export default function UserCollectionPage() {
   );
 }
 
-function Paginator({ page, setPage, storageKey, isLastPage, i18n }: {
+function Paginator({ page, setPage, storageKey, isLastPage, loc }: {
   page: number;
   setPage: (p: number) => void;
   storageKey: string;
   isLastPage: boolean;
-  i18n: (key: string, fallback?: string) => string;
+  loc: (key: string, fallback?: string) => string;
 }) {
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -207,22 +207,25 @@ function Paginator({ page, setPage, storageKey, isLastPage, i18n }: {
   };
 
   return (
-      <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
-        <div className="gap-2 sm:gap-4 grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] sm:flex items-center bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-2.5 sm:p-6 border border-white/10 rounded-xl w-full sm:w-auto max-w-md">
+    <div className="flex flex-col items-center gap-6 mt-12 px-4">
+      <div className="flex items-center gap-4 p-5 rounded-xl">
         <button
-          className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+          className={`px-6 py-3 border-none rounded-md font-medium cursor-pointer min-w-20 ${page - 1 < 0
+            ? 'bg-surface-2 text-ink-3 cursor-not-allowed opacity-60'
+            : 'bg-primary hover:bg-primary-hover text-white'
+            }`}
           disabled={page - 1 < 0}
           onClick={() => handlePageChange(page - 1)}
         >
           &larr;
         </button>
 
-        <div className="flex justify-center items-center gap-1.5 sm:gap-2 min-w-0">
-          <span className="text-[#ccc] text-sm">{i18n("user/collections/CollectionPage.PageOf", '第')}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-ink-2 text-sm">{loc('PageOf', '第')}</span>
           <input
             type="number"
             value={page}
-            className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
+            className="bg-surface border border-line focus:border-primary p-2 rounded-md focus:outline-none w-15 font-medium text-ink text-center"
             onChange={(event) => {
               if (event.target.value !== '') {
                 const newPage = parseInt(event.target.value);
@@ -234,21 +237,24 @@ function Paginator({ page, setPage, storageKey, isLastPage, i18n }: {
             min="0"
             step="1"
           />
-          <span className="text-[#ccc] text-sm">{i18n("user/collections/CollectionPage.Page", '页')}</span>
+          <span className="text-ink-2 text-sm">{loc('Page', '页')}</span>
         </div>
 
         <button
-          className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${isLastPage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
+          className={`px-6 py-3 border-none rounded-md font-medium cursor-pointer min-w-20 ${isLastPage
+            ? 'bg-surface-2 text-ink-3 cursor-not-allowed opacity-60'
+            : 'bg-primary hover:bg-primary-hover text-white'
+            }`}
           disabled={isLastPage}
           onClick={() => handlePageChange(page + 1)}
         >
           &rarr;
         </button>
         <button
-          className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer"
+          className="bg-surface px-6 py-2 border border-line hover:border-primary/40 rounded-md text-ink-2 hover:text-primary cursor-pointer"
           onClick={() => handlePageChange(0)}
         >
-          {i18n("user/collections/CollectionPage.FrontPage", '首页')}
+          {loc('FrontPage', '首页')}
         </button>
       </div>
     </div>

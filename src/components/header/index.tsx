@@ -1,58 +1,62 @@
-import { Link } from 'react-router-dom';
-import { useI18n, useUserContext } from '@/hooks';
-import { LoadingSpinner } from '@/components';
-import MajdataLogo from './MajdataLogo';
-import Navigation from './Navigation';
-import UserMenu from './UserMenu';
-import AuthSection from './AuthSection';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useUserContext, useLoc } from "@/hooks";
+import { LoadingSpinner } from "@/components";
+import FullScreenMenu from "./FullScreenMenu";
+import UserMenu from "./UserMenu";
+import AuthSection from "./AuthSection";
 
 /**
- * 统一顶部导航栏组件
- * 包含Logo、导航菜单、用户下拉菜单、登录/注册
+ * 统一顶栏（Studio Freight 风格）：极简顶栏 + 全屏覆盖菜单
  */
 export default function UnifiedHeader() {
-  const { i18n } = useI18n();
   const { user, isLoading, error } = useUserContext();
-  const username = user?.username || '';
+  const loc = useLoc();
+  const username = user?.username || "";
   const isLoggedIn = !!username && !error;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="top-0 before:top-0 right-0 before:right-0 left-0 before:left-0 z-1000 fixed before:absolute bg-[rgb(8_10_15/52%)] before:bg-linear-to-r before:from-transparent before:via-[rgb(96_165_250/45%)] before:to-transparent before:opacity-70 shadow-[0_10px_32px_rgb(0_0_0/22%),0_1px_0_rgb(255_255_255/6%)_inset] backdrop-blur-[22px] backdrop-saturate-150 pt-[env(safe-area-inset-top)] border-white/10 border-b before:h-px before:content-['']">
-      <div className="flex justify-between items-center mx-auto my-2 md:my-3 px-3 sm:px-6 lg:px-8 max-w-350 h-12 md:h-14">
-        {/* 左侧区域：Logo + 导航 */}
-        <div className="flex flex-1 items-center gap-5 2xl:gap-7">
-          {/* Logo Section */}
-          <div className="hidden md:flex items-center shrink-0">
-            <Link to="/" className="flex items-center no-underline">
-              <MajdataLogo />
-            </Link>
-          </div>
-
-          {/* Main Navigation */}
-          <Navigation />
-        </div>
-
-        {/* 移动端中间Logo */}
-        <div className="md:hidden left-1/2 absolute flex items-center h-8 -translate-x-1/2">
-          <Link to="/" className="flex items-center">
-            <img className="rounded-[7px] w-8 h-8" src="/salt.webp" alt="Majdata Net" />
+    <>
+      {/* 顶栏：品牌 + 用户区 + 菜单按钮（透明背景） */}
+      <header className="fixed top-0 left-0 right-0 z-1000 bg-transparent">
+        <div className="flex items-center justify-between h-16 px-5 md:px-10">
+          <Link to="/" className="flex items-center gap-2.5 shrink-0 no-underline group">
+            <img
+              className="rounded-[5px] w-8 h-8 border border-line transition-transform duration-200 group-hover:scale-105"
+              src="../../../salt.webp"
+              alt="xxlb"
+            />
+            <span className="font-black tracking-tight text-ink text-lg">
+              MAJDATA<span className="text-ink-3">.NET</span>
+            </span>
           </Link>
-        </div>
 
-        {/* User Section */}
-        <div className="relative flex items-center rounded-[10px] shrink-0">
-          {isLoading ? (
-            <div className="flex items-center gap-2 opacity-70 px-3 md:px-4 py-2 md:py-3 border border-white/10 rounded-[10px] h-10 md:min-h-10 font-medium text-white/85 text-sm no-underline transition-all duration-200 cursor-default pointer-events-none">
-              <LoadingSpinner className="animate-pulse" size={25} />
-              <span className="hidden md:inline text-sm">{i18n("shared/header.Loading")}</span>
-            </div>
-          ) : isLoggedIn ? (
-            <UserMenu username={username} />
-          ) : (
-            <AuthSection />
-          )}
+          <div className="flex items-center gap-3 md:gap-5">
+            {isLoading ? (
+              <LoadingSpinner className="animate-pulse" size={20} />
+            ) : isLoggedIn ? (
+              <UserMenu username={username} />
+            ) : (
+              <AuthSection />
+            )}
+            <button
+              onClick={() => setIsMenuOpen(true)}
+              className="flex items-center gap-2 text-ink-2 hover:text-primary text-sm font-semibold tracking-widest cursor-pointer bg-none border-none transition-colors duration-150"
+              aria-label="open menu"
+            >
+              <span className="flex flex-col gap-1">
+                <span className="block w-5 h-0.5 bg-current" />
+                <span className="block w-5 h-0.5 bg-current" />
+              </span>
+              <span className="hidden sm:inline">{loc("Menu", "MENU")}</span>
+            </button>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* 全屏覆盖菜单 */}
+      <FullScreenMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+    </>
   );
 }

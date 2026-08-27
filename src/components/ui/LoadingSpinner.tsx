@@ -10,7 +10,7 @@ export default function LoadingSpinner({ className = "", size = 48 }: LoadingSpi
 
   return (
     <motion.div
-      className={`border-[3px] border-white/20 border-t-white border-solid rounded-full ${className}`}
+      className={`border-[3px] border-primary/25 border-t-primary border-solid rounded-full ${className}`}
       style={{ width: spinnerSize, height: spinnerSize }}
       animate={{ rotate: 360 }}
       transition={{

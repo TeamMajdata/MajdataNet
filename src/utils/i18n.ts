@@ -19,7 +19,13 @@ function normalizeLanguage(language: string): Language {
 function isTranslationDictionary(value: unknown): value is TranslationDictionary {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
 
-  return Object.values(value).every((namespace) => (
+  const entries = Object.values(value);
+
+  // 扁平结构：{ Key: "文案" }（当前语言包实际使用，loc/getTranslatedString 消费）
+  if (entries.every((entry) => typeof entry === 'string')) return true;
+
+  // 命名空间结构：{ "路由/组件": { Key: "文案" } }（新约定，i18n() 消费）
+  return entries.every((namespace) => (
     namespace !== null
     && typeof namespace === 'object'
     && !Array.isArray(namespace)
@@ -122,6 +128,10 @@ export function i18n(key: string, fallback?: string): string {
     ?? languageCache[DEFAULT_LANGUAGE]?.[namespace]?.[translationKey];
 
   if (translated === undefined) {
+    // 兼容扁平结构语言包：命名空间 key 的末段作为扁平 key 再查一次
+    const flatValue = getTranslatedString(translationKey, '');
+    if (flatValue !== '') return flatValue;
+
     const warningKey = `${currentLanguage}:${key}`;
     if (!warnedKeys.has(warningKey)) {
       console.warn(`[i18n] Missing translation: ${warningKey}`);
@@ -156,3 +166,23 @@ export async function preloadLanguage(language: Language): Promise<void> {
     console.error(`[i18n] Failed to preload ${language}`, error);
   }
 }
+
+/**
+ * —— 兼容层：旧扁平 key ——
+ * 我们的 UI 大量使用 loc(key, fallback)（扁平 key + 扁平 JSON）。
+ * 扁平 key 直接查当前语言字典顶层；找不到时回退默认语言 / fallback / key。
+ */
+export function getTranslatedString(key: string, fallback?: string): string {
+  const currentDictionary = languageCache[currentLanguage] as Record<string, unknown> | undefined;
+  if (currentDictionary) {
+    const v = currentDictionary[key];
+    if (typeof v === 'string') return v;
+  }
+  const defaultDictionary = languageCache[DEFAULT_LANGUAGE] as Record<string, unknown> | undefined;
+  const dv = defaultDictionary?.[key];
+  if (typeof dv === 'string') return dv;
+  return fallback ?? key;
+}
+
+/** 旧版翻译函数简写别名（扁平 key） */
+export const loc = getTranslatedString;

@@ -67,7 +67,7 @@ export default function Majdata({ songid, chartRoot: apiroot, level }: MajdataPr
   }, [isLoaded, songid, apiroot, level, sendMessage]);
 
   return (
-    <div className='top-0 z-100 box-border [@media(screen_and_(aspect-ratio>=2/3))]:static sticky bg-black p-2.5 rounded-[10px] w-full aspect-square min-[700px]:transform-none'>
+    <div className='top-0 z-100 box-border [@media(screen_and_(aspect-ratio>=2/3))]:static sticky bg-black p-2.5 rounded-[10px] w-full max-w-[600px] max-h-[600px] aspect-square min-[700px]:transform-none'>
       <Unity
         unityProvider={unityProvider}
         className="rounded-[10px] w-full h-full"

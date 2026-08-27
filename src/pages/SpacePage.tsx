@@ -3,18 +3,20 @@
  * 迁移自 legacy/src/app/space/page.jsx
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
-import { useI18n } from '@/hooks';
-import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner } from '@/components';
+import { setLanguage } from '@/utils/i18n';
+import { useLoc } from '@/hooks';
+import { PageLayout, RecentPlayedWidget, SongMosaicCard, ScoreCount, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkCenter from '@/utils/remarkCenter';
 import { motion, type Variants } from 'framer-motion';
-import 'github-markdown-css/github-markdown-dark.css';
-import type { IntroductionData } from '@/types';
+import 'github-markdown-css/github-markdown.css';
+import type { IntroductionData, Song } from '@/types';
+import { Activity, Music, Trophy } from 'lucide-react';
 
 // slideInUp 动画变体
 const slideInUp: Variants = {
@@ -34,23 +36,30 @@ const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
 
 export default function SpacePage() {
-  const { i18n, isReady } = useI18n();
+  const loc = useLoc();
+  const [ready, setReady] = useState(false);
   const [hasUploadedCharts, setHasUploadedCharts] = useState<boolean | null>(null);
   const [hasRecentPlayed, setHasRecentPlayed] = useState<boolean | null>(null);
   const [searchParams] = useSearchParams();
   const username = searchParams.get('id');
 
-  if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
+  useEffect(() => {
+    setLanguage(localStorage.getItem('language') || navigator.language).then(() => {
+      setReady(true);
+    });
+  }, []);
+
+  if (!ready) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   if (!username) {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-screen">
           <div className="text-center">
-            <h1 className="mb-4 font-bold text-2xl">{i18n("space/SpacePage.Error", '错误')}</h1>
-            <p className="mb-4">{i18n("space/SpacePage.UserNotFound", '未找到用户')}</p>
-            <Link to="/" className="text-blue-400 hover:text-blue-300 underline">
-              {i18n("space/SpacePage.BackToHome", '返回主页')}
+            <h1 className="mb-4 font-bold text-2xl">{loc('Error', '错误')}</h1>
+            <p className="mb-4">{loc('UserNotFound', '未找到用户')}</p>
+            <Link to="/" className="text-primary hover:text-primary-hover underline">
+              {loc('BackToHome', '返回主页')}
             </Link>
           </div>
         </div>
@@ -60,91 +69,149 @@ export default function SpacePage() {
 
   return (
     <PageLayout className="pb-8">
-      {/* User Introduction */}
-      <motion.section
-        className="mt-(--content-top-spacing) mb-12"
-        initial="hidden"
-        animate="visible"
-        custom={0.3}
-        variants={slideInUp}
-      >
-        <Introduction username={username} />
-      </motion.section>
-
-      {/* Recent Activity */}
-      {hasRecentPlayed !== false && (
+      {/* 内容容器：限宽居中 */}
+      <div className="gap-8 flex flex-col mx-auto my-0 w-full max-w-5xl mt-(--content-top-spacing)">
+        {/* User Introduction */}
         <motion.section
-          className="mb-12"
           initial="hidden"
           animate="visible"
-          custom={0.4}
+          custom={0.3}
           variants={slideInUp}
         >
-          <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-            {i18n("space/SpacePage.RecentlyPlayedCharts", '最近游玩的谱面')}
-          </h2>
-          <div
-            className="relative mx-auto my-8 border-0 w-[70%] h-px"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-            }}
-          />
-          <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} />
+          <Introduction username={username} />
         </motion.section>
-      )}
 
-      {/* Uploaded Charts */}
-      {hasUploadedCharts !== false && (
-        <motion.section
-          className="mb-12"
-          initial="hidden"
-          animate="visible"
-          custom={0.5}
-          variants={slideInUp}
-        >
-          <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-            {i18n("space/SpacePage.UploadedCharts", '已上传的谱面')}
-          </h2>
-          <div
-            className="relative mx-auto my-8 border-0 w-[70%] h-px"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-            }}
-          />
-          <SongList
-            url={endpoints.maichart.listSearch('uploader:' + username)}
-            onDataLoaded={setHasUploadedCharts}
-          />
-        </motion.section>
-      )}
+        {/* Recent Activity */}
+        {hasRecentPlayed !== false && (
+          <motion.section
+            initial="hidden"
+            animate="visible"
+            custom={0.4}
+            variants={slideInUp}
+          >
+            <SectionCard
+              title={loc('RecentlyPlayedCharts', '最近游玩的谱面')}
+              icon={<Activity size={20} />}
+            >
+              <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} />
+            </SectionCard>
+          </motion.section>
+        )}
 
-      {/* Who Loves To Play */}
-      {hasUploadedCharts === true && (
-        <motion.section
-          className="mb-12"
-          initial="hidden"
-          animate="visible"
-          custom={0.5}
-          variants={slideInUp}
-        >
-          <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-            {i18n("space/SpacePage.WhoLovesToPlay", '谁爱玩')}
-          </h2>
-          <div
-            className="relative mx-auto my-8 border-0 w-[70%] h-px"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-            }}
-          />
-          <ScoreCount uploader={username} page={0} pageSize={30} />
-        </motion.section>
-      )}
+        {/* Uploaded Charts */}
+        {hasUploadedCharts !== false && (
+          <motion.section
+            initial="hidden"
+            animate="visible"
+            custom={0.5}
+            variants={slideInUp}
+          >
+            <SectionCard
+              title={loc('UploadedCharts', '已上传的谱面')}
+              icon={<Music size={20} />}
+            >
+              <UploadedChartsMosaic username={username} onDataLoaded={setHasUploadedCharts} />
+            </SectionCard>
+          </motion.section>
+        )}
+
+        {/* Who Loves To Play */}
+        {hasUploadedCharts === true && (
+          <motion.section
+            initial="hidden"
+            animate="visible"
+            custom={0.5}
+            variants={slideInUp}
+          >
+            <SectionCard
+              title={loc('WhoLovesToPlay', '谁爱玩')}
+              icon={<Trophy size={20} />}
+            >
+              <ScoreCount uploader={username} page={0} pageSize={30} />
+            </SectionCard>
+          </motion.section>
+        )}
+      </div>
     </PageLayout>
   );
 }
 
+/** 已上传谱面：主页同款马赛克卡片，一行 3 个 */
+function UploadedChartsMosaic({
+  username,
+  onDataLoaded,
+}: {
+  username: string;
+  onDataLoaded: (hasData: boolean) => void;
+}) {
+  const loc = useLoc();
+  const { data, error, isLoading } = useSWR<Song[]>(
+    endpoints.maichart.listSearch('uploader:' + username),
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      onSuccess: (data) => {
+        onDataLoaded?.(!!data && Array.isArray(data) && data.length > 0);
+      },
+    }
+  );
+
+  if (error) {
+    return <div className="m-auto w-full text-[50px] text-center">{loc('ServerError', '服务器错误')}</div>;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-20 w-full">
+        <LoadingSpinner size="50px" />
+      </div>
+    );
+  }
+
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return <div className="m-auto w-full text-[50px] text-center">{loc('EmptyData', '暂无数据')}</div>;
+  }
+
+  return (
+    <div className="gap-x-6 gap-y-12 grid grid-cols-12 w-full">
+      {data.map((song, index) => (
+        <SongMosaicCard
+          key={song.id}
+          song={song}
+          index={index}
+          className="col-span-12 md:col-span-4"
+        />
+      ))}
+    </div>
+  );
+}
+
+/** 分区卡片：图标标题 + 白底内容 */
+function SectionCard({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {  return (
+    <div className="bg-surface border border-line shadow-card hover:shadow-card-hover p-6 md:p-8 transition-all hover:-translate-y-0.5 duration-300">
+      <div className="flex items-center gap-3 mb-6 pb-4 border-line border-b">
+        <div className="bg-primary-soft p-2 rounded-md">
+          {icon}
+        </div>
+        <h2 className="m-0 font-semibold text-ink text-xl md:text-2xl">
+          {title}
+        </h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 function Introduction({ username }: { username: string }) {
-  const { i18n } = useI18n();
+  const loc = useLoc();
   const { data, error, isLoading } = useSWR<IntroductionData>(
     endpoints.account.intro(username),
     fetcher
@@ -153,7 +220,7 @@ function Introduction({ username }: { username: string }) {
   if (error) {
     return (
       <div className="mx-auto w-full text-5xl text-center">
-        {i18n("space/SpacePage.ServerError", '服务器错误')}
+        {loc('ServerError', '服务器错误')}
       </div>
     );
   }
@@ -169,19 +236,19 @@ function Introduction({ username }: { username: string }) {
   if (!data) {
     return (
       <div className="mx-auto w-full text-5xl text-center">
-        {i18n("space/SpacePage.UserNotFound", '未找到用户')}
+        {loc('UserNotFound', '未找到用户')}
       </div>
     );
   }
 
   return (
-    <div className="bg-[rgb(30_30_30/90%)] shadow-[0_8px_25px_rgb(0_0_0/30%)] backdrop-blur-xl backdrop-saturate-180 p-4 sm:p-6 md:p-8 border border-white/12 rounded-2xl min-w-0">
+    <div className="bg-surface border border-line shadow-card hover:shadow-card-hover p-6 md:p-8 transition-all hover:-translate-y-0.5 duration-300">
       {/* Profile Header */}
-      <div className="flex md:flex-row flex-col items-center gap-6 md:gap-8 mb-6 sm:mb-8 pb-6 sm:pb-8 border-white/10 border-b md:text-left text-center">
+      <div className="flex md:flex-row flex-col items-center gap-8 max-md:gap-6 mb-8 pb-8 border-line border-b md:text-left text-center">
         {/* Avatar */}
         <div className="shrink-0">
           <img
-            className="border-[3px] border-blue-500/50 rounded-full w-30 max-md:w-25 min-w-30 max-md:min-w-25 h-30 max-md:h-25 min-h-30 max-md:min-h-25 object-cover aspect-square"
+            className="border-[3px] border-primary/40 rounded-full w-30 max-md:w-25 min-w-30 max-md:min-w-25 h-30 max-md:h-25 min-h-30 max-md:min-h-25 object-cover aspect-square"
             src={endpoints.account.icon(username)}
             alt={username}
           />
@@ -189,9 +256,9 @@ function Introduction({ username }: { username: string }) {
 
         {/* User Info */}
         <div className="flex-1">
-          <h1 className="mb-2 font-bold text-[2rem] text-gray-200 max-md:text-2xl">{data.username}</h1>
-          <p className="m-0 text-gray-400 text-sm sm:text-base md:text-right text-center break-words">
-            {i18n("space/SpacePage.JoinAt", '加入于')} {new Date(data.joinDate).toLocaleString()}
+          <h1 className="mb-2 font-bold text-[2rem] text-ink max-md:text-2xl text-left!">{data.username}</h1>
+          <p className="m-0 text-ink-3 text-base text-left!">
+            {loc('JoinAt', '加入于')} {new Date(data.joinDate).toLocaleString()}
           </p>
         </div>
       </div>
@@ -199,10 +266,10 @@ function Introduction({ username }: { username: string }) {
       {/* Introduction */}
       {data.introduction && (
         <div className="mt-4">
-          <h3 className="mb-4 font-semibold text-gray-200 text-xl text-center">
-            {i18n("space/SpacePage.SelfIntro", '自我介绍')}
+          <h3 className="mb-4 font-semibold text-ink text-xl">
+            {loc('SelfIntro', '自我介绍')}
           </h3>
-          <article className="bg-black/30 p-0 sm:p-2 rounded-xl min-w-0 select-text **:select-text markdown-body">
+          <article className="p-6 select-text **:select-text markdown-body">
             <Markdown
               remarkPlugins={[remarkGfm, remarkCenter]}
               components={{

@@ -52,9 +52,9 @@ function PermitLogin({ authId }: { authId: string | null }) {
   if (!authId) {
     return (
       <div className="auth-container">
-        <div className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-8 border border-white/10 rounded-2xl text-center">
-          <h2 className="mb-2 font-bold text-[#e5e5e5] text-2xl">❌ 无效的链接</h2>
-          <p className="text-gray-400">缺少 auth-id 参数</p>
+        <div className="bg-surface shadow-card p-8 border border-line rounded-xl text-center">
+          <h2 className="mb-2 font-bold text-ink text-2xl">❌ 无效的链接</h2>
+          <p className="text-ink-3">缺少 auth-id 参数</p>
         </div>
       </div>
     );
@@ -63,8 +63,8 @@ function PermitLogin({ authId }: { authId: string | null }) {
   if (isLoggedIn) {
     return (
       <div className="flex justify-center items-center min-h-[40vh]">
-        <div className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-8 border border-white/10 rounded-2xl text-center">
-          <h2 className="mb-2 font-bold text-[#e5e5e5] text-2xl">✅ 登录成功</h2>
+        <div className="bg-surface shadow-card p-8 border border-line rounded-xl text-center">
+          <h2 className="mb-2 font-bold text-ink text-2xl">✅ 登录成功</h2>
         </div>
       </div>
     );
@@ -81,9 +81,9 @@ function PermitLogin({ authId }: { authId: string | null }) {
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-[40vh]">
-        <div className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-8 border border-white/10 rounded-2xl text-center">
-          <h2 className="mb-2 font-bold text-[#e5e5e5] text-2xl">❌ 二维码无效 ❌</h2>
-          <p className="text-gray-400">尝试刷新二维码</p>
+        <div className="bg-surface shadow-card p-8 border border-line rounded-xl text-center">
+          <h2 className="mb-2 font-bold text-ink text-2xl">❌ 二维码无效 ❌</h2>
+          <p className="text-ink-3">尝试刷新二维码</p>
         </div>
       </div>
     );
@@ -127,34 +127,34 @@ function PermitLogin({ authId }: { authId: string | null }) {
   return (
     <div className="flex justify-center items-center min-h-[40vh]">
       <div
-        className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-8 border border-white/10 rounded-2xl w-full max-w-md"
+        className="bg-surface shadow-card p-8 border border-line rounded-xl w-full max-w-md"
         style={{ animation: 'slideInUp 0.6s ease-out 0.2s both' }}
       >
         <div className="mb-6 text-center">
-          <h2 className="mb-1 font-bold text-[#e5e5e5] text-2xl">确认登录吗？</h2>
-          <p className="text-gray-400 text-sm">请检查以下机台信息</p>
+          <h2 className="mb-1 font-bold text-ink text-2xl">确认登录吗？</h2>
+          <p className="text-ink-3 text-sm">请检查以下机台信息</p>
         </div>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
-          <div className="bg-white/5 p-4 border border-white/10 rounded-xl">
-            <label className="block mb-1 font-semibold text-gray-300 text-xs uppercase tracking-wider">
+          <div className="bg-surface-2 p-4 border border-line rounded-lg">
+            <label className="block mb-1 font-semibold text-ink-2 text-xs uppercase tracking-wider">
               机台信息
             </label>
-            <p className="text-[#e5e5e5]">{data?.granteeInfo.name}</p>
-            <p className="text-gray-400 text-sm">{data?.granteeInfo.description}</p>
+            <p className="text-ink">{data?.granteeInfo.name}</p>
+            <p className="text-ink-3 text-sm">{data?.granteeInfo.description}</p>
           </div>
 
-          <div className="bg-white/5 p-4 border border-white/10 rounded-xl">
-            <label className="block mb-1 font-semibold text-gray-300 text-xs uppercase tracking-wider">
+          <div className="bg-surface-2 p-4 border border-line rounded-lg">
+            <label className="block mb-1 font-semibold text-ink-2 text-xs uppercase tracking-wider">
               登录地点
             </label>
-            <p className="text-[#e5e5e5]">{data?.granteeInfo.place}</p>
-            <p className="text-gray-400 text-sm">{data?.granteeInfo.remoteIP}</p>
+            <p className="text-ink">{data?.granteeInfo.place}</p>
+            <p className="text-ink-3 text-sm">{data?.granteeInfo.remoteIP}</p>
           </div>
 
           <button
             type="submit"
-            className="bg-purple-600 hover:bg-purple-500 mt-2 py-3 rounded-xl font-semibold text-white transition-colors cursor-pointer"
+            className="bg-primary hover:bg-primary-hover mt-2 py-3 rounded-md font-semibold text-white transition-colors cursor-pointer"
           >
             确认登录
           </button>

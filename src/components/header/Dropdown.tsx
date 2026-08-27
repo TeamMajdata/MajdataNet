@@ -1,56 +1,121 @@
-import { useEffect, useRef } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 interface DropdownProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
-  position?: 'left' | 'right';
+  variant?: "desktop" | "mobile" | "user" | "auto";
   className?: string;
   containerRef?: React.RefObject<HTMLElement | null>;
 }
 
+const DESKTOP_BREAKPOINT = 1280;
+
+type VariantStyle = {
+  position: string;
+  open: string;
+  closed: string;
+  base: string;
+};
+
+const variantStyles: Record<string, VariantStyle> = {
+  // v4：桌面下拉统一为白底弹出面板
+  desktop: {
+    position: "absolute left-0 top-full mt-2 z-1001 w-full",
+    open: "opacity-100 translate-y-0",
+    closed: "opacity-0 -translate-y-1",
+    base: "bg-surface shadow-card border border-line rounded-lg min-w-48 transition-all duration-150 ease-out origin-top",
+  },
+  mobile: {
+    position: "absolute right-0 top-full mt-2 z-1001",
+    open: "opacity-100 scale-100",
+    closed: "opacity-0 scale-95",
+    base: "bg-surface shadow-card border border-line rounded-lg min-w-48 transition-all duration-150 ease-out origin-top-right",
+  },
+  user: {
+    position: "absolute right-0 top-full mt-2 z-1001",
+    open: "opacity-100 scale-100",
+    closed: "opacity-0 scale-95",
+    base: "bg-surface shadow-card border border-line rounded-lg min-w-48 transition-all duration-150 ease-out origin-top-right",
+  },
+};
+
+function getStyle(variant: string, isDesktop: boolean): VariantStyle {
+  if (variant === "user") {
+    return isDesktop ? variantStyles.user : variantStyles.mobile;
+  }
+  return variantStyles[variant] || variantStyles.mobile;
+}
+
 /**
- * 通用下拉菜单组件
- * 处理点击外部关闭逻辑，无动效
+ * 通用下拉菜单组件（v4：白底扁平面板，无毛玻璃 / 无滑出装饰）
  */
-export default function Dropdown({ isOpen, onClose, children, position = 'left', className = '', containerRef }: DropdownProps) {
+export default function Dropdown({
+  isOpen,
+  onClose,
+  children,
+  variant = "auto",
+  className = "",
+  containerRef,
+}: DropdownProps) {
   const menuRef = useRef<HTMLDivElement>(null);
+  const [render, setRender] = useState(false);
+  const [animateIn, setAnimateIn] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(
+    typeof window !== "undefined" && window.innerWidth >= DESKTOP_BREAKPOINT,
+  );
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT);
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setRender(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setAnimateIn(true));
+      });
+    } else {
+      setAnimateIn(false);
+      const timer = setTimeout(() => setRender(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
 
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node;
-      const isOutsideMenu = menuRef.current && !menuRef.current.contains(target);
-      const isOutsideContainer = !containerRef?.current || !containerRef.current.contains(target);
-      
-      // 只有当点击既在菜单外部，又在容器外部时才关闭
+      const isOutsideMenu =
+        menuRef.current && !menuRef.current.contains(target);
+      const isOutsideContainer =
+        containerRef?.current && !containerRef.current.contains(target);
+
       if (isOutsideMenu && isOutsideContainer) {
         onClose();
       }
     }
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose();
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose, containerRef]);
 
-  if (!isOpen) return null;
+  if (!render) return null;
 
-  const positionClass = position === 'right' ? 'right-0' : 'left-0';
+  const resolved =
+    variant === "auto" ? (isDesktop ? "desktop" : "mobile") : variant;
+  const style = getStyle(resolved, isDesktop);
 
   return (
-    <div 
+    <div
       ref={menuRef}
-      className={`top-[calc(100%+0.5rem)] md:top-[calc(100%+0.75rem)] z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl min-w-50 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain ${positionClass} ${className}`}
+      className={`${style.position} ${style.base} ${
+        animateIn ? style.open : style.closed
+      } ${className}`}
     >
       {children}
     </div>
