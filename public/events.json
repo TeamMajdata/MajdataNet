@@ -1,5 +1,16 @@
 ﻿[
   {
+    "id": "kfc1st",
+    "href": "/space?id=King%20of%20Funny%20Chart",
+    "src": "/events/kfc1st.jpg",
+    "alt": "KFC 1st",
+    "title": "KFC 1st",
+    "category": 4,
+    "createDate": "2026-08-27",
+    "endDate": "2026-09-27",
+    "description": "KFC 1st 是由KFC组委会（Holinality 主办：/space?id=Holinality）的舞萌谱面创作比赛。比赛以通过创作趣味的歌曲与谱面（存疑），为maimai自制社区增添更有趣的内容。赛事主会场及评分网站：https://kfc.holinality.com/ 快来pick out你心仪的作品吧！"
+  },
+  {
     "id": "LOA3",
     "href": "/space?id=LOA3",
     "src": "/events/loa3.png",
