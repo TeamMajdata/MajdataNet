@@ -70,6 +70,7 @@
     "EventCategoryMajor": "大型赛事",
     "EventCategoryPrivateContest": "私立赛事",
     "EventCategoryPrivateProject": "私立企划",
+    "EventCategorySeason": "季赛",
     "EventCategoryUniversity": "高校赛事",
     "EventStatusEnded": "已结束",
     "EventStatusOngoing": "进行中",
@@ -224,6 +225,46 @@
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "总达成率榜之谁是自制谱鉴赏老资历？",
     "UserRankingTitle": "肝帝榜"
+  },
+  "season/SeasonLeaderboard": {
+    "Title": "排行榜",
+    "Loading": "正在加载排行榜…",
+    "Upcoming": "开赛后将在这里展示排行榜。",
+    "Empty": "还没有参赛成绩，来提交本季的第一份成绩吧。",
+    "LoadFailed": "排行榜加载失败，请稍后重试。",
+    "UpdateFailed": "更新失败，以下保留上次成功获取的结果。",
+    "Rank": "名次",
+    "Previous": "上一页",
+    "Next": "下一页",
+    "Page": "页",
+    "Participants": "参与者："
+  },
+  "season/SeasonLastPlayed": {
+    "Title": "最近游玩时间",
+    "Scope": "本季曲池在赛期内的最近游玩；仅可查询近 30 天记录。",
+    "Unavailable": "暂不可用",
+    "Loading": "加载中…",
+    "Empty": "近 30 天无记录"
+  },
+  "season/SeasonPage": {
+    "BackToEvents": "返回活动列表",
+    "NotFound": "没有找到这个季赛",
+    "InvalidConfig": "季赛配置暂不可用",
+    "ConfigurationHint": "活动信息需要维护者检查，请稍后再来。",
+    "Starts": "开始时间",
+    "Ends": "结束时间",
+    "TimeZone": "北京时间（UTC+8）",
+    "RulesTitle": "如何计分",
+    "RulesBest": "本季曲池中每个文件的各难度分别取活动期间的最佳达成率，再将它们相加。可以多次挑战，以达成更高的总分打榜。",
+    "RulesTime": "以服务器收到成绩的时间为准，包含起止时刻。未游玩的谱面不贡献分数。"
+  },
+  "season/SeasonPool": {
+    "Title": "本季曲池",
+    "Loading": "正在加载谱面…",
+    "LoadFailed": "暂时无法加载此谱面",
+    "Retry": "重试",
+    "VersionMismatch": "当前谱面已更新，本季仍按原参赛版本计分。",
+    "InvalidDifficulty": "此文件没有有效难度，请联系活动维护者核查。"
   },
   "shared/AuthSection": {
     "AccountActions": "账户操作",
@@ -426,6 +467,23 @@
   },
   "user/Logout": {
     "Logout": "登出"
+  },
+  "season/SeasonScoreDetails": {
+    "Title": "曲目成绩",
+    "Unavailable": "暂不可用",
+    "Loading": "加载中…",
+    "NoScore": "无成绩",
+    "LoadFailed": "部分成绩加载失败，请稍后再试。",
+    "Rule": "每曲分数为文件内各难度的赛期最佳达成率之和。"
+  },
+  "user/UserSeasons": {
+    "Title": "季赛战绩",
+    "Rank": "排名",
+    "TotalScore": "总分",
+    "ViewSeason": "查看季赛",
+    "Loading": "正在加载季赛战绩…",
+    "LoadFailed": "部分季赛战绩暂时无法加载。",
+    "Retry": "重试"
   },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "暂无最近游玩记录",

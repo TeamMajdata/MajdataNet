@@ -70,6 +70,7 @@
     "EventCategoryMajor": "大型イベント",
     "EventCategoryPrivateContest": "個人コンテスト",
     "EventCategoryPrivateProject": "個人企画",
+    "EventCategorySeason": "シーズン大会",
     "EventCategoryUniversity": "大学イベント",
     "EventStatusEnded": "終了",
     "EventStatusOngoing": "開催中",
@@ -224,6 +225,46 @@
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "総達成率ランキング - 自作譜面鑑賞のベテランは誰？",
     "UserRankingTitle": "ヘビープレイヤーランキング"
+  },
+  "season/SeasonLeaderboard": {
+    "Title": "ランキング",
+    "Loading": "ランキングを読み込み中…",
+    "Upcoming": "大会開始後、ここにランキングが表示されます。",
+    "Empty": "まだ参加スコアがありません。今シーズン最初のスコアを投稿しましょう。",
+    "LoadFailed": "ランキングを読み込めませんでした。しばらくしてから再試行してください。",
+    "UpdateFailed": "更新できませんでした。前回正常に取得した結果を表示しています。",
+    "Rank": "順位",
+    "Previous": "前へ",
+    "Next": "次へ",
+    "Page": "ページ",
+    "Participants": "参加者："
+  },
+  "season/SeasonLastPlayed": {
+    "Title": "最終プレイ日時",
+    "Scope": "大会期間内の対象譜面の最終プレイです。取得できる記録は直近30日分のみです。",
+    "Unavailable": "取得できません",
+    "Loading": "読み込み中…",
+    "Empty": "直近30日間の記録なし"
+  },
+  "season/SeasonPage": {
+    "BackToEvents": "イベント一覧に戻る",
+    "NotFound": "シーズン大会が見つかりません",
+    "InvalidConfig": "大会設定を利用できません",
+    "ConfigurationHint": "イベント情報を管理者が確認する必要があります。しばらくしてから再度アクセスしてください。",
+    "Starts": "開始日時",
+    "Ends": "終了日時",
+    "TimeZone": "北京時間（UTC+8）",
+    "RulesTitle": "集計ルール",
+    "RulesBest": "今シーズンの対象ファイルに含まれる各難易度について、大会期間中の最高達成率をそれぞれ取得し、合計します。何度でも挑戦して合計スコアを伸ばし、ランキング上位を目指せます。",
+    "RulesTime": "サーバーがスコアを受信した時刻を基準とし、開始・終了時刻を含めて集計します。未プレイの譜面は加点されません。"
+  },
+  "season/SeasonPool": {
+    "Title": "今シーズンの対象譜面",
+    "Loading": "譜面を読み込み中…",
+    "LoadFailed": "この譜面を読み込めませんでした",
+    "Retry": "再試行",
+    "VersionMismatch": "この譜面は更新されています。今シーズンは引き続き元の大会対象バージョンで集計します。",
+    "InvalidDifficulty": "このファイルにはプレイ可能な難易度がありません。イベント管理者に確認してください。"
   },
   "shared/AuthSection": {
     "AccountActions": "账户操作",
@@ -426,6 +467,23 @@
   },
   "user/Logout": {
     "Logout": "ログアウト"
+  },
+  "season/SeasonScoreDetails": {
+    "Title": "譜面別スコア",
+    "Unavailable": "取得不可",
+    "Loading": "読み込み中…",
+    "NoScore": "記録なし",
+    "LoadFailed": "一部のスコアを読み込めませんでした。後でもう一度お試しください。",
+    "Rule": "各譜面のスコアは、ファイル内の各難易度における大会期間中の最高達成率の合計です。"
+  },
+  "user/UserSeasons": {
+    "Title": "シーズン大会の成績",
+    "Rank": "順位",
+    "TotalScore": "合計スコア",
+    "ViewSeason": "大会を見る",
+    "Loading": "大会成績を読み込み中…",
+    "LoadFailed": "一部の大会成績を読み込めませんでした。",
+    "Retry": "再試行"
   },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "最近のプレイ記録はありません",

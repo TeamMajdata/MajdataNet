@@ -10,6 +10,7 @@ import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
 
 import { useI18n } from '@/hooks';
+import { useEventClock } from '@/hooks/useEventClock';
 import { PageLayout, SongCard, SongList, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import {
@@ -17,6 +18,7 @@ import {
   getEventStatusText,
   getNonFeaturedEventsCount,
   getActiveEvents,
+  getAllEvents,
   getTimeAgo,
   getCategoryTranslation,
 } from '@/utils/eventsData';
@@ -130,8 +132,7 @@ function EventsCarousel() {
   return isMobile ? <MobileEventsSwiper /> : <DesktopEventsSwiper />;
 }
 
-function getDateLocale() {
-  const lang = localStorage.getItem('language') || 'zh';
+function getDateLocale(lang: string) {
   const localeMap: Record<string, string> = {
     zh: 'zh-CN',
     en: 'en-US',
@@ -143,21 +144,20 @@ function getDateLocale() {
 
 // PC端专用的 Swiper 组件
 function DesktopEventsSwiper() {
-  const { i18n } = useI18n();
+  const { i18n, language } = useI18n();
+  useEventClock(getAllEvents());
   const remainingEventsCount = getNonFeaturedEventsCount();
 
   // 获取所有活跃的活动（进行中 + 即将开始）
-  const ongoingEvents = useMemo(() => {
-    return getActiveEvents().map((event) => ({
+  const ongoingEvents = getActiveEvents().map((event) => ({
       ...event,
       timeAgo: getTimeAgo(event.createDate),
-      createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(), {
+      createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(language), {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       }),
     }));
-  }, []);
 
   return (
     <section className="mx-auto mt-8 px-4 max-w-7xl">
@@ -262,18 +262,18 @@ function DesktopEventsSwiper() {
 
 // 移动端专用的 Swiper 组件
 function MobileEventsSwiper() {
+  const { language } = useI18n();
+  useEventClock(getAllEvents());
   // 获取所有活跃的活动（进行中 + 即将开始）
-  const ongoingEvents = useMemo(() => {
-    return getActiveEvents().map((event) => ({
+  const ongoingEvents = getActiveEvents().map((event) => ({
       ...event,
       timeAgo: getTimeAgo(event.createDate),
-      createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(), {
+      createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(language), {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       }),
     }));
-  }, []);
 
   return (
     <section className="mx-auto mt-2 sm:mt-4 px-0 sm:px-4 max-w-7xl">

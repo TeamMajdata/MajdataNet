@@ -9,7 +9,7 @@ import EnhancedDescription from './EnhancedDescription';
 import type { EventBannerProps } from '@/types';
 import { getCategoryTranslation } from '@/utils/eventsData';
 
-const EventBanner: React.FC<EventBannerProps> = memo(({ event }) => {
+const EventBanner: React.FC<EventBannerProps> = memo(({ event, containerClassName }) => {
   // 使用useMemo缓存计算结果，避免重复计算
   const { timeAgo } = useMemo(() => {
     if (!event) return { categoryTranslation: '', timeAgo: '' };
@@ -46,7 +46,7 @@ const EventBanner: React.FC<EventBannerProps> = memo(({ event }) => {
   if (!event) return null;
 
   return (
-    <div className="mx-auto my-4 md:my-6 lg:my-8 px-2 md:px-3 lg:px-4 max-w-[95%] md:max-w-[90%] lg:max-w-[80%]">
+    <div className={containerClassName ?? 'mx-auto my-4 md:my-6 lg:my-8 px-2 md:px-3 lg:px-4 max-w-[95%] md:max-w-[90%] lg:max-w-[80%]'}>
       <div className="group relative bg-[rgb(20,20,25)]/90 hover:shadow-[0_24px_80px_rgba(0,0,0,0.5),0_8px_32px_rgba(0,0,0,0.3)] border border-white/10 hover:border-white/30 rounded-xl md:rounded-2xl overflow-hidden hover:scale-[1.02] transition-all hover:-translate-y-2 duration-500 ease-out" style={{ aspectRatio: '1279 / 372', boxShadow: '0 12px 40px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2)' }}>
         {/* 活动背景图片 */}
         <img

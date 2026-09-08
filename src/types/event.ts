@@ -2,6 +2,7 @@
  * 活动相关类型定义
  */
 
+
 // 活动类别枚举常量
 export const EventCategory = {
   All: 0,
@@ -9,6 +10,7 @@ export const EventCategory = {
   Major: 2,
   PrivateProject: 3,
   PrivateContest: 4,
+  Season: 5,
 } as const;
 
 // 活动类别类型（从值中提取类型）
@@ -21,6 +23,7 @@ export const EVENT_CATEGORY_I18N_KEYS = [
   'chart-events/eventsData.EventCategoryMajor',
   'chart-events/eventsData.EventCategoryPrivateProject',
   'chart-events/eventsData.EventCategoryPrivateContest',
+  'chart-events/eventsData.EventCategorySeason',
 ] as const;
 
 // 活动接口
@@ -34,6 +37,7 @@ export interface Event {
   createDate: string; // ISO日期字符串
   endDate: string; // ISO日期字符串
   description: string;
+  season?: SeasonConfig;
 }
 
 // 带时间信息的活动接口
@@ -52,4 +56,38 @@ export interface CarouselEventsResult {
 export interface MMFCParticipantsData {
   participants: string[];
   description: string;
+}
+
+/** A song link is enough; older ID objects may optionally pin a scoring version. */
+export type SeasonChart = string | SeasonChartReference;
+
+export interface SeasonChartReference {
+  id: string;
+  hash?: string;
+}
+
+export interface SeasonConfig {
+  charts: SeasonChart[];
+}
+
+export interface PlayHistoryRankingRequest {
+  songhashes: string[];
+  startTime: string;
+  endTime: string;
+  scoreType: 'best';
+  sortBy: 'Acc.DX';
+}
+
+export interface PlayHistoryRankingEntry {
+  playerId: string;
+  username: string;
+  totalDXScore: number;
+  totalAccDX: number;
+  totalAccClassic: number;
+}
+
+export interface RankedSeasonEntry extends PlayHistoryRankingEntry {
+  /** DX accuracy rounded to the four decimal places used for display and ties. */
+  score: number;
+  rank: number;
 }

@@ -13,6 +13,7 @@ import MMFCRankingPage from './pages/ranking/MMFCRankingPage';
 import SongPage from './pages/SongPage';
 import SpacePage from './pages/SpacePage';
 import EventTagPage from './pages/EventTagPage';
+import SeasonPage from './pages/SeasonPage';
 import UserChartsPage from './pages/user/ChartsPage';
 import UserProfilePage from './pages/user/ProfilePage';
 import MiniGamePage from './pages/MiniGamePage';
@@ -73,6 +74,7 @@ function App() {
                 <Route path="/song" element={<SongPage />} />
                 <Route path="/space" element={<SpacePage />} />
                 <Route path="/eventTag" element={<EventTagPage />} />
+                <Route path="/season" element={<SeasonPage />} />
                 <Route path="/minigame" element={<MiniGamePage />} />
                 <Route path="*" element={<NotFoundPage />} />
                 <Route element={<ProtectedRoute />}>
