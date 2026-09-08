@@ -56,11 +56,9 @@ export function useSeasonBreakdown(
     {
       revalidateOnMount: true,
       revalidateOnFocus: false,
-      revalidateOnReconnect: enabled && status === 'ongoing',
+      revalidateOnReconnect: false,
       dedupingInterval: 30_000,
-      refreshInterval: enabled && status === 'ongoing' ? 60_000 : 0,
-      refreshWhenHidden: false,
-      refreshWhenOffline: false,
+      refreshInterval: 0,
       shouldRetryOnError: false,
     },
   );

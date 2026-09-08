@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import type { Event } from '@/types/event';
@@ -13,7 +13,7 @@ interface RecentQuery {
   endTime: string;
 }
 interface RecentResult { timestamp?: string }
-type RecentKey = [string, string, string, RecentQuery];
+type RecentKey = [string, string, string, RecentQuery, SeasonStatus];
 
 // A page can contain 50 players. Bound these secondary requests independently of
 // the leaderboard so loading timestamps cannot hold up the scores themselves.
@@ -68,40 +68,15 @@ export function useSeasonLastPlayed(username: string, event: Event, chartState: 
     }
   }, [event, items, songhashes, chartsLoading, chartsError]);
   const key: RecentKey | null = status !== 'upcoming' && query && username
-    ? ['season-last-played', endpoints.account.recent(encodeURIComponent(username)), event.id, query]
+    ? ['season-last-played', endpoints.account.recent(encodeURIComponent(username)), event.id, query, status]
     : null;
-  const { data, error, isLoading, isValidating, mutate } = useSWR<RecentResult, Error>(key, fetchLastPlayed, {
+  const { data, error, isLoading } = useSWR<RecentResult, Error>(key, fetchLastPlayed, {
     revalidateOnMount: true,
     revalidateOnFocus: false,
-    revalidateOnReconnect: status === 'ongoing',
+    revalidateOnReconnect: false,
     refreshInterval: 0,
     shouldRetryOnError: false,
   });
-
-  const requestKey = JSON.stringify(key);
-  const previousBoundary = useRef({ status, requestKey });
-  const pendingBoundaryRefresh = useRef(false);
-  useEffect(() => {
-    const previous = previousBoundary.current;
-    if (previous.requestKey !== requestKey || status === 'upcoming' || !query) {
-      pendingBoundaryRefresh.current = false;
-    } else if (previous.status !== status && previous.status !== 'upcoming') {
-      pendingBoundaryRefresh.current = true;
-    }
-    previousBoundary.current = { status, requestKey };
-    if (pendingBoundaryRefresh.current && !isValidating) {
-      pendingBoundaryRefresh.current = false;
-      void mutate();
-    }
-  }, [status, requestKey, query, isValidating, mutate]);
-
-  useEffect(() => {
-    if (status !== 'ongoing' || isValidating || !query || !username) return;
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === 'visible' && navigator.onLine) void mutate();
-    }, 60_000);
-    return () => window.clearInterval(timer);
-  }, [status, requestKey, query, username, isValidating, mutate]);
 
   return {
     timestamp: data?.timestamp,

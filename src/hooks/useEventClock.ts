@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Event } from '@/types/event';
 
-/** Refresh dates every minute and exactly at the inclusive event boundaries. */
+/** Update at event boundaries or when returning to the page, without minute polling. */
 export function useEventClock(events: readonly Pick<Event, 'createDate' | 'endDate'>[]): number {
   const [now, setNow] = useState(Date.now);
   const boundaryKey = events
@@ -17,10 +17,11 @@ export function useEventClock(events: readonly Pick<Event, 'createDate' | 'endDa
     const schedule = () => {
       const current = Date.now();
       const next = boundaries.find(boundary => boundary > current);
+      if (next === undefined) return;
       timer = setTimeout(() => {
-        if (document.visibilityState !== 'hidden') setNow(Date.now());
+        if (document.visibilityState !== 'hidden' && Date.now() >= next) setNow(Date.now());
         schedule();
-      }, next === undefined ? 60_000 : Math.min(60_000, next - current));
+      }, Math.min(2_147_483_647, next - current));
     };
 
     const onVisible = () => {

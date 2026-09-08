@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo } from 'react';
+import { useId, useMemo } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import type { Event } from '@/types/event';
@@ -74,7 +74,7 @@ function useRankingGroup(
   limit: RequestLimiter,
   successful: Map<string, CachedRanking>,
 ) {
-  const result = useSWR<RankingSnapshot[], Error>(
+  return useSWR<RankingSnapshot[], Error>(
     queries.length ? ['user-season-rankings', status, queries] : null,
     ([, , configured]: [string, string, SeasonQuery[]]) => Promise.all(configured.map(async query => {
       // Both the cache and SWR key include the complete resolved scoring request.
@@ -96,20 +96,11 @@ function useRankingGroup(
     {
       revalidateOnMount: true,
       revalidateOnFocus: false,
-      revalidateOnReconnect: status === 'ongoing',
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
       shouldRetryOnError: false,
     },
   );
-  const { isValidating, mutate } = result;
-  const hasQueries = queries.length > 0;
-  useEffect(() => {
-    if (status !== 'ongoing' || !hasQueries || isValidating) return;
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === 'visible' && navigator.onLine) void mutate();
-    }, 60_000);
-    return () => window.clearInterval(timer);
-  }, [status, hasQueries, isValidating, mutate]);
-  return result;
 }
 
 /** Query complete seasonal standings, then select the current profile's entries. */
@@ -133,8 +124,7 @@ export function useUserSeasons(username: string) {
   const queries = (status: 'ongoing' | 'ended') => username ? candidates
     .filter(candidate => candidate.status === status)
     .flatMap(candidate => pools.data?.find(item => item.eventId === candidate.event.id)?.query ?? []) : [];
-  // Separate groups give ongoing events polling and ended events one query per
-  // visit. Moving into the ended group also forces a query at the closing boundary.
+  // Moving into the ended group queries once at the closing boundary.
   const ongoing = useRankingGroup(queries('ongoing'), 'ongoing', limit, successful);
   const ended = useRankingGroup(queries('ended'), 'ended', limit, successful);
   const results: UserSeasonResult[] = candidates.flatMap(candidate => {
