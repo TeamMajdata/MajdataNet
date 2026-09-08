@@ -3,47 +3,19 @@
  * 迁移自 legacy/src/app/widgets/EventBanner.jsx
  */
 
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import { IoChevronUpOutline } from 'react-icons/io5';
 import EnhancedDescription from './EnhancedDescription';
 import type { EventBannerProps } from '@/types';
-import { getCategoryTranslation } from '@/utils/eventsData';
+import { getCategoryTranslation, getTimeAgo } from '@/utils/eventsData';
+import { useI18n } from '@/hooks/useI18n';
 
 const EventBanner: React.FC<EventBannerProps> = memo(({ event, containerClassName }) => {
-  // 使用useMemo缓存计算结果，避免重复计算
-  const { timeAgo } = useMemo(() => {
-    if (!event) return { categoryTranslation: '', timeAgo: '' };
-
-    // 计算创建时间的"xx天前"格式
-    const getTimeAgo = (dateString: string) => {
-      const eventDate = new Date(dateString);
-      const currentDate = new Date();
-      const diffTime = Math.abs(currentDate.getTime() - eventDate.getTime());
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays < 1) {
-        return '今天';
-      } else if (diffDays === 1) {
-        return '1天前';
-      } else if (diffDays < 30) {
-        return `${diffDays}天前`;
-      } else if (diffDays < 365) {
-        const months = Math.floor(diffDays / 30);
-        return `${months}个月前`;
-      } else {
-        const years = Math.floor(diffDays / 365);
-        return `${years}年前`;
-      }
-    };
-
-    const createTimeAgo = getTimeAgo(event.createDate);
-
-    return {
-      timeAgo: createTimeAgo,
-    };
-  }, [event]);
+  // Subscribe to language changes for the shared event text formatters.
+  useI18n();
 
   if (!event) return null;
+  const timeAgo = getTimeAgo(event.createDate);
 
   return (
     <div className={containerClassName ?? 'mx-auto my-4 md:my-6 lg:my-8 px-2 md:px-3 lg:px-4 max-w-[95%] md:max-w-[90%] lg:max-w-[80%]'}>
