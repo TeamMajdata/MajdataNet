@@ -1,5 +1,25 @@
 ﻿[
   {
+    "id": "ffmc-re",
+    "href": "/season?id=ffmc-re",
+    "src": "/events/FFMC-RE.jpg",
+    "alt": "FFMC-RE",
+    "title": "FFMC-RE",
+    "category": 5,
+    "createDate": "2026-09-14T00:00:00+08:00",
+    "endDate": "2026-10-12T23:59:59.999+08:00",
+    "description": "FFMC 再度来袭！！！挑战五首谱面以获得FFMC之王称号吧！！",
+    "season": {
+      "charts": [
+        "/song?id=cfc57b10-0b32-44a4-81ee-ce9aff90e17a",
+        "/song?id=24c8760e-0186-45b0-8415-420a564e69da",
+        "/song?id=0a17ddd9-a899-420a-bebf-8b655941ae58",
+        "/song?id=d9884d7a-cadf-4144-9f20-457453f7f546",
+        "/song?id=874475a0-a8c0-4c60-a80f-d64b948c8340"
+      ]
+    }
+  },
+  {
     "id": "kfc1st",
     "href": "/space?id=King%20of%20Funny%20Chart",
     "src": "/events/kfc1st.jpg",

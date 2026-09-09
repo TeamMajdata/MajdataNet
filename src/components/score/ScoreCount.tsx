@@ -65,14 +65,14 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
 /**
  * 单个分数卡片组件
  */
-function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
-  const percentage = (scoresum / maxscore) * 100;
+export function ScoreCard({ rank, username, scoresum, maxscore, footer }: ScoreCardProps) {
+  const percentage = maxscore > 0 ? (scoresum / maxscore) * 100 : 0;
   const isFirst = rank === 1;
 
   return (
     <div className="relative">
       <Link
-        to={`/space?id=${username}`}
+        to={`/space?id=${encodeURIComponent(username)}`}
         className="block text-inherit no-underline"
       >
         <div
@@ -124,7 +124,7 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
                 borderColor: isFirst ? 'rgba(255, 215, 0, 0.6)' : 'rgb(255 255 255 / 20%)',
                 aspectRatio: '1',
               }}
-              src={endpoints.account.icon(username)}
+              src={endpoints.account.icon(encodeURIComponent(username))}
               alt={username}
             />
           </div>
@@ -149,6 +149,8 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
           >
             {scoresum.toFixed(4)}%
           </div>
+
+          {footer && <div className="mt-2 text-white/60 text-xs text-center">{footer}</div>}
 
           {/* 进度条 */}
           <div

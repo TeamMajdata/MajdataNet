@@ -2,6 +2,9 @@ export const apiroot3 = '/api3/api';
 
 // 歌单 (Collection) 和收藏 (Favorite) 相关的 API 端点
 export const endpoints = {
+  playhistory: {
+    ranking: `${apiroot3}/playhistory/ranking`,
+  },
   // 歌单 CRUD
   collection: {
     list: (page: number, pageSize: number, createdBy: string = '', keyword: string = '') => {

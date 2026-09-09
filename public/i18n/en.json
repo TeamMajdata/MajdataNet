@@ -70,6 +70,7 @@
     "EventCategoryMajor": "Major Events",
     "EventCategoryPrivateContest": "Private Contests",
     "EventCategoryPrivateProject": "Private Projects",
+    "EventCategorySeason": "Seasonal Challenges",
     "EventCategoryUniversity": "University Events",
     "EventStatusEnded": "Ended",
     "EventStatusOngoing": "Ongoing",
@@ -224,6 +225,46 @@
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "Total Achievement Rate Ranking - Who is the top of chart appreciation?",
     "UserRankingTitle": "Master Ranking"
+  },
+  "season/SeasonLeaderboard": {
+    "Retry": "Retry",
+    "Title": "Leaderboard",
+    "Loading": "Loading leaderboard…",
+    "Upcoming": "The leaderboard will appear here when the season starts.",
+    "Empty": "No scores yet. Submit the first score of the season!",
+    "LoadFailed": "Could not load the leaderboard. Please try again later.",
+    "UpdateFailed": "Could not refresh. The last successfully loaded results are shown below.",
+    "Rank": "Rank",
+    "Previous": "Previous",
+    "Next": "Next",
+    "Page": "Page",
+    "Participants": "Participants: "
+  },
+  "season/SeasonLastPlayed": {
+    "Title": "Last played",
+    "Scope": "Latest play in this season's pool during the event. Only records from the last 30 days are available.",
+    "Unavailable": "Unavailable",
+    "Loading": "Loading…",
+    "Empty": "No records in the last 30 days"
+  },
+  "season/SeasonPage": {
+    "BackToEvents": "Back to events",
+    "NotFound": "Season not found",
+    "InvalidConfig": "Season configuration is unavailable",
+    "ConfigurationHint": "The event details need to be checked by a maintainer. Please try again later.",
+    "Starts": "Starts",
+    "Ends": "Ends",
+    "TimeZone": "Beijing time (UTC+8)",
+    "RulesTitle": "How scoring works",
+    "RulesBest": "For every file in this season's pool, your best achievement during the competition period is counted separately for each difficulty, then added together. Keep challenging the charts to improve your total score and climb the leaderboard.",
+    "RulesTime": "Scores count when the server receives them, including both the start and end times. Unplayed charts contribute no score."
+  },
+  "season/SeasonPool": {
+    "Title": "This season's charts",
+    "Loading": "Loading chart…",
+    "LoadFailed": "This chart could not be loaded",
+    "Retry": "Retry",
+    "InvalidDifficulty": "This file has no playable difficulties. Please contact the event maintainer."
   },
   "shared/AuthSection": {
     "AccountActions": "账户操作",
@@ -427,6 +468,23 @@
   },
   "user/Logout": {
     "Logout": "Logout"
+  },
+  "season/SeasonScoreDetails": {
+    "Title": "Chart scores",
+    "Unavailable": "Unavailable",
+    "Loading": "Loading…",
+    "NoScore": "No score",
+    "LoadFailed": "Some scores could not be loaded. Please try again later.",
+    "Rule": "Each chart's score adds the season-best accuracy for every difficulty in the file."
+  },
+  "user/UserSeasons": {
+    "Title": "Season results",
+    "Rank": "Rank",
+    "TotalScore": "Total score",
+    "ViewSeason": "View season",
+    "Loading": "Loading season results…",
+    "LoadFailed": "Some season results could not be loaded.",
+    "Retry": "Retry"
   },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "No Recent Records",

@@ -5,8 +5,9 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getActiveEvents, getCategoryTranslation, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
+import { getActiveEvents, getAllEvents, getCategoryTranslation, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
 import { useI18n } from '@/hooks';
+import { useEventClock } from '@/hooks/useEventClock';
 import type {
   Event,
   TimelineModalProps,
@@ -20,7 +21,8 @@ import { Link } from 'react-router-dom';
 
 
 const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
-  const { i18n } = useI18n();
+  const { i18n, language } = useI18n();
+  const now = useEventClock(isOpen ? getAllEvents() : []);
   const [ongoingEvents, setOngoingEvents] = useState<Event[]>([]);
   const [timelineData, setTimelineData] = useState<TimelineData>({
     startDate: null,
@@ -35,9 +37,10 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
     const categoryOrder: Record<EventCategory, number> = {
       [EventCategory.All]: 0,
       [EventCategory.Major]: 1,
-      [EventCategory.University]: 2,
-      [EventCategory.PrivateContest]: 3,
-      [EventCategory.PrivateProject]: 4
+      [EventCategory.Season]: 2,
+      [EventCategory.University]: 3,
+      [EventCategory.PrivateContest]: 4,
+      [EventCategory.PrivateProject]: 5
     };
 
     return events.sort((a, b) => {
@@ -339,7 +342,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
       isCompressed: compressedTimelineData.isCompressed
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isOpen, now, language]);
 
   // 获取当前语言的locale
   const getDateLocale = (): string => {
@@ -377,6 +380,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
       [EventCategory.PrivateContest]: "#10b981",
       [EventCategory.University]: "#f59e0b",
       [EventCategory.PrivateProject]: "#8b5cf6",
+      [EventCategory.Season]: "#06b6d4",
     };
 
     const baseColor = baseColors[event.category] || "#6b7280";
@@ -387,6 +391,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
         "#10b981": "#6ee7b7",
         "#f59e0b": "#fbbf24",
         "#8b5cf6": "#c4b5fd",
+        "#06b6d4": "#67e8f9",
         "#6b7280": "#9ca3af"
       };
       return upcomingColors[baseColor] || "#9ca3af";

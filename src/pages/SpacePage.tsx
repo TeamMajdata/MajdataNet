@@ -15,6 +15,7 @@ import remarkCenter from '@/utils/remarkCenter';
 import { motion, type Variants } from 'framer-motion';
 import 'github-markdown-css/github-markdown-dark.css';
 import type { IntroductionData } from '@/types';
+import UserSeasons from '@/components/user/UserSeasons';
 
 // slideInUp 动画变体
 const slideInUp: Variants = {
@@ -70,6 +71,8 @@ export default function SpacePage() {
       >
         <Introduction username={username} />
       </motion.section>
+
+      <UserSeasons key={username} username={username} />
 
       {/* Recent Activity */}
       {hasRecentPlayed !== false && (

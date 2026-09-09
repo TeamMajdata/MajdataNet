@@ -70,6 +70,7 @@
     "EventCategoryMajor": "메이저 이벤트",
     "EventCategoryPrivateContest": "개인 콘테스트",
     "EventCategoryPrivateProject": "개인 프로젝트",
+    "EventCategorySeason": "시즌 대회",
     "EventCategoryUniversity": "대학 이벤트",
     "EventStatusEnded": "종료됨",
     "EventStatusOngoing": "진행 중",
@@ -224,6 +225,46 @@
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "총 달성률 랭킹 - 커스텀 채보 감상의 베테랑은 누구?",
     "UserRankingTitle": "헤비 플레이어 랭킹"
+  },
+  "season/SeasonLeaderboard": {
+    "Retry": "다시 시도",
+    "Title": "순위표",
+    "Loading": "순위표를 불러오는 중…",
+    "Upcoming": "대회가 시작되면 여기에 순위표가 표시됩니다.",
+    "Empty": "아직 참가 기록이 없습니다. 이번 시즌의 첫 기록을 제출해 보세요.",
+    "LoadFailed": "순위표를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "UpdateFailed": "갱신하지 못했습니다. 마지막으로 불러온 결과를 표시합니다.",
+    "Rank": "순위",
+    "Previous": "이전",
+    "Next": "다음",
+    "Page": "페이지",
+    "Participants": "참가자: "
+  },
+  "season/SeasonLastPlayed": {
+    "Title": "최근 플레이 시간",
+    "Scope": "대회 기간 내 시즌 대상 채보의 최근 플레이입니다. 최근 30일의 기록만 조회할 수 있습니다.",
+    "Unavailable": "확인할 수 없음",
+    "Loading": "불러오는 중…",
+    "Empty": "최근 30일 내 기록 없음"
+  },
+  "season/SeasonPage": {
+    "BackToEvents": "이벤트 목록으로 돌아가기",
+    "NotFound": "시즌 대회를 찾을 수 없습니다",
+    "InvalidConfig": "시즌 대회 설정을 사용할 수 없습니다",
+    "ConfigurationHint": "관리자가 이벤트 정보를 확인해야 합니다. 잠시 후 다시 방문해 주세요.",
+    "Starts": "시작 시간",
+    "Ends": "종료 시간",
+    "TimeZone": "베이징 시간 (UTC+8)",
+    "RulesTitle": "점수 집계 방식",
+    "RulesBest": "이번 시즌 대상 파일에 포함된 각 난이도에서 대회 기간 중 가장 높은 달성률을 각각 구한 뒤 합산합니다. 여러 번 도전해 총점을 높이고 더 높은 순위를 노릴 수 있습니다.",
+    "RulesTime": "서버가 기록을 받은 시간을 기준으로 시작과 종료 시각을 포함해 집계합니다. 플레이하지 않은 채보는 점수에 기여하지 않습니다."
+  },
+  "season/SeasonPool": {
+    "Title": "이번 시즌 대상 채보",
+    "Loading": "채보를 불러오는 중…",
+    "LoadFailed": "이 채보를 불러오지 못했습니다",
+    "Retry": "다시 시도",
+    "InvalidDifficulty": "이 파일에는 플레이할 수 있는 난이도가 없습니다. 이벤트 관리자에게 확인해 주세요."
   },
   "shared/AuthSection": {
     "AccountActions": "账户操作",
@@ -427,6 +468,23 @@
   },
   "user/Logout": {
     "Logout": "로그아웃"
+  },
+  "season/SeasonScoreDetails": {
+    "Title": "채보별 점수",
+    "Unavailable": "불러올 수 없음",
+    "Loading": "불러오는 중…",
+    "NoScore": "기록 없음",
+    "LoadFailed": "일부 점수를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "Rule": "각 채보 점수는 파일 내 각 난이도의 대회 기간 중 최고 달성률을 합산합니다."
+  },
+  "user/UserSeasons": {
+    "Title": "시즌 대회 기록",
+    "Rank": "순위",
+    "TotalScore": "총점",
+    "ViewSeason": "대회 보기",
+    "Loading": "시즌 대회 기록을 불러오는 중…",
+    "LoadFailed": "일부 대회 기록을 불러오지 못했습니다.",
+    "Retry": "다시 시도"
   },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "최근 기록이 없습니다",

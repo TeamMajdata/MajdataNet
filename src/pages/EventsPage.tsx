@@ -5,24 +5,25 @@
 
 import { useState, useMemo } from 'react';
 import { useI18n } from '@/hooks';
+import { useEventClock } from '@/hooks/useEventClock';
 import { PageLayout, EnhancedDescription, LoadingSpinner, EventsFilter, TimelineModal } from '@/components';
 import {
   getEventStatusClass,
   getEventStatusText,
   getEventsWithTimeAgo,
   getCategoryTranslation,
+  getAllEvents,
 } from '@/utils/eventsData';
 import { EventCategory } from '@/types';
 
 export default function EventsPage() {
   const { i18n, isReady } = useI18n();
+  useEventClock(getAllEvents());
   const [selectedCategory, setSelectedCategory] = useState<EventCategory>(EventCategory.All);
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
 
-  const allEvents = useMemo(() => {
-    return getEventsWithTimeAgo()
-      .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
-  }, []);
+  const allEvents = getEventsWithTimeAgo()
+    .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
 
   const categories = useMemo(() => {
     return Object.values(EventCategory);

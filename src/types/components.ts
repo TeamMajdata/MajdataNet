@@ -26,6 +26,7 @@ export interface EnhancedDescriptionProps {
 // ======================== 活动组件 ========================
 export interface EventBannerProps {
   event: Event | null;
+  containerClassName?: string;
 }
 
 export interface EventsFilterProps {
@@ -100,6 +101,7 @@ export interface ScoreCardProps {
   username: string;
   scoresum: number;
   maxscore: number;
+  footer?: ReactNode;
 }
 
 export interface ScoreListProps {
