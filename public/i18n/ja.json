@@ -263,7 +263,6 @@
     "Loading": "譜面を読み込み中…",
     "LoadFailed": "この譜面を読み込めませんでした",
     "Retry": "再試行",
-    "VersionMismatch": "この譜面は更新されています。今シーズンは引き続き元の大会対象バージョンで集計します。",
     "InvalidDifficulty": "このファイルにはプレイ可能な難易度がありません。イベント管理者に確認してください。"
   },
   "shared/AuthSection": {

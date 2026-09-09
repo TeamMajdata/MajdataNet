@@ -58,13 +58,8 @@ export interface MMFCParticipantsData {
   description: string;
 }
 
-/** A song link is enough; older ID objects may optionally pin a scoring version. */
-export type SeasonChart = string | SeasonChartReference;
-
-export interface SeasonChartReference {
-  id: string;
-  hash?: string;
-}
+/** Relative or full majdata.net song URL; metadata supplies the current hash. */
+export type SeasonChart = string;
 
 export interface SeasonConfig {
   charts: SeasonChart[];

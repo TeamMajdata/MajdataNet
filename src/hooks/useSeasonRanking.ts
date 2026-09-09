@@ -3,10 +3,12 @@ import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import type { Event } from '@/types/event';
 import type { PlayHistoryRankingEntry } from '@/types/event';
-import { buildSeasonRankingRequest, rankSeasonEntries } from '@/utils/season';
+import { buildSeasonRankingRequest, createSeasonRequestLimiter, rankSeasonEntries } from '@/utils/season';
 
 type SeasonStatus = 'upcoming' | 'ongoing' | 'ended';
 type RankingRequest = ReturnType<typeof buildSeasonRankingRequest>;
+
+const limit = createSeasonRequestLimiter();
 
 function isRankingEntry(value: unknown): value is PlayHistoryRankingEntry {
   if (!value || typeof value !== 'object') return false;
@@ -18,36 +20,38 @@ function isRankingEntry(value: unknown): value is PlayHistoryRankingEntry {
     );
 }
 
-export async function fetchSeasonRanking([url, request]: [string, RankingRequest]): Promise<PlayHistoryRankingEntry[]> {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => {
-    controller.abort(new DOMException('Ranking request timed out', 'TimeoutError'));
-  }, 15_000);
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-      signal: controller.signal,
-    });
-    if (!response.ok) throw new Error(`Ranking request failed (${response.status})`);
-    const rows: unknown = await response.json();
-    if (!Array.isArray(rows) || !rows.every(isRankingEntry)) {
-      throw new Error('Unexpected ranking response');
+export function fetchSeasonRanking([url, request]: [string, RankingRequest]): Promise<PlayHistoryRankingEntry[]> {
+  return limit(async () => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      controller.abort(new DOMException('Ranking request timed out', 'TimeoutError'));
+    }, 15_000);
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`Ranking request failed (${response.status})`);
+      const rows: unknown = await response.json();
+      if (!Array.isArray(rows) || !rows.every(isRankingEntry)) {
+        throw new Error('Unexpected ranking response');
+      }
+      return rows;
+    } finally {
+      window.clearTimeout(timeout);
     }
-    return rows;
-  } finally {
-    window.clearTimeout(timeout);
-  }
+  });
 }
 
 /** The full payload is part of the SWR key, keeping fixed chart versions and seasons isolated. */
-export function useSeasonRanking(event: Event, status: SeasonStatus, songhashes?: string[] | null) {
+export function useSeasonRanking(event: Event, status: SeasonStatus, songhashes: string[] | null) {
   // null means the shared metadata snapshot has not resolved the complete pool.
   const request = useMemo(() => songhashes === null ? null : buildSeasonRankingRequest(event, songhashes), [event, songhashes]);
   // A status change queries once at the boundary; there is no periodic polling.
-  const { data, error, isLoading } = useSWR<PlayHistoryRankingEntry[], Error>(
+  const { data, error, isLoading, mutate } = useSWR<PlayHistoryRankingEntry[], Error>(
     status === 'upcoming' || !request ? null : [endpoints.playhistory.ranking, request, status],
     ([url, payload]: [string, RankingRequest, SeasonStatus]) => fetchSeasonRanking([url, payload]),
     {
@@ -60,5 +64,5 @@ export function useSeasonRanking(event: Event, status: SeasonStatus, songhashes?
   );
 
   const entries = useMemo(() => data ? rankSeasonEntries(data) : undefined, [data]);
-  return { entries, error, isLoading };
+  return { entries, error, isLoading, retry: mutate };
 }

@@ -263,7 +263,6 @@
     "Loading": "Loading chart…",
     "LoadFailed": "This chart could not be loaded",
     "Retry": "Retry",
-    "VersionMismatch": "This chart has been updated. This season still counts scores for the original competition version.",
     "InvalidDifficulty": "This file has no playable difficulties. Please contact the event maintainer."
   },
   "shared/AuthSection": {

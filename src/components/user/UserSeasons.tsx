@@ -1,5 +1,9 @@
 import { useI18n } from '@/hooks/useI18n';
-import { useUserSeasons } from '@/hooks/useUserSeasons';
+import { useEventClock } from '@/hooks/useEventClock';
+import { useSeasonCharts } from '@/hooks/useSeasonCharts';
+import { useSeasonRanking } from '@/hooks/useSeasonRanking';
+import { getAllEvents } from '@/utils/eventsData';
+import { getSeasonStatus, validateSeasonEvent } from '@/utils/season';
 import { Link } from 'react-router-dom';
 import { IoArrowForwardOutline, IoTrophyOutline } from 'react-icons/io5';
 import type { Event, RankedSeasonEntry } from '@/types/event';
@@ -7,29 +11,57 @@ import '@/styles/components/user-season-achievements.css';
 
 export default function UserSeasons({ username }: { username: string }) {
   const { i18n } = useI18n();
-  const { results, isLoading, hasErrors, refresh } = useUserSeasons(username);
-  if (!isLoading && !hasErrors && results.length === 0) return null;
+  const events = getAllEvents();
+  const now = useEventClock(events);
+  const seasons = events.flatMap(event => {
+    if (event.category !== 5 || validateSeasonEvent(event).length) return [];
+    const status = getSeasonStatus(event, now);
+    return status === 'upcoming' ? [] : [{ event, status }];
+  }).sort((a, b) => Number(b.status === 'ongoing') - Number(a.status === 'ongoing')
+    || Date.parse(b.event.createDate) - Date.parse(a.event.createDate)
+    || a.event.id.localeCompare(b.event.id));
+  if (!username || seasons.length === 0) return null;
 
   return (
-    <section className="mb-12" aria-labelledby="user-seasons-title">
+    // Each season renders an item only while loading, on error, or if the user participated.
+    // Hide the whole section when all queries return no participation.
+    <section className="mb-12 hidden has-[li]:block" aria-labelledby="user-seasons-title">
       <h2 id="user-seasons-title" className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
         {i18n('user/UserSeasons.Title', '季赛战绩')}
       </h2>
-      {results.length > 0 && (
-        <ul className="user-season-list">
-          {results.map(result => <li key={result.event.id}><UserSeasonCard {...result} /></li>)}
-        </ul>
-      )}
-      {isLoading && <p role="status" className="py-5 text-center text-sm text-white/60">{i18n('user/UserSeasons.Loading', '正在加载季赛战绩…')}</p>}
-      {hasErrors && (
-        <div role="status" className="mt-4 flex flex-wrap items-center justify-center gap-3 text-sm text-white/65">
-          <p>{i18n('user/UserSeasons.LoadFailed', '部分季赛战绩暂时无法加载。')}</p>
-          <button type="button" onClick={() => void refresh()} className="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-white cursor-pointer hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-blue-400">
-            {i18n('user/UserSeasons.Retry', '重试')}
-          </button>
-        </div>
-      )}
+      <ul className="user-season-list">
+        {seasons.map(season => <UserSeasonResult key={season.event.id} {...season} username={username} />)}
+      </ul>
     </section>
+  );
+}
+
+function UserSeasonResult({ event, status, username }: Omit<UserSeasonCardProps, 'entry'> & { username: string }) {
+  const { i18n } = useI18n();
+  const charts = useSeasonCharts(event.season!.charts);
+  const ranking = useSeasonRanking(event, status, charts.songhashes ?? null);
+  // Use the same complete standings as the season page, then select this user.
+  const entry = ranking.entries?.find(row => row.username === username);
+  const error = charts.error ?? ranking.error;
+  const isLoading = charts.isLoading || ranking.isLoading;
+  if (!entry && !error && !isLoading) return null;
+
+  async function retry() {
+    if (charts.error) await charts.retry();
+    else await ranking.retry();
+  }
+
+  return (
+    <li className={error ? '[&>.user-season-card]:h-auto' : undefined}>
+      {entry && <UserSeasonCard event={event} status={status} entry={entry} />}
+      {isLoading && !entry && <p role="status" className="py-5 text-center text-sm text-white/60">{i18n('user/UserSeasons.Loading', '正在加载季赛战绩…')}</p>}
+      {error && <div role="status" className="mt-4 flex flex-wrap items-center justify-center gap-3 text-sm text-white/65">
+        <p>{event.title} · {i18n('user/UserSeasons.LoadFailed', '部分季赛战绩暂时无法加载。')}</p>
+        <button type="button" onClick={() => void retry()} className="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-white cursor-pointer hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-blue-400">
+          {i18n('user/UserSeasons.Retry', '重试')}
+        </button>
+      </div>}
+    </li>
   );
 }
 

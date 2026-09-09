@@ -263,7 +263,6 @@
     "Loading": "채보를 불러오는 중…",
     "LoadFailed": "이 채보를 불러오지 못했습니다",
     "Retry": "다시 시도",
-    "VersionMismatch": "현재 채보가 업데이트되었습니다. 이번 시즌은 기존 대회 대상 버전으로 집계합니다.",
     "InvalidDifficulty": "이 파일에는 플레이할 수 있는 난이도가 없습니다. 이벤트 관리자에게 확인해 주세요."
   },
   "shared/AuthSection": {

@@ -1,23 +1,19 @@
 import type { Event } from '@/types/event';
-import type { PlayHistoryRankingEntry, PlayHistoryRankingRequest, RankedSeasonEntry, SeasonChart, SeasonChartReference } from '@/types/event';
+import type { PlayHistoryRankingEntry, PlayHistoryRankingRequest, RankedSeasonEntry } from '@/types/event';
 
 
-export function buildSeasonRankingRequest(event: Event, resolvedHashes?: readonly string[]): PlayHistoryRankingRequest {
+export function buildSeasonRankingRequest(event: Event, resolvedHashes: readonly string[]): PlayHistoryRankingRequest {
   const errors = validateSeasonEvent(event);
   if (errors.length > 0 || event.category !== 5 || !event.season) {
     throw new Error(errors.length > 0 ? errors.join('; ') : 'A valid season event is required');
   }
-  const references = event.season.charts.map(parseSeasonChart);
-  const songhashes = resolvedHashes ? [...resolvedHashes] : references.map((chart) => chart.hash);
-  if (songhashes.length !== references.length
+  const songhashes = [...resolvedHashes];
+  if (songhashes.length !== event.season.charts.length
     || !songhashes.every((hash): hash is string => typeof hash === 'string' && hash.trim() !== '' && hash === hash.trim())) {
     throw new Error('Every season chart must resolve to a valid hash before querying the ranking');
   }
   if (new Set(songhashes).size !== songhashes.length) {
     throw new Error('Resolved season chart hashes must not be duplicated');
-  }
-  if (references.some((chart, index) => chart.hash !== undefined && chart.hash !== songhashes[index])) {
-    throw new Error('Resolved chart hash does not match the configured version');
   }
   return {
     songhashes,
@@ -57,34 +53,19 @@ export function getSeasonStatus(
 const isRecord = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
 
-/** Normalize both copy-pasted song links and the original ID/hash format. */
-export function parseSeasonChart(input: unknown): SeasonChartReference {
-  let reference = input;
-  if (typeof input === 'string') {
-    try {
-      const url = new URL(input, 'https://majdata.net');
-      if (input !== input.trim() || (!input.startsWith('/song?') && !input.startsWith('https://majdata.net/song?'))
-        || url.origin !== 'https://majdata.net' || url.pathname !== '/song'
-        || url.searchParams.size !== 1 || !url.searchParams.has('id') || url.hash) {
-        throw new Error('invalid song link');
-      }
-      reference = { id: url.searchParams.get('id') };
-    } catch {
-      throw new Error('must be /song?id=<song id> or https://majdata.net/song?id=<song id>');
+/** Extract the song ID from the links maintained in events.json. */
+export function parseSeasonChart(input: unknown): string {
+  if (typeof input === 'string' && input === input.trim()) {
+    const url = new URL(input, 'https://majdata.net');
+    const id = url.searchParams.get('id');
+    if ((input.startsWith('/song?') || input.startsWith('https://majdata.net/song?'))
+      && url.origin === 'https://majdata.net' && url.pathname === '/song'
+      && url.searchParams.size === 1 && !url.hash && id && !/\s/.test(id)) {
+      // GUIDs identify the same song regardless of letter case.
+      return /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(id) ? id.toLowerCase() : id;
     }
   }
-  if (!isRecord(reference)) throw new Error('must be a song link or an object with an id');
-  if (!isNonEmptyString(reference.id) || /\s/.test(reference.id)) {
-    throw new Error('id must be a non-empty string without whitespace');
-  }
-  if (reference.hash !== undefined
-    && (!isNonEmptyString(reference.hash) || reference.hash !== reference.hash.trim())) {
-    throw new Error('hash, when supplied, must be a non-empty string without surrounding whitespace');
-  }
-  // GUIDs identify the same song regardless of letter case.
-  const id = /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(reference.id)
-    ? reference.id.toLowerCase() : reference.id;
-  return reference.hash === undefined ? { id } : { id, hash: reference.hash };
+  throw new Error('must be /song?id=<song id> or https://majdata.net/song?id=<song id>');
 }
 
 function isZonedDateTime(value: unknown): value is string {
@@ -141,52 +122,15 @@ export function validateSeasonEvent(input: unknown): string[] {
     return errors;
   }
   const ids = new Set<string>();
-  const hashes = new Set<string>();
   input.season.charts.forEach((chart, index) => {
     try {
-      const reference = parseSeasonChart(chart);
-      for (const [key, seen] of [['id', ids], ['hash', hashes]] as const) {
-        const value = reference[key];
-        if (value === undefined) continue;
-        if (seen.has(value)) {
-          errors.push(`season.charts[${index}].${key} is duplicated: ${value}`);
-        } else {
-          seen.add(value);
-        }
-      }
+      const id = parseSeasonChart(chart);
+      if (ids.has(id)) errors.push(`season.charts[${index}] is duplicated: ${id}`);
+      ids.add(id);
     } catch (error) {
       errors.push(`season.charts[${index}]: ${error instanceof Error ? error.message : String(error)}`);
     }
   });
-  return errors;
-}
-
-/** Every populated difficulty contributes its own best score for this file. */
-export function validateSeasonChartSummary(chart: SeasonChart, summary: unknown): string[] {
-  if (!isRecord(summary)) return ['chart summary must be an object'];
-  let reference;
-  try {
-    reference = parseSeasonChart(chart);
-  } catch (error) {
-    return [error instanceof Error ? error.message : String(error)];
-  }
-  const errors = [];
-  if (summary.id !== reference.id) errors.push('chart summary id does not match the configured id');
-  if (!isNonEmptyString(summary.hash) || summary.hash !== summary.hash.trim()) {
-    errors.push('chart summary must contain a non-empty hash without surrounding whitespace');
-  }
-  if (reference.hash !== undefined && summary.hash !== reference.hash) {
-    errors.push('chart hash does not match the configured version');
-  }
-  if (!Array.isArray(summary.levels) || !summary.levels.every((level) => level === null || typeof level === 'string')) {
-    errors.push('chart summary levels must be an array of strings or null');
-  }
-  const levels = Array.isArray(summary.levels)
-    ? summary.levels.filter((level) => typeof level === 'string' && level.trim() !== '')
-    : [];
-  if (levels.length === 0) {
-    errors.push('chart must contain at least one non-empty difficulty');
-  }
   return errors;
 }
 

@@ -134,11 +134,6 @@ function PoolChart({ item, index, retry }: { item: SeasonChartSummary; index: nu
           </button>}
         </div>
       )}
-      {song && item.versionMismatch && (
-        <p className="mx-auto mt-2 max-w-80 text-amber-200 text-sm text-center" role="status">
-          {i18n('season/SeasonPool.VersionMismatch', '当前谱面已更新，本季仍按原参赛版本计分。')}
-        </p>
-      )}
       {song && item.invalidDifficulty && (
         <p className="mx-auto mt-2 max-w-80 text-red-300 text-sm text-center" role="alert">
           {i18n('season/SeasonPool.InvalidDifficulty', '此文件没有有效难度，请联系活动维护者核查。')}

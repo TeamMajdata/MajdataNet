@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import type { Event } from '@/types/event';
 import type { SeasonChartsState } from './useSeasonCharts';
-import { buildSeasonRankingRequest, parseSeasonChart } from '@/utils/season';
+import { buildSeasonRankingRequest, createSeasonRequestLimiter, parseSeasonChart } from '@/utils/season';
 
 type SeasonStatus = 'upcoming' | 'ongoing' | 'ended';
 interface RecentQuery {
@@ -17,22 +17,10 @@ type RecentKey = [string, string, string, RecentQuery, SeasonStatus];
 
 // A page can contain 50 players. Bound these secondary requests independently of
 // the leaderboard so loading timestamps cannot hold up the scores themselves.
-let activeRequests = 0;
-const waitingRequests: Array<() => void> = [];
-async function withRecentRequestSlot<T>(request: () => Promise<T>): Promise<T> {
-  if (activeRequests >= 4) await new Promise<void>(resolve => waitingRequests.push(resolve));
-  else activeRequests += 1;
-  try {
-    return await request();
-  } finally {
-    const next = waitingRequests.shift();
-    if (next) next();
-    else activeRequests -= 1;
-  }
-}
+const limitRecentRequests = createSeasonRequestLimiter(4);
 
 function fetchLastPlayed([, url, , query]: RecentKey): Promise<RecentResult> {
-  return withRecentRequestSlot(async () => {
+  return limitRecentRequests(async () => {
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
       controller.abort(new DOMException('Recent plays request timed out', 'TimeoutError'));
@@ -49,24 +37,16 @@ function fetchLastPlayed([, url, , query]: RecentKey): Promise<RecentResult> {
 
 /** Mount only for players on the current leaderboard page. */
 export function useSeasonLastPlayed(username: string, event: Event, chartState: SeasonChartsState, status: SeasonStatus) {
-  const { items, songhashes, isLoading: chartsLoading, error: chartsError } = chartState;
+  const { songhashes, isLoading: chartsLoading, error: chartsError } = chartState;
   const query = useMemo<RecentQuery | undefined>(() => {
     if (chartsLoading || chartsError || !songhashes || !event.season) return undefined;
     try {
-      const references = event.season.charts.map(parseSeasonChart);
-      // Recent maps hashes back to current chart IDs. A stale pinned version may
-      // be missing from the response, making even a partial pool result unreliable.
-      if (references.some(reference => {
-        const item = items.find(item => item.id === reference.id);
-        return !item?.song || item.error || item.versionMismatch || item.invalidDifficulty
-          || (reference.hash !== undefined && reference.hash !== item.song.hash);
-      })) return undefined;
       const { startTime, endTime } = buildSeasonRankingRequest(event, songhashes);
-      return { chartIds: references.map(reference => reference.id), songhashes, startTime, endTime };
+      return { chartIds: event.season.charts.map(parseSeasonChart), songhashes, startTime, endTime };
     } catch {
       return undefined;
     }
-  }, [event, items, songhashes, chartsLoading, chartsError]);
+  }, [event, songhashes, chartsLoading, chartsError]);
   const key: RecentKey | null = status !== 'upcoming' && query && username
     ? ['season-last-played', endpoints.account.recent(encodeURIComponent(username)), event.id, query, status]
     : null;

@@ -263,7 +263,6 @@
     "Loading": "正在加载谱面…",
     "LoadFailed": "暂时无法加载此谱面",
     "Retry": "重试",
-    "VersionMismatch": "当前谱面已更新，本季仍按原参赛版本计分。",
     "InvalidDifficulty": "此文件没有有效难度，请联系活动维护者核查。"
   },
   "shared/AuthSection": {
