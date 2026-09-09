@@ -1,8 +1,10 @@
 import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, SUPPORTED_LANGUAGES } from '@/config/i18n';
-import type { Language, LanguageCache, TranslationDictionary } from '@/types/i18n';
+import type { Language, TranslationDictionary } from '@/types/i18n';
 
-const languageCache: LanguageCache = {};
-const pendingLoads = new Map<Language, Promise<TranslationDictionary>>();
+type TranslationIndex = Map<string, string>;
+
+const languageCache: Partial<Record<Language, TranslationIndex>> = {};
+const pendingLoads = new Map<Language, Promise<TranslationIndex>>();
 const warnedKeys = new Set<string>();
 
 let currentLanguage: Language = DEFAULT_LANGUAGE;
@@ -27,7 +29,7 @@ function isTranslationDictionary(value: unknown): value is TranslationDictionary
   ));
 }
 
-async function loadLanguage(language: Language): Promise<TranslationDictionary> {
+async function loadLanguage(language: Language): Promise<TranslationIndex> {
   const cached = languageCache[language];
   if (cached) return cached;
 
@@ -45,8 +47,19 @@ async function loadLanguage(language: Language): Promise<TranslationDictionary> 
         throw new Error('invalid language file structure');
       }
 
-      languageCache[language] = dictionary;
-      return dictionary;
+      // Build once per language so render-time lookups need no key parsing.
+      const index: TranslationIndex = new Map();
+      for (const [namespace, translations] of Object.entries(dictionary)) {
+        for (const [key, value] of Object.entries(translations)) {
+          const fullKey = `${namespace}.${key}`;
+          const parts = splitTranslationKey(fullKey);
+          if (parts?.[0] === namespace && parts[1] === key) {
+            index.set(fullKey, value);
+          }
+        }
+      }
+      languageCache[language] = index;
+      return index;
     })
     .finally(() => pendingLoads.delete(language));
 
@@ -104,8 +117,12 @@ function splitTranslationKey(key: string): [namespace: string, translationKey: s
  * `i18n('song/SongPage.Download')`。
  */
 export function i18n(key: string, fallback?: string): string {
-  const keyParts = splitTranslationKey(key);
-  if (!keyParts) {
+  const currentDictionary = languageCache[currentLanguage];
+  const translated = currentDictionary?.get(key)
+    ?? (currentDictionary ? languageCache[DEFAULT_LANGUAGE]?.get(key) : undefined);
+  if (translated !== undefined) return translated;
+
+  if (!splitTranslationKey(key)) {
     const warningKey = `invalid:${key}`;
     if (!warnedKeys.has(warningKey)) {
       console.warn(`[i18n] Invalid key format: ${key}; expected route/component.key`);
@@ -114,23 +131,14 @@ export function i18n(key: string, fallback?: string): string {
     return fallback ?? key;
   }
 
-  const [namespace, translationKey] = keyParts;
-  const currentDictionary = languageCache[currentLanguage];
   if (!currentDictionary) return fallback ?? key;
 
-  const translated = currentDictionary[namespace]?.[translationKey]
-    ?? languageCache[DEFAULT_LANGUAGE]?.[namespace]?.[translationKey];
-
-  if (translated === undefined) {
-    const warningKey = `${currentLanguage}:${key}`;
-    if (!warnedKeys.has(warningKey)) {
-      console.warn(`[i18n] Missing translation: ${warningKey}`);
-      warnedKeys.add(warningKey);
-    }
-    return fallback ?? key;
+  const warningKey = `${currentLanguage}:${key}`;
+  if (!warnedKeys.has(warningKey)) {
+    console.warn(`[i18n] Missing translation: ${warningKey}`);
+    warnedKeys.add(warningKey);
   }
-
-  return translated;
+  return fallback ?? key;
 }
 
 export function getCurrentLanguage(): Language {

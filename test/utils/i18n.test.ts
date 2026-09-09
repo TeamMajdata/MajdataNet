@@ -15,6 +15,7 @@ const dictionaries = {
 
 describe('i18n', () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     vi.resetModules();
     localStorage.clear();
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
@@ -74,4 +75,31 @@ describe('i18n', () => {
     expect(i18n('song/SongPage.Missing', 'fallback')).toBe('fallback');
     expect(warning).toHaveBeenCalledTimes(2);
   });
+  it('uses preloaded fallback entries and preserves empty translations', async () => {
+    vi.mocked(fetch).mockImplementation(async (input) => new Response(JSON.stringify(
+      String(input).includes('/en.json')
+        ? { 'song/SongPage': { Download: 'Download', Empty: 'English' } }
+        : { 'song/SongPage': { Empty: '' } },
+    )));
+    const { i18n, setLanguage, preloadLanguage } = await import('@/utils/i18n');
+    await setLanguage('zh');
+    expect(i18n('song/SongPage.Download', 'first')).toBe('first');
+    await preloadLanguage('en');
+    expect(i18n('song/SongPage.Download', 'second')).toBe('Download');
+    expect(i18n('song/SongPage.Empty', 'fallback')).toBe('');
+    await setLanguage('en');
+    await setLanguage('zh');
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not cache caller fallbacks or return inherited object properties', async () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { i18n, setLanguage } = await import('@/utils/i18n');
+    await setLanguage('en');
+    expect(i18n('song/SongPage.Missing', 'first')).toBe('first');
+    expect(i18n('song/SongPage.Missing', 'second')).toBe('second');
+    expect(i18n('song/SongPage.toString', 'safe')).toBe('safe');
+    expect(warning).toHaveBeenCalledTimes(2);
+  });
+
 });
