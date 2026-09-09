@@ -347,31 +347,8 @@ function buildSearchKeywordMap(): Map<string, Event> {
   searchKeywordToEventMap = new Map();
 
   eventsData.forEach((event) => {
-    // 检查href是否包含search参数
-    if (event.href && event.href.includes('?search=')) {
-      try {
-        const searchParam = event.href.split('?search=')[1];
-        // URL解码
-        const decodedSearchParam = decodeURIComponent(searchParam);
-        searchKeywordToEventMap!.set(decodedSearchParam, event);
-      } catch {
-        // 忽略URL解码错误
-        console.warn('Failed to decode search parameter:', event.href);
-      }
-    }
-
-    // 检查href是否包含eventTag页面的链接格式
-    if (event.href && event.href.includes('/eventTag?id=')) {
-      try {
-        const idParam = event.href.split('/eventTag?id=')[1];
-        // URL解码
-        const decodedIdParam = decodeURIComponent(idParam);
-        // 使用eventId作为键来映射活动（用于eventTag页面查找活动信息）
-        searchKeywordToEventMap!.set(decodedIdParam, event);
-      } catch {
-        // 忽略URL解码错误
-        console.warn('Failed to decode eventTag parameter:', event.href);
-      }
+    if (event.type === 'eventTag') {
+      searchKeywordToEventMap!.set(event.asset, event);
     }
   });
 

@@ -4,11 +4,11 @@ import type { PlayHistoryRankingEntry, PlayHistoryRankingRequest, RankedSeasonEn
 
 export function buildSeasonRankingRequest(event: Event, resolvedHashes: readonly string[]): PlayHistoryRankingRequest {
   const errors = validateSeasonEvent(event);
-  if (errors.length > 0 || event.category !== 5 || !event.season) {
+  if (errors.length > 0 || event.type !== 'season') {
     throw new Error(errors.length > 0 ? errors.join('; ') : 'A valid season event is required');
   }
   const songhashes = [...resolvedHashes];
-  if (songhashes.length !== event.season.charts.length
+  if (songhashes.length === 0
     || !songhashes.every((hash): hash is string => typeof hash === 'string' && hash.trim() !== '' && hash === hash.trim())) {
     throw new Error('Every season chart must resolve to a valid hash before querying the ranking');
   }
@@ -53,7 +53,7 @@ export function getSeasonStatus(
 const isRecord = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
 
-/** Extract the song ID from the links maintained in events.json. */
+/** Extract the song ID from the links resolved from the collection. */
 export function parseSeasonChart(input: unknown): string {
   if (typeof input === 'string' && input === input.trim()) {
     const url = new URL(input, 'https://majdata.net');
@@ -83,28 +83,19 @@ function isZonedDateTime(value: unknown): value is string {
 /** Legacy events keep their existing date and metadata conventions. */
 export function validateSeasonEvent(input: unknown): string[] {
   if (!isRecord(input)) return ['event must be an object'];
-  if (input.category !== 5) {
-    return input.season === undefined ? [] : ['season requires category 5'];
+  if (input.type !== 'season') {
+    return input.season === undefined ? [] : ['season requires type season'];
   }
 
   const errors = [];
-  for (const key of ['id', 'href', 'src', 'alt', 'title', 'description']) {
+  for (const key of ['id', 'asset', 'src', 'alt', 'title', 'description']) {
     if (!isNonEmptyString(input[key])) errors.push(`${key} must be a non-empty string`);
   }
   if (isNonEmptyString(input.id) && input.id !== input.id.trim()) {
     errors.push('id must not contain leading or trailing whitespace');
   }
-  if (isNonEmptyString(input.href)) {
-    try {
-      const url = new URL(input.href, 'https://events.invalid');
-      if (!input.href.startsWith('/season?') || url.origin !== 'https://events.invalid'
-        || url.pathname !== '/season' || url.searchParams.size !== 1
-        || url.searchParams.get('id') !== input.id || url.hash) {
-        errors.push('href must be /season?id=<encoded event id> and match id');
-      }
-    } catch {
-      errors.push('href must be /season?id=<encoded event id> and match id');
-    }
+  if (isNonEmptyString(input.asset) && !/^[a-f\d]{24}$/i.test(input.asset)) {
+    errors.push('season asset must be a collection ID');
   }
 
   for (const key of ['createDate', 'endDate']) {
@@ -117,20 +108,6 @@ export function validateSeasonEvent(input: unknown): string[] {
     errors.push('createDate must be earlier than endDate');
   }
 
-  if (!isRecord(input.season) || !Array.isArray(input.season.charts) || input.season.charts.length === 0) {
-    errors.push('season.charts must be a non-empty array');
-    return errors;
-  }
-  const ids = new Set<string>();
-  input.season.charts.forEach((chart, index) => {
-    try {
-      const id = parseSeasonChart(chart);
-      if (ids.has(id)) errors.push(`season.charts[${index}] is duplicated: ${id}`);
-      ids.add(id);
-    } catch (error) {
-      errors.push(`season.charts[${index}]: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  });
   return errors;
 }
 

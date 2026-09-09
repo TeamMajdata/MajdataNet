@@ -56,13 +56,43 @@ async function fetchSeasonChart(chart: SeasonChart): Promise<SeasonChartSummary>
   return item;
 }
 
+/** Load the complete collection before resolving current chart versions. */
+export async function fetchSeasonCollection(id: string): Promise<SeasonChart[]> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 15_000);
+  try {
+    const response = await fetch(endpoints.collection.songlist(encodeURIComponent(id)), {
+      credentials: 'include', signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Collection request failed (${response.status})`);
+    const value = await response.json();
+    if (!value || !Array.isArray(value.items) || value.items.length === 0) {
+      throw new Error('Season collection must contain charts');
+    }
+    const ids = value.items.map((item: unknown) => {
+      if (!item || typeof item !== 'object' || !('id' in item)
+        || typeof item.id !== 'string' || !item.id || /\s/.test(item.id)) {
+        throw new Error('Unexpected collection chart');
+      }
+      return parseSeasonChart(`/song?id=${encodeURIComponent(item.id)}`);
+    }) as string[];
+    if (new Set(ids).size !== ids.length) throw new Error('Duplicate collection chart');
+    return ids.map(id => `/song?id=${encodeURIComponent(id)}`);
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
 /** One metadata snapshot supplies both the visible pool and the ranking hashes. */
-export function useSeasonCharts(charts: SeasonChart[]) {
+export function useSeasonCharts(collectionId: string) {
   // Resolve current versions on every visit before reusing cached standings.
   const snapshotId = useId();
   const { data, error: requestError, isLoading, isValidating, mutate } = useSWR<SeasonChartSummary[], Error>(
-    ['season-chart-summaries', snapshotId, charts],
-    ([, , configured]: [string, string, SeasonChart[]]) => Promise.all(configured.map(chart => limit(() => fetchSeasonChart(chart)))),
+    ['season-chart-summaries', snapshotId, collectionId],
+    async ([, , id]: [string, string, string]) => {
+      const charts = await limit(() => fetchSeasonCollection(id));
+      return Promise.all(charts.map(chart => limit(() => fetchSeasonChart(chart))));
+    },
     {
       revalidateOnMount: true,
       revalidateOnFocus: false,
@@ -70,7 +100,7 @@ export function useSeasonCharts(charts: SeasonChart[]) {
       shouldRetryOnError: false,
     },
   );
-  const items = useMemo<SeasonChartSummary[]>(() => data ?? charts.map(chart => ({ id: parseSeasonChart(chart), chart })), [data, charts]);
+  const items = useMemo<SeasonChartSummary[]>(() => data ?? [], [data]);
   const resolved = useMemo(() => {
     if (requestError) return { error: requestError };
     if (isLoading || isValidating || !data) return {};
@@ -85,7 +115,7 @@ export function useSeasonCharts(charts: SeasonChart[]) {
 
   async function retry(id?: string) {
     if (!id) return void await mutate();
-    const chart = charts.find(value => parseSeasonChart(value) === id);
+    const chart = data?.find(item => item.id === id)?.chart;
     if (!chart) return;
     const replacement = await limit(() => fetchSeasonChart(chart));
     // Merge into the latest result so independent retries cannot overwrite each other.

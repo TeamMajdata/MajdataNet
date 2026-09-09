@@ -26,10 +26,9 @@ const testGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT
 testGlobals.IS_REACT_ACT_ENVIRONMENT = true;
 
 const event: Event = {
-  id: 'test-season', href: '/season?id=test-season', src: '/season.jpg',
+  id: 'test-season', type: 'season', asset: '69f3ace2bb1f42b84457a4f9', src: '/season.jpg',
   alt: 'Season', title: 'Season', description: 'Season', category: 5,
   createDate: '2026-09-01T00:00:00+08:00', endDate: '2026-09-30T23:59:59.999+08:00',
-  season: { charts: ['/song?id=chart-one'] },
 };
 const rows = [{ playerId: 'player-one', username: 'Player & One', totalDXScore: 1200, totalAccDX: 100.1234, totalAccClassic: 100 }];
 const response = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status });

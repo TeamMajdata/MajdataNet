@@ -74,10 +74,10 @@ function App() {
                 <Route path="/song" element={<SongPage />} />
                 <Route path="/space" element={<SpacePage />} />
                 <Route path="/eventTag" element={<EventTagPage />} />
-                <Route path="/season" element={<SeasonPage />} />
                 <Route path="/minigame" element={<MiniGamePage />} />
                 <Route path="*" element={<NotFoundPage />} />
                 <Route element={<ProtectedRoute />}>
+                  <Route path="/season" element={<SeasonPage />} />
                   <Route path="/user/charts" element={<UserChartsPage />} />
                   <Route path="/user/profile" element={<UserProfilePage />} />
                   <Route path="/user/scores" element={<PersonalScoresPage />} />

@@ -26,10 +26,14 @@ export const EVENT_CATEGORY_I18N_KEYS = [
   'chart-events/eventsData.EventCategorySeason',
 ] as const;
 
+export type EventType = 'outerLink' | 'eventTag' | 'space' | 'season';
+
 // 活动接口
 export interface Event {
   id: string;
-  href: string;
+  type: EventType;
+  /** Raw target ID, or a complete URL for outerLink. */
+  asset: string;
   src: string;
   alt: string;
   title: string;
@@ -37,7 +41,6 @@ export interface Event {
   createDate: string; // ISO日期字符串
   endDate: string; // ISO日期字符串
   description: string;
-  season?: SeasonConfig;
 }
 
 // 带时间信息的活动接口
@@ -58,12 +61,8 @@ export interface MMFCParticipantsData {
   description: string;
 }
 
-/** Relative or full majdata.net song URL; metadata supplies the current hash. */
+/** Song link resolved from the season collection. */
 export type SeasonChart = string;
-
-export interface SeasonConfig {
-  charts: SeasonChart[];
-}
 
 export interface PlayHistoryRankingRequest {
   songhashes: string[];

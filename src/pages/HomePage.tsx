@@ -1,3 +1,4 @@
+import { getEventHref } from '@/utils/eventLink';
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -198,7 +199,7 @@ function DesktopEventsSwiper() {
             {ongoingEvents.map((event) => (
               <SwiperSlide key={event.id} className="flex h-auto">
                 <div className="relative flex-1 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
-                  <Link to={event.href} className="block relative w-full h-full text-inherit no-underline">
+                  <Link to={getEventHref(event)} className="block relative w-full h-full text-inherit no-underline">
                     <div className="relative w-full h-full overflow-hidden">
                       <img
                         className="block w-full h-full object-cover"
@@ -313,7 +314,7 @@ function MobileEventsSwiper() {
             {/* 活跃的活动（进行中 + 即将开始） */}
             {ongoingEvents.map((event) => (
               <SwiperSlide key={event.id} className="flex h-auto">
-                <Link to={event.href} className="block w-full h-full text-inherit no-underline">
+                <Link to={getEventHref(event)} className="block w-full h-full text-inherit no-underline">
                   <div className="relative bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl border border-white/10 rounded-xl w-full aspect-1279/372 overflow-hidden">
                     <div className="relative w-full h-full overflow-hidden">
                       <img

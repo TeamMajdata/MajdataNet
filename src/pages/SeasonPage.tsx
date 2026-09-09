@@ -8,7 +8,7 @@ import { useEventClock } from '@/hooks/useEventClock';
 import { useSeasonCharts, type SeasonChartsState, type SeasonChartSummary } from '@/hooks/useSeasonCharts';
 import { getEventById } from '@/utils/eventsData';
 import { getSeasonStatus, validateSeasonEvent } from '@/utils/season';
-import { EventCategory, type Event, type SeasonConfig } from '@/types/event';
+import { type Event } from '@/types/event';
 
 export default function SeasonPage() {
   const { i18n, isReady } = useI18n();
@@ -17,7 +17,7 @@ export default function SeasonPage() {
 
   if (!isReady) return <div className="flex min-h-screen items-center justify-center"><LoadingSpinner size="50px" /></div>;
 
-  const notFound = !event || event.category !== EventCategory.Season;
+  const notFound = !event || event.type !== 'season';
   if (notFound || validateSeasonEvent(event).length > 0) {
     return (
       <PageLayout className="py-16 text-center">
@@ -34,14 +34,14 @@ export default function SeasonPage() {
     );
   }
 
-  return <SeasonDetails key={event.id} event={event as Event & { season: SeasonConfig }} />;
+  return <SeasonDetails key={event.id} event={event} />;
 }
 
-function SeasonDetails({ event }: { event: Event & { season: SeasonConfig } }) {
+function SeasonDetails({ event }: { event: Event }) {
   const { i18n, language } = useI18n();
   const now = useEventClock([event]);
   const status = getSeasonStatus(event, now);
-  const chartState = useSeasonCharts(event.season.charts);
+  const chartState = useSeasonCharts(event.asset);
   const locale = { zh: 'zh-CN', en: 'en-GB', ja: 'ja-JP', ko: 'ko-KR' }[language];
   const dateFormatter = new Intl.DateTimeFormat(locale, {
     timeZone: 'Asia/Shanghai', dateStyle: 'medium',
