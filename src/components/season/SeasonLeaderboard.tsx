@@ -26,6 +26,11 @@ export default function SeasonLeaderboard({ event, status, chartState }: SeasonL
   const page = pagination.eventId === event.id ? Math.min(pagination.page, totalPages - 1) : 0;
   const visibleEntries = entries?.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
+  async function retry() {
+    if (chartState.error) await chartState.retry();
+    else await ranking.retry();
+  }
+
   return (
     <section aria-labelledby="season-ranking-title" className="mx-auto mt-5 sm:mt-8 p-3 sm:p-6 md:p-8 max-w-5xl" style={{
       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))',
@@ -66,6 +71,15 @@ export default function SeasonLeaderboard({ event, status, chartState }: SeasonL
           </>
         )}
       </div>
+
+      {status !== 'upcoming' && error && (
+        <div className="mt-4 text-center">
+          <button type="button" onClick={() => void retry()} disabled={chartState.isLoading || ranking.isValidating}
+            className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">
+            {i18n('season/SeasonLeaderboard.Retry', '重试')}
+          </button>
+        </div>
+      )}
 
       {status !== 'upcoming' && entries && (
         <p className="mt-6 text-white/70 text-sm text-center">{i18n('season/SeasonLeaderboard.Participants', '参与者：')}{entries.length}</p>

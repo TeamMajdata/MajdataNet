@@ -227,6 +227,7 @@
     "UserRankingTitle": "헤비 플레이어 랭킹"
   },
   "season/SeasonLeaderboard": {
+    "Retry": "다시 시도",
     "Title": "순위표",
     "Loading": "순위표를 불러오는 중…",
     "Upcoming": "대회가 시작되면 여기에 순위표가 표시됩니다.",

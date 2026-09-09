@@ -227,6 +227,7 @@
     "UserRankingTitle": "肝帝榜"
   },
   "season/SeasonLeaderboard": {
+    "Retry": "重试",
     "Title": "排行榜",
     "Loading": "正在加载排行榜…",
     "Upcoming": "开赛后将在这里展示排行榜。",

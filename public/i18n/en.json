@@ -227,6 +227,7 @@
     "UserRankingTitle": "Master Ranking"
   },
   "season/SeasonLeaderboard": {
+    "Retry": "Retry",
     "Title": "Leaderboard",
     "Loading": "Loading leaderboard…",
     "Upcoming": "The leaderboard will appear here when the season starts.",

@@ -227,6 +227,7 @@
     "UserRankingTitle": "ヘビープレイヤーランキング"
   },
   "season/SeasonLeaderboard": {
+    "Retry": "再試行",
     "Title": "ランキング",
     "Loading": "ランキングを読み込み中…",
     "Upcoming": "大会開始後、ここにランキングが表示されます。",

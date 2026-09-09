@@ -51,7 +51,7 @@ export function useSeasonRanking(event: Event, status: SeasonStatus, songhashes:
   // null means the shared metadata snapshot has not resolved the complete pool.
   const request = useMemo(() => songhashes === null ? null : buildSeasonRankingRequest(event, songhashes), [event, songhashes]);
   // A status change queries once at the boundary; there is no periodic polling.
-  const { data, error, isLoading, mutate } = useSWR<PlayHistoryRankingEntry[], Error>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<PlayHistoryRankingEntry[], Error>(
     status === 'upcoming' || !request ? null : [endpoints.playhistory.ranking, request, status],
     ([url, payload]: [string, RankingRequest, SeasonStatus]) => fetchSeasonRanking([url, payload]),
     {
@@ -64,5 +64,5 @@ export function useSeasonRanking(event: Event, status: SeasonStatus, songhashes:
   );
 
   const entries = useMemo(() => data ? rankSeasonEntries(data) : undefined, [data]);
-  return { entries, error, isLoading, retry: mutate };
+  return { entries, error, isLoading, isValidating, retry: mutate };
 }
