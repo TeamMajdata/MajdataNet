@@ -6,6 +6,7 @@ import { endpoints } from '@/config/api';
 import { useI18n, useUserContext } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import { getFileKey, hashCandidatesFromBytes } from '@/utils/maidataHash';
+import { getExpectedChartUploadFileNames, isValidChartUploadFileName } from '@/utils/chartUploadValidation';
 import { motion } from 'framer-motion';
 import { MdOutlineAudioFile, MdOutlineDescription, MdOutlineImage, MdOutlineVideoFile, MdCloudUpload } from 'react-icons/md';
 import { LoadingSpinner } from '@/components';
@@ -137,17 +138,29 @@ export default function ChartUploader() {
   }
 
   function onFileChange(index: number, event: React.ChangeEvent<HTMLInputElement>) {
-    if (index !== 0) {
-      return;
-    }
-
     const file = event.currentTarget.files?.[0];
     if (!file) {
-      resetHashLookup();
+      if (index === 0) {
+        resetHashLookup();
+      }
       return;
     }
 
-    void lookupMaidataHash(file);
+    if (!isValidChartUploadFileName(index, file.name)) {
+      toast.error(
+        i18n("user/ChartUploader.InvalidFileName", 'Invalid file name. Expected: ')
+        + getExpectedChartUploadFileNames(index),
+      );
+      event.currentTarget.value = '';
+      if (index === 0) {
+        resetHashLookup();
+      }
+      return;
+    }
+
+    if (index === 0) {
+      void lookupMaidataHash(file);
+    }
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -176,6 +189,22 @@ export default function ChartUploader() {
         toast.error(i18n("user/ChartUploader.NoFileSelected") + file);
       }
       return;
+    }
+
+    for (let index = 0; index < filesNecessary.length; index += 1) {
+      const file = filesNecessary[index] as File;
+      // The fourth file is optional; an empty file input can appear as an empty File.
+      if (!file || file.name === '' || file.size === 0) {
+        continue;
+      }
+
+      if (!isValidChartUploadFileName(index, file.name)) {
+        toast.error(
+          i18n("user/ChartUploader.InvalidFileName", 'Invalid file name. Expected: ')
+          + getExpectedChartUploadFileNames(index),
+        );
+        return;
+      }
     }
 
     if (hashLookup.status === 'exists') {
@@ -329,4 +358,3 @@ export default function ChartUploader() {
     </motion.div>
   );
 }
-

@@ -403,6 +403,7 @@
     "MaidataHashLookupFailed": "查询 maidata.txt 哈希失败",
     "MaidataHashNotFound": "未找到已存在的谱面",
     "MaidataWillInheritHistory": "这次上传会继承之前的分数或互动",
+    "InvalidFileName": "文件名不正确（区分大小写），应为：",
     "NoFileSelected": "没有选中",
     "NotLoggedIn": "未登录",
     "Upload": "上传",

@@ -403,6 +403,7 @@
     "MaidataHashLookupFailed": "maidata.txt のハッシュ照会に失敗しました",
     "MaidataHashNotFound": "既存の譜面は見つかりませんでした",
     "MaidataWillInheritHistory": "今回のアップロードは以前のスコアまたはインタラクションを引き継ぎます",
+    "InvalidFileName": "ファイル名が正しくありません（大文字と小文字を区別）。正しい名前：",
     "NoFileSelected": "ファイルが選択されていません: ",
     "NotLoggedIn": "未ログイン",
     "Upload": "アップロード",

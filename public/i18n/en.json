@@ -403,6 +403,7 @@
     "MaidataHashLookupFailed": "Failed to query maidata.txt hash",
     "MaidataHashNotFound": "No existing chart found",
     "MaidataWillInheritHistory": "This upload will inherit previous scores or interactions",
+    "InvalidFileName": "Invalid file name (case-sensitive). Expected: ",
     "NoFileSelected": "No file selected for ",
     "NotLoggedIn": "Not logged in",
     "Upload": "Upload",
