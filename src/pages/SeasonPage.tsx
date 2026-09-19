@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { PageLayout, EventBanner, LoadingSpinner } from '@/components';
 import SongCard from '@/components/song/SongCard';
 import SeasonLeaderboard from '@/components/season/SeasonLeaderboard';
+import CollectionSubscribeButton from '@/components/collection/CollectionSubscribeButton';
 import { useI18n } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
 import { useSeasonCharts, type SeasonChartsState, type SeasonChartSummary } from '@/hooks/useSeasonCharts';
@@ -110,7 +111,7 @@ function SeasonDetails({ event }: { event: Event }) {
         </div>
       </div>
 
-      <SeasonPool chartState={chartState} />
+      <SeasonPool chartState={chartState} collectionId={event.asset} />
       <section id="season-leaderboard" className="mx-auto max-w-5xl px-2 sm:px-4 scroll-mt-24">
         <SeasonLeaderboard event={event} status={status} chartState={chartState} />
       </section>
@@ -143,7 +144,7 @@ function PoolChart({ item, index, retry }: { item: SeasonChartSummary; index: nu
   );
 }
 
-function SeasonPool({ chartState }: { chartState: SeasonChartsState }) {
+function SeasonPool({ chartState, collectionId }: { chartState: SeasonChartsState; collectionId: string }) {
   const { i18n } = useI18n();
   return (
     <section aria-labelledby="season-pool-title" className="mx-auto mt-4 sm:mt-6 md:mt-8 px-2 sm:px-3 md:px-4 max-w-300">
@@ -151,6 +152,9 @@ function SeasonPool({ chartState }: { chartState: SeasonChartsState }) {
         <h2 id="season-pool-title" className="m-0 mb-3 sm:mb-4 md:mb-6 font-bold text-white text-xl sm:text-2xl md:text-3xl text-center" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
           {i18n('season/SeasonPool.Title', '本季曲池')}
         </h2>
+        <div className="flex justify-center">
+          <CollectionSubscribeButton collectionId={collectionId} />
+        </div>
       </div>
       <ol className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
         {chartState.items.map((item, index) => <PoolChart key={item.id} item={item} index={index} retry={chartState.retry} />)}
