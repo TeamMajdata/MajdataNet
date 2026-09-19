@@ -16,7 +16,8 @@ export default function MMFCRankingPage() {
   // MMFC活动信息
   const mmfcEvent: Event = {
     id: 'mmfc12',
-    href: '/ranking/mmfc',
+    type: 'outerLink',
+    asset: 'https://majdata.net/ranking/mmfc',
     src: '/events/MMFC12.jpg',
     alt: i18n("ranking/mmfc/MMFCRankingPage.MMFCRankingTitle", 'MMFC排行榜'),
     title: i18n("ranking/mmfc/MMFCRankingPage.MMFCRankingTitle", 'MMFC排行榜'),

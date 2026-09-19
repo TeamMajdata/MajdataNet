@@ -1,27 +1,20 @@
 [
   {
     "id": "ffmc-re",
-    "href": "/season?id=ffmc-re",
+    "type": "season",
+    "asset": "69f3ace2bb1f42b84457a4f9",
     "src": "/events/FFMC-RE.jpg",
     "alt": "FFMC:Flashback",
     "title": "FFMC:Flashback",
     "category": 5,
     "createDate": "2026-09-14T00:00:00+08:00",
     "endDate": "2026-10-12T23:59:59.999+08:00",
-    "description": "FFMC 再度来袭！！！挑战五首谱面以获得FFMC之王称号吧！！",
-    "season": {
-      "charts": [
-        "/song?id=cfc57b10-0b32-44a4-81ee-ce9aff90e17a",
-        "/song?id=24c8760e-0186-45b0-8415-420a564e69da",
-        "/song?id=0a17ddd9-a899-420a-bebf-8b655941ae58",
-        "/song?id=d9884d7a-cadf-4144-9f20-457453f7f546",
-        "/song?id=874475a0-a8c0-4c60-a80f-d64b948c8340"
-      ]
-    }
+    "description": "FFMC 再度来袭！！！挑战五首谱面以获得FFMC之王称号吧！！"
   },
   {
     "id": "kfc1st",
-    "href": "/space?id=King%20of%20Funny%20Chart",
+    "type": "space",
+    "asset": "King of Funny Chart",
     "src": "/events/kfc1st.jpg",
     "alt": "KFC 1st",
     "title": "KFC 1st",
@@ -32,7 +25,8 @@
   },
   {
     "id": "LOA3",
-    "href": "/space?id=LOA3",
+    "type": "space",
+    "asset": "LOA3",
     "src": "/events/loa3.png",
     "alt": "LOA3",
     "title": "LOA3",
@@ -43,7 +37,8 @@
   },
   {
     "id": "mmfc14",
-    "href": "/space?id=mmfc_bot",
+    "type": "space",
+    "asset": "mmfc_bot",
     "src": "/events/MMFC14.jpg",
     "alt": "MMFC14",
     "title": "MMFC14",
@@ -54,7 +49,8 @@
   },
   {
     "id": "zppz5",
-    "href": "/space?id=zppz5",
+    "type": "space",
+    "asset": "zppz5",
     "src": "/events/zppz5.png",
     "alt": "这谱谱这无名战5",
     "title": "这谱谱这无名战5",
@@ -65,7 +61,8 @@
   },
   {
     "id": "agcc5",
-    "href": "/space?id=AGCC",
+    "type": "space",
+    "asset": "AGCC",
     "src": "/events/agcc5.jpg",
     "alt": "agcc",
     "title": "AGCC5",
@@ -76,7 +73,8 @@
   },
   {
     "id": "KOL21",
-    "href": "/space?id=KOL_NEW%203",
+    "type": "space",
+    "asset": "KOL_NEW 3",
     "src": "/events/kol3.jpg",
     "alt": "KOL21",
     "title": "KOL21",
@@ -87,7 +85,8 @@
   },
   {
     "id": "LVDX",
-    "href": "/space?id=Team%20Linked%20VERSE%20DX",
+    "type": "space",
+    "asset": "Team Linked VERSE DX",
     "src": "/events/lvdx.webp",
     "alt": "Linked VERSE DX",
     "title": "Linked VERSE DX",
@@ -98,7 +97,8 @@
   },
   {
     "id": "ZJU4",
-    "href": "https://mugzju.top/",
+    "type": "outerLink",
+    "asset": "https://mugzju.top/",
     "src": "/events/ZJU4.png",
     "alt": "ZJU4",
     "title": "ZJU无名战4th",
@@ -109,7 +109,8 @@
   },
   {
     "id": "hurricane20260618",
-    "href": "/space?id=maimaiUMBRELLA%20offical",
+    "type": "space",
+    "asset": "maimaiUMBRELLA offical",
     "src": "/events/hurricane20260618.jpg",
     "alt": "MAiMAiumb HuRRICANE",
     "title": "MAiMAiumb HuRRICANE",
@@ -120,7 +121,8 @@
   },
   {
     "id": "paradise260628",
-    "href": "/space?id=乐园杯",
+    "type": "space",
+    "asset": "乐园杯",
     "src": "/events/paradise260628.png",
     "alt": "乐园杯",
     "title": "乐园杯",
@@ -131,7 +133,8 @@
   },
   {
     "id": "hxb2",
-    "href": "/space?id=海鲜杯2",
+    "type": "space",
+    "asset": "海鲜杯2",
     "src": "/events/hxb2.jpg",
     "alt": "海鲜杯2",
     "title": "海鲜杯2",
@@ -142,7 +145,8 @@
   },
   {
     "id": "touhou_1",
-    "href": "/space?id=%E4%B8%9C%E6%96%B9%E8%88%9E%E9%9F%B3%E7%A5%AD",
+    "type": "space",
+    "asset": "东方舞音祭",
     "src": "/events/touhou.jpg",
     "alt": "touhou",
     "title": "东方舞音祭",
@@ -153,7 +157,8 @@
   },
   {
     "id": "FFMC",
-    "href": "/space?id=FFMC",
+    "type": "space",
+    "asset": "FFMC",
     "src": "/events/ffmc.png",
     "alt": "ffmc",
     "title": "FFMC",
@@ -164,7 +169,8 @@
   },
   {
     "id": "mufc2",
-    "href": "/space?id=MUFC2",
+    "type": "space",
+    "asset": "MUFC2",
     "src": "/events/mufc2.jpg",
     "alt": "mufc2",
     "title": "mufc2",
@@ -175,7 +181,8 @@
   },
   {
     "id": "march",
-    "href": "/eventTag?id=奇跡の三月",
+    "type": "eventTag",
+    "asset": "奇跡の三月",
     "src": "/events/march.png",
     "alt": "mmarch",
     "title": "奇跡の三月",
@@ -186,7 +193,8 @@
   },
   {
     "id": "majfoon",
-    "href": "/eventTag?id=MajFoon",
+    "type": "eventTag",
+    "asset": "MajFoon",
     "src": "/events/0401.png",
     "alt": "majfoon",
     "title": "MajFoon",
@@ -197,7 +205,8 @@
   },
   {
     "id": "mmfc13",
-    "href": "/eventTag?id=MMFC13",
+    "type": "eventTag",
+    "asset": "MMFC13",
     "src": "/events/MMFC13.jpg",
     "alt": "MMFC13",
     "title": "MMFC13",
@@ -208,7 +217,8 @@
   },
   {
     "id": "zppz4",
-    "href": "/space?id=zppz4",
+    "type": "space",
+    "asset": "zppz4",
     "src": "/events/zppznyjk4.png",
     "alt": "这谱谱这无名战4",
     "title": "这谱谱这无名战4",
@@ -219,7 +229,8 @@
   },
   {
     "id": "LOA2",
-    "href": "/space?id=LOA2",
+    "type": "space",
+    "asset": "LOA2",
     "src": "/events/loa2.jpg",
     "alt": "loa2",
     "title": "LOA2",
@@ -230,7 +241,8 @@
   },
   {
     "id": "agcc4",
-    "href": "/space?id=AGCC",
+    "type": "space",
+    "asset": "AGCC",
     "src": "/events/agcc4.jpg",
     "alt": "agcc",
     "title": "AGCC4",
@@ -241,7 +253,8 @@
   },
   {
     "id": "hajicup2",
-    "href": "/space?id=哈基杯",
+    "type": "space",
+    "asset": "哈基杯",
     "src": "/events/hjb2.png",
     "alt": "哈基杯2",
     "title": "哈基杯2",
@@ -252,7 +265,8 @@
   },
   {
     "id": "wsz",
-    "href": "/space?id=%E6%97%A0%E5%A3%B0%E6%88%98%20%C2%B7%20COS",
+    "type": "space",
+    "asset": "无声战 · COS",
     "src": "/events/wsz.png",
     "alt": "无声战",
     "title": "无声战",
@@ -263,7 +277,8 @@
   },
   {
     "id": "xmmcg6",
-    "href": "/space?id=xmmcg5",
+    "type": "space",
+    "asset": "xmmcg5",
     "src": "/events/xmmcg6.jpg",
     "alt": "xmmcg6",
     "title": "小妹妹唱歌6",
@@ -274,7 +289,8 @@
   },
   {
     "id": "ZJU3",
-    "href": "https://mugzju.top/",
+    "type": "outerLink",
+    "asset": "https://mugzju.top/",
     "src": "/events/ZJU3.png",
     "alt": "ZJU3",
     "title": "ZJU无名战3rd",
@@ -285,7 +301,8 @@
   },
   {
     "id": "KOL20",
-    "href": "/space?id=KOL_NEW%202",
+    "type": "space",
+    "asset": "KOL_NEW 2",
     "src": "/events/KOL2.jpg",
     "alt": "KOL2",
     "title": "KOL2",
@@ -296,7 +313,8 @@
   },
   {
     "id": "LSP",
-    "href": "/space?id=LSP",
+    "type": "space",
+    "asset": "LSP",
     "src": "/events/LSP.jpg",
     "alt": "LSP",
     "title": "LSP",
@@ -307,7 +325,8 @@
   },
   {
     "id": "liftoff",
-    "href": "https://liftoff.whitenightawa.com",
+    "type": "outerLink",
+    "asset": "https://liftoff.whitenightawa.com",
     "src": "/events/liftoff.png",
     "alt": "liftoff",
     "title": "AstroDX: Project LIFTOFF",
@@ -318,7 +337,8 @@
   },
   {
     "id": "loa",
-    "href": "/space?id=LOA",
+    "type": "space",
+    "asset": "LOA",
     "src": "/events/loa.png",
     "alt": "loa",
     "title": "Love of Anisong",
@@ -329,7 +349,8 @@
   },
   {
     "id": "agcc",
-    "href": "/space?id=AGCC",
+    "type": "space",
+    "asset": "AGCC",
     "src": "/events/agcc.png",
     "alt": "agcc",
     "title": "AGCC",
@@ -340,7 +361,8 @@
   },
   {
     "id": "mmfc12",
-    "href": "/eventTag?id=MMFC12",
+    "type": "eventTag",
+    "asset": "MMFC12",
     "src": "/events/MMFC12.jpg",
     "alt": "MMFC12",
     "title": "MMFC12",
@@ -351,7 +373,8 @@
   },
   {
     "id": "zjb2",
-    "href": "/space?id=zjb2",
+    "type": "space",
+    "asset": "zjb2",
     "src": "/events/zjb.jpg",
     "alt": "zjb2",
     "title": "zjb2",
@@ -362,7 +385,8 @@
   },
   {
     "id": "KOL",
-    "href": "/space?id=KOL_NEW",
+    "type": "space",
+    "asset": "KOL_NEW",
     "src": "/events/KOL.png",
     "alt": "KOL",
     "title": "KOL",
@@ -373,7 +397,8 @@
   },
   {
     "id": "umb_event",
-    "href": "/space?id=maimaiUMBRELLA%20offical",
+    "type": "space",
+    "asset": "maimaiUMBRELLA offical",
     "src": "/events/umb_event.png",
     "alt": "maimai UMBRELLA",
     "title": "maimai UMBRELLA",
@@ -384,7 +409,8 @@
   },
   {
     "id": "infinitybossrush",
-    "href": "/eventTag?id=Infinity Boss Rush",
+    "type": "eventTag",
+    "asset": "Infinity Boss Rush",
     "src": "/events/bossrush.png",
     "alt": "Infinity Boss Rush",
     "title": "Infinity Boss Rush",
@@ -395,7 +421,8 @@
   },
   {
     "id": "shuangyucup1",
-    "href": "/space?id=双鱼杯",
+    "type": "space",
+    "asset": "双鱼杯",
     "src": "/events/shuangyucup1.jpg",
     "alt": "双鱼杯 1st",
     "title": "双鱼杯 1st",
@@ -406,7 +433,8 @@
   },
   {
     "id": "xmmcg5",
-    "href": "/space?id=xmmcg5",
+    "type": "space",
+    "asset": "xmmcg5",
     "src": "/events/xmmcg5.png",
     "alt": "小妹妹唱歌5",
     "title": "小妹妹唱歌5",
@@ -417,7 +445,8 @@
   },
   {
     "id": "REK",
-    "href": "/eventTag?id=Re:KALEIDXSCOPE",
+    "type": "eventTag",
+    "asset": "Re:KALEIDXSCOPE",
     "src": "/events/REK.png",
     "alt": "Project Re:KALEIDXSCOPE",
     "title": "Project Re:KALEIDXSCOPE",
@@ -428,7 +457,8 @@
   },
   {
     "id": "zppz",
-    "href": "/space?id=这谱谱这无名战",
+    "type": "space",
+    "asset": "这谱谱这无名战",
     "src": "/events/event7.png",
     "alt": "这谱谱这无名战",
     "title": "这谱谱这无名战",
@@ -439,7 +469,8 @@
   },
   {
     "id": "hajicup",
-    "href": "/space?id=哈基杯",
+    "type": "space",
+    "asset": "哈基杯",
     "src": "/events/hajicup.jpg",
     "alt": "哈基杯",
     "title": "哈基杯",
@@ -450,7 +481,8 @@
   },
   {
     "id": "mufc",
-    "href": "/space?id=MUFC",
+    "type": "space",
+    "asset": "MUFC",
     "src": "/events/mufc.png",
     "alt": "MUFC",
     "title": "MUFC",
@@ -461,7 +493,8 @@
   },
   {
     "id": "dilei2025",
-    "href": "/space?id=dilei",
+    "type": "space",
+    "asset": "dilei",
     "src": "/events/dilei2025.jpg",
     "alt": "地雷杯",
     "title": "地雷杯",
@@ -472,7 +505,8 @@
   },
   {
     "id": "hxb",
-    "href": "/space?id=海鲜杯",
+    "type": "space",
+    "asset": "海鲜杯",
     "src": "/events/hxb.jpg",
     "alt": "海鲜杯",
     "title": "海鲜杯",
@@ -483,7 +517,8 @@
   },
   {
     "id": "mmfc11",
-    "href": "/eventTag?id=MMFC11",
+    "type": "eventTag",
+    "asset": "MMFC11",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC11结算",
     "title": "MMFC11结算",
@@ -494,7 +529,8 @@
   },
   {
     "id": "mmfc10",
-    "href": "/eventTag?id=MMFC10",
+    "type": "eventTag",
+    "asset": "MMFC10",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC10结算",
     "title": "MMFC10结算",
@@ -505,7 +541,8 @@
   },
   {
     "id": "mmfc9",
-    "href": "/eventTag?id=MMFC9",
+    "type": "eventTag",
+    "asset": "MMFC9",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC9结算",
     "title": "MMFC9结算",
@@ -516,7 +553,8 @@
   },
   {
     "id": "xmmcg4",
-    "href": "/space?id=TeamXmmcg",
+    "type": "space",
+    "asset": "TeamXmmcg",
     "src": "/events/xmmcg4.png",
     "alt": "小妹妹唱歌4",
     "title": "小妹妹唱歌4",
@@ -527,7 +565,8 @@
   },
   {
     "id": "mmfc8",
-    "href": "/eventTag?id=MMFC8",
+    "type": "eventTag",
+    "asset": "MMFC8",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC8结算",
     "title": "MMFC8结算",
@@ -538,7 +577,8 @@
   },
   {
     "id": "mmfc7",
-    "href": "/eventTag?id=MMFC7",
+    "type": "eventTag",
+    "asset": "MMFC7",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC7结算",
     "title": "MMFC7结算",
@@ -549,7 +589,8 @@
   },
   {
     "id": "mmfc6",
-    "href": "/eventTag?id=MMFC6",
+    "type": "eventTag",
+    "asset": "MMFC6",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC6结算",
     "title": "MMFC6结算",
@@ -560,7 +601,8 @@
   },
   {
     "id": "mmfc5",
-    "href": "/eventTag?id=MMFC5",
+    "type": "eventTag",
+    "asset": "MMFC5",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC5结算",
     "title": "MMFC5结算",
@@ -571,7 +613,8 @@
   },
   {
     "id": "mmfc4",
-    "href": "/eventTag?id=MMFC4",
+    "type": "eventTag",
+    "asset": "MMFC4",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC4结算",
     "title": "MMFC4结算",
@@ -582,7 +625,8 @@
   },
   {
     "id": "mmfc3",
-    "href": "/eventTag?id=MMFC3",
+    "type": "eventTag",
+    "asset": "MMFC3",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC3结算",
     "title": "MMFC3结算",
@@ -593,7 +637,8 @@
   },
   {
     "id": "mmfc2",
-    "href": "/eventTag?id=MMFC2",
+    "type": "eventTag",
+    "asset": "MMFC2",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC2结算",
     "title": "MMFC2结算",
@@ -604,7 +649,8 @@
   },
   {
     "id": "mmfc1",
-    "href": "/eventTag?id=MMFC1",
+    "type": "eventTag",
+    "asset": "MMFC1",
     "src": "/events/mmfc_event.jpg",
     "alt": "MMFC1结算",
     "title": "MMFC1结算",
@@ -615,7 +661,8 @@
   },
   {
     "id": "tsuki",
-    "href": "/space?id=Project「異色の月」",
+    "type": "space",
+    "asset": "Project「異色の月」",
     "src": "/events/tsuki.jpg",
     "alt": "異色の月",
     "title": "異色の月",

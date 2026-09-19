@@ -178,3 +178,16 @@ gitattributes file is from [gitattributes/gitattributes](https://github.com/gita
 ## 联系方式
 
 如有问题或建议，欢迎通过Issue反馈。
+
+## 活动配置
+
+`public/events.json` 使用 `type` 和 `asset` 定义跳转目标，不再填写 `href`：
+
+| type | asset |
+| --- | --- |
+| `outerLink` | 完整外部 URL |
+| `eventTag` | 活动标签 ID |
+| `space` | 用户空间 ID |
+| `season` | 季赛歌单 ID |
+
+`asset` 中的 ID 直接填写原文（包括中文和空格），无需 URL 编码。页面通过 `getEventHref` 统一生成跳转地址。`category` 仍用于活动分类和筛选；季赛页面通过活动自身的 `id` 定位（`/season?id=<活动 id>`），曲目从 `asset` 指向的歌单动态加载，不在活动配置中保存。

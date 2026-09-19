@@ -14,7 +14,7 @@ export default function UserSeasons({ username }: { username: string }) {
   const events = getAllEvents();
   const now = useEventClock(events);
   const seasons = events.flatMap(event => {
-    if (event.category !== 5 || validateSeasonEvent(event).length) return [];
+    if (event.type !== 'season' || validateSeasonEvent(event).length) return [];
     const status = getSeasonStatus(event, now);
     return status === 'upcoming' ? [] : [{ event, status }];
   }).sort((a, b) => Number(b.status === 'ongoing') - Number(a.status === 'ongoing')
@@ -38,7 +38,7 @@ export default function UserSeasons({ username }: { username: string }) {
 
 function UserSeasonResult({ event, status, username }: Omit<UserSeasonCardProps, 'entry'> & { username: string }) {
   const { i18n } = useI18n();
-  const charts = useSeasonCharts(event.season!.charts);
+  const charts = useSeasonCharts(event.asset);
   const ranking = useSeasonRanking(event, status, charts.songhashes ?? null);
   // Use the same complete standings as the season page, then select this user.
   const entry = ranking.entries?.find(row => row.username === username);

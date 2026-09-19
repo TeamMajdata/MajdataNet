@@ -28,7 +28,8 @@ export default function EventTagPage() {
     ? eventId === 'Original'
       ? {
         id: 'original',
-        href: '/eventTag?id=Original',
+        type: 'eventTag',
+        asset: 'Original',
         src: '/events/original.png',
         alt: 'Original Songs',
         title: i18n("eventTag/EventTagPage.OriginalSongs"),

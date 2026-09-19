@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import type { Event } from '@/types/event';
 import type { SeasonChartsState } from './useSeasonCharts';
-import { buildSeasonRankingRequest, createSeasonRequestLimiter, parseSeasonChart } from '@/utils/season';
+import { buildSeasonRankingRequest, createSeasonRequestLimiter } from '@/utils/season';
 
 type SeasonStatus = 'upcoming' | 'ongoing' | 'ended';
 interface RecentQuery {
@@ -37,16 +37,16 @@ function fetchLastPlayed([, url, , query]: RecentKey): Promise<RecentResult> {
 
 /** Mount only for players on the current leaderboard page. */
 export function useSeasonLastPlayed(username: string, event: Event, chartState: SeasonChartsState, status: SeasonStatus) {
-  const { songhashes, isLoading: chartsLoading, error: chartsError } = chartState;
+  const { items, songhashes, isLoading: chartsLoading, error: chartsError } = chartState;
   const query = useMemo<RecentQuery | undefined>(() => {
-    if (chartsLoading || chartsError || !songhashes || !event.season) return undefined;
+    if (chartsLoading || chartsError || !songhashes) return undefined;
     try {
       const { startTime, endTime } = buildSeasonRankingRequest(event, songhashes);
-      return { chartIds: event.season.charts.map(parseSeasonChart), songhashes, startTime, endTime };
+      return { chartIds: items.map(item => item.id), songhashes, startTime, endTime };
     } catch {
       return undefined;
     }
-  }, [event, songhashes, chartsLoading, chartsError]);
+  }, [event, items, songhashes, chartsLoading, chartsError]);
   const key: RecentKey | null = status !== 'upcoming' && query && username
     ? ['season-last-played', endpoints.account.recent(encodeURIComponent(username)), event.id, query, status]
     : null;
