@@ -1,5 +1,17 @@
 [
   {
+    "id": "oto-mai-gassen",
+    "type": "space",
+    "asset": "音MAI合战 (OTO-MAI-GASSEN)",
+    "src": "/events/oto-mai-gassen.png",
+    "alt": "音MAI合战 (OTO-MAI-GASSEN)",
+    "title": "音MAI合战 (OTO-MAI-GASSEN)",
+    "category": 4,
+    "createDate": "2026-9-14",
+    "endDate": "2026-10-31",
+    "description": "以鬼畜音MAD为主题的MAIMAI自制谱面展示活动"
+  },
+  {
     "id": "ffmc-re",
     "type": "season",
     "asset": "69f3ace2bb1f42b84457a4f9",
