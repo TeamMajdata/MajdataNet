@@ -278,6 +278,18 @@
   "shared/LanguageSelector": {
     "Language": "언어"
   },
+  "shared/Live2DMascot": {
+    "Name": "샤오샤오란바이",
+    "Poke": "샤오샤오란바이 콕 찌르기",
+    "DismissDialogue": "대사 닫기",
+    "MoveHint": "드래그하거나 방향키로 움직일 수 있어요",
+    "Shy1": "앗, 들켰네.",
+    "Shy2": "자꾸 찌르면 부끄러워져.",
+    "Encourage1": "오늘도 즐겁게 플레이해!",
+    "Encourage2": "다음 판은 AP 하길!",
+    "Cry1": "살살 해 줘……",
+    "Cry2": "우우, 잠깐만 쉬게 해 줘."
+  },
   "shared/MMFCScoreCount": {
     "FailedToLoad": "불러오기에 실패했습니다",
     "NoMMFCRankingData": "랭킹 데이터가 없습니다. 먼저 참가자를 추가하세요"

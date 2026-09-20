@@ -1,0 +1,52 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "xiaoxiaolanbai.moc3",
+    "Textures": [
+      "textures/texture_00.png",
+      "textures/texture_01.png"
+    ],
+    "Physics": "physics3.json",
+    "Motions": {
+      "Idle": [
+        {
+          "File": "motions/idle.motion3.json",
+          "FadeInTime": 0.5,
+          "FadeOutTime": 0.5
+        }
+      ],
+      "TapBody": [
+        {
+          "File": "motions/shy.motion3.json",
+          "FadeInTime": 0.25,
+          "FadeOutTime": 0.35
+        },
+        {
+          "File": "motions/encourage.motion3.json",
+          "FadeInTime": 0.25,
+          "FadeOutTime": 0.35
+        },
+        {
+          "File": "motions/cry.motion3.json",
+          "FadeInTime": 0.25,
+          "FadeOutTime": 0.35
+        }
+      ]
+    }
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "EyeBlink",
+      "Ids": [
+        "ParamEyeLOpen",
+        "ParamEyeROpen"
+      ]
+    },
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": []
+    }
+  ]
+}
