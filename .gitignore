@@ -23,7 +23,3 @@ dist-ssr
 *.sw?
 /.vs
 .claude/
-
-# Browser acceptance artifacts
-playwright-report/
-test-results*/
