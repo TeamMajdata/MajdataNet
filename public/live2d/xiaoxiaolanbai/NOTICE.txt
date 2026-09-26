@@ -1,0 +1,18 @@
+小小蓝白 Live2D 网站资源副本
+
+来源：用户提供的 VTube Studio 模型目录。
+用途：MMFC 非商业同人赛事站首页看板娘。
+授权：项目维护者已确认可以在网页中公开加载并随前端分发。
+
+本目录只包含网站运行所需的模型、物理、纹理和动作文件。原始模型目录未被修改。
+Live2D Cubism SDK 的使用另受 Live2D Proprietary Software License 约束：
+https://www.live2d.com/eula/live2d-proprietary-software-license-agreement_en.html
+
+l2d runtime adapter:
+Copyright (c) 2025 Hacxy, MIT License
+https://github.com/hacxy/l2d
+
+MajdataNet 资源副本说明：
+本目录模型、物理、纹理和动作文件复制自 mmfc_frontend/public/live2d/xiaoxiaolanbai。
+上面的来源、用途与授权说明保留自 MMFC 副本，不代表模型采用开放授权。
+应项目维护者要求，本副本用于 MajdataNet 的装饰看板娘与本地戳一戳互动，不提供答疑服务。
