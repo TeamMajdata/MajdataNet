@@ -1,5 +1,17 @@
 [
   {
+    "id": "LSP2",
+    "type": "space",
+    "asset": "LSP2",
+    "src": "/events/LSP2.jpg",
+    "alt": "LSP2",
+    "title": "LSP2",
+    "category": 4,
+    "createDate": "2026-09-30",
+    "endDate": "2026-11-10",
+    "description": "Love SymPhony 2"
+  },
+  {
     "id": "oto-mai-gassen",
     "type": "space",
     "asset": "音MAI合战 (OTO-MAI-GASSEN)",
