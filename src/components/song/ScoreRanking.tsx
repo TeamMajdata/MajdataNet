@@ -232,8 +232,8 @@ function RankingCard({
                 group-hover:scale-105
                 ${rank <= 3 ? topThreeAvatarClass : 'border-white/20 group-hover:border-white/40'}
               `}
-              src={endpoints.account.icon(score.player.username)}
-              alt={score.player.username}
+              src={score.player.avatarId ? endpoints.account.avatar(score.player.avatarId) : endpoints.account.icon(score.player.username)}
+              alt={score.player.nickname || score.player.username}
             />
           </div>
 
@@ -247,7 +247,7 @@ function RankingCard({
                 ${rank <= 3 ? 'text-white' : 'text-white/90'}
               `}
             >
-              {score.player.username}
+              {score.player.nickname || score.player.username}
             </span>
             {rank <= 3 && (
               <span className="font-medium text-[10px] text-white/50">

@@ -8,12 +8,12 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { endpoints } from '@/config/api';
 import { useI18n, useUserContext } from '@/hooks';
-import { getDisplayMessage, sleep } from '@/utils';
+import { getDisplayMessage } from '@/utils';
 import { LoadingSpinner } from '@/components';
 
 export default function AvatarUploader() {
   const { i18n } = useI18n();
-  const { user, isLoading: userLoading } = useUserContext();
+  const { user, refetch, isLoading: userLoading } = useUserContext();
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -74,14 +74,14 @@ export default function AvatarUploader() {
 
     setIsUploading(true);
     const formData = new FormData();
-    formData.append('pic', selectedFile);
+    formData.append('avatar', selectedFile);
 
     const uploading = toast.loading(i18n("user/AvatarUploader.Uploading"), {
       hideProgressBar: false,
     });
 
     try {
-      const response = await axios.post(endpoints.account.uploadIcon, formData, {
+      const response = await axios.post(endpoints.account.updateProfile, formData, {
         onUploadProgress: function (progressEvent) {
           if (progressEvent.total && progressEvent.lengthComputable) {
             const progress = progressEvent.loaded / progressEvent.total;
@@ -92,8 +92,10 @@ export default function AvatarUploader() {
       });
 
       toast.success(getDisplayMessage(response.data, i18n("user/AvatarUploader.UploadSuccess", '上传成功')));
-      await sleep(2000);
-      window.location.reload();
+      await refetch();
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (e: unknown) {
       const error = e as { response?: { data?: unknown; status?: number; statusText?: string }; message?: string };
       const fallbackMessage = error.response?.status
@@ -105,7 +107,7 @@ export default function AvatarUploader() {
       toast.done(uploading);
       setIsUploading(false);
     }
-  }, [selectedFile, i18n]);
+  }, [selectedFile, i18n, refetch]);
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null);
@@ -124,7 +126,7 @@ export default function AvatarUploader() {
     return <div className="flex justify-center items-center py-12"><LoadingSpinner size="50px" /></div>;
   }
 
-  const currentAvatarUrl = endpoints.account.icon(user.username);
+  const currentAvatarUrl = user.avatarId ? endpoints.account.avatar(user.avatarId) : endpoints.account.icon(user.username);
   const previewAvatarUrl = previewUrl || currentAvatarUrl;
 
   return (

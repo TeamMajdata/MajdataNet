@@ -2,12 +2,11 @@ import { endpoints } from '@/config/api';
 import useSWR from 'swr';
 import { useI18n } from '@/hooks';
 import { LoadingSpinner } from '@/components';
-import type { ScoreCardProps, ScoreCountProps, ScoreData } from '@/types';
+import type { ScoreCardProps, ScoreCountProps, ScoreSumResponse } from '@/types';
 import { Link } from 'react-router-dom';
 
 
-const fetcher = (url: string) =>
-  fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
+import { apiFetcher as fetcher } from '@/utils/apiClient';
 
 /**
  * 分数统计组件
@@ -16,11 +15,13 @@ const fetcher = (url: string) =>
 export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreCountProps) {
   const { i18n } = useI18n();
 
-  const { data, error, isLoading } = useSWR<ScoreData[]>(
+  const { data: response, error, isLoading } = useSWR<ScoreSumResponse>(
     endpoints.stats.scoreSums(uploader, page, pageSize),
     fetcher,
     { refreshInterval: 30000 } // 每30秒刷新一次
   );
+
+  const data = response?.players;
 
   if (error) {
     return <div>{i18n("shared/ScoreCount.FailedToLoad", '加载失败')}</div>;
@@ -36,7 +37,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
     return <div className="py-8 text-center">{i18n("shared/ScoreCount.EmptyData", '空的')}</div>;
   }
 
-  const maxScore = data[0].dxAccSum;
+  const maxScore = data[0].acc.dx;
 
   return (
     <div
@@ -51,9 +52,9 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
         {data.map((player, index) => (
           <ScoreCard
             key={player.username}
-            rank={index + 1}
+            rank={page * pageSize + index + 1}
             username={player.username}
-            scoresum={player.dxAccSum}
+            scoresum={player.acc.dx}
             maxscore={maxScore}
           />
         ))}
@@ -124,7 +125,7 @@ export function ScoreCard({ rank, username, scoresum, maxscore, footer }: ScoreC
                 borderColor: isFirst ? 'rgba(255, 215, 0, 0.6)' : 'rgb(255 255 255 / 20%)',
                 aspectRatio: '1',
               }}
-              src={endpoints.account.icon(encodeURIComponent(username))}
+              src={endpoints.account.icon(username)}
               alt={username}
             />
           </div>

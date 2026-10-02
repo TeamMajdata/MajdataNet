@@ -16,10 +16,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setError(null);
 
     try {
-      const response = await fetch(endpoints.account.info, {
+      const response = await fetch(endpoints.account.profile(), {
         mode: 'cors',
         credentials: 'include',
       });
+
+      if (response.status === 401) {
+        setUser(null);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

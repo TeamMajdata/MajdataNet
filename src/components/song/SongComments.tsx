@@ -1043,7 +1043,7 @@ export function CommentList({ songid }: CommentListProps) {
 
     const formData = new FormData();
     formData.set('type', 'comment');
-    formData.set('commentId', comment.id);
+    formData.set('comment-id', comment.id);
 
     setPendingAction(comment.id);
 
