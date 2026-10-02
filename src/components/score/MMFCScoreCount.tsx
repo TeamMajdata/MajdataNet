@@ -2,12 +2,11 @@ import { endpoints } from '@/config/api';
 import useSWR from 'swr';
 import { useI18n } from '@/hooks';
 import { LoadingSpinner } from '@/components';
-import type { ScoreData } from '@/types';
+import type { ScoreSumResponse } from '@/types';
 import mmfcParticipants from '@/assets/data/mmfc-participants.json';
 import { Link } from 'react-router-dom';
 
-const fetcher = (url: string) =>
-  fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
+import { apiFetcher as fetcher } from '@/utils/apiClient';
 
 /**
  * MMFC打榜排名组件
@@ -17,11 +16,13 @@ export default function MMFCScoreCount() {
   const { i18n } = useI18n();
 
   // 获取 mmfc_bot 用户的分数总和数据
-  const { data, error, isLoading } = useSWR<ScoreData[]>(
+  const { data: response, error, isLoading } = useSWR<ScoreSumResponse>(
     endpoints.stats.scoreSums('mmfc_bot', 0, 1000),
     fetcher,
     { refreshInterval: 30000 } // 每30秒刷新一次
   );
+
+  const data = response?.players;
 
   if (error) {
     return (
@@ -54,7 +55,7 @@ export default function MMFCScoreCount() {
   const filteredData = data.filter(p => participantsList.includes(p.username));
 
   // 按分数降序排序
-  const sortedData = filteredData.sort((a, b) => b.dxAccSum - a.dxAccSum);
+  const sortedData = filteredData.sort((a, b) => b.acc.dx - a.acc.dx);
 
   if (sortedData.length === 0) {
     return (
@@ -77,7 +78,7 @@ export default function MMFCScoreCount() {
             key={player.username}
             rank={index + 1}
             username={player.username}
-            scoresum={player.dxAccSum}
+            scoresum={player.acc.dx}
           />
         ))}
       </div>

@@ -26,17 +26,17 @@ export const endpoints = {
     diff: `${apiroot3}/account/favorite/collection/diff`,
   },
   account: {
-    info: `${apiroot3}/account/info/`,
+    profile: (username?: string) => `${apiroot3}/account/profile${username ? `?username=${encodeURIComponent(username)}` : ''}`,
+    updateProfile: `${apiroot3}/account/profile`,
     login: `${apiroot3}/account/Login`,
     logout: `${apiroot3}/account/Logout`,
     register: `${apiroot3}/account/Register`,
-    verify: (otp: string) => `${apiroot3}/account/verify?otp=${otp}`,
-    forget: `${apiroot3}/account/forget`,
-    icon: (username: string) => `${apiroot3}/account/Icon?username=${username}`,
-    uploadIcon: `${apiroot3}/account/Icon`,
-    intro: (username: string) => `${apiroot3}/account/intro?username=${username}`,
-    uploadIntro: `${apiroot3}/account/intro`,
-    recent: (username: string) => `${apiroot3}/account/Recent?username=${username}`,
+    emailChallenge: `${apiroot3}/challenge/email`,
+    passwordResetRequest: (email: string) => `${apiroot3}/account/password-reset/request?email=${encodeURIComponent(email)}`,
+    passwordResetConfirm: `${apiroot3}/account/password-reset/confirm`,
+    icon: (username: string) => `${apiroot3}/account/icon?username=${encodeURIComponent(username)}`,
+    avatar: (avatarId: string) => `${apiroot3}/avatar/${encodeURIComponent(avatarId)}`,
+    recent: (username: string) => `${apiroot3}/account/recent?username=${encodeURIComponent(username)}`,
     scores: `${apiroot3}/account/scores`,
   },
   maichart: {
@@ -59,12 +59,13 @@ export const endpoints = {
   },
   stats: {
     scoreSums: (uploader: string, page: number, pageSize: number) =>
-      `${apiroot3}/stats/score-sums?uploader=${encodeURIComponent(uploader)}&page=${page}&pageSize=${pageSize}`,
+      uploader
+        ? `${apiroot3}/stats/score-sums?uploader=${encodeURIComponent(uploader)}&page=${page}&pageSize=${pageSize}`
+        : `${apiroot3}/maiscore/sum/all?page=${page}&pageSize=${pageSize}`,
   },
   machine: {
-    authInfo: (authId: string) => `${apiroot3}/machine/auth/info?auth-id=${authId}`,
-    authPermit: (authId: string) => `${apiroot3}/machine/auth/permit?auth-id=${authId}`,
+    authInfo: (authId: string) => `${apiroot3}/machine/auth/info?auth-id=${encodeURIComponent(authId)}`,
+    authPermit: (authId: string) => `${apiroot3}/machine/auth/permit?auth-id=${encodeURIComponent(authId)}`,
   }
 };
-
 

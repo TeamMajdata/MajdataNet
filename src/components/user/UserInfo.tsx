@@ -31,10 +31,10 @@ export default function UserInfo() {
       <Link to="/user">
         <img
           className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
-          src={endpoints.account.icon(user.username)}
-          alt={user.username}
+          src={user.avatarId ? endpoints.account.avatar(user.avatarId) : endpoints.account.icon(user.username)}
+          alt={user.nickname || user.username}
         />
-        {user.username}
+        {user.nickname || user.username}
       </Link>
     </div>
   );

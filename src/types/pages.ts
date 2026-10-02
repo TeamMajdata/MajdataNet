@@ -7,8 +7,10 @@ import type React from 'react';
 // ======================== 个人空间页面 ========================
 export interface IntroductionData {
   username: string;
+  nickname: string;
+  avatarId: string;
   joinDate: string;
-  introduction?: string;
+  introduction?: string | null;
 }
 
 // ======================== 排行榜页面 ========================
