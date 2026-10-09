@@ -1,5 +1,17 @@
 [
   {
+    "id": "LVR2",
+    "type": "space",
+    "asset": "LVR",
+    "src": "/events/LVR2.jpg",
+    "alt": "LVR2",
+    "title": "LVR2",
+    "category": 4,
+    "createDate": "2026-10-01",
+    "endDate": "2026-11-16",
+    "description": "塔杯 BOF(U)/G2R 2008-2018参赛曲目纳入。"
+  },
+  {
     "id": "LSP2",
     "type": "space",
     "asset": "LSP2",
