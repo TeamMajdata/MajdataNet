@@ -541,5 +541,21 @@
     "TotalClassicAcc": "Classic准确率合计",
     "TotalDxAcc": "DX准确率合计",
     "TotalDxScore": "DX分数合计"
+  },
+  "song/ChartRadar": {
+    "Title": "谱面雷达",
+    "NoDifficulty": "暂无可用难度",
+    "Unavailable": "该难度暂无雷达数据",
+    "AnalysisFailed": "该难度暂时无法分析",
+    "LoadFailed": "雷达加载失败",
+    "Loading": "正在分析谱面…",
+    "Retry": "重试",
+    "AxisNote": "物量",
+    "AxisPeak": "爆发",
+    "AxisSweep": "扫键",
+    "AxisSlideTricky": "错位",
+    "AxisSlideSequence": "星星阵",
+    "AxisJack": "纵连",
+    "FittedConstant": "拟合定数"
   }
 }

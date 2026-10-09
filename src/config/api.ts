@@ -48,6 +48,7 @@ export const endpoints = {
     hashStatus: (hash: string) => `${apiroot3}/maichart/hash-status?hash=${encodeURIComponent(hash)}`,
     delete: (chartId: string) => `${apiroot3}/maichart/delete?chartId=${chartId}`,
     summary: (id: string | number) => `${apiroot3}/maichart/${id}/summary`,
+    radar: (id: string, chartLevel: number) => `${apiroot3}/maichart/${encodeURIComponent(id)}/radar?chartLevel=${chartLevel}`,
     image: (id: string | number) => `${apiroot3}/maichart/${id}/image`,
     fullImage: (id: string | number) => `${apiroot3}/maichart/${id}/image?fullImage=true`,
     interact: (id: string | number) => `${apiroot3}/maichart/${id}/interact`,

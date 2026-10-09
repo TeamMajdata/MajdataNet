@@ -541,5 +541,21 @@
     "TotalClassicAcc": "Classic准确率合计",
     "TotalDxAcc": "DX准确率合计",
     "TotalDxScore": "DX分数合计"
+  },
+  "song/ChartRadar": {
+    "Title": "譜面レーダー",
+    "NoDifficulty": "利用可能な難易度がありません",
+    "Unavailable": "この難易度のレーダーデータはありません",
+    "AnalysisFailed": "この難易度を解析できませんでした",
+    "LoadFailed": "レーダーを読み込めませんでした",
+    "Loading": "譜面を解析中…",
+    "Retry": "再試行",
+    "AxisNote": "物量",
+    "AxisPeak": "発狂",
+    "AxisSweep": "回転",
+    "AxisSlideTricky": "ウミユリ",
+    "AxisSlideSequence": "スライド",
+    "AxisJack": "縦連",
+    "FittedConstant": "推定定数"
   }
 }

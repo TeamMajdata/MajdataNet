@@ -541,5 +541,21 @@
     "TotalClassicAcc": "Classic准确率合计",
     "TotalDxAcc": "DX准确率合计",
     "TotalDxScore": "DX分数合计"
+  },
+  "song/ChartRadar": {
+    "Title": "Chart radar",
+    "NoDifficulty": "No chart difficulty available",
+    "Unavailable": "Radar data is not available for this difficulty",
+    "AnalysisFailed": "This difficulty could not be analyzed",
+    "LoadFailed": "Could not load radar",
+    "Loading": "Analyzing chart…",
+    "Retry": "Retry",
+    "AxisNote": "Note",
+    "AxisPeak": "Peak",
+    "AxisSweep": "Swipe",
+    "AxisSlideTricky": "Umiyuri",
+    "AxisSlideSequence": "Slide",
+    "AxisJack": "Jack",
+    "FittedConstant": "esti"
   }
 }

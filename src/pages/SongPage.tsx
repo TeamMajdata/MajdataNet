@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, type MouseEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { endpoints } from '@/config/api';
@@ -22,6 +22,9 @@ import {
 import { downloadSong } from '@/utils/download';
 import { stripTmpTags } from '@/utils';
 import { parseTmpRichText } from '@/utils/richTextUtils';
+import { getDefaultChartLevel } from '@/utils/radar';
+import ChartRadar from '@/components/song/ChartRadar';
+import '@/styles/components/song-radar.css';
 import type { SongDetailsContainerProps, SongSummary } from '@/types';
 
 export default function SongPage() {
@@ -133,8 +136,21 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
   const tagButtonRef = useRef<any>(null);
   const [isLoadMajdata, setIsLoadMajdata] = useState(false);
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
+  const [radarSelection, setRadarSelection] = useState<{ id: string; hash: string; level: number }>();
+  const chartLevel = radarSelection?.id === data.id && radarSelection.hash === data.hash
+    && data.levels[radarSelection.level]?.trim()
+    ? radarSelection.level : getDefaultChartLevel(data.levels);
 
   const o = data;
+
+  const handleDifficultyClick = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target instanceof Element ? event.target.closest('[id^="lv"]') : null;
+    if (!target || !event.currentTarget.contains(target)) return;
+    const match = /^lv([0-6])$/.exec(target.id);
+    if (!match) return;
+    const level = Number(match[1]);
+    if (o.levels[level]?.trim()) setRadarSelection({ id: o.id, hash: o.hash, level });
+  };
 
   const OnDownloadClick = (params: { id: string; title: string }) => async () => {
     await downloadSong({ id: params.id, title: params.title, toast: toast });
@@ -194,7 +210,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
             </Tooltip>
           </div>
 
-          <div className="flex flex-col items-start gap-3">
+          <div className="song-radar-difficulties flex flex-col items-start gap-3" data-radar-level={chartLevel} onClickCapture={handleDifficultyClick}>
             <h3 className="m-0 font-bold text-white text-sm uppercase tracking-[0.05em]">All Difficulties</h3>
             <SongDifficultyLevels
               levels={o.levels}
@@ -373,6 +389,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
 
             <LikeSender songid={o.id} />
           </div>
+          <ChartRadar id={o.id} hash={o.hash} chartLevel={chartLevel} />
         </aside>
 
         <main className="flex flex-col gap-8">
