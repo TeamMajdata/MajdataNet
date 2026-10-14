@@ -5,6 +5,10 @@ export const endpoints = {
   playhistory: {
     ranking: `${apiroot3}/playhistory/ranking`,
   },
+  recommend: {
+    feed: (page: number, pageSize: number) => `${apiroot3}/recommend/feed?page=${page}&pageSize=${pageSize}`,
+    impressions: `${apiroot3}/recommend/impressions`,
+  },
   // 歌单 CRUD
   collection: {
     list: (page: number, pageSize: number, createdBy: string = '', keyword: string = '') => {

@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad, Tooltip } from '@/components';
 import { endpoints } from '@/config/api';
+import { useImpressionRef } from '@/hooks/useImpressionRef';
 import { downloadSong } from '@/utils/download';
 import { stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
 import type { Song } from '@/types';
@@ -24,6 +25,9 @@ interface SongCardProps {
 }
 
 const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page, disableLink, onClick }: SongCardProps) {
+  // 只在 ImpressionScope 内生效，其他列表中为空操作
+  const impressionRef = useImpressionRef(song.hash);
+
   const savePosition = useCallback(() => {
     if (page == null) return;
     localStorage.setItem('lastclickid', song.id);
@@ -48,6 +52,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page
 
   return (
     <div
+      ref={impressionRef}
       id={song.id}
       onClick={handleClick}
       className="flex justify-center w-full min-w-0"
