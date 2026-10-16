@@ -278,6 +278,18 @@
   "shared/LanguageSelector": {
     "Language": "言語"
   },
+  "shared/Live2DMascot": {
+    "Name": "小小蓝白",
+    "Poke": "小小蓝白をつつく",
+    "DismissDialogue": "セリフを閉じる",
+    "MoveHint": "ドラッグか矢印キーで移動できます",
+    "Shy1": "あっ、見つかっちゃった。",
+    "Shy2": "そんなにつつくと照れちゃうよ。",
+    "Encourage1": "今日も楽しく遊んでね！",
+    "Encourage2": "次のプレイで AP が出ますように！",
+    "Cry1": "もう少しやさしくしてね……",
+    "Cry2": "うぅ、ちょっとひと息つかせて。"
+  },
   "shared/MMFCScoreCount": {
     "FailedToLoad": "読み込みに失敗しました",
     "NoMMFCRankingData": "ランキングデータがありません。まず参加者を追加してください"

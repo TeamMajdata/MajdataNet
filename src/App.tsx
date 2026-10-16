@@ -24,6 +24,7 @@ import QRAuthPage from './pages/QRAuthPage';
 import NotFoundPage from './pages/NotFoundPage';
 import CollectionsHirobaPage from './pages/collection/HirobaPage';
 import CollectionPage from './pages/collection/CollectionPage';
+import Live2DMascot from './components/mascot/Live2DMascot';
 
 function ExternalRedirect({ to }: { to: string }) {
   useEffect(() => {
@@ -87,6 +88,7 @@ function App() {
                   <Route path="/qrauth" element={<QRAuthPage />} />
                 </Route>
               </Routes>
+              <Live2DMascot />
             </Router>
           </UserProvider>
         </I18nProvider>
