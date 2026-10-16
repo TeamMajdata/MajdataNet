@@ -1,4 +1,16 @@
 [
+    {
+    "id": "hajicup2.5",
+    "type": "space",
+    "asset": "哈基杯",
+    "src": "/events/hajibei2.5.png",
+    "alt": "Hajibei2.5",
+    "title": "哈基杯之狐狸在我们之中",
+    "category": 4,
+    "createDate": "2026-10-11",
+    "endDate": "2026-11-12",
+    "description": "哈基杯之狐狸在我们之中"
+  },
   {
     "id": "LVR2",
     "type": "space",
@@ -707,4 +719,5 @@
     "endDate": "2025-10-07",
     "description": "Project「異色の月」"
   }
+  
 ]
