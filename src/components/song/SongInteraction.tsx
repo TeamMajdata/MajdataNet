@@ -42,6 +42,8 @@ export function LikeSender({ songid }: LikeSenderProps) {
     if (type === 'like' && isLikeLoading) return;
     if (type === 'dislike' && isDislikeLoading) return;
 
+    // 后端 POST 只添加，取消要用 DELETE
+    const isCancel = type === 'like' ? data.isLiked : data.isDisLiked;
     const formData = new FormData();
     formData.set('type', type);
     formData.set('content', type);
@@ -58,22 +60,16 @@ export function LikeSender({ songid }: LikeSenderProps) {
       const response = await fetch(
         endpoints.maichart.interact(songid),
         {
-          method: 'POST',
+          method: isCancel ? 'DELETE' : 'POST',
           body: formData,
           mode: 'cors',
           credentials: 'include',
         }
       );
       if (response.status === 200) {
-        if (type === 'like') {
-          toast.success(
-            data.isLiked ? i18n("song/SongInteraction.CancelSuccess") : name + i18n("song/SongInteraction.Success")
-          );
-        } else {
-          toast.success(
-            data.isDisLiked ? i18n("song/SongInteraction.CancelSuccess") : name + i18n("song/SongInteraction.Success")
-          );
-        }
+        toast.success(
+          isCancel ? i18n("song/SongInteraction.CancelSuccess") : name + i18n("song/SongInteraction.Success")
+        );
 
         mutate();
       } else if (response.status === 400) {
