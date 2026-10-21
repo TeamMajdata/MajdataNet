@@ -278,6 +278,18 @@
   "shared/LanguageSelector": {
     "Language": "Language"
   },
+  "shared/Live2DMascot": {
+    "Name": "Xiaoxiao Lanbai",
+    "Poke": "Poke Xiaoxiao Lanbai",
+    "DismissDialogue": "Dismiss dialogue",
+    "MoveHint": "Drag to move, or use the arrow keys",
+    "Shy1": "Hey, you found me!",
+    "Shy2": "Keep poking and I'll get shy.",
+    "Encourage1": "Have fun playing today!",
+    "Encourage2": "Here's to an AP on your next try!",
+    "Cry1": "Be gentle…",
+    "Cry2": "Aw, let me catch my breath."
+  },
   "shared/MMFCScoreCount": {
     "FailedToLoad": "Failed to load",
     "NoMMFCRankingData": "No ranking data available. Please add participants first"

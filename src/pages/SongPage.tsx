@@ -119,8 +119,9 @@ export default function SongPage() {
 }
 
 function SongDetailsContainer({ id, data }: SongDetailsContainerProps & { data: SongSummary }) {
+  // Blur only the background, leaving the player's z-index in the page's stacking context.
   return (
-      <div className="bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] backdrop-blur-xl backdrop-saturate-160 rounded-xl min-w-0 transition-all">
+      <div className="relative bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] rounded-xl min-w-0 transition-all before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-xl before:backdrop-saturate-160 before:pointer-events-none before:content-['']">
       <SongInfo id={id} data={data} />
     </div>
   );
@@ -420,7 +421,7 @@ function MajdataView({ data }: { id: string; data: SongSummary }) {
   }
 
   return (
-    <div className="w-full">
+    <div className="relative z-100 w-full">
       <Majdata songid={o.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + firstNonEmptyIndex} />
     </div>
   );

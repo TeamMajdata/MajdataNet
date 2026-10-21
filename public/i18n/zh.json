@@ -278,6 +278,18 @@
   "shared/LanguageSelector": {
     "Language": "语言"
   },
+  "shared/Live2DMascot": {
+    "Name": "小小蓝白",
+    "Poke": "戳一戳小小蓝白",
+    "DismissDialogue": "关闭对白",
+    "MoveHint": "拖动可移动，方向键也可以",
+    "Shy1": "嘿，被你发现啦。",
+    "Shy2": "再戳就要害羞啦。",
+    "Encourage1": "今天也要玩得开心呀！",
+    "Encourage2": "祝你下一把 AP！",
+    "Cry1": "轻一点嘛……",
+    "Cry2": "呜，先让我缓一缓。"
+  },
   "shared/MMFCScoreCount": {
     "FailedToLoad": "加载失败",
     "NoMMFCRankingData": "暂无打榜数据，请先添加参与者"
