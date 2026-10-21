@@ -1,4 +1,40 @@
 [
+    {
+    "id": "hajicup2.5",
+    "type": "space",
+    "asset": "哈基杯",
+    "src": "/events/hajibei2.5.png",
+    "alt": "Hajibei2.5",
+    "title": "哈基杯之狐狸在我们之中",
+    "category": 4,
+    "createDate": "2026-10-11",
+    "endDate": "2026-11-12",
+    "description": "哈基杯之狐狸在我们之中"
+  },
+  {
+    "id": "LVR2",
+    "type": "space",
+    "asset": "LVR",
+    "src": "/events/LVR2.jpg",
+    "alt": "LVR2",
+    "title": "LVR2",
+    "category": 4,
+    "createDate": "2026-10-01",
+    "endDate": "2026-11-16",
+    "description": "塔杯 BOF(U)/G2R 2008-2018参赛曲目纳入。"
+  },
+  {
+    "id": "LSP2",
+    "type": "space",
+    "asset": "LSP2",
+    "src": "/events/LSP2.jpg",
+    "alt": "LSP2",
+    "title": "LSP2",
+    "category": 4,
+    "createDate": "2026-09-30",
+    "endDate": "2026-11-10",
+    "description": "Love SymPhony 2"
+  },
   {
     "id": "oto-mai-gassen",
     "type": "space",
@@ -683,4 +719,5 @@
     "endDate": "2025-10-07",
     "description": "Project「異色の月」"
   }
+  
 ]
