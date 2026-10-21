@@ -1,5 +1,17 @@
 [
-    {
+  {
+    "id": "shuangyucup2",
+    "type": "space",
+    "asset": "双鱼杯2nd",
+    "src": "/events/shuangyucup2.jpg",
+    "alt": "双鱼杯 2nd",
+    "title": "双鱼杯 2nd",
+    "category": 1,
+    "createDate": "2026-09-01",
+    "endDate": "2026-10-31",
+    "description": "复旦大学第二届校内舞萌自制谱比赛“双鱼杯”。双鱼杯是在我校音游社团拥有社团印象曲后的企划，赛事以娱乐为主，目前仅允许校内同学及毕业生参赛，欢迎对写谱有想法的玩家报名参赛。"
+  },
+  {
     "id": "hajicup2.5",
     "type": "space",
     "asset": "哈基杯",
@@ -719,5 +731,4 @@
     "endDate": "2025-10-07",
     "description": "Project「異色の月」"
   }
-  
 ]
