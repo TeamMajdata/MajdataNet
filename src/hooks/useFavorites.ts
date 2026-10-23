@@ -7,9 +7,14 @@ import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import { endpoints } from '@/config/api';
 import { useI18n, useUserContext } from '@/hooks';
-import type { Collection } from '@/types';
+import type { Collection, CollectionDanInfo } from '@/types';
 
-const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
+import { apiRequest } from '@/utils/apiClient';
+
+export async function fetchFavoriteCollections(url: string): Promise<Collection[]> {
+  const collections = await apiRequest<CollectionDanInfo[]>(url);
+  return collections.map(collection => ({ ...collection, count: collection.songHashs.length }));
+}
 
 export function useFavorites() {
   const { i18n } = useI18n();
@@ -18,7 +23,7 @@ export function useFavorites() {
 
   const { data, isLoading, mutate } = useSWR<Collection[]>(
     user ? endpoints.favorite.list : null,
-    fetcher,
+    fetchFavoriteCollections,
     { revalidateOnFocus: false }
   );
 

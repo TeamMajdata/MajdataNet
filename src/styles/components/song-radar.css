@@ -1,0 +1,11 @@
+/* Keep selection styling local to the song page; difficulty props stay unchanged. */
+.song-radar-difficulties[data-radar-level="0"] #lv0,
+.song-radar-difficulties[data-radar-level="1"] #lv1,
+.song-radar-difficulties[data-radar-level="2"] #lv2,
+.song-radar-difficulties[data-radar-level="3"] #lv3,
+.song-radar-difficulties[data-radar-level="4"] #lv4,
+.song-radar-difficulties[data-radar-level="5"] #lv5,
+.song-radar-difficulties[data-radar-level="6"] #lv6 {
+  outline: 2px solid rgb(255 255 255 / 80%);
+  outline-offset: 2px;
+}

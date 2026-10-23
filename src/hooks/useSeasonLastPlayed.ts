@@ -48,7 +48,7 @@ export function useSeasonLastPlayed(username: string, event: Event, chartState: 
     }
   }, [event, items, songhashes, chartsLoading, chartsError]);
   const key: RecentKey | null = status !== 'upcoming' && query && username
-    ? ['season-last-played', endpoints.account.recent(encodeURIComponent(username)), event.id, query, status]
+    ? ['season-last-played', endpoints.account.recent(username), event.id, query, status]
     : null;
   const { data, error, isLoading } = useSWR<RecentResult, Error>(key, fetchLastPlayed, {
     revalidateOnMount: true,

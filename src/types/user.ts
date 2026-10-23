@@ -1,10 +1,10 @@
-/**
- * 用户相关类型定义
- */
-
-// 用户信息接口
+/** Public profiles omit email for other users. */
 export interface UserInfo {
+  id?: string;
   username: string;
-  email?: string;
-  // 根据实际API返回添加更多字段
+  nickname?: string;
+  email?: string | null;
+  introduction?: string | null;
+  avatarId?: string;
+  joinDate?: string;
 }

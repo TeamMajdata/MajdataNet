@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useI18n } from '@/hooks';
+import { useI18n, useUserContext } from '@/hooks';
 import { handleLogout as logoutUtil } from '@/utils';
 import { endpoints } from '@/config/api';
 import { DIVIDER } from './styles';
@@ -15,6 +15,7 @@ interface UserMenuProps {
  */
 export default function UserMenu({ username }: UserMenuProps) {
   const { i18n } = useI18n();
+  const { user } = useUserContext();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -46,10 +47,10 @@ export default function UserMenu({ username }: UserMenuProps) {
       >
         <img
           className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 object-cover ${isOpen ? 'border-white/60' : 'border-white/30 hover:border-white/60'}`}
-          src={endpoints.account.icon(username)}
+          src={user?.avatarId ? endpoints.account.avatar(user.avatarId) : endpoints.account.icon(username)}
           alt={username}
         />
-        <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">{username}</span>
+        <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">{user?.nickname || username}</span>
       </button>
 
       <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="right" className="w-[min(18rem,calc(100vw-1.5rem))] md:w-full" containerRef={containerRef}>

@@ -31,8 +31,7 @@ const slideInUp: Variants = {
   }),
 };
 
-const fetcher = async (...args: Parameters<typeof fetch>) =>
-  await fetch(...args).then(async (res) => res.json());
+import { apiFetcher as fetcher } from '@/utils/apiClient';
 
 export default function SpacePage() {
   const { i18n, isReady } = useI18n();
@@ -149,7 +148,7 @@ export default function SpacePage() {
 function Introduction({ username }: { username: string }) {
   const { i18n } = useI18n();
   const { data, error, isLoading } = useSWR<IntroductionData>(
-    endpoints.account.intro(username),
+    endpoints.account.profile(username),
     fetcher
   );
 
@@ -185,14 +184,15 @@ function Introduction({ username }: { username: string }) {
         <div className="shrink-0">
           <img
             className="border-[3px] border-blue-500/50 rounded-full w-30 max-md:w-25 min-w-30 max-md:min-w-25 h-30 max-md:h-25 min-h-30 max-md:min-h-25 object-cover aspect-square"
-            src={endpoints.account.icon(username)}
+            src={endpoints.account.avatar(data.avatarId)}
             alt={username}
           />
         </div>
 
         {/* User Info */}
         <div className="flex-1">
-          <h1 className="mb-2 font-bold text-[2rem] text-gray-200 max-md:text-2xl">{data.username}</h1>
+          <h1 className="mb-2 font-bold text-[2rem] text-gray-200 max-md:text-2xl">{data.nickname || data.username}</h1>
+          <p className="text-gray-400 text-sm">@{data.username}</p>
           <p className="m-0 text-gray-400 text-sm sm:text-base md:text-right text-center break-words">
             {i18n("space/SpacePage.JoinAt", '加入于')} {new Date(data.joinDate).toLocaleString()}
           </p>

@@ -1,21 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
-import 'react-photo-view/dist/react-photo-view.css';
+import { useEffect, useRef, useState, type FormEvent, type InputHTMLAttributes } from 'react';
 import { md5 } from 'js-md5';
-import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useI18n } from '@/hooks';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { endpoints } from '@/config/api';
+import { useI18n, useUserContext } from '@/hooks';
 import { PageLayout } from '@/components';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { ApiError, apiRequest } from '@/utils/apiClient';
 import * as retCode from '@/config/apiRetCode';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useUserContext } from '@/hooks';
-import { AnimatePresence, motion } from 'framer-motion';
 
 type TabType = 'login' | 'register' | 'forget';
-
-const TAB_ORDER: TabType[] = ['login', 'register', 'forget'];
-const AUTH_CARD_CLASSNAME = 'bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-4 sm:p-8 md:p-12 border border-white/10 rounded-[20px]';
+const AUTH_CARD_CLASSNAME = 'bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-4 sm:p-8 border border-white/10 rounded-[20px]';
+const INPUT_CLASSNAME = 'w-full min-w-0 bg-black/60 p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white disabled:opacity-50';
+const BUTTON_CLASSNAME = 'bg-blue-600 hover:bg-blue-700 disabled:opacity-50 p-4 rounded-xl font-semibold text-white cursor-pointer disabled:cursor-not-allowed';
 const TURNSTILE_SITE_KEY = '0x4AAAAAACAEyA1EhHmEDS0o';
 const TURNSTILE_SCRIPT_ID = 'cloudflare-turnstile-script';
 
@@ -41,7 +38,11 @@ function loadTurnstileScript() {
     const script = existingScript ?? document.createElement('script');
 
     const handleLoad = () => resolve();
-    const handleError = () => reject(new Error('Cloudflare Turnstile failed to load'));
+    const handleError = () => {
+      turnstileScriptPromise = null;
+      script.remove();
+      reject(new Error('Cloudflare Turnstile failed to load'));
+    };
 
     script.addEventListener('load', handleLoad, { once: true });
     script.addEventListener('error', handleError, { once: true });
@@ -58,249 +59,237 @@ function loadTurnstileScript() {
   return turnstileScriptPromise;
 }
 
-const tabTransitionVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 64 : -64,
-    opacity: 0,
-    scale: 0.98,
-    filter: 'blur(8px)',
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1,
-    filter: 'blur(0px)',
-  },
-  exit: (direction: number) => ({
-    x: direction > 0 ? -64 : 64,
-    opacity: 0,
-    scale: 0.985,
-    filter: 'blur(8px)',
-  }),
-};
 
 export default function ForginsterPage() {
   const { i18n, isReady } = useI18n();
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
-  const urlOtp = searchParams.get('otp');
-
-  const getInitialTab = (): TabType => {
-    const path = window.location.pathname;
-    if (path === '/login') return 'login';
-    if (path === '/register') return 'register';
-    if (path === '/forget') return 'forget';
-    return 'login';
-  };
-
-  const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
-  const [tabDirection, setTabDirection] = useState(1);
-  const otp = urlOtp;
-
-  const switchTab = (nextTab: TabType) => {
-    if (nextTab === activeTab) return;
-    const currentIndex = TAB_ORDER.indexOf(activeTab);
-    const nextIndex = TAB_ORDER.indexOf(nextTab);
-    setTabDirection(nextIndex > currentIndex ? 1 : -1);
-    setActiveTab(nextTab);
-  };
-
-  // OTP 部分逻辑
-  useEffect(() => {
-    if (isReady && otp !== null) {
-      if (window.location.pathname === '/login') {
-        PostOTP(otp, i18n);
-      } else if (window.location.pathname === '/forget') {
-        // Handle forget tab OTP logic if needed
-      }
-    }
-  }, [isReady, otp, i18n, activeTab]);
-
-  if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
+  const activeTab: TabType = pathname === '/register' ? 'register' : pathname === '/forget' ? 'forget' : 'login';
+  if (!isReady) return <LoadingSpinner size="50px" />;
 
   return (
     <PageLayout className="flex justify-center items-center min-h-[60vh]">
       <div className="mx-auto px-0 sm:px-4 py-4 sm:py-8 w-full max-w-md min-w-0">
-        <div className="flex bg-black/40 mb-4 sm:mb-6 p-1 rounded-xl">
-          <button
-            className={`flex-1 px-2 sm:px-4 py-3 rounded-lg min-w-0 font-medium text-xs sm:text-sm transition-all ${activeTab === 'login'
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-400 hover:text-white'
-              }`}
-            onClick={() => switchTab('login')}
-          >
-            {i18n("auth/ForginsterPage.Login", '登录')}
-          </button>
-          <button
-            className={`flex-1 px-2 sm:px-4 py-3 rounded-lg min-w-0 font-medium text-xs sm:text-sm transition-all ${activeTab === 'register'
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-400 hover:text-white'
-              }`}
-            onClick={() => switchTab('register')}
-          >
-            {i18n("auth/ForginsterPage.Register", '注册')}
-          </button>
-          <button
-            className={`flex-1 px-2 sm:px-4 py-3 rounded-lg min-w-0 font-medium text-xs sm:text-sm transition-all ${activeTab === 'forget'
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-400 hover:text-white'
-              }`}
-            onClick={() => switchTab('forget')}
-          >
-            {i18n("auth/ForginsterPage.ForgetPassword", '找回密码')}
-          </button>
+        <div className="flex bg-black/40 mb-6 p-1 rounded-xl">
+          {(['login', 'register', 'forget'] as const).map(tab => (
+            <button key={tab} type="button" aria-pressed={tab === activeTab}
+              className={`flex-1 py-3 rounded-lg text-sm ${tab === activeTab ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+              onClick={() => {
+                const params = new URLSearchParams(search);
+                params.delete('otp');
+                navigate({ pathname: `/${tab}`, search: params.toString() });
+              }}>
+              {tab === 'login' ? i18n("auth/ForginsterPage.Login") : tab === 'register' ? i18n("auth/ForginsterPage.Register") : i18n("auth/ForginsterPage.ForgetPassword")}
+            </button>
+          ))}
         </div>
-
-        <AnimatePresence mode="wait" initial={false} custom={tabDirection}>
-          <motion.div
-            key={activeTab}
-            custom={tabDirection}
-            variants={tabTransitionVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {activeTab === 'login' && <LoginTab />}
-            {activeTab === 'register' && <RegisterTab />}
-            {activeTab === 'forget' && <ForgetTab otp={otp} />}
-          </motion.div>
-        </AnimatePresence>
+        {searchParams.has('otp') && <p role="status" className="mb-4 text-amber-200 text-sm">{i18n("auth/ForginsterPage.LegacyLink", '邮件链接验证已停用，请重新获取验证码；旧账户激活问题请联系管理员。')}</p>}
+        {activeTab === 'login' ? <LoginTab /> : <ChallengeTab key={activeTab} mode={activeTab} />}
       </div>
     </PageLayout>
   );
 }
 
-async function PostOTP(otp: string, i18n: (key: string, fallback?: string) => string) {
-  const verifyRsp = await fetch(endpoints.account.verify(otp), {
-    method: 'GET',
-    credentials: 'include',
-  });
-  if (verifyRsp.status !== 200) {
-    if (verifyRsp.status === 400) {
-      toast.error(i18n("auth/ForginsterPage.InvalidOTP", '无效的验证码'));
-    } else {
-      toast.error(i18n("auth/ForginsterPage.UnknownError", '未知错误'));
+function Field({ label, name, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; name: string }) {
+  return <label className="flex flex-col gap-2 text-[#e5e5e5] text-sm">
+    <span>{label}</span>
+    <input className={INPUT_CLASSNAME} name={name} {...props} />
+  </label>;
+}
+
+function useAuthError() {
+  const { i18n } = useI18n();
+  return (error: unknown) => {
+    if (!(error instanceof ApiError)) {
+      toast.error(i18n("auth/ForginsterPage.NetworkError", '网络请求失败，请重试'));
+      return;
     }
-  } else {
-    toast.success(i18n("auth/ForginsterPage.AccountActivated", '账户已激活'));
-  }
+    if (error.status === 429) {
+      toast.error(i18n("auth/ForginsterPage.TooManyRequests", '请求过于频繁，请稍后再试'));
+      return;
+    }
+    switch (error.code) {
+      case retCode.CODE_INVALID_EMAIL_ADDRESS: toast.error(i18n("auth/ForginsterPage.InvalidEmail")); break;
+      case retCode.CODE_USERNAME_ALREADY_EXISTS: toast.error(i18n("auth/ForginsterPage.UsernameExists")); break;
+      case retCode.CODE_EMAIL_ALREADY_EXISTS: toast.error(i18n("auth/ForginsterPage.EmailExists")); break;
+      case retCode.CODE_LOGIN_FAILED_PENDING_VERIFCATION: toast.error(i18n("auth/ForginsterPage.LoginPendingVerification")); break;
+      case retCode.CODE_LOGIN_FAILED_USER_BANNED: toast.error(i18n("auth/ForginsterPage.LoginUserBanned")); break;
+      default: toast.error(error.message);
+    }
+  };
 }
 
 function LoginTab() {
   const { i18n } = useI18n();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [params] = useSearchParams();
   const { refetch } = useUserContext();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const showError = useAuthError();
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsSubmitting(true);
-
+    if (busy) return;
+    const form = new FormData(event.currentTarget);
+    form.set('password', md5(String(form.get('password'))));
+    form.set('rememberMe', String(form.has('rememberMe')));
+    setBusy(true);
     try {
-      const formData = new FormData(event.currentTarget);
-      if (formData.get('username') === '') {
-        toast.error(i18n("auth/ForginsterPage.NoUsername", '请输入用户名'));
-        return;
+      try {
+        await apiRequest(endpoints.account.login, { method: 'POST', body: form });
+      } catch (error) {
+        if (!(error instanceof ApiError && error.code === retCode.CODE_ALREADY_LOGGED_IN)) throw error;
       }
-      if (formData.get('password') === '') {
-        toast.error(i18n("auth/ForginsterPage.NoPasswd", '请输入密码'));
-        return;
-      }
-      formData.set('rememberMe', (formData.get('rememberMe') != null).toString());
-      formData.set('password', md5(formData.get('password') as string));
-
-      const response = await fetch(endpoints.account.login, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-
-      if (response.status !== 200) {
-        const rsp = await response.json();
-        switch (rsp.code) {
-          case retCode.CODE_INVALID_CREDENTIALS:
-            toast.error(i18n("auth/ForginsterPage.WrongCredential", '用户名或密码错误'));
-            break;
-          case retCode.CODE_LOGIN_FAILED_PENDING_VERIFCATION:
-            toast.error(i18n("auth/ForginsterPage.LoginPendingVerification", '账户尚未激活，请查收邮件'));
-            break;
-          case retCode.CODE_LOGIN_FAILED_USER_BANNED:
-            toast.error(i18n("auth/ForginsterPage.LoginUserBanned", '账户已被封禁'));
-            break;
-          default:
-            toast.error(await response.text());
-            break;
-        }
-        return;
-      }
-
-      const redirectPath = searchParams.get('redirect');
-
-      // 登录成功，刷新用户状态后再跳转
       await refetch();
-
-      // 登录成功，优先跳转到显式指定的回跳地址
-      if (redirectPath) {
-        navigate(redirectPath, { replace: true });
-        return;
-      }
-
-      // 未指定回跳地址时，尝试返回之前页面，否则进入主页
-      if (document.referrer && document.referrer !== location.href) {
-        history.back();
-      } else {
-        navigate('/');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+      const redirect = params.get('redirect');
+      navigate(redirect?.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('\\') ? redirect : '/', { replace: true });
+    } catch (error) {
+      if (error instanceof ApiError && error.code === retCode.CODE_INVALID_CREDENTIALS) toast.error(i18n("auth/ForginsterPage.WrongCredential"));
+      else showError(error);
+    } finally { setBusy(false); }
   }
 
-  return (
-    <div className={AUTH_CARD_CLASSNAME + ' relative'}>
-      <div className="mb-8 text-center">
-        <h2 className="m-0 mb-2 font-bold text-[#e5e5e5] text-3xl">{i18n("auth/ForginsterPage.WelcomeBack", '欢迎回来')}</h2>
-        <p className="m-0 text-[#a0a0a0] text-sm">{i18n("auth/ForginsterPage.LoginSubtitle", '登录到你的账户')}</p>
-      </div>
-      {isSubmitting && (
-        <div className="z-10 absolute inset-0 flex justify-center items-center bg-[rgb(30_30_30/90%)] backdrop-blur-sm rounded-[20px]">
-          <LoadingSpinner size="36px" />
-        </div>
-      )}
-      <form className="flex flex-col gap-6" onSubmit={onSubmit}>
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.Username", '用户名')}</label>
-          <input
-            className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-            type="text"
-            name="username"
-            placeholder={i18n("auth/ForginsterPage.EnterUsername", '输入用户名')}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.Password", '密码')}</label>
-          <input
-            className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-            type="password"
-            name="password"
-            placeholder={i18n("auth/ForginsterPage.EnterPassword", '输入密码')}
-            required
-          />
-        </div>
-        <div className="flex flex-row items-center gap-2">
-          <input className="w-4 h-4" type="checkbox" name="rememberMe"></input>
-          <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.RememberMe", '记住我')}</label>
-        </div>
+  return <div className={AUTH_CARD_CLASSNAME}>
+    <h2 className="mb-2 font-bold text-white text-3xl text-center">{i18n("auth/ForginsterPage.WelcomeBack")}</h2>
+    <p className="mb-8 text-gray-400 text-sm text-center">{i18n("auth/ForginsterPage.LoginSubtitle")}</p>
+    <form onSubmit={onSubmit}>
+      <fieldset disabled={busy} className="flex flex-col gap-6">
+        <Field label={i18n("auth/ForginsterPage.UsernameOrEmail", '用户名或邮箱')} name="username" autoComplete="username" required />
+        <Field label={i18n("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="current-password" required />
+        <label className="flex items-center gap-2 text-white text-sm"><input type="checkbox" name="rememberMe" />{i18n("auth/ForginsterPage.RememberMe")}</label>
+        <button className={BUTTON_CLASSNAME} type="submit">{busy ? <LoadingSpinner size={24} /> : i18n("auth/ForginsterPage.Login")}</button>
+      </fieldset>
+    </form>
+  </div>;
+}
 
-        <button className="relative bg-linear-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed" type="submit" disabled={isSubmitting}>
-          <span className="z-10 relative">{i18n("auth/ForginsterPage.Login", '登录')}</span>
+/** A challenge key belongs to one email address and expires after five minutes. */
+function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
+  const registering = mode === 'register';
+  const { i18n } = useI18n();
+  const { refetch } = useUserContext();
+  const navigate = useNavigate();
+  const { search } = useLocation();
+  const showError = useAuthError();
+  const [email, setEmail] = useState('');
+  const [challenge, setChallenge] = useState<{ key: string; expiresAt: number } | null>(null);
+  const [code, setCode] = useState('');
+  const [sending, setSending] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [captchaVersion, setCaptchaVersion] = useState(0);
+  const [retryAt, setRetryAt] = useState(0);
+  const [now, setNow] = useState(Date.now);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const busy = sending || submitting;
+  const expired = !!challenge && now >= challenge.expiresAt;
+  const seconds = Math.max(0, Math.ceil((retryAt - now) / 1000));
+
+  useEffect(() => {
+    if (!challenge && !retryAt) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [challenge, retryAt]);
+
+  async function sendCode() {
+    if (busy || seconds > 0 || !emailRef.current?.reportValidity()) return;
+    setSending(true);
+    setChallenge(null);
+    setCode('');
+    try {
+      const form = new FormData();
+      form.set('email', email);
+      const key = await apiRequest<string>(registering ? endpoints.account.emailChallenge : endpoints.account.passwordResetRequest(email), {
+        method: 'POST', ...(registering ? { body: form } : {}),
+      });
+      if (typeof key !== 'string' || !key.trim()) throw new Error('Missing challenge key');
+      const timestamp = Date.now();
+      setNow(timestamp);
+      setChallenge({ key, expiresAt: timestamp + 5 * 60_000 });
+      setRetryAt(timestamp + 30_000);
+      toast.success(i18n("auth/ForginsterPage.CodeSent", '如果邮箱可用，验证码将发送到邮箱，请在 5 分钟内填写。'));
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 429) {
+        setNow(Date.now());
+        setRetryAt(Date.now() + 60_000);
+      }
+      showError(error);
+    } finally { setSending(false); }
+  }
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (busy) return;
+    if (!challenge || Date.now() >= challenge.expiresAt) {
+      toast.error(i18n("auth/ForginsterPage.RequestCodeFirst", '请先获取有效的邮箱验证码'));
+      return;
+    }
+    const form = new FormData(event.currentTarget);
+    if (form.get('password') !== form.get('password2')) {
+      toast.error(i18n("auth/ForginsterPage.PasswdNoMatch"));
+      return;
+    }
+    if (registering && !String(form.get('cf-turnstile-response') ?? '').trim()) {
+      toast.error(i18n("auth/ForginsterPage.CloudflareVerificationNotReady"));
+      return;
+    }
+    const password = md5(String(form.get('password')));
+    form.delete('password2');
+    form.delete('password');
+    form.set(registering ? 'password' : 'newPassword', password);
+    form.set('email', email);
+    form.set('challengeKey', challenge.key);
+    form.set('challengeCode', code);
+    setSubmitting(true);
+    try {
+      await apiRequest(registering ? endpoints.account.register : endpoints.account.passwordResetConfirm, { method: 'POST', body: form });
+      toast.success(registering ? i18n("auth/ForginsterPage.RegisterSuccess", '注册成功，请登录') : i18n("auth/ForginsterPage.ResetPasswordSuccess"));
+      if (!registering) await refetch(); // Password reset revokes every existing session.
+      const params = new URLSearchParams(search);
+      params.delete('otp');
+      navigate({ pathname: '/login', search: params.toString() }, { replace: true });
+    } catch (error) {
+      showError(error);
+      // Registration consumes the challenge before checking captcha and uniqueness.
+      // A lost response may also have consumed it, so require a fresh code on retry.
+      setChallenge(null);
+      setCode('');
+      setCaptchaVersion(value => value + 1);
+      toast.info(i18n("auth/ForginsterPage.RequestNewCode", '请重新获取验证码后再提交'));
+    } finally { setSubmitting(false); }
+  }
+
+  return <div className={AUTH_CARD_CLASSNAME}>
+    <h2 className="mb-2 font-bold text-white text-3xl text-center">{registering ? i18n("auth/ForginsterPage.CreateAccount") : i18n("auth/ForginsterPage.ForgetPasswordTitle")}</h2>
+    <p className="mb-8 text-gray-400 text-sm text-center">{registering ? i18n("auth/ForginsterPage.RegisterSubtitle") : i18n("auth/ForginsterPage.ForgetPasswordSubtitle")}</p>
+    <form onSubmit={onSubmit}>
+      <fieldset disabled={busy} className="flex flex-col gap-5">
+        {registering && <>
+          <Field label={i18n("auth/ForginsterPage.Username")} name="username" autoComplete="username" maxLength={24} pattern="[A-Za-z0-9_-]+" title={i18n("auth/ForginsterPage.UsernameHint", '最多 24 位，仅限字母、数字、下划线和连字符')} required />
+          <Field label={i18n("auth/ForginsterPage.Nickname", '昵称')} name="nickname" autoComplete="nickname" required />
+        </>}
+        <label className="flex flex-col gap-2 text-white text-sm">
+          <span>{i18n("auth/ForginsterPage.EmailLabel")}</span>
+          <input ref={emailRef} className={INPUT_CLASSNAME} name="email" type="email" autoComplete="email" required value={email} onChange={event => {
+            setEmail(event.target.value);
+            setChallenge(null);
+            setCode('');
+          }} />
+        </label>
+        <button className={BUTTON_CLASSNAME} type="button" disabled={busy || seconds > 0} onClick={sendCode}>
+          {sending ? i18n("auth/ForginsterPage.SendingCode", '正在发送…') : seconds > 0 ? `${i18n("auth/ForginsterPage.ResendCode", '重新发送')} (${seconds}s)` : i18n("auth/ForginsterPage.SendCode", '发送验证码')}
         </button>
-      </form>
-    </div>
-  );
+        <p role="status" className="text-gray-400 text-sm">{expired ? i18n("auth/ForginsterPage.CodeExpired", '验证码已过期，请重新获取') : challenge ? i18n("auth/ForginsterPage.CodeSent") : i18n("auth/ForginsterPage.RequestCodeFirst")}</p>
+        <Field label={i18n("auth/ForginsterPage.VerificationCode")} name="challengeCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" maxLength={8} minLength={8} placeholder={i18n("auth/ForginsterPage.EightDigitCode", '8 位数字验证码')} value={code} onChange={event => setCode(event.target.value)} required />
+        <Field label={i18n("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="new-password" required />
+        <Field label={i18n("auth/ForginsterPage.ConfirmPassword")} name="password2" type="password" autoComplete="new-password" required />
+        {registering && <TurnstileWidget key={captchaVersion} />}
+        <button className={BUTTON_CLASSNAME} type="submit" disabled={busy || !challenge || expired}>
+          {submitting ? <LoadingSpinner size={24} /> : registering ? i18n("auth/ForginsterPage.Register") : i18n("auth/ForginsterPage.ResetPasswordButton")}
+        </button>
+      </fieldset>
+    </form>
+  </div>;
 }
 
 function TurnstileWidget() {
@@ -350,302 +339,6 @@ function TurnstileWidget() {
           <span>{i18n("auth/ForginsterPage.WaitingForCloudflareVerification", '等待 Cloudflare 验证')}</span>
         </div>
       )}
-    </div>
-  );
-}
-
-function RegisterTab() {
-  const { i18n } = useI18n();
-  const [isPosting, setIsPosting] = useState(false);
-
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const formData = new FormData(event.currentTarget);
-    const turnstileResponse = formData.get('cf-turnstile-response');
-    if (typeof turnstileResponse !== 'string' || turnstileResponse.trim() === '') {
-      toast.error(i18n(
-        "auth/ForginsterPage.CloudflareVerificationNotReady",
-        'Cloudflare 验证尚未完成，请检查网络后稍候重试',
-      ));
-      return;
-    }
-
-    setIsPosting(true);
-    try {
-      if (formData.get('password') !== formData.get('password2')) {
-        toast.error(i18n("auth/ForginsterPage.PasswdNoMatch", '两次密码不匹配'));
-        return;
-      }
-      formData.set('password', md5(formData.get('password') as string));
-
-      const response = await fetch(endpoints.account.register, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.status !== 200) {
-        const rsp = await response.json();
-        if (response.status === 400) {
-          switch (rsp.code) {
-            case retCode.CODE_INVALID_INVITE_CODE:
-              toast.error(i18n("auth/ForginsterPage.InvalidInviteCode", '无效的邀请码'));
-              break;
-            case retCode.CODE_INVALID_VALUE:
-              toast.error(i18n("auth/ForginsterPage.InvalidUsernameOrPassword", '用户名或密码格式错误'));
-              break;
-            case retCode.CODE_INVALID_EMAIL_ADDRESS:
-              toast.error(i18n("auth/ForginsterPage.InvalidEmail", '无效的邮箱地址'));
-              break;
-            case retCode.CODE_USERNAME_ALREADY_EXISTS:
-              toast.error(i18n("auth/ForginsterPage.UsernameExists", '用户名已存在'));
-              break;
-            case retCode.CODE_EMAIL_ALREADY_EXISTS:
-              toast.error(i18n("auth/ForginsterPage.EmailExists", '邮箱已被注册'));
-              break;
-            default: {
-              const message = typeof rsp.message === 'string' ? rsp.message.trim() : '';
-              toast.error(message
-                ? `${i18n("auth/ForginsterPage.VerificationFailed", '验证失败：')}${message}`
-                : i18n("auth/ForginsterPage.VerificationFailed", '验证失败'));
-              break;
-            }
-          }
-          return;
-        }
-        toast.error(await response.text());
-        return;
-      } else {
-        toast.success(i18n("auth/ForginsterPage.RegisterEmailSent", '注册成功！验证邮件已发送'), {
-          autoClose: false,
-        });
-      }
-    } finally {
-      setIsPosting(false);
-    }
-  }
-
-  return (
-    <div className={AUTH_CARD_CLASSNAME}>
-      <div className="mb-8 text-center">
-        <h2 className="m-0 mb-2 font-bold text-[#e5e5e5] text-3xl">{i18n("auth/ForginsterPage.CreateAccount", '创建账户')}</h2>
-        <p className="m-0 text-[#a0a0a0] text-sm">{i18n("auth/ForginsterPage.RegisterSubtitle", '注册一个新账户')}</p>
-      </div>
-      <form className="flex flex-col gap-6" onSubmit={onSubmit}>
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.Username", '用户名')}</label>
-          <input
-            className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-            type="text"
-            name="username"
-            placeholder={i18n("auth/ForginsterPage.EnterUsername", '输入用户名')}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.Password", '密码')}</label>
-          <input
-            className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-            type="password"
-            name="password"
-            placeholder={i18n("auth/ForginsterPage.EnterPassword", '输入密码')}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.ConfirmPassword", '确认密码')}</label>
-          <input
-            className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-            type="password"
-            name="password2"
-            placeholder={i18n("auth/ForginsterPage.ReEnterPassword", '再次输入密码')}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.EmailLabel", '邮箱')}</label>
-          <input
-            className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-            type="email"
-            name="email"
-            placeholder={i18n("auth/ForginsterPage.EnterEmail", '输入邮箱')}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-2 scale-75 md:scale-100 origin-top-left">
-          <TurnstileWidget />
-        </div>
-        <button className="relative bg-linear-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed" type="submit" disabled={isPosting}>
-          <span className="z-10 relative">{i18n("auth/ForginsterPage.Register", '注册')}</span>
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function ForgetTab({ otp }: { otp: string | null }) {
-  const { i18n } = useI18n();
-  const [formOtp, setFormOtp] = useState(otp || '');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const hasOtp = formOtp.trim() !== '';
-
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const formData = new FormData(event.currentTarget);
-
-      if (!hasOtp) {
-        if (formData.get('username') === '') {
-          toast.error(i18n("auth/ForginsterPage.NoUsername", '请输入用户名'));
-          return;
-        }
-        if (formData.get('email') === '') {
-          toast.error(i18n("auth/ForginsterPage.InvalidEmail", '无效的邮箱'));
-          return;
-        }
-
-        const response = await fetch(endpoints.account.forget, {
-          method: 'POST',
-          body: formData,
-          credentials: 'include',
-        });
-
-        if (response.status !== 200) {
-          const rsp = await response.json();
-          switch (rsp.code) {
-            case retCode.CODE_INVALID_VALUE:
-              toast.error(i18n("auth/ForginsterPage.UserNameOrEmailEmpty", '用户名或邮箱为空'));
-              break;
-            case retCode.CODE_NO_SUCH_ITEM:
-              toast.error(i18n("auth/ForginsterPage.NoSuchUser", '用户不存在'));
-              break;
-            default:
-              toast.error(await response.text());
-              break;
-          }
-          return;
-        }
-        toast.success(i18n("auth/ForginsterPage.ResetEmailSent", '重置密码邮件已发送'), { autoClose: false });
-      } else {
-        if (formData.get('newpassword') === '' || formData.get('repeatpassword') === '') {
-          toast.error(i18n("auth/ForginsterPage.NoPasswd", '请输入密码'));
-          return;
-        }
-
-        if (formData.get('newpassword') !== formData.get('repeatpassword')) {
-          toast.error(i18n("auth/ForginsterPage.PasswdNoMatch", '两次密码不匹配'));
-          return;
-        }
-
-        formData.set('otp', formOtp);
-        formData.set('newpassword', md5(formData.get('newpassword') as string));
-        formData.delete('repeatpassword');
-
-        const response = await fetch(endpoints.account.forget, {
-          method: 'PUT',
-          body: formData,
-          credentials: 'include',
-        });
-
-        if (response.status !== 200) {
-          const rsp = await response.json();
-          switch (rsp.code) {
-            case retCode.CODE_INVALID_VALUE:
-              toast.error(i18n("auth/ForginsterPage.OTPExpiredOrEmpty", 'OTP已过期或为空'));
-              break;
-            default:
-              toast.error(await response.text());
-              break;
-          }
-          return;
-        }
-        toast.success(i18n("auth/ForginsterPage.ResetPasswordSuccess", '密码重置成功'), { autoClose: false });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  return (
-    <div className={AUTH_CARD_CLASSNAME}>
-      <div className="mb-8 text-center">
-        <h2 className="m-0 mb-2 font-bold text-[#e5e5e5] text-3xl">
-          {hasOtp ? i18n("auth/ForginsterPage.ResetPasswordTitle", '重设密码') : i18n("auth/ForginsterPage.ForgetPasswordTitle", '找回密码')}
-        </h2>
-        <p className="m-0 text-[#a0a0a0] text-sm">
-          {hasOtp ? i18n("auth/ForginsterPage.ResetPasswordSubtitle", '请输入新的密码') : i18n("auth/ForginsterPage.ForgetPasswordSubtitle", '请输入注册时使用的用户名和邮箱')}
-        </p>
-      </div>
-      <form className="flex flex-col gap-6" onSubmit={onSubmit}>
-        {hasOtp && (<>
-          <div className="flex flex-col gap-2">
-            <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.Password", '密码')}</label>
-            <input
-              className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-              type="password"
-              name="newpassword"
-              placeholder={i18n("auth/ForginsterPage.EnterPassword", '输入密码')}
-              required={hasOtp}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.ConfirmPassword", '确认密码')}</label>
-            <input
-              className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-              type="password"
-              name="repeatpassword"
-              placeholder={i18n("auth/ForginsterPage.ReEnterPassword", '再次输入密码')}
-              required={hasOtp}
-            />
-          </div>
-        </>)}
-        {!hasOtp && (<>
-          <div className="flex flex-col gap-2">
-            <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.Username", '用户名')}</label>
-            <input
-              className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-              type="text"
-              name="username"
-              placeholder={i18n("auth/ForginsterPage.EnterUsername", '输入用户名')}
-              required={!hasOtp}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.EmailLabel", '邮箱')}</label>
-            <input
-              className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-              type="email"
-              name="email"
-              placeholder={i18n("auth/ForginsterPage.EnterEmail", '输入邮箱')}
-              required={!hasOtp}
-            />
-          </div>
-        </>)}
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-[#e5e5e5] text-sm">{i18n("auth/ForginsterPage.VerificationCode", '验证码')}</label>
-          <input
-            className="bg-black/60 focus:shadow-[0_0_15px_rgb(59_130_246/20%)] p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white placeholder:text-white/40 transition-all focus:-translate-y-0.5"
-            type="text"
-            name="otp"
-            value={formOtp}
-            onChange={(e) => setFormOtp(e.target.value)}
-            placeholder={i18n("auth/ForginsterPage.EnterVerificationCode", '输入验证码')}
-          />
-        </div>
-
-        <button
-          className="relative bg-linear-to-r from-blue-500 hover:from-blue-700 to-blue-700 hover:to-blue-800 disabled:opacity-50 hover:shadow-[0_10px_25px_rgb(59_130_246/30%)] mt-2 p-4 border-none rounded-xl overflow-hidden font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:cursor-not-allowed"
-          type="submit"
-          disabled={isSubmitting}
-        >
-          <span className="z-10 relative">
-            {hasOtp ? i18n("auth/ForginsterPage.ResetPasswordButton", '确认重置密码') : i18n("auth/ForginsterPage.SendVerificationEmail", '发送验证邮件')}
-          </span>
-        </button>
-      </form>
     </div>
   );
 }
