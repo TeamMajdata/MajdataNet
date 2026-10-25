@@ -941,7 +941,8 @@ export function CommentList({ songid }: CommentListProps) {
     endpoints.maichart.interact(songid),
     fetcher,
     {
-      refreshInterval: replyThreadId ? 0 : 3000,
+      // 发送/删除评论后会主动 mutate，这里只做低频兜底刷新
+      refreshInterval: replyThreadId ? 0 : 30_000,
     }
   );
 

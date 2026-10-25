@@ -58,13 +58,13 @@ function App() {
           content="a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。"
         />
         <meta property="og:url" content="https://majdata.net" />
-        <meta property="og:image" content="/salt.webp" />
+        <meta property="og:image" content="https://majdata.net/salt.webp" />
         <meta name="twitter:title" content="Majdata Net" />
         <meta
           name="twitter:description"
           content="a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。"
         />
-        <meta name="twitter:image" content="/salt.webp" />
+        <meta name="twitter:image" content="https://majdata.net/salt.webp" />
       </Helmet>
       <TooltipProvider delayDuration={200}>
         <I18nProvider>

@@ -142,10 +142,12 @@ class ParticleEngine {
     this.totalHeight = this.canvasHeight = canvasElement.height = canvasElement.offsetHeight;
     this.compositeStyle = 'lighter';
 
+    // 小屏（手机）粒子减半：全屏 canvas + 模糊滤镜在移动端相当耗电
+    const density = this.totalWidth <= 768 ? 0.5 : 1;
     this.particleSettings = [
-      { id: 'small',  num: 100, fromX: 0, toX: this.totalWidth, ballwidth: 3,  alphamax: 0.4, areaHeight: 0.5, color: '#0cdbf3', fill: false },
-      { id: 'medium', num: 50,  fromX: 0, toX: this.totalWidth, ballwidth: 15, alphamax: 0.3, areaHeight: 1,   color: '#6fd2f3', fill: true  },
-      { id: 'large',  num: 30,  fromX: 0, toX: this.totalWidth, ballwidth: 30, alphamax: 0.2, areaHeight: 1,   color: '#93e9f3', fill: true  },
+      { id: 'small',  num: Math.round(100 * density), fromX: 0, toX: this.totalWidth, ballwidth: 3,  alphamax: 0.4, areaHeight: 0.5, color: '#0cdbf3', fill: false },
+      { id: 'medium', num: Math.round(50 * density),  fromX: 0, toX: this.totalWidth, ballwidth: 15, alphamax: 0.3, areaHeight: 1,   color: '#6fd2f3', fill: true  },
+      { id: 'large',  num: Math.round(30 * density),  fromX: 0, toX: this.totalWidth, ballwidth: 30, alphamax: 0.2, areaHeight: 1,   color: '#93e9f3', fill: true  },
     ];
     this.particleArray = [];
     this.lights = [];
@@ -228,6 +230,9 @@ export default function AmbientBackground() {
   const particlesRef = useRef<ParticleEngine | null>(null);
 
   useEffect(() => {
+    // 用户开启了“减少动态效果”时只保留静态渐变背景，不加载粒子脚本
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
     const loadScripts = async () => {
       // 加载 EaselJS
       if (!window.createjs) {
