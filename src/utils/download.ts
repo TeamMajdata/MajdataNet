@@ -72,8 +72,9 @@ export async function downloadSong(props: DownloadSongParams): Promise<void> {
     return result;
   });
 
+  // intent=download 让后端把这次请求记为主动下载（预览加载不带此参数）
   const maidataPromise = fetchFile(
-    prefix + '/chart',
+    prefix + '/chart?intent=download',
     'maidata',
     props.toast,
     abortController.signal

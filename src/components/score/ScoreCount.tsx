@@ -1,29 +1,30 @@
 import { endpoints } from '@/config/api';
 import useSWR from 'swr';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { LoadingSpinner } from '@/components';
-import type { ScoreCardProps, ScoreCountProps, ScoreData } from '@/types';
+import type { ScoreCardProps, ScoreCountProps, ScoreSumResponse } from '@/types';
 import { Link } from 'react-router-dom';
 
 
-const fetcher = (url: string) =>
-  fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
+import { apiFetcher as fetcher } from '@/utils/apiClient';
 
 /**
  * 分数统计组件
  * 显示指定上传者的谱面评分排行榜
  */
 export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreCountProps) {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
-  const { data, error, isLoading } = useSWR<ScoreData[]>(
+  const { data: response, error, isLoading } = useSWR<ScoreSumResponse>(
     endpoints.stats.scoreSums(uploader, page, pageSize),
     fetcher,
     { refreshInterval: 30000 } // 每30秒刷新一次
   );
 
+  const data = response?.players;
+
   if (error) {
-    return <div>{loc('FailedToLoad', '加载失败')}</div>;
+    return <div>{i18n("shared/ScoreCount.FailedToLoad", '加载失败')}</div>;
   }
 
   if (isLoading) {
@@ -33,10 +34,10 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   }
 
   if (!data || data.length === 0) {
-    return <div className="py-8 text-center">{loc('EmptyData', '空的')}</div>;
+    return <div className="py-8 text-center">{i18n("shared/ScoreCount.EmptyData", '空的')}</div>;
   }
 
-  const maxScore = data[0].dxAccSum;
+  const maxScore = data[0].acc.dx;
 
   return (
     <div
@@ -51,9 +52,9 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
         {data.map((player, index) => (
           <ScoreCard
             key={player.username}
-            rank={index + 1}
+            rank={page * pageSize + index + 1}
             username={player.username}
-            scoresum={player.dxAccSum}
+            scoresum={player.acc.dx}
             maxscore={maxScore}
           />
         ))}
@@ -65,14 +66,14 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
 /**
  * 单个分数卡片组件
  */
-function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
-  const percentage = (scoresum / maxscore) * 100;
+export function ScoreCard({ rank, username, scoresum, maxscore, footer }: ScoreCardProps) {
+  const percentage = maxscore > 0 ? (scoresum / maxscore) * 100 : 0;
   const isFirst = rank === 1;
 
   return (
     <div className="relative">
       <Link
-        to={`/space?id=${username}`}
+        to={`/space?id=${encodeURIComponent(username)}`}
         className="block text-inherit no-underline"
       >
         <div
@@ -149,6 +150,8 @@ function ScoreCard({ rank, username, scoresum, maxscore }: ScoreCardProps) {
           >
             {scoresum.toFixed(4)}%
           </div>
+
+          {footer && <div className="mt-2 text-white/60 text-xs text-center">{footer}</div>}
 
           {/* 进度条 */}
           <div

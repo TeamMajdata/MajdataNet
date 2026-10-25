@@ -2,6 +2,7 @@
  * 活动相关类型定义
  */
 
+
 // 活动类别枚举常量
 export const EventCategory = {
   All: 0,
@@ -9,6 +10,7 @@ export const EventCategory = {
   Major: 2,
   PrivateProject: 3,
   PrivateContest: 4,
+  Season: 5,
 } as const;
 
 // 活动类别类型（从值中提取类型）
@@ -16,17 +18,22 @@ export type EventCategory = typeof EventCategory[keyof typeof EventCategory];
 
 // 活动类别国际化 key 映射数组
 export const EVENT_CATEGORY_I18N_KEYS = [
-  'FilterAll',
-  'EventCategoryUniversity',
-  'EventCategoryMajor',
-  'EventCategoryPrivateProject',
-  'EventCategoryPrivateContest',
+  'chart-events/eventsData.FilterAll',
+  'chart-events/eventsData.EventCategoryUniversity',
+  'chart-events/eventsData.EventCategoryMajor',
+  'chart-events/eventsData.EventCategoryPrivateProject',
+  'chart-events/eventsData.EventCategoryPrivateContest',
+  'chart-events/eventsData.EventCategorySeason',
 ] as const;
+
+export type EventType = 'outerLink' | 'eventTag' | 'space' | 'season';
 
 // 活动接口
 export interface Event {
   id: string;
-  href: string;
+  type: EventType;
+  /** Raw target ID, or a complete URL for outerLink. */
+  asset: string;
   src: string;
   alt: string;
   title: string;
@@ -52,4 +59,29 @@ export interface CarouselEventsResult {
 export interface MMFCParticipantsData {
   participants: string[];
   description: string;
+}
+
+/** Song link resolved from the season collection. */
+export type SeasonChart = string;
+
+export interface PlayHistoryRankingRequest {
+  songhashes: string[];
+  startTime: string;
+  endTime: string;
+  scoreType: 'best';
+  sortBy: 'Acc.DX';
+}
+
+export interface PlayHistoryRankingEntry {
+  playerId: string;
+  username: string;
+  totalDXScore: number;
+  totalAccDX: number;
+  totalAccClassic: number;
+}
+
+export interface RankedSeasonEntry extends PlayHistoryRankingEntry {
+  /** DX accuracy rounded to the four decimal places used for display and ties. */
+  score: number;
+  rank: number;
 }

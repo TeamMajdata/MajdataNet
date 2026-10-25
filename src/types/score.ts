@@ -8,6 +8,8 @@ import type { ComboState } from './enums';
 export interface ChartScore {
   player: {
     username: string;
+    nickname?: string;
+    avatarId?: string;
   };
   acc: number;
   comboState: ComboState | number;
@@ -16,7 +18,8 @@ export interface ChartScore {
 // 成绩数据接口
 export interface ScoreData {
   username: string;
-  dxAccSum: number;
+  userId: string;
+  acc: { dx: number; classic: number };
 }
 
 // 最近游玩数据接口
@@ -56,4 +59,8 @@ interface ChartInfo {
   hash: string;
   tags: string[];
   publicTags: string[];
+}
+export interface ScoreSumResponse {
+  geneTime: string;
+  players: ScoreData[];
 }

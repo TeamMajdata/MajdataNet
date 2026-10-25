@@ -11,22 +11,22 @@ import remarkGfm from 'remark-gfm';
 import 'github-markdown-css/github-markdown-dark.css';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
-import { useLoc, useUserContext } from '@/hooks';
-import { getDisplayMessage, sleep } from '@/utils';
+import { useI18n, useUserContext } from '@/hooks';
+import { getDisplayMessage } from '@/utils';
 import remarkCenter from '@/utils/remarkCenter';
 import { LoadingSpinner } from '@/components';
+import type { UserInfo } from '@/types';
 
-const fetcher = (url: string) =>
-  fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
+import { apiFetcher as fetcher } from '@/utils/apiClient';
 
 export default function IntroUploader() {
-  const loc = useLoc();
-  const { user } = useUserContext();
+  const { i18n } = useI18n();
+  const { user, refetch } = useUserContext();
   const [intro, setIntro] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
-  const { data, error, isLoading } = useSWR(
-    user ? endpoints.account.intro(user.username) : null,
+  const { data, error, isLoading, mutate } = useSWR<UserInfo>(
+    user ? endpoints.account.profile(user.username) : null,
     fetcher
   );
 
@@ -48,21 +48,21 @@ export default function IntroUploader() {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const content = formData.get('content') as string;
+    const content = formData.get('introduction') as string;
 
     if (!content || content.trim() === '') {
-      toast.error(loc('NoIntroTypedIn'));
+      toast.error(i18n("user/IntroUploader.NoIntroTypedIn"));
       return;
     }
 
-    const uploading = toast.loading(loc('Uploading'), {
+    const uploading = toast.loading(i18n("user/IntroUploader.Uploading"), {
       hideProgressBar: false,
     });
 
     setIsUploading(true);
 
     try {
-      const response = await axios.post(endpoints.account.uploadIntro, formData, {
+      const response = await axios.post(endpoints.account.updateProfile, formData, {
         onUploadProgress: function (progressEvent) {
           if (progressEvent.total && progressEvent.lengthComputable) {
             const progress = progressEvent.loaded / progressEvent.total;
@@ -71,12 +71,11 @@ export default function IntroUploader() {
         },
         withCredentials: true,
       });
-      toast.success(getDisplayMessage(response.data, loc('UploadSuccess', 'Upload succeeded')));
-      await sleep(2000);
-      window.location.reload();
+      toast.success(getDisplayMessage(response.data, i18n("user/IntroUploader.UploadSuccess", 'Upload succeeded')));
+      await Promise.all([mutate(), refetch()]);
     } catch (e: unknown) {
       const error = e as { response?: { data?: unknown }; message?: string };
-      const message = getDisplayMessage(error.response?.data ?? error.message, loc('UploadFailed', 'Upload failed'));
+      const message = getDisplayMessage(error.response?.data ?? error.message, i18n("user/IntroUploader.UploadFailed", 'Upload failed'));
       toast.error(message, { autoClose: false });
     } finally {
       toast.done(uploading);
@@ -87,14 +86,14 @@ export default function IntroUploader() {
   return (
     <>
       <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">
-        {loc('SelfIntro')}
-        {loc('MarkdownSupported')}
+        {i18n("user/IntroUploader.SelfIntro")}
+        {i18n("user/IntroUploader.MarkdownSupported")}
       </h2>
       <div className="flex flex-wrap justify-center max-w-(--container-max-width) mx-auto my-0 px-(--container-padding)">
         <form className="flex flex-col justify-center w-full" onSubmit={onSubmit}>
           <textarea
             className="bg-black shadow-[2px_2px_5px_gray] focus:shadow-[0_0_8px_rgba(0,123,255,0.5)] mx-2.5 my-2.5 px-3 py-3 border border-white focus:border-[#007bff] rounded-[10px] focus:outline-none min-h-75 font-['Consolas',monospace] text-white text-sm leading-relaxed caret-white resize-vertical"
-            name="content"
+            name="introduction"
             id="IntroBox"
             defaultValue={data?.introduction || ''}
             onChange={(e) => setIntro(e.target.value)}
@@ -106,7 +105,7 @@ export default function IntroUploader() {
             type="submit"
             disabled={isUploading}
           >
-            {isUploading ? loc('UploadingPlzWait') : loc('Upload')}
+            {isUploading ? i18n("user/IntroUploader.UploadingPlzWait") : i18n("user/IntroUploader.Upload")}
           </button>
         </form>
       </div>
@@ -114,7 +113,7 @@ export default function IntroUploader() {
       {/* HR Divider */}
       <div className="my-8 border-white/20 border-t"></div>
 
-      <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">{loc('Preview')}</h2>
+      <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">{i18n("user/IntroUploader.Preview")}</h2>
       <article className="bg-transparent px-4 markdown-body">
         <Markdown
           remarkPlugins={[remarkGfm, remarkCenter]}

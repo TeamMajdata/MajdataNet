@@ -1,15 +1,15 @@
 import { toast } from 'react-toastify';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 
 /**
  * Majdata.Net Logo 组件
  * 点击会显示彩蛋提示
  */
 export default function MajdataLogo() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
   
   const handleClick = () => {
-    toast.error(loc('FUCKYOU', 'FUCK YOU'), {
+    toast.error(i18n("shared/MajdataLogo.FUCKYOU", 'FUCK YOU'), {
       position: 'top-center',
       autoClose: 500,
     });

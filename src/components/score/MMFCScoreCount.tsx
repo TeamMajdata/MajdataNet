@@ -1,32 +1,33 @@
 import { endpoints } from '@/config/api';
 import useSWR from 'swr';
-import { useLoc } from '@/hooks';
+import { useI18n } from '@/hooks';
 import { LoadingSpinner } from '@/components';
-import type { ScoreData } from '@/types';
+import type { ScoreSumResponse } from '@/types';
 import mmfcParticipants from '@/assets/data/mmfc-participants.json';
 import { Link } from 'react-router-dom';
 
-const fetcher = (url: string) =>
-  fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
+import { apiFetcher as fetcher } from '@/utils/apiClient';
 
 /**
  * MMFC打榜排名组件
  * 显示指定参与者对 mmfc_bot 谱面的游玩总分排名
  */
 export default function MMFCScoreCount() {
-  const loc = useLoc();
+  const { i18n } = useI18n();
 
   // 获取 mmfc_bot 用户的分数总和数据
-  const { data, error, isLoading } = useSWR<ScoreData[]>(
+  const { data: response, error, isLoading } = useSWR<ScoreSumResponse>(
     endpoints.stats.scoreSums('mmfc_bot', 0, 1000),
     fetcher,
     { refreshInterval: 30000 } // 每30秒刷新一次
   );
 
+  const data = response?.players;
+
   if (error) {
     return (
       <div className="flex justify-center items-center p-8 text-red-400">
-        {loc('FailedToLoad', '加载失败')}
+        {i18n("shared/MMFCScoreCount.FailedToLoad", '加载失败')}
       </div>
     );
   }
@@ -42,7 +43,7 @@ export default function MMFCScoreCount() {
   if (!data || data.length === 0) {
     return (
       <div className="flex justify-center items-center p-8 text-white/70">
-        <p>{loc('NoMMFCRankingData', '暂无MMFC排名数据')}</p>
+        <p>{i18n("shared/MMFCScoreCount.NoMMFCRankingData", '暂无MMFC排名数据')}</p>
       </div>
     );
   }
@@ -54,19 +55,19 @@ export default function MMFCScoreCount() {
   const filteredData = data.filter(p => participantsList.includes(p.username));
 
   // 按分数降序排序
-  const sortedData = filteredData.sort((a, b) => b.dxAccSum - a.dxAccSum);
+  const sortedData = filteredData.sort((a, b) => b.acc.dx - a.acc.dx);
 
   if (sortedData.length === 0) {
     return (
       <div className="flex justify-center items-center p-8 text-white/70">
-        <p>{loc('NoMMFCRankingData', '暂无MMFC排名数据')}</p>
+        <p>{i18n("shared/MMFCScoreCount.NoMMFCRankingData", '暂无MMFC排名数据')}</p>
       </div>
     );
   }
 
   return (
     <div
-      className="mx-auto px-4 max-w-4xl"
+      className="mx-auto px-0 sm:px-4 max-w-4xl"
       style={{
         marginTop: '2rem',
       }}
@@ -77,7 +78,7 @@ export default function MMFCScoreCount() {
             key={player.username}
             rank={index + 1}
             username={player.username}
-            scoresum={player.dxAccSum}
+            scoresum={player.acc.dx}
           />
         ))}
       </div>
@@ -127,7 +128,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
       className="block text-inherit no-underline"
     >
       <div
-        className="relative flex items-center gap-4 px-6 py-4 transition-all duration-300 ease-out"
+        className="relative flex items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 min-w-0 transition-all duration-300 ease-out"
         style={{
           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
           backdropFilter: 'blur(10px)',
@@ -161,7 +162,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         }}
       >
         {/* 排名显示 */}
-        <div className="flex justify-center items-center min-w-20 shrink-0">
+        <div className="flex justify-center items-center min-w-12 sm:min-w-20 shrink-0">
           <span
             className="font-bold transition-all duration-300"
             style={{
@@ -191,7 +192,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         {/* 玩家信息 */}
         <div className="flex flex-1 items-center gap-3 min-w-0">
           <img
-            className="border-2 rounded-full w-12 h-12 object-cover transition-all duration-300 shrink-0"
+            className="border-2 rounded-full w-10 sm:w-12 h-10 sm:h-12 object-cover transition-all duration-300 shrink-0"
             style={{
               borderColor: isTopThree ? (isFirst ? 'rgba(251, 191, 36, 0.4)' : 'rgba(59, 130, 246, 0.4)') : 'rgba(255, 255, 255, 0.2)',
               aspectRatio: '1',
@@ -212,7 +213,7 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
 
           <div className="flex flex-col flex-1 gap-1 min-w-0 overflow-hidden">
             <span
-              className="overflow-hidden font-semibold text-white text-lg text-ellipsis whitespace-nowrap"
+              className="overflow-hidden font-semibold text-white text-sm sm:text-lg text-ellipsis whitespace-nowrap"
               style={{
                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
               }}
@@ -223,9 +224,9 @@ function MMFCScoreCard({ rank, username, scoresum }: MMFCScoreCardProps) {
         </div>
 
         {/* 分数显示 */}
-        <div className="flex flex-col items-end gap-1 text-right shrink-0">
+        <div className="flex flex-col items-end gap-1 text-right min-w-0 shrink-0">
           <div
-            className="font-bold text-white text-2xl"
+            className="font-bold text-white text-base sm:text-2xl"
             style={{
               textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
             }}

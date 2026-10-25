@@ -46,7 +46,9 @@ export default function LazyLoad({
 
   const style: React.CSSProperties = {
     minHeight: height ? `${height}px` : undefined,
-    minWidth: width ? `${width}px` : undefined,
+    width: '100%',
+    maxWidth: width ? `${width}px` : undefined,
+    minWidth: 0,
   };
 
   return (
