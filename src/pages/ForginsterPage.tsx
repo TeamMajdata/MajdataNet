@@ -265,7 +265,10 @@ function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
     <form onSubmit={onSubmit}>
       <fieldset disabled={busy} className="flex flex-col gap-5">
         {registering && <>
-          <Field label={i18n("auth/ForginsterPage.Username")} name="username" autoComplete="username" maxLength={24} pattern="[A-Za-z0-9_-]+" title={i18n("auth/ForginsterPage.UsernameHint", '最多 24 位，仅限字母、数字、下划线和连字符')} required />
+          <Field label={i18n("auth/ForginsterPage.Username")} name="username" autoComplete="username" maxLength={24} pattern="[A-Za-z0-9]+"
+            placeholder={i18n("auth/ForginsterPage.UsernameHint", '最多 24 位，只能包含英文字母和数字')}
+            onInvalid={event => event.currentTarget.setCustomValidity(event.currentTarget.validity.patternMismatch ? i18n("auth/ForginsterPage.UsernameHint", '最多 24 位，只能包含英文字母和数字') : '')}
+            onInput={event => event.currentTarget.setCustomValidity('')} required />
           <Field label={i18n("auth/ForginsterPage.Nickname", '昵称')} name="nickname" autoComplete="nickname" required />
         </>}
         <label className="flex flex-col gap-2 text-white text-sm">

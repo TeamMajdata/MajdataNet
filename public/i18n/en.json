@@ -28,7 +28,7 @@
     "EmailLabel": "E-Mail",
     "UsernameOrEmail": "Username or email",
     "Nickname": "Nickname",
-    "UsernameHint": "Up to 24 letters, numbers, underscores or hyphens",
+    "UsernameHint": "Up to 24 characters, English letters and numbers only",
     "LegacyLink": "Email verification links are no longer supported. Request a new code; contact an administrator for legacy account activation.",
     "NetworkError": "Network request failed. Please try again.",
     "TooManyRequests": "Too many requests. Please try again later.",

@@ -28,7 +28,7 @@
     "EmailLabel": "이메일",
     "UsernameOrEmail": "사용자 이름 또는 이메일",
     "Nickname": "닉네임",
-    "UsernameHint": "영문, 숫자, 밑줄, 하이픈으로 최대 24자",
+    "UsernameHint": "최대 24자, 영문과 숫자만 사용 가능",
     "LegacyLink": "이메일 인증 링크는 더 이상 지원되지 않습니다. 코드를 다시 요청하세요. 기존 계정 활성화는 관리자에게 문의하세요.",
     "NetworkError": "네트워크 요청에 실패했습니다. 다시 시도하세요.",
     "TooManyRequests": "요청이 너무 많습니다. 잠시 후 다시 시도하세요.",
