@@ -1,5 +1,17 @@
 [
   {
+    "id": "wmc3",
+    "type": "space",
+    "asset": "WMC_Tournament",
+    "src": "/events/wmc3.jpg",
+    "alt": "WMC 3rd",
+    "title": "WMC 3rd",
+    "category": 3,
+    "createDate": "2026-10-24",
+    "endDate": "2027-01-15",
+    "description": "第三届西湖玩家原创曲谱赛事"
+  },
+  {
     "id": "shuangyucup2",
     "type": "space",
     "asset": "双鱼杯2nd",
