@@ -5,6 +5,7 @@ import { getEventHref } from '@/utils/eventLink';
  */
 
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
 import { PageLayout, EnhancedDescription, LoadingSpinner, EventsFilter, TimelineModal } from '@/components';
@@ -19,6 +20,7 @@ import { EventCategory } from '@/types';
 
 export default function EventsPage() {
   const { i18n, isReady } = useI18n();
+  const navigate = useNavigate();
   useEventClock(getAllEvents());
   const [selectedCategory, setSelectedCategory] = useState<EventCategory>(EventCategory.All);
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
@@ -51,6 +53,13 @@ export default function EventsPage() {
     setIsTimelineModalOpen(false);
   };
 
+  // 卡片整体可点击；描述里还有外链，所以不能把卡片本身做成 <a>（<a> 不能嵌套）。
+  // 站内目标走路由跳转，外部 URL 才整页跳转。
+  const openEvent = (href: string) => {
+    if (/^https?:\/\//i.test(href)) window.location.assign(href);
+    else navigate(href);
+  };
+
   if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
@@ -79,8 +88,17 @@ export default function EventsPage() {
           {filteredEvents.map((event) => (
             <div
               key={event.id}
+              role="link"
+              tabIndex={0}
+              aria-label={event.title}
+              onClick={() => openEvent(getEventHref(event))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  openEvent(getEventHref(event));
+                }
+              }}
               className="relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 rounded-xl sm:rounded-2xl h-auto aspect-video sm:aspect-1279/372 overflow-hidden md:hover:scale-[1.03] transition-all md:hover:-translate-y-2 duration-[0.4s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer will-change-transform"
-              onClick={() => window.location.href = getEventHref(event)}
             >
               <div className="relative w-full h-full overflow-hidden">
                 <img

@@ -1,286 +1,204 @@
 import { useEffect, useRef } from 'react';
 
-// 扩展 Window 接口，声明第三方库
-declare global {
-  interface Window {
-    createjs: CreateJSLib;
-    TweenMax: TweenMaxLib;
-    Cubic: { easeInOut: unknown };
-  }
-}
+/**
+ * 环境背景粒子动画（原生 canvas 实现）
+ *
+ * 之前依赖 CDN 上的 EaselJS + GSAP 2 并对每个粒子套 BlurFilter；
+ * 这里把每类粒子预渲染成一张带柔边的小贴图，每帧只做 drawImage，
+ * 不再加载任何第三方脚本。视觉参数（数量、大小、颜色、透明度、运动范围）与原版一致。
+ */
 
-interface CreateJSGraphics {
-  beginFill: (color: string) => CreateJSGraphics;
-  beginStroke: (color: string) => CreateJSGraphics;
-  setStrokeStyle: (width: number) => CreateJSGraphics;
-  drawCircle: (x: number, y: number, r: number) => CreateJSGraphics;
-}
-
-interface CreateJSBlurFilter {
-  getBounds: () => { x: number; y: number; width: number; height: number };
-}
-
-interface CreateJSStage {
-  compositeOperation: string;
-  addChild: (child: Particle) => void;
-  update: () => void;
-}
-
-interface CreateJSLib {
-  Stage: new (canvasId: string) => CreateJSStage;
-  Shape: new () => Particle;
-  BlurFilter: new (x: number, y: number, q: number) => CreateJSBlurFilter;
-  Ticker: {
-    addEventListener: (event: string, fn: () => void) => void;
-    removeEventListener: (event: string, fn: () => void) => void;
-    removeAllEventListeners: () => void;
-  };
-}
-
-interface TweenMaxLib {
-  to: (target: unknown, duration: number, vars: Record<string, unknown>) => void;
-}
-
-interface Particle {
-  graphics: CreateJSGraphics;
-  filters: CreateJSBlurFilter[];
-  cache: (x: number, y: number, w: number, h: number) => void;
-  alpha: number;
+interface ParticleKind {
+  count: number;
+  radius: number;
   alphaMax: number;
-  distance: number;
-  ballwidth: number;
-  flag: string;
-  areaHeight: number;
-  speed: number;
-  x: number;
-  y: number;
-  initX: number;
-  initY: number;
-  scaleX: number;
-  scaleY: number;
-}
-
-interface ParticleSetting {
-  id: string;
-  num: number;
-  fromX: number;
-  toX: number;
-  ballwidth: number;
-  alphamax: number;
+  /** 粒子集中分布的竖向区域占比（1 = 全屏，0.5 = 中间一半） */
   areaHeight: number;
   color: string;
   fill: boolean;
 }
 
-interface LightEntry {
-  elem: Particle & { offsetX: number; offsetY: number };
-  offsetX: number;
-  offsetY: number;
+const PARTICLE_KINDS: ParticleKind[] = [
+  { count: 100, radius: 3,  alphaMax: 0.4, areaHeight: 0.5, color: '#0cdbf3', fill: false },
+  { count: 50,  radius: 15, alphaMax: 0.3, areaHeight: 1,   color: '#6fd2f3', fill: true  },
+  { count: 30,  radius: 30, alphaMax: 0.2, areaHeight: 1,   color: '#93e9f3', fill: true  },
+];
+
+interface Particle {
+  sprite: HTMLCanvasElement;
+  spriteSize: number;
+  alphaMax: number;
+  areaHeight: number;
+  distance: number;
+  /** 锚点：粒子在其附近漂移 */
+  anchorX: number;
+  anchorY: number;
+  /** 位置/缩放的当前一段补间 */
+  fromX: number; fromY: number; fromScale: number;
+  toX: number;   toY: number;   toScale: number;
+  moveStart: number;
+  moveDuration: number;
+  /** 透明度补间：前半段升到 peak，后半段降到 0 */
+  alphaPeak: number;
+  alphaStart: number;
+  alphaDuration: number;
 }
 
-// ── 辅助函数（模块作用域）──────────────────────────────────────
+const range = (min: number, max: number) => min + (max - min) * Math.random();
+const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const easeOutQuad = (t: number) => 1 - (1 - t) * (1 - t);
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-function range(min: number, max: number) {
-  return min + (max - min) * Math.random();
-}
-
-function roundNum(num: number, precision: number) {
-  const decimal = Math.pow(10, precision);
-  return Math.round(decimal * num) / decimal;
-}
-
-function weightedRange(
-  to: number,
-  from = 0,
-  decimalPlaces = 0,
-  weightedRangeArg: [number, number] | null = null,
-  weightStrength = 0,
-) {
-  if (to === from) return to;
-  if (weightedRangeArg && Math.random() <= weightStrength) {
-    return roundNum(Math.random() * (weightedRangeArg[1] - weightedRangeArg[0]) + weightedRangeArg[0], decimalPlaces);
+/** 大概率落在屏幕中间一带，小概率落在任意位置（与原版 weightedRange 等价） */
+function weightedPosition(total: number, areaHeight: number, strength: number) {
+  if (Math.random() <= strength) {
+    const lo = total * (2 - areaHeight / 2) / 4;
+    const hi = total * (2 + areaHeight / 2) / 4;
+    return range(lo, hi);
   }
-  return roundNum(Math.random() * (to - from) + from, decimalPlaces);
+  return range(0, total);
 }
 
-function animateBall(ball: Particle) {
-  const TweenMax = window.TweenMax;
-  const Cubic = window.Cubic;
-  const scale = range(0.3, 1);
-  const xpos = range(ball.initX - ball.distance, ball.initX + ball.distance);
-  const ypos = range(ball.initY - ball.distance, ball.initY + ball.distance);
-  const speed = ball.speed;
-  TweenMax.to(ball, speed, { scaleX: scale, scaleY: scale, x: xpos, y: ypos, onComplete: animateBall, onCompleteParams: [ball], ease: Cubic.easeInOut });
-  TweenMax.to(ball, speed / 2, { alpha: range(0.1, ball.alphaMax), onComplete: fadeout, onCompleteParams: [ball, speed] });
-}
-
-function fadeout(ball: Particle, speed: number) {
-  ball.speed = range(2, 10);
-  window.TweenMax.to(ball, speed / 2, { alpha: 0 });
-}
-
-// ── ParticleEngine 类（模块作用域）───────────────────────────────
-
-class ParticleEngine {
-  canvas_id: string;
-  stage: CreateJSStage;
-  totalWidth: number;
-  canvasWidth: number;
-  totalHeight: number;
-  canvasHeight: number;
-  compositeStyle: string;
-  particleSettings: ParticleSetting[];
-  particleArray: Particle[];
-  lights: LightEntry[];
-
-  constructor(canvas_id: string) {
-    const createjs = window.createjs;
-    this.canvas_id = canvas_id;
-    this.stage = new createjs.Stage(canvas_id);
-    const canvasElement = document.getElementById(canvas_id) as HTMLCanvasElement;
-    this.totalWidth = this.canvasWidth = canvasElement.width = canvasElement.offsetWidth;
-    this.totalHeight = this.canvasHeight = canvasElement.height = canvasElement.offsetHeight;
-    this.compositeStyle = 'lighter';
-
-    // 小屏（手机）粒子减半：全屏 canvas + 模糊滤镜在移动端相当耗电
-    const density = this.totalWidth <= 768 ? 0.5 : 1;
-    this.particleSettings = [
-      { id: 'small',  num: Math.round(100 * density), fromX: 0, toX: this.totalWidth, ballwidth: 3,  alphamax: 0.4, areaHeight: 0.5, color: '#0cdbf3', fill: false },
-      { id: 'medium', num: Math.round(50 * density),  fromX: 0, toX: this.totalWidth, ballwidth: 15, alphamax: 0.3, areaHeight: 1,   color: '#6fd2f3', fill: true  },
-      { id: 'large',  num: Math.round(30 * density),  fromX: 0, toX: this.totalWidth, ballwidth: 30, alphamax: 0.2, areaHeight: 1,   color: '#93e9f3', fill: true  },
-    ];
-    this.particleArray = [];
-    this.lights = [];
-
-    this.stage.compositeOperation = this.compositeStyle;
-    this.drawParticles();
+function makeSprite(kind: ParticleKind): { sprite: HTMLCanvasElement; size: number } {
+  const padding = kind.fill ? kind.radius : 2;
+  const size = Math.ceil((kind.radius + padding) * 2);
+  const sprite = document.createElement('canvas');
+  sprite.width = sprite.height = size;
+  const ctx = sprite.getContext('2d')!;
+  const c = size / 2;
+  if (kind.fill) {
+    // 径向渐变模拟原来的高斯模糊，比每帧 filter: blur 便宜得多
+    const gradient = ctx.createRadialGradient(c, c, 0, c, c, kind.radius + padding);
+    gradient.addColorStop(0, kind.color);
+    gradient.addColorStop(0.55, kind.color);
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+  } else {
+    ctx.strokeStyle = kind.color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(c, c, kind.radius, 0, Math.PI * 2);
+    ctx.stroke();
   }
+  return { sprite, size };
+}
 
-  applySettings(circle: Particle, positionX: number, totalWidth: number, areaHeight: number) {
-    circle.speed = range(1, 3);
-    circle.initY = weightedRange(0, this.totalHeight, 1, [this.totalHeight * (2 - areaHeight / 2) / 4, this.totalHeight * (2 + areaHeight / 2) / 4], 0.8);
-    circle.initX = weightedRange(positionX, totalWidth, 1, [positionX + (totalWidth - positionX) / 4, positionX + (totalWidth - positionX) * 3 / 4], 0.6);
-  }
+function scheduleMove(p: Particle, now: number, first: boolean) {
+  p.fromX = first ? p.anchorX : p.toX;
+  p.fromY = first ? p.anchorY : p.toY;
+  p.fromScale = first ? range(0.3, 1) : p.toScale;
+  p.toX = range(p.anchorX - p.distance, p.anchorX + p.distance);
+  p.toY = range(p.anchorY - p.distance, p.anchorY + p.distance);
+  p.toScale = range(0.3, 1);
+  p.moveStart = now;
+  p.moveDuration = (first ? range(1, 3) : range(2, 10)) * 1000;
+}
 
-  drawParticles() {
-    const createjs = window.createjs;
-    for (let i = 0, len = this.particleSettings.length; i < len; i++) {
-      const ball = this.particleSettings[i];
-      for (let s = 0; s < ball.num; s++) {
-        const circle = new createjs.Shape();
-        if (ball.fill) {
-          circle.graphics.beginFill(ball.color).drawCircle(0, 0, ball.ballwidth);
-          const blurFilter = new createjs.BlurFilter(ball.ballwidth / 2, ball.ballwidth / 2, 1);
-          circle.filters = [blurFilter];
-          const bounds = blurFilter.getBounds();
-          circle.cache(-50 + bounds.x, -50 + bounds.y, 100 + bounds.width, 100 + bounds.height);
-        } else {
-          circle.graphics.beginStroke(ball.color).setStrokeStyle(1).drawCircle(0, 0, ball.ballwidth);
-        }
+function scheduleAlpha(p: Particle, now: number, duration: number) {
+  p.alphaPeak = range(0.1, p.alphaMax);
+  p.alphaStart = now;
+  p.alphaDuration = duration;
+}
 
-        circle.alpha     = range(0, 0.1);
-        circle.alphaMax  = ball.alphamax;
-        circle.distance  = ball.ballwidth * 2;
-        circle.ballwidth = ball.ballwidth;
-        circle.flag      = ball.id;
-        circle.areaHeight = ball.areaHeight;
-        this.applySettings(circle, ball.fromX, ball.toX, ball.areaHeight);
-        circle.speed  = range(2, 10);
-        circle.y      = circle.initY;
-        circle.x      = circle.initX;
-        circle.scaleX = circle.scaleY = range(0.3, 1);
-
-        this.stage.addChild(circle);
-        animateBall(circle);
-        this.particleArray.push(circle);
-      }
+function createParticles(width: number, height: number): Particle[] {
+  // 小屏（手机）粒子减半：全屏 canvas 动画在移动端相当耗电
+  const density = width <= 768 ? 0.5 : 1;
+  const now = performance.now();
+  const particles: Particle[] = [];
+  for (const kind of PARTICLE_KINDS) {
+    const { sprite, size } = makeSprite(kind);
+    for (let i = 0; i < Math.round(kind.count * density); i++) {
+      const p: Particle = {
+        sprite,
+        spriteSize: size,
+        alphaMax: kind.alphaMax,
+        areaHeight: kind.areaHeight,
+        distance: kind.radius * 2,
+        anchorX: weightedPosition(width, 1, 0.6),
+        anchorY: weightedPosition(height, kind.areaHeight, 0.8),
+        fromX: 0, fromY: 0, fromScale: 1,
+        toX: 0, toY: 0, toScale: 1,
+        moveStart: now, moveDuration: 1,
+        alphaPeak: 0, alphaStart: now, alphaDuration: 1,
+      };
+      scheduleMove(p, now, true);
+      scheduleAlpha(p, now, p.moveDuration);
+      particles.push(p);
     }
   }
-
-  render() {
-    this.stage.update();
-  }
-
-  resize() {
-    const canvasElement = document.getElementById(this.canvas_id) as HTMLCanvasElement;
-    this.totalWidth = this.canvasWidth = canvasElement.width = canvasElement.offsetWidth;
-    this.totalHeight = this.canvasHeight = canvasElement.height = canvasElement.offsetHeight;
-    this.render();
-
-    for (let i = 0, length = this.particleArray.length; i < length; i++) {
-      this.applySettings(this.particleArray[i], 0, this.totalWidth, this.particleArray[i].areaHeight);
-    }
-
-    for (let j = 0, len = this.lights.length; j < len; j++) {
-      this.lights[j].elem.initY = this.totalHeight / 2 + this.lights[j].offsetY;
-      this.lights[j].elem.initX = this.totalWidth  / 2 + this.lights[j].offsetX;
-      window.TweenMax.to(this.lights[j].elem, 0.5, { x: this.lights[j].elem.initX, y: this.lights[j].elem.initY });
-    }
-  }
+  return particles;
 }
 
-// ── React 组件 ────────────────────────────────────────────────
+function drawFrame(ctx: CanvasRenderingContext2D, particles: Particle[], width: number, height: number, now: number) {
+  ctx.clearRect(0, 0, width, height);
+  ctx.globalCompositeOperation = 'lighter';
+  for (const p of particles) {
+    let t = (now - p.moveStart) / p.moveDuration;
+    if (t >= 1) {
+      scheduleMove(p, now, false);
+      t = 0;
+    }
+    const e = easeInOutCubic(t);
+    const x = lerp(p.fromX, p.toX, e);
+    const y = lerp(p.fromY, p.toY, e);
+    const scale = lerp(p.fromScale, p.toScale, e);
 
-/**
- * 环境背景粒子动画组件
- * 使用 EaselJS 和 GSAP 创建粒子效果
- */
+    let at = (now - p.alphaStart) / p.alphaDuration;
+    if (at >= 1) {
+      scheduleAlpha(p, now, p.moveDuration);
+      at = 0;
+    }
+    const alpha = at < 0.5
+      ? p.alphaPeak * easeOutQuad(at * 2)
+      : p.alphaPeak * (1 - easeOutQuad((at - 0.5) * 2));
+    if (alpha <= 0.002) continue;
+
+    const size = p.spriteSize * scale;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(p.sprite, x - size / 2, y - size / 2, size, size);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
 export default function AmbientBackground() {
-  const canvasRef    = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<ParticleEngine | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    // 用户开启了“减少动态效果”时只保留静态渐变背景，不加载粒子脚本
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    // 用户开启了“减少动态效果”时只保留 CSS 渐变背景
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const loadScripts = async () => {
-      // 加载 EaselJS
-      if (!window.createjs) {
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://code.createjs.com/1.0.0/easeljs.min.js';
-          script.onload = () => resolve();
-          script.onerror = () => reject();
-          document.head.appendChild(script);
-        });
-      }
+    let width = 0;
+    let height = 0;
+    let particles: Particle[] = [];
+    let frame = 0;
+    let lastDraw = 0;
 
-      // 加载 GSAP (TweenMax)
-      if (!window.TweenMax) {
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js';
-          script.onload = () => resolve();
-          script.onerror = () => reject();
-          document.head.appendChild(script);
-        });
-      }
-
-      if (!canvasRef.current || !window.createjs || !window.TweenMax) return;
-
-      // 初始化粒子引擎
-      particlesRef.current = new ParticleEngine('ambient-canvas');
-
-      function updateCanvas() {
-        particlesRef.current?.render();
-      }
-      window.createjs.Ticker.addEventListener('tick', updateCanvas);
-
-      const handleResize = () => { particlesRef.current?.resize(); };
-      window.addEventListener('resize', handleResize, false);
-
-      return () => {
-        window.createjs.Ticker.removeEventListener('tick', updateCanvas);
-        window.removeEventListener('resize', handleResize);
-      };
+    const resize = () => {
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+      particles = createParticles(width, height);
     };
 
-    loadScripts();
+    const tick = (now: number) => {
+      frame = requestAnimationFrame(tick);
+      // 手机端限制到约 30fps
+      if (width <= 768 && now - lastDraw < 30) return;
+      lastDraw = now;
+      drawFrame(ctx, particles, width, height, now);
+    };
 
+    resize();
+    frame = requestAnimationFrame(tick);
+    window.addEventListener('resize', resize);
     return () => {
-      if (particlesRef.current && window.createjs) {
-        window.createjs.Ticker.removeAllEventListeners();
-      }
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', resize);
     };
   }, []);
 
@@ -288,9 +206,8 @@ export default function AmbientBackground() {
     <canvas
       ref={canvasRef}
       id="ambient-canvas"
+      aria-hidden="true"
       className="top-0 left-0 -z-99 fixed bg-[linear-gradient(0deg,#191d1e_50%,#283139_100%)] bg-fixed w-full h-full"
-    >
-      Your browser does not support the Canvas element.
-    </canvas>
+    />
   );
 }

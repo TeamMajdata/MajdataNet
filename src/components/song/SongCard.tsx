@@ -19,28 +19,18 @@ interface SongCardProps {
   index: number;
   isRanking?: boolean;
   isManage?: boolean;
-  page?: number;
   disableLink?: boolean;
   onClick?: (song: Song) => void;
 }
 
-const SongCard = memo(function SongCard({ song, index, isRanking, isManage, page, disableLink, onClick }: SongCardProps) {
+const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disableLink, onClick }: SongCardProps) {
   // 只在 ImpressionScope 内生效，其他列表中为空操作
   const impressionRef = useImpressionRef(song.hash);
 
-  const savePosition = useCallback(() => {
-    if (page == null) return;
-    localStorage.setItem('lastclickid', song.id);
-    localStorage.setItem('lastclickpage', page.toString());
-  }, [song.id, page]);
-
+  // 列表位置（搜索词/排序/页码）已在首页 URL 中，浏览器回退即可还原，无需本地记录
   const handleClick = useCallback(() => {
-    if (onClick) {
-      onClick(song);
-    } else {
-      savePosition();
-    }
-  }, [onClick, song, savePosition]);
+    onClick?.(song);
+  }, [onClick, song]);
 
   const handleDownload = useCallback(async (e?: React.MouseEvent) => {
     e?.stopPropagation();
