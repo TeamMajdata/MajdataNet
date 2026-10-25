@@ -28,7 +28,7 @@
     "EmailLabel": "邮箱",
     "UsernameOrEmail": "用户名或邮箱",
     "Nickname": "昵称",
-    "UsernameHint": "最多 24 位，仅限字母、数字、下划线和连字符",
+    "UsernameHint": "最多 24 位，只能包含英文字母和数字",
     "LegacyLink": "邮件链接验证已停用，请重新获取验证码；旧账户激活问题请联系管理员。",
     "NetworkError": "网络请求失败，请重试",
     "TooManyRequests": "请求过于频繁，请稍后再试",
