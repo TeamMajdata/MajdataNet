@@ -6,18 +6,12 @@ import { i18n } from './i18n';
 import type { Event, EventWithTimeInfo, CarouselEventsResult, EventCategory } from '@/types';
 import { EVENT_CATEGORY_I18N_KEYS } from '@/types/event';
 
-// 从 public/events.json 动态加载 外部可访问
-let eventsData: Event[] = [];
-try {
-  const _res = await fetch('/events.json');
-  if (_res.ok) {
-    eventsData = (await _res.json()) as Event[];
-  } else {
-    console.warn('[eventsData] fetch /events.json failed:', _res.status);
-  }
-} catch (_err) {
-  console.warn('[eventsData] fetch /events.json error:', _err);
-}
+import eventsJson from '../../public/events.json';
+
+// 构建时打包 public/events.json：文件仍在 public 下对外可访问，
+// 但不再用顶层 await 在运行时请求（那会阻塞整个入口 chunk 的执行）。
+// CI 对 public/** 的改动同样触发构建，所以修改活动配置后依旧会生效。
+const eventsData: Event[] = eventsJson as Event[];
 
 /**
  * 获取所有活动数据

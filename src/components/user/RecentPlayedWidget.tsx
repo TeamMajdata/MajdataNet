@@ -5,7 +5,8 @@ import { ScoreCard, LoadingSpinner } from '@/components';
 import { useI18n } from '@/hooks';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
 import { motion } from 'framer-motion';
-import RecentActivityChart, { parseRecentTime } from '@/components/chart/RecentActivityChart';
+import RecentActivityChart from '@/components/chart/RecentActivityChart';
+import { parseRecentTime } from '@/utils/recentActivity';
 
 // ─── Fetcher ──────────────────────────────────────────────────────────────────
 

@@ -42,14 +42,9 @@
   scrollbar-width: thin;
 }
 
-/* 基础文本颜色 */
-div {
-  color: rgb(var(--foreground-rgb));
-}
-
-/* Body 基础样式 */
+/* Body 基础样式（文本颜色通过继承生效，不再对 div 单独设色） */
 body {
-  caret-color: transparent;
+  color: rgb(var(--foreground-rgb));
   color-scheme: only dark;
   background-color: rgb(var(--background-start));
   padding-top: var(--content-top-spacing-large);
@@ -112,9 +107,13 @@ h2 {
   }
 }
 
-/* 禁用状态样式 */
-*:disabled {
-  background-color: rgb(92 0 0);
+/* 禁用状态只做弱化，不改变背景色；需要特殊外观的控件自行用 disabled: 变体 */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* 移除数字输入框的spinner */

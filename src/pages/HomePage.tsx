@@ -1,5 +1,5 @@
 import { getEventHref } from '@/utils/eventLink';
-import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip } from '@/components';
@@ -488,17 +488,26 @@ const RECOMMEND_MAX_PAGE = 100; // 与后端 feed 的 page 上限一致
 const clampRecommendPage = (page: number) =>
   Number.isInteger(page) ? Math.min(Math.max(page, 0), RECOMMEND_MAX_PAGE) : 0;
 
+const SORT_WORDS = ['', 'likep', 'commp', 'playp', 'timep'];
+
+// URL 里的数字参数：缺省、非法或越界一律视为 0
+const parseIndexParam = (value: string | null, max: number) => {
+  const parsed = Number(value ?? 0);
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= max ? parsed : 0;
+};
+
 type HomeTab = 'all' | 'recommend';
 
 function MainComp() {
   const { i18n } = useI18n();
   const { user } = useUserContext();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isInitialMount = useRef(true);
-  // tab 和推荐页码放在 URL 里，从谱面页返回时能回到原位置；默认仍是全部谱面
+  // tab、推荐页码、搜索词、排序、页码全部放在 URL 里：链接可分享，浏览器回退即可还原
   const activeTab: HomeTab = searchParams.get('tab') === 'recommend' ? 'recommend' : 'all';
   const recommendPage = clampRecommendPage(Number(searchParams.get('rpage') ?? 0));
-  const urlSearchParam = searchParams.get('search');
+  const search = searchParams.get('search') ?? '';
+  const sortType = parseIndexParam(searchParams.get('sort'), SORT_WORDS.length - 1);
+  const page = parseIndexParam(searchParams.get('page'), Number.MAX_SAFE_INTEGER);
 
   const navigateHome = useCallback((tab: HomeTab, rpage = 0) => {
     setSearchParams((prev) => {
@@ -511,62 +520,36 @@ function MainComp() {
     }, { replace: true });
   }, [setSearchParams]);
 
-  // 从 localStorage 或 URL 参数初始化状态
-  const [Search, setSearch] = useState(() => {
-    const urlSearchParam = searchParams.get('search');
-    const initialValue = urlSearchParam || localStorage.getItem('search') || '';
-    // 保存URL参数到localStorage
-    if (urlSearchParam) {
-      localStorage.setItem('search', urlSearchParam);
-    }
-    return initialValue;
-  });
-  const [page, setPage] = useState(() => {
-    const stored = localStorage.getItem('lastclickpage');
-    return parseInt(stored || '0');
-  });
-  const [maxpage, setMaxpage] = useState(999999);
-  const [sortType, setSortType] = useState(() => {
-    const stored = localStorage.getItem('sort');
-    return stored ? parseInt(stored) : 0;
-  });
+  // 最后一页的信息和它所属的搜索条件绑定，条件一变自然失效
+  const listKey = `${search}|${sortType}`;
+  const [lastPage, setLastPage] = useState<{ key: string; page: number } | null>(null);
+  const hasNext = !(lastPage && lastPage.key === listKey && page >= lastPage.page);
   const [randomSeed, setRandomSeed] = useState(() => Math.floor(Math.random() * 1000000));
 
-  // 处理 URL 搜索参数变化（跳过初始挂载）；只依赖 search，切换 tab 不会覆盖已输入的搜索
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
+  // 更新 URL 参数；值为 null 时删除该参数（默认值不落到 URL 里）
+  const updateListParams = useCallback((patch: Record<string, string | null>, replace: boolean) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      for (const [key, value] of Object.entries(patch)) {
+        if (value === null) next.delete(key);
+        else next.set(key, value);
+      }
+      return next;
+    }, { replace });
+  }, [setSearchParams]);
 
-    if (urlSearchParam) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSearch(urlSearchParam);
-      localStorage.setItem('search', urlSearchParam);
-    }
-  }, [urlSearchParam]);
-
-  const debounced = useDebouncedCallback(
-    // function
-    (value: string) => {
-      setSearch(value);
-      setPage(0);
-      setMaxpage(9999999999999);
-      localStorage.setItem('search', value);
-      localStorage.setItem('lastclickpage', '0');
-    },
-    // delay in ms
-    500
-  );
+  // 输入搜索词用 replace，避免每敲一次键都往历史栈里压一条记录
+  const debounced = useDebouncedCallback((value: string) => {
+    updateListParams({ search: value || null, page: null }, true);
+  }, 500);
 
   const onSortChange = (val: number) => {
-    setSortType(val);
-    localStorage.setItem('sort', val.toString());
-    setPage(0);
-    localStorage.setItem('lastclickpage', '0');
+    updateListParams({ sort: val > 0 ? String(val) : null, page: null }, false);
   };
 
-  const sortWords = ['', 'likep', 'commp', 'playp', 'timep'];
+  const setPage = (target: number) => {
+    updateListParams({ page: target > 0 ? String(target) : null }, false);
+  };
 
   const refreshRandomBatch = useCallback(() => {
     setRandomSeed((prev) => prev + 1);
@@ -600,19 +583,21 @@ function MainComp() {
         <>
           <SearchBar
             onChange={(e) => debounced(e.target.value)}
-            initS={Search}
+            initS={search}
             sortType={sortType}
             onSortChange={onSortChange}
           />
 
           <SongList
-            url={endpoints.maichart.listSearchAndSort(Search, sortWords[sortType], page)}
+            url={endpoints.maichart.listSearchAndSort(search, SORT_WORDS[sortType], page)}
             page={page}
-            setMax={setMaxpage}
+            setMax={(last) => setLastPage((prev) => (
+              prev && prev.key === listKey && prev.page === last ? prev : { key: listKey, page: last }
+            ))}
           />
 
           <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
-            <Pager page={page} hasNext={page < maxpage} onPageChange={setPage} />
+            <Pager page={page} hasNext={hasNext} onPageChange={setPage} />
             <IntegratedDownloadTypeSelector isMobile={true} />
           </div>
         </>
@@ -846,7 +831,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   return (
     <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
       {randomSongs.map((song, index) => (
-        <SongCard key={song.id} song={song} index={index} page={0} />
+        <SongCard key={song.id} song={song} index={index} />
       ))}
     </div>
   );

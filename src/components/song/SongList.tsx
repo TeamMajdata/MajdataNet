@@ -3,6 +3,7 @@
  * 迁移自 legacy/src/app/widgets/SongList.jsx
  */
 
+import { useEffect } from 'react';
 import useSWR from 'swr';
 import { useI18n } from '@/hooks';
 import SongCard from './SongCard';
@@ -23,15 +24,17 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
     },
   });
 
+  // 不足一页即为最后一页；放在 effect 里通知父组件，避免在渲染期间更新父组件状态
+  const isLastPage = !!data && data.length > 0 && data.length < 30;
+  useEffect(() => {
+    if (isLastPage && page != null) setMax?.(page);
+  }, [isLastPage, page, setMax]);
+
   if (error) return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{i18n("song/SongList.ServerError", '服务器错误')}</div>;
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-20 w-full"><LoadingSpinner size="50px" /></div>
     );
-  }
-
-  if (data && data.length < 30 && data.length > 0) {
-    if (page != null && setMax != null) setMax(page);
   }
 
   if (!data || !Array.isArray(data) || data.length === 0) {
@@ -47,7 +50,6 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
           index={index}
           isRanking={isRanking}
           isManage={isManage}
-          page={page}
         />
       ))}
     </div>

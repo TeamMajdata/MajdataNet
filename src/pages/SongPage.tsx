@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, type MouseEvent } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
@@ -133,6 +133,9 @@ function SongDetailsContainer({ id, data }: SongDetailsContainerProps & { data: 
 
 function SongInfo({ data }: { id: string; data: SongSummary }) {
   const { i18n } = useI18n();
+  const navigate = useNavigate();
+  // 站内跳转到首页搜索：关键词放在 URL 里，不再整页刷新
+  const searchHome = (keyword: string) => navigate(`/?search=${encodeURIComponent(keyword)}`);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tagButtonRef = useRef<any>(null);
   const [isLoadMajdata, setIsLoadMajdata] = useState(false);
@@ -184,10 +187,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 className="inline-block hover:shadow-lg hover:text-shadow drop-shadow-md px-5 py-2.5 rounded-lg font-black hover:text-white text-4xl md:text-5xl text-center tracking-tight transition-all hover:-translate-y-0.5 duration-300 cursor-pointer hover:transform"
                 id={o.id}
                 onClick={() => {
-                  if (o.title && o.title !== '' && o.title !== null) {
-                    localStorage.setItem('search', o.title);
-                    window.location.href = '/';
-                  }
+                  if (o.title) searchHome(o.title);
                 }}
               >
                 {parseTmpRichText(o.title)}
@@ -199,10 +199,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 <span
                   className="inline-block hover:bg-white/10 hover:shadow-md px-3 py-1 rounded-md hover:text-white transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
                   onClick={() => {
-                    if (o.artist && o.artist !== '' && o.artist !== null) {
-                      localStorage.setItem('search', o.artist);
-                      window.location.href = '/';
-                    }
+                    if (o.artist) searchHome(o.artist);
                   }}
                 >
                   Artist: {o.artist === '' || o.artist == null ? '-' : o.artist}
@@ -252,10 +249,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                       <Tooltip content={i18n("song/SongPage.SearchForTag")} key={index}>
                         <span
                           className="inline-flex items-center bg-[linear-gradient(135deg,rgb(139_69_19/0.3),rgb(101_67_33/0.2))] hover:bg-[linear-gradient(135deg,rgb(139_69_19/0.5),rgb(101_67_33/0.4))] hover:shadow-[0_4px_12px_rgb(139_69_19/0.3)] px-3 py-1 border border-[rgb(139_69_19/0.4)] hover:border-[rgb(139_69_19/0.7)] rounded-full font-medium text-[rgb(255_215_0/0.9)] hover:text-[#ffd700] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
-                          onClick={() => {
-                            localStorage.setItem('search', tag);
-                            window.location.href = '/';
-                          }}
+                          onClick={() => searchHome(tag)}
                         >
                           {tag}
                         </span>
@@ -265,10 +259,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                       <Tooltip content={i18n("song/SongPage.SearchForTag")} key={index}>
                         <span
                           className="inline-flex items-center bg-[linear-gradient(135deg,rgb(34_197_94/0.3),rgb(22_163_74/0.2))] hover:bg-[linear-gradient(135deg,rgb(34_197_94/0.5),rgb(22_163_74/0.4))] hover:shadow-[0_4px_12px_rgb(34_197_94/0.3)] px-3 py-1 border border-[rgb(34_197_94/0.4)] hover:border-[rgb(34_197_94/0.7)] rounded-full font-medium text-[rgb(74_222_128/0.9)] hover:text-[#4ade80] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
-                          onClick={() => {
-                            localStorage.setItem('search', 'tag:' + tag);
-                            window.location.href = '/';
-                          }}
+                          onClick={() => searchHome('tag:' + tag)}
                         >
                           {tag}
                         </span>

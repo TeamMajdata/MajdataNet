@@ -12,43 +12,8 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // React 核心库
-          'vendor-react': ['react', 'react-dom'],
-          // React Router
-          'vendor-router': ['react-router-dom'],
-          // UI 组件库
-          'vendor-ui': [
-            'framer-motion',
-            'react-icons',
-            'react-photo-view',
-            'swiper',
-            '@radix-ui/react-tooltip',
-            'react-toastify',
-          ],
-          // Markdown 相关
-          'vendor-markdown': [
-            'react-markdown',
-            'remark-gfm',
-            'remark-breaks',
-            'github-markdown-css',
-          ],
-          // Unity WebGL
-          'vendor-unity': ['react-unity-webgl'],
-          // 工具库
-          'vendor-utils': [
-            'axios',
-            'jszip',
-            'js-md5',
-            'swr',
-            'use-debounce',
-          ],
-        },
-      },
-    },
-    chunkSizeWarningLimit: 1000, // 将警告阈值提高到 1000 kB
+    // 不再手动分块：页面已按路由 lazy 拆分，交给 Rollup 自动提取公共依赖。
+    chunkSizeWarningLimit: 1000, // Live2D 运行时（l2d）单个 chunk 约 650 kB，按需加载
   },
   server: {
     port: 3000,

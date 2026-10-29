@@ -11,6 +11,9 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // Node 25+ 默认开启实验性 Web Storage，其全局 localStorage 会遮住 jsdom 的实现
+    // （没有 --localstorage-file 时取值为 undefined）。在 worker 里关掉它。
+    execArgv: ['--no-experimental-webstorage'],
     include: ['test/**/*.test.{ts,tsx}'],
   },
 })
