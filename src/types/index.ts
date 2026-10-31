@@ -9,7 +9,6 @@ export * from './api';
 export * from './event';
 export * from './song';
 export * from './score';
-export * from './comment';
 export * from './interact';
 export * from './timeline';
 export * from './components';

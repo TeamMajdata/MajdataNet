@@ -1,46 +1,46 @@
 {
   "auth/ForginsterPage": {
     "CloudflareVerificationNotReady": "Cloudflare 認証が完了していません。ネットワークを確認して、しばらくしてから再試行してください。",
+    "CodeExpired": "コードの有効期限が切れました。再取得してください。",
+    "CodeSent": "利用可能なメールアドレスの場合、コードが届きます。5分以内に入力してください。",
     "ConfirmPassword": "パスワード確認",
     "CreateAccount": "アカウント作成",
+    "EightDigitCode": "8桁の認証コード",
     "EmailExists": "邮箱已被注册",
+    "EmailLabel": "メールアドレス",
     "ForgetPassword": "パスワードを忘れた方",
     "ForgetPasswordSubtitle": "登録済みのメールでコードを取得し、新しいパスワードを設定してください。",
     "ForgetPasswordTitle": "パスワードを忘れた方",
     "InvalidEmail": "无效的邮箱地址",
+    "LegacyLink": "メール内の認証リンクは利用できません。コードを再取得してください。旧アカウントの有効化は管理者にお問い合わせください。",
     "Login": "ログイン",
+    "LoginPendingVerification": "旧アカウントが有効化されていません。管理者にお問い合わせください。",
     "LoginSubtitle": "アカウントにログインして続行",
+    "LoginUserBanned": "このユーザーはBANされています。",
+    "NetworkError": "通信に失敗しました。もう一度お試しください。",
+    "Nickname": "ニックネーム",
     "PasswdNoMatch": "パスワードが一致しません",
     "Password": "パスワード",
     "Register": "登録",
     "RegisterSubtitle": "Majdataコミュニティに参加し、譜面制作の旅を始めましょう",
+    "RegisterSuccess": "登録が完了しました。ログインしてください。",
     "RememberMe": "ログインしたままにする",
+    "RequestCodeFirst": "先にメール認証コードを取得してください。",
+    "RequestNewCode": "新しいコードを取得してから再送信してください。",
+    "ResendCode": "コードを再送信",
     "ResetPasswordButton": "パスワードをリセット",
     "ResetPasswordSuccess": "リセットしました！",
+    "SendCode": "コードを送信",
+    "SendingCode": "送信中…",
+    "TooManyRequests": "リクエストが多すぎます。しばらくしてからお試しください。",
     "Username": "ユーザー名",
     "UsernameExists": "用户名已存在",
+    "UsernameHint": "24文字以内の英数字・アンダースコア・ハイフン",
+    "UsernameOrEmail": "ユーザー名またはメールアドレス",
     "VerificationCode": "認証コード",
     "WaitingForCloudflareVerification": "Cloudflare 認証を待っています",
     "WelcomeBack": "おかえりなさい",
-    "WrongCredential": "ユーザー名、メールアドレス、またはパスワードが違います",
-    "LoginPendingVerification": "旧アカウントが有効化されていません。管理者にお問い合わせください。",
-    "LoginUserBanned": "このユーザーはBANされています。",
-    "EmailLabel": "メールアドレス",
-    "UsernameOrEmail": "ユーザー名またはメールアドレス",
-    "Nickname": "ニックネーム",
-    "UsernameHint": "24文字以内の英数字・アンダースコア・ハイフン",
-    "LegacyLink": "メール内の認証リンクは利用できません。コードを再取得してください。旧アカウントの有効化は管理者にお問い合わせください。",
-    "NetworkError": "通信に失敗しました。もう一度お試しください。",
-    "TooManyRequests": "リクエストが多すぎます。しばらくしてからお試しください。",
-    "CodeSent": "利用可能なメールアドレスの場合、コードが届きます。5分以内に入力してください。",
-    "RequestCodeFirst": "先にメール認証コードを取得してください。",
-    "RequestNewCode": "新しいコードを取得してから再送信してください。",
-    "RegisterSuccess": "登録が完了しました。ログインしてください。",
-    "SendingCode": "送信中…",
-    "ResendCode": "コードを再送信",
-    "SendCode": "コードを送信",
-    "CodeExpired": "コードの有効期限が切れました。再取得してください。",
-    "EightDigitCode": "8桁の認証コード"
+    "WrongCredential": "ユーザー名、メールアドレス、またはパスワードが違います"
   },
   "chart-events/EventsFilter": {
     "FilterEventTypes": "イベントタイプでフィルター："
@@ -139,8 +139,8 @@
     "Songs": "曲",
     "Submit": "送信",
     "Subscribe": "購読",
-    "Subscribed": "購読済み",
     "SubscribeSuccess": "購読しました",
+    "Subscribed": "購読済み",
     "UnsubscribeSuccess": "購読を解除しました",
     "UploadDate": "新しい順"
   },
@@ -172,8 +172,8 @@
     "EventCreatedPrefix": "イベント作成日",
     "EventsCount": "個のイベント",
     "FrontPage": "ホームへ",
+    "HotShort": "人気",
     "LatestActivityShort": "最近",
-    "LikeCount": "いいね数",
     "LoginForRecommend": "ログインするとおすすめが表示されます",
     "Page": "ページ",
     "PageOf": "第",
@@ -182,6 +182,7 @@
     "RandomRecommend": "随机推荐",
     "RecommendEnd": "これ以上おすすめはありません",
     "RefreshBatch": "换一批",
+    "ScoreShort": "スコア",
     "SearchHintHash": "hash:xxxx でハッシュで検索",
     "SearchHintID": "id:xxxx で譜面IDで検索",
     "SearchHintTag": "tag:xxxx でタグで検索",
@@ -207,11 +208,11 @@
     "CommentCountHint": "コメントされた回数",
     "Download": "ダウンロード",
     "DownloadCountHint": "ダウンロードされた回数",
-    "Like": "いいね",
-    "LikeCountHint": "いいねされた回数",
     "Play": "プレイ",
     "PlayCountHint": "プレイ回数を表示",
-    "RecommendedChartsHint": "ここでは、過去7日間で最も人気のある譜面が選ばれますよ！"
+    "RecommendedChartsHint": "ここでは、過去7日間で最も人気のある譜面が選ばれますよ！",
+    "Score": "評価",
+    "ScoreHint": "高評価から低評価を引いたスコア"
   },
   "ranking/mmfc/MMFCRankingPage": {
     "MMFCRankingDescription": "参加者のmmfc_bot譜面プレイ総合スコアランキング",
@@ -223,45 +224,58 @@
     "UserRankingDescription": "総達成率ランキング - 自作譜面鑑賞のベテランは誰？",
     "UserRankingTitle": "ヘビープレイヤーランキング"
   },
-  "season/SeasonLeaderboard": {
-    "Retry": "再試行",
-    "Title": "ランキング",
-    "Loading": "ランキングを読み込み中…",
-    "Upcoming": "大会開始後、ここにランキングが表示されます。",
-    "Empty": "まだ参加スコアがありません。今シーズン最初のスコアを投稿しましょう。",
-    "LoadFailed": "ランキングを読み込めませんでした。しばらくしてから再試行してください。",
-    "UpdateFailed": "更新できませんでした。前回正常に取得した結果を表示しています。",
-    "Rank": "順位",
-    "Previous": "前へ",
-    "Next": "次へ",
-    "Page": "ページ",
-    "Participants": "参加者："
+  "score/InteractCount": {
+    "Comments": "コメント",
+    "Plays": "再生",
+    "Score": "スコア"
   },
   "season/SeasonLastPlayed": {
-    "Title": "最終プレイ日時",
-    "Scope": "大会期間内の対象譜面の最終プレイです。取得できる記録は直近30日分のみです。",
-    "Unavailable": "取得できません",
+    "Empty": "直近30日間の記録なし",
     "Loading": "読み込み中…",
-    "Empty": "直近30日間の記録なし"
+    "Scope": "大会期間内の対象譜面の最終プレイです。取得できる記録は直近30日分のみです。",
+    "Title": "最終プレイ日時",
+    "Unavailable": "取得できません"
+  },
+  "season/SeasonLeaderboard": {
+    "Empty": "まだ参加スコアがありません。今シーズン最初のスコアを投稿しましょう。",
+    "LoadFailed": "ランキングを読み込めませんでした。しばらくしてから再試行してください。",
+    "Loading": "ランキングを読み込み中…",
+    "Next": "次へ",
+    "Page": "ページ",
+    "Participants": "参加者：",
+    "Previous": "前へ",
+    "Rank": "順位",
+    "Retry": "再試行",
+    "Title": "ランキング",
+    "Upcoming": "大会開始後、ここにランキングが表示されます。",
+    "UpdateFailed": "更新できませんでした。前回正常に取得した結果を表示しています。"
   },
   "season/SeasonPage": {
     "BackToEvents": "イベント一覧に戻る",
-    "NotFound": "シーズン大会が見つかりません",
-    "InvalidConfig": "大会設定を利用できません",
     "ConfigurationHint": "イベント情報を管理者が確認する必要があります。しばらくしてから再度アクセスしてください。",
-    "Starts": "開始日時",
     "Ends": "終了日時",
-    "TimeZone": "北京時間（UTC+8）",
-    "RulesTitle": "集計ルール",
+    "InvalidConfig": "大会設定を利用できません",
+    "NotFound": "シーズン大会が見つかりません",
     "RulesBest": "今シーズンの対象ファイルに含まれる各難易度について、大会期間中の最高達成率をそれぞれ取得し、合計します。何度でも挑戦して合計スコアを伸ばし、ランキング上位を目指せます。",
-    "RulesTime": "サーバーがスコアを受信した時刻を基準とし、開始・終了時刻を含めて集計します。未プレイの譜面は加点されません。"
+    "RulesTime": "サーバーがスコアを受信した時刻を基準とし、開始・終了時刻を含めて集計します。未プレイの譜面は加点されません。",
+    "RulesTitle": "集計ルール",
+    "Starts": "開始日時",
+    "TimeZone": "北京時間（UTC+8）"
   },
   "season/SeasonPool": {
-    "Title": "今シーズンの対象譜面",
-    "Loading": "譜面を読み込み中…",
+    "InvalidDifficulty": "このファイルにはプレイ可能な難易度がありません。イベント管理者に確認してください。",
     "LoadFailed": "この譜面を読み込めませんでした",
+    "Loading": "譜面を読み込み中…",
     "Retry": "再試行",
-    "InvalidDifficulty": "このファイルにはプレイ可能な難易度がありません。イベント管理者に確認してください。"
+    "Title": "今シーズンの対象譜面"
+  },
+  "season/SeasonScoreDetails": {
+    "LoadFailed": "一部のスコアを読み込めませんでした。後でもう一度お試しください。",
+    "Loading": "読み込み中…",
+    "NoScore": "記録なし",
+    "Rule": "各譜面のスコアは、ファイル内の各難易度における大会期間中の最高達成率の合計です。",
+    "Title": "譜面別スコア",
+    "Unavailable": "取得不可"
   },
   "shared/AuthSection": {
     "AccountActions": "账户操作",
@@ -276,16 +290,16 @@
     "Language": "言語"
   },
   "shared/Live2DMascot": {
-    "Name": "小小蓝白",
-    "Poke": "小小蓝白をつつく",
+    "Cry1": "もう少しやさしくしてね……",
+    "Cry2": "うぅ、ちょっとひと息つかせて。",
     "DismissDialogue": "セリフを閉じる",
-    "MoveHint": "ドラッグか矢印キーで移動できます",
-    "Shy1": "あっ、見つかっちゃった。",
-    "Shy2": "そんなにつつくと照れちゃうよ。",
     "Encourage1": "今日も楽しく遊んでね！",
     "Encourage2": "次のプレイで AP が出ますように！",
-    "Cry1": "もう少しやさしくしてね……",
-    "Cry2": "うぅ、ちょっとひと息つかせて。"
+    "MoveHint": "ドラッグか矢印キーで移動できます",
+    "Name": "小小蓝白",
+    "Poke": "小小蓝白をつつく",
+    "Shy1": "あっ、見つかっちゃった。",
+    "Shy2": "そんなにつつくと照れちゃうよ。"
   },
   "shared/MMFCScoreCount": {
     "FailedToLoad": "読み込みに失敗しました",
@@ -319,12 +333,6 @@
     "RecentPlayActivity": "最近游玩活跃度",
     "Times": "次",
     "Today": "今日"
-  },
-  "shared/ScoreCard": {
-    "CancelSuccess": "キャンセルしました",
-    "FailedLoginPrompt": "失敗：ログインしていますか？",
-    "LikeAction": "いいね",
-    "Success": "成功"
   },
   "shared/ScoreCount": {
     "EmptyData": "空です",
@@ -362,6 +370,22 @@
     "PleaseLogin": "请先登录",
     "UnfavoriteSuccess": "已取消收藏"
   },
+  "song/ChartRadar": {
+    "AnalysisFailed": "この難易度を解析できませんでした",
+    "AxisJack": "縦連",
+    "AxisNote": "物量",
+    "AxisPeak": "発狂",
+    "AxisSlideSequence": "スライド",
+    "AxisSlideTricky": "ウミユリ",
+    "AxisSweep": "回転",
+    "FittedConstant": "推定定数",
+    "LoadFailed": "レーダーを読み込めませんでした",
+    "Loading": "譜面を解析中…",
+    "NoDifficulty": "利用可能な難易度がありません",
+    "Retry": "再試行",
+    "Title": "譜面レーダー",
+    "Unavailable": "この難易度のレーダーデータはありません"
+  },
   "song/ScoreRanking": {
     "FailedToLoad": "読み込みに失敗しました",
     "NoRecords": "暂无成绩记录",
@@ -369,37 +393,64 @@
     "Records": "条记录"
   },
   "song/SongComments": {
-    "CancelReply": "返信をキャンセル",
-    "Comment": "コメント",
-    "CommentFailedLoginPrompt": "コメント失敗：ログインしていますか？",
-    "CommentPlaceholder": "この譜面についての感想を共有してください...（Markdown記法対応、例：**太字**、*斜体*、`コード`、[リンク](url)、![画像](url))",
-    "CommentSuccess": "コメントを投稿しました",
-    "DeleteComment": "削除",
-    "DeleteCommentConfirm": "このコメントを削除してもよろしいですか？この操作は元に戻せません。",
-    "DeleteFailed": "削除失敗",
-    "DeleteSuccess": "削除しました",
-    "EmptyComment": "何か書いてみて？",
-    "FailedLoginPrompt": "失敗：ログインしていますか？",
-    "HidePreview": "プレビューを折りたたむ",
-    "NoComments": "コメントはまだありません",
-    "PleaseWait": "お待ちください",
+    "Cancel": "キャンセル",
+    "CollapseThread": "折りたたむ",
+    "CommentPlaceholder": "この譜面についての感想を共有しよう…",
+    "Comments": "コメント",
+    "ConfirmDelete": "確認",
+    "ContinueThread": "このスレッドを続けて読む",
+    "Delete": "削除",
+    "DeleteConfirm": "このコメントを削除しますか？",
+    "Deleted": "削除しました",
+    "DeletedAuthor": "[削除済み]",
+    "DeletedBody": "このコメントは投稿者によって削除されました",
+    "DeletedChart": "譜面は削除されました",
+    "Edit": "編集",
+    "EditPlaceholder": "コメントを編集",
+    "Edited": "編集済み",
+    "ExpandThread": "展開する",
+    "LinkCopied": "リンクをコピーしました",
+    "LoadMore": "もっと読み込む",
+    "Loading": "読み込み中…",
+    "MoreReplies": "件の返信をさらに表示",
+    "Next": "次へ",
+    "NoComments": "まだコメントはありません",
+    "Points": "ポイント",
     "Post": "投稿",
-    "PreviewPlaceholder": "プレビュー領域 - 上記でコンテンツを入力後にプレビューをクリックして効果を確認",
+    "Posting": "送信中…",
+    "Previous": "前へ",
+    "Remove": "除去",
+    "RemoveConfirm": "このコメントを除去しますか？",
+    "Removed": "除去しました",
+    "RemovedBody": "このコメントは管理者によって除去されました",
+    "Replies": "件の返信",
     "Reply": "返信",
-    "ReplyPlaceholder": "このコメントに返信...（Markdown記法対応、例：**太字**、*斜体*、`コード`、[リンク](url)、![画像](url))",
-    "ReplySuccess": "返信しました",
-    "ReplyTo": "返信",
-    "Sending": "送信中...",
-    "ShowPreview": "プレビューを展開"
+    "ReplyTo": "返信先",
+    "Retry": "再試行",
+    "Save": "保存",
+    "Share": "共有",
+    "SignIn": "ログイン",
+    "SignInToComment": "ログインしてコメントしよう",
+    "SingleThread": "単一のコメントを表示中",
+    "SortBest": "ベスト",
+    "SortBy": "並び替え",
+    "SortControversial": "議論中",
+    "SortNew": "新しい順",
+    "SortOld": "古い順",
+    "SortTop": "トップ",
+    "UnknownUser": "不明なユーザー",
+    "Uploader": "アップロード者",
+    "UploaderBadgeTitle": "この譜面のアップロード者",
+    "ViewAll": "すべてのコメントを見る",
+    "ViewInContext": "文脈を見る",
+    "ViewParent": "親コメントを見る",
+    "VoteOnComment": "このコメントに投票"
   },
   "song/SongInteraction": {
-    "BeFirstToLike": "最初にいいねしよう",
-    "CancelSuccess": "キャンセルしました",
-    "DislikeAction": "よくない",
-    "FailedLoginPrompt": "失敗：ログインしていますか？",
-    "LikeAction": "いいね",
-    "LikedBy": "いいねしたユーザー",
-    "Success": "成功"
+    "FailedToLoad": "読み込みに失敗しました",
+    "Plays": "再生",
+    "VoteOnChart": "この譜面に投票",
+    "Votes": "評価"
   },
   "song/SongList": {
     "EmptyData": "空です",
@@ -418,10 +469,17 @@
     "Tags": "タグ",
     "UploadTime": "UploadTime"
   },
+  "song/VoteControl": {
+    "Downvote": "低評価",
+    "Score": "スコア",
+    "Upvote": "高評価"
+  },
   "space/SpacePage": {
     "BackToHome": "ホームに戻る",
+    "Comments": "投稿したコメント",
     "Error": "错误",
     "JoinAt": "登録日",
+    "NoComments": "まだコメントを投稿していません",
     "RecentlyPlayedCharts": "最近プレイした譜面",
     "SelfIntro": "自己紹介",
     "ServerError": "閉店中",
@@ -441,28 +499,28 @@
     "SelectFile": "ファイルを選択",
     "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
+    "UploadSuccess": "上传成功",
     "Uploading": "爆速アップロード中...",
-    "UploadingPlzWait": "アップロード中です。しばらくお待ちください",
-    "UploadSuccess": "上传成功"
+    "UploadingPlzWait": "アップロード中です。しばらくお待ちください"
   },
   "user/ChartUploader": {
     "BGVideoHint": "bg.mp4/pv.mp4 (オプション、20MB以内)",
+    "InvalidFileName": "ファイル名が正しくありません（大文字と小文字を区別）。正しい名前：",
     "MaidataAlreadyExists": "この譜面はすでにサイト上に存在します",
     "MaidataAlreadyExistsWithTitle": "この譜面はすでにサイト上に存在します",
     "MaidataHashChecking": "この譜面が既に存在するか確認しています...",
     "MaidataHashLookupFailed": "maidata.txt のハッシュ照会に失敗しました",
     "MaidataHashNotFound": "既存の譜面は見つかりませんでした",
     "MaidataWillInheritHistory": "今回のアップロードは以前のスコアまたはインタラクションを引き継ぎます",
-    "InvalidFileName": "ファイル名が正しくありません（大文字と小文字を区別）。正しい名前：",
     "NoFileSelected": "ファイルが選択されていません: ",
     "NotLoggedIn": "未ログイン",
     "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
+    "UploadServerErrorHint": "アップロードに失敗しました。主サイトに行ってアップロードしてください",
+    "UploadSuccess": "Upload succeeded",
     "Uploading": "爆速アップロード中...",
     "UploadingPlzWait": "アップロード中です。しばらくお待ちください",
-    "UploadSuccess": "Upload succeeded",
-    "View": "表示",
-    "UploadServerErrorHint": "アップロードに失敗しました。主サイトに行ってアップロードしてください"
+    "View": "表示"
   },
   "user/IntroUploader": {
     "MarkdownSupported": "（Markdown記法対応）",
@@ -471,29 +529,12 @@
     "SelfIntro": "自己紹介",
     "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
+    "UploadSuccess": "Upload succeeded",
     "Uploading": "爆速アップロード中...",
-    "UploadingPlzWait": "アップロード中です。しばらくお待ちください",
-    "UploadSuccess": "Upload succeeded"
+    "UploadingPlzWait": "アップロード中です。しばらくお待ちください"
   },
   "user/Logout": {
     "Logout": "ログアウト"
-  },
-  "season/SeasonScoreDetails": {
-    "Title": "譜面別スコア",
-    "Unavailable": "取得不可",
-    "Loading": "読み込み中…",
-    "NoScore": "記録なし",
-    "LoadFailed": "一部のスコアを読み込めませんでした。後でもう一度お試しください。",
-    "Rule": "各譜面のスコアは、ファイル内の各難易度における大会期間中の最高達成率の合計です。"
-  },
-  "user/UserSeasons": {
-    "Title": "シーズン大会の成績",
-    "Rank": "順位",
-    "TotalScore": "合計スコア",
-    "ViewSeason": "大会を見る",
-    "Loading": "大会成績を読み込み中…",
-    "LoadFailed": "一部の大会成績を読み込めませんでした。",
-    "Retry": "再試行"
   },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "最近のプレイ記録はありません",
@@ -501,6 +542,15 @@
   },
   "user/UserInfo": {
     "Login": "ログイン"
+  },
+  "user/UserSeasons": {
+    "LoadFailed": "一部の大会成績を読み込めませんでした。",
+    "Loading": "大会成績を読み込み中…",
+    "Rank": "順位",
+    "Retry": "再試行",
+    "Title": "シーズン大会の成績",
+    "TotalScore": "合計スコア",
+    "ViewSeason": "大会を見る"
   },
   "user/charts/ChartsPage": {
     "ChartsManagement": "譜面管理",
@@ -550,21 +600,5 @@
     "TotalClassicAcc": "Classic准确率合计",
     "TotalDxAcc": "DX准确率合计",
     "TotalDxScore": "DX分数合计"
-  },
-  "song/ChartRadar": {
-    "Title": "譜面レーダー",
-    "NoDifficulty": "利用可能な難易度がありません",
-    "Unavailable": "この難易度のレーダーデータはありません",
-    "AnalysisFailed": "この難易度を解析できませんでした",
-    "LoadFailed": "レーダーを読み込めませんでした",
-    "Loading": "譜面を解析中…",
-    "Retry": "再試行",
-    "AxisNote": "物量",
-    "AxisPeak": "発狂",
-    "AxisSweep": "回転",
-    "AxisSlideTricky": "ウミユリ",
-    "AxisSlideSequence": "スライド",
-    "AxisJack": "縦連",
-    "FittedConstant": "推定定数"
   }
 }

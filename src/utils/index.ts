@@ -24,6 +24,9 @@ export { downloadSong } from './download';
 // HTTP 消息工具
 export { getDisplayMessage } from './httpMessage';
 
+// 互动（投票/评论）工具
+export { compactNumber, intlLocale, loginPath } from './interaction';
+
 // 国际化工具
 export {
   setLanguage,

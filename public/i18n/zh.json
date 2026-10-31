@@ -1,46 +1,46 @@
 {
   "auth/ForginsterPage": {
     "CloudflareVerificationNotReady": "Cloudflare 验证尚未完成，请检查网络后稍候重试",
+    "CodeExpired": "验证码已过期，请重新获取",
+    "CodeSent": "如果邮箱可用，验证码将发送到邮箱，请在 5 分钟内填写。",
     "ConfirmPassword": "确认密码",
     "CreateAccount": "创建账户",
+    "EightDigitCode": "8 位数字验证码",
     "EmailExists": "该邮箱已被注册",
+    "EmailLabel": "邮箱",
     "ForgetPassword": "找回密码",
     "ForgetPasswordSubtitle": "输入注册邮箱，获取验证码后设置新密码",
     "ForgetPasswordTitle": "找回密码",
     "InvalidEmail": "邮箱地址无效",
+    "LegacyLink": "邮件链接验证已停用，请重新获取验证码；旧账户激活问题请联系管理员。",
     "Login": "登录",
+    "LoginPendingVerification": "旧账户尚未激活，请联系管理员协助处理",
     "LoginSubtitle": "登录您的账户以继续",
+    "LoginUserBanned": "该用户已被封禁",
+    "NetworkError": "网络请求失败，请重试",
+    "Nickname": "昵称",
     "PasswdNoMatch": "确认密码不一致",
     "Password": "密码",
     "Register": "注册",
     "RegisterSubtitle": "加入 Majdata 社区，开始您的谱面创作之旅",
+    "RegisterSuccess": "注册成功，请登录",
     "RememberMe": "保持登录",
+    "RequestCodeFirst": "请先获取有效的邮箱验证码",
+    "RequestNewCode": "请重新获取验证码后再提交",
+    "ResendCode": "重新发送",
     "ResetPasswordButton": "重置密码",
     "ResetPasswordSuccess": "重置成功！",
+    "SendCode": "发送验证码",
+    "SendingCode": "正在发送…",
+    "TooManyRequests": "请求过于频繁，请稍后再试",
     "Username": "用户名",
     "UsernameExists": "该用户名已被注册",
+    "UsernameHint": "最多 24 位，仅限字母、数字、下划线和连字符",
+    "UsernameOrEmail": "用户名或邮箱",
     "VerificationCode": "验证码",
     "WaitingForCloudflareVerification": "等待 Cloudflare 验证",
     "WelcomeBack": "欢迎回来",
-    "WrongCredential": "用户名、邮箱或密码错误",
-    "LoginPendingVerification": "旧账户尚未激活，请联系管理员协助处理",
-    "LoginUserBanned": "该用户已被封禁",
-    "EmailLabel": "邮箱",
-    "UsernameOrEmail": "用户名或邮箱",
-    "Nickname": "昵称",
-    "UsernameHint": "最多 24 位，仅限字母、数字、下划线和连字符",
-    "LegacyLink": "邮件链接验证已停用，请重新获取验证码；旧账户激活问题请联系管理员。",
-    "NetworkError": "网络请求失败，请重试",
-    "TooManyRequests": "请求过于频繁，请稍后再试",
-    "CodeSent": "如果邮箱可用，验证码将发送到邮箱，请在 5 分钟内填写。",
-    "RequestCodeFirst": "请先获取有效的邮箱验证码",
-    "RequestNewCode": "请重新获取验证码后再提交",
-    "RegisterSuccess": "注册成功，请登录",
-    "SendingCode": "正在发送…",
-    "ResendCode": "重新发送",
-    "SendCode": "发送验证码",
-    "CodeExpired": "验证码已过期，请重新获取",
-    "EightDigitCode": "8 位数字验证码"
+    "WrongCredential": "用户名、邮箱或密码错误"
   },
   "chart-events/EventsFilter": {
     "FilterEventTypes": "筛选活动类型："
@@ -139,8 +139,8 @@
     "Songs": "首",
     "Submit": "提交",
     "Subscribe": "订阅",
-    "Subscribed": "已订阅",
     "SubscribeSuccess": "订阅成功",
+    "Subscribed": "已订阅",
     "UnsubscribeSuccess": "已取消订阅",
     "UploadDate": "时"
   },
@@ -172,8 +172,8 @@
     "EventCreatedPrefix": "活动创建于",
     "EventsCount": "个活动",
     "FrontPage": "首页",
-    "LatestActivityShort": "热",
-    "LikeCount": "赞",
+    "HotShort": "热门",
+    "LatestActivityShort": "活跃",
     "LoginForRecommend": "登录后即可获得个人推荐",
     "Page": "页",
     "PageOf": "第",
@@ -182,6 +182,7 @@
     "RandomRecommend": "随机推荐",
     "RecommendEnd": "没有更多推荐了",
     "RefreshBatch": "换一批",
+    "ScoreShort": "分数",
     "SearchHintHash": "hash:xxxx 可以按hash查询谱面",
     "SearchHintID": "id:xxxx 可以按id查询谱面",
     "SearchHintTag": "tag:xxxx 可以只看这个tag的谱面",
@@ -207,11 +208,11 @@
     "CommentCountHint": "被评论的次数",
     "Download": "下载",
     "DownloadCountHint": "被下载的次数",
-    "Like": "点赞",
-    "LikeCountHint": "被点赞的次数",
     "Play": "游玩",
     "PlayCountHint": "表示游玩次数多少",
-    "RecommendedChartsHint": "这里会选出七天内最有人气的谱面哟！"
+    "RecommendedChartsHint": "这里会选出七天内最有人气的谱面哟！",
+    "Score": "评价",
+    "ScoreHint": "赞减踩的分数"
   },
   "ranking/mmfc/MMFCRankingPage": {
     "MMFCRankingDescription": "展示参与者游玩mmfc_bot谱面的总分排名",
@@ -223,45 +224,58 @@
     "UserRankingDescription": "总达成率榜之谁是自制谱鉴赏老资历？",
     "UserRankingTitle": "肝帝榜"
   },
-  "season/SeasonLeaderboard": {
-    "Retry": "重试",
-    "Title": "排行榜",
-    "Loading": "正在加载排行榜…",
-    "Upcoming": "开赛后将在这里展示排行榜。",
-    "Empty": "还没有参赛成绩，来提交本季的第一份成绩吧。",
-    "LoadFailed": "排行榜加载失败，请稍后重试。",
-    "UpdateFailed": "更新失败，以下保留上次成功获取的结果。",
-    "Rank": "名次",
-    "Previous": "上一页",
-    "Next": "下一页",
-    "Page": "页",
-    "Participants": "参与者："
+  "score/InteractCount": {
+    "Comments": "评论",
+    "Plays": "播放",
+    "Score": "分数"
   },
   "season/SeasonLastPlayed": {
-    "Title": "最近游玩时间",
-    "Scope": "本季曲池在赛期内的最近游玩；仅可查询近 30 天记录。",
-    "Unavailable": "暂不可用",
+    "Empty": "近 30 天无记录",
     "Loading": "加载中…",
-    "Empty": "近 30 天无记录"
+    "Scope": "本季曲池在赛期内的最近游玩；仅可查询近 30 天记录。",
+    "Title": "最近游玩时间",
+    "Unavailable": "暂不可用"
+  },
+  "season/SeasonLeaderboard": {
+    "Empty": "还没有参赛成绩，来提交本季的第一份成绩吧。",
+    "LoadFailed": "排行榜加载失败，请稍后重试。",
+    "Loading": "正在加载排行榜…",
+    "Next": "下一页",
+    "Page": "页",
+    "Participants": "参与者：",
+    "Previous": "上一页",
+    "Rank": "名次",
+    "Retry": "重试",
+    "Title": "排行榜",
+    "Upcoming": "开赛后将在这里展示排行榜。",
+    "UpdateFailed": "更新失败，以下保留上次成功获取的结果。"
   },
   "season/SeasonPage": {
     "BackToEvents": "返回活动列表",
-    "NotFound": "没有找到这个季赛",
-    "InvalidConfig": "季赛配置暂不可用",
     "ConfigurationHint": "活动信息需要维护者检查，请稍后再来。",
-    "Starts": "开始时间",
     "Ends": "结束时间",
-    "TimeZone": "北京时间（UTC+8）",
-    "RulesTitle": "如何计分",
+    "InvalidConfig": "季赛配置暂不可用",
+    "NotFound": "没有找到这个季赛",
     "RulesBest": "本季曲池中每个文件的各难度分别取活动期间的最佳达成率，再将它们相加。可以多次挑战，以达成更高的总分打榜。",
-    "RulesTime": "以服务器收到成绩的时间为准，包含起止时刻。未游玩的谱面不贡献分数。"
+    "RulesTime": "以服务器收到成绩的时间为准，包含起止时刻。未游玩的谱面不贡献分数。",
+    "RulesTitle": "如何计分",
+    "Starts": "开始时间",
+    "TimeZone": "北京时间（UTC+8）"
   },
   "season/SeasonPool": {
-    "Title": "本季曲池",
-    "Loading": "正在加载谱面…",
+    "InvalidDifficulty": "此文件没有有效难度，请联系活动维护者核查。",
     "LoadFailed": "暂时无法加载此谱面",
+    "Loading": "正在加载谱面…",
     "Retry": "重试",
-    "InvalidDifficulty": "此文件没有有效难度，请联系活动维护者核查。"
+    "Title": "本季曲池"
+  },
+  "season/SeasonScoreDetails": {
+    "LoadFailed": "部分成绩加载失败，请稍后再试。",
+    "Loading": "加载中…",
+    "NoScore": "无成绩",
+    "Rule": "每曲分数为文件内各难度的赛期最佳达成率之和。",
+    "Title": "曲目成绩",
+    "Unavailable": "暂不可用"
   },
   "shared/AuthSection": {
     "AccountActions": "账户操作",
@@ -276,16 +290,16 @@
     "Language": "语言"
   },
   "shared/Live2DMascot": {
-    "Name": "小小蓝白",
-    "Poke": "戳一戳小小蓝白",
+    "Cry1": "轻一点嘛……",
+    "Cry2": "呜，先让我缓一缓。",
     "DismissDialogue": "关闭对白",
-    "MoveHint": "拖动可移动，方向键也可以",
-    "Shy1": "嘿，被你发现啦。",
-    "Shy2": "再戳就要害羞啦。",
     "Encourage1": "今天也要玩得开心呀！",
     "Encourage2": "祝你下一把 AP！",
-    "Cry1": "轻一点嘛……",
-    "Cry2": "呜，先让我缓一缓。"
+    "MoveHint": "拖动可移动，方向键也可以",
+    "Name": "小小蓝白",
+    "Poke": "戳一戳小小蓝白",
+    "Shy1": "嘿，被你发现啦。",
+    "Shy2": "再戳就要害羞啦。"
   },
   "shared/MMFCScoreCount": {
     "FailedToLoad": "加载失败",
@@ -319,12 +333,6 @@
     "RecentPlayActivity": "最近游玩活跃度",
     "Times": "次",
     "Today": "今日"
-  },
-  "shared/ScoreCard": {
-    "CancelSuccess": "取消成功",
-    "FailedLoginPrompt": "失败：登录了吗？",
-    "LikeAction": "点赞",
-    "Success": "成功"
   },
   "shared/ScoreCount": {
     "EmptyData": "空的",
@@ -362,6 +370,22 @@
     "PleaseLogin": "请先登录",
     "UnfavoriteSuccess": "已取消收藏"
   },
+  "song/ChartRadar": {
+    "AnalysisFailed": "该难度暂时无法分析",
+    "AxisJack": "纵连",
+    "AxisNote": "物量",
+    "AxisPeak": "爆发",
+    "AxisSlideSequence": "星星阵",
+    "AxisSlideTricky": "错位",
+    "AxisSweep": "扫键",
+    "FittedConstant": "拟合定数",
+    "LoadFailed": "雷达加载失败",
+    "Loading": "正在分析谱面…",
+    "NoDifficulty": "暂无可用难度",
+    "Retry": "重试",
+    "Title": "谱面雷达",
+    "Unavailable": "该难度暂无雷达数据"
+  },
   "song/ScoreRanking": {
     "FailedToLoad": "加载失败",
     "NoRecords": "暂无成绩记录",
@@ -369,37 +393,64 @@
     "Records": "条记录"
   },
   "song/SongComments": {
-    "CancelReply": "取消回复",
-    "Comment": "评论",
-    "CommentFailedLoginPrompt": "评论失败：登录了吗？",
-    "CommentPlaceholder": "分享你对这个谱面的想法...（支持Markdown格式，例如：**粗体**、*斜体*、`代码`、[链接](url)、![图片](url))",
-    "CommentSuccess": "评论成功",
-    "DeleteComment": "删除",
-    "DeleteCommentConfirm": "确定要删除这条评论吗？此操作不可撤销。",
-    "DeleteFailed": "删除失败",
-    "DeleteSuccess": "删除成功",
-    "EmptyComment": "说点什么吧？",
-    "FailedLoginPrompt": "失败：登录了吗？",
-    "HidePreview": "收起预览",
+    "Cancel": "取消",
+    "CollapseThread": "折叠",
+    "CommentPlaceholder": "分享你对这张谱面的想法…",
+    "Comments": "评论",
+    "ConfirmDelete": "确认",
+    "ContinueThread": "继续阅读这个话题",
+    "Delete": "删除",
+    "DeleteConfirm": "删除这条评论？",
+    "Deleted": "已删除",
+    "DeletedAuthor": "[已删除]",
+    "DeletedBody": "此评论已被作者删除",
+    "DeletedChart": "谱面已删除",
+    "Edit": "编辑",
+    "EditPlaceholder": "编辑评论",
+    "Edited": "已编辑",
+    "ExpandThread": "展开",
+    "LinkCopied": "链接已复制",
+    "LoadMore": "加载更多",
+    "Loading": "加载中",
+    "MoreReplies": "条更多回复",
+    "Next": "下一页",
     "NoComments": "暂无评论",
-    "PleaseWait": "请稍候",
+    "Points": "分",
     "Post": "发表",
-    "PreviewPlaceholder": "预览区域 - 在上方输入内容后点击预览查看效果",
+    "Posting": "发送中…",
+    "Previous": "上一页",
+    "Remove": "移除",
+    "RemoveConfirm": "移除这条评论？",
+    "Removed": "已移除",
+    "RemovedBody": "此评论已被管理员移除",
+    "Replies": "条回复",
     "Reply": "回复",
-    "ReplyPlaceholder": "回复这条评论...（支持Markdown格式，例如：**粗体**、*斜体*、`代码`、[链接](url)、![图片](url))",
-    "ReplySuccess": "回复成功",
     "ReplyTo": "回复",
-    "Sending": "正在发送...",
-    "ShowPreview": "展开预览"
+    "Retry": "重试",
+    "Save": "保存",
+    "Share": "分享",
+    "SignIn": "登录",
+    "SignInToComment": "登录后即可评论",
+    "SingleThread": "正在查看单条评论",
+    "SortBest": "最佳",
+    "SortBy": "排序",
+    "SortControversial": "争议",
+    "SortNew": "最新",
+    "SortOld": "最早",
+    "SortTop": "最高分",
+    "UnknownUser": "未知用户",
+    "Uploader": "上传者",
+    "UploaderBadgeTitle": "这张谱面的上传者",
+    "ViewAll": "查看全部评论",
+    "ViewInContext": "查看上下文",
+    "ViewParent": "查看上一级",
+    "VoteOnComment": "给评论投票"
   },
   "song/SongInteraction": {
-    "BeFirstToLike": "成为第一个点赞的人",
-    "CancelSuccess": "取消成功",
-    "DislikeAction": "点踩",
-    "FailedLoginPrompt": "失败：登录了吗？",
-    "LikeAction": "点赞",
-    "LikedBy": "点赞用户",
-    "Success": "成功"
+    "FailedToLoad": "加载失败",
+    "Plays": "播放",
+    "VoteOnChart": "给谱面投票",
+    "Votes": "评价"
   },
   "song/SongList": {
     "EmptyData": "空的",
@@ -418,10 +469,17 @@
     "Tags": "标签",
     "UploadTime": "UploadTime"
   },
+  "song/VoteControl": {
+    "Downvote": "踩",
+    "Score": "分数",
+    "Upvote": "赞"
+  },
   "space/SpacePage": {
     "BackToHome": "返回首页",
+    "Comments": "发表的评论",
     "Error": "错误",
     "JoinAt": "注册于",
+    "NoComments": "还没有发表过评论",
     "RecentlyPlayedCharts": "最近游玩的谱面",
     "SelfIntro": "自我介绍",
     "ServerError": "已闭店",
@@ -441,28 +499,28 @@
     "SelectFile": "选择文件",
     "Upload": "上传",
     "UploadFailed": "上传失败",
+    "UploadSuccess": "上传成功",
     "Uploading": "正在爆速上传...",
-    "UploadingPlzWait": "上传中啦等一会啦",
-    "UploadSuccess": "上传成功"
+    "UploadingPlzWait": "上传中啦等一会啦"
   },
   "user/ChartUploader": {
     "BGVideoHint": "bg.mp4/pv.mp4(可选,限20M内)",
+    "InvalidFileName": "文件名不正确（区分大小写），应为：",
     "MaidataAlreadyExists": "这个谱面已经存在于网站上",
     "MaidataAlreadyExistsWithTitle": "这个谱面已经存在于网站上",
     "MaidataHashChecking": "正在查询这个谱面是否已存在...",
     "MaidataHashLookupFailed": "查询 maidata.txt 哈希失败",
     "MaidataHashNotFound": "未找到已存在的谱面",
     "MaidataWillInheritHistory": "这次上传会继承之前的分数或互动",
-    "InvalidFileName": "文件名不正确（区分大小写），应为：",
     "NoFileSelected": "没有选中",
     "NotLoggedIn": "未登录",
     "Upload": "上传",
     "UploadFailed": "上传失败",
+    "UploadServerErrorHint": "上传失败, 请前往主站上传",
+    "UploadSuccess": "Upload succeeded",
     "Uploading": "正在爆速上传...",
     "UploadingPlzWait": "上传中啦等一会啦",
-    "UploadSuccess": "Upload succeeded",
-    "View": "查看",
-    "UploadServerErrorHint": "上传失败, 请前往主站上传"
+    "View": "查看"
   },
   "user/IntroUploader": {
     "MarkdownSupported": "（支持Markdown语法）",
@@ -471,29 +529,12 @@
     "SelfIntro": "自我介绍",
     "Upload": "上传",
     "UploadFailed": "上传失败",
+    "UploadSuccess": "Upload succeeded",
     "Uploading": "正在爆速上传...",
-    "UploadingPlzWait": "上传中啦等一会啦",
-    "UploadSuccess": "Upload succeeded"
+    "UploadingPlzWait": "上传中啦等一会啦"
   },
   "user/Logout": {
     "Logout": "登出"
-  },
-  "season/SeasonScoreDetails": {
-    "Title": "曲目成绩",
-    "Unavailable": "暂不可用",
-    "Loading": "加载中…",
-    "NoScore": "无成绩",
-    "LoadFailed": "部分成绩加载失败，请稍后再试。",
-    "Rule": "每曲分数为文件内各难度的赛期最佳达成率之和。"
-  },
-  "user/UserSeasons": {
-    "Title": "季赛战绩",
-    "Rank": "排名",
-    "TotalScore": "总分",
-    "ViewSeason": "查看季赛",
-    "Loading": "正在加载季赛战绩…",
-    "LoadFailed": "部分季赛战绩暂时无法加载。",
-    "Retry": "重试"
   },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "暂无最近游玩记录",
@@ -501,6 +542,15 @@
   },
   "user/UserInfo": {
     "Login": "登录"
+  },
+  "user/UserSeasons": {
+    "LoadFailed": "部分季赛战绩暂时无法加载。",
+    "Loading": "正在加载季赛战绩…",
+    "Rank": "排名",
+    "Retry": "重试",
+    "Title": "季赛战绩",
+    "TotalScore": "总分",
+    "ViewSeason": "查看季赛"
   },
   "user/charts/ChartsPage": {
     "ChartsManagement": "谱面管理",
@@ -550,21 +600,5 @@
     "TotalClassicAcc": "Classic准确率合计",
     "TotalDxAcc": "DX准确率合计",
     "TotalDxScore": "DX分数合计"
-  },
-  "song/ChartRadar": {
-    "Title": "谱面雷达",
-    "NoDifficulty": "暂无可用难度",
-    "Unavailable": "该难度暂无雷达数据",
-    "AnalysisFailed": "该难度暂时无法分析",
-    "LoadFailed": "雷达加载失败",
-    "Loading": "正在分析谱面…",
-    "Retry": "重试",
-    "AxisNote": "物量",
-    "AxisPeak": "爆发",
-    "AxisSweep": "扫键",
-    "AxisSlideTricky": "错位",
-    "AxisSlideSequence": "星星阵",
-    "AxisJack": "纵连",
-    "FittedConstant": "拟合定数"
   }
 }

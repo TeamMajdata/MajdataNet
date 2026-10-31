@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { useI18n } from '@/hooks';
-import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner } from '@/components';
+import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner, CommentListView } from '@/components';
 import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -31,7 +31,8 @@ const slideInUp: Variants = {
   }),
 };
 
-import { apiFetcher as fetcher } from '@/utils/apiClient';
+import { apiFetcher as fetcher, apiRequest } from '@/utils/apiClient';
+import type { CommentList } from '@/types';
 
 export default function SpacePage() {
   const { i18n, isReady } = useI18n();
@@ -119,6 +120,32 @@ export default function SpacePage() {
           />
         </motion.section>
       )}
+
+      {/* Comments */}
+      <motion.section
+        className="mb-12"
+        initial="hidden"
+        animate="visible"
+        custom={0.5}
+        variants={slideInUp}
+      >
+        <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
+          {i18n("space/SpacePage.Comments", '发表的评论')}
+        </h2>
+        <div
+          className="relative mx-auto my-8 border-0 w-[70%] h-px"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
+          }}
+        />
+        <div className="mx-auto w-full md:w-[82%] lg:w-[70%]">
+          <CommentListView
+            key={username}
+            load={(page, signal) => apiRequest<CommentList>(endpoints.account.comments(username, 'new', page), { signal })}
+            empty={i18n("space/SpacePage.NoComments", '还没有发表过评论')}
+          />
+        </div>
+      </motion.section>
 
       {/* Who Loves To Play */}
       {hasUploadedCharts === true && (

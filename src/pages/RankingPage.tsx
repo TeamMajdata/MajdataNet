@@ -35,9 +35,9 @@ export default function RankingPage() {
         />
 
         <RankingSection
-          title={i18n("ranking/RankingPage.Like", '点赞')}
-          subtitle={i18n("ranking/RankingPage.LikeCountHint", '被点赞的次数')}
-          sortType="likep"
+          title={i18n("ranking/RankingPage.Score", '评价')}
+          subtitle={i18n("ranking/RankingPage.ScoreHint", '赞减踩的分数')}
+          sortType="topp"
           delay="delay-[200ms]"
         />
 

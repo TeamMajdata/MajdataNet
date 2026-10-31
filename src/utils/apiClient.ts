@@ -28,3 +28,12 @@ export async function apiRequest<T = void>(url: string, options?: RequestInit): 
 }
 
 export const apiFetcher = <T,>(url: string): Promise<T> => apiRequest<T>(url);
+
+/** Options of a request that sends a JSON body; `body` is serialized here. */
+export function jsonRequest(method: 'POST' | 'PUT' | 'PATCH' | 'DELETE', body?: unknown): RequestInit {
+  return {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  };
+}

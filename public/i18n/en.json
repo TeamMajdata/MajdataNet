@@ -1,46 +1,46 @@
 {
   "auth/ForginsterPage": {
     "CloudflareVerificationNotReady": "Cloudflare verification is not ready. Check your network and try again shortly.",
+    "CodeExpired": "The code has expired. Request a new one.",
+    "CodeSent": "If the email is eligible, a code will arrive shortly. Enter it within 5 minutes.",
     "ConfirmPassword": "Confirm Password",
     "CreateAccount": "Create Account",
+    "EightDigitCode": "8-digit verification code",
     "EmailExists": "邮箱已被注册",
+    "EmailLabel": "E-Mail",
     "ForgetPassword": "Forgot Password",
     "ForgetPasswordSubtitle": "Enter your registered email, request a code, and set a new password.",
     "ForgetPasswordTitle": "Forgot Password",
     "InvalidEmail": "无效的邮箱地址",
+    "LegacyLink": "Email verification links are no longer supported. Request a new code; contact an administrator for legacy account activation.",
     "Login": "Login",
+    "LoginPendingVerification": "This legacy account is not activated. Please contact an administrator.",
     "LoginSubtitle": "Log in to your account to continue",
+    "LoginUserBanned": "This account has been banned.",
+    "NetworkError": "Network request failed. Please try again.",
+    "Nickname": "Nickname",
     "PasswdNoMatch": "Password does not match",
     "Password": "Password",
     "Register": "Register",
     "RegisterSubtitle": "Join Majdata community and start your charting journey",
+    "RegisterSuccess": "Account created. Please sign in.",
     "RememberMe": "Remember Me",
+    "RequestCodeFirst": "Request an email verification code first.",
+    "RequestNewCode": "Request a new code before submitting again.",
+    "ResendCode": "Resend code",
     "ResetPasswordButton": "Reset Password",
     "ResetPasswordSuccess": "Reset successful!",
+    "SendCode": "Send code",
+    "SendingCode": "Sending…",
+    "TooManyRequests": "Too many requests. Please try again later.",
     "Username": "Username",
     "UsernameExists": "用户名已存在",
+    "UsernameHint": "Up to 24 letters, numbers, underscores or hyphens",
+    "UsernameOrEmail": "Username or email",
     "VerificationCode": "Verification code",
     "WaitingForCloudflareVerification": "Waiting for Cloudflare verification",
     "WelcomeBack": "Welcome Back",
-    "WrongCredential": "Incorrect username, email or password",
-    "LoginPendingVerification": "This legacy account is not activated. Please contact an administrator.",
-    "LoginUserBanned": "This account has been banned.",
-    "EmailLabel": "E-Mail",
-    "UsernameOrEmail": "Username or email",
-    "Nickname": "Nickname",
-    "UsernameHint": "Up to 24 letters, numbers, underscores or hyphens",
-    "LegacyLink": "Email verification links are no longer supported. Request a new code; contact an administrator for legacy account activation.",
-    "NetworkError": "Network request failed. Please try again.",
-    "TooManyRequests": "Too many requests. Please try again later.",
-    "CodeSent": "If the email is eligible, a code will arrive shortly. Enter it within 5 minutes.",
-    "RequestCodeFirst": "Request an email verification code first.",
-    "RequestNewCode": "Request a new code before submitting again.",
-    "RegisterSuccess": "Account created. Please sign in.",
-    "SendingCode": "Sending…",
-    "ResendCode": "Resend code",
-    "SendCode": "Send code",
-    "CodeExpired": "The code has expired. Request a new one.",
-    "EightDigitCode": "8-digit verification code"
+    "WrongCredential": "Incorrect username, email or password"
   },
   "chart-events/EventsFilter": {
     "FilterEventTypes": "Filter Event Types:"
@@ -139,8 +139,8 @@
     "Songs": "Songs",
     "Submit": "Submit",
     "Subscribe": "Subscribe",
-    "Subscribed": "Subscribed",
     "SubscribeSuccess": "Subscribed successfully",
+    "Subscribed": "Subscribed",
     "UnsubscribeSuccess": "Unsubscribed successfully",
     "UploadDate": "Date"
   },
@@ -172,8 +172,8 @@
     "EventCreatedPrefix": "Event created at",
     "EventsCount": "events",
     "FrontPage": "Back to First Page",
-    "LatestActivityShort": "Latest Activity",
-    "LikeCount": "Likes",
+    "HotShort": "Hot",
+    "LatestActivityShort": "Active",
     "LoginForRecommend": "Log in to get personalized recommendations",
     "Page": "page",
     "PageOf": "Page",
@@ -182,6 +182,7 @@
     "RandomRecommend": "Random Recommend",
     "RecommendEnd": "No more recommendations",
     "RefreshBatch": "换一批",
+    "ScoreShort": "Score",
     "SearchHintHash": "hash:xxxx to search by chart hash",
     "SearchHintID": "id:xxxx to search by chart ID",
     "SearchHintTag": "tag:xxxx to search by tag",
@@ -207,11 +208,11 @@
     "CommentCountHint": "Number of comments received",
     "Download": "Download",
     "DownloadCountHint": "Number of downloads",
-    "Like": "Like",
-    "LikeCountHint": "Number of likes received",
     "Play": "Play",
     "PlayCountHint": "Number of times played",
-    "RecommendedChartsHint": "Here choose the most favorable charts in 7 days!"
+    "RecommendedChartsHint": "Here choose the most favorable charts in 7 days!",
+    "Score": "Score",
+    "ScoreHint": "Upvotes minus downvotes"
   },
   "ranking/mmfc/MMFCRankingPage": {
     "MMFCRankingDescription": "Shows participants' total scores for playing mmfc_bot's charts",
@@ -223,45 +224,58 @@
     "UserRankingDescription": "Total Achievement Rate Ranking - Who is the top of chart appreciation?",
     "UserRankingTitle": "Master Ranking"
   },
-  "season/SeasonLeaderboard": {
-    "Retry": "Retry",
-    "Title": "Leaderboard",
-    "Loading": "Loading leaderboard…",
-    "Upcoming": "The leaderboard will appear here when the season starts.",
-    "Empty": "No scores yet. Submit the first score of the season!",
-    "LoadFailed": "Could not load the leaderboard. Please try again later.",
-    "UpdateFailed": "Could not refresh. The last successfully loaded results are shown below.",
-    "Rank": "Rank",
-    "Previous": "Previous",
-    "Next": "Next",
-    "Page": "Page",
-    "Participants": "Participants: "
+  "score/InteractCount": {
+    "Comments": "Comments",
+    "Plays": "Plays",
+    "Score": "Score"
   },
   "season/SeasonLastPlayed": {
-    "Title": "Last played",
-    "Scope": "Latest play in this season's pool during the event. Only records from the last 30 days are available.",
-    "Unavailable": "Unavailable",
+    "Empty": "No records in the last 30 days",
     "Loading": "Loading…",
-    "Empty": "No records in the last 30 days"
+    "Scope": "Latest play in this season's pool during the event. Only records from the last 30 days are available.",
+    "Title": "Last played",
+    "Unavailable": "Unavailable"
+  },
+  "season/SeasonLeaderboard": {
+    "Empty": "No scores yet. Submit the first score of the season!",
+    "LoadFailed": "Could not load the leaderboard. Please try again later.",
+    "Loading": "Loading leaderboard…",
+    "Next": "Next",
+    "Page": "Page",
+    "Participants": "Participants: ",
+    "Previous": "Previous",
+    "Rank": "Rank",
+    "Retry": "Retry",
+    "Title": "Leaderboard",
+    "Upcoming": "The leaderboard will appear here when the season starts.",
+    "UpdateFailed": "Could not refresh. The last successfully loaded results are shown below."
   },
   "season/SeasonPage": {
     "BackToEvents": "Back to events",
-    "NotFound": "Season not found",
-    "InvalidConfig": "Season configuration is unavailable",
     "ConfigurationHint": "The event details need to be checked by a maintainer. Please try again later.",
-    "Starts": "Starts",
     "Ends": "Ends",
-    "TimeZone": "Beijing time (UTC+8)",
-    "RulesTitle": "How scoring works",
+    "InvalidConfig": "Season configuration is unavailable",
+    "NotFound": "Season not found",
     "RulesBest": "For every file in this season's pool, your best achievement during the competition period is counted separately for each difficulty, then added together. Keep challenging the charts to improve your total score and climb the leaderboard.",
-    "RulesTime": "Scores count when the server receives them, including both the start and end times. Unplayed charts contribute no score."
+    "RulesTime": "Scores count when the server receives them, including both the start and end times. Unplayed charts contribute no score.",
+    "RulesTitle": "How scoring works",
+    "Starts": "Starts",
+    "TimeZone": "Beijing time (UTC+8)"
   },
   "season/SeasonPool": {
-    "Title": "This season's charts",
-    "Loading": "Loading chart…",
+    "InvalidDifficulty": "This file has no playable difficulties. Please contact the event maintainer.",
     "LoadFailed": "This chart could not be loaded",
+    "Loading": "Loading chart…",
     "Retry": "Retry",
-    "InvalidDifficulty": "This file has no playable difficulties. Please contact the event maintainer."
+    "Title": "This season's charts"
+  },
+  "season/SeasonScoreDetails": {
+    "LoadFailed": "Some scores could not be loaded. Please try again later.",
+    "Loading": "Loading…",
+    "NoScore": "No score",
+    "Rule": "Each chart's score adds the season-best accuracy for every difficulty in the file.",
+    "Title": "Chart scores",
+    "Unavailable": "Unavailable"
   },
   "shared/AuthSection": {
     "AccountActions": "账户操作",
@@ -276,16 +290,16 @@
     "Language": "Language"
   },
   "shared/Live2DMascot": {
-    "Name": "Xiaoxiao Lanbai",
-    "Poke": "Poke Xiaoxiao Lanbai",
+    "Cry1": "Be gentle…",
+    "Cry2": "Aw, let me catch my breath.",
     "DismissDialogue": "Dismiss dialogue",
-    "MoveHint": "Drag to move, or use the arrow keys",
-    "Shy1": "Hey, you found me!",
-    "Shy2": "Keep poking and I'll get shy.",
     "Encourage1": "Have fun playing today!",
     "Encourage2": "Here's to an AP on your next try!",
-    "Cry1": "Be gentle…",
-    "Cry2": "Aw, let me catch my breath."
+    "MoveHint": "Drag to move, or use the arrow keys",
+    "Name": "Xiaoxiao Lanbai",
+    "Poke": "Poke Xiaoxiao Lanbai",
+    "Shy1": "Hey, you found me!",
+    "Shy2": "Keep poking and I'll get shy."
   },
   "shared/MMFCScoreCount": {
     "FailedToLoad": "Failed to load",
@@ -319,12 +333,6 @@
     "RecentPlayActivity": "最近游玩活跃度",
     "Times": "次",
     "Today": "今日"
-  },
-  "shared/ScoreCard": {
-    "CancelSuccess": "Cancelled successfully",
-    "FailedLoginPrompt": " failed: Are you logged in?",
-    "LikeAction": "Like",
-    "Success": " successful"
   },
   "shared/ScoreCount": {
     "EmptyData": "Empty",
@@ -362,6 +370,22 @@
     "PleaseLogin": "请先登录",
     "UnfavoriteSuccess": "已取消收藏"
   },
+  "song/ChartRadar": {
+    "AnalysisFailed": "This difficulty could not be analyzed",
+    "AxisJack": "Jack",
+    "AxisNote": "Note",
+    "AxisPeak": "Peak",
+    "AxisSlideSequence": "Slide",
+    "AxisSlideTricky": "Umiyuri",
+    "AxisSweep": "Swipe",
+    "FittedConstant": "esti",
+    "LoadFailed": "Could not load radar",
+    "Loading": "Analyzing chart…",
+    "NoDifficulty": "No chart difficulty available",
+    "Retry": "Retry",
+    "Title": "Chart radar",
+    "Unavailable": "Radar data is not available for this difficulty"
+  },
   "song/ScoreRanking": {
     "FailedToLoad": "Failed to load",
     "NoRecords": "暂无成绩记录",
@@ -369,37 +393,64 @@
     "Records": "条记录"
   },
   "song/SongComments": {
-    "CancelReply": "Cancel Reply",
-    "Comment": "Comment",
-    "CommentFailedLoginPrompt": "Comment failed: Are you logged in?",
-    "CommentPlaceholder": "Share your thoughts about this chart... (Markdown supported, e.g., **bold**, *italic*, `code`, [link](url), ![image](url))",
-    "CommentSuccess": "Comment posted successfully",
-    "DeleteComment": "Delete",
-    "DeleteCommentConfirm": "Are you sure you want to delete this comment? This action cannot be undone.",
-    "DeleteFailed": "Delete failed",
-    "DeleteSuccess": "Deleted successfully",
-    "EmptyComment": "Say sth.?",
-    "FailedLoginPrompt": " failed: Are you logged in?",
-    "HidePreview": "Hide Preview",
+    "Cancel": "Cancel",
+    "CollapseThread": "Collapse thread",
+    "CommentPlaceholder": "Share your thoughts about this chart…",
+    "Comments": "Comments",
+    "ConfirmDelete": "Confirm",
+    "ContinueThread": "Continue this thread",
+    "Delete": "Delete",
+    "DeleteConfirm": "Delete this comment?",
+    "Deleted": "Comment deleted",
+    "DeletedAuthor": "[deleted]",
+    "DeletedBody": "This comment was deleted by its author",
+    "DeletedChart": "Chart deleted",
+    "Edit": "Edit",
+    "EditPlaceholder": "Edit your comment",
+    "Edited": "edited",
+    "ExpandThread": "Expand thread",
+    "LinkCopied": "Link copied",
+    "LoadMore": "Load more comments",
+    "Loading": "Loading…",
+    "MoreReplies": "more replies",
+    "Next": "Next",
     "NoComments": "No comments yet",
-    "PleaseWait": "Please wait",
+    "Points": "points",
     "Post": "Post",
-    "PreviewPlaceholder": "Preview area - Click preview after entering content above to see the effect",
+    "Posting": "Posting…",
+    "Previous": "Previous",
+    "Remove": "Remove",
+    "RemoveConfirm": "Remove this comment?",
+    "Removed": "Comment removed",
+    "RemovedBody": "This comment was removed by a moderator",
+    "Replies": "replies",
     "Reply": "Reply",
-    "ReplyPlaceholder": "Reply to this comment... (Markdown supported, e.g., **bold**, *italic*, `code`, [link](url), ![image](url))",
-    "ReplySuccess": "Reply posted successfully",
     "ReplyTo": "Reply to",
-    "Sending": "Sending...",
-    "ShowPreview": "Show Preview"
+    "Retry": "Retry",
+    "Save": "Save",
+    "Share": "Share",
+    "SignIn": "Sign in",
+    "SignInToComment": "Sign in to join the discussion",
+    "SingleThread": "Viewing a single comment thread",
+    "SortBest": "Best",
+    "SortBy": "Sort",
+    "SortControversial": "Controversial",
+    "SortNew": "New",
+    "SortOld": "Old",
+    "SortTop": "Top",
+    "UnknownUser": "Unknown user",
+    "Uploader": "Uploader",
+    "UploaderBadgeTitle": "Uploader of this chart",
+    "ViewAll": "View all comments",
+    "ViewInContext": "View in context",
+    "ViewParent": "View parent",
+    "VoteOnComment": "Vote on this comment"
   },
   "song/SongInteraction": {
-    "BeFirstToLike": "Be the first to like",
-    "CancelSuccess": "Cancelled successfully",
-    "DislikeAction": "Dislike",
-    "FailedLoginPrompt": " failed: Are you logged in?",
-    "LikeAction": "Like",
-    "LikedBy": "Liked by",
-    "Success": " successful"
+    "FailedToLoad": "Failed to load",
+    "Plays": "Plays",
+    "VoteOnChart": "Vote on this chart",
+    "Votes": "Votes"
   },
   "song/SongList": {
     "EmptyData": "Empty",
@@ -418,10 +469,17 @@
     "Tags": "Tags",
     "UploadTime": "UploadTime"
   },
+  "song/VoteControl": {
+    "Downvote": "Downvote",
+    "Score": "Score",
+    "Upvote": "Upvote"
+  },
   "space/SpacePage": {
     "BackToHome": "Back to Home",
+    "Comments": "Comments",
     "Error": "错误",
     "JoinAt": "Join at",
+    "NoComments": "No comments yet",
     "RecentlyPlayedCharts": "Recently Played Charts",
     "SelfIntro": "Self-Intro",
     "ServerError": "Server Error",
@@ -441,28 +499,28 @@
     "SelectFile": "Select File",
     "Upload": "Upload",
     "UploadFailed": "Upload failed",
+    "UploadSuccess": "上传成功",
     "Uploading": "Uploading...",
-    "UploadingPlzWait": "Uploading, plz wait!",
-    "UploadSuccess": "上传成功"
+    "UploadingPlzWait": "Uploading, plz wait!"
   },
   "user/ChartUploader": {
     "BGVideoHint": "bg.mp4/pv.mp4 (Optional, Max 20MB)",
+    "InvalidFileName": "Invalid file name (case-sensitive). Expected: ",
     "MaidataAlreadyExists": "This chart already exists on the site",
     "MaidataAlreadyExistsWithTitle": "This chart already exists on the site",
     "MaidataHashChecking": "Checking whether this chart already exists...",
     "MaidataHashLookupFailed": "Failed to query maidata.txt hash",
     "MaidataHashNotFound": "No existing chart found",
     "MaidataWillInheritHistory": "This upload will inherit previous scores or interactions",
-    "InvalidFileName": "Invalid file name (case-sensitive). Expected: ",
     "NoFileSelected": "No file selected for ",
     "NotLoggedIn": "Not logged in",
     "Upload": "Upload",
     "UploadFailed": "Upload failed",
+    "UploadServerErrorHint": "Upload failed, please go to the main site to upload",
+    "UploadSuccess": "Upload succeeded",
     "Uploading": "Uploading...",
     "UploadingPlzWait": "Uploading, plz wait!",
-    "UploadSuccess": "Upload succeeded",
-    "View": "View",
-    "UploadServerErrorHint": "Upload failed, please go to the main site to upload"
+    "View": "View"
   },
   "user/IntroUploader": {
     "MarkdownSupported": " (Markdown Supported)",
@@ -471,29 +529,12 @@
     "SelfIntro": "Self-Intro",
     "Upload": "Upload",
     "UploadFailed": "Upload failed",
+    "UploadSuccess": "Upload succeeded",
     "Uploading": "Uploading...",
-    "UploadingPlzWait": "Uploading, plz wait!",
-    "UploadSuccess": "Upload succeeded"
+    "UploadingPlzWait": "Uploading, plz wait!"
   },
   "user/Logout": {
     "Logout": "Logout"
-  },
-  "season/SeasonScoreDetails": {
-    "Title": "Chart scores",
-    "Unavailable": "Unavailable",
-    "Loading": "Loading…",
-    "NoScore": "No score",
-    "LoadFailed": "Some scores could not be loaded. Please try again later.",
-    "Rule": "Each chart's score adds the season-best accuracy for every difficulty in the file."
-  },
-  "user/UserSeasons": {
-    "Title": "Season results",
-    "Rank": "Rank",
-    "TotalScore": "Total score",
-    "ViewSeason": "View season",
-    "Loading": "Loading season results…",
-    "LoadFailed": "Some season results could not be loaded.",
-    "Retry": "Retry"
   },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "No Recent Records",
@@ -501,6 +542,15 @@
   },
   "user/UserInfo": {
     "Login": "Login"
+  },
+  "user/UserSeasons": {
+    "LoadFailed": "Some season results could not be loaded.",
+    "Loading": "Loading season results…",
+    "Rank": "Rank",
+    "Retry": "Retry",
+    "Title": "Season results",
+    "TotalScore": "Total score",
+    "ViewSeason": "View season"
   },
   "user/charts/ChartsPage": {
     "ChartsManagement": "Charts",
@@ -550,21 +600,5 @@
     "TotalClassicAcc": "Classic准确率合计",
     "TotalDxAcc": "DX准确率合计",
     "TotalDxScore": "DX分数合计"
-  },
-  "song/ChartRadar": {
-    "Title": "Chart radar",
-    "NoDifficulty": "No chart difficulty available",
-    "Unavailable": "Radar data is not available for this difficulty",
-    "AnalysisFailed": "This difficulty could not be analyzed",
-    "LoadFailed": "Could not load radar",
-    "Loading": "Analyzing chart…",
-    "Retry": "Retry",
-    "AxisNote": "Note",
-    "AxisPeak": "Peak",
-    "AxisSweep": "Swipe",
-    "AxisSlideTricky": "Umiyuri",
-    "AxisSlideSequence": "Slide",
-    "AxisJack": "Jack",
-    "FittedConstant": "esti"
   }
 }

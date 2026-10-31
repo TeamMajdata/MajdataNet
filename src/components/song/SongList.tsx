@@ -8,6 +8,7 @@ import useSWR from 'swr';
 import { useI18n } from '@/hooks';
 import SongCard from './SongCard';
 import { LoadingSpinner } from '@/components';
+import InteractSummaryProvider from './InteractSummaryProvider';
 import type { Song, SongListProps } from '@/types';
 
 
@@ -41,17 +42,20 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
     return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{i18n("song/SongList.EmptyData", '暂无数据')}</div>;
   }
 
+  // 整页卡片的计数由一次批量请求提供，卡片不再各自请求
   return (
-    <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
-      {data.map((song, index) => (
-        <SongCard
-          key={song.id}
-          song={song}
-          index={index}
-          isRanking={isRanking}
-          isManage={isManage}
-        />
-      ))}
-    </div>
+    <InteractSummaryProvider ids={data.map((song) => song.id)}>
+      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+        {data.map((song, index) => (
+          <SongCard
+            key={song.id}
+            song={song}
+            index={index}
+            isRanking={isRanking}
+            isManage={isManage}
+          />
+        ))}
+      </div>
+    </InteractSummaryProvider>
   );
 }

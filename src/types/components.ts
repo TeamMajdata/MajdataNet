@@ -4,7 +4,6 @@
 
 import type { ReactNode } from 'react';
 import type { Event, EventCategory } from './event';
-import type { Comment } from './comment';
 
 // ======================== 歌曲详情组件 ========================
 export interface SongDetailsContainerProps {
@@ -65,7 +64,7 @@ export interface SongDifficultyLevelsProps {
 // ======================== 交互计数组件 ========================
 export interface InteractCountProps {
   /** 歌曲ID */
-  songid: string | number;
+  songid: string;
 }
 
 // ======================== Majdata 组件 ========================
@@ -118,55 +117,6 @@ export interface SongListProps {
   onDataLoaded?: (hasData: boolean) => void;
 }
 
-// ======================== 评论组件 ========================
-export interface MarkdownCommentContentProps {
-  content: string;
-  comment?: Comment;
-}
-
-export interface CommentCardProps {
-  comment: Comment;
-  currentUser: string | null;
-  onReply?: (comment: Comment, parentComment?: Comment) => void;
-  onDelete: (comment: Comment) => void;
-  isPending: string | null;
-  isReply?: boolean;
-  onToggleReplies?: () => void;
-  isRepliesExpanded?: boolean;
-  replyCount?: number;
-}
-
-export interface CommentComposerProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: () => void;
-  onCancel?: () => void;
-  placeholder: string;
-  autoFocus?: boolean;
-  isReply?: boolean;
-  isSubmitting?: boolean;
-}
-
-export interface CommentSenderProps {
-  songid: string;
-}
-
-export interface CommentThreadProps {
-  comment: Comment;
-  currentUser: string | null;
-  onReply: (comment: Comment, parentComment?: Comment) => void;
-  onDelete: (comment: Comment) => void;
-  isPending: string | null;
-  isSubmittingReply: boolean;
-  isExpanded: boolean;
-  onToggleReplies: () => void;
-  replyComposer?: React.ReactNode;
-}
-
-export interface CommentListProps {
-  songid: string;
-}
-
 // ======================== 最近游玩组件 ========================
 export interface RecentPlayedWidgetProps {
   /** 用户名 */
@@ -209,10 +159,5 @@ export interface TagManageTagProps {
 export interface TagManageWindowProps {
   onClose: () => void;
   buttonRef: React.RefObject<HTMLDivElement | null>;
-  songid: string;
-}
-
-// ======================== 点赞组件 ========================
-export interface LikeSenderProps {
   songid: string;
 }

@@ -1,46 +1,46 @@
 {
   "auth/ForginsterPage": {
     "CloudflareVerificationNotReady": "Cloudflare 인증이 완료되지 않았습니다. 네트워크를 확인한 후 잠시 뒤 다시 시도해 주세요.",
+    "CodeExpired": "코드가 만료되었습니다. 새 코드를 요청하세요.",
+    "CodeSent": "사용 가능한 이메일이면 코드가 전송됩니다. 5분 이내에 입력하세요.",
     "ConfirmPassword": "비밀번호 확인",
     "CreateAccount": "계정 만들기",
+    "EightDigitCode": "8자리 인증 코드",
     "EmailExists": "邮箱已被注册",
+    "EmailLabel": "이메일",
     "ForgetPassword": "비밀번호 찾기",
     "ForgetPasswordSubtitle": "가입한 이메일로 코드를 받은 후 새 비밀번호를 설정하세요.",
     "ForgetPasswordTitle": "비밀번호 찾기",
     "InvalidEmail": "无效的邮箱地址",
+    "LegacyLink": "이메일 인증 링크는 더 이상 지원되지 않습니다. 코드를 다시 요청하세요. 기존 계정 활성화는 관리자에게 문의하세요.",
     "Login": "로그인",
+    "LoginPendingVerification": "기존 계정이 활성화되지 않았습니다. 관리자에게 문의하세요.",
     "LoginSubtitle": "계정에 로그인하고 계속 이용하세요",
+    "LoginUserBanned": "이 계정은 정지되었습니다.",
+    "NetworkError": "네트워크 요청에 실패했습니다. 다시 시도하세요.",
+    "Nickname": "닉네임",
     "PasswdNoMatch": "비밀번호가 일치하지 않습니다",
     "Password": "비밀번호",
     "Register": "회원가입",
     "RegisterSubtitle": "Majdata 커뮤니티에 합류해 채보 여정을 시작하세요",
+    "RegisterSuccess": "가입이 완료되었습니다. 로그인하세요.",
     "RememberMe": "로그인 상태 유지",
+    "RequestCodeFirst": "먼저 이메일 인증 코드를 요청하세요.",
+    "RequestNewCode": "새 코드를 받은 후 다시 제출하세요.",
+    "ResendCode": "코드 재전송",
     "ResetPasswordButton": "비밀번호 재설정",
     "ResetPasswordSuccess": "재설정되었습니다!",
+    "SendCode": "코드 전송",
+    "SendingCode": "전송 중…",
+    "TooManyRequests": "요청이 너무 많습니다. 잠시 후 다시 시도하세요.",
     "Username": "사용자 이름",
     "UsernameExists": "用户名已存在",
+    "UsernameHint": "영문, 숫자, 밑줄, 하이픈으로 최대 24자",
+    "UsernameOrEmail": "사용자 이름 또는 이메일",
     "VerificationCode": "인증 코드",
     "WaitingForCloudflareVerification": "Cloudflare 인증 대기 중",
     "WelcomeBack": "다시 오신 것을 환영합니다",
-    "WrongCredential": "사용자 이름, 이메일 또는 비밀번호가 잘못되었습니다",
-    "LoginPendingVerification": "기존 계정이 활성화되지 않았습니다. 관리자에게 문의하세요.",
-    "LoginUserBanned": "이 계정은 정지되었습니다.",
-    "EmailLabel": "이메일",
-    "UsernameOrEmail": "사용자 이름 또는 이메일",
-    "Nickname": "닉네임",
-    "UsernameHint": "영문, 숫자, 밑줄, 하이픈으로 최대 24자",
-    "LegacyLink": "이메일 인증 링크는 더 이상 지원되지 않습니다. 코드를 다시 요청하세요. 기존 계정 활성화는 관리자에게 문의하세요.",
-    "NetworkError": "네트워크 요청에 실패했습니다. 다시 시도하세요.",
-    "TooManyRequests": "요청이 너무 많습니다. 잠시 후 다시 시도하세요.",
-    "CodeSent": "사용 가능한 이메일이면 코드가 전송됩니다. 5분 이내에 입력하세요.",
-    "RequestCodeFirst": "먼저 이메일 인증 코드를 요청하세요.",
-    "RequestNewCode": "새 코드를 받은 후 다시 제출하세요.",
-    "RegisterSuccess": "가입이 완료되었습니다. 로그인하세요.",
-    "SendingCode": "전송 중…",
-    "ResendCode": "코드 재전송",
-    "SendCode": "코드 전송",
-    "CodeExpired": "코드가 만료되었습니다. 새 코드를 요청하세요.",
-    "EightDigitCode": "8자리 인증 코드"
+    "WrongCredential": "사용자 이름, 이메일 또는 비밀번호가 잘못되었습니다"
   },
   "chart-events/EventsFilter": {
     "FilterEventTypes": "이벤트 유형 필터:"
@@ -139,8 +139,8 @@
     "Songs": "곡",
     "Submit": "제출",
     "Subscribe": "구독",
-    "Subscribed": "구독 중",
     "SubscribeSuccess": "구독했습니다",
+    "Subscribed": "구독 중",
     "UnsubscribeSuccess": "구독을 취소했습니다",
     "UploadDate": "날짜"
   },
@@ -172,8 +172,8 @@
     "EventCreatedPrefix": "이벤트 생성일",
     "EventsCount": "개의 이벤트",
     "FrontPage": "첫 페이지로 돌아가기",
+    "HotShort": "인기",
     "LatestActivityShort": "최근",
-    "LikeCount": "좋아요 수",
     "LoginForRecommend": "로그인하면 맞춤 추천을 받을 수 있습니다",
     "Page": "페이지",
     "PageOf": "페이지",
@@ -182,6 +182,7 @@
     "RandomRecommend": "随机推荐",
     "RecommendEnd": "더 이상 추천이 없습니다",
     "RefreshBatch": "换一批",
+    "ScoreShort": "점수",
     "SearchHintHash": "hash:xxxx - 채보 해시로 검색",
     "SearchHintID": "id:xxxx - 채보 ID로 검색",
     "SearchHintTag": "tag:xxxx - 태그로 검색",
@@ -207,11 +208,11 @@
     "CommentCountHint": "받은 댓글 수",
     "Download": "다운로드",
     "DownloadCountHint": "다운로드 수",
-    "Like": "좋아요",
-    "LikeCountHint": "받은 좋아요 수",
     "Play": "재생",
     "PlayCountHint": "재생 횟수",
-    "RecommendedChartsHint": "최근 7일 동안 가장 사랑받은 채보입니다!"
+    "RecommendedChartsHint": "최근 7일 동안 가장 사랑받은 채보입니다!",
+    "Score": "평가",
+    "ScoreHint": "추천에서 비추천을 뺀 점수"
   },
   "ranking/mmfc/MMFCRankingPage": {
     "MMFCRankingDescription": "참가자들의 mmfc_bot 채보 플레이 총 점수 랭킹",
@@ -223,45 +224,58 @@
     "UserRankingDescription": "총 달성률 랭킹 - 커스텀 채보 감상의 베테랑은 누구?",
     "UserRankingTitle": "헤비 플레이어 랭킹"
   },
-  "season/SeasonLeaderboard": {
-    "Retry": "다시 시도",
-    "Title": "순위표",
-    "Loading": "순위표를 불러오는 중…",
-    "Upcoming": "대회가 시작되면 여기에 순위표가 표시됩니다.",
-    "Empty": "아직 참가 기록이 없습니다. 이번 시즌의 첫 기록을 제출해 보세요.",
-    "LoadFailed": "순위표를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
-    "UpdateFailed": "갱신하지 못했습니다. 마지막으로 불러온 결과를 표시합니다.",
-    "Rank": "순위",
-    "Previous": "이전",
-    "Next": "다음",
-    "Page": "페이지",
-    "Participants": "참가자: "
+  "score/InteractCount": {
+    "Comments": "댓글",
+    "Plays": "재생",
+    "Score": "점수"
   },
   "season/SeasonLastPlayed": {
-    "Title": "최근 플레이 시간",
-    "Scope": "대회 기간 내 시즌 대상 채보의 최근 플레이입니다. 최근 30일의 기록만 조회할 수 있습니다.",
-    "Unavailable": "확인할 수 없음",
+    "Empty": "최근 30일 내 기록 없음",
     "Loading": "불러오는 중…",
-    "Empty": "최근 30일 내 기록 없음"
+    "Scope": "대회 기간 내 시즌 대상 채보의 최근 플레이입니다. 최근 30일의 기록만 조회할 수 있습니다.",
+    "Title": "최근 플레이 시간",
+    "Unavailable": "확인할 수 없음"
+  },
+  "season/SeasonLeaderboard": {
+    "Empty": "아직 참가 기록이 없습니다. 이번 시즌의 첫 기록을 제출해 보세요.",
+    "LoadFailed": "순위표를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "Loading": "순위표를 불러오는 중…",
+    "Next": "다음",
+    "Page": "페이지",
+    "Participants": "참가자: ",
+    "Previous": "이전",
+    "Rank": "순위",
+    "Retry": "다시 시도",
+    "Title": "순위표",
+    "Upcoming": "대회가 시작되면 여기에 순위표가 표시됩니다.",
+    "UpdateFailed": "갱신하지 못했습니다. 마지막으로 불러온 결과를 표시합니다."
   },
   "season/SeasonPage": {
     "BackToEvents": "이벤트 목록으로 돌아가기",
-    "NotFound": "시즌 대회를 찾을 수 없습니다",
-    "InvalidConfig": "시즌 대회 설정을 사용할 수 없습니다",
     "ConfigurationHint": "관리자가 이벤트 정보를 확인해야 합니다. 잠시 후 다시 방문해 주세요.",
-    "Starts": "시작 시간",
     "Ends": "종료 시간",
-    "TimeZone": "베이징 시간 (UTC+8)",
-    "RulesTitle": "점수 집계 방식",
+    "InvalidConfig": "시즌 대회 설정을 사용할 수 없습니다",
+    "NotFound": "시즌 대회를 찾을 수 없습니다",
     "RulesBest": "이번 시즌 대상 파일에 포함된 각 난이도에서 대회 기간 중 가장 높은 달성률을 각각 구한 뒤 합산합니다. 여러 번 도전해 총점을 높이고 더 높은 순위를 노릴 수 있습니다.",
-    "RulesTime": "서버가 기록을 받은 시간을 기준으로 시작과 종료 시각을 포함해 집계합니다. 플레이하지 않은 채보는 점수에 기여하지 않습니다."
+    "RulesTime": "서버가 기록을 받은 시간을 기준으로 시작과 종료 시각을 포함해 집계합니다. 플레이하지 않은 채보는 점수에 기여하지 않습니다.",
+    "RulesTitle": "점수 집계 방식",
+    "Starts": "시작 시간",
+    "TimeZone": "베이징 시간 (UTC+8)"
   },
   "season/SeasonPool": {
-    "Title": "이번 시즌 대상 채보",
-    "Loading": "채보를 불러오는 중…",
+    "InvalidDifficulty": "이 파일에는 플레이할 수 있는 난이도가 없습니다. 이벤트 관리자에게 확인해 주세요.",
     "LoadFailed": "이 채보를 불러오지 못했습니다",
+    "Loading": "채보를 불러오는 중…",
     "Retry": "다시 시도",
-    "InvalidDifficulty": "이 파일에는 플레이할 수 있는 난이도가 없습니다. 이벤트 관리자에게 확인해 주세요."
+    "Title": "이번 시즌 대상 채보"
+  },
+  "season/SeasonScoreDetails": {
+    "LoadFailed": "일부 점수를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "Loading": "불러오는 중…",
+    "NoScore": "기록 없음",
+    "Rule": "각 채보 점수는 파일 내 각 난이도의 대회 기간 중 최고 달성률을 합산합니다.",
+    "Title": "채보별 점수",
+    "Unavailable": "불러올 수 없음"
   },
   "shared/AuthSection": {
     "AccountActions": "账户操作",
@@ -276,16 +290,16 @@
     "Language": "언어"
   },
   "shared/Live2DMascot": {
-    "Name": "샤오샤오란바이",
-    "Poke": "샤오샤오란바이 콕 찌르기",
+    "Cry1": "살살 해 줘……",
+    "Cry2": "우우, 잠깐만 쉬게 해 줘.",
     "DismissDialogue": "대사 닫기",
-    "MoveHint": "드래그하거나 방향키로 움직일 수 있어요",
-    "Shy1": "앗, 들켰네.",
-    "Shy2": "자꾸 찌르면 부끄러워져.",
     "Encourage1": "오늘도 즐겁게 플레이해!",
     "Encourage2": "다음 판은 AP 하길!",
-    "Cry1": "살살 해 줘……",
-    "Cry2": "우우, 잠깐만 쉬게 해 줘."
+    "MoveHint": "드래그하거나 방향키로 움직일 수 있어요",
+    "Name": "샤오샤오란바이",
+    "Poke": "샤오샤오란바이 콕 찌르기",
+    "Shy1": "앗, 들켰네.",
+    "Shy2": "자꾸 찌르면 부끄러워져."
   },
   "shared/MMFCScoreCount": {
     "FailedToLoad": "불러오기에 실패했습니다",
@@ -319,12 +333,6 @@
     "RecentPlayActivity": "最近游玩活跃度",
     "Times": "次",
     "Today": "今日"
-  },
-  "shared/ScoreCard": {
-    "CancelSuccess": "취소되었습니다",
-    "FailedLoginPrompt": " 실패했습니다: 로그인했나요?",
-    "LikeAction": "좋아요",
-    "Success": " 성공했습니다"
   },
   "shared/ScoreCount": {
     "EmptyData": "비어있음",
@@ -362,6 +370,22 @@
     "PleaseLogin": "请先登录",
     "UnfavoriteSuccess": "已取消收藏"
   },
+  "song/ChartRadar": {
+    "AnalysisFailed": "이 난이도를 분석할 수 없습니다",
+    "AxisJack": "연타",
+    "AxisNote": "물량",
+    "AxisPeak": "폭타",
+    "AxisSlideSequence": "슬라이드",
+    "AxisSlideTricky": "우미유리",
+    "AxisSweep": "회전",
+    "FittedConstant": "추정 상수",
+    "LoadFailed": "레이더를 불러오지 못했습니다",
+    "Loading": "채보 분석 중…",
+    "NoDifficulty": "사용 가능한 난이도가 없습니다",
+    "Retry": "다시 시도",
+    "Title": "채보 레이더",
+    "Unavailable": "이 난이도의 레이더 데이터가 없습니다"
+  },
   "song/ScoreRanking": {
     "FailedToLoad": "불러오기에 실패했습니다",
     "NoRecords": "暂无成绩记录",
@@ -369,37 +393,64 @@
     "Records": "条记录"
   },
   "song/SongComments": {
-    "CancelReply": "답글 취소",
-    "Comment": "댓글",
-    "CommentFailedLoginPrompt": "댓글 작성에 실패했습니다: 로그인했나요?",
-    "CommentPlaceholder": "이 채보에 대한 생각을 공유하세요... (마크다운 지원, 예: **굵게**, *기울임*, `코드`, [링크](url), ![이미지](url))",
-    "CommentSuccess": "댓글이 등록되었습니다",
-    "DeleteComment": "삭제",
-    "DeleteCommentConfirm": "이 댓글을 삭제하시겠습니까? 되돌릴 수 없습니다.",
-    "DeleteFailed": "삭제에 실패했습니다",
-    "DeleteSuccess": "삭제되었습니다",
-    "EmptyComment": "무언가 적어볼까요?",
-    "FailedLoginPrompt": " 실패했습니다: 로그인했나요?",
-    "HidePreview": "미리보기 닫기",
+    "Cancel": "취소",
+    "CollapseThread": "접기",
+    "CommentPlaceholder": "이 채보에 대한 생각을 나눠 보세요…",
+    "Comments": "댓글",
+    "ConfirmDelete": "확인",
+    "ContinueThread": "이 스레드 계속 읽기",
+    "Delete": "삭제",
+    "DeleteConfirm": "이 댓글을 삭제할까요?",
+    "Deleted": "삭제되었습니다",
+    "DeletedAuthor": "[삭제됨]",
+    "DeletedBody": "작성자가 삭제한 댓글입니다",
+    "DeletedChart": "채보가 삭제되었습니다",
+    "Edit": "수정",
+    "EditPlaceholder": "댓글 수정",
+    "Edited": "수정됨",
+    "ExpandThread": "펼치기",
+    "LinkCopied": "링크가 복사되었습니다",
+    "LoadMore": "댓글 더 보기",
+    "Loading": "불러오는 중…",
+    "MoreReplies": "개의 답글 더 보기",
+    "Next": "다음",
     "NoComments": "아직 댓글이 없습니다",
-    "PleaseWait": "잠시만 기다려 주세요",
+    "Points": "점",
     "Post": "게시",
-    "PreviewPlaceholder": "미리보기 영역 - 위의 내용을 입력한 뒤 미리보기 버튼을 눌러 확인하세요",
+    "Posting": "전송 중…",
+    "Previous": "이전",
+    "Remove": "제거",
+    "RemoveConfirm": "이 댓글을 제거할까요?",
+    "Removed": "제거되었습니다",
+    "RemovedBody": "관리자가 제거한 댓글입니다",
+    "Replies": "개의 답글",
     "Reply": "답글",
-    "ReplyPlaceholder": "이 댓글에 답글을 남겨보세요... (마크다운 지원, 예: **굵게**, *기울임*, `코드`, [링크](url), ![이미지](url))",
-    "ReplySuccess": "답글이 등록되었습니다",
     "ReplyTo": "답글 대상",
-    "Sending": "전송 중...",
-    "ShowPreview": "미리보기 열기"
+    "Retry": "다시 시도",
+    "Save": "저장",
+    "Share": "공유",
+    "SignIn": "로그인",
+    "SignInToComment": "로그인하면 댓글을 남길 수 있습니다",
+    "SingleThread": "댓글 하나만 보고 있습니다",
+    "SortBest": "베스트",
+    "SortBy": "정렬",
+    "SortControversial": "논쟁 중",
+    "SortNew": "최신",
+    "SortOld": "오래된 순",
+    "SortTop": "인기",
+    "UnknownUser": "알 수 없는 사용자",
+    "Uploader": "업로더",
+    "UploaderBadgeTitle": "이 채보의 업로더",
+    "ViewAll": "모든 댓글 보기",
+    "ViewInContext": "문맥 보기",
+    "ViewParent": "상위 댓글 보기",
+    "VoteOnComment": "이 댓글에 투표"
   },
   "song/SongInteraction": {
-    "BeFirstToLike": "첫 번째로 좋아요를 눌러보세요",
-    "CancelSuccess": "취소되었습니다",
-    "DislikeAction": "좋아요 취소",
-    "FailedLoginPrompt": " 실패했습니다: 로그인했나요?",
-    "LikeAction": "좋아요",
-    "LikedBy": "좋아요한 사람",
-    "Success": " 성공했습니다"
+    "FailedToLoad": "불러오지 못했습니다",
+    "Plays": "재생",
+    "VoteOnChart": "이 채보에 투표",
+    "Votes": "평가"
   },
   "song/SongList": {
     "EmptyData": "비어있음",
@@ -418,10 +469,17 @@
     "Tags": "태그",
     "UploadTime": "UploadTime"
   },
+  "song/VoteControl": {
+    "Downvote": "비추천",
+    "Score": "점수",
+    "Upvote": "추천"
+  },
   "space/SpacePage": {
     "BackToHome": "홈으로 돌아가기",
+    "Comments": "작성한 댓글",
     "Error": "错误",
     "JoinAt": "가입일",
+    "NoComments": "아직 작성한 댓글이 없습니다",
     "RecentlyPlayedCharts": "최근 플레이한 채보",
     "SelfIntro": "자기소개",
     "ServerError": "서버 오류",
@@ -441,28 +499,28 @@
     "SelectFile": "파일 선택",
     "Upload": "업로드",
     "UploadFailed": "업로드에 실패했습니다",
+    "UploadSuccess": "上传成功",
     "Uploading": "업로드 중...",
-    "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!",
-    "UploadSuccess": "上传成功"
+    "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!"
   },
   "user/ChartUploader": {
     "BGVideoHint": "bg.mp4/pv.mp4 (선택 사항, 최대 20MB)",
+    "InvalidFileName": "파일 이름이 올바르지 않습니다(대소문자 구분). 올바른 이름: ",
     "MaidataAlreadyExists": "이 채보는 이미 사이트에 존재합니다",
     "MaidataAlreadyExistsWithTitle": "이 채보는 이미 사이트에 존재합니다",
     "MaidataHashChecking": "이 채보가 이미 존재하는지 확인하는 중...",
     "MaidataHashLookupFailed": "maidata.txt 해시 조회에 실패했습니다",
     "MaidataHashNotFound": "기존 채보를 찾지 못했습니다",
     "MaidataWillInheritHistory": "이번 업로드는 이전 점수 또는 상호작용을 이어받습니다",
-    "InvalidFileName": "파일 이름이 올바르지 않습니다(대소문자 구분). 올바른 이름: ",
     "NoFileSelected": "파일이 선택되지 않았습니다:  ",
     "NotLoggedIn": "로그인하지 않음",
     "Upload": "업로드",
     "UploadFailed": "업로드에 실패했습니다",
+    "UploadServerErrorHint": "업로드 실패, 주 사이트로 가서 업로드하세요",
+    "UploadSuccess": "Upload succeeded",
     "Uploading": "업로드 중...",
     "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!",
-    "UploadSuccess": "Upload succeeded",
-    "View": "보기",
-    "UploadServerErrorHint": "업로드 실패, 주 사이트로 가서 업로드하세요"
+    "View": "보기"
   },
   "user/IntroUploader": {
     "MarkdownSupported": " (마크다운 지원)",
@@ -471,29 +529,12 @@
     "SelfIntro": "자기소개",
     "Upload": "업로드",
     "UploadFailed": "업로드에 실패했습니다",
+    "UploadSuccess": "Upload succeeded",
     "Uploading": "업로드 중...",
-    "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!",
-    "UploadSuccess": "Upload succeeded"
+    "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!"
   },
   "user/Logout": {
     "Logout": "로그아웃"
-  },
-  "season/SeasonScoreDetails": {
-    "Title": "채보별 점수",
-    "Unavailable": "불러올 수 없음",
-    "Loading": "불러오는 중…",
-    "NoScore": "기록 없음",
-    "LoadFailed": "일부 점수를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
-    "Rule": "각 채보 점수는 파일 내 각 난이도의 대회 기간 중 최고 달성률을 합산합니다."
-  },
-  "user/UserSeasons": {
-    "Title": "시즌 대회 기록",
-    "Rank": "순위",
-    "TotalScore": "총점",
-    "ViewSeason": "대회 보기",
-    "Loading": "시즌 대회 기록을 불러오는 중…",
-    "LoadFailed": "일부 대회 기록을 불러오지 못했습니다.",
-    "Retry": "다시 시도"
   },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "최근 기록이 없습니다",
@@ -501,6 +542,15 @@
   },
   "user/UserInfo": {
     "Login": "로그인"
+  },
+  "user/UserSeasons": {
+    "LoadFailed": "일부 대회 기록을 불러오지 못했습니다.",
+    "Loading": "시즌 대회 기록을 불러오는 중…",
+    "Rank": "순위",
+    "Retry": "다시 시도",
+    "Title": "시즌 대회 기록",
+    "TotalScore": "총점",
+    "ViewSeason": "대회 보기"
   },
   "user/charts/ChartsPage": {
     "ChartsManagement": "채보",
@@ -550,21 +600,5 @@
     "TotalClassicAcc": "Classic准确率合计",
     "TotalDxAcc": "DX准确率合计",
     "TotalDxScore": "DX分数合计"
-  },
-  "song/ChartRadar": {
-    "Title": "채보 레이더",
-    "NoDifficulty": "사용 가능한 난이도가 없습니다",
-    "Unavailable": "이 난이도의 레이더 데이터가 없습니다",
-    "AnalysisFailed": "이 난이도를 분석할 수 없습니다",
-    "LoadFailed": "레이더를 불러오지 못했습니다",
-    "Loading": "채보 분석 중…",
-    "Retry": "다시 시도",
-    "AxisNote": "물량",
-    "AxisPeak": "폭타",
-    "AxisSweep": "회전",
-    "AxisSlideTricky": "우미유리",
-    "AxisSlideSequence": "슬라이드",
-    "AxisJack": "연타",
-    "FittedConstant": "추정 상수"
   }
 }

@@ -37,10 +37,14 @@
 | 上传者榜、MMFC 榜 | 继续使用已实现的 GET `/api/stats/score-sums?uploader=...&page=...&pageSize=...`；新 `/maiscore/sum/chart/by-uploader/...` 仍为空实现，不切换 |
 | 总分返回值 | 从旧数组和 `dxAccSum` 改为 `{ geneTime, players: [{ userId, username, acc: { dx, classic } }] }` |
 | 收藏歌单列表 | GET `/api/account/favorite/collection/list` 返回 `songHashs`，卡片的 `count` 从数组长度计算 |
-| 删除评论 | DELETE `/api/maichart/{chartId}/interact` 的 FormData 使用 `type=comment`、`comment-id`，替换旧的 `commentId` |
+| 谱面投票 | PUT `/api/maichart/{chartId}/vote`，JSON `{ value: 1 \| 0 \| -1 }`，返回 `{ score, upvotes, downvotes, myVote }`；旧的 like/dislike Form 接口只保留给游戏客户端 |
+| 列表计数 | GET `/api/maichart/{chartId}/interactsum` 返回 `{ chartId, plays, score, upvotes, downvotes, comments, myVote }`；列表一页用 POST `/api/maichart/interactsum`（请求体为 ID 数组）一次取回 |
+| 评论 | GET `/api/maichart/{chartId}/comments?sort=best\|top\|new\|old\|controversial&page=N` 分页读取线程；POST 同路径 JSON `{ body, parentId? }` 发表；GET/PATCH/DELETE `/api/comment/{id}` 读永久链接、编辑、删除（有回复变占位符，否则物理删除）；PUT `/api/comment/{id}/vote` 投票 |
+| 评论历史 | GET `/api/account/comments?username=...&sort=new\|top&page=N`，个人空间展示 |
+| 管理员 | 前端用 GET `/api/admin/groups` 是否返回 200 判断当前用户是否为管理员，管理员可移除任何评论 |
 | 单曲排行榜 | `player` 的昵称、头像信息用于显示，用户名用于个人空间链接 |
 
-已核对仍兼容的接口：谱面搜索/排序/详情及文件下载、上传及哈希检查、删除、标签更新、点赞/取消点赞、评论/回复请求、歌单创建/修改/删除/曲目增删、收藏/取消收藏、季赛榜请求和最近游玩数据、机台扫码授权。
+已核对仍兼容的接口：谱面搜索/排序/详情及文件下载、上传及哈希检查、删除、标签更新、歌单创建/修改/删除/曲目增删、收藏/取消收藏、季赛榜请求和最近游玩数据、机台扫码授权。列表排序新增 `hotp`（热门）与 `topp`（分数），`likep` 不再使用。
 
 ## 需要后端修复的阻碍
 

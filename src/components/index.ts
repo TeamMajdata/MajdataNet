@@ -38,8 +38,10 @@ export { default as TimelineModal } from './event/TimelineModal';
 
 // 歌曲详情页组件
 export { default as SongDifficultyLevels } from './song/SongDifficultyLevels';
-export { CommentSender, CommentList } from './song/SongComments';
-export { LikeSender } from './song/SongInteraction';
+export { CommentSection, CommentListView, CommentBody, RelativeTime } from './song/SongComments';
+export { ChartVotePanel } from './song/SongInteraction';
+export { VoteControl } from './song/VoteControl';
+export { default as InteractSummaryProvider } from './song/InteractSummaryProvider';
 export { ScoreRanking } from './song/ScoreRanking';
 
 // 图表组件
