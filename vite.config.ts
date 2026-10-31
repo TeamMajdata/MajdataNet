@@ -18,11 +18,20 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/api3': {
-        target: 'https://majdata.net',
-        changeOrigin: true,
-        secure: true,
-      },
+      // 默认代理到线上；本地联调时设置 VITE_API_PROXY=http://127.0.0.1:34613，
+      // 本地后端没有 /api3 前缀，需要去掉。
+      '/api3': process.env.VITE_API_PROXY
+        ? {
+            target: process.env.VITE_API_PROXY,
+            changeOrigin: true,
+            secure: false,
+            rewrite: (path) => path.replace(/^\/api3/, ''),
+          }
+        : {
+            target: 'https://majdata.net',
+            changeOrigin: true,
+            secure: true,
+          },
     },
   },
 })
