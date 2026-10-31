@@ -14,6 +14,7 @@ import {
   PiMinusBold,
   PiPencilSimpleBold,
   PiPlusBold,
+  PiPlusCircleBold,
   PiShieldWarningBold,
   PiTrashBold,
 } from 'react-icons/pi';
@@ -23,7 +24,7 @@ import { useI18n, useIsAdministrator, useUserContext } from '@/hooks';
 import { apiRequest, jsonRequest } from '@/utils/apiClient';
 import { VoteControl } from './VoteControl';
 import { intlLocale, loginPath } from '@/utils/interaction';
-import { commentPermalink, mapTree, purge, toPlaceholder } from './commentTree';
+import { commentPermalink, countTree, mapTree, planReplies, purge, toPlaceholder, type FoldPolicy } from './commentTree';
 import { COMMENT_SORTS } from '@/types';
 import type {
   Comment,
@@ -37,8 +38,17 @@ import type {
 } from '@/types';
 
 const MAX_COMMENT_LENGTH = 10000;
-// 更深的回复在评论自己的页面继续，和 Reddit 一样
+// 更深的回复在评论自己的页面继续，和 Reddit 一样；窄屏缩进放不下，提前截断
 const MAX_VISIBLE_DEPTH = 8;
+const MAX_VISIBLE_DEPTH_NARROW = 5;
+const NARROW_SCREEN = '(max-width: 639px)';
+// 每个顶层线程先显示的回复，其余折叠成「N 条回复」
+const THREAD_FOLD: FoldPolicy = { budget: 10, depth: 4, rootReplies: 4, replies: 2 };
+const THREAD_FOLD_NARROW: FoldPolicy = { budget: 8, depth: 2, rootReplies: 3, replies: 2 };
+// 永久链接只看一个线程，多显示一些
+const FOCUS_FOLD: FoldPolicy = { budget: 40, depth: 6, rootReplies: 10, replies: 4 };
+// 读者每点一次展开再显示的回复
+const EXPAND_FOLD: FoldPolicy = { budget: 10, depth: 3, rootReplies: 10, replies: 2 };
 // 分数不高于这个值的评论默认折叠
 const COLLAPSE_SCORE = -5;
 
@@ -179,11 +189,21 @@ interface Tree {
   chartId: string;
   uploader: string;
   focusId?: string;
+  narrow: boolean;
+  /** 显示到第几层，再深的给「继续阅读」链接。 */
+  maxDepth: number;
   update: (id: string, change: (comment: Comment) => Comment) => void;
   addReply: (parentId: string, reply: Comment) => void;
   remove: (id: string, purged: boolean, removed: boolean) => void;
 }
 const TreeContext = createContext<Tree | null>(null);
+// 线程里每条评论初始显示几条直接回复，由顶层评论或最近一次展开算出
+const FoldContext = createContext<Map<string, number>>(new Map());
+
+/** 折叠策略的层数不超过这一层往下还能显示的层数。 */
+function foldFrom(policy: FoldPolicy, level: number, maxDepth: number): FoldPolicy {
+  return { ...policy, depth: Math.min(policy.depth, maxDepth - level) };
+}
 
 function Avatar({ username, className }: { username: string; className: string }) {
   return <img className={`${className} rounded-full object-cover border border-white/20`} src={endpoints.account.icon(username)} alt={username} />;
@@ -196,6 +216,13 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
   const isAdministrator = useIsAdministrator();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(comment.score <= COLLAPSE_SCORE);
+  const inheritedFold = useContext(FoldContext);
+  const [fold, setFold] = useState(() => {
+    if (level > 0) return inheritedFold;
+    const policy = tree.focusId ? FOCUS_FOLD : tree.narrow ? THREAD_FOLD_NARROW : THREAD_FOLD;
+    return planReplies(comment, foldFrom(policy, level, tree.maxDepth));
+  });
+  const [shown, setShown] = useState(() => fold.get(comment.id) ?? 0);
   const [replying, setReplying] = useState(false);
   const [editing, setEditing] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -225,6 +252,12 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
   const permalink = commentPermalink(tree.chartId, comment.id);
   const author = gone ? '' : comment.author || i18n("song/SongComments.UnknownUser", '未知用户');
   const hiddenReplies = comment.replyCount - comment.replies.length;
+  const folded = comment.replies.slice(shown);
+  const expand = () => {
+    const more = planReplies(comment, foldFrom(EXPAND_FOLD, level, tree.maxDepth), shown);
+    setFold(new Map([...fold, ...more]));
+    setShown(Math.max(more.get(comment.id) ?? 0, shown + 1));
+  };
   const remove = async () => {
     setBusy(true);
     try {
@@ -388,6 +421,8 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
                         jsonRequest('POST', { body, parentId: comment.id }),
                       );
                       tree.addReply(comment.id, reply);
+                      // 新回复排在最前，多显示一条，原来显示的不会被挤进折叠
+                      setShown((n) => n + 1);
                       setReplying(false);
                     }}
                   />
@@ -396,7 +431,7 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
             </div>
           )}
           {!collapsed &&
-            (level >= MAX_VISIBLE_DEPTH && comment.replyCount > 0 ? (
+            (level >= tree.maxDepth && comment.replyCount > 0 ? (
               <Link to={permalink} className="inline-flex items-center gap-1 mt-2 text-sky-400 text-xs hover:underline">
                 {i18n("song/SongComments.ContinueThread", '继续阅读这个话题')}
                 <PiArrowRightBold className="w-3 h-3" />
@@ -404,14 +439,29 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
             ) : (
               (comment.replies.length > 0 || hiddenReplies > 0) && (
                 <div className="space-y-4 mt-3">
-                  {comment.replies.map((reply) => (
-                    <CommentNode key={reply.id} comment={reply} level={level + 1} />
-                  ))}
-                  {hiddenReplies > 0 && (
-                    <Link to={permalink} className="inline-flex items-center gap-1 text-sky-400 text-xs hover:underline">
-                      {hiddenReplies} {i18n("song/SongComments.MoreReplies", '条更多回复')}
-                      <PiArrowRightBold className="w-3 h-3" />
-                    </Link>
+                  <FoldContext.Provider value={fold}>
+                    {comment.replies.slice(0, shown).map((reply) => (
+                      <CommentNode key={reply.id} comment={reply} level={level + 1} />
+                    ))}
+                  </FoldContext.Provider>
+                  {folded.length > 0 ? (
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 font-medium text-sky-400 text-xs hover:underline"
+                      aria-expanded={false}
+                      onClick={expand}
+                    >
+                      <PiPlusCircleBold className="w-3.5 h-3.5" />
+                      {countTree(folded)}{' '}
+                      {shown === 0 ? i18n("song/SongComments.Replies", '条回复') : i18n("song/SongComments.MoreReplies", '条更多回复')}
+                    </button>
+                  ) : (
+                    hiddenReplies > 0 && (
+                      <Link to={permalink} className="inline-flex items-center gap-1 text-sky-400 text-xs hover:underline">
+                        {hiddenReplies} {i18n("song/SongComments.MoreReplies", '条更多回复')}
+                        <PiArrowRightBold className="w-3 h-3" />
+                      </Link>
+                    )
                   )}
                 </div>
               )
@@ -437,6 +487,8 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
   const { user } = useUserContext();
   const location = useLocation();
   const [sort, setSort] = useState<CommentSort>('best');
+  // 只在加载时判断一次屏幕宽度，旋转屏幕不会让已显示的评论突然折叠
+  const [narrow] = useState(() => !!window.matchMedia?.(NARROW_SCREEN).matches);
   const [attempt, setAttempt] = useState(0);
   // 加载结果带着它所属的请求键；条件一变旧结果自然失效，不必在 effect 里清空状态
   const requestKey = `${chartId}|${focusId ?? ''}|${sort}|${attempt}`;
@@ -503,6 +555,8 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
     chartId,
     uploader,
     focusId,
+    narrow,
+    maxDepth: narrow ? MAX_VISIBLE_DEPTH_NARROW : MAX_VISIBLE_DEPTH,
     update: (id, change) => updateItems((items) => mapTree(items, id, change)),
     addReply: (parentId, reply) => {
       updateItems((items) => mapTree(items, parentId, (c) => ({ ...c, replyCount: c.replyCount + 1, replies: [reply, ...c.replies] })));

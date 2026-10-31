@@ -162,7 +162,7 @@ describe('CommentSection', () => {
     expect(container.querySelector('textarea')).toBeNull();
   });
 
-  it('offers a continue-thread link below the deepest visible level and collapses buried comments', async () => {
+  it('folds long threads, offers a continue-thread link below the deepest level and collapses buried comments', async () => {
     let node = comment('d9', { depth: 9, parentId: 'd8' });
     for (let depth = 8; depth >= 0; depth--) {
       node = comment(`d${depth}`, { depth, parentId: depth === 0 ? null : `d${depth - 1}`, replyCount: 1, replies: [node] });
@@ -170,6 +170,13 @@ describe('CommentSection', () => {
     const buried = comment('buried', { score: -5, replyCount: 1, replies: [comment('hidden', { parentId: 'buried', depth: 1 })] });
     fetchMock.mockResolvedValue(json(page([node, buried])));
     await render(<CommentSection chartId="chart" uploader="x" commentCount={0} />);
+    // 长线程先显示四层，其余折叠成「N 条回复」，点开一次再显示三层
+    expect(container.querySelector('article#comment-d4')).toBeTruthy();
+    expect(container.querySelector('article#comment-d5')).toBeNull();
+    await act(async () => button('5 条回复').click());
+    expect(container.querySelector('article#comment-d7')).toBeTruthy();
+    expect(container.querySelector('article#comment-d8')).toBeNull();
+    await act(async () => button('2 条回复').click());
     expect(container.querySelector('article#comment-d8')).toBeTruthy();
     expect(container.querySelector('article#comment-d9')).toBeNull();
     const links = [...container.querySelectorAll('article#comment-d8 a')].map((a) => a.getAttribute('href'));

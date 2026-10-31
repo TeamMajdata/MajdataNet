@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commentPermalink, countTree, mapTree, purge, toPlaceholder } from '@/components/song/commentTree';
+import { commentPermalink, countTree, mapTree, planReplies, purge, toPlaceholder } from '@/components/song/commentTree';
 import type { Comment } from '@/types';
 
 function comment(id: string, replies: Comment[] = [], extra: Partial<Comment> = {}): Comment {
@@ -45,5 +45,51 @@ describe('comment tree helpers', () => {
   it('countTree counts every node and commentPermalink points at the song page', () => {
     expect(countTree([comment('a', [comment('b'), comment('c', [comment('d')])])])).toBe(4);
     expect(commentPermalink('chart id', 'c/1')).toBe('/song?id=chart%20id&comment=c%2F1');
+  });
+
+  describe('planReplies', () => {
+    const policy = { budget: 10, depth: 2, rootReplies: 3, replies: 1 };
+    const chain = (ids: string[]): Comment => ids.reduceRight<Comment | null>((child, id) => comment(id, child ? [child] : []), null)!;
+
+    it('shows a few replies per level and folds the rest', () => {
+      const root = comment('root', [
+        comment('a', [comment('a1', [comment('x', [comment('z')])]), comment('a2', [comment('y')])]),
+        comment('b'),
+        comment('c'),
+        comment('d', [comment('d1')]),
+        comment('e', [comment('e1')]),
+      ]);
+      const plan = planReplies(root, policy);
+      // 根显示前三条；a 只显示一条，a1 已到第二层，它的回复折叠
+      expect(plan.get('root')).toBe(3);
+      expect(plan.get('a')).toBe(1);
+      expect(plan.get('a1')).toBeUndefined();
+    });
+
+    it('never folds a single reply that has no replies of its own', () => {
+      const root = comment('root', [comment('a', [comment('a1', [comment('leaf')])]), comment('b')]);
+      const plan = planReplies(root, { ...policy, rootReplies: 1 });
+      // b 是最后一条且没有回复，直接显示；第二层 a1 下只剩一条叶子也直接显示
+      expect(plan.get('root')).toBe(2);
+      expect(plan.get('a1')).toBe(1);
+      // 被截断的回复（服务端还有更多）不算叶子
+      const truncated = comment('root', [comment('a'), comment('b', [], { replyCount: 3 })]);
+      expect(planReplies(truncated, { ...policy, rootReplies: 1 }).get('root')).toBe(1);
+    });
+
+    it('folds a long single-reply chain at the depth limit and stops at the budget', () => {
+      const root = chain(['c0', 'c1', 'c2', 'c3', 'c4']);
+      expect([...planReplies(root, policy)]).toEqual([['c0', 1], ['c1', 1]]);
+      const wide = comment('root', Array.from({ length: 8 }, (_, i) => comment(`r${i}`)));
+      expect(planReplies(wide, { ...policy, budget: 4, rootReplies: 8 }).get('root')).toBe(4);
+    });
+
+    it('continues after the replies already shown when expanding', () => {
+      const root = comment('root', Array.from({ length: 6 }, (_, i) => comment(`r${i}`, [comment(`r${i}x`, [comment(`r${i}y`)])])));
+      const plan = planReplies(root, { ...policy, rootReplies: 2 }, 2);
+      expect(plan.get('root')).toBe(4);
+      expect(plan.has('r0')).toBe(false);
+      expect(plan.get('r2')).toBe(1);
+    });
   });
 });
