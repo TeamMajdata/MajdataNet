@@ -213,12 +213,6 @@
     "PlayCountHint": "재생 횟수",
     "RecommendedChartsHint": "최근 7일 동안 가장 사랑받은 채보입니다!"
   },
-  "ranking/mmfc/MMFCRankingPage": {
-    "MMFCRankingDescription": "참가자들의 mmfc_bot 채보 플레이 총 점수 랭킹",
-    "MMFCRankingListDescription": "mmfc_bot 채보 플레이 참가자 총 점수 랭킹",
-    "MMFCRankingListTitle": "챌린지 랭킹",
-    "MMFCRankingTitle": "MMFC 챌린지 랭킹"
-  },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "총 달성률 랭킹 - 커스텀 채보 감상의 베테랑은 누구?",
     "UserRankingTitle": "헤비 플레이어 랭킹"
@@ -287,10 +281,6 @@
     "Cry1": "살살 해 줘……",
     "Cry2": "우우, 잠깐만 쉬게 해 줘."
   },
-  "shared/MMFCScoreCount": {
-    "FailedToLoad": "불러오기에 실패했습니다",
-    "NoMMFCRankingData": "랭킹 데이터가 없습니다. 먼저 참가자를 추가하세요"
-  },
   "shared/MajdataLogo": {
     "FUCKYOU": "건들지 마, 꺼져 버려 이 개자식아"
   },
@@ -300,7 +290,6 @@
     "CollectionHiroba": "콜렉션 광장",
     "Contest": "이벤트",
     "Documentation": "문서",
-    "MMFCRanking": "MMFC 랭킹",
     "NavigationMenu": "主导航",
     "OriginalSongs": "오리지널 곡",
     "Rankings": "랭킹",

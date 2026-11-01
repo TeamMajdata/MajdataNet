@@ -34,7 +34,7 @@
 | 功能 | 对齐结果 |
 | --- | --- |
 | 全站总分榜 | 改用 GET `/api/maiscore/sum/all?page=0&pageSize=...` |
-| 上传者榜、MMFC 榜 | 继续使用已实现的 GET `/api/stats/score-sums?uploader=...&page=...&pageSize=...`；新 `/maiscore/sum/chart/by-uploader/...` 仍为空实现，不切换 |
+| 上传者榜 | 继续使用已实现的 GET `/api/stats/score-sums?uploader=...&page=...&pageSize=...`；新 `/maiscore/sum/chart/by-uploader/...` 仍为空实现，不切换 |
 | 总分返回值 | 从旧数组和 `dxAccSum` 改为 `{ geneTime, players: [{ userId, username, acc: { dx, classic } }] }` |
 | 收藏歌单列表 | GET `/api/account/favorite/collection/list` 返回 `songHashs`，卡片的 `count` 从数组长度计算 |
 | 删除评论 | DELETE `/api/maichart/{chartId}/interact` 的 FormData 使用 `type=comment`、`comment-id`，替换旧的 `commentId` |
@@ -46,7 +46,7 @@
 
 以下是目标提交本身的问题，前端未通过修改查询含义、吞掉失败或重复写入来绕过：
 
-1. `src/WebApplication2/Controllers/StatisticsController.cs:34`：`page` 限制为至少 1，但默认值为 0，且服务按 `Skip(page * pageSize)` 做零起点分页。`page=0` 会被校验拒绝，改成 1 会漏掉第一页。影响上传者榜和 MMFC 榜；应允许 `page >= 0`。全站榜已改用允许 0 的新接口。
+1. `src/WebApplication2/Controllers/StatisticsController.cs:34`：`page` 限制为至少 1，但默认值为 0，且服务按 `Skip(page * pageSize)` 做零起点分页。`page=0` 会被校验拒绝，改成 1 会漏掉第一页。影响上传者榜；应允许 `page >= 0`。全站榜已改用允许 0 的新接口。
 2. `src/WebApplication2/Controllers/MaiChartApi/InteractController.cs:175`：评论/回复分支声明 `newInteract` 后没有接收 `AddCommentAsync` / `ReplyCommentAsync` 的返回值，写入后仍检查 null 并返回 400。应接收返回值并据此判断结果，否则用户可能因错误提示重复提交。
 3. `src/WebApplication2/Controllers/AccountApi/AccountController.cs:218`：旧的待激活账号登录仍发送激活链接，但 `GET /account/verify` 已移除。前端提示旧账号联系管理员；需要后端提供旧账户迁移或新的激活流程。
 4. `src/WebApplication2/Controllers/CollectionController.cs:209`：空字符串描述被 `SetIf(!string.IsNullOrEmpty(...))` 忽略，现有歌单不能清空描述。需要将“未传字段”与“传入空字符串”区分。资料简介也有相同限制，前端继续禁止空简介提交。

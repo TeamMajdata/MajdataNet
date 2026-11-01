@@ -213,12 +213,6 @@
     "PlayCountHint": "Number of times played",
     "RecommendedChartsHint": "Here choose the most favorable charts in 7 days!"
   },
-  "ranking/mmfc/MMFCRankingPage": {
-    "MMFCRankingDescription": "Shows participants' total scores for playing mmfc_bot's charts",
-    "MMFCRankingListDescription": "Total scores ranking of participants playing mmfc_bot's charts",
-    "MMFCRankingListTitle": "Challenge Rankings",
-    "MMFCRankingTitle": "MMFC Challenge Ranking"
-  },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "Total Achievement Rate Ranking - Who is the top of chart appreciation?",
     "UserRankingTitle": "Master Ranking"
@@ -287,10 +281,6 @@
     "Cry1": "Be gentle…",
     "Cry2": "Aw, let me catch my breath."
   },
-  "shared/MMFCScoreCount": {
-    "FailedToLoad": "Failed to load",
-    "NoMMFCRankingData": "No ranking data available. Please add participants first"
-  },
   "shared/MajdataLogo": {
     "FUCKYOU": "DONT TOUCH ME FUCK YOU SON OF A BITCH"
   },
@@ -300,7 +290,6 @@
     "CollectionHiroba": "Collections",
     "Contest": "Events",
     "Documentation": "Documentation",
-    "MMFCRanking": "MMFC Ranking",
     "NavigationMenu": "主导航",
     "OriginalSongs": "Original Songs",
     "Rankings": "Rankings",
