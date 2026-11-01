@@ -1,6 +1,7 @@
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { useI18n } from '@/hooks';
 import {
   NAVIGATION_ITEMS,
   isNavigationItemActive,
@@ -19,14 +20,12 @@ const CHILD_ITEM = 'group flex min-h-11 items-center gap-3 rounded-lg px-4 pl-7 
 const CHILD_IDLE = 'text-white/66 hover:bg-white/[0.06] hover:text-white';
 const CHILD_ACTIVE = 'bg-blue-400/[0.1] text-blue-100';
 
-type Translate = (key: string, fallback?: string) => string;
-
 interface NavigationLinkViewProps {
   item: NavigationLink;
   nested?: boolean;
   pathname: string;
   search: string;
-  i18n: Translate;
+  t: TFunction;
   onNavigate: () => void;
 }
 
@@ -53,7 +52,7 @@ function NavigationLinkView({
   nested = false,
   pathname,
   search,
-  i18n,
+  t,
   onNavigate,
 }: NavigationLinkViewProps) {
   const active = isNavigationLinkActive(item, pathname, search);
@@ -64,7 +63,7 @@ function NavigationLinkView({
     <>
       {nested && <ActiveMarker active={active} nested />}
       <span className="min-w-0 flex-1 text-left xl:flex-none xl:whitespace-nowrap">
-        {i18n(item.labelKey)}
+        {t(item.labelKey)}
       </span>
       {!nested && <ActiveMarker active={active} />}
       {item.external && (
@@ -107,7 +106,7 @@ interface NavigationGroupViewProps {
   isOpen: boolean;
   pathname: string;
   search: string;
-  i18n: Translate;
+  t: TFunction;
   menuId: string;
   triggerRef: (element: HTMLButtonElement | null) => void;
   onToggle: () => void;
@@ -119,7 +118,7 @@ function NavigationGroupView({
   isOpen,
   pathname,
   search,
-  i18n,
+  t,
   menuId,
   triggerRef,
   onToggle,
@@ -140,7 +139,7 @@ function NavigationGroupView({
         data-navigation-group={item.id}
       >
         <span className="min-w-0 flex-1 text-left xl:flex-none xl:whitespace-nowrap">
-          {i18n(item.labelKey)}
+          {t(item.labelKey)}
         </span>
         <svg
           aria-hidden="true"
@@ -164,7 +163,7 @@ function NavigationGroupView({
               nested
               pathname={pathname}
               search={search}
-              i18n={i18n}
+              t={t}
               onNavigate={onNavigate}
             />
           </li>
@@ -176,7 +175,7 @@ function NavigationGroupView({
 
 /** A single semantic navigation tree that reflows for desktop and mobile. */
 function NavigationContent() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const location = useLocation();
   const navigationId = useId();
   const navigationRef = useRef<HTMLElement>(null);
@@ -243,13 +242,13 @@ function NavigationContent() {
   };
 
   return (
-    <nav ref={navigationRef} className="relative" aria-label={i18n("shared/Navigation.NavigationMenu", '主导航')}>
+    <nav ref={navigationRef} className="relative" aria-label={t("shared/Navigation.NavigationMenu")}>
       <button
         ref={menuButtonRef}
         type="button"
         className={`relative grid h-11 w-11 touch-manipulation place-items-center rounded-xl border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 xl:hidden ${isMobileMenuOpen ? 'border-blue-300/30 bg-blue-400/10' : 'border-white/10 bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.07]'}`}
         onClick={toggleMobileMenu}
-        aria-label={i18n("shared/Navigation.NavigationMenu", '主导航')}
+        aria-label={t("shared/Navigation.NavigationMenu")}
         aria-expanded={isMobileMenuOpen}
         aria-controls={`primary-navigation-${navigationId}`}
         data-navigation-toggle
@@ -274,7 +273,7 @@ function NavigationContent() {
                 isOpen={openGroup === item.id}
                 pathname={location.pathname}
                 search={location.search}
-                i18n={i18n}
+                t={t}
                 menuId={`${item.id}-navigation-${navigationId}`}
                 triggerRef={(element) => {
                   groupTriggerRefs.current[item.id] = element;
@@ -291,7 +290,7 @@ function NavigationContent() {
                 item={item}
                 pathname={location.pathname}
                 search={location.search}
-                i18n={i18n}
+                t={t}
                 onNavigate={handleNavigate}
               />
             </li>

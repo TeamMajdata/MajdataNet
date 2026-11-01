@@ -3,6 +3,7 @@
  * 展示单个成绩的卡片
  */
 
+import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
@@ -11,14 +12,14 @@ import { LoadingSpinner } from '@/components';
 import { CoverPic, Level, LazyLoad } from '@/components';
 import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';
-import { useI18n, useUsername } from '@/hooks';
+import { useUsername } from '@/hooks';
 import type { Score, ChartScore } from '@/types';
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
 
 function SimpleLikeButton({ songid }: { songid: string }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const { data, error, isLoading: isFetching, mutate } = useSWR(
     endpoints.maichart.interact(songid),
@@ -51,13 +52,13 @@ function SimpleLikeButton({ songid }: { songid: string }) {
       );
 
       if (response.status === 200) {
-        toast.success(isLiked ? i18n("shared/ScoreCard.CancelSuccess") : i18n("shared/ScoreCard.LikeAction") + i18n("shared/ScoreCard.Success"));
+        toast.success(isLiked ? t("shared/ScoreCard.CancelSuccess") : t("shared/ScoreCard.Success", { action: t("shared/ScoreCard.LikeAction") }));
         mutate();
       } else {
-        toast.error(i18n("shared/ScoreCard.LikeAction") + i18n("shared/ScoreCard.FailedLoginPrompt"));
+        toast.error(t("shared/ScoreCard.FailedLoginPrompt", { action: t("shared/ScoreCard.LikeAction") }));
       }
     } catch {
-      toast.error(i18n("shared/ScoreCard.LikeAction") + i18n("shared/ScoreCard.FailedLoginPrompt"));
+      toast.error(t("shared/ScoreCard.FailedLoginPrompt", { action: t("shared/ScoreCard.LikeAction") }));
     } finally {
       setIsLoading(false);
     }

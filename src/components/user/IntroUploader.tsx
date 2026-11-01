@@ -3,6 +3,7 @@
  * 迁移自 legacy/src/app/widgets/IntroUploader.jsx
  */
 
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -11,7 +12,7 @@ import remarkGfm from 'remark-gfm';
 import 'github-markdown-css/github-markdown-dark.css';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import { getDisplayMessage } from '@/utils';
 import remarkCenter from '@/utils/remarkCenter';
 import { LoadingSpinner } from '@/components';
@@ -20,7 +21,7 @@ import type { UserInfo } from '@/types';
 import { apiFetcher as fetcher } from '@/utils/apiClient';
 
 export default function IntroUploader() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { user, refetch } = useUserContext();
   const [intro, setIntro] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -51,11 +52,11 @@ export default function IntroUploader() {
     const content = formData.get('introduction') as string;
 
     if (!content || content.trim() === '') {
-      toast.error(i18n("user/IntroUploader.NoIntroTypedIn"));
+      toast.error(t("user/IntroUploader.NoIntroTypedIn"));
       return;
     }
 
-    const uploading = toast.loading(i18n("user/IntroUploader.Uploading"), {
+    const uploading = toast.loading(t("user/IntroUploader.Uploading"), {
       hideProgressBar: false,
     });
 
@@ -71,11 +72,11 @@ export default function IntroUploader() {
         },
         withCredentials: true,
       });
-      toast.success(getDisplayMessage(response.data, i18n("user/IntroUploader.UploadSuccess", 'Upload succeeded')));
+      toast.success(getDisplayMessage(response.data, t("user/IntroUploader.UploadSuccess")));
       await Promise.all([mutate(), refetch()]);
     } catch (e: unknown) {
       const error = e as { response?: { data?: unknown }; message?: string };
-      const message = getDisplayMessage(error.response?.data ?? error.message, i18n("user/IntroUploader.UploadFailed", 'Upload failed'));
+      const message = getDisplayMessage(error.response?.data ?? error.message, t("user/IntroUploader.UploadFailed"));
       toast.error(message, { autoClose: false });
     } finally {
       toast.done(uploading);
@@ -86,8 +87,8 @@ export default function IntroUploader() {
   return (
     <>
       <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">
-        {i18n("user/IntroUploader.SelfIntro")}
-        {i18n("user/IntroUploader.MarkdownSupported")}
+        {t("user/IntroUploader.SelfIntro")}
+        {t("user/IntroUploader.MarkdownSupported")}
       </h2>
       <div className="flex flex-wrap justify-center max-w-(--container-max-width) mx-auto my-0 px-(--container-padding)">
         <form className="flex flex-col justify-center w-full" onSubmit={onSubmit}>
@@ -105,7 +106,7 @@ export default function IntroUploader() {
             type="submit"
             disabled={isUploading}
           >
-            {isUploading ? i18n("user/IntroUploader.UploadingPlzWait") : i18n("user/IntroUploader.Upload")}
+            {isUploading ? t("user/IntroUploader.UploadingPlzWait") : t("user/IntroUploader.Upload")}
           </button>
         </form>
       </div>
@@ -113,7 +114,7 @@ export default function IntroUploader() {
       {/* HR Divider */}
       <div className="my-8 border-white/20 border-t"></div>
 
-      <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">{i18n("user/IntroUploader.Preview")}</h2>
+      <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">{t("user/IntroUploader.Preview")}</h2>
       <article className="bg-transparent px-4 markdown-body">
         <Markdown
           remarkPlugins={[remarkGfm, remarkCenter]}

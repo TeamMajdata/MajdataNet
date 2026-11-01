@@ -1,9 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios, { AxiosError } from 'axios';
 import { Link } from 'react-router-dom';
 import { endpoints } from '@/config/api';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import { getFileKey, hashCandidatesFromBytes } from '@/utils/maidataHash';
 import { getExpectedChartUploadFileNames, isValidChartUploadFileName } from '@/utils/chartUploadValidation';
@@ -30,7 +31,7 @@ interface HashStatusResponse {
 }
 
 export default function ChartUploader() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { user, isLoading: isUserLoading } = useUserContext();
   const [isUploading, setIsUploading] = useState(false);
   const [hashLookup, setHashLookup] = useState<HashLookupState>({ status: 'idle' });
@@ -53,8 +54,8 @@ export default function ChartUploader() {
           status: 'loginRequired',
           fileKey,
           message: isUserLoading
-            ? i18n("user/ChartUploader.MaidataHashChecking", 'Checking whether this chart already exists...')
-            : i18n("user/ChartUploader.NotLoggedIn", 'Not logged in'),
+            ? t("user/ChartUploader.MaidataHashChecking")
+            : t("user/ChartUploader.NotLoggedIn"),
         };
         setHashLookup(nextState);
         return nextState;
@@ -121,8 +122,8 @@ export default function ChartUploader() {
         status: isUnauthorized ? 'loginRequired' : 'error',
         fileKey,
         message: isUnauthorized
-          ? i18n("user/ChartUploader.NotLoggedIn", 'Not logged in')
-          : getDisplayMessage(error.response?.data ?? error.message, i18n("user/ChartUploader.MaidataHashLookupFailed", 'Failed to query maidata hash')),
+          ? t("user/ChartUploader.NotLoggedIn")
+          : getDisplayMessage(error.response?.data ?? error.message, t("user/ChartUploader.MaidataHashLookupFailed")),
       };
       if (hashLookupSeq.current === seq) {
         setHashLookup(nextState);
@@ -148,7 +149,7 @@ export default function ChartUploader() {
 
     if (!isValidChartUploadFileName(index, file.name)) {
       toast.error(
-        i18n("user/ChartUploader.InvalidFileName", 'Invalid file name. Expected: ')
+        t("user/ChartUploader.InvalidFileName")
         + getExpectedChartUploadFileNames(index),
       );
       event.currentTarget.value = '';
@@ -186,7 +187,7 @@ export default function ChartUploader() {
 
     if (missedFiles.length > 0) {
       for (const file of missedFiles) {
-        toast.error(i18n("user/ChartUploader.NoFileSelected") + file);
+        toast.error(t("user/ChartUploader.NoFileSelected", { file }));
       }
       return;
     }
@@ -200,7 +201,7 @@ export default function ChartUploader() {
 
       if (!isValidChartUploadFileName(index, file.name)) {
         toast.error(
-          i18n("user/ChartUploader.InvalidFileName", 'Invalid file name. Expected: ')
+          t("user/ChartUploader.InvalidFileName")
           + getExpectedChartUploadFileNames(index),
         );
         return;
@@ -208,11 +209,11 @@ export default function ChartUploader() {
     }
 
     if (hashLookup.status === 'exists') {
-      toast.error(i18n("user/ChartUploader.MaidataAlreadyExists", 'This chart already exists on the site'), { autoClose: false });
+      toast.error(t("user/ChartUploader.MaidataAlreadyExists"), { autoClose: false });
       return;
     }
 
-    const uploading = toast.loading(i18n("user/ChartUploader.Uploading"), {
+    const uploading = toast.loading(t("user/ChartUploader.Uploading"), {
       hideProgressBar: false,
     });
 
@@ -228,17 +229,17 @@ export default function ChartUploader() {
         },
         withCredentials: true,
       });
-      toast.success(getDisplayMessage(response.data, i18n("user/ChartUploader.UploadSuccess", 'Upload succeeded')));
+      toast.success(getDisplayMessage(response.data, t("user/ChartUploader.UploadSuccess")));
       await sleep(2000);
       window.location.reload();
     }
     catch (e: unknown) {
       if (e instanceof AxiosError && e.response?.status === 500) {
-        toast.error(i18n("user/ChartUploader.UploadServerErrorHint"), { autoClose: false });
+        toast.error(t("user/ChartUploader.UploadServerErrorHint"), { autoClose: false });
       }
       else {
         const error = e as { response?: { data?: unknown }; message?: string };
-        const message = getDisplayMessage(error.response?.data ?? error.message, i18n("user/ChartUploader.UploadFailed", 'Upload failed'));
+        const message = getDisplayMessage(error.response?.data ?? error.message, t("user/ChartUploader.UploadFailed"));
         toast.error(message, { autoClose: false });
       }
 
@@ -252,18 +253,18 @@ export default function ChartUploader() {
     { label: 'maidata.txt', icon: <MdOutlineDescription className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
     { label: 'bg.png/bg.jpg', icon: <MdOutlineImage className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
     { label: 'track.mp3', icon: <MdOutlineAudioFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
-    { label: i18n("user/ChartUploader.BGVideoHint"), icon: <MdOutlineVideoFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
+    { label: t("user/ChartUploader.BGVideoHint"), icon: <MdOutlineVideoFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
   ];
   const hashLookupStatusText: Record<HashLookupStatus, string> = {
     idle: '',
-    checking: i18n("user/ChartUploader.MaidataHashChecking", 'Checking whether this chart already exists...'),
-    notFound: i18n("user/ChartUploader.MaidataHashNotFound", 'No existing chart found'),
+    checking: t("user/ChartUploader.MaidataHashChecking"),
+    notFound: t("user/ChartUploader.MaidataHashNotFound"),
     exists: hashLookup.chart
-      ? i18n("user/ChartUploader.MaidataAlreadyExistsWithTitle", 'This chart already exists on the site') + `: ${hashLookup.chart.title}`
-      : i18n("user/ChartUploader.MaidataAlreadyExists", 'This chart already exists on the site'),
-    inheritsHistory: i18n("user/ChartUploader.MaidataWillInheritHistory", 'This upload will inherit previous scores or interactions'),
-    loginRequired: hashLookup.message || i18n("user/ChartUploader.NotLoggedIn", 'Not logged in'),
-    error: hashLookup.message || i18n("user/ChartUploader.MaidataHashLookupFailed", 'Failed to query maidata hash'),
+      ? t("user/ChartUploader.MaidataAlreadyExistsWithTitle", { title: hashLookup.chart.title })
+      : t("user/ChartUploader.MaidataAlreadyExists"),
+    inheritsHistory: t("user/ChartUploader.MaidataWillInheritHistory"),
+    loginRequired: hashLookup.message || t("user/ChartUploader.NotLoggedIn"),
+    error: hashLookup.message || t("user/ChartUploader.MaidataHashLookupFailed"),
   };
   const hashLookupStatusClass: Record<HashLookupStatus, string> = {
     idle: '',
@@ -290,7 +291,7 @@ export default function ChartUploader() {
             <MdCloudUpload className="text-gray-200 text-2xl" />
           </div>
           <h2 className="font-bold text-gray-200 text-xl">
-            {i18n("user/ChartUploader.Upload") || 'Upload Chart'}
+            {t("user/ChartUploader.Upload") || 'Upload Chart'}
           </h2>
         </div>
 
@@ -324,7 +325,7 @@ export default function ChartUploader() {
                   className="text-blue-300 hover:text-blue-200 underline"
                   to={`/song?id=${encodeURIComponent(hashLookup.chart.id)}`}
                 >
-                  {i18n("user/ChartUploader.View", 'View')}
+                  {t("user/ChartUploader.View")}
                 </Link>
               )}
             </div>
@@ -344,12 +345,12 @@ export default function ChartUploader() {
             {isUploading ? (
               <>
                 <LoadingSpinner className="w-5 h-5 text-gray-400" />
-                {i18n("user/ChartUploader.UploadingPlzWait")}
+                {t("user/ChartUploader.UploadingPlzWait")}
               </>
             ) : (
               <>
                 <MdCloudUpload className="text-xl" />
-                {i18n("user/ChartUploader.Upload")}
+                {t("user/ChartUploader.Upload")}
               </>
             )}
           </motion.button>

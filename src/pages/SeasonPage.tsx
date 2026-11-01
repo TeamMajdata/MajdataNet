@@ -1,10 +1,11 @@
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/i18n';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { PageLayout, EventBanner, LoadingSpinner } from '@/components';
+import { PageLayout, EventBanner } from '@/components';
 import SongCard from '@/components/song/SongCard';
 import SeasonLeaderboard from '@/components/season/SeasonLeaderboard';
 import CollectionSubscribeButton from '@/components/collection/CollectionSubscribeButton';
-import { useI18n } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
 import { useSeasonCharts, type SeasonChartsState, type SeasonChartSummary } from '@/hooks/useSeasonCharts';
 import { getEventById } from '@/utils/eventsData';
@@ -12,11 +13,9 @@ import { getSeasonStatus, validateSeasonEvent } from '@/utils/season';
 import { type Event } from '@/types/event';
 
 export default function SeasonPage() {
-  const { i18n, isReady } = useI18n();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const event = getEventById(searchParams.get('id') ?? '');
-
-  if (!isReady) return <div className="flex min-h-screen items-center justify-center"><LoadingSpinner size="50px" /></div>;
 
   const notFound = !event || event.type !== 'season';
   if (notFound || validateSeasonEvent(event).length > 0) {
@@ -24,12 +23,12 @@ export default function SeasonPage() {
       <PageLayout className="py-16 text-center">
         <h1 className="mb-4 text-2xl font-bold">
           {notFound
-            ? i18n('season/SeasonPage.NotFound', '没有找到这个季赛')
-            : i18n('season/SeasonPage.InvalidConfig', '季赛配置暂不可用')}
+            ? t('season/SeasonPage.NotFound')
+            : t('season/SeasonPage.InvalidConfig')}
         </h1>
-        {!notFound && <p className="mb-6 text-white/65">{i18n('season/SeasonPage.ConfigurationHint', '活动信息需要维护者检查，请稍后再来。')}</p>}
+        {!notFound && <p className="mb-6 text-white/65">{t('season/SeasonPage.ConfigurationHint')}</p>}
         <Link to="/chart-events" className="text-blue-400 underline underline-offset-4">
-          {i18n('season/SeasonPage.BackToEvents', '返回活动列表')}
+          {t('season/SeasonPage.BackToEvents')}
         </Link>
       </PageLayout>
     );
@@ -39,7 +38,8 @@ export default function SeasonPage() {
 }
 
 function SeasonDetails({ event }: { event: Event }) {
-  const { i18n, language } = useI18n();
+  const { t } = useTranslation();
+  const language = useLanguage();
   const now = useEventClock([event]);
   const status = getSeasonStatus(event, now);
   const chartState = useSeasonCharts(event.asset);
@@ -51,10 +51,10 @@ function SeasonDetails({ event }: { event: Event }) {
     timeZone: 'Asia/Shanghai', timeStyle: 'medium', hourCycle: 'h23',
   });
   const statusText = status === 'upcoming'
-    ? i18n('chart-events/eventsData.EventStatusUpcoming', '即将开始')
+    ? t('chart-events/eventsData.EventStatusUpcoming')
     : status === 'ongoing'
-      ? i18n('chart-events/eventsData.EventStatusOngoing', '进行中')
-      : i18n('chart-events/eventsData.EventStatusEnded', '已结束');
+      ? t('chart-events/eventsData.EventStatusOngoing')
+      : t('chart-events/eventsData.EventStatusEnded');
   // Keep the same badge colors and treatment as the events list.
   const statusClass = status === 'upcoming'
     ? 'text-amber-400 bg-amber-400/20 border border-amber-400/40 shadow-[0_0_8px_rgba(251,191,36,0.2)]'
@@ -75,21 +75,21 @@ function SeasonDetails({ event }: { event: Event }) {
           border: '1px solid rgba(255, 255, 255, 0.1)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
         }}>
-          <h3 className="mb-3 font-semibold text-white text-base">{i18n('season/SeasonPage.RulesTitle', '如何计分')}</h3>
+          <h3 className="mb-3 font-semibold text-white text-base">{t('season/SeasonPage.RulesTitle')}</h3>
           <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-white/80">
-            <li>{i18n('season/SeasonPage.RulesBest', '本季曲池中每个文件的各难度分别取活动期间的最佳达成率，再将它们相加。可以多次挑战，以达成更高的总分打榜。')}</li>
-            <li>{i18n('season/SeasonPage.RulesTime', '以服务器收到成绩的时间为准，包含起止时刻。未游玩的谱面不贡献分数。')}</li>
+            <li>{t('season/SeasonPage.RulesBest')}</li>
+            <li>{t('season/SeasonPage.RulesTime')}</li>
           </ul>
           <div className="mt-5 border-t border-white/10 pt-4">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
               <span aria-live="polite" className={`inline-block rounded-md px-2 py-0.5 text-xs sm:text-sm font-semibold ${statusClass}`}>
                 • {statusText}
               </span>
-              <span className="text-xs text-white/50">{i18n('season/SeasonPage.TimeZone', '北京时间（UTC+8）')}</span>
+              <span className="text-xs text-white/50">{t('season/SeasonPage.TimeZone')}</span>
             </div>
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
               <div className="min-w-0">
-                <dt className="mb-1 text-xs text-white/50">{i18n('season/SeasonPage.Starts', '开始时间')}</dt>
+                <dt className="mb-1 text-xs text-white/50">{t('season/SeasonPage.Starts')}</dt>
                 <dd className="m-0">
                   <time dateTime={event.createDate} className="flex flex-wrap items-baseline gap-x-2 text-sm leading-relaxed tabular-nums">
                     <span className="font-medium text-white/85">{dateFormatter.format(new Date(event.createDate))}</span>
@@ -98,7 +98,7 @@ function SeasonDetails({ event }: { event: Event }) {
                 </dd>
               </div>
               <div className="min-w-0">
-                <dt className="mb-1 text-xs text-white/50">{i18n('season/SeasonPage.Ends', '结束时间')}</dt>
+                <dt className="mb-1 text-xs text-white/50">{t('season/SeasonPage.Ends')}</dt>
                 <dd className="m-0">
                   <time dateTime={event.endDate} className="flex flex-wrap items-baseline gap-x-2 text-sm leading-relaxed tabular-nums">
                     <span className="font-medium text-white/85">{dateFormatter.format(new Date(event.endDate))}</span>
@@ -120,7 +120,7 @@ function SeasonDetails({ event }: { event: Event }) {
 }
 
 function PoolChart({ item, index, retry }: { item: SeasonChartSummary; index: number; retry: SeasonChartsState['retry'] }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { song, error } = item;
 
   return (
@@ -128,16 +128,16 @@ function PoolChart({ item, index, retry }: { item: SeasonChartSummary; index: nu
       {song ? <SongCard song={song} index={index} /> : (
         <div className="flex flex-col justify-center items-center gap-3 min-h-40 text-white/70 text-sm text-center" role="status">
           <p>{error
-            ? i18n('season/SeasonPool.LoadFailed', '暂时无法加载此谱面')
-            : i18n('season/SeasonPool.Loading', '正在加载谱面…')}</p>
+            ? t('season/SeasonPool.LoadFailed')
+            : t('season/SeasonPool.Loading')}</p>
           {error && <button type="button" className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer" onClick={() => void retry(item.id)}>
-            {i18n('season/SeasonPool.Retry', '重试')}
+            {t('season/SeasonPool.Retry')}
           </button>}
         </div>
       )}
       {song && item.invalidDifficulty && (
         <p className="mx-auto mt-2 max-w-80 text-red-300 text-sm text-center" role="alert">
-          {i18n('season/SeasonPool.InvalidDifficulty', '此文件没有有效难度，请联系活动维护者核查。')}
+          {t('season/SeasonPool.InvalidDifficulty')}
         </p>
       )}
     </li>
@@ -145,12 +145,12 @@ function PoolChart({ item, index, retry }: { item: SeasonChartSummary; index: nu
 }
 
 function SeasonPool({ chartState, collectionId }: { chartState: SeasonChartsState; collectionId: string }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   return (
     <section aria-labelledby="season-pool-title" className="mx-auto mt-4 sm:mt-6 md:mt-8 px-2 sm:px-3 md:px-4 max-w-300">
       <div className="mb-8">
         <h2 id="season-pool-title" className="m-0 mb-3 sm:mb-4 md:mb-6 font-bold text-white text-xl sm:text-2xl md:text-3xl text-center" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
-          {i18n('season/SeasonPool.Title', '本季曲池')}
+          {t('season/SeasonPool.Title')}
         </h2>
         <div className="flex justify-center">
           <CollectionSubscribeButton collectionId={collectionId} />

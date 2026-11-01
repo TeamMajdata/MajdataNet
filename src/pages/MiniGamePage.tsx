@@ -2,15 +2,15 @@
  * 小游戏页面
  * 迁移自 legacy/src/app/minigame/page.jsx
  */
+import { useTranslation } from 'react-i18next';
 import { PageLayout, MiniGame } from '@/components';
-import { useI18n } from '@/hooks';
 
 export default function MiniGamePage() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
 
   return (
     <PageLayout
-      title={i18n("minigame/MiniGamePage.MiniGame")}
+      title={t("minigame/MiniGamePage.MiniGame")}
       showFooter={true}
     >
       <div className="flex justify-center p-4">

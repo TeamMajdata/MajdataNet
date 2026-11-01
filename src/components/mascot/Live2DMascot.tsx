@@ -1,6 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import type { KeyboardEvent, PointerEvent } from 'react';
-import { useI18n } from '@/hooks/useI18n';
 import { createMascotController } from './runtime';
 import {
   chooseReaction,
@@ -49,7 +49,7 @@ interface DragState {
 }
 
 export default function Live2DMascot() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const desktop = useMediaQuery('(min-width: 769px)');
   const viewportSnapshot = useSyncExternalStore(subscribeViewport, getViewportSnapshot, () => '0,0,false');
   const [viewportWidth, viewportHeight, fullscreen] = viewportSnapshot.split(',');
@@ -111,9 +111,9 @@ export default function Live2DMascot() {
   }, [speech, dismissSpeech]);
 
   const messages = [
-    [i18n('shared/Live2DMascot.Shy1'), i18n('shared/Live2DMascot.Shy2')],
-    [i18n('shared/Live2DMascot.Encourage1'), i18n('shared/Live2DMascot.Encourage2')],
-    [i18n('shared/Live2DMascot.Cry1'), i18n('shared/Live2DMascot.Cry2')],
+    [t('shared/Live2DMascot.Shy1'), t('shared/Live2DMascot.Shy2')],
+    [t('shared/Live2DMascot.Encourage1'), t('shared/Live2DMascot.Encourage2')],
+    [t('shared/Live2DMascot.Cry1'), t('shared/Live2DMascot.Cry2')],
   ];
 
   function updatePreferences(next: MascotPreferences) {
@@ -203,7 +203,7 @@ export default function Live2DMascot() {
     <aside
       className={`live2d-mascot${dragging ? ' live2d-mascot--dragging' : ''}`}
       style={{ left: position.x, top: position.y, width: size.width, height: size.height, visibility: shown ? undefined : 'hidden' }}
-      aria-label={i18n('shared/Live2DMascot.Name')}
+      aria-label={t('shared/Live2DMascot.Name')}
       aria-hidden={!shown || undefined}
       data-testid="live2d-mascot"
       data-model-status={runtimeStatus}
@@ -215,7 +215,7 @@ export default function Live2DMascot() {
         type="button"
         className="live2d-mascot__character"
         data-testid="mascot-poke"
-        aria-label={i18n('shared/Live2DMascot.Poke')}
+        aria-label={t('shared/Live2DMascot.Poke')}
         aria-describedby={hintId}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
@@ -225,18 +225,18 @@ export default function Live2DMascot() {
         onPointerCancel={finishDrag}
         onLostPointerCapture={finishDrag}
       />}
-      <span id={hintId} className="live2d-mascot__sr-only">{i18n('shared/Live2DMascot.MoveHint')}</span>
+      <span id={hintId} className="live2d-mascot__sr-only">{t('shared/Live2DMascot.MoveHint')}</span>
       {speech && shown && (
         <div className="live2d-mascot__speech" data-testid="mascot-dialogue" style={{ left: bubblePosition.x, top: bubblePosition.y }} role="status" aria-live="polite" aria-atomic="true">
-          <span className="live2d-mascot__name">{i18n('shared/Live2DMascot.Name')}</span>
+          <span className="live2d-mascot__name">{t('shared/Live2DMascot.Name')}</span>
           <span>{messages[speech.reaction][speech.variant]}</span>
           <button
             type="button"
             className="live2d-mascot__dismiss"
             data-testid="mascot-dismiss-dialogue"
             onClick={dismissSpeech}
-            aria-label={i18n('shared/Live2DMascot.DismissDialogue')}
-            title={i18n('shared/Live2DMascot.DismissDialogue')}
+            aria-label={t('shared/Live2DMascot.DismissDialogue')}
+            title={t('shared/Live2DMascot.DismissDialogue')}
           >
             <span aria-hidden="true">×</span>
           </button>

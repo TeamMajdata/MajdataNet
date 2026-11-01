@@ -7,9 +7,6 @@ import SongPage from '@/pages/SongPage';
 import ChartRadar from '@/components/song/ChartRadar';
 import { getDefaultChartLevel } from '@/utils/radar';
 
-const translate = (_key: string, fallback?: string) => fallback ?? _key;
-vi.mock('@/hooks', () => ({ useI18n: () => ({ i18n: translate, isReady: true }) }));
-vi.mock('@/hooks/useI18n', () => ({ useI18n: () => ({ i18n: translate, isReady: true }) }));
 vi.mock('react-helmet-async', () => ({ Helmet: () => null }));
 vi.mock('@/utils', () => ({ stripTmpTags: (value: string) => value }));
 vi.mock('framer-motion', async () => ({ ...await vi.importActual('framer-motion'), useReducedMotion: () => true }));

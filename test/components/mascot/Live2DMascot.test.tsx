@@ -4,6 +4,7 @@ import type { Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Live2DMascot from '@/components/mascot/Live2DMascot';
 import { MASCOT_STORAGE_KEY } from '@/components/mascot/mascotState';
+import i18n from '@/i18n';
 
 const runtime = vi.hoisted(() => ({
   status: 'ready' as 'idle' | 'loading' | 'ready' | 'error',
@@ -29,10 +30,6 @@ vi.mock('@/components/mascot/runtime', () => ({
       onReactionEnd: () => () => undefined,
     };
   },
-}));
-
-vi.mock('@/hooks/useI18n', () => ({
-  useI18n: () => ({ i18n: (key: string) => key.split('.').at(-1) }),
 }));
 
 const testGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean };
@@ -128,8 +125,8 @@ describe('Live2DMascot', () => {
     expect(element('live2d-mascot').style.top).toBe('588px');
     expect(element('mascot-dialogue')).toBeNull();
     expect(element('mascot-poke').tagName).toBe('BUTTON');
-    expect(element('mascot-poke').getAttribute('aria-label')).toBe('Poke');
-    expect(document.getElementById(element('mascot-poke').getAttribute('aria-describedby')!)?.textContent).toBe('MoveHint');
+    expect(element('mascot-poke').getAttribute('aria-label')).toBe(i18n.t('shared/Live2DMascot.Poke'));
+    expect(document.getElementById(element('mascot-poke').getAttribute('aria-describedby')!)?.textContent).toBe(i18n.t('shared/Live2DMascot.MoveHint'));
   });
 
   it.each(['idle', 'loading'] as const)('keeps only a hidden noninteractive host while the model is %s', (status) => {
@@ -166,12 +163,12 @@ describe('Live2DMascot', () => {
     render();
     click('mascot-poke');
     expect(runtime.playReaction).toHaveBeenLastCalledWith(0);
-    expect(element('mascot-dialogue').textContent).toContain('NameShy1');
+    expect(element('mascot-dialogue').textContent).toContain(i18n.t('shared/Live2DMascot.Name') + i18n.t('shared/Live2DMascot.Shy1'));
     expect(element('mascot-dialogue').getAttribute('role')).toBe('status');
     expect(element('mascot-dialogue').getAttribute('aria-live')).toBe('polite');
     click('mascot-poke');
     expect(runtime.playReaction).toHaveBeenLastCalledWith(1);
-    expect(element('mascot-dialogue').textContent).toContain('NameEncourage1');
+    expect(element('mascot-dialogue').textContent).toContain(i18n.t('shared/Live2DMascot.Name') + i18n.t('shared/Live2DMascot.Encourage1'));
     act(() => vi.advanceTimersByTime(5_999));
     expect(element('mascot-dialogue')).not.toBeNull();
     act(() => vi.advanceTimersByTime(1));
@@ -185,7 +182,7 @@ describe('Live2DMascot', () => {
     const position = element('live2d-mascot').getAttribute('style');
     click('mascot-poke');
     const dismiss = element('mascot-dismiss-dialogue');
-    expect(dismiss.getAttribute('aria-label')).toBe('DismissDialogue');
+    expect(dismiss.getAttribute('aria-label')).toBe(i18n.t('shared/Live2DMascot.DismissDialogue'));
     dismiss.focus();
     if (method === 'click') click('mascot-dismiss-dialogue');
     else if (method === 'escape') act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));

@@ -4,8 +4,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { SWRConfig } from 'swr';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import ScoreCount from '@/components/score/ScoreCount';
+import i18n from '@/i18n';
 
-vi.mock('@/hooks', () => ({ useI18n: () => ({ i18n: (key: string) => key }) }));
 vi.mock('@/components', () => ({ LoadingSpinner: () => <span>Loading</span> }));
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 let root: Root;
@@ -27,10 +27,10 @@ it('keeps uploader filtering on the implemented stats endpoint', async () => {
   vi.stubGlobal('fetch', fetch);
   await render(<ScoreCount uploader="mmfc_bot" page={0} pageSize={30} />);
   expect(fetch.mock.calls[0][0]).toBe('/api3/api/stats/score-sums?uploader=mmfc_bot&page=0&pageSize=30');
-  expect(container.textContent).toContain('EmptyData');
+  expect(container.textContent).toContain(i18n.t('shared/ScoreCount.EmptyData'));
 });
 it('shows a failed request instead of treating an error object as player data', async () => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ title: 'Invalid page' }, { status: 400 })));
   await render(<ScoreCount uploader="mmfc_bot" page={0} pageSize={30} />);
-  expect(container.textContent).toContain('FailedToLoad');
+  expect(container.textContent).toContain(i18n.t('shared/ScoreCount.FailedToLoad'));
 });

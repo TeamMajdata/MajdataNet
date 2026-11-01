@@ -5,16 +5,16 @@
  * 根据URL参数id显示特定活动的相关谱面
  */
 
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { useI18n } from '@/hooks';
-import { PageLayout, SongList, EventBanner, LoadingSpinner } from '@/components';
+import { PageLayout, SongList, EventBanner } from '@/components';
 import { endpoints } from '@/config/api';
 import { getEventBySearchKeyword } from '@/utils/eventsData';
 import { type Event } from '@/types';
 import { EventCategory } from '@/types/event';
 
 export default function EventTagPage() {
-  const { i18n, isReady } = useI18n();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
 
   // 获取URL中的id参数
@@ -32,16 +32,14 @@ export default function EventTagPage() {
         asset: 'Original',
         src: '/events/original.png',
         alt: 'Original Songs',
-        title: i18n("eventTag/EventTagPage.OriginalSongs"),
+        title: t("eventTag/EventTagPage.OriginalSongs"),
         category: EventCategory.PrivateProject,
         createDate: new Date().toISOString().split('T')[0],
         endDate: '2099-12-31',
-        description: i18n("eventTag/EventTagPage.OriginalSongsDesc"),
+        description: t("eventTag/EventTagPage.OriginalSongsDesc"),
       }
       : getEventBySearchKeyword(eventId)
     : null;
-
-  if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
 
   return (
     <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen">
@@ -53,7 +51,7 @@ export default function EventTagPage() {
         <div className="mx-auto mt-4 sm:mt-6 md:mt-8 px-2 sm:px-3 md:px-4 max-w-300">
           <div className="mb-8">
             <h2 className="m-0 mb-3 sm:mb-4 md:mb-6 font-bold text-white text-xl sm:text-2xl md:text-3xl text-center" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
-              {i18n("eventTag/EventTagPage.RelatedCharts")}
+              {t("eventTag/EventTagPage.RelatedCharts")}
             </h2>
 
             {/* 渐变分割线 */}

@@ -359,7 +359,7 @@ for (const language of ['zh', 'en', 'ja', 'ko']) {
     await page.goto('/');
     const mascot = page.getByTestId('live2d-mascot');
     await expect(mascot).toHaveAttribute('data-model-status', 'ready');
-    const locale = JSON.parse(readFileSync(new URL(`../public/i18n/${language}.json`, import.meta.url), 'utf8'));
+    const locale = JSON.parse(readFileSync(new URL(`../src/locales/${language}.json`, import.meta.url), 'utf8'));
     const phrases = locale['shared/Live2DMascot'];
     // The global language control updates the same mounted mascot instance.
     await page.locator('button').filter({ hasText: '🌐' }).click();

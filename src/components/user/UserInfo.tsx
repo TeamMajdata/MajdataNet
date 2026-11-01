@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import { endpoints } from '@/config/api';
 
 /**
@@ -7,13 +8,13 @@ import { endpoints } from '@/config/api';
  * 显示用户头像和用户名，或显示登录链接
  */
 export default function UserInfo() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { user, isLoading, error } = useUserContext();
 
   if (error || !user?.username) {
     return (
       <div className="hover:bg-[rgb(46,46,46)] hover:shadow-[2px_2px_5px_gray] m-[10px] p-[5px] border border-transparent hover:border-[whitesmoke] rounded-[10px] text-[gainsboro] hover:text-white transition-all duration-200">
-        <Link to="/login">{i18n("user/UserInfo.Login")}</Link>
+        <Link to="/login">{t("user/UserInfo.Login")}</Link>
       </div>
     );
   }

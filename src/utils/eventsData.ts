@@ -2,7 +2,7 @@
  * 活动数据处理工具函数
  */
 
-import { i18n } from './i18n';
+import i18n, { getLocale } from '@/i18n';
 import type { Event, EventWithTimeInfo, CarouselEventsResult, EventCategory } from '@/types';
 import { EVENT_CATEGORY_I18N_KEYS } from '@/types/event';
 
@@ -44,21 +44,6 @@ export function getEventById(id: string): Event | undefined {
 }
 
 /**
- * 获取当前语言的日期locale
- */
-function getDateLocale(): string {
-  if (typeof localStorage === 'undefined') return 'zh-CN'; // SSR环境默认值
-  const lang = localStorage.getItem('language') || 'zh';
-  const localeMap: Record<string, string> = {
-    zh: 'zh-CN',
-    en: 'en-US',
-    ja: 'ja-JP',
-    ko: 'ko-KR',
-  };
-  return localeMap[lang] || 'zh-CN';
-}
-
-/**
  * 智能计算时间差距（多少天前/后）
  */
 export function getTimeAgo(createDate: string): string {
@@ -66,21 +51,12 @@ export function getTimeAgo(createDate: string): string {
   const currentDate = new Date();
   const diffTime = eventDate.getTime() - currentDate.getTime(); // 不使用 Math.abs，保留正负号
   const diffDays = Math.floor(Math.abs(diffTime) / (1000 * 60 * 60 * 24));
-  const isFuture = diffTime > 0; // 判断是否为未来时间
+  const sign = diffTime > 0 ? 1 : -1; // 判断是否为未来时间
+  const format = new Intl.RelativeTimeFormat(getLocale(), { numeric: 'auto' });
 
-  if (diffDays < 1) {
-    return i18n("chart-events/eventsData.TimeToday", '今天');
-  } else if (diffDays === 1) {
-    return isFuture ? `1${i18n("chart-events/eventsData.TimeDaysLater", '天后')}` : `1${i18n("chart-events/eventsData.TimeDaysAgo", '天前')}`;
-  } else if (diffDays < 30) {
-    return isFuture ? `${diffDays}${i18n("chart-events/eventsData.TimeDaysLater", '天后')}` : `${diffDays}${i18n("chart-events/eventsData.TimeDaysAgo", '天前')}`;
-  } else if (diffDays < 365) {
-    const months = Math.floor(diffDays / 30);
-    return isFuture ? `${months}${i18n("chart-events/eventsData.TimeMonthsLater", '个月后')}` : `${months}${i18n("chart-events/eventsData.TimeMonthsAgo", '个月前')}`;
-  } else {
-    const years = Math.floor(diffDays / 365);
-    return isFuture ? `${years}${i18n("chart-events/eventsData.TimeYearsLater", '年后')}` : `${years}${i18n("chart-events/eventsData.TimeYearsAgo", '年前')}`;
-  }
+  if (diffDays < 30) return format.format(sign * diffDays, 'day');
+  if (diffDays < 365) return format.format(sign * Math.floor(diffDays / 30), 'month');
+  return format.format(sign * Math.floor(diffDays / 365), 'year');
 }
 
 /**
@@ -91,7 +67,7 @@ export function getEventsWithTimeAgo(): EventWithTimeInfo[] {
     ...event,
     timeAgo: getTimeAgo(event.createDate),
     createDateFormatted: new Date(event.createDate).toLocaleDateString(
-      getDateLocale(),
+      getLocale(),
       {
         year: 'numeric',
         month: 'long',
@@ -191,7 +167,7 @@ class EventCarouselManager {
         ...event,
         timeAgo: getTimeAgo(event.createDate),
         createDateFormatted: new Date(event.createDate).toLocaleDateString(
-          getDateLocale(),
+          getLocale(),
           {
             year: 'numeric',
             month: 'long',
@@ -301,12 +277,12 @@ export function getRandomOngoingEvents(): EventWithTimeInfo[] {
  */
 export function getEventStatusText(event: Event): string {
   if (isEventUpcoming(event)) {
-    return i18n("chart-events/eventsData.EventStatusUpcoming", '即将开始');
+    return i18n.t("chart-events/eventsData.EventStatusUpcoming");
   }
   if (isEventOngoing(event)) {
-    return i18n("chart-events/eventsData.EventStatusOngoing", '进行中');
+    return i18n.t("chart-events/eventsData.EventStatusOngoing");
   }
-  return i18n("chart-events/eventsData.EventStatusEnded", '已结束');
+  return i18n.t("chart-events/eventsData.EventStatusEnded");
 }
 
 /**
@@ -329,7 +305,7 @@ export function getCategoryTranslation(category: EventCategory): string {
   const i18nKey = EVENT_CATEGORY_I18N_KEYS[category];
   if (!i18nKey) return '';
   
-  return i18n(i18nKey);
+  return i18n.t(i18nKey);
 }
 
 // 预构建搜索关键词到活动的映射表（性能优化）

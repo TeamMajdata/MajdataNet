@@ -1,9 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { useFavorites, useI18n } from '@/hooks';
+import { useFavorites } from '@/hooks';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function CollectionSubscribeButton({ collectionId }: { collectionId: string }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { favoriteIds, isLoadingFavorites, toggleFavorite, isPending } = useFavorites();
   const isSubscribed = favoriteIds.has(collectionId);
   const isSubscriptionPending = isPending(collectionId);
@@ -15,11 +16,11 @@ export default function CollectionSubscribeButton({ collectionId }: { collection
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       onClick={() => toggleFavorite(collectionId, {
-        added: i18n("collection/CollectionPage.SubscribeSuccess", '订阅成功'),
-        removed: i18n("collection/CollectionPage.UnsubscribeSuccess", '已取消订阅'),
+        added: t("collection/CollectionPage.SubscribeSuccess"),
+        removed: t("collection/CollectionPage.UnsubscribeSuccess"),
       })}
       disabled={isLoadingFavorites || isSubscriptionPending}
-      aria-label={isSubscribed ? i18n("collection/CollectionPage.Subscribed", '已订阅') : i18n("collection/CollectionPage.Subscribe", '订阅')}
+      aria-label={isSubscribed ? t("collection/CollectionPage.Subscribed") : t("collection/CollectionPage.Subscribe")}
       aria-pressed={isSubscribed}
       className={`flex items-center gap-2 shadow-lg backdrop-blur-md px-4 py-2 border rounded-xl font-bold transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${
         isSubscribed
@@ -39,7 +40,7 @@ export default function CollectionSubscribeButton({ collectionId }: { collection
           <path d="M10 21h4" />
         </svg>
       )}
-      <span>{isSubscribed ? i18n("collection/CollectionPage.Subscribed", '已订阅') : i18n("collection/CollectionPage.Subscribe", '订阅')}</span>
+      <span>{isSubscribed ? t("collection/CollectionPage.Subscribed") : t("collection/CollectionPage.Subscribe")}</span>
     </motion.button>
   );
 }
