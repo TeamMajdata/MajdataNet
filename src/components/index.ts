@@ -10,7 +10,6 @@ export { default as Logout } from './user/Logout';
 export { default as ChartUploader } from './user/ChartUploader';
 export { default as AvatarUploader } from './user/AvatarUploader';
 export { default as IntroUploader } from './user/IntroUploader';
-export { default as NicknameEditor } from './user/NicknameEditor';
 
 // UI组件
 export { default as MajdataLogo } from './header/MajdataLogo';
