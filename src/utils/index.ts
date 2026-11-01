@@ -24,6 +24,9 @@ export { downloadSong } from './download';
 // HTTP 消息工具
 export { getDisplayMessage } from './httpMessage';
 
+// 互动（投票/评论）工具
+export { compactNumber, loginPath } from './interaction';
+
 // TMP 富文本工具
 export { hasTmpTags, stripTmpTags, parseTmpRichText } from './richTextUtils';
 

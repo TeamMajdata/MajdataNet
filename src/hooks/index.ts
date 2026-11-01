@@ -8,3 +8,5 @@ export { useSessionGroups, hasUserGroup } from './useSessionGroups';
 export { useFavorites } from './useFavorites';
 export { useCollections } from './useCollections';
 export { useImpressionRef } from './useImpressionRef';
+export { useIsAdministrator } from './useIsAdministrator';
+export { useInteractSummary } from './useInteractSummary';
