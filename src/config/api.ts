@@ -32,6 +32,8 @@ export const endpoints = {
   account: {
     profile: (username?: string) => `${apiroot3}/account/profile${username ? `?username=${encodeURIComponent(username)}` : ''}`,
     updateProfile: `${apiroot3}/account/profile`,
+    // 当前会话，groups 是这个会话实际能用的用户组
+    session: `${apiroot3}/account/session`,
     login: `${apiroot3}/account/Login`,
     logout: `${apiroot3}/account/Logout`,
     register: `${apiroot3}/account/Register`,
@@ -45,10 +47,6 @@ export const endpoints = {
     // 某个用户发表的评论（平铺、分页），sort 只接受 new / top
     comments: (username: string, sort: string, page: number) =>
       `${apiroot3}/account/comments?username=${encodeURIComponent(username)}&sort=${sort}&page=${page}`,
-  },
-  // 管理员接口；网页只用它探测当前用户是否为管理员（非管理员返回 403）
-  admin: {
-    groups: `${apiroot3}/admin/groups`,
   },
   // 评论：永久链接、编辑/删除、投票
   comment: {

@@ -35,15 +35,21 @@ describe('useIsAdministrator', () => {
     <SWRConfig value={{ provider: () => new Map(), shouldRetryOnError: false }}><Probe /></SWRConfig>,
   ));
 
-  it('is true when the admin group listing answers', async () => {
-    fetchMock.mockResolvedValue(Response.json(['administrator', 'eventManager']));
+  it('is true when the session may act as an administrator', async () => {
+    fetchMock.mockResolvedValue(Response.json({ id: 's1', permissions: 131071, groups: ['administrator'] }));
     await render();
-    expect(fetchMock.mock.calls[0][0]).toBe('/api3/api/admin/groups');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api3/api/account/session');
     expect(container.textContent).toBe('true');
   });
 
-  it('is false for an account outside the group', async () => {
-    fetchMock.mockResolvedValue(new Response(null, { status: 403 }));
+  it('is false when the session lists other groups only', async () => {
+    fetchMock.mockResolvedValue(Response.json({ id: 's1', permissions: 131071, groups: ['eventManager'] }));
+    await render();
+    expect(container.textContent).toBe('false');
+  });
+
+  it('is false when the backend does not list groups yet', async () => {
+    fetchMock.mockResolvedValue(Response.json({ id: 's1', permissions: 131071 }));
     await render();
     expect(container.textContent).toBe('false');
   });
