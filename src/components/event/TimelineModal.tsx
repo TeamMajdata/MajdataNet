@@ -8,8 +8,9 @@ import { getEventHref } from '@/utils/eventLink';
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getActiveEvents, getAllEvents, getCategoryTranslation, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
+import { getActiveEvents, getCategoryTranslation, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
 import { useEventClock } from '@/hooks/useEventClock';
+import { useEvents } from '@/hooks/useEvents';
 import type {
   Event,
   TimelineModalProps,
@@ -25,7 +26,8 @@ import { Link } from 'react-router-dom';
 const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const language = useLanguage();
-  const now = useEventClock(isOpen ? getAllEvents() : []);
+  const { events: allEvents } = useEvents();
+  const now = useEventClock(isOpen ? allEvents : []);
   const [ongoingEvents, setOngoingEvents] = useState<Event[]>([]);
   const [timelineData, setTimelineData] = useState<TimelineData>({
     startDate: null,
@@ -307,7 +309,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen) return;
 
-    const events = getActiveEvents();
+    const events = getActiveEvents(allEvents);
     if (events.length === 0) {
       setOngoingEvents([]);
       setTimelineData({
@@ -345,7 +347,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
       isCompressed: compressedTimelineData.isCompressed
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, now, language]);
+  }, [isOpen, now, language, allEvents]);
 
   // 格式化日期显示
   const formatDate = (date: Date): string => {

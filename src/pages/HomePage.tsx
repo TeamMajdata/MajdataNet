@@ -14,6 +14,7 @@ import 'swiper/swiper-bundle.css';
 
 import { useUserContext } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
+import { useEvents } from '@/hooks/useEvents';
 import { PageLayout, SongCard, SongList, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import { ImpressionScope } from '@/contexts/ImpressionContext';
@@ -23,7 +24,6 @@ import {
   getEventStatusText,
   getNonFeaturedEventsCount,
   getActiveEvents,
-  getAllEvents,
   getTimeAgo,
   getCategoryTranslation,
 } from '@/utils/eventsData';
@@ -137,11 +137,12 @@ function EventsCarousel() {
 function DesktopEventsSwiper() {
   const { t } = useTranslation();
   const language = useLanguage();
-  useEventClock(getAllEvents());
-  const remainingEventsCount = getNonFeaturedEventsCount();
+  const { events } = useEvents();
+  useEventClock(events);
+  const remainingEventsCount = getNonFeaturedEventsCount(events);
 
   // 获取所有活跃的活动（进行中 + 即将开始）
-  const ongoingEvents = getActiveEvents().map((event) => ({
+  const ongoingEvents = getActiveEvents(events).map((event) => ({
       ...event,
       timeAgo: getTimeAgo(event.createDate),
       createDateFormatted: new Date(event.createDate).toLocaleDateString(getLocale(language), {
@@ -255,9 +256,10 @@ function DesktopEventsSwiper() {
 // 移动端专用的 Swiper 组件
 function MobileEventsSwiper() {
   const language = useLanguage();
-  useEventClock(getAllEvents());
+  const { events } = useEvents();
+  useEventClock(events);
   // 获取所有活跃的活动（进行中 + 即将开始）
-  const ongoingEvents = getActiveEvents().map((event) => ({
+  const ongoingEvents = getActiveEvents(events).map((event) => ({
       ...event,
       timeAgo: getTimeAgo(event.createDate),
       createDateFormatted: new Date(event.createDate).toLocaleDateString(getLocale(language), {

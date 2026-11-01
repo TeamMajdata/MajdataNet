@@ -10,12 +10,14 @@ import { useSearchParams } from 'react-router-dom';
 import { PageLayout, SongList, EventBanner } from '@/components';
 import { endpoints } from '@/config/api';
 import { getEventBySearchKeyword } from '@/utils/eventsData';
+import { useEvents } from '@/hooks/useEvents';
 import { type Event } from '@/types';
 import { EventCategory } from '@/types/event';
 
 export default function EventTagPage() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
+  const { events } = useEvents();
 
   // 获取URL中的id参数
   const eventId = searchParams.get('id');
@@ -38,7 +40,7 @@ export default function EventTagPage() {
         endDate: '2099-12-31',
         description: t("eventTag/EventTagPage.OriginalSongsDesc"),
       }
-      : getEventBySearchKeyword(eventId)
+      : getEventBySearchKeyword(events, eventId)
     : null;
 
   return (

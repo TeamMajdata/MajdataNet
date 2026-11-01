@@ -8,24 +8,25 @@ import { getEventHref } from '@/utils/eventLink';
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEventClock } from '@/hooks/useEventClock';
+import { useEvents } from '@/hooks/useEvents';
 import { PageLayout, EnhancedDescription, EventsFilter, TimelineModal } from '@/components';
 import {
   getEventStatusClass,
   getEventStatusText,
   getEventsWithTimeAgo,
   getCategoryTranslation,
-  getAllEvents,
 } from '@/utils/eventsData';
 import { EventCategory } from '@/types';
 
 export default function EventsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  useEventClock(getAllEvents());
+  const { events } = useEvents();
+  useEventClock(events);
   const [selectedCategory, setSelectedCategory] = useState<EventCategory>(EventCategory.All);
   const [isTimelineModalOpen, setIsTimelineModalOpen] = useState(false);
 
-  const allEvents = getEventsWithTimeAgo()
+  const allEvents = getEventsWithTimeAgo(events)
     .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
 
   const categories = useMemo(() => {

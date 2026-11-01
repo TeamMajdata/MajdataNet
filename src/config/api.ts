@@ -5,6 +5,9 @@ export const endpoints = {
   playhistory: {
     ranking: `${apiroot3}/playhistory/ranking`,
   },
+  event: {
+    list: `${apiroot3}/event`,
+  },
   recommend: {
     feed: (page: number, pageSize: number) => `${apiroot3}/recommend/feed?page=${page}&pageSize=${pageSize}`,
     impressions: `${apiroot3}/recommend/impressions`,

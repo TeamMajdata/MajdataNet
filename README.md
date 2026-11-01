@@ -198,7 +198,17 @@ gitattributes file is from [gitattributes/gitattributes](https://github.com/gita
 
 ## 活动配置
 
-`public/events.json` 使用 `type` 和 `asset` 定义跳转目标，不再填写 `href`：
+活动数据来自后端的 `api/event`，由 `eventManager` 或 `administrator` 组的账号维护；横幅图片暂时仍放在 `public/events/`，`src` 填 `/events/<文件名>`。`public/events.json` 只在 `api/event` 不可用时作为回退，不再需要修改。
+
+把 `events.json` 一次性导入后端（纯日期按北京时间补全为当天 00:00:00 至 23:59:59.999；已存在的活动跳过，加 `--replace` 覆盖）：
+
+```bash
+MAJDATA_PASSWORD=<密码> node scripts/import-events.mjs --api https://majdata.net/api3/api --username <用户名>
+```
+
+`--dry-run` 只打印转换后的请求体。本地联调时 `--api` 用 `http://127.0.0.1:34613/api`。
+
+活动用 `type` 和 `asset` 定义跳转目标，不再填写 `href`：
 
 | type | asset |
 | --- | --- |

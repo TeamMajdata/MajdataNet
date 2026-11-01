@@ -2,11 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/i18n';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { PageLayout, EventBanner } from '@/components';
+import { PageLayout, EventBanner, LoadingSpinner } from '@/components';
 import SongCard from '@/components/song/SongCard';
 import SeasonLeaderboard from '@/components/season/SeasonLeaderboard';
 import CollectionSubscribeButton from '@/components/collection/CollectionSubscribeButton';
 import { useEventClock } from '@/hooks/useEventClock';
+import { useEvents } from '@/hooks/useEvents';
 import { useSeasonCharts, type SeasonChartsState, type SeasonChartSummary } from '@/hooks/useSeasonCharts';
 import { getEventById } from '@/utils/eventsData';
 import { getSeasonStatus, validateSeasonEvent } from '@/utils/season';
@@ -15,7 +16,16 @@ import { type Event } from '@/types/event';
 export default function SeasonPage() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const event = getEventById(searchParams.get('id') ?? '');
+  const { events, isLoading } = useEvents();
+  if (isLoading) {
+    return (
+      <PageLayout className="flex justify-center py-16">
+        <LoadingSpinner size="50px" />
+      </PageLayout>
+    );
+  }
+
+  const event = getEventById(events, searchParams.get('id') ?? '');
 
   const notFound = !event || event.type !== 'season';
   if (notFound || validateSeasonEvent(event).length > 0) {

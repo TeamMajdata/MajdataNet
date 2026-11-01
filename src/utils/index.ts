@@ -29,23 +29,13 @@ export { hasTmpTags, stripTmpTags, parseTmpRichText } from './richTextUtils';
 
 // 活动数据工具
 export {
-  getAllEvents,
-  getEventsCount,
   getNonFeaturedEventsCount,
   getEventById,
   getTimeAgo,
   getEventsWithTimeAgo,
   isEventUpcoming,
   isEventOngoing,
-  getOngoingEvents,
   getActiveEvents,
-  getUpcomingEvents,
-  getEndedEvents,
-  getCarouselEvents,
-  getNextCarouselEvents,
-  resetCarousel,
-  shouldEnableCarousel,
-  getRandomOngoingEvents,
   getEventStatusText,
   getEventStatusClass,
   getCategoryTranslation,

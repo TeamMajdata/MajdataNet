@@ -3,7 +3,7 @@ import { useLanguage } from '@/i18n';
 import { useEventClock } from '@/hooks/useEventClock';
 import { useSeasonCharts } from '@/hooks/useSeasonCharts';
 import { useSeasonRanking } from '@/hooks/useSeasonRanking';
-import { getAllEvents } from '@/utils/eventsData';
+import { useEvents } from '@/hooks/useEvents';
 import { getSeasonStatus, validateSeasonEvent } from '@/utils/season';
 import { Link } from 'react-router-dom';
 import { IoArrowForwardOutline, IoTrophyOutline } from 'react-icons/io5';
@@ -12,7 +12,7 @@ import '@/styles/components/user-season-achievements.css';
 
 export default function UserSeasons({ username }: { username: string }) {
   const { t } = useTranslation();
-  const events = getAllEvents();
+  const { events } = useEvents();
   const now = useEventClock(events);
   const seasons = events.flatMap(event => {
     if (event.type !== 'season' || validateSeasonEvent(event).length) return [];
