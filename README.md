@@ -198,7 +198,7 @@ gitattributes file is from [gitattributes/gitattributes](https://github.com/gita
 
 ## 活动配置
 
-活动数据来自后端的 `api/event`，由 `eventManager` 或 `administrator` 组的账号维护；横幅图片暂时仍放在 `public/events/`，`src` 填 `/events/<文件名>`。`public/events.json` 只在 `api/event` 不可用时作为回退，不再需要修改。
+活动数据来自后端的 `api/event`，由 `eventManager` 或 `administrator` 组的账号在「活动管理」页面（`/admin/events`，用户菜单里只对这两个组显示）新建、编辑和删除，时间按北京时间填写。横幅图片暂时仍放在 `public/events/` 随网站发布，`src` 填 `/events/<文件名>`，所以新活动的图片要先合并部署，再在页面上创建活动。`public/events.json` 只在 `api/event` 不可用时作为回退，不再需要修改。
 
 把 `events.json` 一次性导入后端（纯日期按北京时间补全为当天 00:00:00 至 23:59:59.999；已存在的活动跳过，加 `--replace` 覆盖）：
 

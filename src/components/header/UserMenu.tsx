@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useUserContext } from '@/hooks';
+import { hasUserGroup, useSessionGroups, useUserContext } from '@/hooks';
 import { handleLogout as logoutUtil } from '@/utils';
 import { endpoints } from '@/config/api';
 import { DIVIDER } from './styles';
@@ -17,6 +17,7 @@ interface UserMenuProps {
 export default function UserMenu({ username }: UserMenuProps) {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const { groups } = useSessionGroups();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -70,6 +71,11 @@ export default function UserMenu({ username }: UserMenuProps) {
         <Link to="/user/profile" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
           <span className="w-full font-medium text-center">{t("shared/UserMenu.AccountSetting")}</span>
         </Link>
+        {hasUserGroup(groups, 'eventManager') && (
+          <Link to="/admin/events" className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-white/12 hover:to-white/8 bg-none hover:shadow-[0_2px_8px_rgb(255_255_255/10%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-white text-sm text-center no-underline cursor-pointer">
+            <span className="w-full font-medium text-center">{t("shared/UserMenu.EventsManagement")}</span>
+          </Link>
+        )}
         <div className={DIVIDER}></div>
         <button onClick={handleLogout} className="flex justify-center items-center gap-3 hover:bg-linear-to-br hover:from-[rgb(239_68_68/25%)] hover:to-[rgb(220_38_38/20%)] bg-none hover:shadow-[0_2px_8px_rgb(239_68_68/20%),0_1px_0_rgb(255_255_255/10%)_inset] px-5 py-4 border-none w-full font-medium text-[#e5e5e5] hover:text-[#fca5a5] text-sm text-center no-underline cursor-pointer">
           <span className="w-full font-medium text-center">{t("shared/UserMenu.Logout")}</span>

@@ -25,6 +25,7 @@ const QRAuthPage = lazy(() => import('./pages/QRAuthPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const CollectionsHirobaPage = lazy(() => import('./pages/collection/HirobaPage'));
 const CollectionPage = lazy(() => import('./pages/collection/CollectionPage'));
+const EventsAdminPage = lazy(() => import('./pages/admin/EventsAdminPage'));
 
 function RouteFallback() {
   return (
@@ -95,6 +96,7 @@ function App() {
                     <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
                     <Route path="/collection" element={<CollectionPage />} />
                     <Route path="/qrauth" element={<QRAuthPage />} />
+                    <Route path="/admin/events" element={<EventsAdminPage />} />
                   </Route>
                 </Routes>
               </Suspense>

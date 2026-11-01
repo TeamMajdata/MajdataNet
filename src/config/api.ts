@@ -7,6 +7,7 @@ export const endpoints = {
   },
   event: {
     list: `${apiroot3}/event`,
+    item: (id: string) => `${apiroot3}/event/${encodeURIComponent(id)}`,
   },
   recommend: {
     feed: (page: number, pageSize: number) => `${apiroot3}/recommend/feed?page=${page}&pageSize=${pageSize}`,
@@ -35,6 +36,8 @@ export const endpoints = {
   account: {
     profile: (username?: string) => `${apiroot3}/account/profile${username ? `?username=${encodeURIComponent(username)}` : ''}`,
     updateProfile: `${apiroot3}/account/profile`,
+    // 当前会话，groups 是这个会话实际能用的用户组
+    session: `${apiroot3}/account/session`,
     login: `${apiroot3}/account/Login`,
     logout: `${apiroot3}/account/Logout`,
     register: `${apiroot3}/account/Register`,
