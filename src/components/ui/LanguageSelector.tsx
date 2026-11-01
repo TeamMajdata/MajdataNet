@@ -1,20 +1,22 @@
 /**
  * 语言选择器组件
  */
-import { useI18n } from '@/hooks/useI18n';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/i18n';
 import { LANGUAGE_CONFIG } from '@/config/i18n';
 
 export default function LanguageSelector() {
-  const { language, changeLanguage, i18n } = useI18n();
+  const { t, i18n } = useTranslation();
+  const language = useLanguage();
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    changeLanguage(e.target.value);
+    void i18n.changeLanguage(e.target.value);
   };
 
   return (
     <div className="inline-flex items-center gap-2">
       <label htmlFor="language-select" className="font-medium text-gray-700 text-sm">
-        {i18n("shared/LanguageSelector.Language", '语言')}:
+        {t("shared/LanguageSelector.Language")}:
       </label>
       <select
         id="language-select"

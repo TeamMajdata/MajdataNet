@@ -1,9 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import { LoadingSpinner } from '@/components';
-import { useI18n } from '@/hooks';
 import type { LikeSenderProps } from '@/types';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -13,7 +13,7 @@ const fetcher = (url: string) =>
 
 // ======================== Like Sender ========================
 export function LikeSender({ songid }: LikeSenderProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isDislikeLoading, setIsDislikeLoading] = useState(false);
   const { data, error, isLoading, mutate } = useSWR(
@@ -49,10 +49,10 @@ export function LikeSender({ songid }: LikeSenderProps) {
     formData.set('content', type);
     let name = '';
     if (type === 'like') {
-      name = i18n("song/SongInteraction.LikeAction");
+      name = t("song/SongInteraction.LikeAction");
       setIsLikeLoading(true);
     } else {
-      name = i18n("song/SongInteraction.DislikeAction");
+      name = t("song/SongInteraction.DislikeAction");
       setIsDislikeLoading(true);
     }
 
@@ -68,17 +68,17 @@ export function LikeSender({ songid }: LikeSenderProps) {
       );
       if (response.status === 200) {
         toast.success(
-          isCancel ? i18n("song/SongInteraction.CancelSuccess") : name + i18n("song/SongInteraction.Success")
+          isCancel ? t("song/SongInteraction.CancelSuccess") : t("song/SongInteraction.Success", { action: name })
         );
 
         mutate();
       } else if (response.status === 400) {
-        toast.error(name + i18n("song/SongInteraction.FailedLoginPrompt"));
+        toast.error(t("song/SongInteraction.FailedLoginPrompt", { action: name }));
       } else {
-        toast.error(name + i18n("song/SongInteraction.FailedLoginPrompt"));
+        toast.error(t("song/SongInteraction.FailedLoginPrompt", { action: name }));
       }
     } catch {
-      toast.error(name + i18n("song/SongInteraction.FailedLoginPrompt"));
+      toast.error(t("song/SongInteraction.FailedLoginPrompt", { action: name }));
     } finally {
       if (type === 'like') {
         setIsLikeLoading(false);
@@ -92,7 +92,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
     <div className="p-0">
       <div className="flex flex-col gap-2 p-0">
         <div className="flex justify-between items-center pt-3">
-          <h4 className="font-bold text-white/95 text-base text-left tracking-widest">{i18n("song/SongInteraction.LikedBy")}</h4>
+          <h4 className="font-bold text-white/95 text-base text-left tracking-widest">{t("song/SongInteraction.LikedBy")}</h4>
           <div className="flex items-center gap-1.5 mr-1.25 ml-1.25">
             <button
               className="flex items-center gap-1.5 bg-white/14 hover:bg-white/20 disabled:opacity-60 hover:shadow-[0_8px_25px_rgb(0,0,0,0.25),0_2px_8px_rgb(0,0,0,0.15)] backdrop-blur-md px-2.5 py-1.5 border border-white/22 hover:border-white/35 rounded-lg font-semibold text-xs transition-all hover:-translate-y-0.5 duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] disabled:cursor-not-allowed"
@@ -205,7 +205,7 @@ export function LikeSender({ songid }: LikeSenderProps) {
               </>
             ) : (
               <div className="flex flex-col justify-center items-start opacity-60 p-4 text-left transition-all">
-                <p className="m-0 text-gray-400 text-sm italic">{i18n("song/SongInteraction.BeFirstToLike")}</p>
+                <p className="m-0 text-gray-400 text-sm italic">{t("song/SongInteraction.BeFirstToLike")}</p>
               </div>
             )}
           </motion.div>

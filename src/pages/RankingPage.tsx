@@ -3,54 +3,48 @@
  * 迁移自 legacy/src/app/ranking/page.jsx
  */
 
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { useI18n } from '@/hooks';
-import { PageLayout, SongList, LoadingSpinner } from '@/components';
+import { PageLayout, SongList } from '@/components';
 import { endpoints } from '@/config/api';
 import type { RankingSectionProps } from '@/types';
 
 export default function RankingPage() {
-  const { i18n, isReady } = useI18n();
-
-  if (!isReady) return (
-    <div className="flex justify-center items-center h-[50vh]">
-      <LoadingSpinner size={50} />
-    </div>
-  );
+  const { t } = useTranslation();
 
   return (
     <PageLayout className="pb-8">
       <div className="mt-(--content-top-spacing) text-center mb-8 sm:mb-12">
         <p className="mx-auto max-w-150 text-[#f7f7f7] text-lg sm:text-2xl leading-relaxed">
-          {i18n("ranking/RankingPage.RecommendedChartsHint", '这里会选出七天内最有人气的谱面哟！')}
+          {t("ranking/RankingPage.RecommendedChartsHint")}
         </p>
       </div>
 
       <div className="flex flex-col gap-6 sm:gap-12">
         <RankingSection
-          title={i18n("ranking/RankingPage.Play", '游玩')}
-          subtitle={i18n("ranking/RankingPage.PlayCountHint", '表示游玩次数多少')}
+          title={t("ranking/RankingPage.Play")}
+          subtitle={t("ranking/RankingPage.PlayCountHint")}
           sortType="scorep"
           delay="delay-[100ms]"
         />
 
         <RankingSection
-          title={i18n("ranking/RankingPage.Like", '点赞')}
-          subtitle={i18n("ranking/RankingPage.LikeCountHint", '被点赞的次数')}
+          title={t("ranking/RankingPage.Like")}
+          subtitle={t("ranking/RankingPage.LikeCountHint")}
           sortType="likep"
           delay="delay-[200ms]"
         />
 
         <RankingSection
-          title={i18n("ranking/RankingPage.Comment", '评论')}
-          subtitle={i18n("ranking/RankingPage.CommentCountHint", '被评论的次数')}
+          title={t("ranking/RankingPage.Comment")}
+          subtitle={t("ranking/RankingPage.CommentCountHint")}
           sortType="commp"
           delay="delay-[300ms]"
         />
 
         <RankingSection
-          title={i18n("ranking/RankingPage.Download", '下载')}
-          subtitle={i18n("ranking/RankingPage.DownloadCountHint", '被下载的次数')}
+          title={t("ranking/RankingPage.Download")}
+          subtitle={t("ranking/RankingPage.DownloadCountHint")}
           sortType="playp"
           delay="delay-[400ms]"
         />

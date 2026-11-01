@@ -1,7 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { I18nProvider } from './contexts/I18nContext';
 import { UserProvider } from '@/contexts/UserContext';
 import { LoadingSpinner, TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
 import HomePage from './pages/HomePage';
@@ -66,7 +65,8 @@ function App() {
         <meta name="twitter:image" content="https://majdata.net/salt.webp" />
       </Helmet>
       <TooltipProvider delayDuration={200}>
-        <I18nProvider>
+        {/* 语言包按需加载：首次加载期间由 Suspense 显示 loading，而不是每个页面各自判断 */}
+        <Suspense fallback={<RouteFallback />}>
           <UserProvider>
             <Router>
               <ScrollToTopListener />
@@ -101,7 +101,7 @@ function App() {
               <Live2DMascot />
             </Router>
           </UserProvider>
-        </I18nProvider>
+        </Suspense>
       </TooltipProvider>
     </HelmetProvider>
   );

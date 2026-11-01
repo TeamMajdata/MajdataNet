@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { getEventHref } from '@/utils/eventLink';
 /**
  * 活动页面 - 从 legacy/src/app/events/page.jsx 迁移
@@ -6,9 +7,8 @@ import { getEventHref } from '@/utils/eventLink';
 
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useI18n } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
-import { PageLayout, EnhancedDescription, LoadingSpinner, EventsFilter, TimelineModal } from '@/components';
+import { PageLayout, EnhancedDescription, EventsFilter, TimelineModal } from '@/components';
 import {
   getEventStatusClass,
   getEventStatusText,
@@ -19,7 +19,7 @@ import {
 import { EventCategory } from '@/types';
 
 export default function EventsPage() {
-  const { i18n, isReady } = useI18n();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   useEventClock(getAllEvents());
   const [selectedCategory, setSelectedCategory] = useState<EventCategory>(EventCategory.All);
@@ -60,20 +60,18 @@ export default function EventsPage() {
     else navigate(href);
   };
 
-  if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
-
   return (
     <PageLayout className="py-4 sm:py-8 min-h-screen mt-(--content-top-spacing)">
       <div className="mx-auto my-0 px-0 sm:px-4 max-w-(--container-max-width) min-w-0">
         <header className="mb-6 sm:mb-12 text-center">
           <p className="m-0 mx-auto max-w-150 text-white/80 text-base sm:text-lg leading-relaxed">
-            {i18n("chart-events/EventsPage.EventsPageSubtitle", '浏览所有活动')}
+            {t("chart-events/EventsPage.EventsPageSubtitle")}
             <span
               className="inline-block ml-2 font-medium text-blue-400 hover:text-blue-300 decoration-blue-400/50 hover:decoration-blue-300/80 underline underline-offset-2 transition-all hover:-translate-y-px duration-200 cursor-pointer"
               onClick={handleTimelineClick}
-              title={i18n("chart-events/EventsPage.ViewTimeline", '查看时间轴')}
+              title={t("chart-events/EventsPage.ViewTimeline")}
             >
-              {i18n("chart-events/EventsPage.Timeline", '时间轴')}
+              {t("chart-events/EventsPage.Timeline")}
             </span>
           </p>
         </header>
@@ -133,7 +131,7 @@ export default function EventsPage() {
                       </span>
                       <span
                         className="whitespace-nowrap"
-                        title={`${i18n("chart-events/EventsPage.EventCreatedPrefix", '创建于')} ${event.createDateFormatted}`}
+                        title={t("chart-events/EventsPage.EventCreatedAt", { date: event.createDateFormatted })}
                       >
                         • {event.timeAgo}
                       </span>

@@ -2,11 +2,12 @@
  * 收藏 Hook - 基于 SWR 的轻量状态管理
  */
 
+import { useTranslation } from 'react-i18next';
 import { useMemo, useState, useCallback } from 'react';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import { endpoints } from '@/config/api';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import type { Collection, CollectionDanInfo } from '@/types';
 
 import { apiRequest } from '@/utils/apiClient';
@@ -17,7 +18,7 @@ export async function fetchFavoriteCollections(url: string): Promise<Collection[
 }
 
 export function useFavorites() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { user } = useUserContext();
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
@@ -34,7 +35,7 @@ export function useFavorites() {
     successMessages?: { added: string; removed: string }
   ) => {
     if (!user) {
-      toast.info(i18n("shared/useFavorites.PleaseLogin", '请先登录'));
+      toast.info(t("shared/useFavorites.PleaseLogin"));
       return;
     }
     const isFavorited = favoriteIds.has(collectionId);
@@ -50,15 +51,15 @@ export function useFavorites() {
       if (res.ok) {
         toast.success(
           isFavorited
-            ? (successMessages?.removed ?? i18n("shared/useFavorites.UnfavoriteSuccess", '已取消收藏'))
-            : (successMessages?.added ?? i18n("shared/useFavorites.FavoriteSuccess", '收藏成功'))
+            ? (successMessages?.removed ?? t("shared/useFavorites.UnfavoriteSuccess"))
+            : (successMessages?.added ?? t("shared/useFavorites.FavoriteSuccess"))
         );
         mutate();
       } else {
-        toast.error(i18n("shared/useFavorites.OperationFailed", '操作失败'));
+        toast.error(t("shared/useFavorites.OperationFailed"));
       }
     } catch {
-      toast.error(i18n("shared/useFavorites.OperationFailed", '操作失败'));
+      toast.error(t("shared/useFavorites.OperationFailed"));
     } finally {
       setPendingIds((prev) => {
         const next = new Set(prev);
@@ -66,7 +67,7 @@ export function useFavorites() {
         return next;
       });
     }
-  }, [user, favoriteIds, mutate, i18n]);
+  }, [user, favoriteIds, mutate, t]);
 
   const isPending = useCallback((id: string) => pendingIds.has(id), [pendingIds]);
 

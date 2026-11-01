@@ -24,16 +24,6 @@ export { downloadSong } from './download';
 // HTTP 消息工具
 export { getDisplayMessage } from './httpMessage';
 
-// 国际化工具
-export {
-  setLanguage,
-  i18n,
-  getCurrentLanguage,
-  getBrowserLanguage,
-  initializeLanguage,
-  preloadLanguage,
-} from './i18n';
-
 // TMP 富文本工具
 export { hasTmpTags, stripTmpTags, parseTmpRichText } from './richTextUtils';
 

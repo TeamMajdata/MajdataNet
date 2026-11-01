@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { PageLayout, ChartUploader, SongList, LoadingSpinner } from '@/components';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import { endpoints } from '@/config/api';
 import { motion, type Variants } from 'framer-motion';
 
@@ -18,7 +19,7 @@ const slideInUp: Variants = {
 };
 
 export default function UserChartsPage() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { user, isLoading } = useUserContext();
   if (isLoading && !user ) {
       return (
@@ -29,7 +30,7 @@ export default function UserChartsPage() {
   }
   
   return (
-    <PageLayout title={i18n("user/charts/ChartsPage.ChartsManagement")} showBackToHome={false}>
+    <PageLayout title={t("user/charts/ChartsPage.ChartsManagement")} showBackToHome={false}>
       {/* Upload Section */}
       <section className="mb-16">
         <motion.div
@@ -41,7 +42,7 @@ export default function UserChartsPage() {
         >
           <div className="mb-8">
             <h2 className="m-0 mb-6 font-semibold text-[#e5e5e5] text-[1.8rem] text-center">
-              {i18n("user/charts/ChartsPage.UploadChart")}
+              {t("user/charts/ChartsPage.UploadChart")}
             </h2>
 
             {/* Notice Board */}
@@ -56,7 +57,7 @@ export default function UserChartsPage() {
               <div className="flex justify-center items-center gap-3 mb-6 pb-4 border-[rgba(59,130,246,0.3)] border-b-2">
                 <div className="drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] text-4xl"></div>
                 <h3 className="drop-shadow-[0_2px_8px_rgba(59,130,246,0.4)] m-0 font-bold text-[#60a5fa] text-3xl">
-                  {i18n("user/charts/ChartsPage.UploadNotice")}
+                  {t("user/charts/ChartsPage.UploadNotice")}
                 </h3>
               </div>
 
@@ -64,22 +65,22 @@ export default function UserChartsPage() {
               <ol className="space-y-3 m-0 pl-8 text-[#e5e5e5] list-decimal">
                 <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
                   <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {i18n("user/charts/ChartsPage.UploadNoticeTerms1")}
+                    {t("user/charts/ChartsPage.UploadNoticeTerms1")}
                   </span>
                 </li>
                 <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
                   <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {i18n("user/charts/ChartsPage.UploadNoticeTerms2")}
+                    {t("user/charts/ChartsPage.UploadNoticeTerms2")}
                   </span>
                 </li>
                 <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
                   <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {i18n("user/charts/ChartsPage.UploadNoticeTerms3")}
+                    {t("user/charts/ChartsPage.UploadNoticeTerms3")}
                   </span>
                 </li>
                 <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
                   <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {i18n("user/charts/ChartsPage.UploadNoticeTerms4")}
+                    {t("user/charts/ChartsPage.UploadNoticeTerms4")}
                   </span>
                 </li>
               </ol>
@@ -106,10 +107,10 @@ export default function UserChartsPage() {
       >
         <div className="mb-8 pb-4 border-white/10 border-b text-center">
           <h2 className="m-0 mb-2 font-semibold text-[#e5e5e5] text-[1.8rem]">
-            {i18n("user/charts/ChartsPage.MyCharts")}
+            {t("user/charts/ChartsPage.MyCharts")}
           </h2>
           <p className="m-0 text-[#a0a0a0] text-base">
-            {i18n("user/charts/ChartsPage.ManageAllYourCharts")}
+            {t("user/charts/ChartsPage.ManageAllYourCharts")}
           </p>
         </div>
         <SongList

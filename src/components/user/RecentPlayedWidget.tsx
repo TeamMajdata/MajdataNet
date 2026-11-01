@@ -1,8 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { ScoreCard, LoadingSpinner } from '@/components';
-import { useI18n } from '@/hooks';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
 import { motion } from 'framer-motion';
 import RecentActivityChart from '@/components/chart/RecentActivityChart';
@@ -56,7 +56,7 @@ function convertToScore(data: RecentPlayedData): Score {
  * 显示指定用户最近游玩的谱面、成绩与活跃度折线图
  */
 export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPlayedWidgetProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
 
   const { data, error, isLoading } = useSWR<RecentPlayedData[]>(
     endpoints.account.recent(username),
@@ -84,7 +84,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   if (error) {
     return (
       <div className="m-auto w-full text-[50px] text-center">
-        {i18n("user/RecentPlayedWidget.ServerError", '服务器错误')}
+        {t("user/RecentPlayedWidget.ServerError")}
       </div>
     );
   }
@@ -98,7 +98,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   }
 
   if (!data || data.length === 0) {
-    return <p>{i18n("user/RecentPlayedWidget.NoRecentRecords", '暂无最近游玩记录')}</p>;
+    return <p>{t("user/RecentPlayedWidget.NoRecentRecords")}</p>;
   }
 
   // ── Score cards ──────────────────────────────────────────────────────────

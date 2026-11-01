@@ -1,5 +1,5 @@
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
-import { useI18n } from '@/hooks';
 import type { RecentPlayedData } from '@/types';
 import {
   ACTIVITY_LINE_COLOR,
@@ -11,7 +11,7 @@ import {
 } from '@/utils/recentActivity';
 
 export default function RecentActivityChart({ records }: { records: RecentPlayedData[] }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const activity = useMemo(() => buildActivityData(records), [records]);
 
   if (activity.points.length === 0) return null;
@@ -32,15 +32,15 @@ export default function RecentActivityChart({ records }: { records: RecentPlayed
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="text-sm font-bold text-pink-300">
-              {i18n("shared/RecentActivityChart.RecentPlayActivity", '最近游玩活跃度')}
+              {t("shared/RecentActivityChart.RecentPlayActivity")}
             </div>
             <div className="mt-1 text-2xl font-bold text-white">
-              {activity.rangeLabel} · {activity.total} {i18n("shared/RecentActivityChart.Times", '次')}
+              {activity.rangeLabel} · {t("shared/RecentActivityChart.PlayCount", { count: activity.total })}
             </div>
           </div>
           <div className="text-left text-sm text-white/60 sm:text-right">
-            <div>{i18n("shared/RecentActivityChart.Today", '今日')} {activity.today} {i18n("shared/RecentActivityChart.Times", '次')}</div>
-            <div>{i18n("shared/RecentActivityChart.LatestPlay", '最近')} {activity.latestLabel}</div>
+            <div>{t("shared/RecentActivityChart.TodayPlayCount", { count: activity.today })}</div>
+            <div>{t("shared/RecentActivityChart.LatestPlay", { time: activity.latestLabel })}</div>
           </div>
         </div>
 

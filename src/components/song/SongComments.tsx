@@ -3,6 +3,7 @@
  * 迁移自 legacy/src/app/song/page.jsx
  */
 
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +15,7 @@ import { LoadingSpinner } from '@/components';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
 import type {
   Comment,
@@ -142,7 +143,7 @@ export function CommentComposer({
   isReply = false,
   isSubmitting = false,
 }: CommentComposerProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [showPreview, setShowPreview] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -185,7 +186,7 @@ export function CommentComposer({
           transition={{ duration: 0.2 }}
           onClick={() => setShowPreview(!showPreview)}
         >
-          {showPreview ? i18n("song/SongComments.HidePreview") : i18n("song/SongComments.ShowPreview")}
+          {showPreview ? t("song/SongComments.HidePreview") : t("song/SongComments.ShowPreview")}
         </motion.button>
       </div>
 
@@ -206,7 +207,7 @@ export function CommentComposer({
               <MarkdownCommentContent content={value} />
             ) : (
               <div className="py-5 text-[#888] text-center italic">
-                {i18n("song/SongComments.PreviewPlaceholder")}
+                {t("song/SongComments.PreviewPlaceholder")}
               </div>
             )}
           </motion.div>
@@ -239,10 +240,10 @@ export function CommentComposer({
             <>
               <LoadingSpinner className="inline-block" size="16px" />
               <div style={{ width: '4px', display: 'inline-block' }}></div>
-              {i18n("song/SongComments.PleaseWait")}
+              {t("song/SongComments.PleaseWait")}
             </>
           ) : (
-            i18n("song/SongComments.Post")
+            t("song/SongComments.Post")
           )}
         </motion.button>
         {isReply && onCancel && (
@@ -264,7 +265,7 @@ export function CommentComposer({
             }}
             transition={{ duration: 0.3 }}
           >
-            {i18n("song/SongComments.CancelReply")}
+            {t("song/SongComments.CancelReply")}
           </motion.button>
         )}
       </div>
@@ -273,14 +274,14 @@ export function CommentComposer({
 }
 
 export function CommentSender({ songid }: CommentSenderProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { mutate } = useSWR(endpoints.maichart.interact(songid));
 
   const onSubmit = async () => {
     if (comment.trim() === '') {
-      toast.error(i18n("song/SongComments.EmptyComment"));
+      toast.error(t("song/SongComments.EmptyComment"));
       return;
     }
 
@@ -289,7 +290,7 @@ export function CommentSender({ songid }: CommentSenderProps) {
     formData.set('content', comment);
 
     setIsSubmitting(true);
-    const sending = toast.loading(i18n("song/SongComments.Sending"));
+    const sending = toast.loading(t("song/SongComments.Sending"));
 
     try {
       const response = await fetch(
@@ -305,17 +306,17 @@ export function CommentSender({ songid }: CommentSenderProps) {
       toast.done(sending);
 
       if (response.status === 200) {
-        toast.success(i18n("song/SongComments.CommentSuccess"));
+        toast.success(t("song/SongComments.CommentSuccess"));
         setComment('');
         mutate();
       } else if (response.status === 400) {
-        toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
+        toast.error(t("song/SongComments.CommentFailedLoginPrompt"));
       } else {
-        toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
+        toast.error(t("song/SongComments.CommentFailedLoginPrompt"));
       }
     } catch {
       toast.done(sending);
-      toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
+      toast.error(t("song/SongComments.CommentFailedLoginPrompt"));
     } finally {
       setIsSubmitting(false);
     }
@@ -335,14 +336,14 @@ export function CommentSender({ songid }: CommentSenderProps) {
       transition={{ duration: 0.5 }}
     >
       <div className="mb-6 text-center">
-        <h3 className="m-0 font-semibold text-white text-2xl" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>{i18n("song/SongComments.Comment")}</h3>
+        <h3 className="m-0 font-semibold text-white text-2xl" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>{t("song/SongComments.Comment")}</h3>
       </div>
       <div className="flex flex-col gap-4">
         <CommentComposer
           value={comment}
           onChange={setComment}
           onSubmit={onSubmit}
-          placeholder={i18n("song/SongComments.CommentPlaceholder")}
+          placeholder={t("song/SongComments.CommentPlaceholder")}
           isSubmitting={isSubmitting}
         />
       </div>
@@ -362,7 +363,7 @@ function CommentCard({
   isRepliesExpanded,
   replyCount = 0,
 }: CommentCardProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const canDelete = currentUser && comment.sender === currentUser;
   const isCommentPending = isPending === comment.id;
   const [isContentExpanded, setIsContentExpanded] = useState(false);
@@ -514,7 +515,7 @@ function CommentCard({
             }}
             onClick={() => onReply(comment)}
             disabled={isCommentPending}
-            title={i18n("song/SongComments.Reply")}
+            title={t("song/SongComments.Reply")}
             onMouseEnter={(e) => {
               if (!isCommentPending) {
                 e.currentTarget.style.color = 'rgb(255 255 255 / 90%)';
@@ -550,7 +551,7 @@ function CommentCard({
             }}
             onClick={() => onDelete(comment)}
             disabled={isCommentPending}
-            title={i18n("song/SongComments.DeleteComment")}
+            title={t("song/SongComments.DeleteComment")}
             onMouseEnter={(e) => {
               if (!isCommentPending) {
                 e.currentTarget.style.color = 'rgb(239 68 68 / 100%)';
@@ -620,7 +621,7 @@ function CommentThread({
   onToggleReplies,
   replyComposer,
 }: CommentThreadProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
 
   function flattenComments(comments: Comment[] | undefined, parentId: string) {
     const result: Comment[] = [];
@@ -656,7 +657,7 @@ function CommentThread({
         const target = result.find((item) => item.id === c.replyTo);
         if (target) {
           const origContent = c.content;
-          c.contentPrefix = `${i18n("song/SongComments.ReplyTo")} [@${target.sender}](/space?id=${encodeURIComponent(target.sender)}): `;
+          c.contentPrefix = `${t("song/SongComments.ReplyTo", { user: `[@${target.sender}](/space?id=${encodeURIComponent(target.sender)})` })}: `;
           c.contentBody = origContent;
           c.content = c.contentPrefix + c.contentBody;
         }
@@ -803,7 +804,7 @@ function CommentThread({
           }}
           onClick={() => onReply(comment)}
           disabled={isCommentPending}
-          title={i18n("song/SongComments.Reply")}
+          title={t("song/SongComments.Reply")}
           onMouseEnter={(e) => {
             if (!isCommentPending) {
               e.currentTarget.style.background = 'rgb(255 255 255 / 10%)';
@@ -838,7 +839,7 @@ function CommentThread({
             }}
             onClick={() => onDelete(comment)}
             disabled={isCommentPending}
-            title={i18n("song/SongComments.DeleteComment")}
+            title={t("song/SongComments.DeleteComment")}
             onMouseEnter={(e) => {
               if (!isCommentPending) {
                 e.currentTarget.style.background = 'rgb(239 68 68 / 10%)';
@@ -927,7 +928,7 @@ function CommentThread({
 
 // ======================== Comment List ========================
 export function CommentList({ songid }: CommentListProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { username: currentUser } = useUserContext();
   const [replyTargetId, setReplyTargetId] = useState<string | null>(null);
   const [replyThreadId, setReplyThreadId] = useState<string | null>(null);
@@ -992,7 +993,7 @@ export function CommentList({ songid }: CommentListProps) {
 
   const handleSubmitReply = async () => {
     if (replyContent.trim() === '') {
-      toast.error(i18n("song/SongComments.EmptyComment"));
+      toast.error(t("song/SongComments.EmptyComment"));
       return;
     }
 
@@ -1002,7 +1003,7 @@ export function CommentList({ songid }: CommentListProps) {
     formData.set('replyTo', replyTargetId || '');
 
     setIsSubmitting(true);
-    const sending = toast.loading(i18n("song/SongComments.Sending"));
+    const sending = toast.loading(t("song/SongComments.Sending"));
 
     try {
       const response = await fetch(
@@ -1018,27 +1019,27 @@ export function CommentList({ songid }: CommentListProps) {
       toast.done(sending);
 
       if (response.status === 200) {
-        toast.success(i18n("song/SongComments.ReplySuccess"));
+        toast.success(t("song/SongComments.ReplySuccess"));
         setReplyContent('');
         setReplyThreadId(null);
         setReplyTargetId(null);
         setReplyTargetUser(null);
         mutate();
       } else if (response.status === 400) {
-        toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
+        toast.error(t("song/SongComments.CommentFailedLoginPrompt"));
       } else {
-        toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
+        toast.error(t("song/SongComments.CommentFailedLoginPrompt"));
       }
     } catch {
       toast.done(sending);
-      toast.error(i18n("song/SongComments.CommentFailedLoginPrompt"));
+      toast.error(t("song/SongComments.CommentFailedLoginPrompt"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (comment: Comment) => {
-    if (!window.confirm(i18n("song/SongComments.DeleteCommentConfirm"))) {
+    if (!window.confirm(t("song/SongComments.DeleteCommentConfirm"))) {
       return;
     }
 
@@ -1060,15 +1061,15 @@ export function CommentList({ songid }: CommentListProps) {
       );
 
       if (response.status === 200) {
-        toast.success(i18n("song/SongComments.DeleteSuccess"));
+        toast.success(t("song/SongComments.DeleteSuccess"));
         mutate();
       } else if (response.status === 400) {
-        toast.error(i18n("song/SongComments.DeleteFailed") + ': ' + i18n("song/SongComments.FailedLoginPrompt"));
+        toast.error(t("song/SongComments.DeleteFailedLoginPrompt"));
       } else {
-        toast.error(i18n("song/SongComments.DeleteFailed"));
+        toast.error(t("song/SongComments.DeleteFailed"));
       }
     } catch {
-      toast.error(i18n("song/SongComments.DeleteFailed"));
+      toast.error(t("song/SongComments.DeleteFailed"));
     } finally {
       setPendingAction(null);
     }
@@ -1097,7 +1098,7 @@ export function CommentList({ songid }: CommentListProps) {
     <div className="mt-8 w-full">
       {comments.length === 0 ? (
         <div className="px-4 py-12 w-full text-center" style={{ color: 'rgb(255 255 255 / 50%)' }}>
-          <p>{i18n("song/SongComments.NoComments")}</p>
+          <p>{t("song/SongComments.NoComments")}</p>
         </div>
       ) : (
         <div className="flex flex-wrap justify-center">
@@ -1131,8 +1132,8 @@ export function CommentList({ songid }: CommentListProps) {
                         onCancel={handleCancelReply}
                         placeholder={
                           replyTargetUser
-                            ? `${i18n("song/SongComments.ReplyTo")} @${replyTargetUser}`
-                            : i18n("song/SongComments.ReplyPlaceholder")
+                            ? t("song/SongComments.ReplyTo", { user: `@${replyTargetUser}` })
+                            : t("song/SongComments.ReplyPlaceholder")
                         }
                         autoFocus={true}
                         isReply={true}

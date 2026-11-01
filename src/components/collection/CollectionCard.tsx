@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -6,7 +7,7 @@ import useSWR from 'swr';
 import { LazyLoad, CoverPic, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import type { Collection, CollectionSongList } from '@/types';
-import { useI18n, useFavorites } from '@/hooks';
+import { useFavorites } from '@/hooks';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
@@ -17,7 +18,7 @@ interface CollectionCardProps {
 }
 
 const CollectionCardContent = memo(({ collection, isManaging, onDelete }: CollectionCardProps) => {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { favoriteIds, toggleFavorite, isPending } = useFavorites();
 
@@ -52,13 +53,13 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
         credentials: 'include',
       });
       if (res.ok) {
-        toast.success(i18n("collection/CollectionCard.DeleteSuccess", '删除成功'));
+        toast.success(t("collection/CollectionCard.DeleteSuccess"));
         onDelete?.();
       } else {
-        toast.error(i18n("collection/CollectionCard.DeleteFailed", '删除失败'));
+        toast.error(t("collection/CollectionCard.DeleteFailed"));
       }
     } catch {
-      toast.error(i18n("collection/CollectionCard.DeleteFailed", '删除失败'));
+      toast.error(t("collection/CollectionCard.DeleteFailed"));
     } finally {
       setIsDeleting(false);
     }
@@ -85,7 +86,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
             <CoverPic id={data.items[currentCoverIndex].id} />
           ) : (
             <div className="flex flex-col justify-center items-center bg-black/60 w-full h-full text-white/50 text-xs">
-              <span>{i18n("collection/CollectionCard.NoCover", '无封面')}</span>
+              <span>{t("collection/CollectionCard.NoCover")}</span>
             </div>
           )}
         </div>
@@ -94,10 +95,10 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
         <div className="flex flex-col flex-1 p-3 overflow-hidden text-sm">
           <div className="font-bold text-white text-lg truncate" title={collection.name}>{collection.name}</div>
           <div className="flex-1 mt-1 text-gray-400 line-clamp-2" title={collection.description || ''}>
-            {collection.description || i18n("collection/CollectionCard.NoDescription", '暂无描述')}
+            {collection.description || t("collection/CollectionCard.NoDescription")}
           </div>
-          <div className="mt-1 text-gray-500 truncate">{i18n("collection/CollectionCard.CreatorLabel", '创建者')}: {collection.createdBy}</div>
-          <div className="mt-1 text-gray-500 truncate">{i18n("collection/CollectionCard.CountLabel", '数量')}: {collection.count}</div>
+          <div className="mt-1 text-gray-500 truncate">{t("collection/CollectionCard.CreatorLabel")}: {collection.createdBy}</div>
+          <div className="mt-1 text-gray-500 truncate">{t("collection/CollectionCard.CountLabel")}: {collection.count}</div>
         </div>
       </div>
 
@@ -117,7 +118,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
             ? 'bg-pink-500/70 hover:bg-pink-500 text-white'
             : 'bg-black/30 hover:bg-black/50 text-white/60 hover:text-white'
             }`}
-          title={isFavorited ? i18n("collection/CollectionCard.Unfavorite", '取消收藏') : i18n("collection/CollectionCard.Favorite", '收藏')}
+          title={isFavorited ? t("collection/CollectionCard.Unfavorite") : t("collection/CollectionCard.Favorite")}
         >
           {isFavoriteLoading ? (
             <LoadingSpinner size="14px" />
@@ -143,7 +144,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
               setConfirmDelete(true);
             }}
             className="top-2 right-2 z-10 absolute flex justify-center items-center bg-red-500/70 hover:bg-red-500 shadow-lg backdrop-blur-sm border-none rounded-full w-7 h-7 text-white text-sm transition-colors cursor-pointer"
-            title={i18n("collection/CollectionCard.Delete", '删除')}
+            title={t("collection/CollectionCard.Delete")}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
           </motion.button>
@@ -160,7 +161,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
             transition={{ duration: 0.15 }}
             className="z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/75 backdrop-blur-sm rounded-xl"
           >
-            <p className="mb-3 font-medium text-white text-sm">{i18n("collection/CollectionCard.ConfirmDeleteCollection", '确认删除此歌单？')}</p>
+            <p className="mb-3 font-medium text-white text-sm">{t("collection/CollectionCard.ConfirmDeleteCollection")}</p>
             <div className="flex gap-2">
               <button
                 onClick={(e) => {
@@ -170,7 +171,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
                 disabled={isDeleting}
                 className="bg-red-500/80 hover:bg-red-500 disabled:opacity-50 px-4 py-1.5 border-none rounded-lg font-medium text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
-                {isDeleting ? '...' : i18n("collection/CollectionCard.Confirm", '确认')}
+                {isDeleting ? '...' : t("collection/CollectionCard.Confirm")}
               </button>
               <button
                 onClick={(e) => {
@@ -180,7 +181,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
                 disabled={isDeleting}
                 className="bg-white/10 hover:bg-white/20 px-4 py-1.5 border-none rounded-lg text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
-                {i18n("collection/CollectionCard.Cancel", '取消')}
+                {t("collection/CollectionCard.Cancel")}
               </button>
             </div>
           </motion.div>

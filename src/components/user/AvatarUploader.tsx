@@ -3,16 +3,17 @@
  * 迁移自 legacy/src/app/widgets/AvatarUploader.jsx
  */
 
+import { useTranslation } from 'react-i18next';
 import { useCallback, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { endpoints } from '@/config/api';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import { getDisplayMessage } from '@/utils';
 import { LoadingSpinner } from '@/components';
 
 export default function AvatarUploader() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { user, refetch, isLoading: userLoading } = useUserContext();
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -31,7 +32,7 @@ export default function AvatarUploader() {
 
       // 验证文件类型
       if (!file.type.startsWith('image/')) {
-        toast.error(i18n("user/AvatarUploader.InvalidFileType"));
+        toast.error(t("user/AvatarUploader.InvalidFileType"));
         setSelectedFile(null);
         setPreviewUrl(null);
         if (fileInputRef.current) {
@@ -42,7 +43,7 @@ export default function AvatarUploader() {
 
       // 验证文件大小 (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error(i18n("user/AvatarUploader.FileTooLarge"));
+        toast.error(t("user/AvatarUploader.FileTooLarge"));
         setSelectedFile(null);
         setPreviewUrl(null);
         if (fileInputRef.current) {
@@ -63,12 +64,12 @@ export default function AvatarUploader() {
       };
       reader.readAsDataURL(file);
     },
-    [i18n]
+    [t]
   );
 
   const handleUpload = useCallback(async () => {
     if (!selectedFile) {
-      toast.error(i18n("user/AvatarUploader.NoSelectedFile"));
+      toast.error(t("user/AvatarUploader.NoSelectedFile"));
       return;
     }
 
@@ -76,7 +77,7 @@ export default function AvatarUploader() {
     const formData = new FormData();
     formData.append('avatar', selectedFile);
 
-    const uploading = toast.loading(i18n("user/AvatarUploader.Uploading"), {
+    const uploading = toast.loading(t("user/AvatarUploader.Uploading"), {
       hideProgressBar: false,
     });
 
@@ -91,7 +92,7 @@ export default function AvatarUploader() {
         withCredentials: true,
       });
 
-      toast.success(getDisplayMessage(response.data, i18n("user/AvatarUploader.UploadSuccess", '上传成功')));
+      toast.success(getDisplayMessage(response.data, t("user/AvatarUploader.UploadSuccess")));
       await refetch();
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -100,14 +101,14 @@ export default function AvatarUploader() {
       const error = e as { response?: { data?: unknown; status?: number; statusText?: string }; message?: string };
       const fallbackMessage = error.response?.status
         ? `上传失败 (${error.response.status}: ${error.response.statusText || 'Unknown'})`
-        : i18n("user/AvatarUploader.UploadFailed", '上传失败');
+        : t("user/AvatarUploader.UploadFailed");
       const errorMessage = getDisplayMessage(error.response?.data ?? error.message, fallbackMessage);
       toast.error(errorMessage, { autoClose: false });
     } finally {
       toast.done(uploading);
       setIsUploading(false);
     }
-  }, [selectedFile, i18n, refetch]);
+  }, [selectedFile, t, refetch]);
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null);
@@ -137,10 +138,10 @@ export default function AvatarUploader() {
           <img
             className="shadow-[0_6px_20px_rgba(0,0,0,0.4)] border-4 border-white/20 rounded-full w-30 lg:w-40 h-30 lg:h-40 object-cover transition-all duration-300"
             src={currentAvatarUrl}
-            alt={i18n("user/AvatarUploader.CurrentAvatar")}
+            alt={t("user/AvatarUploader.CurrentAvatar")}
           />
           <div className="bg-white/5 px-4 py-2 border border-white/10 rounded-[20px] font-semibold text-[#b0b0b0] text-base text-center">
-            {i18n("user/AvatarUploader.CurrentAvatar")}
+            {t("user/AvatarUploader.CurrentAvatar")}
           </div>
         </div>
 
@@ -153,10 +154,10 @@ export default function AvatarUploader() {
                 : 'border-white/20'
                 }`}
               src={previewAvatarUrl}
-              alt={i18n("user/AvatarUploader.PreviewAvatar")}
+              alt={t("user/AvatarUploader.PreviewAvatar")}
             />
             <div className="bg-white/5 px-4 py-2 border border-white/10 rounded-[20px] font-semibold text-[#b0b0b0] text-base text-center">
-              {i18n("user/AvatarUploader.PreviewAvatar")}
+              {t("user/AvatarUploader.PreviewAvatar")}
             </div>
           </div>
         </div>
@@ -178,7 +179,7 @@ export default function AvatarUploader() {
               className="flex justify-center items-center disabled:bg-[#6b7280] bg-linear-to-br from-[#667eea] to-[#764ba2] disabled:opacity-50 hover:shadow-[0_8px_25px_rgba(102,126,234,0.4)] disabled:shadow-none px-6 py-4 border-0 rounded-[10px] w-full font-bold text-white disabled:text-[#9ca3af] text-base tracking-[0.02em] disabled:transform-none transition-all hover:-translate-y-0.5 duration-300 cursor-pointer disabled:cursor-not-allowed"
               disabled={isUploading}
             >
-              {selectedFile ? i18n("user/AvatarUploader.ChangeFile") : i18n("user/AvatarUploader.SelectFile")}
+              {selectedFile ? t("user/AvatarUploader.ChangeFile") : t("user/AvatarUploader.SelectFile")}
             </button>
 
             <button
@@ -187,7 +188,7 @@ export default function AvatarUploader() {
               className="flex justify-center items-center disabled:bg-[#6b7280] bg-linear-to-br from-[#11998e] to-[#38ef7d] disabled:opacity-50 hover:shadow-[0_8px_25px_rgba(17,153,142,0.4)] disabled:shadow-none px-6 py-4 border-0 rounded-[10px] w-full font-bold text-white disabled:text-[#9ca3af] text-base tracking-[0.02em] disabled:transform-none transition-all hover:-translate-y-0.5 duration-300 cursor-pointer disabled:cursor-not-allowed"
               disabled={!selectedFile || isUploading}
             >
-              {isUploading ? i18n("user/AvatarUploader.UploadingPlzWait") : i18n("user/AvatarUploader.Upload")}
+              {isUploading ? t("user/AvatarUploader.UploadingPlzWait") : t("user/AvatarUploader.Upload")}
             </button>
 
             <button
@@ -196,7 +197,7 @@ export default function AvatarUploader() {
               className="flex justify-center items-center disabled:bg-[#6b7280] bg-linear-to-br from-[#ff6b6b] to-[#ee5a24] disabled:opacity-50 hover:shadow-[0_8px_25px_rgba(255,107,107,0.4)] disabled:shadow-none px-6 py-4 border-0 rounded-[10px] w-full font-bold text-white disabled:text-[#9ca3af] text-base tracking-[0.02em] disabled:transform-none transition-all hover:-translate-y-0.5 duration-300 cursor-pointer disabled:cursor-not-allowed"
               disabled={!selectedFile || isUploading}
             >
-              {i18n("user/AvatarUploader.Cancel")}
+              {t("user/AvatarUploader.Cancel")}
             </button>
           </div>
 
@@ -207,7 +208,7 @@ export default function AvatarUploader() {
               </span>
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-[#b0b0b0] text-[0.7rem] shrink-0">
-                  {i18n("user/AvatarUploader.FileSize")}
+                  {t("user/AvatarUploader.FileSize")}
                 </span>
                 <span className="text-[#a0a0a0] text-[0.7rem] shrink-0">
                   {(selectedFile.size / 1024 / 1024).toFixed(2)} MB

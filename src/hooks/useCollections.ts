@@ -3,18 +3,19 @@
  * 管理用户所有收藏夹及其包含的歌曲信息
  */
 
+import { useTranslation } from 'react-i18next';
 import { useMemo, useState, useCallback } from 'react';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import { endpoints } from '@/config/api';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import type { Collection, CollectionDanInfo } from '@/types';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
 export function useCollections() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { username } = useUserContext();
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
@@ -98,16 +99,16 @@ export function useCollections() {
         if (res.ok) {
           toast.success(
             isIn
-              ? i18n("shared/useCollections.RemoveFromCollection", '已从收藏夹移除')
-              : i18n("shared/useCollections.AddToCollectionSuccess", '已添加到收藏夹')
+              ? t("shared/useCollections.RemoveFromCollection")
+              : t("shared/useCollections.AddToCollectionSuccess")
           );
           mutateCollections();
           mutateHashLists();
         } else {
-          toast.error(i18n("shared/useCollections.OperationFailed", '操作失败'));
+          toast.error(t("shared/useCollections.OperationFailed"));
         }
       } catch {
-        toast.error(i18n("shared/useCollections.OperationFailed", '操作失败'));
+        toast.error(t("shared/useCollections.OperationFailed"));
       } finally {
         setPendingIds((prev) => {
           const next = new Set(prev);
@@ -116,7 +117,7 @@ export function useCollections() {
         });
       }
     },
-    [username, isSongInCollection, mutateCollections, mutateHashLists, i18n]
+    [username, isSongInCollection, mutateCollections, mutateHashLists, t]
   );
 
   const isPending = useCallback((id: string) => pendingIds.has(id), [pendingIds]);

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -6,7 +7,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { motion } from 'framer-motion';
 import { PageLayout, SongCard, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import type { CollectionSongList, Song } from '@/types';
 import CollectionSubscribeButton from '@/components/collection/CollectionSubscribeButton';
 
@@ -14,7 +15,7 @@ const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
 export default function CollectionPage() {
-  const { i18n, isReady } = useI18n();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
 
@@ -91,11 +92,11 @@ export default function CollectionPage() {
 
   // 搜索排序选项
   const searchSortOptions = [
-    i18n("collection/CollectionPage.LatestActivity", '最新互动'),
-    i18n("collection/CollectionPage.LikeCount", '点赞数'),
-    i18n("collection/CollectionPage.CommentCount", '评论数'),
-    i18n("collection/CollectionPage.PlayCount", '播放数'),
-    i18n("collection/CollectionPage.UploadDate", '上传日期'),
+    t("collection/CollectionPage.LatestActivity"),
+    t("collection/CollectionPage.LikeCount"),
+    t("collection/CollectionPage.CommentCount"),
+    t("collection/CollectionPage.PlayCount"),
+    t("collection/CollectionPage.UploadDate"),
   ];
 
   // 使用 SWR 进行搜索
@@ -151,7 +152,7 @@ export default function CollectionPage() {
     }
 
     if (!hash) {
-      toast.error(i18n("collection/CollectionPage.FetchHashFailed", '获取歌曲 hash 失败'));
+      toast.error(t("collection/CollectionPage.FetchHashFailed"));
       return;
     }
 
@@ -211,7 +212,7 @@ export default function CollectionPage() {
       });
 
       if (res.ok) {
-        toast.success(i18n("collection/CollectionPage.SaveSuccess", '保存成功'));
+        toast.success(t("collection/CollectionPage.SaveSuccess"));
         setIsManaging(false);
         setAddedIds([]);
         setRemovedIds([]);
@@ -226,10 +227,10 @@ export default function CollectionPage() {
         setSearchSortType(0);
         mutate();
       } else {
-        toast.error(i18n("collection/CollectionPage.SaveFailed", '保存失败'));
+        toast.error(t("collection/CollectionPage.SaveFailed"));
       }
     } catch {
-      toast.error(i18n("collection/CollectionPage.SaveFailed", '保存失败'));
+      toast.error(t("collection/CollectionPage.SaveFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -251,20 +252,11 @@ export default function CollectionPage() {
     setSearchSortType(0);
   };
 
-  // Loading states
-  if (!isReady) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <LoadingSpinner size={50} />
-      </div>
-    );
-  }
-
   if (!id) {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{i18n("collection/CollectionPage.InvalidParams", '参数错误')}</div>
+          <div className="text-white text-2xl">{t("collection/CollectionPage.InvalidParams")}</div>
         </div>
       </PageLayout>
     );
@@ -274,7 +266,7 @@ export default function CollectionPage() {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{i18n("collection/CollectionPage.ServerError", '服务器错误')}</div>
+          <div className="text-white text-2xl">{t("collection/CollectionPage.ServerError")}</div>
         </div>
       </PageLayout>
     );
@@ -294,7 +286,7 @@ export default function CollectionPage() {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{i18n("collection/CollectionPage.CollectionNotFound", '歌单不存在')}</div>
+          <div className="text-white text-2xl">{t("collection/CollectionPage.CollectionNotFound")}</div>
         </div>
       </PageLayout>
     );
@@ -322,7 +314,7 @@ export default function CollectionPage() {
                   type="text"
                   value={currentDescription}
                   onChange={(e) => setDescriptionDraft(e.target.value)}
-                  placeholder={i18n("collection/CollectionPage.DescriptionPlaceholder", '描述（可选）')}
+                  placeholder={t("collection/CollectionPage.DescriptionPlaceholder")}
                   className="bg-transparent mt-2 py-1 border-white/10 focus:border-white/30 border-b outline-none w-full text-white/60 placeholder:text-white/30 text-sm"
                 />
               ) : (
@@ -331,8 +323,8 @@ export default function CollectionPage() {
                 )
               )}
               <div className="mt-2 text-white/40 text-sm">
-                {i18n("collection/CollectionPage.Creator", '创建者')}: {collectionData.createdBy} · {displaySongs.length}{' '}
-                {i18n("collection/CollectionPage.Songs", '首')} · {currentVisibility === 1 ? i18n("collection/CollectionPage.Public", '公开') : i18n("collection/CollectionPage.Private", '私有')}
+                {t("collection/CollectionPage.Creator")}: {collectionData.createdBy} · {displaySongs.length}{' '}
+                {t("collection/CollectionPage.Songs")} · {currentVisibility === 1 ? t("collection/CollectionPage.Public") : t("collection/CollectionPage.Private")}
               </div>
             </div>
             {!isManaging && (
@@ -343,7 +335,7 @@ export default function CollectionPage() {
                     onClick={() => setIsManaging(true)}
                     className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md px-4 py-2 border border-white/20 rounded-xl font-bold text-white transition-all cursor-pointer"
                   >
-                    {i18n("collection/CollectionPage.Manage", '管理')}
+                    {t("collection/CollectionPage.Manage")}
                   </button>
                 )}
               </div>
@@ -363,7 +355,7 @@ export default function CollectionPage() {
                     }`}
                   onClick={() => setVisibilityDraft(0)}
                 >
-                  {i18n("collection/CollectionPage.Private", '私有')}
+                  {t("collection/CollectionPage.Private")}
                 </button>
                 <button
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${currentVisibility === 1
@@ -372,7 +364,7 @@ export default function CollectionPage() {
                     }`}
                   onClick={() => setVisibilityDraft(1)}
                 >
-                  {i18n("collection/CollectionPage.Public", '公开')}
+                  {t("collection/CollectionPage.Public")}
                 </button>
               </div>
             </div>
@@ -387,7 +379,7 @@ export default function CollectionPage() {
                       setSearchQuery(e.target.value);
                       debouncedSearch();
                     }}
-                    placeholder={i18n("collection/CollectionPage.SearchToAdd", '搜索歌曲以添加...')}
+                    placeholder={t("collection/CollectionPage.SearchToAdd")}
                     className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-6 py-3 pr-10 border-2 border-white/15 rounded-[30px] outline-none w-full text-white placeholder:text-white/60 text-sm"
                   />
                   {searchQuery && (
@@ -442,7 +434,7 @@ export default function CollectionPage() {
                             ? 'bg-red-500/80 hover:bg-red-500'
                             : 'bg-blue-500/80 hover:bg-blue-500 disabled:bg-white/10 disabled:cursor-not-allowed'
                             }`}
-                          title={isAdded ? i18n("collection/CollectionPage.RemoveFromCollection", '从歌单移除') : i18n("collection/CollectionPage.Add", '添加')}
+                          title={isAdded ? t("collection/CollectionPage.RemoveFromCollection") : t("collection/CollectionPage.Add")}
                         >
                           {isAdded ? '×' : '+'}
                         </motion.button>
@@ -482,7 +474,7 @@ export default function CollectionPage() {
         {/* 歌曲网格 */}
         {displaySongs.length === 0 ? (
           <div className="py-20 text-white/60 text-xl text-center">
-            {i18n("collection/CollectionPage.EmptyCollection", '歌单为空')}
+            {t("collection/CollectionPage.EmptyCollection")}
           </div>
         ) : (
       <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
@@ -498,7 +490,7 @@ export default function CollectionPage() {
                       handleRemoveSong(song.id);
                     }}
                     className="top-2 right-2 z-10 absolute flex justify-center items-center bg-red-500/80 hover:bg-red-500 shadow-lg border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer"
-                    title={i18n("collection/CollectionPage.RemoveFromCollection", '从歌单移除')}
+                    title={t("collection/CollectionPage.RemoveFromCollection")}
                   >
                     ×
                   </motion.button>
@@ -515,14 +507,14 @@ export default function CollectionPage() {
               onClick={handleCancel}
               className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md px-6 py-2.5 border border-white/20 rounded-xl font-bold text-white transition-all cursor-pointer"
             >
-              {i18n("collection/CollectionPage.Cancel", '取消')}
+              {t("collection/CollectionPage.Cancel")}
             </button>
             <button
               onClick={handleSubmit}
               disabled={!hasChanges || isSubmitting}
               className="bg-blue-500/80 hover:bg-blue-500 disabled:bg-white/10 px-6 py-2.5 border-none rounded-xl font-bold text-white disabled:text-white/30 transition-all cursor-pointer disabled:cursor-not-allowed"
             >
-              {isSubmitting ? '...' : i18n("collection/CollectionPage.Submit", '提交')}
+              {isSubmitting ? '...' : t("collection/CollectionPage.Submit")}
             </button>
           </div>
         )}

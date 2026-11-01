@@ -9,7 +9,6 @@ const favorites = vi.hoisted(() => ({
 }));
 vi.mock('@/hooks', () => ({
   useFavorites: () => favorites,
-  useI18n: () => ({ i18n: (_key: string, fallback: string) => fallback }),
 }));
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 const container = document.createElement('div');

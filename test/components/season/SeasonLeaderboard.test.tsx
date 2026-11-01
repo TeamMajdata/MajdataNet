@@ -8,12 +8,6 @@ import { useSeasonRanking } from '@/hooks/useSeasonRanking';
 import type { SeasonChartsState } from '@/hooks/useSeasonCharts';
 import type { Event } from '@/types/event';
 
-vi.mock('@/hooks/useI18n', () => ({
-  useI18n: () => ({ i18n: (key: string, fallback?: string) => fallback ?? key, language: 'zh' }),
-}));
-vi.mock('@/hooks', () => ({
-  useI18n: () => ({ i18n: (key: string, fallback?: string) => fallback ?? key }),
-}));
 vi.mock('@/components', () => ({ LoadingSpinner: () => null }));
 vi.mock('@/components/season/SeasonScoreDetails', () => ({
   default: ({ children }: { children: ReactNode }) => children,

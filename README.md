@@ -15,11 +15,11 @@ MajdataNet v2.
 - Axios
 - SWR (数据获取)
 - Framer Motion (动画)
-- i18n (国际化支持)
+- i18next / react-i18next (国际化)
 
 ## i18n 约定
 
-语言包位于 `public/i18n`。每个一级 key 使用 `路由/组件` 命名空间，组件内的文案放在该命名空间对象中：
+语言包位于 `src/locales/<lang>.json`。每个一级 key 使用 `路由/组件` 命名空间，组件内的文案放在该命名空间对象中：
 
 ```json
 {
@@ -29,7 +29,13 @@ MajdataNet v2.
 }
 ```
 
-代码中统一通过 `i18n('路由/组件.key')` 使用，例如 `i18n('song/SongPage.Download')`。提交前运行 `pnpm i18n:check`，检查语言包结构、各语言 key 一致性、源码引用和废弃 key。
+- 组件中通过 `const { t } = useTranslation()` 使用：`t('song/SongPage.Download')`；非 React 代码使用 `import i18n from '@/i18n'` 后调用 `i18n.t(...)`。
+- key 的类型由 `en.json` 生成，写错 key 会在 `tsc` 时报错，所以新增文案时先加到 `en.json`。
+- 不要写行内 fallback，缺失的文案会自动回退到英文。
+- 不要拼接字符串：动态内容用插值 `{{name}}`；数量用复数后缀 `_one` / `_other` 并传 `count`（中日韩只需要 `_other`）；需要嵌入标签或组件时用 `<Trans>`。
+- 日期和数字用 `getLocale()` / `useLanguage()` 交给 `Intl` 格式化。
+
+改完语言包后运行 `pnpm i18n:fix`，它会把 key 按字母顺序排序并统一格式（不同分支新增的 key 会落在不同位置，从而减少合并冲突），然后执行和 `pnpm i18n:check` 相同的检查：各语言 key 和复数形式是否齐全、插值变量是否一致、源码引用和废弃 key。CI 会拒绝未排序的语言包。
 
 ## 装饰看板娘维护
 
@@ -93,11 +99,12 @@ src/
 ├── utils/            # 工具函数
 ├── types/            # TypeScript类型定义
 ├── config/           # 配置文件
+├── i18n/             # i18next 初始化
+├── locales/          # 国际化语言包
 ├── styles/           # 样式文件
 └── assets/           # 静态资源
 
 public/               # 公共资源
-├── i18n/            # 国际化翻译文件
 ├── icons/           # 图标
 ├── MiniGame/        # 小游戏资源
 └── WebGLBuild/      # WebGL构建资源
@@ -129,7 +136,7 @@ public/               # 公共资源
 - 日本語 (ja)
 - 한국어 (ko)
 
-翻译文件位于 `public/i18n/` 目录。
+翻译文件位于 `src/locales/` 目录，约定见上文「i18n 约定」。
 
 ## 开发规范
 
