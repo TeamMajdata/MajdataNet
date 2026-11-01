@@ -212,15 +212,28 @@ describe('CommentBody and CommentListView', () => {
     container.remove();
   });
 
-  it('links web addresses and mentions but never interprets markup', async () => {
+  it('renders markdown, links web addresses and mentions, and shows HTML as text', async () => {
     await act(async () => root.render(
-      <MemoryRouter><CommentBody text={'see https://example.com/a?b=1. ping @bob_1 <b>x</b>'} /></MemoryRouter>,
+      <MemoryRouter><CommentBody text={'**bold** see https://example.com/a?b=1. ping @bob_1 <b>x</b>\nnext `@code` mail a@b.com\n\n- item'} /></MemoryRouter>,
     ));
+    expect(container.querySelector('strong')?.textContent).toBe('bold');
+    expect(container.querySelector('br')).not.toBeNull();
+    expect(container.querySelector('ul li')?.textContent).toBe('item');
+    expect(container.querySelector('code')?.textContent).toBe('@code');
     const links = [...container.querySelectorAll('a')];
-    expect(links.map((a) => a.getAttribute('href'))).toEqual(['https://example.com/a?b=1', '/space?id=bob_1']);
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['https://example.com/a?b=1', '/space?id=bob_1', 'mailto:a@b.com']);
     expect(links[0].getAttribute('rel')).toContain('noopener');
+    expect(links[0].getAttribute('target')).toBe('_blank');
+    expect(links[1].getAttribute('target')).toBeNull();
     expect(container.querySelector('b')).toBeNull();
     expect(container.textContent).toContain('<b>x</b>');
+  });
+
+  it('drops javascript links', async () => {
+    await act(async () => root.render(
+      <MemoryRouter><CommentBody text={'[click](javascript:alert(1))'} /></MemoryRouter>,
+    ));
+    expect(container.querySelector('a')?.getAttribute('href') ?? '').not.toContain('javascript');
   });
 
   it('pages a flat list and shows the chart of each comment', async () => {

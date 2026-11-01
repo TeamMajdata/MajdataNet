@@ -6,6 +6,9 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Markdown, { type Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import {
   PiArrowBendUpLeftBold,
   PiArrowRightBold,
@@ -24,6 +27,7 @@ import { useI18n, useIsAdministrator, useUserContext } from '@/hooks';
 import { apiRequest, jsonRequest } from '@/utils/apiClient';
 import { VoteControl } from './VoteControl';
 import { intlLocale, loginPath } from '@/utils/interaction';
+import remarkMentions from '@/utils/remarkMentions';
 import { commentPermalink, countTree, mapTree, planReplies, purge, toPlaceholder, type FoldPolicy } from './commentTree';
 import { COMMENT_SORTS } from '@/types';
 import type {
@@ -84,29 +88,35 @@ export function RelativeTime({ value }: { value: string }) {
   );
 }
 
-const LINK_OR_MENTION = /(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]}，。！？）】]|@[a-zA-Z0-9_-]{1,24})/g;
+const commentMarkdown: Components = {
+  a({ href = '', title, className, children }) {
+    const style = className === 'mention' ? 'font-medium text-sky-400 hover:underline' : 'text-sky-400 hover:underline';
+    // 站内路径走路由；协议相对的 //host 仍当外链
+    if (href.startsWith('/') && !href.startsWith('//')) {
+      return <Link to={href} title={title} className={style}>{children}</Link>;
+    }
+    if (href.startsWith('#')) {
+      return <a href={href} title={title} className={style}>{children}</a>;
+    }
+    return (
+      <a href={href} title={title} target="_blank" rel="noopener noreferrer nofollow ugc" className={style}>
+        {children}
+      </a>
+    );
+  },
+  img({ src, alt, title }) {
+    return <img src={src} alt={alt ?? ''} title={title} loading="lazy" referrerPolicy="no-referrer" />;
+  },
+};
 
-/** 纯文本正文：只识别网址和 @用户名，不解析 Markdown 或 HTML。 */
+/** Markdown 正文（GFM，单个换行即换行），HTML 原样显示为文本；@用户名 链到个人空间。 */
 export function CommentBody({ text }: { text: string }) {
-  const parts = text.split(LINK_OR_MENTION);
   return (
-    <p className="max-w-[70ch] text-white/90 text-sm leading-6 whitespace-pre-wrap wrap-anywhere">
-      {parts.map((part, i) => {
-        if (i % 2 === 0) return part;
-        if (part.startsWith('@')) {
-          return (
-            <Link key={i} to={`/space?id=${encodeURIComponent(part.slice(1))}`} className="font-medium text-sky-400 hover:underline">
-              {part}
-            </Link>
-          );
-        }
-        return (
-          <a key={i} href={part} target="_blank" rel="noopener noreferrer nofollow ugc" className="text-sky-400 hover:underline">
-            {part}
-          </a>
-        );
-      })}
-    </p>
+    <div className="max-w-[70ch] text-white/90 text-sm leading-6 wrap-anywhere comment-markdown">
+      <Markdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMentions]} components={commentMarkdown}>
+        {text}
+      </Markdown>
+    </div>
   );
 }
 
