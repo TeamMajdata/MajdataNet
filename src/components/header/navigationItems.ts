@@ -27,7 +27,6 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     children: [
       { kind: 'link', id: 'recommend-ranking', labelKey: 'shared/Navigation.Recommend', to: '/ranking', match: 'exact' },
       { kind: 'link', id: 'user-ranking', labelKey: 'shared/Navigation.UserRankingTitle', to: '/ranking/user' },
-      { kind: 'link', id: 'mmfc-ranking', labelKey: 'shared/Navigation.MMFCRanking', to: '/ranking/mmfc' },
     ],
   },
   {

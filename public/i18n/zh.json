@@ -213,12 +213,6 @@
     "PlayCountHint": "表示游玩次数多少",
     "RecommendedChartsHint": "这里会选出七天内最有人气的谱面哟！"
   },
-  "ranking/mmfc/MMFCRankingPage": {
-    "MMFCRankingDescription": "展示参与者游玩mmfc_bot谱面的总分排名",
-    "MMFCRankingListDescription": "参赛选手对 mmfc_bot 谱面的游玩总分排名",
-    "MMFCRankingListTitle": "打榜排名",
-    "MMFCRankingTitle": "MMFC打榜排名"
-  },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "总达成率榜之谁是自制谱鉴赏老资历？",
     "UserRankingTitle": "肝帝榜"
@@ -287,10 +281,6 @@
     "Cry1": "轻一点嘛……",
     "Cry2": "呜，先让我缓一缓。"
   },
-  "shared/MMFCScoreCount": {
-    "FailedToLoad": "加载失败",
-    "NoMMFCRankingData": "暂无打榜数据，请先添加参与者"
-  },
   "shared/MajdataLogo": {
     "FUCKYOU": "不要点我 操你妈"
   },
@@ -300,7 +290,6 @@
     "CollectionHiroba": "歌单广场",
     "Contest": "活动",
     "Documentation": "文档",
-    "MMFCRanking": "MMFC打榜",
     "NavigationMenu": "主导航",
     "OriginalSongs": "原创曲",
     "Rankings": "榜单",

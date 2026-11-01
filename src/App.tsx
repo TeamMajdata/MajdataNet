@@ -13,7 +13,6 @@ const ForginsterPage = lazy(() => import('./pages/ForginsterPage'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
 const RankingPage = lazy(() => import('./pages/RankingPage'));
 const UserRankingPage = lazy(() => import('./pages/ranking/UserRankingPage'));
-const MMFCRankingPage = lazy(() => import('./pages/ranking/MMFCRankingPage'));
 const SongPage = lazy(() => import('./pages/SongPage'));
 const SpacePage = lazy(() => import('./pages/SpacePage'));
 const EventTagPage = lazy(() => import('./pages/EventTagPage'));
@@ -82,7 +81,6 @@ function App() {
                   <Route path="/chart-events" element={<EventsPage />} />
                   <Route path="/ranking" element={<RankingPage />} />
                   <Route path="/ranking/user" element={<UserRankingPage />} />
-                  <Route path="/ranking/mmfc" element={<MMFCRankingPage />} />
                   <Route path="/song" element={<SongPage />} />
                   <Route path="/space" element={<SpacePage />} />
                   <Route path="/eventTag" element={<EventTagPage />} />

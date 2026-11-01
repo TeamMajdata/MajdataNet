@@ -113,7 +113,6 @@ public/               # 公共资源
 - `/eventTag` - 活动标签页
 - `/ranking` - 谱面排行榜
 - `/user-ranking` - 用户排行榜
-- `/mmfc-ranking` - MMFC排行榜
 - `/user` - 用户主页
 - `/user/charts` - 用户谱面列表
 - `/user/profile` - 用户资料页

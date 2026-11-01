@@ -55,12 +55,6 @@ export interface CarouselEventsResult {
   shouldRotate: boolean;
 }
 
-// MMFC参与者数据接口
-export interface MMFCParticipantsData {
-  participants: string[];
-  description: string;
-}
-
 /** Song link resolved from the season collection. */
 export type SeasonChart = string;
 

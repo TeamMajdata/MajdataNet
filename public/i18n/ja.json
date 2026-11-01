@@ -213,12 +213,6 @@
     "PlayCountHint": "プレイ回数を表示",
     "RecommendedChartsHint": "ここでは、過去7日間で最も人気のある譜面が選ばれますよ！"
   },
-  "ranking/mmfc/MMFCRankingPage": {
-    "MMFCRankingDescription": "参加者のmmfc_bot譜面プレイ総合スコアランキング",
-    "MMFCRankingListDescription": "参加者のmmfc_bot譜面プレイ総合スコアランキング",
-    "MMFCRankingListTitle": "チャレンジランキング",
-    "MMFCRankingTitle": "MMFCチャレンジランキング"
-  },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "総達成率ランキング - 自作譜面鑑賞のベテランは誰？",
     "UserRankingTitle": "ヘビープレイヤーランキング"
@@ -287,10 +281,6 @@
     "Cry1": "もう少しやさしくしてね……",
     "Cry2": "うぅ、ちょっとひと息つかせて。"
   },
-  "shared/MMFCScoreCount": {
-    "FailedToLoad": "読み込みに失敗しました",
-    "NoMMFCRankingData": "ランキングデータがありません。まず参加者を追加してください"
-  },
   "shared/MajdataLogo": {
     "FUCKYOU": "クリックするな、くそったれ"
   },
@@ -300,7 +290,6 @@
     "CollectionHiroba": "コレクション広場",
     "Contest": "イベント",
     "Documentation": "ドキュメント",
-    "MMFCRanking": "MMFCランキング",
     "NavigationMenu": "主导航",
     "OriginalSongs": "オリジナル楽曲",
     "Rankings": "ランキング",
