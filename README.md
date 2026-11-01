@@ -2,7 +2,8 @@
 
 ## 项目简介
 
-MajdataNet v2. 你可以在 [Branch Legacy](https://github.com/TeamMajdata/MajdataNet/tree/legacy) 找到v1
+MajdataNet v2.
+你可以在 [提交 32242695](https://github.com/TeamMajdata/MajdataNet/tree/322426952f4bac6f3db4266cc93c079895a34539) 找到v1
 
 ## 技术栈
 
