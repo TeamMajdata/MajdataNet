@@ -1,3 +1,5 @@
+import { Trans, useTranslation } from 'react-i18next';
+import { getLocale, useLanguage } from '@/i18n';
 import { getEventHref } from '@/utils/eventLink';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import useSWR from 'swr';
@@ -10,7 +12,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
 
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
 import { PageLayout, SongCard, SongList, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
@@ -102,10 +104,6 @@ const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
 };
 
 export default function HomePage() {
-  const { isReady } = useI18n();
-
-  if (!isReady) return <div className="flex justify-center items-center h-screen"><LoadingSpinner size="50px" /></div>;
-
   return (
     <PageLayout showBackToHome={false}>
       {/* Events Carousel */}
@@ -135,19 +133,10 @@ function EventsCarousel() {
   return isMobile ? <MobileEventsSwiper /> : <DesktopEventsSwiper />;
 }
 
-function getDateLocale(lang: string) {
-  const localeMap: Record<string, string> = {
-    zh: 'zh-CN',
-    en: 'en-US',
-    ja: 'ja-JP',
-    ko: 'ko-KR',
-  };
-  return localeMap[lang] || 'zh-CN';
-};
-
 // PC端专用的 Swiper 组件
 function DesktopEventsSwiper() {
-  const { i18n, language } = useI18n();
+  const { t } = useTranslation();
+  const language = useLanguage();
   useEventClock(getAllEvents());
   const remainingEventsCount = getNonFeaturedEventsCount();
 
@@ -155,7 +144,7 @@ function DesktopEventsSwiper() {
   const ongoingEvents = getActiveEvents().map((event) => ({
       ...event,
       timeAgo: getTimeAgo(event.createDate),
-      createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(language), {
+      createDateFormatted: new Date(event.createDate).toLocaleDateString(getLocale(language), {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -224,7 +213,7 @@ function DesktopEventsSwiper() {
                             </span>
                             <span
                               className="whitespace-nowrap"
-                              title={`${i18n("home/HomePage.EventCreatedPrefix", '创建于')} ${event.createDateFormatted}`}
+                              title={t("home/HomePage.EventCreatedAt", { date: event.createDateFormatted })}
                             >
                               • {event.timeAgo}
                             </span>
@@ -247,9 +236,9 @@ function DesktopEventsSwiper() {
                   </div>
                   <div className="absolute inset-0 flex justify-center items-center bg-black/70 opacity-0 hover:opacity-100 backdrop-blur-lg">
                     <div className="text-white text-center">
-                      <span className="block mb-1 font-semibold text-base">{i18n("home/HomePage.ViewAllEvents", '查看所有活动')}</span>
+                      <span className="block mb-1 font-semibold text-base">{t("home/HomePage.ViewAllEvents")}</span>
                       <span className="text-white/80 text-sm">
-                        +{remainingEventsCount} {i18n("home/HomePage.EventsCount", '个活动')}
+                        {t("home/HomePage.EventsCount", { count: remainingEventsCount })}
                       </span>
                     </div>
                   </div>
@@ -265,13 +254,13 @@ function DesktopEventsSwiper() {
 
 // 移动端专用的 Swiper 组件
 function MobileEventsSwiper() {
-  const { language } = useI18n();
+  const language = useLanguage();
   useEventClock(getAllEvents());
   // 获取所有活跃的活动（进行中 + 即将开始）
   const ongoingEvents = getActiveEvents().map((event) => ({
       ...event,
       timeAgo: getTimeAgo(event.createDate),
-      createDateFormatted: new Date(event.createDate).toLocaleDateString(getDateLocale(language), {
+      createDateFormatted: new Date(event.createDate).toLocaleDateString(getLocale(language), {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -350,19 +339,19 @@ function MobileEventsSwiper() {
 }
 
 function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [isMobile, setIsMobile] = useState(false);
   const [currentValue, setCurrentValue] = useState(initS);
 
 
   // 与 SORT_WORDS 一一对应
   const sortOptions = [
-    i18n("home/HomePage.LatestActivityShort", '活跃'),
-    i18n("home/HomePage.HotShort", '热门'),
-    i18n("home/HomePage.ScoreShort", '分数'),
-    i18n("home/HomePage.CommentCount", '评论数'),
-    i18n("home/HomePage.PlayCount", '播放数'),
-    i18n("home/HomePage.UploadDate", '上传日期'),
+    t("home/HomePage.LatestActivityShort"),
+    t("home/HomePage.HotShort"),
+    t("home/HomePage.ScoreShort"),
+    t("home/HomePage.CommentCount"),
+    t("home/HomePage.PlayCount"),
+    t("home/HomePage.UploadDate"),
   ];
 
   // 检测是否为移动端
@@ -399,10 +388,10 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   const hintContent = (
     <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-4 sm:px-5 py-4 border border-white/20 rounded-2xl w-[min(17.5rem,calc(100vw-1.5rem))] md:w-[320px]">
       <div className="space-y-2.5 text-left">
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{i18n("home/HomePage.SearchHintID", '按 ID 搜索')}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{i18n("home/HomePage.SearchHintHash", '按 Hash 搜索')}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{i18n("home/HomePage.SearchHintTag", '按标签搜索')}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{i18n("home/HomePage.SearchHintUploader", '按上传者搜索')}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintID")}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintHash")}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintTag")}</p>
+        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintUploader")}</p>
       </div>
     </div>
   );
@@ -416,10 +405,10 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
               <input
                 type="text"
                 className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-4 md:px-7 py-3 md:py-4 pr-18 md:pr-14 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-base transition-colors"
-                placeholder={initS === '' ? i18n("home/HomePage.SearchPlaceholder", '搜索...') : initS}
+                placeholder={initS === '' ? t("home/HomePage.SearchPlaceholder") : initS}
                 value={currentValue}
                 onChange={handleInputChange}
-                aria-label={i18n("home/HomePage.SearchPlaceholder", '搜索...')}
+                aria-label={t("home/HomePage.SearchPlaceholder")}
               />
               <AnimatePresence>
                 {currentValue && (
@@ -430,7 +419,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                     transition={{ duration: 0.15 }}
                     className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-7 h-7 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
                     onClick={handleClearSearch}
-                    aria-label={i18n("home/HomePage.ClearSearch", '清空搜索')}
+                    aria-label={t("home/HomePage.ClearSearch")}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M18 6 6 18" /><path d="m6 6 12 12" />
@@ -464,11 +453,11 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
                 onSortChange(val);
               }}
               className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 md:px-3 py-1 border border-white/20 rounded-full outline-none w-28 sm:w-auto min-w-0 md:min-w-20 h-11 md:h-11.25 overflow-hidden text-white text-center whitespace-nowrap appearance-none cursor-pointer"
-              data-mobile-label={i18n("home/HomePage.SortBy", '排序方式')}
+              data-mobile-label={t("home/HomePage.SortBy")}
             >
               {isMobile && (
                 <option value="placeholder" disabled>
-                  {i18n("home/HomePage.SortBy", '排序方式')}
+                  {t("home/HomePage.SortBy")}
                 </option>
               )}
               {sortOptions.map((label, i) => (
@@ -502,7 +491,7 @@ const parseIndexParam = (value: string | null, max: number) => {
 type HomeTab = 'all' | 'recommend';
 
 function MainComp() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { user } = useUserContext();
   const [searchParams, setSearchParams] = useSearchParams();
   // tab、推荐页码、搜索词、排序、页码全部放在 URL 里：链接可分享，浏览器回退即可还原
@@ -568,7 +557,7 @@ function MainComp() {
               }`}
             onClick={() => navigateHome('all')}
           >
-            {i18n("home/HomePage.AllCharts", '全部谱面')}
+            {t("home/HomePage.AllCharts")}
           </button>
           <button
             className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'recommend' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
@@ -576,8 +565,8 @@ function MainComp() {
             onClick={() => navigateHome('recommend', recommendPage)}
           >
             {user
-              ? i18n("home/HomePage.PersonalRecommend", '个人推荐')
-              : i18n("home/HomePage.RandomRecommend", '随机推荐')}
+              ? t("home/HomePage.PersonalRecommend")
+              : t("home/HomePage.RandomRecommend")}
           </button>
         </div>
       </div>
@@ -621,7 +610,7 @@ function Pager({ page, hasNext, onPageChange }: {
   hasNext: boolean;
   onPageChange: (page: number) => void;
 }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
 
   const goTo = (target: number) => {
     onPageChange(target);
@@ -639,21 +628,26 @@ function Pager({ page, hasNext, onPageChange }: {
           ←
         </button>
 
-        <div className="flex justify-center items-center gap-1.5 sm:gap-2 min-w-0">
-          <span className="text-[#ccc] text-sm">{i18n("home/HomePage.PageOf", '第')}</span>
-          <input
-            type="number"
-            value={page}
-            className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
-            onChange={(event) => {
-              if (event.target.value !== '') {
-                onPageChange(parseInt(event.target.value));
-              } else onPageChange(0);
+        <div className="flex justify-center items-center gap-1.5 sm:gap-2 min-w-0 text-[#ccc] text-sm">
+          <Trans
+            i18nKey="home/HomePage.PageInput"
+            components={{
+              input: (
+                <input
+                  type="number"
+                  value={page}
+                  className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
+                  onChange={(event) => {
+                    if (event.target.value !== '') {
+                      onPageChange(parseInt(event.target.value));
+                    } else onPageChange(0);
+                  }}
+                  min="0"
+                  step="1"
+                />
+              ),
             }}
-            min="0"
-            step="1"
           />
-          <span className="text-[#ccc] text-sm">{i18n("home/HomePage.Page", '页')}</span>
         </div>
 
         <button
@@ -669,7 +663,7 @@ function Pager({ page, hasNext, onPageChange }: {
         className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer"
         onClick={() => goTo(0)}
       >
-        {i18n("home/HomePage.FrontPage", '首页')}
+        {t("home/HomePage.FrontPage")}
       </button>
     </>
   );
@@ -682,7 +676,7 @@ function RecommendTab({ page, onPageChange, randomSeed, onRefreshRandom }: {
   randomSeed: number;
   onRefreshRandom: () => void;
 }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { user, isLoading } = useUserContext();
 
   if (isLoading) {
@@ -701,13 +695,13 @@ function RecommendTab({ page, onPageChange, randomSeed, onRefreshRandom }: {
     <>
       <div className="flex flex-col items-center gap-4 mx-auto mb-6 px-4 max-w-7xl">
         <Link to="/login" className="text-white/70 hover:text-white text-sm hover:underline underline-offset-4">
-          {i18n("home/HomePage.LoginForRecommend", '登录后即可获得个人推荐')}
+          {t("home/HomePage.LoginForRecommend")}
         </Link>
         <button
           className="bg-blue-500/80 hover:bg-blue-500 px-6 py-2 border-none rounded-lg font-medium text-white cursor-pointer"
           onClick={onRefreshRandom}
         >
-          {i18n("home/HomePage.RefreshBatch", '换一批')}
+          {t("home/HomePage.RefreshBatch")}
         </button>
       </div>
 
@@ -726,7 +720,7 @@ function RecommendFeed({ userKey, page, onPageChange }: {
   page: number;
   onPageChange: (page: number) => void;
 }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { refetch } = useUserContext();
 
   // key 带上用户，切换账号时不会复用上一个人的推荐
@@ -746,7 +740,7 @@ function RecommendFeed({ userKey, page, onPageChange }: {
 
   let content: React.ReactNode;
   if (error) {
-    content = <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{i18n("home/HomePage.ServerError", '服务器错误')}</div>;
+    content = <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.ServerError")}</div>;
   } else if (isLoading || !data) {
     content = (
       <div className="flex justify-center items-center py-20 w-full">
@@ -757,8 +751,8 @@ function RecommendFeed({ userKey, page, onPageChange }: {
     content = (
       <div className="m-auto w-full text-2xl sm:text-[50px] text-center">
         {page > 0
-          ? i18n("home/HomePage.RecommendEnd", '没有更多推荐了')
-          : i18n("home/HomePage.EmptyData", '暂无数据')}
+          ? t("home/HomePage.RecommendEnd")
+          : t("home/HomePage.EmptyData")}
       </div>
     );
   } else {
@@ -785,7 +779,7 @@ function RecommendFeed({ userKey, page, onPageChange }: {
 }
 
 function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
 
   const { data, error, isLoading } = useSWR<Song[]>(
     endpoints.maichart.list,
@@ -816,7 +810,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }, [data, refreshKey]);
 
   if (error) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{i18n("home/HomePage.ServerError", '服务器错误')}</div>;
+    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.ServerError")}</div>;
   }
 
   if (isLoading) {
@@ -828,7 +822,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }
 
   if (randomSongs.length === 0) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{i18n("home/HomePage.EmptyData", '暂无数据')}</div>;
+    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.EmptyData")}</div>;
   }
 
   return (
@@ -841,7 +835,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
 }
 
 function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [currentType, setCurrentType] = useState(() => {
     return localStorage.getItem('DownloadType') || 'zip';
   });
@@ -861,7 +855,7 @@ function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
     <div className="flex items-center gap-3">
       {!isMobile && (
         <label className={`${justChanged ? 'text-[#22c55e]' : ''}`}>
-          {i18n("home/HomePage.DownloadFormat", '下载格式')}
+          {t("home/HomePage.DownloadFormat")}
           {justChanged && <span className="ml-2 font-semibold text-[#22c55e] text-sm">✓</span>}
         </label>
       )}
@@ -869,11 +863,11 @@ function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
         value={isMobile ? currentType || 'placeholder' : currentType}
         onChange={handleChange}
         className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
-        data-mobile-label={i18n("home/HomePage.DownloadFormat", '下载格式')}
+        data-mobile-label={t("home/HomePage.DownloadFormat")}
       >
         {isMobile && (
           <option value="placeholder" disabled>
-            {i18n("home/HomePage.DownloadFormat", '下载格式')}
+            {t("home/HomePage.DownloadFormat")}
             {justChanged && ' ✓'}
           </option>
         )}

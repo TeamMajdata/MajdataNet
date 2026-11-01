@@ -27,7 +27,7 @@
     "RememberMe": "保持登录",
     "RequestCodeFirst": "请先获取有效的邮箱验证码",
     "RequestNewCode": "请重新获取验证码后再提交",
-    "ResendCode": "重新发送",
+    "ResendCode": "重新发送 ({{seconds}}s)",
     "ResetPasswordButton": "重置密码",
     "ResetPasswordSuccess": "重置成功！",
     "SendCode": "发送验证码",
@@ -35,7 +35,7 @@
     "TooManyRequests": "请求过于频繁，请稍后再试",
     "Username": "用户名",
     "UsernameExists": "该用户名已被注册",
-    "UsernameHint": "最多 24 位，仅限字母、数字、下划线和连字符",
+    "UsernameHint": "最多 24 位，只能包含英文字母和数字",
     "UsernameOrEmail": "用户名或邮箱",
     "VerificationCode": "验证码",
     "WaitingForCloudflareVerification": "等待 Cloudflare 验证",
@@ -46,19 +46,18 @@
     "FilterEventTypes": "筛选活动类型："
   },
   "chart-events/EventsPage": {
-    "EventCreatedPrefix": "活动创建于",
+    "EventCreatedAt": "活动创建于 {{date}}",
     "EventsPageSubtitle": "在此处浏览各种谱面竞赛例如MMFC、线下活动等...",
     "Timeline": "时间轴",
     "ViewTimeline": "查看活动时间轴"
   },
   "chart-events/TimelineModal": {
-    "ActiveEvents": "个活跃的活动",
+    "ActiveEvents_other": "<strong>{{count}}</strong> 个活跃的活动",
     "ClickToViewDetails": "点击查看详情",
-    "Days": "天",
-    "Duration": "持续",
+    "Duration_other": "持续 {{count}} 天",
     "EventTimeline": "活动时间轴",
     "NoActiveEvents": "当前没有活跃的活动",
-    "TimeSpan": "时间跨度："
+    "TimeSpan_other": "时间跨度：<strong>{{count}}</strong> 天"
   },
   "chart-events/eventsData": {
     "EventCategoryMajor": "大型赛事",
@@ -69,14 +68,7 @@
     "EventStatusEnded": "已结束",
     "EventStatusOngoing": "进行中",
     "EventStatusUpcoming": "即将开始",
-    "FilterAll": "全部",
-    "TimeDaysAgo": "天前",
-    "TimeDaysLater": "天后",
-    "TimeMonthsAgo": "个月前",
-    "TimeMonthsLater": "个月后",
-    "TimeToday": "今天",
-    "TimeYearsAgo": "年前",
-    "TimeYearsLater": "年后"
+    "FilterAll": "全部"
   },
   "collection/CollectionCard": {
     "Cancel": "取消",
@@ -151,8 +143,8 @@
     "FrontPage": "首页",
     "NextPage": "下一页",
     "NoSearchResults": "未找到相关歌单",
-    "Page": "页",
-    "PageOf": "第",
+    "Page": "页码",
+    "PageInput": "第 <input/> 页",
     "PreviousPage": "上一页",
     "SearchCollectionHint": "按歌单名称或描述搜索",
     "SearchCollectionsPlaceholder": "搜索歌单...",
@@ -169,14 +161,13 @@
     "CommentCount": "评",
     "DownloadFormat": "下载格式：",
     "EmptyData": "空的",
-    "EventCreatedPrefix": "活动创建于",
-    "EventsCount": "个活动",
+    "EventCreatedAt": "活动创建于 {{date}}",
+    "EventsCount_other": "+{{count}} 个活动",
     "FrontPage": "首页",
     "HotShort": "热门",
     "LatestActivityShort": "活跃",
     "LoginForRecommend": "登录后即可获得个人推荐",
-    "Page": "页",
-    "PageOf": "第",
+    "PageInput": "第 <input/> 页",
     "PersonalRecommend": "个人推荐",
     "PlayCount": "播",
     "RandomRecommend": "随机推荐",
@@ -200,7 +191,7 @@
     "BackHome": "返回首页",
     "Description": "抱歉，您访问的页面不存在或已被移除。",
     "GoBack": "返回上一页",
-    "Redirect": "${countdown} 秒后自动返回首页...",
+    "Redirect": "{{countdown}} 秒后自动返回首页...",
     "Title": "页面未找到"
   },
   "ranking/RankingPage": {
@@ -213,12 +204,6 @@
     "RecommendedChartsHint": "这里会选出七天内最有人气的谱面哟！",
     "Score": "评价",
     "ScoreHint": "赞减踩的分数"
-  },
-  "ranking/mmfc/MMFCRankingPage": {
-    "MMFCRankingDescription": "展示参与者游玩mmfc_bot谱面的总分排名",
-    "MMFCRankingListDescription": "参赛选手对 mmfc_bot 谱面的游玩总分排名",
-    "MMFCRankingListTitle": "打榜排名",
-    "MMFCRankingTitle": "MMFC打榜排名"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "总达成率榜之谁是自制谱鉴赏老资历？",
@@ -241,8 +226,8 @@
     "LoadFailed": "排行榜加载失败，请稍后重试。",
     "Loading": "正在加载排行榜…",
     "Next": "下一页",
-    "Page": "页",
-    "Participants": "参与者：",
+    "Page": "{{page}} / {{total}} 页",
+    "Participants": "参与者：{{count}}",
     "Previous": "上一页",
     "Rank": "名次",
     "Retry": "重试",
@@ -301,10 +286,6 @@
     "Shy1": "嘿，被你发现啦。",
     "Shy2": "再戳就要害羞啦。"
   },
-  "shared/MMFCScoreCount": {
-    "FailedToLoad": "加载失败",
-    "NoMMFCRankingData": "暂无打榜数据，请先添加参与者"
-  },
   "shared/MajdataLogo": {
     "FUCKYOU": "不要点我 操你妈"
   },
@@ -314,7 +295,6 @@
     "CollectionHiroba": "歌单广场",
     "Contest": "活动",
     "Documentation": "文档",
-    "MMFCRanking": "MMFC打榜",
     "NavigationMenu": "主导航",
     "OriginalSongs": "原创曲",
     "Rankings": "榜单",
@@ -329,10 +309,10 @@
     "MiniGame": "小游戏"
   },
   "shared/RecentActivityChart": {
-    "LatestPlay": "最近",
+    "LatestPlay": "最近 {{time}}",
+    "PlayCount_other": "{{count}} 次",
     "RecentPlayActivity": "最近游玩活跃度",
-    "Times": "次",
-    "Today": "今日"
+    "TodayPlayCount_other": "今日 {{count}} 次"
   },
   "shared/ScoreCount": {
     "EmptyData": "空的",
@@ -390,7 +370,7 @@
     "FailedToLoad": "加载失败",
     "NoRecords": "暂无成绩记录",
     "RankingList": "排行榜",
-    "Records": "条记录"
+    "Records_other": "{{count}} 条记录"
   },
   "song/SongComments": {
     "Cancel": "取消",
@@ -412,10 +392,10 @@
     "LinkCopied": "链接已复制",
     "LoadMore": "加载更多",
     "Loading": "加载中",
-    "MoreReplies": "条更多回复",
+    "MoreReplies_other": "{{count}} 条更多回复",
     "Next": "下一页",
     "NoComments": "暂无评论",
-    "Points": "分",
+    "Points_other": "{{count}} 分",
     "Post": "发表",
     "Posting": "发送中…",
     "Previous": "上一页",
@@ -423,9 +403,9 @@
     "RemoveConfirm": "移除这条评论？",
     "Removed": "已移除",
     "RemovedBody": "此评论已被管理员移除",
-    "Replies": "条回复",
+    "Replies_other": "{{count}} 条回复",
     "Reply": "回复",
-    "ReplyTo": "回复",
+    "ReplyTo": "回复 {{user}}",
     "Retry": "重试",
     "Save": "保存",
     "Share": "分享",
@@ -467,7 +447,7 @@
     "Share": "分享",
     "SongNotFound": "这是什么地方？没有这首歌哦",
     "Tags": "标签",
-    "UploadTime": "UploadTime"
+    "UploadTime": "上传时间"
   },
   "song/VoteControl": {
     "Downvote": "踩",
@@ -478,7 +458,7 @@
     "BackToHome": "返回首页",
     "Comments": "发表的评论",
     "Error": "错误",
-    "JoinAt": "注册于",
+    "JoinAt": "注册于 {{date}}",
     "NoComments": "还没有发表过评论",
     "RecentlyPlayedCharts": "最近游玩的谱面",
     "SelfIntro": "自我介绍",
@@ -507,17 +487,17 @@
     "BGVideoHint": "bg.mp4/pv.mp4(可选,限20M内)",
     "InvalidFileName": "文件名不正确（区分大小写），应为：",
     "MaidataAlreadyExists": "这个谱面已经存在于网站上",
-    "MaidataAlreadyExistsWithTitle": "这个谱面已经存在于网站上",
+    "MaidataAlreadyExistsWithTitle": "这个谱面已经存在于网站上：{{title}}",
     "MaidataHashChecking": "正在查询这个谱面是否已存在...",
     "MaidataHashLookupFailed": "查询 maidata.txt 哈希失败",
     "MaidataHashNotFound": "未找到已存在的谱面",
     "MaidataWillInheritHistory": "这次上传会继承之前的分数或互动",
-    "NoFileSelected": "没有选中",
+    "NoFileSelected": "没有选中 {{file}}",
     "NotLoggedIn": "未登录",
     "Upload": "上传",
     "UploadFailed": "上传失败",
     "UploadServerErrorHint": "上传失败, 请前往主站上传",
-    "UploadSuccess": "Upload succeeded",
+    "UploadSuccess": "上传成功",
     "Uploading": "正在爆速上传...",
     "UploadingPlzWait": "上传中啦等一会啦",
     "View": "查看"
@@ -529,7 +509,7 @@
     "SelfIntro": "自我介绍",
     "Upload": "上传",
     "UploadFailed": "上传失败",
-    "UploadSuccess": "Upload succeeded",
+    "UploadSuccess": "上传成功",
     "Uploading": "正在爆速上传...",
     "UploadingPlzWait": "上传中啦等一会啦"
   },
@@ -573,8 +553,7 @@
     "MyCollections": "我的收藏夹",
     "MyFavCollections": "订阅的歌单",
     "NewCollection": "新建收藏夹",
-    "Page": "页",
-    "PageOf": "第",
+    "PageInput": "第 <input/> 页",
     "ServerError": "已闭店"
   },
   "user/profile/ProfilePage": {
@@ -584,7 +563,7 @@
     "PersonalIntro": "个人简介"
   },
   "user/scores/ScoresPage": {
-    "FilterByCombo": "Combo筛选",
+    "FilterByCombo": "Combo 筛选",
     "FilteredCount": "筛选结果",
     "NoFilterResults": "没有符合筛选条件的成绩",
     "NoFilterResultsHint": "请尝试调整上方的 Combo 筛选条件",
@@ -597,8 +576,8 @@
     "SortByDxAcc": "DX准确率",
     "SortByDxScore": "DX分数",
     "SortByTime": "游玩时间",
-    "TotalClassicAcc": "Classic准确率合计",
-    "TotalDxAcc": "DX准确率合计",
-    "TotalDxScore": "DX分数合计"
+    "TotalClassicAcc": "Classic 准确率合计",
+    "TotalDxAcc": "DX 准确率合计",
+    "TotalDxScore": "DX 分数合计"
   }
 }

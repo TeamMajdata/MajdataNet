@@ -9,7 +9,6 @@ const { toast } = vi.hoisted(() => ({ toast: { error: vi.fn(), success: vi.fn(),
 vi.mock('react-toastify', () => ({ toast }));
 let currentUser: { id: string; username: string } | null = { id: 'u1', username: 'alice' };
 vi.mock('@/hooks', () => ({
-  useI18n: () => ({ i18n: (_key: string, fallback?: string) => fallback ?? _key, language: 'en', isReady: true }),
   useUserContext: () => ({ user: currentUser, username: currentUser?.username ?? '', isLoading: false, error: null, refetch: () => {} }),
 }));
 
@@ -104,6 +103,6 @@ describe('VoteControl', () => {
 
   it('formats large scores compactly', async () => {
     await render(<VoteControl score={12345} myVote={0} onVote={vi.fn()} onResult={() => {}} label="vote" />);
-    expect(score()).toBe('12.3K');
+    expect(score()).toBe('1.2万');
   });
 });

@@ -1,5 +1,5 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { useI18n } from '@/hooks';
 import { LanguageSelector } from '@/components';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
  * 包含返回顶部和语言设置按钮
  */
 export default function FloatingButtons() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [showLanguagePopup, setShowLanguagePopup] = useState(false);
 
   // 共用的按钮基础类名
@@ -51,7 +51,7 @@ export default function FloatingButtons() {
           whileHover={hoverStyle}
           whileTap={activeStyle}
           transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-          aria-label={i18n("shared/FloatingButtons.LanguageSettings")}
+          aria-label={t("shared/FloatingButtons.LanguageSettings")}
         >
           🌐
         </motion.button>
@@ -80,7 +80,7 @@ export default function FloatingButtons() {
               }}
             >
               <h4 className="m-0 mb-6 font-semibold text-[1.1rem] text-white text-center">
-                {i18n("shared/FloatingButtons.SelectLanguage", 'Language')}
+                {t("shared/FloatingButtons.SelectLanguage")}
               </h4>
               <button
                 className="top-4 right-4 absolute flex justify-center items-center bg-transparent hover:bg-white/10 p-0 border-0 rounded w-6 h-6 text-[#a0a0a0] hover:text-white text-2xl transition-all duration-200 cursor-pointer"

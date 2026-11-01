@@ -5,13 +5,13 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import AvatarUploader from '@/components/user/AvatarUploader';
 import IntroUploader from '@/components/user/IntroUploader';
 import NicknameEditor from '@/components/user/NicknameEditor';
+import i18n from '@/i18n';
 
 const mocks = vi.hoisted(() => ({ post: vi.fn(), refetch: vi.fn(), error: vi.fn(), success: vi.fn(), loading: vi.fn(), done: vi.fn() }));
 vi.mock('axios', () => ({ default: { post: mocks.post } }));
 vi.mock('react-toastify', () => ({ toast: mocks }));
 vi.mock('@/components', () => ({ LoadingSpinner: () => <span>Loading</span> }));
 vi.mock('@/hooks', () => ({
-  useI18n: () => ({ i18n: (key: string) => key.split('.').at(-1) }),
   useUserContext: () => ({ user: { username: 'player', nickname: 'Player One', avatarId: 'new-avatar-id' }, refetch: mocks.refetch }),
 }));
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -30,7 +30,7 @@ it('uploads the avatar field to profile and refreshes the avatar identifier', as
   const file = new File(['image'], 'avatar.png', { type: 'image/png' });
   Object.defineProperty(input, 'files', { value: [file] });
   await act(async () => input.dispatchEvent(new Event('change', { bubbles: true })));
-  const upload = Array.from(container.querySelectorAll('button')).find(button => button.textContent === 'Upload')!;
+  const upload = Array.from(container.querySelectorAll('button')).find(button => button.textContent === i18n.t('user/AvatarUploader.Upload'))!;
   await act(async () => upload.click());
   expect(mocks.post.mock.calls[0][0]).toBe('/api3/api/account/profile');
   const form = mocks.post.mock.calls[0][1] as FormData;

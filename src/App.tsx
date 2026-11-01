@@ -1,7 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { I18nProvider } from './contexts/I18nContext';
 import { UserProvider } from '@/contexts/UserContext';
 import { LoadingSpinner, TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
 import HomePage from './pages/HomePage';
@@ -13,7 +12,6 @@ const ForginsterPage = lazy(() => import('./pages/ForginsterPage'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
 const RankingPage = lazy(() => import('./pages/RankingPage'));
 const UserRankingPage = lazy(() => import('./pages/ranking/UserRankingPage'));
-const MMFCRankingPage = lazy(() => import('./pages/ranking/MMFCRankingPage'));
 const SongPage = lazy(() => import('./pages/SongPage'));
 const SpacePage = lazy(() => import('./pages/SpacePage'));
 const EventTagPage = lazy(() => import('./pages/EventTagPage'));
@@ -67,7 +65,8 @@ function App() {
         <meta name="twitter:image" content="https://majdata.net/salt.webp" />
       </Helmet>
       <TooltipProvider delayDuration={200}>
-        <I18nProvider>
+        {/* 语言包按需加载：首次加载期间由 Suspense 显示 loading，而不是每个页面各自判断 */}
+        <Suspense fallback={<RouteFallback />}>
           <UserProvider>
             <Router>
               <ScrollToTopListener />
@@ -82,7 +81,6 @@ function App() {
                   <Route path="/chart-events" element={<EventsPage />} />
                   <Route path="/ranking" element={<RankingPage />} />
                   <Route path="/ranking/user" element={<UserRankingPage />} />
-                  <Route path="/ranking/mmfc" element={<MMFCRankingPage />} />
                   <Route path="/song" element={<SongPage />} />
                   <Route path="/space" element={<SpacePage />} />
                   <Route path="/eventTag" element={<EventTagPage />} />
@@ -103,7 +101,7 @@ function App() {
               <Live2DMascot />
             </Router>
           </UserProvider>
-        </I18nProvider>
+        </Suspense>
       </TooltipProvider>
     </HelmetProvider>
   );

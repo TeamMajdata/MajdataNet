@@ -3,6 +3,8 @@
  * 结构与 OurTaiko Fanmade 的 comments.tsx 一致，接的是 mmfcapi 的 CommentController。
  */
 
+import { useTranslation } from 'react-i18next';
+import { getLocale, useLanguage } from '@/i18n';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -23,10 +25,10 @@ import {
 } from 'react-icons/pi';
 import { endpoints } from '@/config/api';
 import { LoadingSpinner } from '@/components';
-import { useI18n, useIsAdministrator, useUserContext } from '@/hooks';
+import { useIsAdministrator, useUserContext } from '@/hooks';
 import { apiRequest, jsonRequest } from '@/utils/apiClient';
 import { VoteControl } from './VoteControl';
-import { intlLocale, loginPath } from '@/utils/interaction';
+import { loginPath } from '@/utils/interaction';
 import remarkMentions from '@/utils/remarkMentions';
 import { commentPermalink, countTree, mapTree, planReplies, purge, toPlaceholder, type FoldPolicy } from './commentTree';
 import { COMMENT_SORTS } from '@/types';
@@ -64,11 +66,11 @@ const ghostButton =
   'rounded-lg border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50';
 
 export function RelativeTime({ value }: { value: string }) {
-  const { language } = useI18n();
+  const language = useLanguage();
   // 以首次渲染时刻为准；相对时间不需要逐秒刷新
   const [now] = useState(() => Date.now());
   const date = new Date(value);
-  const locale = intlLocale(language);
+  const locale = getLocale(language);
   const seconds = Math.round((date.getTime() - now) / 1000);
   const units: [Intl.RelativeTimeFormatUnit, number][] = [
     ['year', 31536000],
@@ -135,7 +137,7 @@ function Composer({
   onSubmit: (body: string) => Promise<void>;
   onCancel?: () => void;
 }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [body, setBody] = useState(initial);
   const [busy, setBusy] = useState(false);
   const length = Array.from(body.trim()).length;
@@ -184,11 +186,11 @@ function Composer({
         )}
         {onCancel && (
           <button type="button" className={ghostButton} disabled={busy} onClick={onCancel}>
-            {i18n("song/SongComments.Cancel", '取消')}
+            {t("song/SongComments.Cancel")}
           </button>
         )}
         <button type="submit" className={primaryButton} disabled={busy || length === 0 || length > MAX_COMMENT_LENGTH}>
-          {busy ? i18n("song/SongComments.Posting", '发送中…') : submitLabel}
+          {busy ? t("song/SongComments.Posting") : submitLabel}
         </button>
       </div>
     </form>
@@ -220,7 +222,7 @@ function Avatar({ username, className }: { username: string; className: string }
 }
 
 function CommentNode({ comment, level }: { comment: Comment; level: number }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const tree = useContext(TreeContext)!;
   const { user, username } = useUserContext();
   const isAdministrator = useIsAdministrator();
@@ -260,7 +262,7 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
     };
   }, [focused]);
   const permalink = commentPermalink(tree.chartId, comment.id);
-  const author = gone ? '' : comment.author || i18n("song/SongComments.UnknownUser", '未知用户');
+  const author = gone ? '' : comment.author || t("song/SongComments.UnknownUser");
   const hiddenReplies = comment.replyCount - comment.replies.length;
   const folded = comment.replies.slice(shown);
   const expand = () => {
@@ -274,7 +276,7 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
       const result = await apiRequest<CommentDeletion>(endpoints.comment.item(comment.id), jsonRequest('DELETE'));
       setConfirming(false);
       tree.remove(comment.id, result.purged, canModerate);
-      toast.success(canModerate ? i18n("song/SongComments.Removed", '已移除') : i18n("song/SongComments.Deleted", '已删除'));
+      toast.success(canModerate ? t("song/SongComments.Removed") : t("song/SongComments.Deleted"));
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -284,7 +286,7 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
   const share = () => {
     const url = new URL(permalink, window.location.origin).href;
     navigator.clipboard?.writeText(url).then(
-      () => toast.success(i18n("song/SongComments.LinkCopied", '链接已复制')),
+      () => toast.success(t("song/SongComments.LinkCopied")),
       () => toast.info(url),
     );
   };
@@ -304,7 +306,7 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
             <button
               type="button"
               className="group flex flex-1 justify-center mt-1 w-4 outline-none"
-              aria-label={i18n("song/SongComments.CollapseThread", '折叠')}
+              aria-label={t("song/SongComments.CollapseThread")}
               onClick={() => setCollapsed(true)}
             >
               <span className="bg-white/15 group-hover:bg-sky-400 group-focus-visible:bg-sky-400 w-px transition-colors" />
@@ -314,15 +316,15 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
         <div className="flex-1 pb-1 min-w-0">
           <header className="flex flex-wrap items-center gap-x-2 gap-y-0.5 min-h-6 text-white/50 text-xs">
             {gone ? (
-              <span className="italic">{i18n("song/SongComments.DeletedAuthor", '[已删除]')}</span>
+              <span className="italic">{t("song/SongComments.DeletedAuthor")}</span>
             ) : (
               <Link to={`/space?id=${encodeURIComponent(comment.author)}`} className="max-w-48 font-medium text-white/90 truncate hover:underline">
                 {author}
               </Link>
             )}
             {!gone && comment.author === tree.uploader && (
-              <span className="bg-sky-400/15 px-1.5 py-0.5 rounded-md font-medium text-sky-300" title={i18n("song/SongComments.UploaderBadgeTitle", '这张谱面的上传者')}>
-                {i18n("song/SongComments.Uploader", '上传者')}
+              <span className="bg-sky-400/15 px-1.5 py-0.5 rounded-md font-medium text-sky-300" title={t("song/SongComments.UploaderBadgeTitle")}>
+                {t("song/SongComments.Uploader")}
               </span>
             )}
             <span aria-hidden="true">·</span>
@@ -330,18 +332,18 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
               <RelativeTime value={comment.createdAt} />
             </Link>
             {comment.editedAt && !gone && (
-              <span title={new Date(comment.editedAt).toLocaleString()}>· {i18n("song/SongComments.Edited", '已编辑')}</span>
+              <span title={new Date(comment.editedAt).toLocaleString()}>· {t("song/SongComments.Edited")}</span>
             )}
             <button
               type="button"
               className={glassButton}
               aria-expanded={!collapsed}
-              aria-label={collapsed ? i18n("song/SongComments.ExpandThread", '展开') : i18n("song/SongComments.CollapseThread", '折叠')}
+              aria-label={collapsed ? t("song/SongComments.ExpandThread") : t("song/SongComments.CollapseThread")}
               onClick={() => setCollapsed((v) => !v)}
             >
               {collapsed ? <PiPlusBold className="w-3 h-3" /> : <PiMinusBold className="w-3 h-3" />}
               {collapsed && comment.replyCount > 0 && (
-                <span>{comment.replyCount} {i18n("song/SongComments.Replies", '条回复')}</span>
+                <span>{t("song/SongComments.Replies", { count: comment.replyCount })}</span>
               )}
             </button>
           </header>
@@ -351,8 +353,8 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
                 <Composer
                   initial={comment.body}
                   autoFocus
-                  placeholder={i18n("song/SongComments.EditPlaceholder", '编辑评论')}
-                  submitLabel={i18n("song/SongComments.Save", '保存')}
+                  placeholder={t("song/SongComments.EditPlaceholder")}
+                  submitLabel={t("song/SongComments.Save")}
                   onCancel={() => setEditing(false)}
                   onSubmit={async (body) => {
                     const updated = await apiRequest<Comment>(endpoints.comment.item(comment.id), jsonRequest('PATCH', { body }));
@@ -362,7 +364,7 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
                 />
               ) : gone ? (
                 <p className="text-white/50 text-sm italic">
-                  {comment.removed ? i18n("song/SongComments.RemovedBody", '此评论已被管理员移除') : i18n("song/SongComments.DeletedBody", '此评论已被作者删除')}
+                  {comment.removed ? t("song/SongComments.RemovedBody") : t("song/SongComments.DeletedBody")}
                 </p>
               ) : (
                 <CommentBody text={comment.body} />
@@ -371,7 +373,7 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
                 <VoteControl
                   score={comment.score}
                   myVote={comment.myVote}
-                  label={i18n("song/SongComments.VoteOnComment", '给评论投票')}
+                  label={t("song/SongComments.VoteOnComment")}
                   disabled={gone && comment.myVote === 0}
                   onVote={(value: Vote) => apiRequest<VoteResult>(endpoints.comment.vote(comment.id), jsonRequest('PUT', { value }))}
                   onResult={(r) => tree.update(comment.id, (c) => ({ ...c, score: r.score, myVote: r.myVote }))}
@@ -380,40 +382,40 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
                   (user ? (
                     <button type="button" className={glassButton} aria-expanded={replying} onClick={() => setReplying((v) => !v)}>
                       <PiArrowBendUpLeftBold />
-                      {i18n("song/SongComments.Reply", '回复')}
+                      {t("song/SongComments.Reply")}
                     </button>
                   ) : (
                     <Link to={loginPath(location)} className={glassButton}>
                       <PiArrowBendUpLeftBold />
-                      {i18n("song/SongComments.Reply", '回复')}
+                      {t("song/SongComments.Reply")}
                     </Link>
                   ))}
                 <button type="button" className={glassButton} onClick={share}>
                   <PiLinkSimpleBold />
-                  {i18n("song/SongComments.Share", '分享')}
+                  {t("song/SongComments.Share")}
                 </button>
                 {own && !editing && (
                   <button type="button" className={glassButton} onClick={() => setEditing(true)}>
                     <PiPencilSimpleBold />
-                    {i18n("song/SongComments.Edit", '编辑')}
+                    {t("song/SongComments.Edit")}
                   </button>
                 )}
                 {(own || canModerate) && !confirming && (
                   <button type="button" className={`${glassButton} text-red-400 hover:text-red-300`} onClick={() => setConfirming(true)}>
                     {canModerate ? <PiShieldWarningBold /> : <PiTrashBold />}
-                    {canModerate ? i18n("song/SongComments.Remove", '移除') : i18n("song/SongComments.Delete", '删除')}
+                    {canModerate ? t("song/SongComments.Remove") : t("song/SongComments.Delete")}
                   </button>
                 )}
                 {confirming && (
                   <span className="inline-flex items-center gap-1 bg-red-500/10 px-1.5 py-0.5 rounded-md">
                     <span className="text-red-200">
-                      {canModerate ? i18n("song/SongComments.RemoveConfirm", '移除这条评论？') : i18n("song/SongComments.DeleteConfirm", '删除这条评论？')}
+                      {canModerate ? t("song/SongComments.RemoveConfirm") : t("song/SongComments.DeleteConfirm")}
                     </span>
                     <button type="button" className={`${glassButton} text-red-300 hover:text-red-200`} disabled={busy} onClick={() => void remove()}>
-                      {i18n("song/SongComments.ConfirmDelete", '确认')}
+                      {t("song/SongComments.ConfirmDelete")}
                     </button>
                     <button type="button" className={glassButton} disabled={busy} onClick={() => setConfirming(false)}>
-                      {i18n("song/SongComments.Cancel", '取消')}
+                      {t("song/SongComments.Cancel")}
                     </button>
                   </span>
                 )}
@@ -422,8 +424,8 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
                 <div className="pt-1">
                   <Composer
                     autoFocus
-                    placeholder={`${i18n("song/SongComments.ReplyTo", '回复')} ${author}`}
-                    submitLabel={i18n("song/SongComments.Reply", '回复')}
+                    placeholder={t("song/SongComments.ReplyTo", { user: author })}
+                    submitLabel={t("song/SongComments.Reply")}
                     onCancel={() => setReplying(false)}
                     onSubmit={async (body) => {
                       const reply = await apiRequest<Comment>(
@@ -443,7 +445,7 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
           {!collapsed &&
             (level >= tree.maxDepth && comment.replyCount > 0 ? (
               <Link to={permalink} className="inline-flex items-center gap-1 mt-2 text-sky-400 text-xs hover:underline">
-                {i18n("song/SongComments.ContinueThread", '继续阅读这个话题')}
+                {t("song/SongComments.ContinueThread")}
                 <PiArrowRightBold className="w-3 h-3" />
               </Link>
             ) : (
@@ -462,13 +464,14 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
                       onClick={expand}
                     >
                       <PiPlusCircleBold className="w-3.5 h-3.5" />
-                      {countTree(folded)}{' '}
-                      {shown === 0 ? i18n("song/SongComments.Replies", '条回复') : i18n("song/SongComments.MoreReplies", '条更多回复')}
+                      {shown === 0
+                        ? t("song/SongComments.Replies", { count: countTree(folded) })
+                        : t("song/SongComments.MoreReplies", { count: countTree(folded) })}
                     </button>
                   ) : (
                     hiddenReplies > 0 && (
                       <Link to={permalink} className="inline-flex items-center gap-1 text-sky-400 text-xs hover:underline">
-                        {hiddenReplies} {i18n("song/SongComments.MoreReplies", '条更多回复')}
+                        {t("song/SongComments.MoreReplies", { count: hiddenReplies })}
                         <PiArrowRightBold className="w-3 h-3" />
                       </Link>
                     )
@@ -493,7 +496,7 @@ export interface CommentSectionProps {
 }
 
 export function CommentSection({ chartId, uploader, commentCount, focusId }: CommentSectionProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { user } = useUserContext();
   const location = useLocation();
   const [sort, setSort] = useState<CommentSort>('best');
@@ -588,11 +591,11 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
   };
 
   const sortLabels: Record<CommentSort, string> = {
-    best: i18n("song/SongComments.SortBest", '最佳'),
-    top: i18n("song/SongComments.SortTop", '最高分'),
-    new: i18n("song/SongComments.SortNew", '最新'),
-    old: i18n("song/SongComments.SortOld", '最早'),
-    controversial: i18n("song/SongComments.SortControversial", '争议'),
+    best: t("song/SongComments.SortBest"),
+    top: t("song/SongComments.SortTop"),
+    new: t("song/SongComments.SortNew"),
+    old: t("song/SongComments.SortOld"),
+    controversial: t("song/SongComments.SortControversial"),
   };
 
   return (
@@ -610,11 +613,11 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
       <div className="flex flex-wrap justify-between items-center gap-3">
         <h2 id="comments-heading" className="flex items-center gap-2 m-0 font-semibold text-white text-xl whitespace-nowrap shrink-0" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>
           <PiChatCircleBold aria-hidden="true" />
-          {i18n("song/SongComments.Comments", '评论')}
+          {t("song/SongComments.Comments")}
           <span className="font-normal text-white/60 text-base tabular-nums">{count}</span>
         </h2>
         <label className="flex items-center gap-2 text-white/60 text-sm shrink-0">
-          <span>{i18n("song/SongComments.SortBy", '排序')}</span>
+          <span>{t("song/SongComments.SortBy")}</span>
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as CommentSort)}
@@ -630,20 +633,20 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
       </div>
       {focusId ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-white/6 px-4 py-3 rounded-xl text-sm">
-          <span className="text-white/60">{i18n("song/SongComments.SingleThread", '正在查看单条评论')}</span>
+          <span className="text-white/60">{t("song/SongComments.SingleThread")}</span>
           <Link to={`/song?id=${encodeURIComponent(chartId)}#comments`} className="text-sky-400 hover:underline">
-            {i18n("song/SongComments.ViewAll", '查看全部评论')}
+            {t("song/SongComments.ViewAll")}
           </Link>
           {current?.items[0]?.parentId && (
             <Link to={commentPermalink(chartId, current.items[0].parentId)} className="text-sky-400 hover:underline">
-              {i18n("song/SongComments.ViewParent", '查看上一级')}
+              {t("song/SongComments.ViewParent")}
             </Link>
           )}
         </div>
       ) : user ? (
         <Composer
-          placeholder={i18n("song/SongComments.CommentPlaceholder", '分享你对这张谱面的想法…')}
-          submitLabel={i18n("song/SongComments.Post", '发表')}
+          placeholder={t("song/SongComments.CommentPlaceholder")}
+          submitLabel={t("song/SongComments.Post")}
           onSubmit={async (body) => {
             const created = await apiRequest<Comment>(endpoints.maichart.newComment(chartId), jsonRequest('POST', { body }));
             setListing((l) => (l && l.key === requestKey ? { ...l, items: [created, ...l.items], total: l.total + 1 } : l));
@@ -652,9 +655,9 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
         />
       ) : (
         <div className="flex flex-wrap justify-between items-center gap-3 bg-white/6 px-4 py-3 rounded-xl text-sm">
-          <span className="text-white/60">{i18n("song/SongComments.SignInToComment", '登录后即可评论')}</span>
+          <span className="text-white/60">{t("song/SongComments.SignInToComment")}</span>
           <Link to={loginPath(location)} className={primaryButton}>
-            {i18n("song/SongComments.SignIn", '登录')}
+            {t("song/SongComments.SignIn")}
           </Link>
         </div>
       )}
@@ -662,15 +665,15 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
         <div className="flex flex-col items-center gap-3 py-6 text-center">
           <p className="text-red-300 text-sm">{error}</p>
           <button type="button" className={ghostButton} onClick={() => setAttempt((n) => n + 1)}>
-            {i18n("song/SongComments.Retry", '重试')}
+            {t("song/SongComments.Retry")}
           </button>
         </div>
       ) : !current ? (
-        <div className="flex justify-center py-8" role="status" aria-label={i18n("song/SongComments.Loading", '加载中')}>
+        <div className="flex justify-center py-8" role="status" aria-label={t("song/SongComments.Loading")}>
           <LoadingSpinner size={32} />
         </div>
       ) : current.items.length === 0 ? (
-        <p className="py-8 text-white/50 text-sm text-center">{i18n("song/SongComments.NoComments", '暂无评论')}</p>
+        <p className="py-8 text-white/50 text-sm text-center">{t("song/SongComments.NoComments")}</p>
       ) : (
         <TreeContext.Provider value={tree}>
           <div className="space-y-6">
@@ -683,7 +686,7 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
       {!focusId && current && current.items.length < current.total && (
         <div className="flex justify-center">
           <button type="button" className={ghostButton} disabled={loadingMore} onClick={() => void loadMore()}>
-            {loadingMore ? i18n("song/SongComments.Loading", '加载中') : i18n("song/SongComments.LoadMore", '加载更多')}
+            {loadingMore ? t("song/SongComments.Loading") : t("song/SongComments.LoadMore")}
           </button>
         </div>
       )}
@@ -693,13 +696,13 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
 
 /** 用户评论历史里的一条：平铺，带所在谱面。 */
 function CommentSummary({ comment }: { comment: Comment }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   return (
     <article className="space-y-2 bg-white/6 p-4 border border-white/10 rounded-xl min-w-0">
       <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-white/50 text-xs">
         <Link to={`/space?id=${encodeURIComponent(comment.author)}`} className="inline-flex items-center gap-1.5 font-medium text-white/90 hover:underline">
           <Avatar username={comment.author} className="w-5 h-5" />
-          {comment.author || i18n("song/SongComments.UnknownUser", '未知用户')}
+          {comment.author || t("song/SongComments.UnknownUser")}
         </Link>
         <span aria-hidden="true">·</span>
         {comment.chartId ? (
@@ -707,17 +710,17 @@ function CommentSummary({ comment }: { comment: Comment }) {
             {comment.chartTitle ?? comment.chartHash}
           </Link>
         ) : (
-          <span className="max-w-60 truncate">{comment.chartTitle ?? i18n("song/SongComments.DeletedChart", '谱面已删除')}</span>
+          <span className="max-w-60 truncate">{comment.chartTitle ?? t("song/SongComments.DeletedChart")}</span>
         )}
         <span aria-hidden="true">·</span>
         <RelativeTime value={comment.createdAt} />
       </header>
       <CommentBody text={comment.body} />
       <footer className="flex flex-wrap items-center gap-3 text-white/50 text-xs">
-        <span className="tabular-nums">{comment.score} {i18n("song/SongComments.Points", '分')}</span>
+        <span className="tabular-nums">{t("song/SongComments.Points", { count: comment.score })}</span>
         {comment.chartId && (
           <Link to={commentPermalink(comment.chartId, comment.id)} className="text-sky-400 hover:underline">
-            {i18n("song/SongComments.ViewInContext", '查看上下文')}
+            {t("song/SongComments.ViewInContext")}
           </Link>
         )}
       </footer>
@@ -727,7 +730,7 @@ function CommentSummary({ comment }: { comment: Comment }) {
 
 /** 分页的平铺评论列表，例如个人空间的评论历史。 */
 export function CommentListView({ load, empty }: { load: (page: number, signal: AbortSignal) => Promise<CommentList>; empty: ReactNode }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   // 结果带着页码；翻页后旧页自然失效，不必在 effect 里清空
   const [result, setResult] = useState<{ page: number; data: CommentList } | null>(null);
@@ -753,7 +756,7 @@ export function CommentListView({ load, empty }: { load: (page: number, signal: 
   if (error) return <p className="py-6 text-red-300 text-sm text-center">{error}</p>;
   if (!data) {
     return (
-      <div className="flex justify-center py-8" role="status" aria-label={i18n("song/SongComments.Loading", '加载中')}>
+      <div className="flex justify-center py-8" role="status" aria-label={t("song/SongComments.Loading")}>
         <LoadingSpinner size={32} />
       </div>
     );
@@ -768,13 +771,13 @@ export function CommentListView({ load, empty }: { load: (page: number, signal: 
       {pages > 1 && (
         <div className="flex flex-wrap justify-center items-center gap-4 pt-2 text-white/80 text-sm">
           <button type="button" className={ghostButton} disabled={page <= 1} onClick={() => setPage((n) => n - 1)}>
-            {i18n("song/SongComments.Previous", '上一页')}
+            {t("song/SongComments.Previous")}
           </button>
           <span className="tabular-nums">
             {page} / {pages}
           </span>
           <button type="button" className={ghostButton} disabled={page >= pages} onClick={() => setPage((n) => n + 1)}>
-            {i18n("song/SongComments.Next", '下一页')}
+            {t("song/SongComments.Next")}
           </button>
         </div>
       )}

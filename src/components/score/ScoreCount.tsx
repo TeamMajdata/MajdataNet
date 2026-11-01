@@ -1,6 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { endpoints } from '@/config/api';
 import useSWR from 'swr';
-import { useI18n } from '@/hooks';
 import { LoadingSpinner } from '@/components';
 import type { ScoreCardProps, ScoreCountProps, ScoreSumResponse } from '@/types';
 import { Link } from 'react-router-dom';
@@ -13,7 +13,7 @@ import { apiFetcher as fetcher } from '@/utils/apiClient';
  * 显示指定上传者的谱面评分排行榜
  */
 export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreCountProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
 
   const { data: response, error, isLoading } = useSWR<ScoreSumResponse>(
     endpoints.stats.scoreSums(uploader, page, pageSize),
@@ -24,7 +24,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   const data = response?.players;
 
   if (error) {
-    return <div>{i18n("shared/ScoreCount.FailedToLoad", '加载失败')}</div>;
+    return <div>{t("shared/ScoreCount.FailedToLoad")}</div>;
   }
 
   if (isLoading) {
@@ -34,7 +34,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   }
 
   if (!data || data.length === 0) {
-    return <div className="py-8 text-center">{i18n("shared/ScoreCount.EmptyData", '空的')}</div>;
+    return <div className="py-8 text-center">{t("shared/ScoreCount.EmptyData")}</div>;
   }
 
   const maxScore = data[0].acc.dx;

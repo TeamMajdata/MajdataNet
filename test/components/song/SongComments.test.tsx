@@ -10,7 +10,6 @@ vi.mock('react-toastify', () => ({ toast }));
 let currentUser: { id: string; username: string } | null = { id: 'u1', username: 'alice' };
 let administrator = false;
 vi.mock('@/hooks', () => ({
-  useI18n: () => ({ i18n: (_key: string, fallback?: string) => fallback ?? _key, language: 'en', isReady: true }),
   useUserContext: () => ({ user: currentUser, username: currentUser?.username ?? '', isLoading: false, error: null, refetch: () => {} }),
   useIsAdministrator: () => administrator,
 }));

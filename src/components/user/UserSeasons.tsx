@@ -1,4 +1,5 @@
-import { useI18n } from '@/hooks/useI18n';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/i18n';
 import { useEventClock } from '@/hooks/useEventClock';
 import { useSeasonCharts } from '@/hooks/useSeasonCharts';
 import { useSeasonRanking } from '@/hooks/useSeasonRanking';
@@ -10,7 +11,7 @@ import type { Event, RankedSeasonEntry } from '@/types/event';
 import '@/styles/components/user-season-achievements.css';
 
 export default function UserSeasons({ username }: { username: string }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const events = getAllEvents();
   const now = useEventClock(events);
   const seasons = events.flatMap(event => {
@@ -27,7 +28,7 @@ export default function UserSeasons({ username }: { username: string }) {
     // Hide the whole section when all queries return no participation.
     <section className="mb-12 hidden has-[li]:block" aria-labelledby="user-seasons-title">
       <h2 id="user-seasons-title" className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-        {i18n('user/UserSeasons.Title', '季赛战绩')}
+        {t('user/UserSeasons.Title')}
       </h2>
       <ul className="user-season-list">
         {seasons.map(season => <UserSeasonResult key={season.event.id} {...season} username={username} />)}
@@ -37,7 +38,7 @@ export default function UserSeasons({ username }: { username: string }) {
 }
 
 function UserSeasonResult({ event, status, username }: Omit<UserSeasonCardProps, 'entry'> & { username: string }) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const charts = useSeasonCharts(event.asset);
   const ranking = useSeasonRanking(event, status, charts.songhashes ?? null);
   // Use the same complete standings as the season page, then select this user.
@@ -54,11 +55,11 @@ function UserSeasonResult({ event, status, username }: Omit<UserSeasonCardProps,
   return (
     <li className={error ? '[&>.user-season-card]:h-auto' : undefined}>
       {entry && <UserSeasonCard event={event} status={status} entry={entry} />}
-      {isLoading && !entry && <p role="status" className="py-5 text-center text-sm text-white/60">{i18n('user/UserSeasons.Loading', '正在加载季赛战绩…')}</p>}
+      {isLoading && !entry && <p role="status" className="py-5 text-center text-sm text-white/60">{t('user/UserSeasons.Loading')}</p>}
       {error && <div role="status" className="mt-4 flex flex-wrap items-center justify-center gap-3 text-sm text-white/65">
-        <p>{event.title} · {i18n('user/UserSeasons.LoadFailed', '部分季赛战绩暂时无法加载。')}</p>
+        <p>{event.title} · {t('user/UserSeasons.LoadFailed')}</p>
         <button type="button" onClick={() => void retry()} className="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-white cursor-pointer hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-blue-400">
-          {i18n('user/UserSeasons.Retry', '重试')}
+          {t('user/UserSeasons.Retry')}
         </button>
       </div>}
     </li>
@@ -72,14 +73,15 @@ interface UserSeasonCardProps {
 }
 
 function UserSeasonCard({ event, status, entry }: UserSeasonCardProps) {
-  const { i18n, language } = useI18n();
+  const { t } = useTranslation();
+  const language = useLanguage();
   const locale = { zh: 'zh-CN', en: 'en-GB', ja: 'ja-JP', ko: 'ko-KR' }[language];
   const formatter = new Intl.DateTimeFormat(locale, {
     timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit',
   });
   const statusText = status === 'ongoing'
-    ? i18n('chart-events/eventsData.EventStatusOngoing', '进行中')
-    : i18n('chart-events/eventsData.EventStatusEnded', '已结束');
+    ? t('chart-events/eventsData.EventStatusOngoing')
+    : t('chart-events/eventsData.EventStatusEnded');
 
   return (
     <Link to={`/season?id=${encodeURIComponent(event.id)}`} className={`user-season-card${entry.rank === 1 ? ' user-season-card--first' : ''}`}>
@@ -87,7 +89,7 @@ function UserSeasonCard({ event, status, entry }: UserSeasonCardProps) {
         onError={e => { e.currentTarget.style.visibility = 'hidden'; }} />
       <div className="user-season-card__header">
         <span className={`user-season-card__status user-season-card__status--${status}`}>• {statusText}</span>
-        <span className="user-season-card__dates" title={i18n('season/SeasonPage.TimeZone', '北京时间（UTC+8）')}>
+        <span className="user-season-card__dates" title={t('season/SeasonPage.TimeZone')}>
           <time dateTime={event.createDate}>{formatter.format(new Date(event.createDate))}</time>
           <span aria-hidden="true"> — </span>
           <time dateTime={event.endDate}>{formatter.format(new Date(event.endDate))}</time>
@@ -96,15 +98,15 @@ function UserSeasonCard({ event, status, entry }: UserSeasonCardProps) {
       <h3 className="user-season-card__title">{event.title}</h3>
       <dl className="user-season-card__scores">
         <div>
-          <dt><IoTrophyOutline aria-hidden="true" />{i18n('user/UserSeasons.Rank', '排名')}</dt>
+          <dt><IoTrophyOutline aria-hidden="true" />{t('user/UserSeasons.Rank')}</dt>
           <dd className="user-season-card__rank"><span>#</span>{entry.rank}</dd>
         </div>
         <div>
-          <dt>{i18n('user/UserSeasons.TotalScore', '总分')}</dt>
+          <dt>{t('user/UserSeasons.TotalScore')}</dt>
           <dd className="user-season-card__total">{entry.score.toFixed(4)}<span>%</span></dd>
         </div>
       </dl>
-      <span className="user-season-card__link">{i18n('user/UserSeasons.ViewSeason', '查看季赛')}<IoArrowForwardOutline aria-hidden="true" /></span>
+      <span className="user-season-card__link">{t('user/UserSeasons.ViewSeason')}<IoArrowForwardOutline aria-hidden="true" /></span>
     </Link>
   );
 }

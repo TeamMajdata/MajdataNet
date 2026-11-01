@@ -3,11 +3,13 @@
  * 按下已选中的箭头即撤票；分数立即更新，服务端拒绝时回滚。
  */
 
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/i18n';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { PiArrowFatDownBold, PiArrowFatDownFill, PiArrowFatUpBold, PiArrowFatUpFill } from 'react-icons/pi';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import { compactNumber, loginPath } from '@/utils/interaction';
 import type { Vote, VoteResult } from '@/types';
 
@@ -37,7 +39,8 @@ export function VoteControl({
   disabled = false,
   className = '',
 }: VoteControlProps) {
-  const { i18n, language } = useI18n();
+  const { t } = useTranslation();
+  const language = useLanguage();
   const { user } = useUserContext();
   const navigate = useNavigate();
   const location = useLocation();
@@ -74,8 +77,8 @@ export function VoteControl({
         type="button"
         className={`${arrow} ${shown.myVote === 1 ? 'text-orange-400 hover:text-orange-300' : ''}`}
         aria-pressed={shown.myVote === 1}
-        aria-label={i18n("song/VoteControl.Upvote", '赞')}
-        title={i18n("song/VoteControl.Upvote", '赞')}
+        aria-label={t("song/VoteControl.Upvote")}
+        title={t("song/VoteControl.Upvote")}
         disabled={disabled}
         onClick={() => void cast(1)}
       >
@@ -84,7 +87,7 @@ export function VoteControl({
       <span
         className={`min-w-6 text-center font-semibold tabular-nums ${size === 'md' ? 'text-lg' : 'text-sm'} ${shown.myVote === 1 ? 'text-orange-400' : shown.myVote === -1 ? 'text-sky-400' : 'text-white/90'}`}
         aria-live="polite"
-        title={`${i18n("song/VoteControl.Score", '分数')}: ${shown.score}`}
+        title={`${t("song/VoteControl.Score")}: ${shown.score}`}
       >
         {compactNumber(shown.score, language)}
       </span>
@@ -92,8 +95,8 @@ export function VoteControl({
         type="button"
         className={`${arrow} ${shown.myVote === -1 ? 'text-sky-400 hover:text-sky-300' : ''}`}
         aria-pressed={shown.myVote === -1}
-        aria-label={i18n("song/VoteControl.Downvote", '踩')}
-        title={i18n("song/VoteControl.Downvote", '踩')}
+        aria-label={t("song/VoteControl.Downvote")}
+        title={t("song/VoteControl.Downvote")}
         disabled={disabled}
         onClick={() => void cast(-1)}
       >

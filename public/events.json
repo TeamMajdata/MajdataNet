@@ -1,5 +1,17 @@
 [
   {
+    "id": "ZJU5th",
+    "type": "space",
+    "asset": "ZJU5th",
+    "src": "/events/ZJU5th.png",
+    "alt": "ZJU5th",
+    "title": "ZJU5th",
+    "category": 1,
+    "createDate": "2026-10-21",
+    "endDate": "2026-11-17",
+    "description": ""
+  },
+  {
     "id": "wmc3",
     "type": "space",
     "asset": "WMC_Tournament",

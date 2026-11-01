@@ -3,6 +3,7 @@
  * 迁移自 legacy/src/app/widgets/TagManageWidget.jsx
  */
 
+import { useTranslation } from 'react-i18next';
 import {
   forwardRef,
   useEffect,
@@ -17,7 +18,6 @@ import { Tooltip } from '@/components';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
-import { useI18n } from '@/hooks';
 import LoadingSpinner from './LoadingSpinner';
 import sleep from '@/utils/sleep';
 import { motion } from 'framer-motion';
@@ -147,7 +147,7 @@ function tagsReducer(state: string[], action: TagsAction): string[] {
 
 const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
   function TagManageWindow({ onClose, buttonRef, songid }, ref) {
-    const { i18n } = useI18n();
+    const { t } = useTranslation();
     const [position, setPosition] = useState({
       x: window.innerWidth / 2 - 200,
       y: 100,
@@ -246,7 +246,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
     }, [data, isInPrivatePage]);
 
     const uploadTags = async () => {
-      const uploading = toast.loading(i18n("shared/TagManageWidget.Uploading"), {
+      const uploading = toast.loading(t("shared/TagManageWidget.Uploading"), {
         hideProgressBar: true,
       });
       const response = await fetch(
@@ -375,7 +375,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
             <div className="flex flex-wrap flex-1 gap-1.5 mt-1 text-white/70 text-sm text-left wrap-break-word">
               {tags && tags.length > 0 ? (
                 tags.map((tag, index) => (
-                  <Tooltip content={i18n("shared/TagManageWidget.DeleteTag")} key={index}>
+                  <Tooltip content={t("shared/TagManageWidget.DeleteTag")} key={index}>
                     <span
                       className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-0.75 rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
                       onClick={() => {
@@ -387,14 +387,14 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                   </Tooltip>
                 ))
               ) : (
-                <span style={{ color: '#999', fontStyle: 'italic' }}>{i18n("shared/TagManageWidget.NoTags")}</span>
+                <span style={{ color: '#999', fontStyle: 'italic' }}>{t("shared/TagManageWidget.NoTags")}</span>
               )}
             </div>
           </div>
           <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
             <input
               type="text"
-              placeholder={i18n("shared/TagManageWidget.CustomTag")}
+              placeholder={t("shared/TagManageWidget.CustomTag")}
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
               style={{
@@ -415,10 +415,10 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
               }}
               style={{ padding: '6px 12px' }}
             >
-              {i18n("shared/TagManageWidget.AddTag")}
+              {t("shared/TagManageWidget.AddTag")}
             </button>
           </div>
-          <p>{i18n("shared/TagManageWidget.CommonTags")}</p>
+          <p>{t("shared/TagManageWidget.CommonTags")}</p>
           {/* tab bar */}
           <div
             style={{

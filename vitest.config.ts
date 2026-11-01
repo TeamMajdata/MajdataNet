@@ -15,5 +15,6 @@ export default defineConfig({
     // （没有 --localstorage-file 时取值为 undefined）。在 worker 里关掉它。
     execArgv: ['--no-experimental-webstorage'],
     include: ['test/**/*.test.{ts,tsx}'],
+    setupFiles: ['test/setup/i18n.ts'],
   },
 })

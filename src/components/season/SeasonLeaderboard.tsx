@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/i18n';
 import { useState } from 'react';
 import { ScoreCard as TotalScoreCard } from '@/components/score/ScoreCount';
-import { useI18n } from '@/hooks/useI18n';
 import { useSeasonRanking } from '@/hooks/useSeasonRanking';
 import { useSeasonLastPlayed } from '@/hooks/useSeasonLastPlayed';
 import SeasonScoreDetails from './SeasonScoreDetails';
@@ -16,7 +17,7 @@ interface SeasonLeaderboardProps {
 }
 
 export default function SeasonLeaderboard({ event, status, chartState }: SeasonLeaderboardProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const ranking = useSeasonRanking(event, status, chartState.songhashes ?? null);
   const { entries } = ranking;
   const error = chartState.error ?? ranking.error;
@@ -40,26 +41,26 @@ export default function SeasonLeaderboard({ event, status, chartState }: SeasonL
       boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
     }}>
       <div className="mb-6 text-center">
-        <h2 id="season-ranking-title" className="mb-2 font-bold text-white text-3xl" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)' }}>{i18n('season/SeasonLeaderboard.Title', '排行榜')}</h2>
+        <h2 id="season-ranking-title" className="mb-2 font-bold text-white text-3xl" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)' }}>{t('season/SeasonLeaderboard.Title')}</h2>
       </div>
 
       <div aria-live="polite">
         {status === 'upcoming' ? (
-          <p className="py-8 text-white/70 text-center">{i18n('season/SeasonLeaderboard.Upcoming', '开赛后将在这里展示排行榜。')}</p>
+          <p className="py-8 text-white/70 text-center">{t('season/SeasonLeaderboard.Upcoming')}</p>
         ) : isLoading && !entries ? (
-          <p className="py-8 text-white/70 text-center">{i18n('season/SeasonLeaderboard.Loading', '正在加载排行榜…')}</p>
+          <p className="py-8 text-white/70 text-center">{t('season/SeasonLeaderboard.Loading')}</p>
         ) : error && !entries ? (
-          <p role="alert" className="py-8 text-red-300 text-center">{i18n('season/SeasonLeaderboard.LoadFailed', '排行榜加载失败，请稍后重试。')}</p>
+          <p role="alert" className="py-8 text-red-300 text-center">{t('season/SeasonLeaderboard.LoadFailed')}</p>
         ) : (
           <>
-            {error && <p role="alert" className="mb-4 text-amber-200 text-center">{i18n('season/SeasonLeaderboard.UpdateFailed', '更新失败，以下保留上次成功获取的结果。')}</p>}
+            {error && <p role="alert" className="mb-4 text-amber-200 text-center">{t('season/SeasonLeaderboard.UpdateFailed')}</p>}
             {entries?.length === 0 ? (
-              <p className="py-8 text-white/70 text-center">{i18n('season/SeasonLeaderboard.Empty', '还没有参赛成绩，来提交本季的第一份成绩吧。')}</p>
+              <p className="py-8 text-white/70 text-center">{t('season/SeasonLeaderboard.Empty')}</p>
             ) : (
                 <ol className="gap-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" start={page * PAGE_SIZE + 1}>
                   {visibleEntries?.map(player => (
                     <li key={player.playerId} data-season-rank={player.rank} className="min-w-0">
-                      <p className="mb-2 text-white/70 text-sm text-center"><span className="sr-only">{i18n('season/SeasonLeaderboard.Rank', '名次')} </span>#{player.rank}</p>
+                      <p className="mb-2 text-white/70 text-sm text-center"><span className="sr-only">{t('season/SeasonLeaderboard.Rank')} </span>#{player.rank}</p>
                       <SeasonScoreDetails event={event} chartState={chartState} player={player} status={status}>
                         <TotalScoreCard rank={player.rank} username={player.username} scoresum={player.score} maxscore={entries?.[0]?.score ?? 0}
                           footer={<SeasonLastPlayed username={player.username} event={event} chartState={chartState} status={status} />} />
@@ -76,19 +77,19 @@ export default function SeasonLeaderboard({ event, status, chartState }: SeasonL
         <div className="mt-4 text-center">
           <button type="button" onClick={() => void retry()} disabled={chartState.isLoading || ranking.isValidating}
             className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">
-            {i18n('season/SeasonLeaderboard.Retry', '重试')}
+            {t('season/SeasonLeaderboard.Retry')}
           </button>
         </div>
       )}
 
       {status !== 'upcoming' && entries && (
-        <p className="mt-6 text-white/70 text-sm text-center">{i18n('season/SeasonLeaderboard.Participants', '参与者：')}{entries.length}</p>
+        <p className="mt-6 text-white/70 text-sm text-center">{t('season/SeasonLeaderboard.Participants', { count: entries.length })}</p>
       )}
       {status !== 'upcoming' && totalPages > 1 && (
-        <nav className="flex flex-wrap justify-center items-center gap-3 mt-6 text-sm" aria-label={i18n('season/SeasonLeaderboard.Title', '排行榜')}>
-          <button type="button" disabled={page === 0} onClick={() => setPagination({ eventId: event.id, page: page - 1 })} className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">{i18n('season/SeasonLeaderboard.Previous', '上一页')}</button>
-          <span className="text-white/60">{page + 1} / {totalPages} {i18n('season/SeasonLeaderboard.Page', '页')}</span>
-          <button type="button" disabled={page + 1 >= totalPages} onClick={() => setPagination({ eventId: event.id, page: page + 1 })} className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">{i18n('season/SeasonLeaderboard.Next', '下一页')}</button>
+        <nav className="flex flex-wrap justify-center items-center gap-3 mt-6 text-sm" aria-label={t('season/SeasonLeaderboard.Title')}>
+          <button type="button" disabled={page === 0} onClick={() => setPagination({ eventId: event.id, page: page - 1 })} className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">{t('season/SeasonLeaderboard.Previous')}</button>
+          <span className="text-white/60">{t('season/SeasonLeaderboard.Page', { page: page + 1, total: totalPages })}</span>
+          <button type="button" disabled={page + 1 >= totalPages} onClick={() => setPagination({ eventId: event.id, page: page + 1 })} className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">{t('season/SeasonLeaderboard.Next')}</button>
         </nav>
       )}
     </section>
@@ -103,7 +104,8 @@ interface SeasonLastPlayedProps {
 }
 
 function SeasonLastPlayed({ username, event, chartState, status }: SeasonLastPlayedProps) {
-  const { i18n, language } = useI18n();
+  const { t } = useTranslation();
+  const language = useLanguage();
   const { timestamp, error, isLoading, unavailable } = useSeasonLastPlayed(username, event, chartState, status);
   const locale = { zh: 'zh-CN', en: 'en-GB', ja: 'ja-JP', ko: 'ko-KR' }[language];
   const date = timestamp ? new Date(timestamp) : undefined;
@@ -118,17 +120,17 @@ function SeasonLastPlayed({ username, event, chartState, status }: SeasonLastPla
   }).format(validDate) : undefined;
 
   return (
-    <div className="space-y-1 py-1 font-normal" title={i18n('season/SeasonLastPlayed.Scope', '本季曲池在赛期内的最近游玩；仅可查询近 30 天记录。')}>
-      <span className="block text-white/45">{i18n('season/SeasonLastPlayed.Title', '最近游玩时间')}</span>
+    <div className="space-y-1 py-1 font-normal" title={t('season/SeasonLastPlayed.Scope')}>
+      <span className="block text-white/45">{t('season/SeasonLastPlayed.Title')}</span>
       {error || unavailable ? (
-        <span>{i18n('season/SeasonLastPlayed.Unavailable', '暂不可用')}</span>
+        <span>{t('season/SeasonLastPlayed.Unavailable')}</span>
       ) : timeLabel ? (
         <time className="block whitespace-nowrap font-medium tabular-nums tracking-wide text-white/75" dateTime={validDate!.toISOString()}
           title={`${fullTimeLabel} (UTC+8)`} aria-label={`${fullTimeLabel} (UTC+8)`}>{timeLabel}</time>
       ) : isLoading ? (
-        <span>{i18n('season/SeasonLastPlayed.Loading', '加载中…')}</span>
+        <span>{t('season/SeasonLastPlayed.Loading')}</span>
       ) : (
-        <span>{i18n('season/SeasonLastPlayed.Empty', '近 30 天无记录')}</span>
+        <span>{t('season/SeasonLastPlayed.Empty')}</span>
       )}
     </div>
   );

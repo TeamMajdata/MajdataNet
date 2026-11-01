@@ -3,16 +3,16 @@
  * 迁移自 legacy/src/app/widgets/EventBanner.jsx
  */
 
+import { useTranslation } from 'react-i18next';
 import React, { memo } from 'react';
 import { IoChevronUpOutline } from 'react-icons/io5';
 import EnhancedDescription from './EnhancedDescription';
 import type { EventBannerProps } from '@/types';
 import { getCategoryTranslation, getTimeAgo } from '@/utils/eventsData';
-import { useI18n } from '@/hooks/useI18n';
 
 const EventBanner: React.FC<EventBannerProps> = memo(({ event, containerClassName }) => {
   // Subscribe to language changes for the shared event text formatters.
-  useI18n();
+  useTranslation();
 
   if (!event) return null;
   const timeAgo = getTimeAgo(event.createDate);

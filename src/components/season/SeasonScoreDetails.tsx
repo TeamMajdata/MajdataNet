@@ -1,7 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { IoStatsChartOutline } from 'react-icons/io5';
-import { useI18n } from '@/hooks/useI18n';
 import { useSeasonBreakdown } from '@/hooks/useSeasonBreakdown';
 import { endpoints } from '@/config/api';
 import { stripTmpTags } from '@/utils/richTextUtils';
@@ -23,13 +23,13 @@ const levelNames = ['Easy', 'Basic', 'Advanced', 'Expert', 'Master', 'Re:Master'
 const levelColors = ['#6fabfa', '#5dd45d', '#caca54', '#ff5b5b', '#dca5ef', '#e6a4e6', '#ff9100'];
 
 export default function SeasonScoreDetails({ event, chartState, player, status, children }: SeasonScoreDetailsProps) {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [side, setSide] = useState<'top' | 'right' | 'left'>('top');
   const triggerRef = useRef<HTMLDivElement>(null);
   const contentId = useId();
   const { items, isLoading, hasErrors } = useSeasonBreakdown(event, chartState, player.playerId, open, status);
-  const label = i18n('season/SeasonScoreDetails.Title', '曲目成绩');
+  const label = t('season/SeasonScoreDetails.Title');
   const positionDetails = useCallback(() => {
     const rect = triggerRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -85,16 +85,16 @@ export default function SeasonScoreDetails({ event, chartState, player, status, 
                   </div>
                 </div>
                 <div className={`season-score-details__score${item.score === undefined || item.error ? ' season-score-details__score--muted' : ''}`}>
-                  {item.error ? i18n('season/SeasonScoreDetails.Unavailable', '暂不可用')
-                    : item.isLoading ? <span aria-label={i18n('season/SeasonScoreDetails.Loading', '加载中…')}>…</span>
-                      : item.score === undefined ? i18n('season/SeasonScoreDetails.NoScore', '无成绩')
+                  {item.error ? t('season/SeasonScoreDetails.Unavailable')
+                    : item.isLoading ? <span aria-label={t('season/SeasonScoreDetails.Loading')}>…</span>
+                      : item.score === undefined ? t('season/SeasonScoreDetails.NoScore')
                         : <>{item.score.toFixed(4)}<span>%</span></>}
                 </div>
               </li>
             ))}
           </ul>
-          {hasErrors && <p role="status" className="season-score-details__error">{i18n('season/SeasonScoreDetails.LoadFailed', '部分成绩加载失败，请稍后再试。')}</p>}
-          <p className="season-score-details__note">{i18n('season/SeasonScoreDetails.Rule', '每曲分数为文件内各难度的赛期最佳达成率之和。')}</p>
+          {hasErrors && <p role="status" className="season-score-details__error">{t('season/SeasonScoreDetails.LoadFailed')}</p>}
+          <p className="season-score-details__note">{t('season/SeasonScoreDetails.Rule')}</p>
           <Tooltip.Arrow className="fill-[#262b33]" width={12} height={6} />
         </Tooltip.Content>
       </Tooltip.Portal>

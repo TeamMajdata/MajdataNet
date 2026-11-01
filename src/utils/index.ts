@@ -25,17 +25,7 @@ export { downloadSong } from './download';
 export { getDisplayMessage } from './httpMessage';
 
 // 互动（投票/评论）工具
-export { compactNumber, intlLocale, loginPath } from './interaction';
-
-// 国际化工具
-export {
-  setLanguage,
-  i18n,
-  getCurrentLanguage,
-  getBrowserLanguage,
-  initializeLanguage,
-  preloadLanguage,
-} from './i18n';
+export { compactNumber, loginPath } from './interaction';
 
 // TMP 富文本工具
 export { hasTmpTags, stripTmpTags, parseTmpRichText } from './richTextUtils';

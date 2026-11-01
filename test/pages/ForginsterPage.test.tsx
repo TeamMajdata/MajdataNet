@@ -5,10 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { md5 } from 'js-md5';
 import ForginsterPage from '@/pages/ForginsterPage';
 import { endpoints } from '@/config/api';
+import i18n from '@/i18n';
 
 const mocks = vi.hoisted(() => ({ refetch: vi.fn(), error: vi.fn(), success: vi.fn(), info: vi.fn() }));
 vi.mock('@/hooks', () => ({
-  useI18n: () => ({ i18n: (key: string) => key.split('.').at(-1), isReady: true }),
   useUserContext: () => ({ refetch: mocks.refetch }),
 }));
 vi.mock('@/components', () => ({ PageLayout: ({ children }: { children: ReactNode }) => <main>{children}</main> }));
@@ -101,32 +101,32 @@ describe('email challenge authentication', () => {
     fetchMock.mockResolvedValueOnce(new Response('old-key')).mockResolvedValueOnce(new Response('new-key'));
     await render('/forget'); fill('email', 'one@example.com'); await sendCode();
     await act(async () => { vi.advanceTimersByTime(5 * 60_000); });
-    expect(submitButton().disabled).toBe(true); expect(container.textContent).toContain('CodeExpired');
+    expect(submitButton().disabled).toBe(true); expect(container.textContent).toContain(i18n.t('auth/ForginsterPage.CodeExpired'));
     await sendCode(); expect(submitButton().disabled).toBe(false);
     fill('password', 'x'); fill('password2', 'y'); await submit();
-    expect(fetchMock).toHaveBeenCalledTimes(2); expect(mocks.error).toHaveBeenCalledWith('PasswdNoMatch');
+    expect(fetchMock).toHaveBeenCalledTimes(2); expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.PasswdNoMatch'));
   });
 
   it('requires a fresh challenge after registration validation consumes it', async () => {
     fetchMock.mockResolvedValueOnce(new Response('key')).mockResolvedValueOnce(Response.json({ code: 4, message: 'Username exists' }, { status: 400 }));
     await render('/register'); fill('email', 'one@example.com'); await sendCode();
     fill('username', 'player'); fill('nickname', 'player'); fill('password', 'x'); fill('password2', 'x'); fill('challengeCode', '12345678'); await submit();
-    expect(mocks.error).toHaveBeenCalledWith('UsernameExists'); expect(submitButton().disabled).toBe(true);
+    expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.UsernameExists')); expect(submitButton().disabled).toBe(true);
     expect(field('challengeCode').value).toBe('');
   });
 
   it('handles throttling and network errors without getting stuck', async () => {
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch')).mockResolvedValueOnce(new Response('', { status: 429 }));
     await render('/forget'); fill('email', 'one@example.com'); await sendCode();
-    expect(mocks.error).toHaveBeenCalledWith('NetworkError');
+    expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.NetworkError'));
     expect(container.querySelector<HTMLFieldSetElement>('fieldset')!.disabled).toBe(false);
-    await sendCode(); expect(mocks.error).toHaveBeenCalledWith('TooManyRequests');
+    await sendCode(); expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.TooManyRequests'));
     expect(container.querySelector<HTMLButtonElement>('form button[type="button"]')!.disabled).toBe(true);
   });
 
   it('does not submit an old activation link to a removed endpoint', async () => {
     await render('/login?otp=old-key');
-    expect(container.textContent).toContain('LegacyLink'); expect(fetchMock).not.toHaveBeenCalled();
+    expect(container.textContent).toContain(i18n.t('auth/ForginsterPage.LegacyLink')); expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('logs in with an email and retains rememberMe and the internal redirect', async () => {

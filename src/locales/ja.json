@@ -6,12 +6,12 @@
     "ConfirmPassword": "パスワード確認",
     "CreateAccount": "アカウント作成",
     "EightDigitCode": "8桁の認証コード",
-    "EmailExists": "邮箱已被注册",
+    "EmailExists": "このメールアドレスは既に登録されています",
     "EmailLabel": "メールアドレス",
     "ForgetPassword": "パスワードを忘れた方",
     "ForgetPasswordSubtitle": "登録済みのメールでコードを取得し、新しいパスワードを設定してください。",
     "ForgetPasswordTitle": "パスワードを忘れた方",
-    "InvalidEmail": "无效的邮箱地址",
+    "InvalidEmail": "無効なメールアドレスです",
     "LegacyLink": "メール内の認証リンクは利用できません。コードを再取得してください。旧アカウントの有効化は管理者にお問い合わせください。",
     "Login": "ログイン",
     "LoginPendingVerification": "旧アカウントが有効化されていません。管理者にお問い合わせください。",
@@ -27,15 +27,15 @@
     "RememberMe": "ログインしたままにする",
     "RequestCodeFirst": "先にメール認証コードを取得してください。",
     "RequestNewCode": "新しいコードを取得してから再送信してください。",
-    "ResendCode": "コードを再送信",
+    "ResendCode": "コードを再送信 ({{seconds}}秒)",
     "ResetPasswordButton": "パスワードをリセット",
     "ResetPasswordSuccess": "リセットしました！",
     "SendCode": "コードを送信",
     "SendingCode": "送信中…",
     "TooManyRequests": "リクエストが多すぎます。しばらくしてからお試しください。",
     "Username": "ユーザー名",
-    "UsernameExists": "用户名已存在",
-    "UsernameHint": "24文字以内の英数字・アンダースコア・ハイフン",
+    "UsernameExists": "このユーザー名は既に使われています",
+    "UsernameHint": "24文字以内、半角英字と数字のみ",
     "UsernameOrEmail": "ユーザー名またはメールアドレス",
     "VerificationCode": "認証コード",
     "WaitingForCloudflareVerification": "Cloudflare 認証を待っています",
@@ -46,19 +46,18 @@
     "FilterEventTypes": "イベントタイプでフィルター："
   },
   "chart-events/EventsPage": {
-    "EventCreatedPrefix": "イベント作成日",
+    "EventCreatedAt": "イベント作成日：{{date}}",
     "EventsPageSubtitle": "MMFC、オフラインイベントなど、様々な譜面コンテストをご覧ください...",
     "Timeline": "タイムライン",
     "ViewTimeline": "イベントタイムラインを見る"
   },
   "chart-events/TimelineModal": {
-    "ActiveEvents": "個のアクティブなイベント",
+    "ActiveEvents_other": "<strong>{{count}}</strong> 個のアクティブなイベント",
     "ClickToViewDetails": "クリックして詳細を見る",
-    "Days": "日",
-    "Duration": "期間",
+    "Duration_other": "期間 {{count}} 日",
     "EventTimeline": "イベントタイムライン",
     "NoActiveEvents": "現在アクティブなイベントはありません",
-    "TimeSpan": "期間："
+    "TimeSpan_other": "期間：<strong>{{count}}</strong> 日"
   },
   "chart-events/eventsData": {
     "EventCategoryMajor": "大型イベント",
@@ -69,14 +68,7 @@
     "EventStatusEnded": "終了",
     "EventStatusOngoing": "開催中",
     "EventStatusUpcoming": "開始予定",
-    "FilterAll": "すべて",
-    "TimeDaysAgo": "日前",
-    "TimeDaysLater": "日後",
-    "TimeMonthsAgo": "ヶ月前",
-    "TimeMonthsLater": "ヶ月後",
-    "TimeToday": "今日",
-    "TimeYearsAgo": "年前",
-    "TimeYearsLater": "年後"
+    "FilterAll": "すべて"
   },
   "collection/CollectionCard": {
     "Cancel": "キャンセル",
@@ -84,12 +76,12 @@
     "ConfirmDeleteCollection": "このコレクションを削除してもよろしいですか？",
     "CountLabel": "数",
     "CreatorLabel": "クリエイター",
-    "Delete": "删除",
+    "Delete": "削除",
     "DeleteFailed": "削除失敗",
     "DeleteSuccess": "削除しました",
     "Favorite": "お気に入り",
     "NoCover": "カバーなし",
-    "NoDescription": "暂无描述",
+    "NoDescription": "説明はありません",
     "Unfavorite": "お気に入り解除"
   },
   "collection/CollectionModal": {
@@ -145,17 +137,17 @@
     "UploadDate": "新しい順"
   },
   "collection/hiroba/HirobaPage": {
-    "ClearSearch": "清空搜索",
-    "CollectionsHiroba": "歌单广场",
+    "ClearSearch": "検索をクリア",
+    "CollectionsHiroba": "コレクション広場",
     "EmptyData": "空です",
     "FrontPage": "ホームへ",
     "NextPage": "次へ",
-    "NoSearchResults": "未找到相关歌单",
-    "Page": "ページ",
-    "PageOf": "第",
-    "PreviousPage": "上一页",
-    "SearchCollectionHint": "按歌单名称或描述搜索",
-    "SearchCollectionsPlaceholder": "搜索歌单...",
+    "NoSearchResults": "該当するコレクションが見つかりません",
+    "Page": "ページ番号",
+    "PageInput": "<input/> ページ",
+    "PreviousPage": "前へ",
+    "SearchCollectionHint": "コレクション名や説明で検索",
+    "SearchCollectionsPlaceholder": "コレクションを検索...",
     "ServerError": "閉店中"
   },
   "eventTag/EventTagPage": {
@@ -164,24 +156,23 @@
     "RelatedCharts": "関連譜面"
   },
   "home/HomePage": {
-    "AllCharts": "全部谱面",
-    "ClearSearch": "清空搜索",
+    "AllCharts": "すべての譜面",
+    "ClearSearch": "検索をクリア",
     "CommentCount": "コメント数",
     "DownloadFormat": "ダウンロード形式：",
     "EmptyData": "空です",
-    "EventCreatedPrefix": "イベント作成日",
-    "EventsCount": "個のイベント",
+    "EventCreatedAt": "イベント作成日：{{date}}",
+    "EventsCount_other": "+{{count}} 個のイベント",
     "FrontPage": "ホームへ",
     "HotShort": "人気",
     "LatestActivityShort": "最近",
     "LoginForRecommend": "ログインするとおすすめが表示されます",
-    "Page": "ページ",
-    "PageOf": "第",
+    "PageInput": "<input/> ページ",
     "PersonalRecommend": "おすすめ",
     "PlayCount": "再生数",
-    "RandomRecommend": "随机推荐",
+    "RandomRecommend": "ランダムおすすめ",
     "RecommendEnd": "これ以上おすすめはありません",
-    "RefreshBatch": "换一批",
+    "RefreshBatch": "別の譜面を表示",
     "ScoreShort": "スコア",
     "SearchHintHash": "hash:xxxx でハッシュで検索",
     "SearchHintID": "id:xxxx で譜面IDで検索",
@@ -200,7 +191,7 @@
     "BackHome": "ホームに戻る",
     "Description": "申し訳ございません。お探しのページは存在しないか、削除された可能性があります。",
     "GoBack": "前のページに戻る",
-    "Redirect": "${countdown}秒後にホームページに戻ります...",
+    "Redirect": "{{countdown}}秒後にホームページに戻ります...",
     "Title": "ページが見つかりません"
   },
   "ranking/RankingPage": {
@@ -213,12 +204,6 @@
     "RecommendedChartsHint": "ここでは、過去7日間で最も人気のある譜面が選ばれますよ！",
     "Score": "評価",
     "ScoreHint": "高評価から低評価を引いたスコア"
-  },
-  "ranking/mmfc/MMFCRankingPage": {
-    "MMFCRankingDescription": "参加者のmmfc_bot譜面プレイ総合スコアランキング",
-    "MMFCRankingListDescription": "参加者のmmfc_bot譜面プレイ総合スコアランキング",
-    "MMFCRankingListTitle": "チャレンジランキング",
-    "MMFCRankingTitle": "MMFCチャレンジランキング"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "総達成率ランキング - 自作譜面鑑賞のベテランは誰？",
@@ -241,8 +226,8 @@
     "LoadFailed": "ランキングを読み込めませんでした。しばらくしてから再試行してください。",
     "Loading": "ランキングを読み込み中…",
     "Next": "次へ",
-    "Page": "ページ",
-    "Participants": "参加者：",
+    "Page": "{{page}} / {{total}} ページ",
+    "Participants": "参加者：{{count}}",
     "Previous": "前へ",
     "Rank": "順位",
     "Retry": "再試行",
@@ -278,7 +263,7 @@
     "Unavailable": "取得不可"
   },
   "shared/AuthSection": {
-    "AccountActions": "账户操作",
+    "AccountActions": "アカウント操作",
     "Login": "ログイン",
     "Register": "登録"
   },
@@ -301,10 +286,6 @@
     "Shy1": "あっ、見つかっちゃった。",
     "Shy2": "そんなにつつくと照れちゃうよ。"
   },
-  "shared/MMFCScoreCount": {
-    "FailedToLoad": "読み込みに失敗しました",
-    "NoMMFCRankingData": "ランキングデータがありません。まず参加者を追加してください"
-  },
   "shared/MajdataLogo": {
     "FUCKYOU": "クリックするな、くそったれ"
   },
@@ -314,8 +295,7 @@
     "CollectionHiroba": "コレクション広場",
     "Contest": "イベント",
     "Documentation": "ドキュメント",
-    "MMFCRanking": "MMFCランキング",
-    "NavigationMenu": "主导航",
+    "NavigationMenu": "メインナビゲーション",
     "OriginalSongs": "オリジナル楽曲",
     "Rankings": "ランキング",
     "Recommend": "おすすめ",
@@ -329,10 +309,10 @@
     "MiniGame": "ミニゲーム"
   },
   "shared/RecentActivityChart": {
-    "LatestPlay": "最近",
-    "RecentPlayActivity": "最近游玩活跃度",
-    "Times": "次",
-    "Today": "今日"
+    "LatestPlay": "最近：{{time}}",
+    "PlayCount_other": "{{count}} 回",
+    "RecentPlayActivity": "最近のプレイ状況",
+    "TodayPlayCount_other": "今日 {{count}} 回"
   },
   "shared/ScoreCount": {
     "EmptyData": "空です",
@@ -354,21 +334,21 @@
     "MyCollections": "マイコレクション",
     "PersonalHomePage": "個人ページ",
     "PersonalScores": "マイスコア",
-    "UserMenu": "用户菜单"
+    "UserMenu": "ユーザーメニュー"
   },
   "shared/header": {
     "Loading": "読み込み中..."
   },
   "shared/useCollections": {
-    "AddToCollectionSuccess": "已添加到收藏夹",
-    "OperationFailed": "操作失败",
+    "AddToCollectionSuccess": "コレクションに追加しました",
+    "OperationFailed": "操作に失敗しました",
     "RemoveFromCollection": "コレクションから削除"
   },
   "shared/useFavorites": {
-    "FavoriteSuccess": "收藏成功",
-    "OperationFailed": "操作失败",
-    "PleaseLogin": "请先登录",
-    "UnfavoriteSuccess": "已取消收藏"
+    "FavoriteSuccess": "お気に入りに追加しました",
+    "OperationFailed": "操作に失敗しました",
+    "PleaseLogin": "先にログインしてください",
+    "UnfavoriteSuccess": "お気に入りから削除しました"
   },
   "song/ChartRadar": {
     "AnalysisFailed": "この難易度を解析できませんでした",
@@ -388,9 +368,9 @@
   },
   "song/ScoreRanking": {
     "FailedToLoad": "読み込みに失敗しました",
-    "NoRecords": "暂无成绩记录",
+    "NoRecords": "スコア記録はまだありません",
     "RankingList": "ランキング",
-    "Records": "条记录"
+    "Records_other": "{{count}} 件の記録"
   },
   "song/SongComments": {
     "Cancel": "キャンセル",
@@ -412,10 +392,10 @@
     "LinkCopied": "リンクをコピーしました",
     "LoadMore": "もっと読み込む",
     "Loading": "読み込み中…",
-    "MoreReplies": "件の返信をさらに表示",
+    "MoreReplies_other": "{{count}} 件の返信をさらに表示",
     "Next": "次へ",
     "NoComments": "まだコメントはありません",
-    "Points": "ポイント",
+    "Points_other": "{{count}} ポイント",
     "Post": "投稿",
     "Posting": "送信中…",
     "Previous": "前へ",
@@ -423,9 +403,9 @@
     "RemoveConfirm": "このコメントを除去しますか？",
     "Removed": "除去しました",
     "RemovedBody": "このコメントは管理者によって除去されました",
-    "Replies": "件の返信",
+    "Replies_other": "{{count}} 件の返信",
     "Reply": "返信",
-    "ReplyTo": "返信先",
+    "ReplyTo": "{{user}} に返信",
     "Retry": "再試行",
     "Save": "保存",
     "Share": "共有",
@@ -458,16 +438,16 @@
   },
   "song/SongPage": {
     "ClipboardSuccess": "クリップボードにコピーしました",
-    "Collection": "Collection",
+    "Collection": "コレクション",
     "Download": "ダウンロード",
     "NoTags": "タグがありません",
     "SearchForArtist": "アーティストを検索",
     "SearchForTag": "タグを検索",
     "SearchForTitle": "楽曲を検索",
     "Share": "共有",
-    "SongNotFound": "歌曲不存在",
+    "SongNotFound": "曲が見つかりません",
     "Tags": "タグ",
-    "UploadTime": "UploadTime"
+    "UploadTime": "アップロード日時"
   },
   "song/VoteControl": {
     "Downvote": "低評価",
@@ -477,14 +457,14 @@
   "space/SpacePage": {
     "BackToHome": "ホームに戻る",
     "Comments": "投稿したコメント",
-    "Error": "错误",
-    "JoinAt": "登録日",
+    "Error": "エラー",
+    "JoinAt": "登録日：{{date}}",
     "NoComments": "まだコメントを投稿していません",
     "RecentlyPlayedCharts": "最近プレイした譜面",
     "SelfIntro": "自己紹介",
     "ServerError": "閉店中",
     "UploadedCharts": "アップロードされた譜面",
-    "UserNotFound": "未找到用户",
+    "UserNotFound": "ユーザーが見つかりません",
     "WhoLovesToPlay": "最もプレイしているユーザー"
   },
   "user/AvatarUploader": {
@@ -499,7 +479,7 @@
     "SelectFile": "ファイルを選択",
     "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
-    "UploadSuccess": "上传成功",
+    "UploadSuccess": "アップロードしました",
     "Uploading": "爆速アップロード中...",
     "UploadingPlzWait": "アップロード中です。しばらくお待ちください"
   },
@@ -507,17 +487,17 @@
     "BGVideoHint": "bg.mp4/pv.mp4 (オプション、20MB以内)",
     "InvalidFileName": "ファイル名が正しくありません（大文字と小文字を区別）。正しい名前：",
     "MaidataAlreadyExists": "この譜面はすでにサイト上に存在します",
-    "MaidataAlreadyExistsWithTitle": "この譜面はすでにサイト上に存在します",
+    "MaidataAlreadyExistsWithTitle": "この譜面はすでにサイト上に存在します：{{title}}",
     "MaidataHashChecking": "この譜面が既に存在するか確認しています...",
     "MaidataHashLookupFailed": "maidata.txt のハッシュ照会に失敗しました",
     "MaidataHashNotFound": "既存の譜面は見つかりませんでした",
     "MaidataWillInheritHistory": "今回のアップロードは以前のスコアまたはインタラクションを引き継ぎます",
-    "NoFileSelected": "ファイルが選択されていません: ",
+    "NoFileSelected": "ファイルが選択されていません: {{file}}",
     "NotLoggedIn": "未ログイン",
     "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
     "UploadServerErrorHint": "アップロードに失敗しました。主サイトに行ってアップロードしてください",
-    "UploadSuccess": "Upload succeeded",
+    "UploadSuccess": "アップロードしました",
     "Uploading": "爆速アップロード中...",
     "UploadingPlzWait": "アップロード中です。しばらくお待ちください",
     "View": "表示"
@@ -529,7 +509,7 @@
     "SelfIntro": "自己紹介",
     "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
-    "UploadSuccess": "Upload succeeded",
+    "UploadSuccess": "アップロードしました",
     "Uploading": "爆速アップロード中...",
     "UploadingPlzWait": "アップロード中です。しばらくお待ちください"
   },
@@ -565,16 +545,15 @@
   },
   "user/collections/CollectionPage": {
     "EmptyData": "空です",
-    "EmptyFavorites": "暂无收藏",
-    "ExitManage": "退出管理",
+    "EmptyFavorites": "お気に入りはまだありません",
+    "ExitManage": "管理を終了",
     "FrontPage": "ホームへ",
-    "Manage": "管理模式",
-    "ManageHint": "管理模式：点击歌单右上角按钮可删除歌单",
+    "Manage": "管理モード",
+    "ManageHint": "管理モード：コレクション右上のボタンで削除できます",
     "MyCollections": "マイコレクション",
-    "MyFavCollections": "订阅的歌单",
+    "MyFavCollections": "購読中のコレクション",
     "NewCollection": "新しいコレクション",
-    "Page": "ページ",
-    "PageOf": "第",
+    "PageInput": "<input/> ページ",
     "ServerError": "閉店中"
   },
   "user/profile/ProfilePage": {
@@ -584,10 +563,10 @@
     "PersonalIntro": "自己紹介"
   },
   "user/scores/ScoresPage": {
-    "FilterByCombo": "Combo筛选",
-    "FilteredCount": "筛选结果",
-    "NoFilterResults": "没有符合筛选条件的成绩",
-    "NoFilterResultsHint": "请尝试调整上方的 Combo 筛选条件",
+    "FilterByCombo": "コンボで絞り込み",
+    "FilteredCount": "絞り込み結果",
+    "NoFilterResults": "条件に一致するスコアはありません",
+    "NoFilterResultsHint": "上のコンボ条件を変更してみてください",
     "NoScores": "スコア記録がありません",
     "PersonalScores": "マイスコア",
     "ServerError": "閉店中",
@@ -597,8 +576,8 @@
     "SortByDxAcc": "DX精度",
     "SortByDxScore": "DXスコア",
     "SortByTime": "プレイ時間",
-    "TotalClassicAcc": "Classic准确率合计",
-    "TotalDxAcc": "DX准确率合计",
-    "TotalDxScore": "DX分数合计"
+    "TotalClassicAcc": "Classic精度合計",
+    "TotalDxAcc": "DX精度合計",
+    "TotalDxScore": "DXスコア合計"
   }
 }

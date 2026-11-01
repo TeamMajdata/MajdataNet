@@ -7,7 +7,6 @@ import InteractSummaryProvider from '@/components/song/InteractSummaryProvider';
 
 vi.mock('@/hooks', async () => ({
   ...(await vi.importActual<typeof import('@/hooks')>('@/hooks')),
-  useI18n: () => ({ i18n: (_key: string, fallback?: string) => fallback ?? _key, language: 'en', isReady: true }),
 }));
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -52,7 +51,7 @@ describe('InteractCount', () => {
     expect(init?.method).toBe('POST');
     expect(JSON.parse(String(init?.body))).toEqual(['a', 'b', 'c']);
     const cells = container.querySelectorAll('span[title]');
-    expect([...cells].map((cell) => cell.textContent)).toEqual(['1.5K', '7', '2', '10', '0', '0']);
+    expect([...cells].map((cell) => cell.textContent)).toEqual(['1500', '7', '2', '10', '0', '0']);
     // 批量结果里没有的谱面（例如已删除）不显示计数
     expect(container.children).toHaveLength(3);
     expect(container.children[2].textContent).toBe('');

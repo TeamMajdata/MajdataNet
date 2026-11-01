@@ -1,5 +1,7 @@
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/i18n';
 import { PiArrowFatUpBold, PiChatCircleBold, PiPlayBold } from 'react-icons/pi';
-import { useI18n, useInteractSummary } from '@/hooks';
+import { useInteractSummary } from '@/hooks';
 import { compactNumber } from '@/utils/interaction';
 import type { InteractCountProps } from '@/types';
 
@@ -8,7 +10,8 @@ import type { InteractCountProps } from '@/types';
  * 显示播放次数、分数（赞减踩）、评论数；在列表里由 InteractSummaryProvider 批量提供数据。
  */
 export default function InteractCount({ songid }: InteractCountProps) {
-  const { i18n, language } = useI18n();
+  const { t } = useTranslation();
+  const language = useLanguage();
   const summary = useInteractSummary(songid);
 
   if (summary === null) return <div></div>;
@@ -19,15 +22,15 @@ export default function InteractCount({ songid }: InteractCountProps) {
 
   return (
     <div className="flex items-center gap-1 mt-2 ml-0.5">
-      <span className={`${cell} text-white`} title={i18n("score/InteractCount.Plays", '播放')}>
+      <span className={`${cell} text-white`} title={t("score/InteractCount.Plays")}>
         <PiPlayBold className="w-3.5 h-3.5" aria-hidden="true" />
         {compactNumber(summary.plays, language)}
       </span>
-      <span className={`${cell} ${highlight(summary.score)}`} title={i18n("score/InteractCount.Score", '分数')}>
+      <span className={`${cell} ${highlight(summary.score)}`} title={t("score/InteractCount.Score")}>
         <PiArrowFatUpBold className="w-3.5 h-3.5" aria-hidden="true" />
         {compactNumber(summary.score, language)}
       </span>
-      <span className={`${cell} ${highlight(summary.comments)}`} title={i18n("score/InteractCount.Comments", '评论')}>
+      <span className={`${cell} ${highlight(summary.comments)}`} title={t("score/InteractCount.Comments")}>
         <PiChatCircleBold className="w-3.5 h-3.5" aria-hidden="true" />
         {compactNumber(summary.comments, language)}
       </span>

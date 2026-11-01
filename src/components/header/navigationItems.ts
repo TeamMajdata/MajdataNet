@@ -1,7 +1,9 @@
+import type { TranslationKey } from '@/i18n';
+
 export type NavigationLink = {
   kind: 'link';
   id: string;
-  labelKey: string;
+  labelKey: TranslationKey;
   to: string;
   external?: boolean;
   match?: 'exact' | 'prefix';
@@ -13,7 +15,7 @@ export type NavigationGroupId = 'rankings' | 'tools';
 export type NavigationGroup = {
   kind: 'group';
   id: NavigationGroupId;
-  labelKey: string;
+  labelKey: TranslationKey;
   children: readonly NavigationLink[];
 };
 
@@ -27,7 +29,6 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     children: [
       { kind: 'link', id: 'recommend-ranking', labelKey: 'shared/Navigation.Recommend', to: '/ranking', match: 'exact' },
       { kind: 'link', id: 'user-ranking', labelKey: 'shared/Navigation.UserRankingTitle', to: '/ranking/user' },
-      { kind: 'link', id: 'mmfc-ranking', labelKey: 'shared/Navigation.MMFCRanking', to: '/ranking/mmfc' },
     ],
   },
   {

@@ -1,9 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState, type FormEvent, type InputHTMLAttributes } from 'react';
 import { md5 } from 'js-md5';
 import { toast } from 'react-toastify';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { endpoints } from '@/config/api';
-import { useI18n, useUserContext } from '@/hooks';
+import { useUserContext } from '@/hooks';
 import { PageLayout } from '@/components';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { ApiError, apiRequest } from '@/utils/apiClient';
@@ -61,12 +62,11 @@ function loadTurnstileScript() {
 
 
 export default function ForginsterPage() {
-  const { i18n, isReady } = useI18n();
+  const { t } = useTranslation();
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const activeTab: TabType = pathname === '/register' ? 'register' : pathname === '/forget' ? 'forget' : 'login';
-  if (!isReady) return <LoadingSpinner size="50px" />;
 
   return (
     <PageLayout className="flex justify-center items-center min-h-[60vh]">
@@ -80,11 +80,11 @@ export default function ForginsterPage() {
                 params.delete('otp');
                 navigate({ pathname: `/${tab}`, search: params.toString() });
               }}>
-              {tab === 'login' ? i18n("auth/ForginsterPage.Login") : tab === 'register' ? i18n("auth/ForginsterPage.Register") : i18n("auth/ForginsterPage.ForgetPassword")}
+              {tab === 'login' ? t("auth/ForginsterPage.Login") : tab === 'register' ? t("auth/ForginsterPage.Register") : t("auth/ForginsterPage.ForgetPassword")}
             </button>
           ))}
         </div>
-        {searchParams.has('otp') && <p role="status" className="mb-4 text-amber-200 text-sm">{i18n("auth/ForginsterPage.LegacyLink", '邮件链接验证已停用，请重新获取验证码；旧账户激活问题请联系管理员。')}</p>}
+        {searchParams.has('otp') && <p role="status" className="mb-4 text-amber-200 text-sm">{t("auth/ForginsterPage.LegacyLink")}</p>}
         {activeTab === 'login' ? <LoginTab /> : <ChallengeTab key={activeTab} mode={activeTab} />}
       </div>
     </PageLayout>
@@ -99,29 +99,29 @@ function Field({ label, name, ...props }: InputHTMLAttributes<HTMLInputElement> 
 }
 
 function useAuthError() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   return (error: unknown) => {
     if (!(error instanceof ApiError)) {
-      toast.error(i18n("auth/ForginsterPage.NetworkError", '网络请求失败，请重试'));
+      toast.error(t("auth/ForginsterPage.NetworkError"));
       return;
     }
     if (error.status === 429) {
-      toast.error(i18n("auth/ForginsterPage.TooManyRequests", '请求过于频繁，请稍后再试'));
+      toast.error(t("auth/ForginsterPage.TooManyRequests"));
       return;
     }
     switch (error.code) {
-      case retCode.CODE_INVALID_EMAIL_ADDRESS: toast.error(i18n("auth/ForginsterPage.InvalidEmail")); break;
-      case retCode.CODE_USERNAME_ALREADY_EXISTS: toast.error(i18n("auth/ForginsterPage.UsernameExists")); break;
-      case retCode.CODE_EMAIL_ALREADY_EXISTS: toast.error(i18n("auth/ForginsterPage.EmailExists")); break;
-      case retCode.CODE_LOGIN_FAILED_PENDING_VERIFCATION: toast.error(i18n("auth/ForginsterPage.LoginPendingVerification")); break;
-      case retCode.CODE_LOGIN_FAILED_USER_BANNED: toast.error(i18n("auth/ForginsterPage.LoginUserBanned")); break;
+      case retCode.CODE_INVALID_EMAIL_ADDRESS: toast.error(t("auth/ForginsterPage.InvalidEmail")); break;
+      case retCode.CODE_USERNAME_ALREADY_EXISTS: toast.error(t("auth/ForginsterPage.UsernameExists")); break;
+      case retCode.CODE_EMAIL_ALREADY_EXISTS: toast.error(t("auth/ForginsterPage.EmailExists")); break;
+      case retCode.CODE_LOGIN_FAILED_PENDING_VERIFCATION: toast.error(t("auth/ForginsterPage.LoginPendingVerification")); break;
+      case retCode.CODE_LOGIN_FAILED_USER_BANNED: toast.error(t("auth/ForginsterPage.LoginUserBanned")); break;
       default: toast.error(error.message);
     }
   };
 }
 
 function LoginTab() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { refetch } = useUserContext();
@@ -145,20 +145,20 @@ function LoginTab() {
       const redirect = params.get('redirect');
       navigate(redirect?.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('\\') ? redirect : '/', { replace: true });
     } catch (error) {
-      if (error instanceof ApiError && error.code === retCode.CODE_INVALID_CREDENTIALS) toast.error(i18n("auth/ForginsterPage.WrongCredential"));
+      if (error instanceof ApiError && error.code === retCode.CODE_INVALID_CREDENTIALS) toast.error(t("auth/ForginsterPage.WrongCredential"));
       else showError(error);
     } finally { setBusy(false); }
   }
 
   return <div className={AUTH_CARD_CLASSNAME}>
-    <h2 className="mb-2 font-bold text-white text-3xl text-center">{i18n("auth/ForginsterPage.WelcomeBack")}</h2>
-    <p className="mb-8 text-gray-400 text-sm text-center">{i18n("auth/ForginsterPage.LoginSubtitle")}</p>
+    <h2 className="mb-2 font-bold text-white text-3xl text-center">{t("auth/ForginsterPage.WelcomeBack")}</h2>
+    <p className="mb-8 text-gray-400 text-sm text-center">{t("auth/ForginsterPage.LoginSubtitle")}</p>
     <form onSubmit={onSubmit}>
       <fieldset disabled={busy} className="flex flex-col gap-6">
-        <Field label={i18n("auth/ForginsterPage.UsernameOrEmail", '用户名或邮箱')} name="username" autoComplete="username" required />
-        <Field label={i18n("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="current-password" required />
-        <label className="flex items-center gap-2 text-white text-sm"><input type="checkbox" name="rememberMe" />{i18n("auth/ForginsterPage.RememberMe")}</label>
-        <button className={BUTTON_CLASSNAME} type="submit">{busy ? <LoadingSpinner size={24} /> : i18n("auth/ForginsterPage.Login")}</button>
+        <Field label={t("auth/ForginsterPage.UsernameOrEmail")} name="username" autoComplete="username" required />
+        <Field label={t("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="current-password" required />
+        <label className="flex items-center gap-2 text-white text-sm"><input type="checkbox" name="rememberMe" />{t("auth/ForginsterPage.RememberMe")}</label>
+        <button className={BUTTON_CLASSNAME} type="submit">{busy ? <LoadingSpinner size={24} /> : t("auth/ForginsterPage.Login")}</button>
       </fieldset>
     </form>
   </div>;
@@ -167,7 +167,7 @@ function LoginTab() {
 /** A challenge key belongs to one email address and expires after five minutes. */
 function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
   const registering = mode === 'register';
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const { refetch } = useUserContext();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -207,7 +207,7 @@ function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
       setNow(timestamp);
       setChallenge({ key, expiresAt: timestamp + 5 * 60_000 });
       setRetryAt(timestamp + 30_000);
-      toast.success(i18n("auth/ForginsterPage.CodeSent", '如果邮箱可用，验证码将发送到邮箱，请在 5 分钟内填写。'));
+      toast.success(t("auth/ForginsterPage.CodeSent"));
     } catch (error) {
       if (error instanceof ApiError && error.status === 429) {
         setNow(Date.now());
@@ -221,16 +221,16 @@ function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
     event.preventDefault();
     if (busy) return;
     if (!challenge || Date.now() >= challenge.expiresAt) {
-      toast.error(i18n("auth/ForginsterPage.RequestCodeFirst", '请先获取有效的邮箱验证码'));
+      toast.error(t("auth/ForginsterPage.RequestCodeFirst"));
       return;
     }
     const form = new FormData(event.currentTarget);
     if (form.get('password') !== form.get('password2')) {
-      toast.error(i18n("auth/ForginsterPage.PasswdNoMatch"));
+      toast.error(t("auth/ForginsterPage.PasswdNoMatch"));
       return;
     }
     if (registering && !String(form.get('cf-turnstile-response') ?? '').trim()) {
-      toast.error(i18n("auth/ForginsterPage.CloudflareVerificationNotReady"));
+      toast.error(t("auth/ForginsterPage.CloudflareVerificationNotReady"));
       return;
     }
     const password = md5(String(form.get('password')));
@@ -243,7 +243,7 @@ function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
     setSubmitting(true);
     try {
       await apiRequest(registering ? endpoints.account.register : endpoints.account.passwordResetConfirm, { method: 'POST', body: form });
-      toast.success(registering ? i18n("auth/ForginsterPage.RegisterSuccess", '注册成功，请登录') : i18n("auth/ForginsterPage.ResetPasswordSuccess"));
+      toast.success(registering ? t("auth/ForginsterPage.RegisterSuccess") : t("auth/ForginsterPage.ResetPasswordSuccess"));
       if (!registering) await refetch(); // Password reset revokes every existing session.
       const params = new URLSearchParams(search);
       params.delete('otp');
@@ -255,21 +255,24 @@ function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
       setChallenge(null);
       setCode('');
       setCaptchaVersion(value => value + 1);
-      toast.info(i18n("auth/ForginsterPage.RequestNewCode", '请重新获取验证码后再提交'));
+      toast.info(t("auth/ForginsterPage.RequestNewCode"));
     } finally { setSubmitting(false); }
   }
 
   return <div className={AUTH_CARD_CLASSNAME}>
-    <h2 className="mb-2 font-bold text-white text-3xl text-center">{registering ? i18n("auth/ForginsterPage.CreateAccount") : i18n("auth/ForginsterPage.ForgetPasswordTitle")}</h2>
-    <p className="mb-8 text-gray-400 text-sm text-center">{registering ? i18n("auth/ForginsterPage.RegisterSubtitle") : i18n("auth/ForginsterPage.ForgetPasswordSubtitle")}</p>
+    <h2 className="mb-2 font-bold text-white text-3xl text-center">{registering ? t("auth/ForginsterPage.CreateAccount") : t("auth/ForginsterPage.ForgetPasswordTitle")}</h2>
+    <p className="mb-8 text-gray-400 text-sm text-center">{registering ? t("auth/ForginsterPage.RegisterSubtitle") : t("auth/ForginsterPage.ForgetPasswordSubtitle")}</p>
     <form onSubmit={onSubmit}>
       <fieldset disabled={busy} className="flex flex-col gap-5">
         {registering && <>
-          <Field label={i18n("auth/ForginsterPage.Username")} name="username" autoComplete="username" maxLength={24} pattern="[A-Za-z0-9_-]+" title={i18n("auth/ForginsterPage.UsernameHint", '最多 24 位，仅限字母、数字、下划线和连字符')} required />
-          <Field label={i18n("auth/ForginsterPage.Nickname", '昵称')} name="nickname" autoComplete="nickname" required />
+          <Field label={t("auth/ForginsterPage.Username")} name="username" autoComplete="username" maxLength={24} pattern="[A-Za-z0-9]+"
+            placeholder={t("auth/ForginsterPage.UsernameHint")}
+            onInvalid={event => event.currentTarget.setCustomValidity(event.currentTarget.validity.patternMismatch ? t("auth/ForginsterPage.UsernameHint") : '')}
+            onInput={event => event.currentTarget.setCustomValidity('')} required />
+          <Field label={t("auth/ForginsterPage.Nickname")} name="nickname" autoComplete="nickname" required />
         </>}
         <label className="flex flex-col gap-2 text-white text-sm">
-          <span>{i18n("auth/ForginsterPage.EmailLabel")}</span>
+          <span>{t("auth/ForginsterPage.EmailLabel")}</span>
           <input ref={emailRef} className={INPUT_CLASSNAME} name="email" type="email" autoComplete="email" required value={email} onChange={event => {
             setEmail(event.target.value);
             setChallenge(null);
@@ -277,15 +280,15 @@ function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
           }} />
         </label>
         <button className={BUTTON_CLASSNAME} type="button" disabled={busy || seconds > 0} onClick={sendCode}>
-          {sending ? i18n("auth/ForginsterPage.SendingCode", '正在发送…') : seconds > 0 ? `${i18n("auth/ForginsterPage.ResendCode", '重新发送')} (${seconds}s)` : i18n("auth/ForginsterPage.SendCode", '发送验证码')}
+          {sending ? t("auth/ForginsterPage.SendingCode") : seconds > 0 ? t("auth/ForginsterPage.ResendCode", { seconds }) : t("auth/ForginsterPage.SendCode")}
         </button>
-        <p role="status" className="text-gray-400 text-sm">{expired ? i18n("auth/ForginsterPage.CodeExpired", '验证码已过期，请重新获取') : challenge ? i18n("auth/ForginsterPage.CodeSent") : i18n("auth/ForginsterPage.RequestCodeFirst")}</p>
-        <Field label={i18n("auth/ForginsterPage.VerificationCode")} name="challengeCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" maxLength={8} minLength={8} placeholder={i18n("auth/ForginsterPage.EightDigitCode", '8 位数字验证码')} value={code} onChange={event => setCode(event.target.value)} required />
-        <Field label={i18n("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="new-password" required />
-        <Field label={i18n("auth/ForginsterPage.ConfirmPassword")} name="password2" type="password" autoComplete="new-password" required />
+        <p role="status" className="text-gray-400 text-sm">{expired ? t("auth/ForginsterPage.CodeExpired") : challenge ? t("auth/ForginsterPage.CodeSent") : t("auth/ForginsterPage.RequestCodeFirst")}</p>
+        <Field label={t("auth/ForginsterPage.VerificationCode")} name="challengeCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" maxLength={8} minLength={8} placeholder={t("auth/ForginsterPage.EightDigitCode")} value={code} onChange={event => setCode(event.target.value)} required />
+        <Field label={t("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="new-password" required />
+        <Field label={t("auth/ForginsterPage.ConfirmPassword")} name="password2" type="password" autoComplete="new-password" required />
         {registering && <TurnstileWidget key={captchaVersion} />}
         <button className={BUTTON_CLASSNAME} type="submit" disabled={busy || !challenge || expired}>
-          {submitting ? <LoadingSpinner size={24} /> : registering ? i18n("auth/ForginsterPage.Register") : i18n("auth/ForginsterPage.ResetPasswordButton")}
+          {submitting ? <LoadingSpinner size={24} /> : registering ? t("auth/ForginsterPage.Register") : t("auth/ForginsterPage.ResetPasswordButton")}
         </button>
       </fieldset>
     </form>
@@ -293,7 +296,7 @@ function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
 }
 
 function TurnstileWidget() {
-  const { i18n } = useI18n();
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -336,7 +339,7 @@ function TurnstileWidget() {
       {!isVisible && (
         <div className="absolute inset-0 flex items-center gap-3 bg-black/35 px-4 border border-white/15 border-dashed rounded-lg text-[#b8c7db] text-sm">
           <span className="inline-block border-2 border-blue-400/30 border-t-blue-400 rounded-full w-5 h-5 animate-spin" aria-hidden="true" />
-          <span>{i18n("auth/ForginsterPage.WaitingForCloudflareVerification", '等待 Cloudflare 验证')}</span>
+          <span>{t("auth/ForginsterPage.WaitingForCloudflareVerification")}</span>
         </div>
       )}
     </div>

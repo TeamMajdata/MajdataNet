@@ -6,12 +6,12 @@
     "ConfirmPassword": "Confirm Password",
     "CreateAccount": "Create Account",
     "EightDigitCode": "8-digit verification code",
-    "EmailExists": "邮箱已被注册",
+    "EmailExists": "This email is already registered",
     "EmailLabel": "E-Mail",
     "ForgetPassword": "Forgot Password",
     "ForgetPasswordSubtitle": "Enter your registered email, request a code, and set a new password.",
     "ForgetPasswordTitle": "Forgot Password",
-    "InvalidEmail": "无效的邮箱地址",
+    "InvalidEmail": "Invalid email address",
     "LegacyLink": "Email verification links are no longer supported. Request a new code; contact an administrator for legacy account activation.",
     "Login": "Login",
     "LoginPendingVerification": "This legacy account is not activated. Please contact an administrator.",
@@ -27,15 +27,15 @@
     "RememberMe": "Remember Me",
     "RequestCodeFirst": "Request an email verification code first.",
     "RequestNewCode": "Request a new code before submitting again.",
-    "ResendCode": "Resend code",
+    "ResendCode": "Resend code ({{seconds}}s)",
     "ResetPasswordButton": "Reset Password",
     "ResetPasswordSuccess": "Reset successful!",
     "SendCode": "Send code",
     "SendingCode": "Sending…",
     "TooManyRequests": "Too many requests. Please try again later.",
     "Username": "Username",
-    "UsernameExists": "用户名已存在",
-    "UsernameHint": "Up to 24 letters, numbers, underscores or hyphens",
+    "UsernameExists": "Username already exists",
+    "UsernameHint": "Up to 24 characters, English letters and numbers only",
     "UsernameOrEmail": "Username or email",
     "VerificationCode": "Verification code",
     "WaitingForCloudflareVerification": "Waiting for Cloudflare verification",
@@ -46,19 +46,21 @@
     "FilterEventTypes": "Filter Event Types:"
   },
   "chart-events/EventsPage": {
-    "EventCreatedPrefix": "Event created at",
+    "EventCreatedAt": "Event created on {{date}}",
     "EventsPageSubtitle": "Browse various chart contests such as MMFC, offline events, etc...",
     "Timeline": "Timeline",
     "ViewTimeline": "View Event Timeline"
   },
   "chart-events/TimelineModal": {
-    "ActiveEvents": "active events",
+    "ActiveEvents_one": "<strong>{{count}}</strong> active event",
+    "ActiveEvents_other": "<strong>{{count}}</strong> active events",
     "ClickToViewDetails": "Click to view details",
-    "Days": "days",
-    "Duration": "Duration",
+    "Duration_one": "Duration: {{count}} day",
+    "Duration_other": "Duration: {{count}} days",
     "EventTimeline": "Event Timeline",
     "NoActiveEvents": "No active events currently",
-    "TimeSpan": "Time Span:"
+    "TimeSpan_one": "Time span: <strong>{{count}}</strong> day",
+    "TimeSpan_other": "Time span: <strong>{{count}}</strong> days"
   },
   "chart-events/eventsData": {
     "EventCategoryMajor": "Major Events",
@@ -69,14 +71,7 @@
     "EventStatusEnded": "Ended",
     "EventStatusOngoing": "Ongoing",
     "EventStatusUpcoming": "Upcoming",
-    "FilterAll": "All",
-    "TimeDaysAgo": "days ago",
-    "TimeDaysLater": "days later",
-    "TimeMonthsAgo": "months ago",
-    "TimeMonthsLater": "months later",
-    "TimeToday": "Today",
-    "TimeYearsAgo": "years ago",
-    "TimeYearsLater": "years later"
+    "FilterAll": "All"
   },
   "collection/CollectionCard": {
     "Cancel": "Cancel",
@@ -84,12 +79,12 @@
     "ConfirmDeleteCollection": "Confirm delete this collection?",
     "CountLabel": "Count",
     "CreatorLabel": "Creator",
-    "Delete": "删除",
+    "Delete": "Delete",
     "DeleteFailed": "Delete failed",
     "DeleteSuccess": "Deleted successfully",
     "Favorite": "Favorite",
     "NoCover": "No Cover",
-    "NoDescription": "暂无描述",
+    "NoDescription": "No description",
     "Unfavorite": "Unfavorite"
   },
   "collection/CollectionModal": {
@@ -145,17 +140,17 @@
     "UploadDate": "Date"
   },
   "collection/hiroba/HirobaPage": {
-    "ClearSearch": "清空搜索",
-    "CollectionsHiroba": "歌单广场",
+    "ClearSearch": "Clear search",
+    "CollectionsHiroba": "Collections",
     "EmptyData": "Empty",
     "FrontPage": "Back to First Page",
     "NextPage": "Next",
-    "NoSearchResults": "未找到相关歌单",
-    "Page": "page",
-    "PageOf": "Page",
-    "PreviousPage": "上一页",
-    "SearchCollectionHint": "按歌单名称或描述搜索",
-    "SearchCollectionsPlaceholder": "搜索歌单...",
+    "NoSearchResults": "No matching collections found",
+    "Page": "Page number",
+    "PageInput": "Page <input/>",
+    "PreviousPage": "Previous",
+    "SearchCollectionHint": "Search by collection name or description",
+    "SearchCollectionsPlaceholder": "Search collections...",
     "ServerError": "Server Error"
   },
   "eventTag/EventTagPage": {
@@ -165,23 +160,23 @@
   },
   "home/HomePage": {
     "AllCharts": "All Charts",
-    "ClearSearch": "清空搜索",
+    "ClearSearch": "Clear search",
     "CommentCount": "Comments",
     "DownloadFormat": "Download Format:",
     "EmptyData": "Empty",
-    "EventCreatedPrefix": "Event created at",
-    "EventsCount": "events",
+    "EventCreatedAt": "Event created on {{date}}",
+    "EventsCount_one": "+{{count}} event",
+    "EventsCount_other": "+{{count}} events",
     "FrontPage": "Back to First Page",
     "HotShort": "Hot",
     "LatestActivityShort": "Active",
     "LoginForRecommend": "Log in to get personalized recommendations",
-    "Page": "page",
-    "PageOf": "Page",
+    "PageInput": "Page <input/>",
     "PersonalRecommend": "For You",
     "PlayCount": "Plays",
     "RandomRecommend": "Random Recommend",
     "RecommendEnd": "No more recommendations",
-    "RefreshBatch": "换一批",
+    "RefreshBatch": "Show others",
     "ScoreShort": "Score",
     "SearchHintHash": "hash:xxxx to search by chart hash",
     "SearchHintID": "id:xxxx to search by chart ID",
@@ -200,7 +195,7 @@
     "BackHome": "Back to Home",
     "Description": "Sorry, the page you are looking for does not exist or has been removed.",
     "GoBack": "Go Back",
-    "Redirect": "Redirecting to home page in ${countdown} seconds...",
+    "Redirect": "Redirecting to home page in {{countdown}} seconds...",
     "Title": "Page Not Found"
   },
   "ranking/RankingPage": {
@@ -213,12 +208,6 @@
     "RecommendedChartsHint": "Here choose the most favorable charts in 7 days!",
     "Score": "Score",
     "ScoreHint": "Upvotes minus downvotes"
-  },
-  "ranking/mmfc/MMFCRankingPage": {
-    "MMFCRankingDescription": "Shows participants' total scores for playing mmfc_bot's charts",
-    "MMFCRankingListDescription": "Total scores ranking of participants playing mmfc_bot's charts",
-    "MMFCRankingListTitle": "Challenge Rankings",
-    "MMFCRankingTitle": "MMFC Challenge Ranking"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "Total Achievement Rate Ranking - Who is the top of chart appreciation?",
@@ -241,8 +230,8 @@
     "LoadFailed": "Could not load the leaderboard. Please try again later.",
     "Loading": "Loading leaderboard…",
     "Next": "Next",
-    "Page": "Page",
-    "Participants": "Participants: ",
+    "Page": "Page {{page}} / {{total}}",
+    "Participants": "Participants: {{count}}",
     "Previous": "Previous",
     "Rank": "Rank",
     "Retry": "Retry",
@@ -278,7 +267,7 @@
     "Unavailable": "Unavailable"
   },
   "shared/AuthSection": {
-    "AccountActions": "账户操作",
+    "AccountActions": "Account actions",
     "Login": "Login",
     "Register": "Register"
   },
@@ -301,10 +290,6 @@
     "Shy1": "Hey, you found me!",
     "Shy2": "Keep poking and I'll get shy."
   },
-  "shared/MMFCScoreCount": {
-    "FailedToLoad": "Failed to load",
-    "NoMMFCRankingData": "No ranking data available. Please add participants first"
-  },
   "shared/MajdataLogo": {
     "FUCKYOU": "DONT TOUCH ME FUCK YOU SON OF A BITCH"
   },
@@ -314,8 +299,7 @@
     "CollectionHiroba": "Collections",
     "Contest": "Events",
     "Documentation": "Documentation",
-    "MMFCRanking": "MMFC Ranking",
-    "NavigationMenu": "主导航",
+    "NavigationMenu": "Main navigation",
     "OriginalSongs": "Original Songs",
     "Rankings": "Rankings",
     "Recommend": "Recommended Charts",
@@ -329,10 +313,12 @@
     "MiniGame": "Mini Game"
   },
   "shared/RecentActivityChart": {
-    "LatestPlay": "最近",
-    "RecentPlayActivity": "最近游玩活跃度",
-    "Times": "次",
-    "Today": "今日"
+    "LatestPlay": "Latest: {{time}}",
+    "PlayCount_one": "{{count}} play",
+    "PlayCount_other": "{{count}} plays",
+    "RecentPlayActivity": "Recent play activity",
+    "TodayPlayCount_one": "Today: {{count}} play",
+    "TodayPlayCount_other": "Today: {{count}} plays"
   },
   "shared/ScoreCount": {
     "EmptyData": "Empty",
@@ -354,21 +340,21 @@
     "MyCollections": "My Collections",
     "PersonalHomePage": "Home Page",
     "PersonalScores": "My Scores",
-    "UserMenu": "用户菜单"
+    "UserMenu": "User menu"
   },
   "shared/header": {
     "Loading": "Loading..."
   },
   "shared/useCollections": {
-    "AddToCollectionSuccess": "已添加到收藏夹",
-    "OperationFailed": "操作失败",
+    "AddToCollectionSuccess": "Added to collection",
+    "OperationFailed": "Operation failed",
     "RemoveFromCollection": "Remove from Collection"
   },
   "shared/useFavorites": {
-    "FavoriteSuccess": "收藏成功",
-    "OperationFailed": "操作失败",
-    "PleaseLogin": "请先登录",
-    "UnfavoriteSuccess": "已取消收藏"
+    "FavoriteSuccess": "Added to favorites",
+    "OperationFailed": "Operation failed",
+    "PleaseLogin": "Please log in first",
+    "UnfavoriteSuccess": "Removed from favorites"
   },
   "song/ChartRadar": {
     "AnalysisFailed": "This difficulty could not be analyzed",
@@ -388,9 +374,10 @@
   },
   "song/ScoreRanking": {
     "FailedToLoad": "Failed to load",
-    "NoRecords": "暂无成绩记录",
+    "NoRecords": "No score records yet",
     "RankingList": "Ranking List",
-    "Records": "条记录"
+    "Records_one": "{{count}} record",
+    "Records_other": "{{count}} records"
   },
   "song/SongComments": {
     "Cancel": "Cancel",
@@ -412,10 +399,12 @@
     "LinkCopied": "Link copied",
     "LoadMore": "Load more comments",
     "Loading": "Loading…",
-    "MoreReplies": "more replies",
+    "MoreReplies_one": "{{count}} more reply",
+    "MoreReplies_other": "{{count}} more replies",
     "Next": "Next",
     "NoComments": "No comments yet",
-    "Points": "points",
+    "Points_one": "{{count}} point",
+    "Points_other": "{{count}} points",
     "Post": "Post",
     "Posting": "Posting…",
     "Previous": "Previous",
@@ -423,9 +412,10 @@
     "RemoveConfirm": "Remove this comment?",
     "Removed": "Comment removed",
     "RemovedBody": "This comment was removed by a moderator",
-    "Replies": "replies",
+    "Replies_one": "{{count}} reply",
+    "Replies_other": "{{count}} replies",
     "Reply": "Reply",
-    "ReplyTo": "Reply to",
+    "ReplyTo": "Reply to {{user}}",
     "Retry": "Retry",
     "Save": "Save",
     "Share": "Share",
@@ -465,9 +455,9 @@
     "SearchForTag": "Search for tag",
     "SearchForTitle": "Search for title",
     "Share": "Share",
-    "SongNotFound": "歌曲不存在",
+    "SongNotFound": "Song not found",
     "Tags": "Tags",
-    "UploadTime": "UploadTime"
+    "UploadTime": "Upload time"
   },
   "song/VoteControl": {
     "Downvote": "Downvote",
@@ -477,14 +467,14 @@
   "space/SpacePage": {
     "BackToHome": "Back to Home",
     "Comments": "Comments",
-    "Error": "错误",
-    "JoinAt": "Join at",
+    "Error": "Error",
+    "JoinAt": "Joined {{date}}",
     "NoComments": "No comments yet",
     "RecentlyPlayedCharts": "Recently Played Charts",
     "SelfIntro": "Self-Intro",
     "ServerError": "Server Error",
     "UploadedCharts": "Uploaded Charts",
-    "UserNotFound": "未找到用户",
+    "UserNotFound": "User not found",
     "WhoLovesToPlay": "Top Players"
   },
   "user/AvatarUploader": {
@@ -499,7 +489,7 @@
     "SelectFile": "Select File",
     "Upload": "Upload",
     "UploadFailed": "Upload failed",
-    "UploadSuccess": "上传成功",
+    "UploadSuccess": "Upload succeeded",
     "Uploading": "Uploading...",
     "UploadingPlzWait": "Uploading, plz wait!"
   },
@@ -507,12 +497,12 @@
     "BGVideoHint": "bg.mp4/pv.mp4 (Optional, Max 20MB)",
     "InvalidFileName": "Invalid file name (case-sensitive). Expected: ",
     "MaidataAlreadyExists": "This chart already exists on the site",
-    "MaidataAlreadyExistsWithTitle": "This chart already exists on the site",
+    "MaidataAlreadyExistsWithTitle": "This chart already exists on the site: {{title}}",
     "MaidataHashChecking": "Checking whether this chart already exists...",
     "MaidataHashLookupFailed": "Failed to query maidata.txt hash",
     "MaidataHashNotFound": "No existing chart found",
     "MaidataWillInheritHistory": "This upload will inherit previous scores or interactions",
-    "NoFileSelected": "No file selected for ",
+    "NoFileSelected": "No file selected for {{file}}",
     "NotLoggedIn": "Not logged in",
     "Upload": "Upload",
     "UploadFailed": "Upload failed",
@@ -565,16 +555,15 @@
   },
   "user/collections/CollectionPage": {
     "EmptyData": "Empty",
-    "EmptyFavorites": "暂无收藏",
+    "EmptyFavorites": "No favorites yet",
     "ExitManage": "Exit Manage",
     "FrontPage": "Back to First Page",
     "Manage": "Manage",
-    "ManageHint": "管理模式：点击歌单右上角按钮可删除歌单",
+    "ManageHint": "Manage mode: use the button at the top-right of a collection to delete it",
     "MyCollections": "My Collections",
     "MyFavCollections": "My Favorites",
     "NewCollection": "New Collection",
-    "Page": "page",
-    "PageOf": "Page",
+    "PageInput": "Page <input/>",
     "ServerError": "Server Error"
   },
   "user/profile/ProfilePage": {
@@ -584,10 +573,10 @@
     "PersonalIntro": "Personal Introduction"
   },
   "user/scores/ScoresPage": {
-    "FilterByCombo": "Combo筛选",
-    "FilteredCount": "筛选结果",
-    "NoFilterResults": "没有符合筛选条件的成绩",
-    "NoFilterResultsHint": "请尝试调整上方的 Combo 筛选条件",
+    "FilterByCombo": "Filter by combo",
+    "FilteredCount": "Filtered",
+    "NoFilterResults": "No scores match the filters",
+    "NoFilterResultsHint": "Try adjusting the combo filters above",
     "NoScores": "No score records yet",
     "PersonalScores": "My Scores",
     "ServerError": "Server Error",
@@ -597,8 +586,8 @@
     "SortByDxAcc": "DX Accuracy",
     "SortByDxScore": "DX Score",
     "SortByTime": "Play Time",
-    "TotalClassicAcc": "Classic准确率合计",
-    "TotalDxAcc": "DX准确率合计",
-    "TotalDxScore": "DX分数合计"
+    "TotalClassicAcc": "Total Classic accuracy",
+    "TotalDxAcc": "Total DX accuracy",
+    "TotalDxScore": "Total DX score"
   }
 }

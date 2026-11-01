@@ -1,15 +1,9 @@
-import type { Language } from '@/types';
-
-const INTL_LOCALES: Record<Language, string> = { en: 'en', zh: 'zh-CN', ja: 'ja', ko: 'ko' };
-
-/** Intl 所用的区域标识。 */
-export function intlLocale(language: Language): string {
-  return INTL_LOCALES[language] ?? 'en';
-}
+import type { Language } from '@/config/i18n';
+import { getLocale } from '@/i18n';
 
 /** 紧凑数字：1234 → 1.2K，按当前语言格式化。 */
 export function compactNumber(value: number, language: Language): string {
-  return new Intl.NumberFormat(intlLocale(language), {
+  return new Intl.NumberFormat(getLocale(language), {
     notation: 'compact',
     maximumFractionDigits: 1,
   }).format(value);
