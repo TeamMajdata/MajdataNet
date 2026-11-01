@@ -114,7 +114,7 @@ export default function SongPage() {
         <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
         <ScoreRanking songid={param} />
         <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
-        <CommentSection chartId={param} uploader={songData.uploader} commentCount={0} focusId={focusedComment} />
+        <CommentSection chartId={param} uploader={songData.uploader} focusId={focusedComment} />
       </PageLayout>
     </>
   );

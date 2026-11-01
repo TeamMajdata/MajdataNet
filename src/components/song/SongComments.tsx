@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { getLocale, useLanguage } from '@/i18n';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -26,13 +27,14 @@ import {
 import { endpoints } from '@/config/api';
 import { LoadingSpinner } from '@/components';
 import { useIsAdministrator, useUserContext } from '@/hooks';
-import { apiRequest, jsonRequest } from '@/utils/apiClient';
+import { apiFetcher, apiRequest, jsonRequest } from '@/utils/apiClient';
 import { VoteControl } from './VoteControl';
 import { loginPath } from '@/utils/interaction';
 import remarkMentions from '@/utils/remarkMentions';
 import { commentPermalink, countTree, mapTree, planReplies, purge, toPlaceholder, type FoldPolicy } from './commentTree';
 import { COMMENT_SORTS } from '@/types';
 import type {
+  ChartInteractSummary,
   Comment,
   CommentDeletion,
   CommentList,
@@ -489,13 +491,11 @@ export interface CommentSectionProps {
   chartId: string;
   /** 上传者用户名，给其评论加标记。 */
   uploader: string;
-  /** 互动记录里的存活评论数，用于标题；评论增减后在本地跟着变。 */
-  commentCount: number;
   /** 只看这一条评论及其回复（永久链接）。 */
   focusId?: string;
 }
 
-export function CommentSection({ chartId, uploader, commentCount, focusId }: CommentSectionProps) {
+export function CommentSection({ chartId, uploader, focusId }: CommentSectionProps) {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const location = useLocation();
@@ -507,16 +507,17 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
   const requestKey = `${chartId}|${focusId ?? ''}|${sort}|${attempt}`;
   const [listing, setListing] = useState<{ key: string; items: Comment[]; total: number; page: number } | null>(null);
   const [failure, setFailure] = useState<{ key: string; message: string } | null>(null);
-  const [countChange, setCountChange] = useState<{ key: string; delta: number }>({ key: requestKey, delta: 0 });
-  const [loadedCount, setLoadedCount] = useState<{ key: string; count: number } | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const section = useRef<HTMLElement>(null);
   const current = listing?.key === requestKey ? listing : null;
   const error = failure?.key === requestKey ? failure.message : '';
-  const baseCount = loadedCount?.key === requestKey ? loadedCount.count : commentCount;
-  const count = baseCount + (countChange.key === requestKey ? countChange.delta : 0);
+  // 标题里的评论数取自互动记录，与投票面板共用同一个 interactsum 缓存（同一次请求），永久链接视图也能显示；
+  // 评论增减时直接改这份缓存
+  const { data: summary, mutate: mutateSummary } = useSWR<ChartInteractSummary>(endpoints.maichart.interactsum(chartId), apiFetcher, {
+    revalidateOnFocus: false,
+  });
   const changeCount = (delta: number) =>
-    setCountChange((c) => (c.key === requestKey ? { key: requestKey, delta: c.delta + delta } : { key: requestKey, delta }));
+    void mutateSummary((s) => s && { ...s, comments: Math.max(0, s.comments + delta) }, { revalidate: false });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -525,10 +526,7 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
           items: [r.item],
           total: 1,
         }))
-      : apiRequest<CommentPage>(endpoints.maichart.comments(chartId, sort, 1), { signal: controller.signal }).then((r) => {
-          setLoadedCount({ key: requestKey, count: r.commentCount });
-          return r;
-        });
+      : apiRequest<CommentPage>(endpoints.maichart.comments(chartId, sort, 1), { signal: controller.signal });
     request
       .then((r) => {
         if (controller.signal.aborted) return;
@@ -614,7 +612,7 @@ export function CommentSection({ chartId, uploader, commentCount, focusId }: Com
         <h2 id="comments-heading" className="flex items-center gap-2 m-0 font-semibold text-white text-xl whitespace-nowrap shrink-0" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>
           <PiChatCircleBold aria-hidden="true" />
           {t("song/SongComments.Comments")}
-          <span className="font-normal text-white/60 text-base tabular-nums">{count}</span>
+          {summary && <span className="font-normal text-white/60 text-base tabular-nums">{summary.comments}</span>}
         </h2>
         <label className="flex items-center gap-2 text-white/60 text-sm shrink-0">
           <span>{t("song/SongComments.SortBy")}</span>
