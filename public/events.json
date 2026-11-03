@@ -1,4 +1,16 @@
 [
+    {
+    "id": "xmmcg7",
+    "type": "space",
+    "asset": "xmmcg7",
+    "src": "/events/xmmcg7banner.png",
+    "alt": "xmmcg7",
+    "title": "小妹妹唱歌7",
+    "category": 2,
+    "createDate": "2026-11-03",
+    "endDate": "2026-12-20",
+    "description": "二次偶像主题的比赛，本届返璞归真，赛事网站xmmcg.majdata.net。主办 -> SniperPigeon"
+  },
   {
     "id": "ZJU5th",
     "type": "space",
