@@ -1,5 +1,17 @@
 [
-    {
+  {
+    "id": "mifc",
+    "type": "outerLink",
+    "asset": "https://mmfc.top/contests/mifc",
+    "src": "/events/mifc.jpg",
+    "alt": "MIFC",
+    "title": "MIFC第一届：The Grand Convergence",
+    "category": 4,
+    "createDate": "2026-11-1",
+    "endDate": "2026-12-19",
+    "description": "Maimai国际自制谱大赛（Maimai International Fanchart Contest，简称MIFC）由Aza主办，是Maimai月度自制谱大赛（MMFC）的衍生赛事。"
+  },
+  {
     "id": "xmmcg7",
     "type": "space",
     "asset": "xmmcg7",
