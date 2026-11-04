@@ -344,11 +344,9 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   const [currentValue, setCurrentValue] = useState(initS);
 
 
-  // 与 SORT_WORDS 一一对应
   const sortOptions = [
     t("home/HomePage.LatestActivityShort"),
-    t("home/HomePage.HotShort"),
-    t("home/HomePage.ScoreShort"),
+    t("home/HomePage.LikeCount"),
     t("home/HomePage.CommentCount"),
     t("home/HomePage.PlayCount"),
     t("home/HomePage.UploadDate"),
@@ -479,8 +477,7 @@ const RECOMMEND_MAX_PAGE = 100; // 与后端 feed 的 page 上限一致
 const clampRecommendPage = (page: number) =>
   Number.isInteger(page) ? Math.min(Math.max(page, 0), RECOMMEND_MAX_PAGE) : 0;
 
-// 默认按最近活跃；hotp 为 Reddit 式热门（分数对数 + 上传时间），topp 为赞减踩
-const SORT_WORDS = ['', 'hotp', 'topp', 'commp', 'playp', 'timep'];
+const SORT_WORDS = ['', 'likep', 'commp', 'playp', 'timep'];
 
 // URL 里的数字参数：缺省、非法或越界一律视为 0
 const parseIndexParam = (value: string | null, max: number) => {

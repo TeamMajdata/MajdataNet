@@ -12,8 +12,9 @@ import {
   TagManageWidget,
   TagManageTagLauncher,
   SongDifficultyLevels,
-  CommentSection,
-  ChartVotePanel,
+  CommentSender,
+  CommentList,
+  LikeSender,
   ScoreRanking,
   CollectionModal,
   LoadingSpinner,
@@ -32,7 +33,6 @@ export default function SongPage() {
   const [songData, setSongData] = useState<SongSummary | null>(null);
   const [searchParams] = useSearchParams();
   const param = searchParams.get('id');
-  const focusedComment = searchParams.get('comment') ?? undefined;
 
   useEffect(() => {
     if (!param) return;
@@ -114,7 +114,8 @@ export default function SongPage() {
         <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
         <ScoreRanking songid={param} />
         <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
-        <CommentSection chartId={param} uploader={songData.uploader} focusId={focusedComment} />
+        <CommentSender songid={param} />
+        <CommentList songid={param} />
       </PageLayout>
     </>
   );
@@ -339,7 +340,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
             </div>
           </div>
 
-          {/* ID/HASH/投票面板 */}
+          {/* ID/HASH/点赞面板 */}
           <div className="relative flex flex-col bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl min-w-0 overflow-hidden transition-all duration-300">
             <div className="gap-y-3 grid grid-cols-[64px_minmax(0,1fr)] sm:grid-cols-[80px_minmax(0,1fr)] text-sm">
               <span className="text-white/40">ID</span>
@@ -378,7 +379,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
 
             <div className="my-3 border-white/10 border-t"></div>
 
-            <ChartVotePanel songid={o.id} />
+            <LikeSender songid={o.id} />
           </div>
           <ChartRadar id={o.id} hash={o.hash} chartLevel={chartLevel} />
         </aside>

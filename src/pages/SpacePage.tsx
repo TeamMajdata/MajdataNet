@@ -8,7 +8,7 @@ import { getLocale, useLanguage } from '@/i18n';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
-import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner, CommentListView } from '@/components';
+import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -32,8 +32,7 @@ const slideInUp: Variants = {
   }),
 };
 
-import { apiFetcher as fetcher, apiRequest } from '@/utils/apiClient';
-import type { CommentList } from '@/types';
+import { apiFetcher as fetcher } from '@/utils/apiClient';
 
 export default function SpacePage() {
   const { t } = useTranslation();
@@ -119,32 +118,6 @@ export default function SpacePage() {
           />
         </motion.section>
       )}
-
-      {/* Comments */}
-      <motion.section
-        className="mb-12"
-        initial="hidden"
-        animate="visible"
-        custom={0.5}
-        variants={slideInUp}
-      >
-        <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-          {t("space/SpacePage.Comments")}
-        </h2>
-        <div
-          className="relative mx-auto my-8 border-0 w-[70%] h-px"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-          }}
-        />
-        <div className="mx-auto w-full md:w-[82%] lg:w-[70%]">
-          <CommentListView
-            key={username}
-            load={(page, signal) => apiRequest<CommentList>(endpoints.account.comments(username, 'new', page), { signal })}
-            empty={t("space/SpacePage.NoComments")}
-          />
-        </div>
-      </motion.section>
 
       {/* Who Loves To Play */}
       {hasUploadedCharts === true && (

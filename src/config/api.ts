@@ -32,8 +32,6 @@ export const endpoints = {
   account: {
     profile: (username?: string) => `${apiroot3}/account/profile${username ? `?username=${encodeURIComponent(username)}` : ''}`,
     updateProfile: `${apiroot3}/account/profile`,
-    // 当前会话，groups 是这个会话实际能用的用户组
-    session: `${apiroot3}/account/session`,
     login: `${apiroot3}/account/Login`,
     logout: `${apiroot3}/account/Logout`,
     register: `${apiroot3}/account/Register`,
@@ -44,15 +42,6 @@ export const endpoints = {
     avatar: (avatarId: string) => `${apiroot3}/avatar/${encodeURIComponent(avatarId)}`,
     recent: (username: string) => `${apiroot3}/account/recent?username=${encodeURIComponent(username)}`,
     scores: `${apiroot3}/account/scores`,
-    // 某个用户发表的评论（平铺、分页），sort 只接受 new / top
-    comments: (username: string, sort: string, page: number) =>
-      `${apiroot3}/account/comments?username=${encodeURIComponent(username)}&sort=${sort}&page=${page}`,
-  },
-  // 评论：永久链接、编辑/删除、投票
-  comment: {
-    thread: (id: string, sort: string) => `${apiroot3}/comment/${encodeURIComponent(id)}?sort=${sort}`,
-    item: (id: string) => `${apiroot3}/comment/${encodeURIComponent(id)}`,
-    vote: (id: string) => `${apiroot3}/comment/${encodeURIComponent(id)}/vote`,
   },
   maichart: {
     list: `${apiroot3}/maichart/list`,
@@ -66,12 +55,8 @@ export const endpoints = {
     radar: (id: string, chartLevel: number) => `${apiroot3}/maichart/${encodeURIComponent(id)}/radar?chartLevel=${chartLevel}`,
     image: (id: string | number) => `${apiroot3}/maichart/${id}/image`,
     fullImage: (id: string | number) => `${apiroot3}/maichart/${id}/image?fullImage=true`,
+    interact: (id: string | number) => `${apiroot3}/maichart/${id}/interact`,
     interactsum: (id: string | number) => `${apiroot3}/maichart/${id}/interactsum`,
-    // POST，请求体为谱面 ID 数组，一次取回一页列表的计数
-    interactsumBatch: `${apiroot3}/maichart/interactsum`,
-    vote: (id: string | number) => `${apiroot3}/maichart/${id}/vote`,
-    comments: (id: string | number, sort: string, page: number) => `${apiroot3}/maichart/${id}/comments?sort=${sort}&page=${page}`,
-    newComment: (id: string | number) => `${apiroot3}/maichart/${id}/comments`,
     score: (id: string | number) => `${apiroot3}/maichart/${id}/score`,
     tags: (id: string | number) => `${apiroot3}/maichart/${id}/tags`,
     publictags: (id: string | number) => `${apiroot3}/maichart/${id}/publictags`,

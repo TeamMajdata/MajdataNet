@@ -29,9 +29,9 @@ export default function RankingPage() {
         />
 
         <RankingSection
-          title={t("ranking/RankingPage.Score")}
-          subtitle={t("ranking/RankingPage.ScoreHint")}
-          sortType="topp"
+          title={t("ranking/RankingPage.Like")}
+          subtitle={t("ranking/RankingPage.LikeCountHint")}
+          sortType="likep"
           delay="delay-[200ms]"
         />
 
