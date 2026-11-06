@@ -3,10 +3,12 @@
  */
 
 import type { ComboState } from './enums';
+import type { UserBrief } from './user';
 
 // 成绩接口
 export interface ChartScore {
   player: {
+    id?: string;
     username: string;
     nickname?: string;
     avatarId?: string;
@@ -20,6 +22,8 @@ export interface ScoreData {
   username: string;
   userId: string;
   acc: { dx: number; classic: number };
+  /** 玩家资料；账号已删除时为 null，旧版后端不返回。 */
+  player?: UserBrief | null;
 }
 
 // 最近游玩数据接口

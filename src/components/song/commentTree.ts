@@ -29,7 +29,7 @@ export function countTree(items: Comment[]): number {
 
 /** 把评论变成占位符：正文、作者清空，标记删除或移除。 */
 export function toPlaceholder(comment: Comment, removed: boolean): Comment {
-  return { ...comment, body: '', author: '', authorId: null, deleted: !removed, removed };
+  return { ...comment, body: '', author: '', authorId: null, authorProfile: null, deleted: !removed, removed };
 }
 
 /** 评论的永久链接：歌曲页加 comment 参数。 */

@@ -2,8 +2,18 @@ export const apiroot3 = '/api3/api';
 
 // 歌单 (Collection) 和收藏 (Favorite) 相关的 API 端点
 export const endpoints = {
-  playhistory: {
-    ranking: `${apiroot3}/playhistory/ranking`,
+  // 成绩排行与统计，统一位于 /api/maiscore 下
+  maiscore: {
+    // 单谱面排行榜，返回 8 个难度各自的前 10 名
+    chartLeaderboard: (chartId: string | number) =>
+      `${apiroot3}/maiscore/leaderboard/chart/by-id/${encodeURIComponent(chartId)}`,
+    // POST，按谱面 Hash 集合和时间段统计排行（季赛榜）
+    periodLeaderboard: `${apiroot3}/maiscore/leaderboard/period`,
+    // 成绩总和榜；uploader 为空时为全站榜，否则只统计该上传者的谱面
+    scoreSums: (uploader: string, page: number, pageSize: number) =>
+      uploader
+        ? `${apiroot3}/maiscore/sum/chart/by-uploader/${encodeURIComponent(uploader)}?page=${page}&pageSize=${pageSize}`
+        : `${apiroot3}/maiscore/sum/all?page=${page}&pageSize=${pageSize}`,
   },
   recommend: {
     feed: (page: number, pageSize: number) => `${apiroot3}/recommend/feed?page=${page}&pageSize=${pageSize}`,
@@ -40,7 +50,7 @@ export const endpoints = {
     emailChallenge: `${apiroot3}/challenge/email`,
     passwordResetRequest: (email: string) => `${apiroot3}/account/password-reset/request?email=${encodeURIComponent(email)}`,
     passwordResetConfirm: `${apiroot3}/account/password-reset/confirm`,
-    icon: (username: string) => `${apiroot3}/account/icon?username=${encodeURIComponent(username)}`,
+    // 头像统一用 avatarId；只有用户名时由 useAvatarUrl 先查资料取 avatarId
     avatar: (avatarId: string) => `${apiroot3}/avatar/${encodeURIComponent(avatarId)}`,
     recent: (username: string) => `${apiroot3}/account/recent?username=${encodeURIComponent(username)}`,
     scores: `${apiroot3}/account/scores`,
@@ -72,16 +82,9 @@ export const endpoints = {
     vote: (id: string | number) => `${apiroot3}/maichart/${id}/vote`,
     comments: (id: string | number, sort: string, page: number) => `${apiroot3}/maichart/${id}/comments?sort=${sort}&page=${page}`,
     newComment: (id: string | number) => `${apiroot3}/maichart/${id}/comments`,
-    score: (id: string | number) => `${apiroot3}/maichart/${id}/score`,
     tags: (id: string | number) => `${apiroot3}/maichart/${id}/tags`,
     publictags: (id: string | number) => `${apiroot3}/maichart/${id}/publictags`,
     prefix: (id: string | number) => `${apiroot3}/maichart/${id}`,
-  },
-  stats: {
-    scoreSums: (uploader: string, page: number, pageSize: number) =>
-      uploader
-        ? `${apiroot3}/stats/score-sums?uploader=${encodeURIComponent(uploader)}&page=${page}&pageSize=${pageSize}`
-        : `${apiroot3}/maiscore/sum/all?page=${page}&pageSize=${pageSize}`,
   },
   machine: {
     authInfo: (authId: string) => `${apiroot3}/machine/auth/info?auth-id=${encodeURIComponent(authId)}`,

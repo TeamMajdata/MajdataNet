@@ -50,7 +50,7 @@ export function useSeasonBreakdown(
     ([, , requests]: [string, SeasonStatus, PlayHistoryRankingRequest[]]) => Promise.all(
       requests.map(async request => {
         try {
-          return { rows: await fetchSeasonRanking([endpoints.playhistory.ranking, request]) };
+          return { rows: await fetchSeasonRanking([endpoints.maiscore.periodLeaderboard, request]) };
         } catch (error) {
           return { error: error instanceof Error ? error : new Error('Season breakdown request failed') };
         }

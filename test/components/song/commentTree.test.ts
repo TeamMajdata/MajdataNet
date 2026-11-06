@@ -37,8 +37,9 @@ describe('comment tree helpers', () => {
   });
 
   it('toPlaceholder clears author and body and marks who removed it', () => {
-    const removed = toPlaceholder(comment('a'), true);
-    expect(removed).toMatchObject({ body: '', author: '', authorId: null, deleted: false, removed: true });
+    const profile = { id: 'u1', username: 'alice', nickname: '', avatarId: 'default' };
+    const removed = toPlaceholder(comment('a', [], { authorProfile: profile }), true);
+    expect(removed).toMatchObject({ body: '', author: '', authorId: null, authorProfile: null, deleted: false, removed: true });
     expect(toPlaceholder(comment('a'), false)).toMatchObject({ deleted: true, removed: false });
   });
 

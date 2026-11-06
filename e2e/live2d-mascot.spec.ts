@@ -21,15 +21,15 @@ const songs = Array.from({ length: 6 }, (_, index) => ({
 async function mockApi(page: Page) {
   await page.route('**/api3/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith('/image') || path.endsWith('/Icon')) {
+    if (path.endsWith('/image') || path.includes('/avatar/')) {
       await route.fulfill({ path: 'public/xxlb.jpg', contentType: 'image/jpeg' });
       return;
     }
-    const body = path.includes('/account/info') ? {}
+    const body = path.endsWith('/account/profile') ? {}
       : path.endsWith('/maichart/list') ? songs
         : path.endsWith('/summary') ? songs[0]
           : path.endsWith('/interactsum') ? { likeCount: 0, commentCount: 0, playCount: 0 }
-            : path.endsWith('/score') ? { scores: [] }
+            : path.includes('/maiscore/leaderboard/chart/by-id/') ? { scores: [] }
               : [];
     await route.fulfill({ json: body });
   });

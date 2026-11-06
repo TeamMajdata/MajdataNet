@@ -25,7 +25,7 @@ function comment(id: string, extra: Partial<Comment> = {}): Comment {
   };
 }
 function page(items: Comment[], extra: Partial<CommentPage> = {}): CommentPage {
-  return { items, total: items.length, commentCount: 5, page: 1, pageSize: 20, sort: 'best', ...extra };
+  return { items, total: items.length, page: 1, pageSize: 20, sort: 'best', ...extra };
 }
 const json = (value: unknown, status = 200) => Response.json(value, { status });
 
@@ -33,16 +33,25 @@ describe('CommentSection', () => {
   let container: HTMLDivElement;
   let root: Root;
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>;
+  let profileLookups: string[];
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
     fetchMock = vi.fn<typeof fetch>();
-    // 标题的评论数来自谱面的 interactsum；单独应答，不计入 requested()
-    vi.stubGlobal('fetch', (async (url, init) =>
-      String(url).endsWith('/interactsum')
-        ? json({ chartId: 'chart', plays: 0, score: 0, upvotes: 0, downvotes: 0, comments: 5, myVote: 0 })
-        : fetchMock(url, init)) as typeof fetch);
+    profileLookups = [];
+    // 标题的评论数来自谱面的 interactsum；没带 authorProfile 的作者按用户名查资料取头像 ID。
+    // 都单独应答，不计入 requested()；资料查询记在 profileLookups
+    vi.stubGlobal('fetch', (async (url, init) => {
+      if (String(url).endsWith('/interactsum')) {
+        return json({ chartId: 'chart', plays: 0, score: 0, upvotes: 0, downvotes: 0, comments: 5, myVote: 0 });
+      }
+      if (String(url).includes('/account/profile?')) {
+        profileLookups.push(String(url));
+        return json({ username: 'author', avatarId: 'default' });
+      }
+      return fetchMock(url, init);
+    }) as typeof fetch);
     // jsdom 没有这两个布局 API；永久链接视图用它们把评论滚进视野
     Element.prototype.scrollIntoView = vi.fn();
     vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} unobserve() {} });
@@ -84,6 +93,20 @@ describe('CommentSection', () => {
     // 当前用户给回复投过赞，分数按赞色高亮
     const replyScore = container.querySelector('article#comment-r [aria-live="polite"]')!;
     expect(replyScore.className).toContain('text-orange-400');
+  });
+
+  it('shows the avatar from the author profile and looks up only authors without one', async () => {
+    const profile = { id: 'u2', username: 'bob', nickname: 'Bobby', avatarId: 'bob-avatar' };
+    fetchMock.mockResolvedValue(json(page([
+      comment('a', { authorProfile: profile }),
+      comment('b', { author: 'carol', authorId: 'u3', authorProfile: null }),
+    ])));
+    await render(<CommentSection chartId="chart" uploader="x" />);
+
+    expect(container.querySelector('article#comment-a img')?.getAttribute('src')).toBe('/api3/api/avatar/bob-avatar');
+    expect(profileLookups).toEqual(['/api3/api/account/profile?username=carol']);
+    // 名字照旧显示用户名，不换成昵称
+    expect(container.querySelector('article#comment-a header a')?.textContent).toBe('bob');
   });
 
   it('refetches when the order changes', async () => {

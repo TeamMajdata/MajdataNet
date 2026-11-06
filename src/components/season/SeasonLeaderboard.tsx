@@ -62,7 +62,7 @@ export default function SeasonLeaderboard({ event, status, chartState }: SeasonL
                     <li key={player.playerId} data-season-rank={player.rank} className="min-w-0">
                       <p className="mb-2 text-white/70 text-sm text-center"><span className="sr-only">{t('season/SeasonLeaderboard.Rank')} </span>#{player.rank}</p>
                       <SeasonScoreDetails event={event} chartState={chartState} player={player} status={status}>
-                        <TotalScoreCard rank={player.rank} username={player.username} scoresum={player.score} maxscore={entries?.[0]?.score ?? 0}
+                        <TotalScoreCard rank={player.rank} username={player.username} avatarId={player.player?.avatarId} scoresum={player.score} maxscore={entries?.[0]?.score ?? 0}
                           footer={<SeasonLastPlayed username={player.username} event={event} chartState={chartState} status={status} />} />
                       </SeasonScoreDetails>
                     </li>

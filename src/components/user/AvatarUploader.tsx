@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
+import { useAvatarUrl } from '@/hooks/useAvatarUrl';
 import { getDisplayMessage } from '@/utils';
 import { LoadingSpinner } from '@/components';
 
@@ -122,12 +123,14 @@ export default function AvatarUploader() {
     fileInputRef.current?.click();
   }, []);
 
+  // hook 必须在提前返回之前调用
+  const currentAvatarUrl = useAvatarUrl(user?.username, user?.avatarId) ?? undefined;
+
   // 如果用户还在加载中，返回加载状态
   if (userLoading || !user) {
     return <div className="flex justify-center items-center py-12"><LoadingSpinner size="50px" /></div>;
   }
 
-  const currentAvatarUrl = user.avatarId ? endpoints.account.avatar(user.avatarId) : endpoints.account.icon(user.username);
   const previewAvatarUrl = previewUrl || currentAvatarUrl;
 
   return (

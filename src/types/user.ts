@@ -9,6 +9,17 @@ export interface UserInfo {
   joinDate?: string;
 }
 
+/**
+ * 列表里随数据附带的精简资料：成绩总分榜和季赛榜的 `player`、评论的 `authorProfile`。
+ * 没上传头像时 avatarId 为 "default"；nickname 可能为空串。
+ */
+export interface UserBrief {
+  id: string;
+  username: string;
+  nickname: string;
+  avatarId: string;
+}
+
 /** 用户组；administrator 通过所有用户组的检查。 */
 export type UserGroup = 'administrator' | 'eventManager';
 

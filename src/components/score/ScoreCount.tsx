@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { endpoints } from '@/config/api';
 import useSWR from 'swr';
 import { LoadingSpinner } from '@/components';
+import UserAvatar from '@/components/user/UserAvatar';
 import type { ScoreCardProps, ScoreCountProps, ScoreSumResponse } from '@/types';
 import { Link } from 'react-router-dom';
 
@@ -16,7 +17,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   const { t } = useTranslation();
 
   const { data: response, error, isLoading } = useSWR<ScoreSumResponse>(
-    endpoints.stats.scoreSums(uploader, page, pageSize),
+    endpoints.maiscore.scoreSums(uploader, page, pageSize),
     fetcher,
     { refreshInterval: 30000 } // 每30秒刷新一次
   );
@@ -54,6 +55,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
             key={player.username}
             rank={page * pageSize + index + 1}
             username={player.username}
+            avatarId={player.player?.avatarId}
             scoresum={player.acc.dx}
             maxscore={maxScore}
           />
@@ -66,7 +68,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
 /**
  * 单个分数卡片组件
  */
-export function ScoreCard({ rank, username, scoresum, maxscore, footer }: ScoreCardProps) {
+export function ScoreCard({ rank, username, avatarId, scoresum, maxscore, footer }: ScoreCardProps) {
   const percentage = maxscore > 0 ? (scoresum / maxscore) * 100 : 0;
   const isFirst = rank === 1;
 
@@ -119,14 +121,14 @@ export function ScoreCard({ rank, username, scoresum, maxscore, footer }: ScoreC
 
           {/* 玩家头像 */}
           <div className="flex justify-center mb-2">
-            <img
+            <UserAvatar
               className="border-2 rounded-full w-16 h-16 object-cover transition-all duration-300"
               style={{
                 borderColor: isFirst ? 'rgba(255, 215, 0, 0.6)' : 'rgb(255 255 255 / 20%)',
                 aspectRatio: '1',
               }}
-              src={endpoints.account.icon(username)}
-              alt={username}
+              username={username}
+              avatarId={avatarId}
             />
           </div>
 

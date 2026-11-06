@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { endpoints } from '@/config/api';
 import { getComboState, getLevelName } from '@/utils';
 import { LoadingSpinner } from '@/components';
+import UserAvatar from '@/components/user/UserAvatar';
 import { Link } from 'react-router-dom';
 import type { ChartScore, ScoreListProps } from '@/types';
 
@@ -225,14 +226,15 @@ function RankingCard({
         >
           {/* 头像 */}
           <div className="relative shrink-0">
-            <img
+            <UserAvatar
               className={`
                 w-10 h-10 rounded-full object-cover
                 border-2 transition-all duration-200
                 group-hover:scale-105
                 ${rank <= 3 ? topThreeAvatarClass : 'border-white/20 group-hover:border-white/40'}
               `}
-              src={score.player.avatarId ? endpoints.account.avatar(score.player.avatarId) : endpoints.account.icon(score.player.username)}
+              username={score.player.username}
+              avatarId={score.player.avatarId}
               alt={score.player.nickname || score.player.username}
             />
           </div>
@@ -356,7 +358,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
   const [transitionDirection, setTransitionDirection] = useState<1 | -1>(1);
 
   const { data, error, isLoading } = useSWR(
-    endpoints.maichart.score(songid),
+    endpoints.maiscore.chartLeaderboard(songid),
     fetcher,
     { revalidateOnFocus: true }
   );
