@@ -26,6 +26,7 @@ import {
 } from 'react-icons/pi';
 import { endpoints } from '@/config/api';
 import { LoadingSpinner } from '@/components';
+import UserAvatar from '@/components/user/UserAvatar';
 import { useIsAdministrator, useUserContext } from '@/hooks';
 import { apiFetcher, apiRequest, jsonRequest } from '@/utils/apiClient';
 import { VoteControl } from './VoteControl';
@@ -219,8 +220,8 @@ function foldFrom(policy: FoldPolicy, level: number, maxDepth: number): FoldPoli
   return { ...policy, depth: Math.min(policy.depth, maxDepth - level) };
 }
 
-function Avatar({ username, className }: { username: string; className: string }) {
-  return <img className={`${className} rounded-full object-cover border border-white/20`} src={endpoints.account.icon(username)} alt={username} />;
+function Avatar({ username, avatarId, className }: { username: string; avatarId?: string | null; className: string }) {
+  return <UserAvatar className={`${className} rounded-full object-cover border border-white/20`} username={username} avatarId={avatarId} />;
 }
 
 function CommentNode({ comment, level }: { comment: Comment; level: number }) {
@@ -301,7 +302,7 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
             <span className="bg-white/10 rounded-full w-6 h-6" aria-hidden="true" />
           ) : (
             <Link to={`/space?id=${encodeURIComponent(comment.author)}`} tabIndex={-1} aria-hidden="true">
-              <Avatar username={comment.author} className="w-6 h-6" />
+              <Avatar username={comment.author} avatarId={comment.authorProfile?.avatarId} className="w-6 h-6" />
             </Link>
           )}
           {!collapsed && comment.replies.length > 0 && (
@@ -699,7 +700,7 @@ function CommentSummary({ comment }: { comment: Comment }) {
     <article className="space-y-2 bg-white/6 p-4 border border-white/10 rounded-xl min-w-0">
       <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-white/50 text-xs">
         <Link to={`/space?id=${encodeURIComponent(comment.author)}`} className="inline-flex items-center gap-1.5 font-medium text-white/90 hover:underline">
-          <Avatar username={comment.author} className="w-5 h-5" />
+          <Avatar username={comment.author} avatarId={comment.authorProfile?.avatarId} className="w-5 h-5" />
           {comment.author || t("song/SongComments.UnknownUser")}
         </Link>
         <span aria-hidden="true">·</span>

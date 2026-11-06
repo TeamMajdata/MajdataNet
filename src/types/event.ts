@@ -2,6 +2,7 @@
  * 活动相关类型定义
  */
 
+import type { UserBrief } from './user';
 
 // 活动类别枚举常量
 export const EventCategory = {
@@ -72,6 +73,8 @@ export interface PlayHistoryRankingEntry {
   totalDXScore: number;
   totalAccDX: number;
   totalAccClassic: number;
+  /** 玩家资料；账号已删除时为 null，旧版后端不返回。 */
+  player?: UserBrief | null;
 }
 
 export interface RankedSeasonEntry extends PlayHistoryRankingEntry {

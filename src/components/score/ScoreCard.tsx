@@ -8,6 +8,7 @@ import useSWR from 'swr';
 import { Link } from 'react-router-dom';
 import { CoverPic, Level, LazyLoad } from '@/components';
 import { ChartVoteBadge } from '@/components/song/SongInteraction';
+import UserAvatar from '@/components/user/UserAvatar';
 import { apiFetcher } from '@/utils/apiClient';
 import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';
@@ -68,7 +69,7 @@ export function ScoreCard({
   const targetUsername = rankUsername || currentUsername;
 
   const { data: chartScores } = useSWR(
-    showRank && targetUsername ? endpoints.maichart.score(score.chartInfo.id) : null,
+    showRank && targetUsername ? endpoints.maiscore.chartLeaderboard(score.chartInfo.id) : null,
     apiFetcher
   );
 
@@ -138,10 +139,9 @@ export function ScoreCard({
 
           <div className="mb-2 text-[0.8rem] truncate">
             <Link to={'/space?id=' + score.chartInfo.uploader}>
-              <img
+              <UserAvatar
                 className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
-                src={endpoints.account.icon(score.chartInfo.uploader)}
-                alt={score.chartInfo.uploader}
+                username={score.chartInfo.uploader}
               />
               {score.chartInfo.designer}
             </Link>

@@ -2,6 +2,8 @@
  * 投票与评论（Reddit 式互动系统）的类型定义，对应 mmfcapi 的 CommentController / InteractController。
  */
 
+import type { UserBrief } from './user';
+
 /** 一票：1 赞、-1 踩、0 未投。 */
 export type Vote = -1 | 0 | 1;
 
@@ -38,6 +40,8 @@ export interface Comment {
   depth: number;
   authorId: string | null;
   author: string;
+  /** 作者资料；占位符或作者账号已删除时为 null，旧版后端不返回。 */
+  authorProfile?: UserBrief | null;
   body: string;
   createdAt: string;
   editedAt: string | null;
@@ -53,7 +57,6 @@ export interface Comment {
 export interface CommentPage {
   items: Comment[];
   total: number;
-  commentCount: number;
   page: number;
   pageSize: number;
   sort: CommentSort;

@@ -2,8 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useUserContext } from '@/hooks';
+import UserAvatar from '@/components/user/UserAvatar';
 import { handleLogout as logoutUtil } from '@/utils';
-import { endpoints } from '@/config/api';
 import { DIVIDER } from './styles';
 import Dropdown from './Dropdown';
 
@@ -46,10 +46,10 @@ export default function UserMenu({ username }: UserMenuProps) {
         aria-expanded={isOpen}
         aria-label={t("shared/UserMenu.UserMenu")}
       >
-        <img
+        <UserAvatar
           className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 object-cover ${isOpen ? 'border-white/60' : 'border-white/30 hover:border-white/60'}`}
-          src={user?.avatarId ? endpoints.account.avatar(user.avatarId) : endpoints.account.icon(username)}
-          alt={username}
+          username={username}
+          avatarId={user?.avatarId}
         />
         <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">{user?.nickname || username}</span>
       </button>

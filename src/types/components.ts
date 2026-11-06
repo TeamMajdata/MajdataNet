@@ -98,6 +98,8 @@ export interface ScoreCountProps {
 export interface ScoreCardProps {
   rank: number;
   username: string;
+  /** 数据里附带的头像 ID；没有时按用户名查资料 */
+  avatarId?: string | null;
   scoresum: number;
   maxscore: number;
   footer?: ReactNode;

@@ -52,7 +52,7 @@ export function useSeasonRanking(event: Event, status: SeasonStatus, songhashes:
   const request = useMemo(() => songhashes === null ? null : buildSeasonRankingRequest(event, songhashes), [event, songhashes]);
   // A status change queries once at the boundary; there is no periodic polling.
   const { data, error, isLoading, isValidating, mutate } = useSWR<PlayHistoryRankingEntry[], Error>(
-    status === 'upcoming' || !request ? null : [endpoints.playhistory.ranking, request, status],
+    status === 'upcoming' || !request ? null : [endpoints.maiscore.periodLeaderboard, request, status],
     ([url, payload]: [string, RankingRequest, SeasonStatus]) => fetchSeasonRanking([url, payload]),
     {
       revalidateOnMount: true,

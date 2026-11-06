@@ -15,6 +15,10 @@ vi.mock('@/components/season/SeasonScoreDetails', () => ({
 vi.mock('@/hooks/useSeasonLastPlayed', () => ({
   useSeasonLastPlayed: () => ({ unavailable: true }),
 }));
+// 头像查询另有测试；这里不让它的资料请求计入排行请求次数，只回显传进来的头像 ID
+vi.mock('@/hooks/useAvatarUrl', () => ({
+  useAvatarUrl: (_username: string | null | undefined, avatarId?: string | null) => `/api3/api/avatar/${avatarId || 'default'}`,
+}));
 
 const testGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean };
 testGlobals.IS_REACT_ACT_ENVIRONMENT = true;
@@ -24,7 +28,10 @@ const event: Event = {
   alt: 'Season', title: 'Season', description: 'Season', category: 5,
   createDate: '2026-09-01T00:00:00+08:00', endDate: '2026-09-30T23:59:59.999+08:00',
 };
-const rows = [{ playerId: 'player-one', username: 'Player & One', totalDXScore: 1200, totalAccDX: 100.1234, totalAccClassic: 100 }];
+const rows = [{
+  playerId: 'player-one', username: 'Player & One', totalDXScore: 1200, totalAccDX: 100.1234, totalAccClassic: 100,
+  player: { id: 'player-one', username: 'Player & One', nickname: 'P1', avatarId: 'one-avatar' },
+}];
 const response = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status });
 
 describe('season leaderboard recovery', () => {
@@ -81,9 +88,12 @@ describe('season leaderboard recovery', () => {
     expect(container.querySelector('[role="alert"]')).toBeNull();
     expect(container.textContent).toContain('100.1234%');
     expect(container.querySelector('a')?.getAttribute('href')).toBe('/space?id=Player%20%26%20One');
+    // 排行条目自带的头像 ID 一路传到卡片；名字仍是用户名
+    expect(container.querySelector('img')?.getAttribute('src')).toBe('/api3/api/avatar/one-avatar');
+    expect(container.textContent).toContain('Player & One');
     expect(fetchMock).toHaveBeenCalledTimes(2);
     const [url, options] = fetchMock.mock.calls[1];
-    expect(url).toBe('/api3/api/playhistory/ranking');
+    expect(url).toBe('/api3/api/maiscore/leaderboard/period');
     expect(options?.method).toBe('POST');
     expect(JSON.parse(options?.body as string)).toEqual({
       songhashes: ['current-hash'], startTime: '2026-08-31T16:00:00.000Z',

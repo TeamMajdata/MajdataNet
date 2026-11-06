@@ -17,20 +17,31 @@ const songs = Array.from({ length: 6 }, (_, index) => ({
   publicTags: [],
   timestamp: '2026-09-20T00:00:00Z',
 }));
+// A 1×1 transparent PNG: covers and avatars load without depending on any file in public/.
+const placeholderImage = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+const interactSummary = (chartId: string) => ({ chartId, plays: 0, score: 0, upvotes: 0, downvotes: 0, comments: 0, myVote: 0 });
 
 async function mockApi(page: Page) {
   await page.route('**/api3/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith('/image') || path.endsWith('/Icon')) {
-      await route.fulfill({ path: 'public/xxlb.jpg', contentType: 'image/jpeg' });
+    if (path.endsWith('/image') || path.includes('/avatar/')) {
+      await route.fulfill({ body: placeholderImage, contentType: 'image/png' });
       return;
     }
-    const body = path.includes('/account/info') ? {}
+    if (path.endsWith('/maichart/interactsum')) {
+      // The song list reads the counts of a whole page with one POST of the chart IDs.
+      const chartIds = route.request().postDataJSON() as string[];
+      await route.fulfill({ json: chartIds.map(interactSummary) });
+      return;
+    }
+    const body = path.endsWith('/account/profile') ? {}
       : path.endsWith('/maichart/list') ? songs
         : path.endsWith('/summary') ? songs[0]
-          : path.endsWith('/interactsum') ? { likeCount: 0, commentCount: 0, playCount: 0 }
-            : path.endsWith('/score') ? { scores: [] }
-              : [];
+          : path.endsWith('/interactsum') ? interactSummary(path.split('/').at(-2) ?? '')
+            : path.includes('/maiscore/leaderboard/chart/by-id/') ? { scores: [] }
+              // The comment section reads a page object; an array would crash the whole song page.
+              : path.endsWith('/comments') ? { items: [], total: 0, page: 1, pageSize: 20, sort: 'best' }
+                : [];
     await route.fulfill({ json: body });
   });
   // The player itself is outside this feature; keep its real DOM/stacking surface

@@ -25,7 +25,7 @@
 - GET `/api/account/profile`：当前用户资料；GET `/api/account/profile?username=...`：公开资料。
 - 字段：`id`、`username`、`nickname`、`email`、`introduction`、`avatarId`、`joinDate`。其他用户的 `email` 为 null。
 - POST `/api/account/profile`：FormData，可提交 `nickname`、`introduction`、`avatar`，返回更新后的资料。
-- GET `/api/avatar/{avatarId}`：头像。有资料对象时直接使用此路径；只有用户名时保留后端仍支持的 `/api/account/icon?username=...` 重定向。
+- GET `/api/avatar/{avatarId}`：头像，前端只用这一个接口（`UserAvatar` 组件 / `useAvatarUrl`）。已知 `avatarId` 时直接使用、不发请求：资料对象自带 `avatarId`；总分榜（`/api/maiscore/sum/...` 的 `players[].player`）、季赛榜（`/api/maiscore/leaderboard/period` 每条的 `player`）和评论（`authorProfile`）附带精简资料 `UserBrief` = `{ id, username, nickname, avatarId }`（未上传头像时 `avatarId` 为 `default`，`nickname` 可能为空串；账号已删除或评论为占位符时为 null）；单曲排行榜 `scores[][].player` 的 `id`、`avatarId` 也已填充。只有谱面上传者（谱面响应不带资料）以及上述资料为 null 或缺失时，才按用户名读 GET `/api/account/profile?username=...` 取 `avatarId`，同名只请求一次并与个人空间共用缓存；用户不存在或无用户名时用 `default`。这些榜单和评论仍显示用户名，不换成昵称。`/api/account/icon?username=...` 仅留给 MajdataPlay，前端不再调用。
 - 头像和简介上传后刷新资料，避免旧头像缓存；昵称用于显示，用户名继续用于链接、归属判断和 API 查询。
 - GET `/api/account/recent?username=...`、GET `/api/account/scores` 的已有调用协议保持兼容。
 
@@ -34,8 +34,10 @@
 | 功能 | 对齐结果 |
 | --- | --- |
 | 全站总分榜 | 改用 GET `/api/maiscore/sum/all?page=0&pageSize=...` |
-| 上传者榜 | 继续使用已实现的 GET `/api/stats/score-sums?uploader=...&page=...&pageSize=...`；新 `/maiscore/sum/chart/by-uploader/...` 仍为空实现，不切换 |
-| 总分返回值 | 从旧数组和 `dxAccSum` 改为 `{ geneTime, players: [{ userId, username, acc: { dx, classic } }] }` |
+| 上传者榜 | 改用 GET `/api/maiscore/sum/chart/by-uploader/{uploader}?page=0&pageSize=...`（`uploader` 作为路径段转义）；旧 `/api/stats/score-sums` 已废弃 |
+| 单曲排行榜/成绩卡排名 | 改用 GET `/api/maiscore/leaderboard/chart/by-id/{chartId}`；旧 GET `/api/maichart/{chartId}/score` 已废弃 |
+| 季赛榜 | 改用 POST `/api/maiscore/leaderboard/period`，请求体不变；旧 POST `/api/playhistory/ranking` 已废弃 |
+| 总分返回值 | 从旧数组和 `dxAccSum` 改为 `{ geneTime, players: [{ userId, username, acc: { dx, classic }, player }] }`，`player` 为 `UserBrief \| null` |
 | 收藏歌单列表 | GET `/api/account/favorite/collection/list` 返回 `songHashs`，卡片的 `count` 从数组长度计算 |
 | 谱面投票 | PUT `/api/maichart/{chartId}/vote`，JSON `{ value: 1 \| 0 \| -1 }`，返回 `{ score, upvotes, downvotes, myVote }`；旧的 like/dislike Form 接口只保留给游戏客户端 |
 | 列表计数 | GET `/api/maichart/{chartId}/interactsum` 返回 `{ chartId, plays, score, upvotes, downvotes, comments, myVote }`；列表一页用 POST `/api/maichart/interactsum`（请求体为 ID 数组）一次取回 |
@@ -50,7 +52,7 @@
 
 以下是目标提交本身的问题，前端未通过修改查询含义、吞掉失败或重复写入来绕过：
 
-1. `src/WebApplication2/Controllers/StatisticsController.cs:34`：`page` 限制为至少 1，但默认值为 0，且服务按 `Skip(page * pageSize)` 做零起点分页。`page=0` 会被校验拒绝，改成 1 会漏掉第一页。影响上传者榜；应允许 `page >= 0`。全站榜已改用允许 0 的新接口。
+1. ~~`src/WebApplication2/Controllers/StatisticsController.cs:34`：`page` 限制为至少 1，但默认值为 0，且服务按 `Skip(page * pageSize)` 做零起点分页。~~ 已解决：上传者榜已改用 `/api/maiscore/sum/chart/by-uploader/{uploader}`，该接口允许 `page >= 0`。
 2. `src/WebApplication2/Controllers/MaiChartApi/InteractController.cs:175`：评论/回复分支声明 `newInteract` 后没有接收 `AddCommentAsync` / `ReplyCommentAsync` 的返回值，写入后仍检查 null 并返回 400。应接收返回值并据此判断结果，否则用户可能因错误提示重复提交。
 3. `src/WebApplication2/Controllers/AccountApi/AccountController.cs:218`：旧的待激活账号登录仍发送激活链接，但 `GET /account/verify` 已移除。前端提示旧账号联系管理员；需要后端提供旧账户迁移或新的激活流程。
 4. `src/WebApplication2/Controllers/CollectionController.cs:209`：空字符串描述被 `SetIf(!string.IsNullOrEmpty(...))` 忽略，现有歌单不能清空描述。需要将“未传字段”与“传入空字符串”区分。资料简介也有相同限制，前端继续禁止空简介提交。
