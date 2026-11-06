@@ -182,6 +182,99 @@ input[type="number"]::-webkit-inner-spin-button {
   text-align: left;
 }
 
+/* 评论正文 Markdown：紧凑排版，不用 github-markdown-css 的大边距和背景 */
+.comment-markdown > * + * {
+  margin-top: 0.5rem;
+}
+
+.comment-markdown h1,
+.comment-markdown h2,
+.comment-markdown h3,
+.comment-markdown h4,
+.comment-markdown h5,
+.comment-markdown h6 {
+  margin: 0;
+  font-size: 1em;
+  font-weight: 600;
+  text-align: left;
+}
+
+.comment-markdown ul,
+.comment-markdown ol {
+  padding-left: 1.5em;
+}
+
+.comment-markdown ul {
+  list-style-type: disc;
+}
+
+.comment-markdown ol {
+  list-style-type: decimal;
+}
+
+.comment-markdown li + li {
+  margin-top: 0.25rem;
+}
+
+.comment-markdown ul.contains-task-list {
+  padding-left: 0.25em;
+  list-style-type: none;
+}
+
+.comment-markdown blockquote {
+  border-left: 3px solid rgb(255 255 255 / 20%);
+  padding-left: 0.75em;
+  color: rgb(255 255 255 / 65%);
+}
+
+.comment-markdown code {
+  border-radius: 4px;
+  background: rgb(255 255 255 / 10%);
+  padding: 0.1em 0.35em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875em;
+}
+
+.comment-markdown pre {
+  overflow-x: auto;
+  border-radius: 8px;
+  background: rgb(0 0 0 / 30%);
+  padding: 0.6em 0.9em;
+}
+
+.comment-markdown pre code {
+  background: none;
+  padding: 0;
+  overflow-wrap: normal;
+}
+
+.comment-markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.comment-markdown th,
+.comment-markdown td {
+  border: 1px solid rgb(255 255 255 / 15%);
+  padding: 0.25em 0.6em;
+}
+
+.comment-markdown hr {
+  border-color: rgb(255 255 255 / 15%);
+}
+
+.comment-markdown img {
+  max-width: min(100%, 20rem);
+  max-height: 20rem;
+  border-radius: 6px;
+}
+
+.comment-markdown del {
+  opacity: 0.7;
+}
+
 @media (width <= 767px) {
   :root {
     --container-padding: 0 0.75rem;
