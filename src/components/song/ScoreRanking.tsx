@@ -12,7 +12,7 @@ import { getComboState, getLevelName } from '@/utils';
 import { LoadingSpinner } from '@/components';
 import UserAvatar from '@/components/user/UserAvatar';
 import { Link } from 'react-router-dom';
-import type { ChartScore, ScoreListProps } from '@/types';
+import type { ChartLeaderboardResponse, ChartScore, ScoreListProps } from '@/types';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -357,14 +357,15 @@ export function ScoreRanking({ songid }: ScoreListProps) {
   const [activeLevel, setActiveLevel] = useState<number>(0);
   const [transitionDirection, setTransitionDirection] = useState<1 | -1>(1);
 
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading } = useSWR<ChartLeaderboardResponse>(
     endpoints.maiscore.chartLeaderboard(songid),
     fetcher,
     { revalidateOnFocus: true }
   );
 
-  // 获取所有有效等级
-  const levels = useMemo(() => data?.levels || [], [data?.levels]);
+  // 排行榜响应只有 hash、levelHashes、scores，不含难度定数，所以定数一直为空（既有问题）；
+  // 要显示定数需另从谱面信息取
+  const levels: string[] = [];
   const scoreLevels = useMemo(() => data?.scores || [], [data?.scores]);
 
   // 确保 activeLevel 在有效范围内

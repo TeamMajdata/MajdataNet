@@ -36,7 +36,6 @@ export default function CollectionPage() {
   const [addedIds, setAddedIds] = useState<string[]>([]);
   const [removedIds, setRemovedIds] = useState<string[]>([]);
   const [addedSongs, setAddedSongs] = useState<Song[]>([]);
-  const [addedHashes, setAddedHashes] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [visibilityDraft, setVisibilityDraft] = useState<number | null>(null);
   const [nameDraft, setNameDraft] = useState<string | null>(null);
@@ -44,7 +43,6 @@ export default function CollectionPage() {
 
   // 搜索状态
   const [searchQuery, setSearchQuery] = useState('');
-  const [addingSongId, setAddingSongId] = useState<string | null>(null);
   const [searchPage, setSearchPage] = useState(0);
   const [searchMaxPage, setSearchMaxPage] = useState(999999);
   const [searchSortType, setSearchSortType] = useState(0);
@@ -130,44 +128,18 @@ export default function CollectionPage() {
     setSearchMaxPage(999999);
   }, 500);
 
-  // 添加歌曲到歌单（同时获取 hash）
-  const handleAddSong = async (song: Song) => {
-    if (allExistingIds.has(song.id) || addingSongId) return;
-
-    // 先尝试从搜索结果中获取 hash（API 可能返回了但 TS 类型未声明）
-    let hash = song.hash;
-
-    if (!hash) {
-      setAddingSongId(song.id);
-      try {
-        const summary = await fetch(endpoints.maichart.summary(song.id), {
-          mode: 'cors',
-          credentials: 'include',
-        }).then((res) => res.json());
-        hash = summary?.hash;
-      } catch {
-        // ignore
-      }
-      setAddingSongId(null);
-    }
-
-    if (!hash) {
-      toast.error(t("collection/CollectionPage.FetchHashFailed"));
-      return;
-    }
-
+  // 添加歌曲到歌单
+  const handleAddSong = (song: Song) => {
+    if (allExistingIds.has(song.id)) return;
     setAddedIds((prev) => [...prev, song.id]);
     setAddedSongs((prev) => [...prev, song]);
-    setAddedHashes((prev) => [...prev, hash]);
   };
 
   // 从歌单移除歌曲
   const handleRemoveSong = (songId: string) => {
     if (addedIds.includes(songId)) {
-      const idx = addedIds.indexOf(songId);
       setAddedIds((prev) => prev.filter((id) => id !== songId));
       setAddedSongs((prev) => prev.filter((s) => s.id !== songId));
-      setAddedHashes((prev) => prev.filter((_, i) => i !== idx));
     } else {
       setRemovedIds((prev) => (prev.includes(songId) ? prev : [...prev, songId]));
     }
@@ -179,18 +151,10 @@ export default function CollectionPage() {
 
     setIsSubmitting(true);
 
-    // 构造当前 hash 列表：原有（未移除） + 新增
-    const currentHashes: string[] = [];
-    for (const song of collectionData?.items || []) {
-      if (!removedIds.includes(song.id)) {
-        currentHashes.push(song.hash);
-      }
-    }
-    currentHashes.push(...addedHashes);
-
     const body: Record<string, unknown> = {};
     if (addedIds.length > 0 || removedIds.length > 0) {
-      body.items = currentHashes;
+      // 谱面 Id 列表即当前显示的顺序：原有（未移除） + 新增
+      body.items = displaySongs.map((s) => s.id);
     }
     if (visibilityChanged) {
       body.visibility = visibilityDraft;
@@ -217,7 +181,6 @@ export default function CollectionPage() {
         setAddedIds([]);
         setRemovedIds([]);
         setAddedSongs([]);
-        setAddedHashes([]);
         setVisibilityDraft(null);
         setNameDraft(null);
         setDescriptionDraft(null);
@@ -242,7 +205,6 @@ export default function CollectionPage() {
     setAddedIds([]);
     setRemovedIds([]);
     setAddedSongs([]);
-    setAddedHashes([]);
     setVisibilityDraft(null);
     setNameDraft(null);
     setDescriptionDraft(null);
@@ -407,7 +369,7 @@ export default function CollectionPage() {
               </div>
             </div>
 
-            {(isSearchLoading || addingSongId) && (
+            {isSearchLoading && (
               <div className="flex justify-center py-4">
                 <LoadingSpinner size={30} />
               </div>
@@ -429,10 +391,9 @@ export default function CollectionPage() {
                             if (isAdded) handleRemoveSong(song.id)
                             else handleAddSong(song);
                           }}
-                          disabled={!!addingSongId}
                           className={`top-2 right-2 z-10 absolute flex justify-center items-center shadow-lg border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer transition-colors ${isAdded
                             ? 'bg-red-500/80 hover:bg-red-500'
-                            : 'bg-blue-500/80 hover:bg-blue-500 disabled:bg-white/10 disabled:cursor-not-allowed'
+                            : 'bg-blue-500/80 hover:bg-blue-500'
                             }`}
                           title={isAdded ? t("collection/CollectionPage.RemoveFromCollection") : t("collection/CollectionPage.Add")}
                         >

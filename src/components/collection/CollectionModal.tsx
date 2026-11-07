@@ -9,6 +9,9 @@ import { useCollections } from '@/hooks';
 interface CollectionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** 谱面 Id（MaiChart.Id），加入或移出谱单时提交 */
+  chartId?: string;
+  /** 谱面当前的 maidata hash，用于判断是否已在谱单中 */
   songHash?: string;
   onCreate?: () => void;
 }
@@ -43,7 +46,7 @@ const listItemVariants = {
   }),
 };
 
-export default function CollectionModal({ isOpen, onClose, songHash: songId, onCreate }: CollectionModalProps) {
+export default function CollectionModal({ isOpen, onClose, chartId, songHash, onCreate }: CollectionModalProps) {
   const { t } = useTranslation();
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState('');
@@ -93,10 +96,13 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
     return (c.name || '').toLowerCase().includes(q) || (c.description || '').toLowerCase().includes(q);
   });
 
+  // 增删按谱面 Id 提交，是否已收录按 hash 判断，两者都有才能切换
+  const canToggle = !!chartId && !!songHash;
+
   const handleToggle = useCallback(async (collectionId: string) => {
-    if (!songId) return;
-    await toggleSongInCollection(collectionId, songId);
-  }, [songId, toggleSongInCollection]);
+    if (!chartId || !songHash) return;
+    await toggleSongInCollection(collectionId, { chartId, songHash });
+  }, [chartId, songHash, toggleSongInCollection]);
 
   const handleCreate = useCallback(async () => {
     if (!newName.trim() || creatingLoading) return;
@@ -218,7 +224,7 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
                   <div className="flex flex-col gap-1.5">
                     {filteredCollections.map((collection, index) => {
                       const isAdding = isPending(collection.id);
-                      const isInCollection = songId ? isSongInCollection(collection.id, songId) : false;
+                      const isInCollection = isSongInCollection(collection.id, songHash);
                       return (
                         <motion.button
                           key={collection.id}
@@ -226,11 +232,11 @@ export default function CollectionModal({ isOpen, onClose, songHash: songId, onC
                           variants={listItemVariants}
                           initial="hidden"
                           animate="visible"
-                          whileHover={songId ? { scale: 1.01 } : undefined}
-                          whileTap={songId ? { scale: 0.98 } : undefined}
+                          whileHover={canToggle ? { scale: 1.01 } : undefined}
+                          whileTap={canToggle ? { scale: 0.98 } : undefined}
                           disabled={!!isAdding}
-                          onClick={songId ? () => handleToggle(collection.id) : undefined}
-                          className={`group flex items-start gap-3 rounded-xl p-3 text-left transition-colors ${songId ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'
+                          onClick={canToggle ? () => handleToggle(collection.id) : undefined}
+                          className={`group flex items-start gap-3 rounded-xl p-3 text-left transition-colors ${canToggle ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'
                             } ${isInCollection ? 'bg-blue-500/10' : ''} ${isAdding ? 'bg-blue-500/10' : ''}`}
                         >
                           <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${isAdding ? 'bg-blue-500/15' : isInCollection ? 'bg-blue-500/15' : 'bg-white/5 group-hover:bg-white/10'

@@ -340,7 +340,7 @@ export default function PersonalScoresPage() {
             <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
               {paginatedData.map((score) => (
                 <motion.div
-                  key={`${score.hash}-${score.timestamp}`}
+                  key={score.levelHash || `${score.hash}-${score.timestamp}`}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}

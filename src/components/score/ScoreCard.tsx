@@ -13,16 +13,35 @@ import { apiFetcher } from '@/utils/apiClient';
 import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';
 import { useUsername } from '@/hooks';
-import type { Score, ChartScore } from '@/types';
+import type { Score, ChartScore, ChartLeaderboardResponse, LevelLeaderboardResponse } from '@/types';
+
+type UserRank = { rank: number; total: number };
+
+/** 后端返回的 level hash 是 64 位小写 hex；迁移期的旧成绩可能缺失或为 null */
+function isLevelHash(value: unknown): value is string {
+  return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);
+}
 
 /**
- * 从谱面成绩列表中查找指定用户的排名
+ * 在单个榜单中查找指定用户的排名
+ */
+function findRankInList(scoreList: ChartScore[] | undefined, target: string): UserRank | null {
+  if (!Array.isArray(scoreList)) return null;
+
+  const rankIndex = scoreList.findIndex(
+    (score) => score.player?.username?.trim().toLowerCase() === target
+  );
+  return rankIndex === -1 ? null : { rank: rankIndex + 1, total: scoreList.length };
+}
+
+/**
+ * 从谱面各难度的成绩列表中查找指定用户的排名：先找 levelIndex 对应的难度，找不到再扫其他难度
  */
 function findUserRank(
   payload: { scores?: ChartScore[][] } | null,
   username: string,
   levelIndex: number
-): { rank: number; total: number } | null {
+): UserRank | null {
   const scores = payload?.scores;
   if (!scores || !Array.isArray(scores)) return null;
 
@@ -33,15 +52,8 @@ function findUserRank(
   ].filter((index) => index >= 0 && index < scores.length);
 
   for (const index of candidateIndexes) {
-    const scoreList = scores[index];
-    if (!Array.isArray(scoreList)) continue;
-
-    const rankIndex = scoreList.findIndex(
-      (score) => score.player?.username?.trim().toLowerCase() === target
-    );
-    if (rankIndex !== -1) {
-      return { rank: rankIndex + 1, total: scoreList.length };
-    }
+    const result = findRankInList(scores[index], target);
+    if (result) return result;
   }
 
   return null;
@@ -68,23 +80,31 @@ export function ScoreCard({
   const currentUsername = useUsername();
   const targetUsername = rankUsername || currentUsername;
 
-  const { data: chartScores } = useSWR(
-    showRank && targetUsername ? endpoints.maiscore.chartLeaderboard(score.chartInfo.id) : null,
+  // 成绩带有 level hash（来自 account/scores）时直接查该难度的榜；
+  // 旧成绩或没有 level hash 的数据（如最近游玩）退回按谱面 Id 查各难度的榜
+  const levelHash = isLevelHash(score.levelHash) ? score.levelHash : null;
+  const shouldFetchRank = showRank && !!targetUsername;
+
+  const { data: levelScores } = useSWR<LevelLeaderboardResponse>(
+    shouldFetchRank && levelHash ? endpoints.maiscore.levelLeaderboard(levelHash) : null,
+    apiFetcher
+  );
+  const { data: chartScores } = useSWR<ChartLeaderboardResponse>(
+    shouldFetchRank && !levelHash ? endpoints.maiscore.chartLeaderboard(score.chartInfo.id) : null,
     apiFetcher
   );
 
   // 计算最终使用的排名信息
-  const resolvedRank = useMemo(() => {
-    if (!showRank || !chartScores || !targetUsername) return null;
-    const result = findUserRank(chartScores, targetUsername, score.chartLevel);
-    return result?.rank ?? null;
-  }, [showRank, chartScores, targetUsername, score.chartLevel]);
+  const userRank = useMemo(() => {
+    if (!shouldFetchRank) return null;
+    if (levelHash) {
+      return levelScores ? findRankInList(levelScores.scores, targetUsername.trim().toLowerCase()) : null;
+    }
+    return chartScores ? findUserRank(chartScores, targetUsername, score.chartLevel) : null;
+  }, [shouldFetchRank, levelHash, levelScores, chartScores, targetUsername, score.chartLevel]);
 
-  const resolvedRankTotal = useMemo(() => {
-    if (!showRank || !chartScores || !targetUsername) return null;
-    const result = findUserRank(chartScores, targetUsername, score.chartLevel);
-    return result?.total ?? null;
-  }, [showRank, chartScores, targetUsername, score.chartLevel]);
+  const resolvedRank = userRank?.rank ?? null;
+  const resolvedRankTotal = userRank?.total ?? null;
 
   const comboStateNumber = typeof score.comboState === 'number' ? score.comboState : Number(score.comboState);
   const comboStateText = comboStateNumber > 0 ? getComboState(comboStateNumber) : '';
