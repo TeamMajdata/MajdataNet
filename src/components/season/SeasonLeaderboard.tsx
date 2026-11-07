@@ -18,7 +18,7 @@ interface SeasonLeaderboardProps {
 
 export default function SeasonLeaderboard({ event, status, chartState }: SeasonLeaderboardProps) {
   const { t } = useTranslation();
-  const ranking = useSeasonRanking(event, status, chartState.songhashes ?? null);
+  const ranking = useSeasonRanking(event, status, chartState.songIds ?? null);
   const { entries } = ranking;
   const error = chartState.error ?? ranking.error;
   const isLoading = chartState.isLoading || ranking.isLoading;

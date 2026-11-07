@@ -118,7 +118,6 @@
     "Creator": "Creator",
     "DescriptionPlaceholder": "Description (Optional)",
     "EmptyCollection": "Empty Collection",
-    "FetchHashFailed": "Failed to fetch song hash",
     "InvalidParams": "Invalid parameters",
     "LatestActivity": "Latest Activity",
     "LikeCount": "Likes",

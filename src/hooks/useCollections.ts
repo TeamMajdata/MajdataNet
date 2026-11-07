@@ -14,6 +14,14 @@ import type { Collection, CollectionDanInfo } from '@/types';
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
+/** 要加入或移出谱单的谱面 */
+export interface CollectionChart {
+  /** 谱面 Id（MaiChart.Id），谱单增删按它提交 */
+  chartId: string;
+  /** 谱面当前的 maidata hash，用于对照 hashlist 判断是否已在谱单中 */
+  songHash: string;
+}
+
 export function useCollections() {
   const { t } = useTranslation();
   const { username } = useUserContext();
@@ -78,15 +86,16 @@ export function useCollections() {
   );
 
   // 切换歌曲在收藏夹中的状态（添加 / 移除）
+  // hashlist 仍返回 hash，所以按 hash 判断是否已收录；增删请求按谱面 Id 提交
   const toggleSongInCollection = useCallback(
-    async (collectionId: string, songHash: string) => {
+    async (collectionId: string, { chartId, songHash }: CollectionChart) => {
       if (!username) return;
       const isIn = isSongInCollection(collectionId, songHash);
       setPendingIds((prev) => new Set(prev).add(collectionId));
       try {
         const body = isIn
-          ? { hashesToRemove: [songHash] }
-          : { hashesToAdd: [songHash] };
+          ? { chartIdsToRemove: [chartId] }
+          : { chartIdsToAdd: [chartId] };
 
         const res = await fetch(endpoints.collection.diff(collectionId), {
           method: 'POST',

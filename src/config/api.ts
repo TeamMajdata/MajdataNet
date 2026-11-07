@@ -4,10 +4,15 @@ export const apiroot3 = '/api3/api';
 export const endpoints = {
   // 成绩排行与统计，统一位于 /api/maiscore 下
   maiscore: {
-    // 单谱面排行榜，返回 8 个难度各自的前 10 名
+    // 单谱面排行榜，响应 { hash, levelHashes, scores }：levelHashes 固定 7 项，下标为难度序号，
+    // 没有 inote 的难度为 null；scores[level] 为该难度按 level hash 查到的前 10 名，共 8 项，最后一项恒为空数组
     chartLeaderboard: (chartId: string | number) =>
       `${apiroot3}/maiscore/leaderboard/chart/by-id/${encodeURIComponent(chartId)}`,
-    // POST，按谱面 Hash 集合和时间段统计排行（季赛榜）
+    // 单个难度（level hash）的排行榜，响应 { levelHash, scores }；成绩按 level hash 共享，
+    // 内容相同的难度（换源前后、不同谱面）是同一个榜。levelHash 不是 64 位小写 hex 时返回 400
+    levelLeaderboard: (levelHash: string) =>
+      `${apiroot3}/maiscore/leaderboard/chart/by-level/${encodeURIComponent(levelHash)}`,
+    // POST，按谱面 Id 集合（请求体 songIds）和时间段统计排行（季赛榜）
     periodLeaderboard: `${apiroot3}/maiscore/leaderboard/period`,
     // 成绩总和榜；uploader 为空时为全站榜，否则只统计该上传者的谱面
     scoreSums: (uploader: string, page: number, pageSize: number) =>

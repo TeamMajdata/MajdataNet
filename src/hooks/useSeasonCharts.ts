@@ -56,7 +56,7 @@ async function fetchSeasonChart(chart: SeasonChart): Promise<SeasonChartSummary>
   return item;
 }
 
-/** Load the complete collection before resolving current chart versions. */
+/** Load the complete collection before loading chart metadata. */
 export async function fetchSeasonCollection(id: string): Promise<SeasonChart[]> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 15_000);
@@ -83,9 +83,9 @@ export async function fetchSeasonCollection(id: string): Promise<SeasonChart[]> 
   }
 }
 
-/** One metadata snapshot supplies both the visible pool and the ranking hashes. */
+/** One metadata snapshot supplies both the visible pool and the ranking chart IDs. */
 export function useSeasonCharts(collectionId: string) {
-  // Resolve current versions on every visit before reusing cached standings.
+  // Reload the pool and chart metadata on every visit before reusing cached standings.
   const snapshotId = useId();
   const { data, error: requestError, isLoading, isValidating, mutate } = useSWR<SeasonChartSummary[], Error>(
     ['season-chart-summaries', snapshotId, collectionId],
@@ -104,13 +104,13 @@ export function useSeasonCharts(collectionId: string) {
   const resolved = useMemo(() => {
     if (requestError) return { error: requestError };
     if (isLoading || isValidating || !data) return {};
+    // Rankings wait for every chart, so a missing chart never silently drops out of the totals.
     const error = data.find(item => item.error)?.error;
     if (error) return { error };
-    const songhashes = data.map(item => item.song!.hash);
-    if (new Set(songhashes).size !== songhashes.length) {
-      return { error: new Error('Multiple season charts resolve to the same hash') };
-    }
-    return { songhashes };
+    // The collection already normalized and deduplicated these IDs; keep the
+    // order of `items`, which per-chart breakdowns align with by index.
+    const songIds = data.map(item => item.id);
+    return { songIds };
   }, [data, requestError, isLoading, isValidating]);
 
   async function retry(id?: string) {

@@ -409,6 +409,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
       <CollectionModal
         isOpen={isCollectionModalOpen}
         onClose={() => setIsCollectionModalOpen(false)}
+        chartId={o.id}
         songHash={o.hash}
       />
     </div>
