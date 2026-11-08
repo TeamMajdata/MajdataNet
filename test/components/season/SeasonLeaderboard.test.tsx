@@ -28,6 +28,7 @@ const event: Event = {
   alt: 'Season', title: 'Season', description: 'Season', category: 5,
   createDate: '2026-09-01T00:00:00+08:00', endDate: '2026-09-30T23:59:59.999+08:00',
 };
+const chartId = '3f2504e0-4f89-11d3-9a0c-0305e82c3301';
 const rows = [{
   playerId: 'player-one', username: 'Player & One', totalDXScore: 1200, totalAccDX: 100.1234, totalAccClassic: 100,
   player: { id: 'player-one', username: 'Player & One', nickname: 'P1', avatarId: 'one-avatar' },
@@ -42,7 +43,7 @@ describe('season leaderboard recovery', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>;
 
   function RankingProbe() {
-    const state = useSeasonRanking(event, 'ongoing', charts.songhashes ?? null);
+    const state = useSeasonRanking(event, 'ongoing', charts.songIds ?? null);
     useEffect(() => { ranking = state; }, [state]);
     return null;
   }
@@ -51,7 +52,7 @@ describe('season leaderboard recovery', () => {
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
-    charts = { items: [], songhashes: ['current-hash'], isLoading: false, retry: vi.fn().mockResolvedValue(undefined) };
+    charts = { items: [], songIds: [chartId], isLoading: false, retry: vi.fn().mockResolvedValue(undefined) };
     fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', fetchMock);
   });
@@ -95,8 +96,9 @@ describe('season leaderboard recovery', () => {
     const [url, options] = fetchMock.mock.calls[1];
     expect(url).toBe('/api3/api/maiscore/leaderboard/period');
     expect(options?.method).toBe('POST');
+    // 按谱面 Id 查询；请求体里不再有 hash 字段
     expect(JSON.parse(options?.body as string)).toEqual({
-      songhashes: ['current-hash'], startTime: '2026-08-31T16:00:00.000Z',
+      songIds: [chartId], startTime: '2026-08-31T16:00:00.000Z',
       endTime: '2026-09-30T15:59:59.999Z', scoreType: 'best', sortBy: 'Acc.DX',
     });
   });
@@ -119,7 +121,7 @@ describe('season leaderboard recovery', () => {
   });
 
   it('retries metadata first when the chart pool failed to resolve', async () => {
-    charts = { ...charts, songhashes: undefined, error: new Error('Chart request failed') };
+    charts = { ...charts, songIds: undefined, error: new Error('Chart request failed') };
     await render();
     await act(async () => retryButton()!.click());
     expect(charts.retry).toHaveBeenCalledOnce();

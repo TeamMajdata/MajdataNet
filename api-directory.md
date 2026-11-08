@@ -27,7 +27,7 @@
 - POST `/api/account/profile`：FormData，可提交 `nickname`、`introduction`、`avatar`，返回更新后的资料。
 - GET `/api/avatar/{avatarId}`：头像，前端只用这一个接口（`UserAvatar` 组件 / `useAvatarUrl`）。已知 `avatarId` 时直接使用、不发请求：资料对象自带 `avatarId`；总分榜（`/api/maiscore/sum/...` 的 `players[].player`）、季赛榜（`/api/maiscore/leaderboard/period` 每条的 `player`）和评论（`authorProfile`）附带精简资料 `UserBrief` = `{ id, username, nickname, avatarId }`（未上传头像时 `avatarId` 为 `default`，`nickname` 可能为空串；账号已删除或评论为占位符时为 null）；单曲排行榜 `scores[][].player` 的 `id`、`avatarId` 也已填充。只有谱面上传者（谱面响应不带资料）以及上述资料为 null 或缺失时，才按用户名读 GET `/api/account/profile?username=...` 取 `avatarId`，同名只请求一次并与个人空间共用缓存；用户不存在或无用户名时用 `default`。这些榜单和评论仍显示用户名，不换成昵称。`/api/account/icon?username=...` 仅留给 MajdataPlay，前端不再调用。
 - 头像和简介上传后刷新资料，避免旧头像缓存；昵称用于显示，用户名继续用于链接、归属判断和 API 查询。
-- GET `/api/account/recent?username=...`、GET `/api/account/scores` 的已有调用协议保持兼容。
+- GET `/api/account/recent?username=...` 的已有调用协议保持兼容；GET `/api/account/scores` 的每条成绩增加 `levelHash`（见下文「按 level hash 存储成绩」）。
 
 ## 排行、收藏与评论
 
@@ -35,8 +35,8 @@
 | --- | --- |
 | 全站总分榜 | 改用 GET `/api/maiscore/sum/all?page=0&pageSize=...` |
 | 上传者榜 | 改用 GET `/api/maiscore/sum/chart/by-uploader/{uploader}?page=0&pageSize=...`（`uploader` 作为路径段转义）；旧 `/api/stats/score-sums` 已废弃 |
-| 单曲排行榜/成绩卡排名 | 改用 GET `/api/maiscore/leaderboard/chart/by-id/{chartId}`；旧 GET `/api/maichart/{chartId}/score` 已废弃 |
-| 季赛榜 | 改用 POST `/api/maiscore/leaderboard/period`，请求体不变；旧 POST `/api/playhistory/ranking` 已废弃 |
+| 单曲排行榜/成绩卡排名 | 单曲排行榜用 GET `/api/maiscore/leaderboard/chart/by-id/{chartId}`，响应为 `{ hash, levelHashes, scores }`；成绩卡排名在成绩带 `levelHash` 时用 GET `/api/maiscore/leaderboard/chart/by-level/{levelHash}`，否则退回 `by-id`；旧 GET `/api/maichart/{chartId}/score` 已废弃 |
+| 季赛榜 | 改用 POST `/api/maiscore/leaderboard/period`，请求体用 `songIds`（谱面 Id 数组）；旧 POST `/api/playhistory/ranking` 已废弃 |
 | 总分返回值 | 从旧数组和 `dxAccSum` 改为 `{ geneTime, players: [{ userId, username, acc: { dx, classic }, player }] }`，`player` 为 `UserBrief \| null` |
 | 收藏歌单列表 | GET `/api/account/favorite/collection/list` 返回 `songHashs`，卡片的 `count` 从数组长度计算 |
 | 谱面投票 | PUT `/api/maichart/{chartId}/vote`，JSON `{ value: 1 \| 0 \| -1 }`，返回 `{ score, upvotes, downvotes, myVote }`；旧的 like/dislike Form 接口只保留给游戏客户端 |
@@ -46,7 +46,21 @@
 | 管理员 | 前端用 GET `/api/admin/groups` 是否返回 200 判断当前用户是否为管理员，管理员可移除任何评论 |
 | 单曲排行榜 | `player` 的昵称、头像信息用于显示，用户名用于个人空间链接 |
 
-已核对仍兼容的接口：谱面搜索/排序/详情及文件下载、上传及哈希检查、删除、标签更新、歌单创建/修改/删除/曲目增删、收藏/取消收藏、季赛榜请求和最近游玩数据、机台扫码授权。列表排序新增 `hotp`（热门）与 `topp`（分数），`likep` 不再使用。
+已核对仍兼容的接口：谱面搜索/排序/详情及文件下载、上传及哈希检查、删除、标签更新、歌单创建/删除、收藏/取消收藏、最近游玩数据、机台扫码授权。列表排序新增 `hotp`（热门）与 `topp`（分数），`likep` 不再使用。歌单修改、曲目增删和季赛榜请求已按下文改为谱面 Id。
+
+## 按 level hash 存储成绩（TeamMajdata/mmfcapi#44）
+
+后端改为按各难度 inote 的 SHA-256（level hash）存成绩，按谱面 Id（`MaiChart.Id`）存互动、投票、评论和歌单，契约见后端仓库 `docs/level-hash.md`。前端只使用后端返回的 level hash，不自己计算。
+
+| 功能 | 接口 | 前端的谱面 Id / level hash 来源 |
+| --- | --- | --- |
+| 单曲排行榜 | GET `/api/maiscore/leaderboard/chart/by-id/{chartId}`，响应 `{ hash, levelHashes, scores }`；`levelHashes` 固定 7 项，`scores` 仍为 8 项 | 谱面页 URL 的 `id` |
+| 成绩卡排名 | GET `/api/maiscore/leaderboard/chart/by-level/{levelHash}`，响应 `{ levelHash, scores }`；没有合法 `levelHash`（迁移未完成的旧成绩、最近游玩卡片）时退回 `by-id` | `/api/account/scores` 每条成绩的 `levelHash`；退回时用 `chartInfo.id` |
+| 季赛榜及单曲明细 | POST `/api/maiscore/leaderboard/period`，`songIds` 代替 `songHashes` | 季赛歌单 `songlist` 的 `items[].id` |
+| 歌单增删曲目 | POST `/api/collection/{id}/diff`，`chartIdsToAdd` / `chartIdsToRemove` 代替 `hashesToAdd` / `hashesToRemove`；是否已收录仍按 `hashlist` 返回的 hash 判断 | 谱面页的谱面 Id |
+| 歌单管理保存 | POST `/api/collection/{id}/modify`，`items` 为谱面 Id 数组 | 原有曲目取 `songlist` 的 `items[].id`，新增曲目取搜索结果的 `id`，不再为取 hash 请求 `summary` |
+
+`hashlist`、`songlist`、`favorite/collection/list` 的响应不变。谱面信息 `/api/maichart/{chartId}/info`、POST `/api/maichart/info` 新增的 `levelHashes` 前端暂未使用（前端读的是 `summary`）。按谱面查成绩总和的 `/api/maiscore/sum/chart/by-id/{chartId}` 前端目前没有调用点。前端没有提交成绩的地方，`POST /api/maiscore/level/{levelHash}`（请求体须带 `chartId`）只供游戏客户端使用。
 
 ## 需要后端修复的阻碍
 

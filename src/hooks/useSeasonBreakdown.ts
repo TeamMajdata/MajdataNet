@@ -18,7 +18,7 @@ export interface SeasonBreakdownItem {
 }
 
 type SeasonStatus = 'upcoming' | 'ongoing' | 'ended';
-type ChartState = Pick<SeasonChartsState, 'items' | 'songhashes' | 'error' | 'isLoading'>;
+type ChartState = Pick<SeasonChartsState, 'items' | 'songIds' | 'error' | 'isLoading'>;
 
 interface SeasonBreakdownSnapshot {
   rows?: PlayHistoryRankingEntry[];
@@ -34,14 +34,15 @@ export function useSeasonBreakdown(
   status: SeasonStatus,
 ) {
   const configuration = useMemo(() => {
-    if (!chartState.songhashes || chartState.error) return { error: chartState.error };
+    if (!chartState.songIds || chartState.error) return { error: chartState.error };
     try {
-      const request = buildSeasonRankingRequest(event, chartState.songhashes);
-      return { requests: request.songhashes.map(hash => ({ ...request, songhashes: [hash] })) };
+      const request = buildSeasonRankingRequest(event, chartState.songIds);
+      // One request per chart; songIds follows `items`, so results align by index below.
+      return { requests: request.songIds.map(id => ({ ...request, songIds: [id] })) };
     } catch (error) {
       return { error: error instanceof Error ? error : new Error('Invalid season configuration') };
     }
-  }, [event, chartState.songhashes, chartState.error]);
+  }, [event, chartState.songIds, chartState.error]);
   const enabled = active && Boolean(playerId) && status !== 'upcoming' && Boolean(configuration.requests);
   // Every player uses the same complete per-song standings. SWR handles cache
   // sharing and in-flight deduplication; playerId only selects rows below.

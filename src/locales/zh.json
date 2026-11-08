@@ -115,7 +115,6 @@
     "Creator": "创建者",
     "DescriptionPlaceholder": "描述内容（可选）",
     "EmptyCollection": "歌单为空",
-    "FetchHashFailed": "获取歌曲 hash 失败",
     "InvalidParams": "参数错误",
     "LatestActivity": "最近互动",
     "LikeCount": "赞",

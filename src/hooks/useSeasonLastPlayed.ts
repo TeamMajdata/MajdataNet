@@ -8,7 +8,6 @@ import { buildSeasonRankingRequest, createSeasonRequestLimiter } from '@/utils/s
 type SeasonStatus = 'upcoming' | 'ongoing' | 'ended';
 interface RecentQuery {
   chartIds: string[];
-  songhashes: string[];
   startTime: string;
   endTime: string;
 }
@@ -37,16 +36,17 @@ function fetchLastPlayed([, url, , query]: RecentKey): Promise<RecentResult> {
 
 /** Mount only for players on the current leaderboard page. */
 export function useSeasonLastPlayed(username: string, event: Event, chartState: SeasonChartsState, status: SeasonStatus) {
-  const { items, songhashes, isLoading: chartsLoading, error: chartsError } = chartState;
+  const { songIds, isLoading: chartsLoading, error: chartsError } = chartState;
   const query = useMemo<RecentQuery | undefined>(() => {
-    if (chartsLoading || chartsError || !songhashes) return undefined;
+    if (chartsLoading || chartsError || !songIds) return undefined;
     try {
-      const { startTime, endTime } = buildSeasonRankingRequest(event, songhashes);
-      return { chartIds: items.map(item => item.id), songhashes, startTime, endTime };
+      // The same chart IDs as the ranking request, so recent plays cover the same pool.
+      const { songIds: chartIds, startTime, endTime } = buildSeasonRankingRequest(event, songIds);
+      return { chartIds, startTime, endTime };
     } catch {
       return undefined;
     }
-  }, [event, items, songhashes, chartsLoading, chartsError]);
+  }, [event, songIds, chartsLoading, chartsError]);
   const key: RecentKey | null = status !== 'upcoming' && query && username
     ? ['season-last-played', endpoints.account.recent(username), event.id, query, status]
     : null;

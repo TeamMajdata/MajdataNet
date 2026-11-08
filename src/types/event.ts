@@ -60,7 +60,8 @@ export interface CarouselEventsResult {
 export type SeasonChart = string;
 
 export interface PlayHistoryRankingRequest {
-  songhashes: string[];
+  /** 谱面 Id（MaiChart.Id），后端按 PlayHistory.ChartId 查询。 */
+  songIds: string[];
   startTime: string;
   endTime: string;
   scoreType: 'best';

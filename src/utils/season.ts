@@ -2,21 +2,22 @@ import type { Event } from '@/types/event';
 import type { PlayHistoryRankingEntry, PlayHistoryRankingRequest, RankedSeasonEntry } from '@/types/event';
 
 
-export function buildSeasonRankingRequest(event: Event, resolvedHashes: readonly string[]): PlayHistoryRankingRequest {
+/** The period leaderboard selects plays by chart ID (`PlayHistory.ChartId`). */
+export function buildSeasonRankingRequest(event: Event, chartIds: readonly string[]): PlayHistoryRankingRequest {
   const errors = validateSeasonEvent(event);
   if (errors.length > 0 || event.type !== 'season') {
     throw new Error(errors.length > 0 ? errors.join('; ') : 'A valid season event is required');
   }
-  const songhashes = [...resolvedHashes];
-  if (songhashes.length === 0
-    || !songhashes.every((hash): hash is string => typeof hash === 'string' && hash.trim() !== '' && hash === hash.trim())) {
-    throw new Error('Every season chart must resolve to a valid hash before querying the ranking');
+  const songIds = [...chartIds];
+  if (songIds.length === 0
+    || !songIds.every((id): id is string => typeof id === 'string' && id.trim() !== '' && id === id.trim())) {
+    throw new Error('Every season chart must have a valid chart ID before querying the ranking');
   }
-  if (new Set(songhashes).size !== songhashes.length) {
-    throw new Error('Resolved season chart hashes must not be duplicated');
+  if (new Set(songIds).size !== songIds.length) {
+    throw new Error('Season chart IDs must not be duplicated');
   }
   return {
-    songhashes,
+    songIds,
     startTime: new Date(event.createDate).toISOString(),
     endTime: new Date(event.endDate).toISOString(),
     scoreType: 'best',

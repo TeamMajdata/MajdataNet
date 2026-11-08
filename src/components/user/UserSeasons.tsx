@@ -40,7 +40,7 @@ export default function UserSeasons({ username }: { username: string }) {
 function UserSeasonResult({ event, status, username }: Omit<UserSeasonCardProps, 'entry'> & { username: string }) {
   const { t } = useTranslation();
   const charts = useSeasonCharts(event.asset);
-  const ranking = useSeasonRanking(event, status, charts.songhashes ?? null);
+  const ranking = useSeasonRanking(event, status, charts.songIds ?? null);
   // Use the same complete standings as the season page, then select this user.
   const entry = ranking.entries?.find(row => row.username === username);
   const error = charts.error ?? ranking.error;

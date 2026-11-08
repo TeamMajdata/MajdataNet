@@ -46,10 +46,10 @@ export function fetchSeasonRanking([url, request]: [string, RankingRequest]): Pr
   });
 }
 
-/** The full payload is part of the SWR key, keeping fixed chart versions and seasons isolated. */
-export function useSeasonRanking(event: Event, status: SeasonStatus, songhashes: string[] | null) {
+/** The full payload is part of the SWR key, keeping chart pools and seasons isolated. */
+export function useSeasonRanking(event: Event, status: SeasonStatus, songIds: string[] | null) {
   // null means the shared metadata snapshot has not resolved the complete pool.
-  const request = useMemo(() => songhashes === null ? null : buildSeasonRankingRequest(event, songhashes), [event, songhashes]);
+  const request = useMemo(() => songIds === null ? null : buildSeasonRankingRequest(event, songIds), [event, songIds]);
   // A status change queries once at the boundary; there is no periodic polling.
   const { data, error, isLoading, isValidating, mutate } = useSWR<PlayHistoryRankingEntry[], Error>(
     status === 'upcoming' || !request ? null : [endpoints.maiscore.periodLeaderboard, request, status],
