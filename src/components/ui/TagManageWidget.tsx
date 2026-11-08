@@ -20,7 +20,9 @@ import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import LoadingSpinner from './LoadingSpinner';
 import sleep from '@/utils/sleep';
-import { saveChartTags } from '@/utils/chartTags';
+import { MAX_CHART_TAGS, saveChartTags } from '@/utils/chartTags';
+import { ApiError } from '@/utils/apiClient';
+import { CODE_TOO_MANY_ELEMENTS } from '@/config/apiRetCode';
 import { motion } from 'framer-motion';
 import type {
   TagManageWidgetProps,
@@ -133,7 +135,7 @@ function tagsReducer(state: string[], action: TagsAction): string[] {
     case 'INIT_TAGS':
       return action.payload;
     case 'ADD_TAG':
-      return [...state, action.payload];
+      return state.includes(action.payload) ? state : [...state, action.payload];
     case 'REMOVE_TAG': {
       const newTags = [...state];
       newTags.splice(action.payload, 1);
@@ -257,8 +259,14 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       let saved: string[];
       try {
         saved = await saveChartTags(songid, isInPrivatePage ? 'private' : 'public', serverTagsRef.current, tags);
-      } catch {
-        toast.error('好像上传失败惹……');
+      } catch (error) {
+        if (error instanceof ApiError && error.code === CODE_TOO_MANY_ELEMENTS) {
+          toast.error(t("shared/TagManageWidget.TooManyTags", { max: MAX_CHART_TAGS }));
+        } else if (error instanceof ApiError && error.status === 409) {
+          toast.error(t("shared/TagManageWidget.TagsChanged"));
+        } else {
+          toast.error('好像上传失败惹……');
+        }
         return;
       } finally {
         toast.done(uploading);
@@ -274,6 +282,17 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
         await sleep(1000);
         window.location.reload();
       }
+    };
+
+    /** Adds a tag unless it is already there; refuses one past the backend's per-kind limit. */
+    const addTag = (tag: string) => {
+      if (tags.includes(tag)) return true;
+      if (tags.length >= MAX_CHART_TAGS) {
+        toast.error(t("shared/TagManageWidget.TooManyTags", { max: MAX_CHART_TAGS }));
+        return false;
+      }
+      dispatch({ type: 'ADD_TAG', payload: tag });
+      return true;
     };
 
     if (error) {
@@ -408,8 +427,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
             <button
               onClick={() => {
                 const trimmed = newTag.trim();
-                if (trimmed !== '') {
-                  dispatch({ type: 'ADD_TAG', payload: trimmed });
+                if (trimmed !== '' && addTag(trimmed)) {
                   setNewTag(''); // 清空输入框
                 }
               }}
@@ -455,9 +473,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
                 <span
                   className="bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs transition-colors duration-200 cursor-pointer"
                   key={tag}
-                  onClick={() => {
-                    dispatch({ type: 'ADD_TAG', payload: tag });
-                  }}
+                  onClick={() => addTag(tag)}
                 >
                   {tag}
                 </span>

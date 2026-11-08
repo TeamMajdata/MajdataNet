@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { CODE_TOO_MANY_ELEMENTS } from '@/config/apiRetCode';
 import { diffChartTags, saveChartTags } from '@/utils/chartTags';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -54,6 +55,35 @@ describe('saveChartTags', () => {
     await expect(saveChartTags('c1', 'public', [], ['A'])).rejects.toMatchObject({
       status: 400, code: 40000, message: 'A tag cannot be both added and removed',
     });
+  });
+
+  const tooMany = () => Response.json({ code: 40002, message: 'A chart can have at most 32 tags of each kind' }, { status: 400 });
+  const tagsChanged = () => Response.json({ code: -114514, message: 'The tags were changed by other requests, try again' }, { status: 409 });
+
+  it.each(['private', 'public'] as const)('rejects %s tags over the limit with CODE_TOO_MANY_ELEMENTS', async (scope) => {
+    stubFetch(tooMany());
+    await expect(saveChartTags('c1', scope, [], ['A'])).rejects.toMatchObject({ status: 400, code: CODE_TOO_MANY_ELEMENTS });
+  });
+
+  it('sends a public-tag PATCH again once after a 409 and resolves to the retried result', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(tagsChanged()).mockResolvedValueOnce(Response.json(['A', 'B']));
+    vi.stubGlobal('fetch', fetchMock);
+    await expect(saveChartTags('c1', 'public', ['A'], ['A', 'B'])).resolves.toEqual(['A', 'B']);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls.map(([, init]) => JSON.parse(String(init?.body)))).toEqual([{ add: ['B'], remove: [] }, { add: ['B'], remove: [] }]);
+  });
+
+  it('gives up with the 409 when the retry loses to concurrent edits too', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(async () => tagsChanged());
+    vi.stubGlobal('fetch', fetchMock);
+    await expect(saveChartTags('c1', 'public', [], ['A'])).rejects.toMatchObject({ status: 409 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not retry a 40002 refusal', async () => {
+    const fetchMock = stubFetch(tooMany());
+    await expect(saveChartTags('c1', 'public', [], ['A'])).rejects.toMatchObject({ code: CODE_TOO_MANY_ELEMENTS });
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 
   it('rejects on a 404 without a body', async () => {

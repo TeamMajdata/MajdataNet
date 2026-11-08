@@ -323,6 +323,8 @@
     "CustomTag": "カスタムタグ",
     "DeleteTag": "タグを削除",
     "NoTags": "タグがありません",
+    "TagsChanged": "タグが同時に他のユーザーに変更されました。もう一度お試しください",
+    "TooManyTags": "譜面ごとに各種類のタグは最大 {{max}} 個までです",
     "Uploading": "爆速アップロード中..."
   },
   "shared/UserMenu": {

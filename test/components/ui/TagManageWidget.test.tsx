@@ -97,4 +97,39 @@ describe('TagManageWidget', () => {
     expect(toastMock.success).not.toHaveBeenCalled();
     expect(shownTags()).toEqual(['A', 'POPS']);
   });
+
+  const tooManyTags = () => i18n.t('shared/TagManageWidget.TooManyTags', { max: 32 });
+
+  it('refuses a 33rd tag before sending anything', async () => {
+    const full = Array.from({ length: 32 }, (_, index) => `t${index}`);
+    await open('/song', { publicTags: full });
+    await clickText('POPS');
+
+    expect(toastMock.error).toHaveBeenCalledWith(tooManyTags());
+    expect(shownTags()).toEqual(full);
+    expect(fetchMock).toHaveBeenCalledTimes(1); // only the summary
+  });
+
+  it('shows the tag limit when the server refuses with 40002', async () => {
+    await open('/song', { publicTags: ['A'] });
+    await clickText('POPS');
+    fetchMock.mockResolvedValueOnce(Response.json({ code: 40002, message: 'A chart can have at most 32 tags of each kind' }, { status: 400 }));
+    await clickText('更新Tags');
+
+    expect(toastMock.error).toHaveBeenCalledWith(tooManyTags());
+    expect(toastMock.success).not.toHaveBeenCalled();
+    expect(shownTags()).toEqual(['A', 'POPS']);
+  });
+
+  it('asks to try again when concurrent edits keep winning after the retry', async () => {
+    await open('/song', { publicTags: ['A'] });
+    await clickText('POPS');
+    const conflict = () => Response.json({ code: -114514, message: 'The tags were changed by other requests, try again' }, { status: 409 });
+    fetchMock.mockResolvedValueOnce(conflict()).mockResolvedValueOnce(conflict());
+    await clickText('更新Tags');
+
+    expect(fetchMock).toHaveBeenCalledTimes(3); // summary, PATCH, retried PATCH
+    expect(toastMock.error).toHaveBeenCalledWith(i18n.t('shared/TagManageWidget.TagsChanged'));
+    expect(shownTags()).toEqual(['A', 'POPS']);
+  });
 });
