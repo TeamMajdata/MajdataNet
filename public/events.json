@@ -1,5 +1,17 @@
 [
   {
+    "id": "mpl2nd",
+    "type": "outerLink",
+    "asset": "https://mpl.asia/charts.html",
+    "src": "/events/mpl2nd.png",
+    "alt": "MPL2nd",
+    "title": "MPL2nd",
+    "category": 3,
+    "createDate": "2026-07-01",
+    "endDate": "2027-08-15",
+    "description": ""
+  },
+  {
     "id": "mifc",
     "type": "outerLink",
     "asset": "https://mmfc.top/contests/mifc",
