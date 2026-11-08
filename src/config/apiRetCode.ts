@@ -10,6 +10,7 @@ export const CODE_ERROR = -114514;
 // 请求错误 4XXXX
 export const CODE_INVALID_VALUE = 40000;
 export const CODE_PAYLOAD_REQUIRED = 40001;
+export const CODE_TOO_MANY_ELEMENTS = 40002;
 export const CODE_NO_SUCH_ITEM = 40400;
 export const CODE_ITEM_ALREADY_EXISTS = 40900;
 export const CODE_ITEM_DELETED = 41000;

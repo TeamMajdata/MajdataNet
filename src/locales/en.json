@@ -329,6 +329,8 @@
     "CustomTag": "Custom tag",
     "DeleteTag": "Delete tag",
     "NoTags": "No tags",
+    "TagsChanged": "Someone else changed these tags at the same time. Please try again.",
+    "TooManyTags": "A chart can have at most {{max}} tags of each kind",
     "Uploading": "Uploading..."
   },
   "shared/UserMenu": {
