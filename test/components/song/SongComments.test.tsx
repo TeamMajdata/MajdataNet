@@ -200,7 +200,7 @@ describe('CommentSection', () => {
 
   it('asks a signed-out visitor to sign in and shows failures with a retry', async () => {
     currentUser = null;
-    fetchMock.mockResolvedValueOnce(json({ code: 13, message: 'No such chart' }, 404)).mockResolvedValueOnce(json(page([])));
+    fetchMock.mockResolvedValueOnce(json({ code: 40400, message: 'No such chart' }, 404)).mockResolvedValueOnce(json(page([])));
     await render(<CommentSection chartId="chart" uploader="x" />);
     expect(container.textContent).toContain('登录后即可评论');
     expect(container.querySelector('a[href^="/login?redirect="]')).toBeTruthy();

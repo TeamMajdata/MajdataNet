@@ -108,7 +108,7 @@ describe('email challenge authentication', () => {
   });
 
   it('requires a fresh challenge after registration validation consumes it', async () => {
-    fetchMock.mockResolvedValueOnce(new Response('key')).mockResolvedValueOnce(Response.json({ code: 4, message: 'Username exists' }, { status: 400 }));
+    fetchMock.mockResolvedValueOnce(new Response('key')).mockResolvedValueOnce(Response.json({ code: 60103, message: 'Username exists' }, { status: 400 }));
     await render('/register'); fill('email', 'one@example.com'); await sendCode();
     fill('username', 'player'); fill('nickname', 'player'); fill('password', 'x'); fill('password2', 'x'); fill('challengeCode', '12345678'); await submit();
     expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.UsernameExists')); expect(submitButton().disabled).toBe(true);

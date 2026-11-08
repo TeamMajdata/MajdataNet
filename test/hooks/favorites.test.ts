@@ -9,6 +9,6 @@ it('derives favorite collection counts from songHashs', async () => {
   expect(result[0]).toMatchObject({ id: 'collection', count: 2 });
 });
 it('does not convert an unauthorized response into favorite collection data', async () => {
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ code: -1 }, { status: 401 })));
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ code: 60000 }, { status: 401 })));
   await expect(fetchFavoriteCollections(endpoints.favorite.list)).rejects.toMatchObject({ status: 401 });
 });

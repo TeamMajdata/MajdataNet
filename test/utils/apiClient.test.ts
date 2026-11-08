@@ -14,8 +14,8 @@ describe('backend response formats', () => {
   });
 
   it('preserves the backend code and message on failure', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ code: 10, message: 'Invalid code' }, { status: 400 })));
-    await expect(apiRequest('/api')).rejects.toMatchObject({ status: 400, code: 10, message: 'Invalid code' });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ code: 60003, message: 'Invalid code' }, { status: 400 })));
+    await expect(apiRequest('/api')).rejects.toMatchObject({ status: 400, code: 60003, message: 'Invalid code' });
   });
 
   it('handles a proxy HTML error without displaying markup', async () => {

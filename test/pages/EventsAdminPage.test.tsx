@@ -30,7 +30,7 @@ function fakeBackend(groups: string[], events: Event[]) {
     if (url === '/api3/api/event' && method === 'GET') return Response.json(events);
     if (url === '/api3/api/event' && method === 'POST') {
       const body = JSON.parse(String(init?.body)) as Event;
-      if (events.some((event) => event.id === body.id)) return Response.json({ code: 14, message: 'exists' }, { status: 409 });
+      if (events.some((event) => event.id === body.id)) return Response.json({ code: 40900, message: 'exists' }, { status: 409 });
       const saved = { ...body, createDate: new Date(body.createDate).toISOString(), endDate: new Date(body.endDate).toISOString() };
       events.unshift(saved);
       return Response.json(saved, { status: 201 });
