@@ -24,7 +24,7 @@ it('renders nested players/acc.dx from the new all-player totals endpoint', asyn
 });
 it('shows the avatar from the player profile and looks up only players without one', async () => {
   const fetch = vi.fn(async (url: string) => url.includes('/account/profile?')
-    ? Response.json({ code: 13, message: 'No such user' }, { status: 404 })
+    ? Response.json({ code: 40400, message: 'No such user' }, { status: 404 })
     : Response.json({ geneTime: '2026-10-01T00:00:00Z', players: [
       { userId: 'u1', username: 'player', acc: { dx: 202.3456, classic: 205 }, player: { id: 'u1', username: 'player', nickname: 'Nick', avatarId: 'abc' } },
       { userId: 'u2', username: 'ghost', acc: { dx: 100, classic: 100 }, player: null },

@@ -59,7 +59,7 @@ describe('UserAvatar', () => {
   });
 
   it('falls back to the default avatar when the user does not exist', async () => {
-    fetchMock.mockImplementation(async () => Response.json({ code: 13, message: 'No such user' }, { status: 404 }));
+    fetchMock.mockImplementation(async () => Response.json({ code: 40400, message: 'No such user' }, { status: 404 }));
     await render(<UserAvatar username="ghost" />);
     expect(sources()).toEqual(['/api3/api/avatar/default']);
   });
