@@ -56,11 +56,12 @@
 | --- | --- | --- |
 | 单曲排行榜 | GET `/api/maiscore/leaderboard/chart/by-id/{chartId}`，响应 `{ hash, levelHashes, scores }`；`levelHashes` 固定 7 项，`scores` 仍为 8 项 | 谱面页 URL 的 `id` |
 | 成绩卡排名 | GET `/api/maiscore/leaderboard/chart/by-level/{levelHash}`，响应 `{ levelHash, scores }`；没有合法 `levelHash`（迁移未完成的旧成绩、最近游玩卡片）时退回 `by-id` | `/api/account/scores` 每条成绩的 `levelHash`；退回时用 `chartInfo.id` |
-| 季赛榜及单曲明细 | POST `/api/maiscore/leaderboard/period`，`songIds` 代替 `songHashes` | 季赛歌单 `songlist` 的 `items[].id` |
-| 歌单增删曲目 | POST `/api/collection/{id}/diff`，`chartIdsToAdd` / `chartIdsToRemove` 代替 `hashesToAdd` / `hashesToRemove`；是否已收录仍按 `hashlist` 返回的 hash 判断 | 谱面页的谱面 Id |
-| 歌单管理保存 | POST `/api/collection/{id}/modify`，`items` 为谱面 Id 数组 | 原有曲目取 `songlist` 的 `items[].id`，新增曲目取搜索结果的 `id`，不再为取 hash 请求 `summary` |
+| 季赛榜及单曲明细 | POST `/api/maiscore/leaderboard/period`，`songIds` 代替 `songHashes` | 季赛歌单 `songlist` 的 `items`（谱面 Id 数组） |
+| 歌单增删曲目 | 先 GET `songlist` 取当前 `items`，本地增删后 PUT `/api/collection/{id}/modify` 提交完整 `items`；原 POST `/api/collection/{id}/diff` 已移除。是否已收录仍按 `hashlist` 返回的 hash 判断 | 谱面页的谱面 Id |
+| 歌单管理保存 | PUT `/api/collection/{id}/modify`（原为 POST），`items` 为谱面 Id 数组，整体替换并按请求顺序保存 | 原有曲目取 `songlist` 的 `items`，新增曲目取搜索结果的 `id`，不再为取 hash 请求 `summary` |
+| 歌单曲目展示 | GET `/api/collection/{id}/songlist` 的 `items` 为谱面 Id 数组（歌单顺序）；POST `/api/maichart/info`（请求体为 Id 数组）一次取回元信息，按 `items` 的顺序显示，空歌单不请求 | `songlist` 的 `items` |
 
-`hashlist`、`songlist`、`favorite/collection/list` 的响应不变。谱面信息 `/api/maichart/{chartId}/info`、POST `/api/maichart/info` 新增的 `levelHashes` 前端暂未使用（前端读的是 `summary`）。按谱面查成绩总和的 `/api/maiscore/sum/chart/by-id/{chartId}` 前端目前没有调用点。前端没有提交成绩的地方，`POST /api/maiscore/level/{levelHash}`（请求体须带 `chartId`）只供游戏客户端使用。
+`hashlist`、`favorite/collection/list` 的响应不变；`songlist` 的 `items` 后来改为谱面 Id 数组（见上表）。谱面信息 `/api/maichart/{chartId}/info`、POST `/api/maichart/info` 新增的 `levelHashes` 前端暂未使用；歌单页只读 POST `/api/maichart/info` 的 `metadata`，其余页面读 `summary`。按谱面查成绩总和的 `/api/maiscore/sum/chart/by-id/{chartId}` 前端目前没有调用点。前端没有提交成绩的地方，`POST /api/maiscore/level/{levelHash}`（请求体须带 `chartId`）只供游戏客户端使用。
 
 ## 需要后端修复的阻碍
 
