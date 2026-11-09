@@ -43,7 +43,7 @@ describe('useSeasonCharts', () => {
       const url = String(input);
       if (url === `/api3/api/collection/${collectionId}/songlist`) {
         // 谱单顺序与 Id 字母序相反，GUID 大写也要规范化成小写
-        return Response.json({ items: [{ id: second.toUpperCase() }, { id: first }] });
+        return Response.json({ items: [second.toUpperCase(), first] });
       }
       const id = /\/maichart\/([^/]+)\/summary$/.exec(url)?.[1];
       if (id && summaries[id]) return summaries[id]();

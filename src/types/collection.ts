@@ -1,4 +1,4 @@
-import type { Song } from './song';
 export interface Collection { id: string; name: string; createdBy: string; description: string | null; count: number; }
-export interface CollectionSongList extends Collection { visibility: number; items: Song[]; }
+/** `items` are chart Ids (GUIDs) in collection order; fetch their metadata with `endpoints.maichart.info`. */
+export interface CollectionSongList extends Collection { visibility: number; items: string[]; }
 export interface CollectionDanInfo extends Omit<Collection, 'count'> { songHashs: string[]; isPlayList: boolean; isForceGameover: boolean; }

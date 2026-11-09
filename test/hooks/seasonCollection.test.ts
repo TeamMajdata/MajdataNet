@@ -7,14 +7,14 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('season collections', () => {
   it('loads chart IDs from the configured collection in collection order', async () => {
-    const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ items: [{ id: 'second' }, { id: 'first' }] }) });
+    const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ items: ['second', 'first'] }) });
     vi.stubGlobal('fetch', fetcher);
     expect(await fetchSeasonCollection(id)).toEqual(['/song?id=second', '/song?id=first']);
     expect(fetcher).toHaveBeenCalledWith(`/api3/api/collection/${id}/songlist`, expect.objectContaining({ credentials: 'include' }));
     expect(getEventHref({ id: 'ffmc-re', type: 'season', asset: id })).toBe('/season?id=ffmc-re');
   });
 
-  it.each([[], [{ id: 'same' }, { id: 'same' }], [{ hash: 'missing-id' }]])('rejects unusable chart pools: %j', async items => {
+  it.each([[], ['same', 'same'], [{ id: 'chart-object' }], ['']])('rejects unusable chart pools: %j', async items => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ items }) }));
     await expect(fetchSeasonCollection(id)).rejects.toThrow();
   });

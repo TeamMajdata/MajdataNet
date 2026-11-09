@@ -9,6 +9,7 @@ import { PageLayout, SongCard, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
 import type { CollectionSongList, Song } from '@/types';
+import { fetchChartInfos } from '@/utils/chartInfo';
 import CollectionSubscribeButton from '@/components/collection/CollectionSubscribeButton';
 
 const fetcher = (url: string) =>
@@ -49,10 +50,18 @@ export default function CollectionPage() {
 
   const sortWords = ['', 'likep', 'commp', 'playp', 'timep'];
 
-  // 歌单中原有的歌曲 ID
+  // 歌单中原有的谱面 Id（歌单顺序）
   const originalIds = useMemo(
-    () => collectionData?.items?.map((s) => s.id) || [],
+    () => collectionData?.items ?? [],
     [collectionData]
+  );
+
+  // 谱面信息一次批量获取；空歌单不发请求
+  const { data: originalSongs, error: songsError, isLoading: isSongsLoading } = useSWR<Song[]>(
+    originalIds.length > 0 ? ['collection-chart-infos', ...originalIds] : null,
+    ([, ...ids]: string[]) => fetchChartInfos(ids),
+    // 保存后 Id 列表变化，先保留旧数据避免整页闪回加载状态
+    { revalidateOnFocus: false, keepPreviousData: true }
   );
 
   // 已存在的所有 ID（用于搜索结果中标记已添加）
@@ -81,12 +90,20 @@ export default function CollectionPage() {
   // 是否有变更
   const hasChanges = addedIds.length > 0 || removedIds.length > 0 || nameChanged || descriptionChanged || visibilityChanged;
 
-  // 当前显示的歌曲列表
-  const displaySongs = useMemo(() => {
+  // 当前的谱面 Id 列表：原有（未移除） + 新增，即提交的顺序
+  const displayIds = useMemo(() => {
     const removedSet = new Set(removedIds);
-    const existing = (collectionData?.items || []).filter((s) => !removedSet.has(s.id));
+    return [...originalIds.filter((chartId) => !removedSet.has(chartId)), ...addedIds];
+  }, [originalIds, removedIds, addedIds]);
+
+  // 当前显示的歌曲列表，顺序与 displayIds 一致；已不存在的谱面不显示
+  const displaySongs = useMemo(() => {
+    // originalSongs 可能是保存前的旧数据，只保留仍在歌单中的谱面
+    const kept = new Set(originalIds);
+    for (const chartId of removedIds) kept.delete(chartId);
+    const existing = (originalSongs ?? []).filter((s) => kept.has(s.id));
     return [...existing, ...addedSongs];
-  }, [collectionData, removedIds, addedSongs]);
+  }, [originalIds, originalSongs, removedIds, addedSongs]);
 
   // 搜索排序选项
   const searchSortOptions = [
@@ -153,8 +170,8 @@ export default function CollectionPage() {
 
     const body: Record<string, unknown> = {};
     if (addedIds.length > 0 || removedIds.length > 0) {
-      // 谱面 Id 列表即当前显示的顺序：原有（未移除） + 新增
-      body.items = displaySongs.map((s) => s.id);
+      // 整体替换：原有（未移除） + 新增
+      body.items = displayIds;
     }
     if (visibilityChanged) {
       body.visibility = visibilityDraft;
@@ -168,7 +185,7 @@ export default function CollectionPage() {
 
     try {
       const res = await fetch(endpoints.collection.modify(id), {
-        method: 'POST',
+        method: 'PUT',
         mode: 'cors',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -224,7 +241,7 @@ export default function CollectionPage() {
     );
   }
 
-  if (error) {
+  if (error || songsError) {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
@@ -234,7 +251,7 @@ export default function CollectionPage() {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || (isSongsLoading && !originalSongs)) {
     return (
       <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
