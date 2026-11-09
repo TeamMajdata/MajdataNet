@@ -34,10 +34,12 @@ export const endpoints = {
     },
     create: `${apiroot3}/collection/create`,
     hashlist: (id: string) => `${apiroot3}/collection/${id}/hashlist`,
+    // 响应的 items 为谱面 Id 数组（歌单顺序），谱面信息用 maichart.info 批量获取
     songlist: (id: string) => `${apiroot3}/collection/${id}/songlist`,
     destroy: (id: string) => `${apiroot3}/collection/${id}/destroy`,
+    // PUT，请求体 { name?, description?, visibility?, items? }；items 为谱面 Id 数组，整体替换歌单内容（按请求顺序），
+    // 空数组清空歌单，不传则保留原内容
     modify: (id: string) => `${apiroot3}/collection/${id}/modify`,
-    diff: (id: string) => `${apiroot3}/collection/${id}/diff`,
   },
   // 收藏的歌单
   favorite: {
@@ -78,6 +80,8 @@ export const endpoints = {
     hashStatus: (hash: string) => `${apiroot3}/maichart/hash-status?hash=${encodeURIComponent(hash)}`,
     delete: (chartId: string) => `${apiroot3}/maichart/delete?chartId=${chartId}`,
     summary: (id: string | number) => `${apiroot3}/maichart/${id}/summary`,
+    // POST，请求体为谱面 Id 数组；按请求顺序返回 { metadata, resources, levelHashes } 数组，不存在的谱面被略过
+    info: `${apiroot3}/maichart/info`,
     radar: (id: string, chartLevel: number) => `${apiroot3}/maichart/${encodeURIComponent(id)}/radar?chartLevel=${chartLevel}`,
     image: (id: string | number) => `${apiroot3}/maichart/${id}/image`,
     fullImage: (id: string | number) => `${apiroot3}/maichart/${id}/image?fullImage=true`,

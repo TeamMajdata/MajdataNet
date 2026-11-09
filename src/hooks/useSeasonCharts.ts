@@ -69,12 +69,12 @@ export async function fetchSeasonCollection(id: string): Promise<SeasonChart[]> 
     if (!value || !Array.isArray(value.items) || value.items.length === 0) {
       throw new Error('Season collection must contain charts');
     }
+    // items are chart IDs in collection order.
     const ids = value.items.map((item: unknown) => {
-      if (!item || typeof item !== 'object' || !('id' in item)
-        || typeof item.id !== 'string' || !item.id || /\s/.test(item.id)) {
+      if (typeof item !== 'string' || !item || /\s/.test(item)) {
         throw new Error('Unexpected collection chart');
       }
-      return parseSeasonChart(`/song?id=${encodeURIComponent(item.id)}`);
+      return parseSeasonChart(`/song?id=${encodeURIComponent(item)}`);
     }) as string[];
     if (new Set(ids).size !== ids.length) throw new Error('Duplicate collection chart');
     return ids.map(id => `/song?id=${encodeURIComponent(id)}`);

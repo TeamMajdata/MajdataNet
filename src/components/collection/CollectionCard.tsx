@@ -83,7 +83,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
               <LoadingSpinner size="30px" />
             </div>
           ) : data && data.items && data.items.length > 0 ? (
-            <CoverPic id={data.items[currentCoverIndex].id} />
+            <CoverPic id={data.items[currentCoverIndex] ?? data.items[0]} />
           ) : (
             <div className="flex flex-col justify-center items-center bg-black/60 w-full h-full text-white/50 text-xs">
               <span>{t("collection/CollectionCard.NoCover")}</span>

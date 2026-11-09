@@ -9,7 +9,7 @@ import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
-import type { Collection, CollectionDanInfo } from '@/types';
+import type { Collection, CollectionDanInfo, CollectionSongList } from '@/types';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -86,23 +86,33 @@ export function useCollections() {
   );
 
   // 切换歌曲在收藏夹中的状态（添加 / 移除）
-  // hashlist 仍返回 hash，所以按 hash 判断是否已收录；增删请求按谱面 Id 提交
+  // hashlist 仍返回 hash，所以按 hash 判断是否已收录；增删时先取最新的谱面 Id 列表，
+  // 在本地算出新列表后用 modify 整体替换
   const toggleSongInCollection = useCallback(
     async (collectionId: string, { chartId, songHash }: CollectionChart) => {
       if (!username) return;
       const isIn = isSongInCollection(collectionId, songHash);
       setPendingIds((prev) => new Set(prev).add(collectionId));
       try {
-        const body = isIn
-          ? { chartIdsToRemove: [chartId] }
-          : { chartIdsToAdd: [chartId] };
+        const listRes = await fetch(endpoints.collection.songlist(collectionId), {
+          mode: 'cors',
+          credentials: 'include',
+        });
+        if (!listRes.ok) throw new Error(`Collection request failed (${listRes.status})`);
+        const current: CollectionSongList = await listRes.json();
+        const currentIds = Array.isArray(current?.items) ? current.items : [];
+        const target = chartId.toLowerCase();
+        const has = currentIds.some((id) => id.toLowerCase() === target);
+        const items = isIn
+          ? currentIds.filter((id) => id.toLowerCase() !== target)
+          : has ? currentIds : [...currentIds, chartId];
 
-        const res = await fetch(endpoints.collection.diff(collectionId), {
-          method: 'POST',
+        const res = await fetch(endpoints.collection.modify(collectionId), {
+          method: 'PUT',
           mode: 'cors',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+          body: JSON.stringify({ items }),
         });
 
         if (res.ok) {

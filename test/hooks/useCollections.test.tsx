@@ -38,6 +38,11 @@ describe('useCollections', () => {
       // hashlist 的响应不变：仍是谱面 hash；without-song 里放谱面 Id，确认不会按 Id 判断成员
       if (url === endpoints.collection.hashlist('with-song')) return Response.json({ songHashs: [chart.songHash] });
       if (url === endpoints.collection.hashlist('without-song')) return Response.json({ songHashs: [chart.chartId] });
+      // songlist 给出谱面 Id 列表；with-song 里的 Id 用大写，确认移除时大小写不敏感
+      if (url === endpoints.collection.songlist('with-song')) {
+        return Response.json({ items: ['other-1', chart.chartId.toUpperCase(), 'other-2'], count: 3 });
+      }
+      if (url === endpoints.collection.songlist('without-song')) return Response.json({ items: ['other-1'], count: 1 });
       return new Response(null, { status: 200 });
     });
     vi.stubGlobal('fetch', fetchMock);
@@ -48,13 +53,13 @@ describe('useCollections', () => {
     vi.unstubAllGlobals();
   });
 
-  function diffBody(collectionId: string) {
-    const call = fetchMock.mock.calls.find(([url]) => url === endpoints.collection.diff(collectionId));
-    expect(call?.[1]?.method).toBe('POST');
+  function modifyBody(collectionId: string) {
+    const call = fetchMock.mock.calls.find(([url]) => url === endpoints.collection.modify(collectionId));
+    expect(call?.[1]?.method).toBe('PUT');
     return JSON.parse(String(call![1]!.body));
   }
 
-  it('sends chart IDs in diff requests and decides membership by hashlist hashes', async () => {
+  it('replaces the item list via modify and decides membership by hashlist hashes', async () => {
     await act(async () => root.render(
       <SWRConfig value={{ provider: () => new Map(), shouldRetryOnError: false }}><Probe /></SWRConfig>,
     ));
@@ -63,9 +68,9 @@ describe('useCollections', () => {
     expect(hook.isSongInCollection('without-song', chart.songHash)).toBe(false);
 
     await act(async () => hook.toggleSongInCollection('with-song', chart));
-    expect(diffBody('with-song')).toEqual({ chartIdsToRemove: [chart.chartId] });
+    expect(modifyBody('with-song')).toEqual({ items: ['other-1', 'other-2'] });
 
     await act(async () => hook.toggleSongInCollection('without-song', chart));
-    expect(diffBody('without-song')).toEqual({ chartIdsToAdd: [chart.chartId] });
+    expect(modifyBody('without-song')).toEqual({ items: ['other-1', chart.chartId] });
   });
 });
