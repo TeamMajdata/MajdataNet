@@ -15,6 +15,9 @@ export const endpoints = {
     // POST，按谱面 Id 集合（请求体 songIds）和时间段统计排行（季赛榜）
     periodLeaderboard: `${apiroot3}/maiscore/leaderboard/period`,
     // 成绩总和榜；uploader 为空时为全站榜，否则只统计该上传者的谱面
+    // 个人 rating 雷达：前 50 个「谱面 + 难度」的加权平均，best 与 account/scores 的元素结构相同
+    rating: (username: string) =>
+      `${apiroot3}/maiscore/rating/by-username/${encodeURIComponent(username)}`,
     scoreSums: (uploader: string, page: number, pageSize: number) =>
       uploader
         ? `${apiroot3}/maiscore/sum/chart/by-uploader/${encodeURIComponent(uploader)}?page=${page}&pageSize=${pageSize}`

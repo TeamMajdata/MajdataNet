@@ -28,6 +28,7 @@ export { default as SongCard } from './song/SongCard';
 export { default as Majdata } from './song/Majdata';
 export { default as MiniGame } from './song/MiniGame';
 export { default as RecentPlayedWidget } from './user/RecentPlayedWidget';
+export { default as UserRating } from './user/UserRating';
 
 // 活动相关组件
 export { default as EventBanner } from './event/EventBanner';
@@ -51,6 +52,7 @@ export { default as Tooltip, TooltipProvider } from './ui/Tooltip';
 export { default as LazyLoad } from './ui/LazyLoad';
 export { default as LoadingSpinner } from './ui/LoadingSpinner';
 export { default as TmpRichText } from './ui/TmpRichText';
+export { default as CollapsibleSection } from './ui/CollapsibleSection';
 
 export { default as CollectionCard } from './collection/CollectionCard';
 export { default as CollectionModal } from './collection/CollectionModal';
