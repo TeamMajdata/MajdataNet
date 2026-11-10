@@ -9,6 +9,8 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner, CommentListView } from '@/components';
+import CollapsibleSection from '@/components/ui/CollapsibleSection';
+import UserRating from '@/components/user/UserRating';
 import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -73,70 +75,30 @@ export default function SpacePage() {
 
       <UserSeasons key={username} username={username} />
 
+      {/* Rating radar and its best 50 */}
+      <CollapsibleSection key={`rating-${username}`} title={t("space/SpacePage.Rating")}>
+        <UserRating username={username} />
+      </CollapsibleSection>
+
       {/* Recent Activity */}
       {hasRecentPlayed !== false && (
-        <motion.section
-          className="mb-12"
-          initial="hidden"
-          animate="visible"
-          custom={0.4}
-          variants={slideInUp}
-        >
-          <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-            {t("space/SpacePage.RecentlyPlayedCharts")}
-          </h2>
-          <div
-            className="relative mx-auto my-8 border-0 w-[70%] h-px"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-            }}
-          />
+        <CollapsibleSection title={t("space/SpacePage.RecentlyPlayedCharts")}>
           <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} />
-        </motion.section>
+        </CollapsibleSection>
       )}
 
       {/* Uploaded Charts */}
       {hasUploadedCharts !== false && (
-        <motion.section
-          className="mb-12"
-          initial="hidden"
-          animate="visible"
-          custom={0.5}
-          variants={slideInUp}
-        >
-          <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-            {t("space/SpacePage.UploadedCharts")}
-          </h2>
-          <div
-            className="relative mx-auto my-8 border-0 w-[70%] h-px"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-            }}
-          />
+        <CollapsibleSection title={t("space/SpacePage.UploadedCharts")}>
           <SongList
             url={endpoints.maichart.listSearch('uploader:' + username)}
             onDataLoaded={setHasUploadedCharts}
           />
-        </motion.section>
+        </CollapsibleSection>
       )}
 
       {/* Comments */}
-      <motion.section
-        className="mb-12"
-        initial="hidden"
-        animate="visible"
-        custom={0.5}
-        variants={slideInUp}
-      >
-        <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-          {t("space/SpacePage.Comments")}
-        </h2>
-        <div
-          className="relative mx-auto my-8 border-0 w-[70%] h-px"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-          }}
-        />
+      <CollapsibleSection title={t("space/SpacePage.Comments")}>
         <div className="mx-auto w-full md:w-[82%] lg:w-[70%]">
           <CommentListView
             key={username}
@@ -144,28 +106,13 @@ export default function SpacePage() {
             empty={t("space/SpacePage.NoComments")}
           />
         </div>
-      </motion.section>
+      </CollapsibleSection>
 
       {/* Who Loves To Play */}
       {hasUploadedCharts === true && (
-        <motion.section
-          className="mb-12"
-          initial="hidden"
-          animate="visible"
-          custom={0.5}
-          variants={slideInUp}
-        >
-          <h2 className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-            {t("space/SpacePage.WhoLovesToPlay")}
-          </h2>
-          <div
-            className="relative mx-auto my-8 border-0 w-[70%] h-px"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-            }}
-          />
+        <CollapsibleSection title={t("space/SpacePage.WhoLovesToPlay")}>
           <ScoreCount uploader={username} page={0} pageSize={30} />
-        </motion.section>
+        </CollapsibleSection>
       )}
     </PageLayout>
   );
