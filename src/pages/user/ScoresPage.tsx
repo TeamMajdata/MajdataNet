@@ -238,7 +238,7 @@ export default function PersonalScoresPage() {
                   aria-pressed={isActive}
                   onClick={() => handleFilterToggle(filter)}
                   className={`px-3 rounded-full h-8 text-xs font-semibold border transition-colors cursor-pointer ${isActive
-                    ? COMBO_FILTER_COLORS[filter] + ' border-transparent'
+                    ? COMBO_FILTER_COLORS[filter] + ' border-transparent bg-origin-border'
                     : 'bg-white/[0.03] border-white/10 text-white/45 hover:text-white/75 hover:border-white/20'
                     }`}
                 >
