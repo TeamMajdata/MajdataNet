@@ -14,7 +14,7 @@ import {
 } from 'react';
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { Tooltip } from '@/components';
+import { LuPlus, LuX } from 'react-icons/lu';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
@@ -149,14 +149,8 @@ function tagsReducer(state: string[], action: TagsAction): string[] {
 }
 
 const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
-  function TagManageWindow({ onClose, buttonRef, songid }, ref) {
+  function TagManageWindow({ onClose, songid }, ref) {
     const { t } = useTranslation();
-    const [position, setPosition] = useState({
-      x: window.innerWidth / 2 - 200,
-      y: 100,
-    });
-    const [dragging, setDragging] = useState(false);
-    const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [newTag, setNewTag] = useState('');
     const [activeCategory, setActiveCategory] = useState('曲库来源');
     const [tags, dispatch] = useReducer(tagsReducer, []);
@@ -164,63 +158,16 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
     const initializedRef = useRef(false);
     /** Tags as last read from or saved to the server: the base of the public-tag PATCH diff. */
     const serverTagsRef = useRef<string[]>([]);
+    const [saving, setSaving] = useState(false);
 
+    // Esc 关闭
     useEffect(() => {
-      const handleClickOutside = (e: MouseEvent) => {
-        // 如果正在拖拽，不处理点击关闭
-        if (dragging) {
-          return;
-        }
-
-        // 检查点击是否在弹窗外部且不在触发按钮上
-        if (
-          ref &&
-          typeof ref !== 'function' &&
-          ref.current &&
-          !ref.current.contains(e.target as Node) &&
-          buttonRef.current &&
-          !buttonRef.current.contains(e.target as Node)
-        ) {
-          onClose();
-        }
+      const onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') onClose();
       };
-
-      // 使用捕获阶段来确保在事件冒泡之前处理
-      document.addEventListener('mousedown', handleClickOutside, true);
-      return () => document.removeEventListener('mousedown', handleClickOutside, true);
-    }, [onClose, ref, buttonRef, dragging]);
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      setDragging(true);
-      if (ref && typeof ref !== 'function' && ref.current) {
-        const rect = ref.current.getBoundingClientRect();
-        setOffset({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-        });
-      }
-    };
-
-    useEffect(() => {
-      const handleMouseMove = (e: MouseEvent) => {
-        if (dragging) {
-          setPosition({
-            x: e.clientX - offset.x,
-            y: e.clientY - offset.y,
-          });
-        }
-      };
-
-      const handleMouseUp = () => setDragging(false);
-
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }, [dragging, offset]);
+      document.addEventListener('keydown', onKeyDown);
+      return () => document.removeEventListener('keydown', onKeyDown);
+    }, [onClose]);
 
     const fetcher = (url: string) =>
       fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -253,6 +200,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
     }, [data, isInPrivatePage]);
 
     const uploadTags = async () => {
+      setSaving(true);
       const uploading = toast.loading(t("shared/TagManageWidget.Uploading"), {
         hideProgressBar: true,
       });
@@ -270,6 +218,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
         return;
       } finally {
         toast.done(uploading);
+        setSaving(false);
       }
 
       // The server normalizes tags and PATCH merges other players' edits, so show what it now holds.
@@ -294,16 +243,6 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       dispatch({ type: 'ADD_TAG', payload: tag });
       return true;
     };
-
-    if (error) {
-      return <div>failed to load</div>;
-    }
-    if (isLoading) {
-      return <div className="flex justify-center items-center h-20"><LoadingSpinner size="50px" /></div>;
-    }
-    if (data === undefined) {
-      return <div>failed to load</div>;
-    }
 
     const categories: Record<string, string[]> = {
       曲库来源: [
@@ -352,153 +291,145 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       ],
     };
 
-    return (
-      <div
-        ref={ref}
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          backgroundColor: 'rgba(var(--background-start), 0.8)',
-          backdropFilter: 'blur(10px)',
-          position: 'fixed',
-          left: position.x + 'px',
-          top: position.y + 'px',
-          width: '400px',
-          minHeight: '300px',
-          textShadow: '0 0',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          zIndex: 1001,
-          cursor: dragging ? 'grabbing' : 'default',
-          border: '1px solid whitesmoke',
-          fontSize: '1rem',
-        }}
-      >
-        <div
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            handleMouseDown(e);
-          }}
-          style={{
-            padding: '16px',
-            borderBottom: '1px solid #eee',
-            cursor: 'grab',
-            userSelect: 'none',
-          }}
-        >
-          {isInPrivatePage ? '作者Tags管理' : '玩家Tags管理'}
-        </div>
-        <div style={{ padding: '16px' }}>
-          <div className="flex flex-wrap items-center gap-1.5 my-1">
-            <div className="min-w-12 font-semibold text-white text-sm">Tags:</div>
-            <div className="flex flex-wrap flex-1 gap-1.5 mt-1 text-white/70 text-sm text-left wrap-break-word">
-              {tags && tags.length > 0 ? (
+    const changed = tags.length !== serverTagsRef.current.length || tags.some((tag, index) => tag !== serverTagsRef.current[index]);
+    const submitNewTag = () => {
+      const trimmed = newTag.trim();
+      if (trimmed !== '' && addTag(trimmed)) setNewTag('');
+    };
+    const sectionLabel = 'mb-2 font-medium text-white/50 text-xs';
+
+    let body: React.ReactNode;
+    if (isLoading) {
+      body = <div className="flex justify-center items-center py-16"><LoadingSpinner size="40px" /></div>;
+    } else if (error || data === undefined) {
+      body = <p className="m-0 py-16 text-white/50! text-sm text-center">{t("shared/TagManageWidget.LoadFailed")}</p>;
+    } else {
+      body = (
+        <div className="flex flex-col gap-5 px-5 py-4 min-h-0 overflow-y-auto">
+          {/* 已有标签：点一下移除 */}
+          <section>
+            <div className={sectionLabel}>{t("shared/TagManageWidget.CurrentTags")}</div>
+            <div className="flex flex-wrap gap-1.5" data-testid="tag-current">
+              {tags.length > 0 ? (
                 tags.map((tag, index) => (
-                  <Tooltip content={t("shared/TagManageWidget.DeleteTag")} key={index}>
-                    <span
-                      className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-0.75 rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
-                      onClick={() => {
-                        dispatch({ type: 'REMOVE_TAG', payload: index });
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  </Tooltip>
+                  <button
+                    key={tag}
+                    type="button"
+                    data-tag={tag}
+                    title={t("shared/TagManageWidget.DeleteTag")}
+                    aria-label={t("shared/TagManageWidget.DeleteTag") + ' ' + tag}
+                    onClick={() => dispatch({ type: 'REMOVE_TAG', payload: index })}
+                    className={`group inline-flex items-center gap-1 pr-1.5 pl-2.5 border rounded-full h-7 text-xs transition-colors cursor-pointer ${isInPrivatePage ? 'bg-white/[0.08] border-white/15 text-white/85 hover:border-red-400/50 hover:text-red-200' : 'bg-blue-400/10 border-blue-400/30 text-blue-100 hover:border-red-400/50 hover:text-red-200'}`}
+                  >
+                    {tag}
+                    <LuX aria-hidden="true" className="opacity-60 group-hover:opacity-100 w-3.5 h-3.5" />
+                  </button>
                 ))
               ) : (
-                <span style={{ color: '#999', fontStyle: 'italic' }}>{t("shared/TagManageWidget.NoTags")}</span>
+                <span className="text-white/40 text-sm">{t("shared/TagManageWidget.NoTags")}</span>
               )}
             </div>
-          </div>
-          <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
+          </section>
+
+          {/* 自定义标签 */}
+          <form
+            className="flex gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitNewTag();
+            }}
+          >
             <input
               type="text"
               placeholder={t("shared/TagManageWidget.CustomTag")}
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
-              style={{
-                marginLeft: '4px',
-                flex: 1,
-                padding: '6px 8px',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-              }}
+              className="flex-1 bg-white/[0.04] focus:bg-white/[0.06] px-3 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 min-w-0 h-10 text-white placeholder:text-white/35 text-sm transition-colors"
             />
-            <button
-              onClick={() => {
-                const trimmed = newTag.trim();
-                if (trimmed !== '' && addTag(trimmed)) {
-                  setNewTag(''); // 清空输入框
-                }
-              }}
-              style={{ padding: '6px 12px' }}
-            >
+            <button type="submit" className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/90 text-sm transition-colors cursor-pointer shrink-0">
               {t("shared/TagManageWidget.AddTag")}
             </button>
-          </div>
-          <p>{t("shared/TagManageWidget.CommonTags")}</p>
-          {/* tab bar */}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '8px',
-              marginBottom: '12px',
-            }}
-          >
-            {Object.keys(categories).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: activeCategory === cat ? '1px solid #007bff' : '1px solid #ccc',
-                  backgroundColor: activeCategory === cat ? 'black' : 'black',
-                  cursor: 'pointer',
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          </form>
 
-          <div
-            className="flex flex-wrap gap-2 mt-1"
-            style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
-          >
-            {categories[activeCategory]
-              .filter((tag) => !tags.includes(tag))
-              .map((tag) => (
-                <span
-                  className="bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs transition-colors duration-200 cursor-pointer"
-                  key={tag}
-                  onClick={() => addTag(tag)}
+          {/* 常用标签：按类别切换，点一下加入 */}
+          <section>
+            <div className={sectionLabel}>{t("shared/TagManageWidget.CommonTags")}</div>
+            <div className="flex flex-wrap gap-1 mb-3" role="tablist">
+              {Object.keys(categories).map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeCategory === cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 rounded-lg h-8 text-xs font-medium transition-colors cursor-pointer ${activeCategory === cat ? 'bg-white/10 text-white' : 'text-white/55 hover:text-white hover:bg-white/[0.04]'}`}
                 >
-                  {tag}
-                </span>
+                  {cat}
+                </button>
               ))}
-          </div>
-          <br />
-          <div className="relative bg-[linear-gradient(90deg,transparent_0%,rgb(255_255_255/20%)*15%,rgb(255_255_255*/_40%)*30%,rgb(255_255_255*/_60%)*50%,rgb(255_255_255*/_40%)*70%,rgb(255_255_255*/_20%)_85%,transparent_100%)] mx-auto my-8 max-[480px]:my-5 max-[768px]:my-6 border-0 w-[70%] max-[480px]:w-[90%] max-[768px]:w-[80%] h-px" />
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginTop: '12px',
-            }}
-          >
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {categories[activeCategory]
+                .filter((tag) => !tags.includes(tag))
+                .map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => addTag(tag)}
+                    className="inline-flex items-center gap-1 bg-white/[0.03] hover:bg-white/[0.08] pr-2.5 pl-1.5 border border-white/10 hover:border-white/25 border-dashed rounded-full h-7 text-white/70 hover:text-white text-xs transition-colors cursor-pointer"
+                  >
+                    <LuPlus aria-hidden="true" className="w-3.5 h-3.5 text-white/40" />
+                    {tag}
+                  </button>
+                ))}
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    return (
+      <div className="z-[1001] fixed inset-0 flex justify-center items-center p-4" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+        <div
+          ref={ref}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="tag-manage-title"
+          className="relative flex flex-col bg-[rgb(14_16_22/98%)] shadow-[0_24px_64px_rgb(0_0_0/50%)] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden"
+        >
+          <header className="flex justify-between items-center gap-3 px-5 pt-5 pb-3 border-white/[0.07] border-b">
+            <div className="flex items-baseline gap-2 min-w-0">
+              <h2 id="tag-manage-title" className="m-0 font-semibold text-white! text-lg! text-left!">
+                {isInPrivatePage ? t("shared/TagManageWidget.AuthorTags") : t("shared/TagManageWidget.PlayerTags")}
+              </h2>
+              {data !== undefined && <span className="text-white/40 text-xs tabular-nums">{tags.length}/{MAX_CHART_TAGS}</span>}
+            </div>
             <button
-              style={{
-                padding: '6px 12px',
-                border: '1px solid whitesmoke',
-                borderRadius: '5px',
-              }}
-              onClick={uploadTags}
+              type="button"
+              onClick={onClose}
+              aria-label={t("shared/TagManageWidget.Cancel")}
+              className="place-items-center grid hover:bg-white/10 rounded-full w-8 h-8 text-white/50 hover:text-white transition-colors cursor-pointer shrink-0"
             >
-              更新Tags
+              <LuX aria-hidden="true" className="w-4 h-4" />
             </button>
-          </div>
+          </header>
+
+          {body}
+
+          <footer className="flex justify-end gap-2 px-5 py-3 border-white/[0.07] border-t">
+            <button type="button" onClick={onClose} className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/85 text-sm transition-colors cursor-pointer">
+              {t("shared/TagManageWidget.Cancel")}
+            </button>
+            <button
+              type="button"
+              onClick={uploadTags}
+              disabled={!changed || saving || data === undefined}
+              className="bg-blue-500 hover:bg-blue-400 disabled:opacity-40 px-5 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+            >
+              {t("shared/TagManageWidget.Save")}
+            </button>
+          </footer>
         </div>
       </div>
     );

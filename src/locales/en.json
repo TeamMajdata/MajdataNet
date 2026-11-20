@@ -355,10 +355,16 @@
   },
   "shared/TagManageWidget": {
     "AddTag": "Add",
-    "CommonTags": "Common Tags",
+    "AuthorTags": "Author tags",
+    "Cancel": "Cancel",
+    "CommonTags": "Common tags",
+    "CurrentTags": "Current tags (click to remove)",
     "CustomTag": "Custom tag",
     "DeleteTag": "Delete tag",
+    "LoadFailed": "Failed to load",
     "NoTags": "No tags",
+    "PlayerTags": "Player tags",
+    "Save": "Save",
     "TagsChanged": "Someone else changed these tags at the same time. Please try again.",
     "TooManyTags": "A chart can have at most {{max}} tags of each kind",
     "Uploading": "Uploading..."

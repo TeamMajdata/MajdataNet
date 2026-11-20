@@ -349,10 +349,16 @@
   },
   "shared/TagManageWidget": {
     "AddTag": "追加",
-    "CommonTags": "よく使用されるタグ",
+    "AuthorTags": "作者タグ",
+    "Cancel": "キャンセル",
+    "CommonTags": "よく使うタグ",
+    "CurrentTags": "現在のタグ（クリックで削除）",
     "CustomTag": "カスタムタグ",
     "DeleteTag": "タグを削除",
+    "LoadFailed": "読み込みに失敗しました",
     "NoTags": "タグがありません",
+    "PlayerTags": "プレイヤータグ",
+    "Save": "保存",
     "TagsChanged": "タグが同時に他のユーザーに変更されました。もう一度お試しください",
     "TooManyTags": "譜面ごとに各種類のタグは最大 {{max}} 個までです",
     "Uploading": "爆速アップロード中..."

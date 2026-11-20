@@ -349,10 +349,16 @@
   },
   "shared/TagManageWidget": {
     "AddTag": "添加",
-    "CommonTags": "常用Tags",
+    "AuthorTags": "作者标签",
+    "Cancel": "取消",
+    "CommonTags": "常用标签",
+    "CurrentTags": "当前标签（点击移除）",
     "CustomTag": "自定标签",
     "DeleteTag": "删除标签",
+    "LoadFailed": "加载失败",
     "NoTags": "暂无标签",
+    "PlayerTags": "玩家标签",
+    "Save": "保存",
     "TagsChanged": "标签刚被其他人同时修改了，请重试",
     "TooManyTags": "每张谱面的每类标签最多 {{max}} 个",
     "Uploading": "正在爆速上传..."

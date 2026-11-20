@@ -349,10 +349,16 @@
   },
   "shared/TagManageWidget": {
     "AddTag": "추가",
+    "AuthorTags": "작성자 태그",
+    "Cancel": "취소",
     "CommonTags": "자주 쓰는 태그",
+    "CurrentTags": "현재 태그 (클릭하여 삭제)",
     "CustomTag": "사용자 지정 태그",
     "DeleteTag": "태그 삭제",
+    "LoadFailed": "불러오지 못했습니다",
     "NoTags": "태그 없음",
+    "PlayerTags": "플레이어 태그",
+    "Save": "저장",
     "TagsChanged": "다른 사용자가 동시에 태그를 변경했습니다. 다시 시도해 주세요",
     "TooManyTags": "채보마다 종류별로 태그는 최대 {{max}}개까지입니다",
     "Uploading": "업로드 중..."
