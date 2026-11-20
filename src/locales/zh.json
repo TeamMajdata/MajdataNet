@@ -289,7 +289,9 @@
     "DismissDialogue": "关闭对白",
     "Encourage1": "今天也要玩得开心呀！",
     "Encourage2": "祝你下一把 AP！",
-    "MoveHint": "拖动可移动，方向键也可以；右键可调整大小",
+    "HiddenToast": "小小蓝白已隐藏，可以在页面底部重新召唤",
+    "Hide": "隐藏小小蓝白",
+    "MoveHint": "拖动可移动，方向键也可以；右键可调整大小或隐藏",
     "Name": "小小蓝白",
     "Poke": "戳一戳小小蓝白",
     "Shy1": "嘿，被你发现啦。",
@@ -319,7 +321,8 @@
     "BackToHome": "返回首页",
     "FooterCommunity": "感谢谱面创作者们的支持",
     "FooterCopyright": "© Majdata Net - 开源自制谱分享平台",
-    "MiniGame": "小游戏"
+    "MiniGame": "小游戏",
+    "ShowMascot": "召唤小小蓝白"
   },
   "shared/Pager": {
     "First": "回到第一页",

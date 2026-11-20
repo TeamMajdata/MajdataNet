@@ -8,10 +8,20 @@ import { UnifiedHeader } from '@/components';
 import AmbientBackground from './AmbientBackground';
 import FloatingButtons from './FloatingButtons';
 import ToastIcon from '@/components/ui/ToastIcon';
+import { updateMascotPreferences, useMascotPreferences } from '@/components/mascot/mascotState';
+import { useSyncExternalStore } from 'react';
 import type { PageLayoutProps } from '@/types';
 
 
 /** 通知进出场动画（样式见 styles/components/toast.css），替换默认的 Bounce */
+/** 看板娘只在桌面端出现，页脚的“召唤”按钮也只在桌面端显示 */
+const DESKTOP_QUERY = '(min-width: 769px)';
+function subscribeDesktop(listener: () => void) {
+  const media = window.matchMedia(DESKTOP_QUERY);
+  media.addEventListener('change', listener);
+  return () => media.removeEventListener('change', listener);
+}
+
 const ToastFade = cssTransition({ enter: 'toast-enter', exit: 'toast-exit', collapseDuration: 200 });
 
 /** 页脚的社区链接 */
@@ -30,6 +40,8 @@ export default function PageLayout({
   useAmbientBackground = true,
 }: PageLayoutProps) {
   const { t } = useTranslation();
+  const mascotHidden = useMascotPreferences().hidden === true;
+  const desktop = useSyncExternalStore(subscribeDesktop, () => window.matchMedia(DESKTOP_QUERY).matches, () => false);
 
   return (
     <>
@@ -118,6 +130,18 @@ export default function PageLayout({
                   <img className="rounded-lg w-8 h-8 object-cover group-hover:rotate-6 transition-transform" loading="lazy" src="/bee.webp" alt="" aria-hidden="true" />
                   {t("shared/PageLayout.MiniGame")}
                 </Link>
+                {/* 小小蓝白被右键隐藏后，从这里重新召唤 */}
+                {mascotHidden && desktop && (
+                  <button
+                    type="button"
+                    data-testid="mascot-show"
+                    onClick={() => updateMascotPreferences({ hidden: false })}
+                    className="group flex items-center gap-2 bg-white/[0.04] hover:bg-white/10 pr-3 pl-1 border border-white/10 hover:border-white/20 rounded-xl h-10 text-white/60 hover:text-white text-sm transition-colors cursor-pointer"
+                  >
+                    <img className="rounded-lg w-8 h-8 object-cover group-hover:-rotate-6 transition-transform" loading="lazy" src="/salt.webp" alt="" aria-hidden="true" />
+                    {t("shared/PageLayout.ShowMascot")}
+                  </button>
+                )}
               </div>
             </div>
 

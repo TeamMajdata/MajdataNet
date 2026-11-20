@@ -293,7 +293,9 @@
     "DismissDialogue": "Dismiss dialogue",
     "Encourage1": "Have fun playing today!",
     "Encourage2": "Here's to an AP on your next try!",
-    "MoveHint": "Drag or use the arrow keys to move; right-click to resize",
+    "HiddenToast": "Hidden. You can bring her back from the page footer.",
+    "Hide": "Hide Xiaoxiao Lanbai",
+    "MoveHint": "Drag or use the arrow keys to move; right-click to resize or hide",
     "Name": "Xiaoxiao Lanbai",
     "Poke": "Poke Xiaoxiao Lanbai",
     "Shy1": "Hey, you found me!",
@@ -323,7 +325,8 @@
     "BackToHome": "Back to Home",
     "FooterCommunity": "Thanks to chart creators for their support",
     "FooterCopyright": "© Majdata Net - Open Source Chart Sharing Platform",
-    "MiniGame": "Mini Game"
+    "MiniGame": "Mini Game",
+    "ShowMascot": "Show Xiaoxiao Lanbai"
   },
   "shared/Pager": {
     "First": "First page",

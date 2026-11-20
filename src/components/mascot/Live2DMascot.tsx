@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import type { KeyboardEvent, MouseEvent, PointerEvent } from 'react';
+import { toast } from 'react-toastify';
+import { LuEyeOff } from 'react-icons/lu';
 import { createMascotController } from './runtime';
 import {
   chooseReaction,
@@ -18,7 +20,7 @@ import './mascot.css';
 
 const DRAG_THRESHOLD = 6;
 const BUBBLE_SIZE = { width: 260, height: 84 };
-const MENU_SIZE = { width: 200, height: 96 };
+const MENU_SIZE = { width: 200, height: 140 };
 const SCALE_LABELS = {
   0.75: 'shared/Live2DMascot.SizeSmall',
   1: 'shared/Live2DMascot.SizeMedium',
@@ -67,7 +69,7 @@ export default function Live2DMascot() {
   const menuRef = useRef<HTMLDivElement>(null);
   const [controller] = useState(createMascotController);
   const runtimeStatus = useSyncExternalStore(controller.subscribe, controller.getSnapshot, () => 'idle');
-  const visible = eligible && runtimeStatus !== 'error';
+  const visible = eligible && !preferences.hidden && runtimeStatus !== 'error';
   const [speech, setSpeech] = useState<{ reaction: 0 | 1 | 2; variant: number } | null>(null);
   const [dragging, setDragging] = useState(false);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -180,6 +182,12 @@ export default function Live2DMascot() {
       position: clampPosition({ x: position.x + (size.width - next.width) / 2, y: position.y + size.height - next.height }, next, viewport),
     });
     closeMenu();
+  }
+
+  function hide() {
+    closeMenu(false);
+    updateMascotPreferences({ hidden: true });
+    toast.info(t('shared/Live2DMascot.HiddenToast'));
   }
 
   function poke() {
@@ -324,6 +332,11 @@ export default function Live2DMascot() {
               </button>
             ))}
           </div>
+          <div className="live2d-mascot__menu-divider" role="separator" />
+          <button type="button" role="menuitem" className="live2d-mascot__menu-item" data-testid="mascot-hide" onClick={hide}>
+            <LuEyeOff aria-hidden="true" />
+            {t('shared/Live2DMascot.Hide')}
+          </button>
         </div>
       )}
     </aside>

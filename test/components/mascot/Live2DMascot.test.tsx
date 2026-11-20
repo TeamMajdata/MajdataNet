@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import type { Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Live2DMascot from '@/components/mascot/Live2DMascot';
-import { MASCOT_STORAGE_KEY } from '@/components/mascot/mascotState';
+import { MASCOT_STORAGE_KEY, updateMascotPreferences } from '@/components/mascot/mascotState';
 import i18n from '@/i18n';
 
 const runtime = vi.hoisted(() => ({
@@ -418,5 +418,16 @@ describe('Live2DMascot', () => {
     expect(element('mascot-size-0.75').getAttribute('aria-checked')).toBe('true');
     act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
     expect(element('mascot-menu')).toBeNull();
+  });
+  it('hides from the menu, remembers it, and comes back when the footer restores it', () => {
+    render();
+    contextMenu(100, 700);
+    click('mascot-hide');
+    expect(element('live2d-mascot')).toBeNull();
+    expect(runtime.deactivate).toHaveBeenCalled();
+    expect(JSON.parse(localStorage.getItem(MASCOT_STORAGE_KEY)!).hidden).toBe(true);
+    act(() => updateMascotPreferences({ hidden: false }));
+    expect(element('live2d-mascot')).not.toBeNull();
+    expect(JSON.parse(localStorage.getItem(MASCOT_STORAGE_KEY)!).hidden).toBeUndefined();
   });
 });

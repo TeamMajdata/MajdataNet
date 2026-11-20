@@ -289,7 +289,9 @@
     "DismissDialogue": "セリフを閉じる",
     "Encourage1": "今日も楽しく遊んでね！",
     "Encourage2": "次のプレイで AP が出ますように！",
-    "MoveHint": "ドラッグまたは矢印キーで移動、右クリックでサイズ変更",
+    "HiddenToast": "非表示にしました。ページ下部から再表示できます。",
+    "Hide": "小小蓝白を隠す",
+    "MoveHint": "ドラッグまたは矢印キーで移動、右クリックでサイズ変更・非表示",
     "Name": "小小蓝白",
     "Poke": "小小蓝白をつつく",
     "Shy1": "あっ、見つかっちゃった。",
@@ -319,7 +321,8 @@
     "BackToHome": "ホームに戻る",
     "FooterCommunity": "譜面作成者の皆様に感謝",
     "FooterCopyright": "© Majdata Net - オープンソース譜面共有プラットフォーム",
-    "MiniGame": "ミニゲーム"
+    "MiniGame": "ミニゲーム",
+    "ShowMascot": "小小蓝白を呼ぶ"
   },
   "shared/Pager": {
     "First": "最初のページへ",
