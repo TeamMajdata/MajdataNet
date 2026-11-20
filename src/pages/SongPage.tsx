@@ -167,18 +167,18 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
   return (
     <div className="bg-transparent p-4 sm:p-6">
       {/* Hero：封面在左，标题、上传者、标签、难度和操作按钮在右 */}
-      <section className="flex md:flex-row flex-col items-center md:items-start gap-5 md:gap-8 mb-6 sm:mb-8 min-w-0">
+      <section className="flex md:flex-row flex-col items-center md:items-start gap-5 md:gap-7 mb-6 min-w-0">
         <div className="shrink-0">
-          <div className="shadow-[0_25px_50px_rgb(0_0_0/0.45)] w-48 md:w-64 h-48 md:h-64 hover:scale-105 transition-transform duration-300">
-                      <CoverPic id={o.id} />
+          <div className="shadow-[0_20px_40px_rgb(0_0_0/0.45)] rounded-xl w-40 md:w-48 h-40 md:h-48 overflow-hidden">
+                      <CoverPic id={o.id} radiusClassName="rounded-xl" />
                     </div>
         </div>
 
-        <div className="flex flex-col gap-4 w-full min-w-0">
+        <div className="flex flex-col gap-3 w-full min-w-0">
           <div className="min-w-0">
             <Tooltip content={t("song/SongPage.SearchForTitle") || '点击搜索该歌曲'}>
               <h1
-                className="inline-block hover:shadow-lg hover:text-shadow drop-shadow-md px-5 py-2.5 rounded-lg font-black hover:text-white text-4xl md:text-5xl text-center tracking-tight transition-all hover:-translate-y-0.5 duration-300 cursor-pointer hover:transform"
+                className="m-0 font-bold text-white! hover:text-white/80 text-2xl! md:text-3xl! text-left! leading-tight tracking-tight transition-colors cursor-pointer"
                 id={o.id}
                 onClick={() => {
                   if (o.title) searchHome(o.title);
@@ -189,9 +189,9 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
             </Tooltip>
 
             <Tooltip content={t("song/SongPage.SearchForArtist") || '点击搜索该艺术家'}>
-              <div className="font-medium text-white/80 text-xl md:text-2xl text-center">
+              <div className="mt-1.5 font-medium text-white/70 text-base md:text-lg text-left">
                 <span
-                  className="inline-block hover:bg-white/10 hover:shadow-md px-3 py-1 rounded-md hover:text-white transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
+                  className="hover:text-white transition-colors cursor-pointer"
                   onClick={() => {
                     if (o.artist) searchHome(o.artist);
                   }}
@@ -202,24 +202,24 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
             </Tooltip>
           </div>
 
-          <div className="flex md:flex-row flex-col md:items-start gap-3 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
             <Tooltip content={o.uploader + '@' + o.designer}>
-              <Link to={'/space?id=' + o.uploader} className="inline-flex flex-1 items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-lg px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
+              <Link to={'/space?id=' + o.uploader} className="inline-flex items-center gap-2.5 bg-white/[0.06] hover:bg-white/10 py-1 pr-3.5 pl-1 border border-white/10 hover:border-white/20 rounded-full text-white/85 hover:text-white no-underline transition-colors">
                 <UserAvatar
-                  className="shadow-sm border-2 border-white/25 rounded-full w-9 min-w-9 h-9 min-h-9 aspect-square transition-all duration-300 shrink-0"
+                  className="rounded-full w-8 min-w-8 h-8 aspect-square shrink-0"
                   username={o.uploader}
                 />
-                <div className="flex flex-col items-start gap-1">
-                  <span className="font-semibold text-white/95 text-base leading-[1.3]">{o.uploader}</span>
-                  <span className="font-normal text-white/65 text-sm leading-[1.3]">{o.designer}</span>
+                <div className="flex flex-col items-start">
+                  <span className="font-semibold text-white text-sm leading-tight">{o.uploader}</span>
+                  <span className="text-white/55 text-xs leading-tight">{o.designer}</span>
                 </div>
               </Link>
             </Tooltip>
-            <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl min-w-0 transition-all duration-300">
-              <h3 className="mb-3 font-bold text-white text-sm uppercase tracking-wider">
+            <div className="flex items-center gap-2 min-w-0">
+              <h3 className="sr-only">
                 {t("song/SongPage.Tags") || '标签'}
               </h3>
-              <div className="flex flex-wrap flex-1 gap-2">
+              <div className="flex flex-wrap items-center gap-1.5">
                 {(o.tags || o.publicTags) &&
                   (o.tags.length > 0 || o.publicTags.length > 0) ? (
                   <>
@@ -258,8 +258,8 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
             </div>
           </div>
 
-          <div className="song-radar-difficulties flex flex-col items-start gap-3" data-radar-level={chartLevel} onClickCapture={handleDifficultyClick}>
-            <h3 className="m-0 font-bold text-white text-sm uppercase tracking-[0.05em]">All Difficulties</h3>
+          <div className="song-radar-difficulties flex flex-col items-start" data-radar-level={chartLevel} onClickCapture={handleDifficultyClick}>
+            <h3 className="sr-only">All Difficulties</h3>
             <SongDifficultyLevels
               levels={o.levels}
               songid={o.id}
