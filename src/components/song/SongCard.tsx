@@ -13,6 +13,7 @@ import { downloadSong } from '@/utils/download';
 import { stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
 import type { Song } from '@/types';
 import { Link } from 'react-router-dom';
+import { LuDownload } from 'react-icons/lu';
 
 interface SongCardProps {
   song: Song;
@@ -76,34 +77,28 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
                 </Link>
               )}
             </div>
-            <div className="mt-1.5">
-              {isManage ? (
-                <>
-                  <Delbutton songid={song.id} />
-                  <TagManageWidget newClassName="mt-[0.1rem]" songid={song.id} />
-                </>
-              ) : (
-                <Levels levels={song.levels} songid={song.id} isPlayer={false} />
-              )}
+            <div className="flex items-start gap-1 mt-1.5">
+              <div className="flex-1 min-w-0">
+                {isManage ? (
+                  <>
+                    <Delbutton songid={song.id} />
+                    <TagManageWidget newClassName="mt-[0.1rem]" songid={song.id} />
+                  </>
+                ) : (
+                  <Levels levels={song.levels} songid={song.id} isPlayer={false} />
+                )}
+              </div>
+              <button
+                type="button"
+                className="flex justify-center items-center hover:bg-white/10 -my-1 rounded-md w-7 h-7 text-white/55 hover:text-white transition-colors cursor-pointer shrink-0 touch-manipulation"
+                onClick={handleDownload}
+                aria-label="Download"
+              >
+                <LuDownload aria-hidden="true" className="w-4 h-4" />
+              </button>
             </div>
 
-            <div className="flex items-center gap-1 mt-auto">
-              <motion.div
-                className="flex justify-center items-center m-[0.1rem] border border-gray-500 rounded-md w-7 sm:w-[1.3rem] h-7 sm:h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none touch-manipulation shrink-0"
-                onClick={handleDownload}
-                whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
-                transition={{ duration: 0.125, ease: 'easeInOut' }}
-              >
-                <svg
-                  className="fill-white stroke-white w-full h-full"
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24"
-                  viewBox="0 -960 960 960"
-                  width="24"
-                >
-                  <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-                </svg>
-              </motion.div>
+            <div className="mt-auto">
               <InteractCount songid={song.id} />
             </div>
           </div>
