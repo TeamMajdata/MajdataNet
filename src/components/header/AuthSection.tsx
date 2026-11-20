@@ -16,7 +16,7 @@ export default function AuthSection() {
     <div className="relative">
       {/* 桌面端：传统链接形式 */}
       <div className="hidden md:flex items-center gap-2">
-        <Link to="/login" className="flex items-center gap-2 hover:bg-white/10 px-4 py-2 md:py-3 border border-white/10 hover:border-white/30 rounded-[10px] min-h-10 font-medium text-white/85 hover:text-white text-sm no-underline">
+        <Link to="/login" className="flex items-center hover:bg-white/[0.06] px-3.5 rounded-lg h-9 font-medium text-white/75 hover:text-white text-sm no-underline transition-colors duration-150">
           <span className="text-sm">{t("shared/AuthSection.Login")}</span>
         </Link>
         <Link to="/register" className="flex items-center gap-2 bg-linear-to-br from-[#10b981] hover:from-[#059669] to-[#059669] hover:to-[#047857] px-4 py-2 md:py-3 border border-transparent rounded-[10px] min-h-10 font-medium text-white text-sm no-underline">
