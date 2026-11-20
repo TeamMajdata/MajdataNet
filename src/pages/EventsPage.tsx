@@ -7,6 +7,7 @@ import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
  */
 
 import { useState, useMemo } from 'react';
+import { LuCalendarRange } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 import { useEventClock } from '@/hooks/useEventClock';
 import { PageLayout, EnhancedDescription, EventsFilter, TimelineModal } from '@/components';
@@ -64,17 +65,24 @@ export default function EventsPage() {
   return (
     <PageLayout className="py-4 sm:py-8 min-h-screen mt-(--content-top-spacing)">
       <div className="mx-auto my-0 px-0 sm:px-4 max-w-(--container-max-width) min-w-0">
-        <header className="mb-6 sm:mb-12 text-center">
-          <p className="m-0 mx-auto max-w-150 text-white/80 text-base sm:text-lg leading-relaxed">
-            {t("chart-events/EventsPage.EventsPageSubtitle")}
-            <span
-              className="inline-block ml-2 font-medium text-blue-400 hover:text-blue-300 decoration-blue-400/50 hover:decoration-blue-300/80 underline underline-offset-2 transition-all hover:-translate-y-px duration-200 cursor-pointer"
-              onClick={handleTimelineClick}
-              title={t("chart-events/EventsPage.ViewTimeline")}
-            >
-              {t("chart-events/EventsPage.Timeline")}
-            </span>
-          </p>
+        <header className="flex sm:flex-row flex-col justify-between sm:items-end gap-4 mb-5 sm:mb-6">
+          <div className="min-w-0">
+            <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+              {t("shared/Navigation.Contest")}
+            </h1>
+            <p className="m-0 mt-1.5 text-white/55! text-sm sm:text-base">
+              {t("chart-events/EventsPage.EventsPageSubtitle")}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] px-3.5 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/85 hover:text-white text-sm transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+            onClick={handleTimelineClick}
+            title={t("chart-events/EventsPage.ViewTimeline")}
+          >
+            <LuCalendarRange aria-hidden="true" className="w-4 h-4 text-blue-300" />
+            {t("chart-events/EventsPage.Timeline")}
+          </button>
         </header>
 
         <EventsFilter
@@ -83,7 +91,7 @@ export default function EventsPage() {
           categories={categories as EventCategory[]}
         />
 
-        <div className="gap-4 sm:gap-6 lg:gap-8 grid grid-cols-1 lg:grid-cols-2 mt-6 sm:mt-8">
+        <div className="gap-4 sm:gap-6 grid grid-cols-1 lg:grid-cols-2 mt-5 sm:mt-6">
           {filteredEvents.map((event) => (
             <div
               key={event.id}
