@@ -116,9 +116,9 @@ export default function EventsPage() {
                   loading="lazy"
                   decoding="async"
                 />
-                {/* 渐变常驻，文字一直可见；悬停时只有文字上浮 */}
+                {/* 渐变和文字常驻显示，悬停时没有动画 */}
                 <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-black/10 via-black/25 to-black/85 px-4 sm:px-6 py-3 sm:py-5">
-                  <div className="text-left transition-transform duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] motion-safe:group-hover:-translate-y-1.5">
+                  <div className="text-left">
                     <h3 className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] m-0 mb-1.5 sm:mb-3 font-bold text-white text-base sm:text-xl md:text-2xl leading-tight line-clamp-2">
                       {event.title}
                     </h3>
