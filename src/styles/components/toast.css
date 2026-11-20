@@ -1,0 +1,25 @@
+/* react-toastify：与站内弹出层一致的深色面板 */
+:root {
+  --toastify-color-dark: rgb(18 20 27);
+  --toastify-text-color-dark: rgb(255 255 255 / 88%);
+  --toastify-font-family: inherit;
+  --toastify-toast-bd-radius: 14px;
+  --toastify-toast-padding: 12px 14px;
+  --toastify-toast-width: 360px;
+  --toastify-color-success: rgb(52 211 153);
+  --toastify-color-error: rgb(248 113 113);
+  --toastify-color-info: rgb(96 165 250);
+  --toastify-color-warning: rgb(251 191 36);
+}
+
+.Toastify__toast {
+  border: 1px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 45%), 0 1px 0 rgb(255 255 255 / 6%) inset;
+  font-size: 0.875rem;
+  min-height: 0;
+}
+
+.Toastify__toast-container {
+  gap: 8px;
+}
+
