@@ -267,10 +267,6 @@
     "Login": "登录",
     "Register": "注册"
   },
-  "shared/FloatingButtons": {
-    "LanguageSettings": "语言设置",
-    "SelectLanguage": "选择语言"
-  },
   "shared/LanguageSelector": {
     "Language": "语言"
   },

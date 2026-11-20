@@ -271,10 +271,6 @@
     "Login": "Login",
     "Register": "Register"
   },
-  "shared/FloatingButtons": {
-    "LanguageSettings": "Language Settings",
-    "SelectLanguage": "Select Language"
-  },
   "shared/LanguageSelector": {
     "Language": "Language"
   },

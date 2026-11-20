@@ -267,10 +267,6 @@
     "Login": "ログイン",
     "Register": "登録"
   },
-  "shared/FloatingButtons": {
-    "LanguageSettings": "言語設定",
-    "SelectLanguage": "言語を選択"
-  },
   "shared/LanguageSelector": {
     "Language": "言語"
   },

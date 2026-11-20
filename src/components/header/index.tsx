@@ -6,6 +6,7 @@ import MajdataLogo from './MajdataLogo';
 import Navigation from './Navigation';
 import UserMenu from './UserMenu';
 import AuthSection from './AuthSection';
+import LanguageMenu from './LanguageMenu';
 
 /**
  * 统一顶部导航栏组件
@@ -40,18 +41,21 @@ export default function UnifiedHeader() {
           </Link>
         </div>
 
-        {/* User Section */}
-        <div className="relative flex items-center shrink-0">
-          {isLoading ? (
-            <div className="flex items-center gap-2 opacity-70 px-3 h-9 font-medium text-white/70 text-sm pointer-events-none">
-              <LoadingSpinner className="animate-pulse" size={20} />
-              <span className="hidden md:inline text-sm">{t("shared/header.Loading")}</span>
-            </div>
-          ) : isLoggedIn ? (
-            <UserMenu username={username} />
-          ) : (
-            <AuthSection />
-          )}
+        {/* Language + User Section */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <LanguageMenu />
+          <div className="relative flex items-center">
+            {isLoading ? (
+              <div className="flex items-center gap-2 opacity-70 px-3 h-9 font-medium text-white/70 text-sm pointer-events-none">
+                <LoadingSpinner className="animate-pulse" size={20} />
+                <span className="hidden md:inline text-sm">{t("shared/header.Loading")}</span>
+              </div>
+            ) : isLoggedIn ? (
+              <UserMenu username={username} />
+            ) : (
+              <AuthSection />
+            )}
+          </div>
         </div>
       </div>
     </header>
