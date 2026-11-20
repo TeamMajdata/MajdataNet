@@ -8,6 +8,7 @@ import { LazyLoad, CoverPic, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import type { Collection, CollectionSongList } from '@/types';
 import { useFavorites } from '@/hooks';
+import { LuListMusic, LuUser } from 'react-icons/lu';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
@@ -68,7 +69,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
   return (
     <div className="relative">
       <div
-        className={`flex bg-[rgba(20,20,25,0.8)] shadow-lg hover:shadow-xl border rounded-xl w-full h-35 overflow-hidden transition-all ${isManaging ? 'cursor-default border-red-500/30' : 'cursor-pointer border-white/10 hover:-translate-y-1'}`}
+        className={`flex gap-3 bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-2xl w-full h-36 overflow-hidden transition-transform duration-250 ease-in-out ${isManaging ? 'cursor-default ring-1 ring-red-500/30' : 'cursor-pointer md:hover:-translate-y-1.25'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => { setIsHovered(false); setCurrentCoverIndex(0); }}
         onClick={() => {
@@ -76,29 +77,41 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
           navigate('/collection?id=' + collection.id);
         }}>
 
-        {/* Left side: Cover */}
-        <div className="relative bg-black/40 w-35 h-35 shrink-0">
+        {/* Left side: Cover（悬停时轮播歌单里的封面） */}
+        <div className="relative h-full aspect-square shrink-0">
           {isLoading ? (
-            <div className="flex justify-center items-center w-full h-full">
-              <LoadingSpinner size="30px" />
+            <div className="flex justify-center items-center bg-white/[0.04] rounded-lg w-full h-full">
+              <LoadingSpinner size="24px" />
             </div>
           ) : data && data.items && data.items.length > 0 ? (
-            <CoverPic id={data.items[currentCoverIndex] ?? data.items[0]} />
+            <CoverPic id={data.items[currentCoverIndex] ?? data.items[0]} zoomable={false} radiusClassName="rounded-lg" />
           ) : (
-            <div className="flex flex-col justify-center items-center bg-black/60 w-full h-full text-white/50 text-xs">
+            <div className="flex flex-col justify-center items-center gap-1.5 bg-white/[0.04] rounded-lg w-full h-full text-white/30 text-xs">
+              <LuListMusic aria-hidden="true" className="w-6 h-6" />
               <span>{t("collection/CollectionCard.NoCover")}</span>
             </div>
           )}
         </div>
 
         {/* Right side: Info */}
-        <div className="flex flex-col flex-1 p-3 overflow-hidden text-sm">
-          <div className="font-bold text-white text-lg truncate" title={collection.name}>{collection.name}</div>
-          <div className="flex-1 mt-1 text-gray-400 line-clamp-2" title={collection.description || ''}>
+        <div className="flex flex-col flex-1 pr-8 min-w-0">
+          <div className="font-bold text-white text-base truncate leading-snug" title={collection.name}>{collection.name}</div>
+          <div
+            className={`mt-1 text-[0.8rem] line-clamp-2 leading-relaxed ${collection.description ? 'text-white/60' : 'text-white/30'}`}
+            title={collection.description || ''}
+          >
             {collection.description || t("collection/CollectionCard.NoDescription")}
           </div>
-          <div className="mt-1 text-gray-500 truncate">{t("collection/CollectionCard.CreatorLabel")}: {collection.createdBy}</div>
-          <div className="mt-1 text-gray-500 truncate">{t("collection/CollectionCard.CountLabel")}: {collection.count}</div>
+          <div className="flex items-center gap-3 mt-auto min-w-0 text-white/50 text-xs">
+            <span className="flex items-center gap-1 min-w-0" title={t("collection/CollectionCard.CreatorLabel")}>
+              <LuUser aria-hidden="true" className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{collection.createdBy}</span>
+            </span>
+            <span className="flex items-center gap-1 tabular-nums shrink-0" title={t("collection/CollectionCard.CountLabel")}>
+              <LuListMusic aria-hidden="true" className="w-3.5 h-3.5" />
+              {collection.count}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -114,9 +127,9 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
             toggleFavorite(collection.id);
           }}
           disabled={isFavoriteLoading}
-          className={`absolute top-2 right-2 z-10 flex justify-center items-center border-none rounded-full w-7 h-7 text-sm cursor-pointer shadow-lg backdrop-blur-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${isFavorited
-            ? 'bg-pink-500/70 hover:bg-pink-500 text-white'
-            : 'bg-black/30 hover:bg-black/50 text-white/60 hover:text-white'
+          className={`absolute top-2.5 right-2.5 z-10 flex justify-center items-center border-none rounded-lg w-7 h-7 text-sm cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${isFavorited
+            ? 'bg-pink-500/15 hover:bg-pink-500/25 text-pink-300'
+            : 'bg-transparent hover:bg-white/10 text-white/45 hover:text-white'
             }`}
           title={isFavorited ? t("collection/CollectionCard.Unfavorite") : t("collection/CollectionCard.Favorite")}
         >
@@ -143,7 +156,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
               e.stopPropagation();
               setConfirmDelete(true);
             }}
-            className="top-2 right-2 z-10 absolute flex justify-center items-center bg-red-500/70 hover:bg-red-500 shadow-lg backdrop-blur-sm border-none rounded-full w-7 h-7 text-white text-sm transition-colors cursor-pointer"
+            className="top-2.5 right-2.5 z-10 absolute flex justify-center items-center bg-red-500/15 hover:bg-red-500/30 border-none rounded-lg w-7 h-7 text-red-300 hover:text-red-200 text-sm transition-colors cursor-pointer"
             title={t("collection/CollectionCard.Delete")}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
@@ -159,7 +172,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/75 backdrop-blur-sm rounded-xl"
+            className="z-20 absolute inset-0 flex flex-col justify-center items-center bg-black/75 backdrop-blur-sm rounded-2xl"
           >
             <p className="mb-3 font-medium text-white text-sm">{t("collection/CollectionCard.ConfirmDeleteCollection")}</p>
             <div className="flex gap-2">
@@ -193,7 +206,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
 
 export default function CollectionCard({ collection, isManaging, onDelete }: CollectionCardProps) {
   return (
-    <LazyLoad height={140}>
+    <LazyLoad height={144}>
       <CollectionCardContent collection={collection} isManaging={isManaging} onDelete={onDelete} />
     </LazyLoad>
   );
