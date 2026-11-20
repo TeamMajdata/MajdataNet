@@ -167,17 +167,16 @@ const ManageActions = memo(function ManageActions({ songid, title }: { songid: s
       </button>
       {/* 标签弹窗由 ref 打开，自带的触发按钮不显示 */}
       <div hidden><TagManageWidget ref={tagWidget} songid={songid} /></div>
-      {confirming && (
-        <ConfirmDialog
-          danger
-          busy={deleting}
-          title={t("song/SongCard.DeleteTitle")}
-          message={t("song/SongCard.DeleteMessage", { title })}
-          confirmLabel={t("song/SongCard.Delete")}
-          onConfirm={() => void handleDelete()}
-          onCancel={() => setConfirming(false)}
-        />
-      )}
+      <ConfirmDialog
+        open={confirming}
+        danger
+        busy={deleting}
+        title={t("song/SongCard.DeleteTitle")}
+        message={t("song/SongCard.DeleteMessage", { title })}
+        confirmLabel={t("song/SongCard.Delete")}
+        onConfirm={() => void handleDelete()}
+        onCancel={() => setConfirming(false)}
+      />
     </>
   );
 });
