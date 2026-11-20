@@ -1,5 +1,9 @@
-/* react-toastify：与站内弹出层一致的深色面板 */
-:root {
+/*
+ * react-toastify：与站内弹出层一致的深色面板。
+ * 库自带的样式表在 PageLayout 里引入、晚于本文件，所以这里都挂在 .Toastify 根元素下提高优先级，
+ * 否则同优先级的 :root 变量和 .Toastify__toast 规则会被库覆盖。
+ */
+.Toastify {
   --toastify-color-dark: rgb(18 20 27);
   --toastify-text-color-dark: rgb(255 255 255 / 88%);
   --toastify-font-family: inherit;
@@ -12,19 +16,19 @@
   --toastify-color-warning: rgb(251 191 36);
 }
 
-.Toastify__toast {
+.Toastify .Toastify__toast {
   border: 1px solid rgb(255 255 255 / 10%);
   box-shadow: 0 20px 50px rgb(0 0 0 / 45%), 0 1px 0 rgb(255 255 255 / 6%) inset;
   font-size: 0.875rem;
   min-height: 0;
 }
 
-.Toastify__toast-container {
+.Toastify .Toastify__toast-container {
   gap: 8px;
 }
 
 /* 下载通知自带进度条和状态，不需要底部计时条 */
-.download-toast .Toastify__progress-bar--wrp {
+.Toastify .download-toast .Toastify__progress-bar--wrp {
   display: none;
 }
 
