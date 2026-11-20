@@ -1,17 +1,17 @@
 import { Trans, useTranslation } from 'react-i18next';
 import { getLocale, useLanguage } from '@/i18n';
 import { getEventHref } from '@/utils/eventLink';
-import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef, useId } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Tooltip } from '@/components';
 import { useDebouncedCallback } from 'use-debounce';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
-import { LuArrowDownUp, LuCheck, LuChevronDown, LuSearch, LuX } from 'react-icons/lu';
+import { LuArrowDownUp, LuCheck, LuChevronDown, LuMic, LuMusic, LuPencilLine, LuSearch, LuTag, LuUser, LuX } from 'react-icons/lu';
+import { buildSuggestions, SEARCH_OPERATORS, type SuggestionKind, type SuggestionSource } from '@/utils/searchSuggestions';
 import Dropdown from '@/components/header/Dropdown';
 
 import { useUserContext } from '@/hooks';
@@ -341,9 +341,23 @@ function MobileEventsSwiper() {
   );
 }
 
+const SUGGESTION_ICONS: Record<SuggestionKind, React.ComponentType<{ className?: string }>> = {
+  title: LuMusic,
+  artist: LuMic,
+  designer: LuPencilLine,
+  uploader: LuUser,
+  tag: LuTag,
+};
+
 function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) {
   const { t } = useTranslation();
   const [currentValue, setCurrentValue] = useState(initS);
+  const [isFocused, setIsFocused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [suggestQuery, setSuggestQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listboxId = useId();
+  const updateSuggestQuery = useDebouncedCallback((value: string) => setSuggestQuery(value.trim()), 200);
 
   // 与 SORT_WORDS 一一对应
   const sortOptions = [
@@ -355,45 +369,106 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
     t("home/HomePage.UploadDate"),
   ];
 
+  const kindLabels: Record<SuggestionKind, string> = {
+    title: t("home/HomePage.SuggestKindTitle"),
+    artist: t("home/HomePage.SuggestKindArtist"),
+    designer: t("home/HomePage.SuggestKindDesigner"),
+    uploader: t("home/HomePage.SuggestKindUploader"),
+    tag: t("home/HomePage.SuggestKindTag"),
+  };
+
+  const operatorHints: Record<(typeof SEARCH_OPERATORS)[number], string> = {
+    'id:': t("home/HomePage.SearchHintID"),
+    'hash:': t("home/HomePage.SearchHintHash"),
+    'tag:': t("home/HomePage.SearchHintTag"),
+    'uploader:': t("home/HomePage.SearchHintUploader"),
+  };
+
+  // 联想复用列表搜索接口：只在聚焦且有输入时请求
+  const { data: suggestSource } = useSWR(
+    isFocused && suggestQuery ? endpoints.maichart.listSearchAndSort(suggestQuery, '', 0) : null,
+    (url: string) => apiFetcher<SuggestionSource[]>(url),
+    { keepPreviousData: true, revalidateOnFocus: false },
+  );
+
+  const trimmedValue = currentValue.trim();
+  const suggestions = useMemo(
+    () => (trimmedValue && Array.isArray(suggestSource) ? buildSuggestions(trimmedValue, suggestSource) : []),
+    [trimmedValue, suggestSource],
+  );
+  // 空输入时列出搜索操作符，点击补全前缀
+  const items: { key: string; value: string; label: string; hint: string; kind?: SuggestionKind; keepOpen?: boolean }[] = trimmedValue
+    ? suggestions.map((item) => ({ key: `${item.kind}:${item.value}`, value: item.value, label: item.label, hint: kindLabels[item.kind], kind: item.kind }))
+    : SEARCH_OPERATORS.map((op) => ({ key: op, value: op, label: op, hint: operatorHints[op], keepOpen: true }));
+  const isOpen = isFocused && items.length > 0;
+
   // 更新当前值
   useEffect(() => {
     setCurrentValue(initS);
   }, [initS]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const setValue = (value: string) => {
     setCurrentValue(value);
-    onChange(e);
+    setActiveIndex(-1);
+    updateSuggestQuery(value);
+    onChange({ target: { value } } as React.ChangeEvent<HTMLInputElement>);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
   };
 
   const handleClearSearch = () => {
-    setCurrentValue('');
-    const fakeEvent = { target: { value: '' } } as React.ChangeEvent<HTMLInputElement>;
-    onChange(fakeEvent);
+    setValue('');
+    inputRef.current?.focus();
   };
 
-  // 提示内容组件
-  const hintContent = (
-    <div className="bg-[rgb(16_18_25/98%)] shadow-[0_12px_40px_rgba(0,0,0,0.5)] px-4 sm:px-5 py-4 border border-white/15 rounded-xl w-[min(17.5rem,calc(100vw-1.5rem))] md:w-[320px]">
-      <div className="space-y-2.5 text-left">
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintID")}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintHash")}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintTag")}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintUploader")}</p>
-      </div>
-    </div>
-  );
+  const pick = (item: (typeof items)[number]) => {
+    setValue(item.value);
+    if (item.keepOpen) {
+      inputRef.current?.focus();
+    } else {
+      inputRef.current?.blur();
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      if (isOpen) setIsFocused(false);
+      else inputRef.current?.blur();
+      return;
+    }
+    if (!isOpen) return;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      // 循环移动高亮项
+      setActiveIndex((index) => (index < 0 && step < 0 ? items.length - 1 : (index + step + items.length) % items.length));
+    } else if (event.key === 'Enter' && activeIndex >= 0 && activeIndex < items.length) {
+      event.preventDefault();
+      pick(items[activeIndex]);
+    }
+  };
 
   return (
     <div className="flex flex-1 gap-2 min-w-0">
       <div className="relative flex flex-1 items-center min-w-0">
         <LuSearch aria-hidden="true" className="left-3.5 absolute w-4 h-4 text-white/40 pointer-events-none" />
         <input
+          ref={inputRef}
           type="text"
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={isOpen && activeIndex >= 0 ? `${listboxId}-${activeIndex}` : undefined}
           className="bg-white/[0.04] focus:bg-white/[0.06] pr-18 pl-10 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
           placeholder={initS === '' ? t("home/HomePage.SearchPlaceholder") : initS}
           value={currentValue}
           onChange={handleInputChange}
+          onFocus={() => { setIsFocused(true); updateSuggestQuery(currentValue); }}
+          onBlur={() => { setIsFocused(false); setActiveIndex(-1); }}
+          onKeyDown={handleKeyDown}
           aria-label={t("home/HomePage.SearchPlaceholder")}
         />
         <AnimatePresence>
@@ -403,7 +478,8 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.15 }}
-              className="top-1/2 right-10 z-2 absolute flex justify-center items-center hover:bg-white/10 border-none rounded-md w-7 h-7 text-white/50 hover:text-white transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
+              className="top-1/2 right-2 z-2 absolute flex justify-center items-center hover:bg-white/10 border-none rounded-md w-7 h-7 text-white/50 hover:text-white transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
+              onMouseDown={(event) => event.preventDefault()}
               onClick={handleClearSearch}
               aria-label={t("home/HomePage.ClearSearch")}
             >
@@ -411,20 +487,38 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
             </motion.button>
           )}
         </AnimatePresence>
-        <Tooltip
-          content={hintContent}
-          side="top"
-          sideOffset={20}
-          plain={true}
-        >
-          <div
-            className="top-1/2 right-2 z-10 absolute flex justify-center items-center hover:bg-white/10 rounded-md w-7 h-7 font-semibold text-white/45 hover:text-white text-xs transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
-            role="button"
-            aria-label='Search Hint Button'
+
+        {isOpen && (
+          <ul
+            id={listboxId}
+            role="listbox"
+            aria-label={t("home/HomePage.SearchSuggestions")}
+            className="top-[calc(100%+0.5rem)] z-1001 absolute inset-x-0 bg-[rgb(14_16_22)] shadow-[0_20px_60px_rgb(0_0_0/50%)] m-0 p-1.5 border border-white/15 rounded-xl max-h-[min(24rem,60dvh)] overflow-y-auto list-none"
           >
-            ?
-          </div>
-        </Tooltip>
+            {items.map((item, index) => {
+              const Icon = item.kind ? SUGGESTION_ICONS[item.kind] : LuSearch;
+              const active = index === activeIndex;
+              return (
+                <li
+                  key={item.key}
+                  id={`${listboxId}-${index}`}
+                  role="option"
+                  aria-selected={active}
+                  className={`flex items-center gap-3 px-3 rounded-lg h-10 text-sm cursor-pointer ${active ? 'bg-white/[0.08] text-white' : 'text-white/80 hover:bg-white/[0.05]'}`}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => pick(item)}
+                >
+                  <Icon aria-hidden="true" className="w-4 h-4 text-white/40 shrink-0" />
+                  <span className={`truncate ${item.kind ? '' : 'font-mono text-blue-200'}`}>
+                    {item.kind ? <HighlightMatch text={item.label} query={trimmedValue.replace(/^(uploader|tag):/i, '')} /> : item.label}
+                  </span>
+                  <span className="ml-auto pl-2 text-white/35 text-xs truncate shrink-0 max-w-[60%]">{item.hint}</span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
 
       <SortMenu
@@ -434,6 +528,20 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
         label={t("home/HomePage.SortBy")}
       />
     </div>
+  );
+}
+
+/** 联想词里加粗匹配到的部分 */
+function HighlightMatch({ text, query }: { text: string; query: string }) {
+  const needle = query.trim().toLowerCase();
+  const index = needle ? text.toLowerCase().indexOf(needle) : -1;
+  if (index < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, index)}
+      <span className="font-semibold text-white">{text.slice(index, index + needle.length)}</span>
+      {text.slice(index + needle.length)}
+    </>
   );
 }
 
@@ -577,7 +685,7 @@ function MainComp() {
   return (
     <>
       {/* 工具栏：与卡片网格同宽，标签切换 + 搜索 + 排序在一行（移动端分两行） */}
-      <div className="flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-3 mx-auto mt-3 md:mt-1 mb-4 sm:mb-5 px-0 sm:px-2 w-full max-w-350 min-w-0">
+      <div className="z-30 relative flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-3 mx-auto mt-3 md:mt-1 mb-4 sm:mb-5 px-0 sm:px-2 w-full max-w-350 min-w-0">
         <div className="flex bg-white/[0.04] p-1 border border-white/10 rounded-xl h-11 shrink-0" role="tablist">
           {(['all', 'recommend'] as const).map((tab) => (
             <button
