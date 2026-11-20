@@ -262,7 +262,7 @@ function NavigationContent() {
 
       <ul
         id={`primary-navigation-${navigationId}`}
-        className={`${isMobileMenuOpen ? 'flex' : 'hidden'} absolute left-0 top-[calc(100%+0.65rem)] z-1001 m-0 w-[min(20rem,calc(100vw-1.5rem))] list-none flex-col gap-0.5 rounded-2xl border border-white/10 bg-[rgb(10_13_20/97%)] p-2 shadow-[0_22px_60px_rgb(0_0_0/48%),0_1px_0_rgb(255_255_255/7%)_inset] backdrop-blur-2xl xl:static xl:flex xl:w-auto xl:flex-row xl:items-center xl:gap-0.5 xl:rounded-[0.9rem] xl:border-white/[0.07] xl:bg-white/[0.035] xl:p-1 xl:shadow-none xl:backdrop-blur-sm`}
+        className={`${isMobileMenuOpen ? 'flex' : 'hidden'} absolute left-0 top-[calc(100%+0.65rem)] z-1001 m-0 w-[min(20rem,calc(100vw-1.5rem))] list-none flex-col gap-0.5 rounded-2xl border border-white/10 bg-[rgb(10_13_20/97%)] p-2 shadow-[0_22px_60px_rgb(0_0_0/48%),0_1px_0_rgb(255_255_255/7%)_inset] backdrop-blur-2xl xl:static xl:flex xl:w-auto xl:flex-row xl:items-center xl:gap-0.5 xl:rounded-none xl:border-0 xl:bg-transparent xl:p-0 xl:shadow-none xl:backdrop-blur-none`}
       >
         {NAVIGATION_ITEMS.map((item) => {
           if (item.kind === 'group') {
