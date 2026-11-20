@@ -21,9 +21,9 @@
   --glassmorphism-shadow: 0 8px 25px rgb(0 0 0 / 30%);
 
   /* 智能 Header 高度系统 */
-  --header-height-desktop: 70px;
+  --header-height-desktop: 60px;
   --header-height-tablet: 50px;
-  --header-height-mobile: 50px;
+  --header-height-mobile: 56px;
   --header-height-mobile-small: 50px;
 
   /* 当前生效的 Header 高度（默认桌面端） */

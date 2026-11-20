@@ -19,7 +19,7 @@ export default function UnifiedHeader() {
 
   return (
     <header className="top-0 before:top-0 right-0 before:right-0 left-0 before:left-0 z-1000 fixed before:absolute bg-[rgb(8_10_15/52%)] before:bg-linear-to-r before:from-transparent before:via-[rgb(96_165_250/45%)] before:to-transparent before:opacity-70 shadow-[0_10px_32px_rgb(0_0_0/22%),0_1px_0_rgb(255_255_255/6%)_inset] backdrop-blur-[22px] backdrop-saturate-150 pt-[env(safe-area-inset-top)] border-white/10 border-b before:h-px before:content-['']">
-      <div className="flex justify-between items-center mx-auto my-2 md:my-3 px-3 sm:px-6 lg:px-8 max-w-350 h-12 md:h-14">
+      <div className="flex justify-between items-center gap-4 mx-auto px-3 sm:px-6 lg:px-8 max-w-350 h-(--header-height)">
         {/* 左侧区域：Logo + 导航 */}
         <div className="flex flex-1 items-center gap-5 2xl:gap-7">
           {/* Logo Section */}
