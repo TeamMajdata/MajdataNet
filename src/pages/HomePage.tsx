@@ -169,10 +169,7 @@ function DesktopEventsSwiper() {
               delay: 5000,
               disableOnInteraction: false,
             }}
-            pagination={{
-              clickable: true,
-              dynamicBullets: true,
-            }}
+            pagination={{ clickable: true }}
             navigation={false}
             loop={ongoingEvents.length > 2}
             breakpoints={{
@@ -189,7 +186,7 @@ function DesktopEventsSwiper() {
                 spaceBetween: 24,
               },
             }}
-            className="pb-12 desktop-events-swiper"
+            className="desktop-events-swiper"
           >
             {/* 活跃的活动（进行中 + 即将开始） */}
             {ongoingEvents.map((event) => (
@@ -286,10 +283,7 @@ function MobileEventsSwiper() {
               delay: 5000,
               disableOnInteraction: false,
             }}
-            pagination={{
-              clickable: true,
-              dynamicBullets: true,
-            }}
+            pagination={{ clickable: true }}
             navigation={false}
             loop={ongoingEvents.length > 1}
             breakpoints={{
@@ -306,7 +300,7 @@ function MobileEventsSwiper() {
                 spaceBetween: 24,
               },
             }}
-            className="pb-9 sm:pb-12 overflow-visible mobile-events-swiper"
+            className="overflow-visible mobile-events-swiper"
           >
             {/* 活跃的活动（进行中 + 即将开始） */}
             {ongoingEvents.map((event) => (
