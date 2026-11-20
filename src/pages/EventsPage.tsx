@@ -97,7 +97,7 @@ export default function EventsPage() {
                   openEvent(getEventHref(event));
                 }
               }}
-              className="relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 rounded-xl sm:rounded-2xl h-auto aspect-video sm:aspect-1279/372 overflow-hidden md:hover:scale-[1.03] transition-all md:hover:-translate-y-2 duration-[0.4s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer"
+              className="relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 rounded-xl sm:rounded-2xl h-auto aspect-video sm:aspect-1279/372 overflow-hidden md:hover:scale-[1.03] transition-all md:hover:-translate-y-2 duration-[0.4s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer [content-visibility:auto] [contain-intrinsic-size:auto_240px]"
             >
               <div className="relative w-full h-full overflow-hidden">
                 <img
