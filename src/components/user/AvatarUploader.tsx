@@ -12,6 +12,10 @@ import { useUserContext } from '@/hooks';
 import { useAvatarUrl } from '@/hooks/useAvatarUrl';
 import { getDisplayMessage } from '@/utils';
 import { LoadingSpinner } from '@/components';
+import { LuCamera, LuUpload } from 'react-icons/lu';
+
+const PRIMARY_BUTTON = 'inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-400 disabled:opacity-50 px-4 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed';
+const GHOST_BUTTON = 'inline-flex items-center gap-2 bg-white/[0.06] hover:bg-white/10 disabled:opacity-50 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/90 text-sm transition-colors cursor-pointer disabled:cursor-not-allowed';
 
 export default function AvatarUploader() {
   const { t } = useTranslation();
@@ -134,94 +138,57 @@ export default function AvatarUploader() {
   const previewAvatarUrl = previewUrl || currentAvatarUrl;
 
   return (
-    <div className="w-full">
-      <div className="flex lg:flex-row flex-col items-center gap-6 lg:gap-8">
-        {/* Current Avatar */}
-        <div className="flex flex-col flex-[0_0_auto] justify-center items-center gap-3 lg:gap-4 h-auto lg:h-55">
-          <img
-            className="shadow-[0_6px_20px_rgba(0,0,0,0.4)] border-4 border-white/20 rounded-full w-30 lg:w-40 h-30 lg:h-40 object-cover transition-all duration-300"
-            src={currentAvatarUrl}
-            alt={t("user/AvatarUploader.CurrentAvatar")}
-          />
-          <div className="bg-white/5 px-4 py-2 border border-white/10 rounded-[20px] font-semibold text-[#b0b0b0] text-base text-center">
-            {t("user/AvatarUploader.CurrentAvatar")}
+    <div className="flex sm:flex-row flex-col sm:items-center gap-4 sm:gap-5">
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
+
+      {/* 点头像选图；选中后直接显示预览，蓝色描边表示尚未上传 */}
+      <button
+        type="button"
+        onClick={triggerFileSelect}
+        disabled={isUploading}
+        aria-label={t("user/AvatarUploader.SelectFile")}
+        className={`group relative p-0 rounded-full w-24 h-24 overflow-hidden shrink-0 border-2 bg-white/5 cursor-pointer disabled:cursor-not-allowed transition-colors ${previewUrl ? 'border-blue-400' : 'border-white/15 hover:border-white/30'}`}
+      >
+        <img
+          className="w-full h-full object-cover"
+          src={previewAvatarUrl}
+          alt={previewUrl ? t("user/AvatarUploader.PreviewAvatar") : t("user/AvatarUploader.CurrentAvatar")}
+        />
+        <span className="absolute inset-0 flex justify-center items-center bg-black/55 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
+          <LuCamera aria-hidden="true" className="w-6 h-6 text-white" />
+        </span>
+      </button>
+
+      <div className="flex flex-col gap-2.5 min-w-0">
+        {selectedFile ? (
+          <div className="flex items-center gap-2 min-w-0 text-sm">
+            <span className="text-white/85 truncate">{selectedFile.name}</span>
+            <span className="text-white/45 shrink-0">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
           </div>
-        </div>
-
-        {/* Preview Avatar */}
-        <div className="flex flex-col flex-1 justify-center items-center gap-3 lg:gap-4">
-          <div className="flex flex-col justify-center items-center gap-4">
-            <img
-              className={`w-30 lg:w-40 h-30 lg:h-40 rounded-full object-cover border-4 transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.4)] ${previewUrl
-                ? 'border-[rgba(59,130,246,0.8)] shadow-[0_6px_25px_rgba(59,130,246,0.5)]'
-                : 'border-white/20'
-                }`}
-              src={previewAvatarUrl}
-              alt={t("user/AvatarUploader.PreviewAvatar")}
-            />
-            <div className="bg-white/5 px-4 py-2 border border-white/10 rounded-[20px] font-semibold text-[#b0b0b0] text-base text-center">
-              {t("user/AvatarUploader.PreviewAvatar")}
-            </div>
-          </div>
-        </div>
-
-        {/* Upload Controls */}
-        <div className="flex flex-col flex-none lg:flex-[0_0_280px] justify-center items-stretch gap-4 lg:gap-6 w-full max-w-75 lg:max-w-none h-auto lg:h-55">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-
-          <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={triggerFileSelect}
-              className="flex justify-center items-center disabled:bg-[#6b7280] bg-linear-to-br from-[#667eea] to-[#764ba2] disabled:opacity-50 hover:shadow-[0_8px_25px_rgba(102,126,234,0.4)] disabled:shadow-none px-6 py-4 border-0 rounded-[10px] w-full font-bold text-white disabled:text-[#9ca3af] text-base tracking-[0.02em] disabled:transform-none transition-all hover:-translate-y-0.5 duration-300 cursor-pointer disabled:cursor-not-allowed"
-              disabled={isUploading}
-            >
-              {selectedFile ? t("user/AvatarUploader.ChangeFile") : t("user/AvatarUploader.SelectFile")}
+        ) : (
+          <div className="text-white/50 text-sm">{t("user/AvatarUploader.CurrentAvatar")}</div>
+        )}
+        <div className="flex flex-wrap gap-2">
+          {selectedFile ? (
+            <>
+              <button type="button" onClick={handleUpload} disabled={isUploading} className={PRIMARY_BUTTON}>
+                {isUploading ? t("user/AvatarUploader.UploadingPlzWait") : t("user/AvatarUploader.Upload")}
+              </button>
+              <button type="button" onClick={triggerFileSelect} disabled={isUploading} className={GHOST_BUTTON}>
+                {t("user/AvatarUploader.ChangeFile")}
+              </button>
+              <button type="button" onClick={handleCancel} disabled={isUploading} className={GHOST_BUTTON}>
+                {t("user/AvatarUploader.Cancel")}
+              </button>
+            </>
+          ) : (
+            <button type="button" onClick={triggerFileSelect} className={GHOST_BUTTON}>
+              <LuUpload aria-hidden="true" className="w-4 h-4" />
+              {t("user/AvatarUploader.SelectFile")}
             </button>
-
-            <button
-              type="button"
-              onClick={handleUpload}
-              className="flex justify-center items-center disabled:bg-[#6b7280] bg-linear-to-br from-[#11998e] to-[#38ef7d] disabled:opacity-50 hover:shadow-[0_8px_25px_rgba(17,153,142,0.4)] disabled:shadow-none px-6 py-4 border-0 rounded-[10px] w-full font-bold text-white disabled:text-[#9ca3af] text-base tracking-[0.02em] disabled:transform-none transition-all hover:-translate-y-0.5 duration-300 cursor-pointer disabled:cursor-not-allowed"
-              disabled={!selectedFile || isUploading}
-            >
-              {isUploading ? t("user/AvatarUploader.UploadingPlzWait") : t("user/AvatarUploader.Upload")}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="flex justify-center items-center disabled:bg-[#6b7280] bg-linear-to-br from-[#ff6b6b] to-[#ee5a24] disabled:opacity-50 hover:shadow-[0_8px_25px_rgba(255,107,107,0.4)] disabled:shadow-none px-6 py-4 border-0 rounded-[10px] w-full font-bold text-white disabled:text-[#9ca3af] text-base tracking-[0.02em] disabled:transform-none transition-all hover:-translate-y-0.5 duration-300 cursor-pointer disabled:cursor-not-allowed"
-              disabled={!selectedFile || isUploading}
-            >
-              {t("user/AvatarUploader.Cancel")}
-            </button>
-          </div>
-
-          {selectedFile && (
-            <div className="flex flex-col justify-center items-start gap-1 py-2 w-full max-h-15 overflow-hidden">
-              <span className="w-full max-h-[2.4rem] overflow-hidden overflow-wrap-anywhere font-medium text-[#e0e0e0] text-xs text-left break-all line-clamp-2 leading-tight">
-                {selectedFile.name}
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-[#b0b0b0] text-[0.7rem] shrink-0">
-                  {t("user/AvatarUploader.FileSize")}
-                </span>
-                <span className="text-[#a0a0a0] text-[0.7rem] shrink-0">
-                  {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                </span>
-              </div>
-            </div>
           )}
         </div>
       </div>
-
     </div>
   );
 }

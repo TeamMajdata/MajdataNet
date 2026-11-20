@@ -518,7 +518,6 @@
     "Cancel": "Cancel",
     "ChangeFile": "Change File",
     "CurrentAvatar": "Current Avatar",
-    "FileSize": "File Size",
     "FileTooLarge": "File too large, please select an image under 5MB",
     "InvalidFileType": "Invalid file type, please select an image file",
     "NoSelectedFile": "You haven't selected files.",

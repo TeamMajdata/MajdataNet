@@ -508,7 +508,6 @@
     "Cancel": "キャンセル",
     "ChangeFile": "ファイルを変更",
     "CurrentAvatar": "現在のアバター",
-    "FileSize": "ファイルサイズ",
     "FileTooLarge": "ファイルが大きすぎます。5MB以下の画像を選択してください",
     "InvalidFileType": "無効なファイル形式です。画像ファイルを選択してください",
     "NoSelectedFile": "ファイルが選択されていません！",
