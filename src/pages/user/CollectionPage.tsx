@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useState, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import { PageLayout, LoadingSpinner, CollectionCard, CollectionModal } from '@/components';
 import { endpoints } from '@/config/api';
 import { useUserContext, useFavorites } from '@/hooks';
-import { LuCheck, LuCircleX, LuFolderOpen, LuPlus, LuSettings2, LuTriangleAlert } from 'react-icons/lu';
+import { LuArrowRight, LuCheck, LuCircleX, LuFolderOpen, LuPlus, LuSettings2, LuTriangleAlert } from 'react-icons/lu';
 import Pager from '@/components/ui/Pager';
 import type { Collection } from '@/types';
 
@@ -15,11 +16,12 @@ type CollectionTab = 'mine' | 'favorites';
 const GHOST_BUTTON = 'inline-flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] px-4 border border-white/10 hover:border-white/20 rounded-xl h-9 font-medium text-white/85 text-sm whitespace-nowrap transition-colors cursor-pointer';
 
 /** 加载、出错、空列表时的占位，和歌单广场一致 */
-function Placeholder({ icon, text }: { icon: ReactNode; text: string }) {
+function Placeholder({ icon, text, action }: { icon: ReactNode; text: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col justify-center items-center gap-4 py-20">
       {icon}
-      <p className="m-0 text-white/40! text-base">{text}</p>
+      <p className="m-0 text-white/40! text-base text-center">{text}</p>
+      {action}
     </div>
   );
 }
@@ -59,6 +61,13 @@ export default function UserCollectionPage() {
     { key: 'mine' as const, label: t("user/collections/CollectionPage.MyCollections") },
     { key: 'favorites' as const, label: t("user/collections/CollectionPage.MyFavCollections") },
   ];
+  // 空列表时引导去歌单广场订阅
+  const toHiroba = (
+    <Link to="/collection/hiroba" className={GHOST_BUTTON + ' no-underline'}>
+      {t("user/collections/CollectionPage.GoToHiroba")}
+      <LuArrowRight aria-hidden="true" className="w-4 h-4" />
+    </Link>
+  );
   const emptyIcon = <LuFolderOpen aria-hidden="true" className="w-12 h-12 text-white/20" />;
   const loading = <div className="flex justify-center items-center py-20 w-full"><LoadingSpinner size="50px" /></div>;
 
@@ -100,7 +109,7 @@ export default function UserCollectionPage() {
             {isLoading ? loading : error ? (
               <Placeholder icon={<LuCircleX aria-hidden="true" className="w-12 h-12 text-red-400/60" />} text={t("user/collections/CollectionPage.ServerError")} />
             ) : !data || data.length === 0 ? (
-              <Placeholder icon={emptyIcon} text={t("user/collections/CollectionPage.EmptyData")} />
+              <Placeholder icon={emptyIcon} text={t("user/collections/CollectionPage.EmptyData")} action={toHiroba} />
             ) : (
               <>
                 {/* 列表工具栏：管理按钮属于“我的收藏夹”列表，提示放在旁边 */}
@@ -143,7 +152,7 @@ export default function UserCollectionPage() {
         ) : (
           <>
             {favLoading ? loading : !favorites || favorites.length === 0 ? (
-              <Placeholder icon={emptyIcon} text={t("user/collections/CollectionPage.EmptyFavorites")} />
+              <Placeholder icon={emptyIcon} text={t("user/collections/CollectionPage.EmptyFavorites")} action={toHiroba} />
             ) : (
               <div className="gap-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {favorites.map((collection) => (

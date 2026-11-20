@@ -618,9 +618,10 @@
     "UploadNoticeTerms5": "The chart was not made with AI (charts generated or mostly made by AI are not allowed)."
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "No collections yet. Create one with New Collection.",
-    "EmptyFavorites": "No favorites yet",
+    "EmptyData": "No collections yet. Create one, or subscribe to one in Collections.",
+    "EmptyFavorites": "No subscriptions yet. Pick one from Collections.",
     "ExitManage": "Exit Manage",
+    "GoToHiroba": "Browse Collections",
     "Manage": "Manage",
     "ManageHint": "Manage mode: use the button at the top-right of a collection to delete it",
     "MyCollections": "My Collections",

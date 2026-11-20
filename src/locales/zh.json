@@ -608,9 +608,10 @@
     "UploadNoticeTerms5": "这张谱面不是用 AI 生成的（禁止上传由 AI 生成或主要由 AI 完成的谱面）。"
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "还没有收藏夹，点「新建收藏夹」创建一个",
-    "EmptyFavorites": "暂无收藏",
+    "EmptyData": "还没有收藏夹，新建一个，或者去歌单广场订阅一个吧",
+    "EmptyFavorites": "还没有订阅的歌单，去歌单广场挑一个吧",
     "ExitManage": "退出管理",
+    "GoToHiroba": "去歌单广场看看",
     "Manage": "管理",
     "ManageHint": "管理模式：点击歌单右上角按钮可删除歌单",
     "MyCollections": "我的收藏夹",

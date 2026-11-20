@@ -608,9 +608,10 @@
     "UploadNoticeTerms5": "AI で生成した譜面ではないこと（AI が生成した、または主に AI で作られた譜面は禁止）。"
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "まだコレクションがありません。「新しいコレクション」から作成できます。",
-    "EmptyFavorites": "お気に入りはまだありません",
+    "EmptyData": "まだコレクションがありません。新しく作るか、コレクション広場で購読してみましょう。",
+    "EmptyFavorites": "購読中のコレクションはまだありません。コレクション広場から選んでみましょう。",
     "ExitManage": "管理を終了",
+    "GoToHiroba": "コレクション広場を見る",
     "Manage": "管理",
     "ManageHint": "管理モード：コレクション右上のボタンで削除できます",
     "MyCollections": "マイコレクション",

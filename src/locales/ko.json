@@ -608,9 +608,10 @@
     "UploadNoticeTerms5": "AI로 만든 채보가 아니어야 합니다 (AI가 생성했거나 주로 AI로 만든 채보는 금지)."
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "아직 컬렉션이 없습니다. 새 컬렉션을 만들어 보세요.",
-    "EmptyFavorites": "아직 즐겨찾기가 없습니다",
+    "EmptyData": "아직 컬렉션이 없습니다. 새로 만들거나 콜렉션 광장에서 구독해 보세요.",
+    "EmptyFavorites": "구독한 콜렉션이 없습니다. 콜렉션 광장에서 골라 보세요.",
     "ExitManage": "관리 종료",
+    "GoToHiroba": "콜렉션 광장 둘러보기",
     "Manage": "관리",
     "ManageHint": "관리 모드: 콜렉션 오른쪽 위 버튼으로 삭제할 수 있습니다",
     "MyCollections": "내 컬렉션",
