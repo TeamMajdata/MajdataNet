@@ -616,7 +616,7 @@
     "UploadNoticeTerms2": "この譜面は公開され、自由にダウンロードできます；",
     "UploadNoticeTerms3": "この譜面を公開しても、第三者の権利を侵害することはありません；",
     "UploadNoticeTerms4": "この譜面は、少なくとも一種類のエディター（majdata / maipad / astrodx / simai 等）で読み込むことができます。",
-    "UploadNoticeTerms5": "AI で生成した譜面ではないこと（AI が生成した、または主に AI で作られた譜面は禁止）。"
+    "UploadNoticeTerms5": "AI で生成した譜面は、全部・一部を問わず一切アップロードできません。"
   },
   "user/collections/CollectionPage": {
     "EmptyData": "まだコレクションがありません。新しく作るか、コレクション広場で購読してみましょう。",
