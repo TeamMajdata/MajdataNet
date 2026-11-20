@@ -27,7 +27,7 @@
   .marquee-host:hover .marquee[data-overflow] > .marquee-track {
     display: inline-flex;
     gap: var(--marquee-gap, 2rem);
-    animation: marquee-loop var(--marquee-duration, 6s) linear infinite;
+    animation: var(--marquee-name, marquee-loop-25) var(--marquee-duration, 6s) linear infinite;
   }
 
   .marquee-host:hover .marquee[data-overflow] .marquee-copy {
@@ -36,16 +36,47 @@
 }
 
 /*
- * 前 25% 停在起始位置，之后正好移动“一份文字 + 间隔”的宽度；
+ * 先在起始位置停一段，再正好移动“一份文字 + 间隔”的宽度；
  * 结束时副本恰好停在原文的位置，下一轮从同样的画面开始停顿，循环无缝。
+ * 停顿占比有 5%–50% 十档，MarqueeText 按文字长度选一档，使停顿固定约 1 秒。
  */
-@keyframes marquee-loop {
-  0%,
-  25% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(var(--marquee-shift, 0));
-  }
+@keyframes marquee-loop-5 {
+  0%, 5% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@keyframes marquee-loop-10 {
+  0%, 10% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@keyframes marquee-loop-15 {
+  0%, 15% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@keyframes marquee-loop-20 {
+  0%, 20% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@keyframes marquee-loop-25 {
+  0%, 25% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@keyframes marquee-loop-30 {
+  0%, 30% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@keyframes marquee-loop-35 {
+  0%, 35% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@keyframes marquee-loop-40 {
+  0%, 40% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@keyframes marquee-loop-45 {
+  0%, 45% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
+}
+@keyframes marquee-loop-50 {
+  0%, 50% { transform: translateX(0); }
+  100% { transform: translateX(var(--marquee-shift, 0)); }
 }

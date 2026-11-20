@@ -3,6 +3,8 @@ import '@/styles/components/marquee.css';
 
 const GAP_PX = 32;
 const SPEED_PX_PER_SECOND = 40;
+/** 每轮开始前在起点停多久（悬停后开始滚动前也是这么久） */
+const PAUSE_SECONDS = 1;
 
 /**
  * 单行文字：平时超出部分显示省略号；
@@ -25,9 +27,12 @@ export default function MarqueeText({ children, className = '' }: { children: Re
         outer.dataset.overflow = '';
         outer.style.setProperty('--marquee-gap', `${GAP_PX}px`);
         outer.style.setProperty('--marquee-shift', `-${distance}px`);
-        // 动画的后 75% 用来滚动（约 40px/s），前 25% 是在起点的停顿
-        const scrollSeconds = Math.max(2.5, distance / SPEED_PX_PER_SECOND);
-        outer.style.setProperty('--marquee-duration', `${(scrollSeconds / 0.75).toFixed(2)}s`);
+        // 起点停顿固定约 1 秒，不随文字长短变化：停顿占比取最接近的 5% 档（对应 marquee.css 里的关键帧），
+        // 再按这个占比反推总时长，让滚动段保持约 40px/s
+        const scrollSeconds = Math.max(1.5, distance / SPEED_PX_PER_SECOND);
+        const holdPercent = Math.min(50, Math.max(5, Math.round((PAUSE_SECONDS / (scrollSeconds + PAUSE_SECONDS)) * 20) * 5));
+        outer.style.setProperty('--marquee-name', `marquee-loop-${holdPercent}`);
+        outer.style.setProperty('--marquee-duration', `${(scrollSeconds / (1 - holdPercent / 100)).toFixed(2)}s`);
       } else {
         delete outer.dataset.overflow;
       }
