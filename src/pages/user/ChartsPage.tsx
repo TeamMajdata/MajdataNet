@@ -67,7 +67,7 @@ export default function UserChartsPage() {
         )}
       </div>
 
-      {uploading && <ChartUploadDialog onClose={() => setUploading(false)} />}
+      <ChartUploadDialog open={uploading} onClose={() => setUploading(false)} />
     </PageLayout>
   );
 }
