@@ -10,7 +10,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner, CommentListView } from '@/components';
 import { apiPagesForView } from '@/components/song/songGrid';
-import CollapsibleSection from '@/components/ui/CollapsibleSection';
 import UserRating from '@/components/user/UserRating';
 import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
@@ -29,8 +28,25 @@ export default function SpacePage() {
   const { t } = useTranslation();
   const [hasUploadedCharts, setHasUploadedCharts] = useState<boolean | null>(null);
   const [hasRecentPlayed, setHasRecentPlayed] = useState<boolean | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const username = searchParams.get('id');
+
+  const tabs = ([
+    { key: 'rating', label: t("space/SpacePage.Rating"), show: true },
+    { key: 'recent', label: t("space/SpacePage.RecentlyPlayedCharts"), show: hasRecentPlayed !== false },
+    { key: 'uploaded', label: t("space/SpacePage.UploadedCharts"), show: hasUploadedCharts !== false },
+    { key: 'comments', label: t("space/SpacePage.Comments"), show: true },
+    { key: 'fans', label: t("space/SpacePage.WhoLovesToPlay"), show: hasUploadedCharts === true },
+  ] as const).filter((tab) => tab.show);
+  type SpaceTab = typeof tabs[number]['key'];
+  // 网址里记着当前页签；不存在或被隐藏的页签回到“评分”
+  const requestedTab = searchParams.get('tab');
+  const activeTab: SpaceTab = tabs.find((tab) => tab.key === requestedTab)?.key ?? 'rating';
+  const selectTab = (tab: SpaceTab) => {
+    const next = new URLSearchParams(searchParams);
+    if (tab === 'rating') next.delete('tab'); else next.set('tab', tab);
+    setSearchParams(next, { replace: true, preventScrollReset: true });
+  };
 
   if (!username) {
     return (
@@ -55,46 +71,54 @@ export default function SpacePage() {
         <Introduction username={username} />
       </section>
 
-      <UserSeasons key={username} username={username} />
+      {/* 页签：一次只看一块；没有内容的页签自动隐藏（内容一直挂载着，好知道有没有数据） */}
+      <div className="flex flex-wrap bg-white/[0.04] mb-5 p-1 border border-white/10 rounded-xl w-fit max-w-full" role="tablist" aria-label={t("space/SpacePage.Sections")}>
+        {tabs.map(({ key, label }) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            id={'space-tab-' + key}
+            aria-controls={'space-panel-' + key}
+            aria-selected={activeTab === key}
+            onClick={() => selectTab(key)}
+            className={`px-4 rounded-lg h-9 font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === key ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-      {/* Rating radar and its best 50 */}
-      <CollapsibleSection key={`rating-${username}`} title={t("space/SpacePage.Rating")}>
-        <UserRating username={username} />
-      </CollapsibleSection>
+      <section id="space-panel-rating" role="tabpanel" aria-labelledby="space-tab-rating" hidden={activeTab !== 'rating'}>
+        <UserSeasons key={username} username={username} />
+        <UserRating key={`rating-${username}`} username={username} />
+      </section>
 
-      {/* Recent Activity */}
-      {hasRecentPlayed !== false && (
-        <CollapsibleSection title={t("space/SpacePage.RecentlyPlayedCharts")}>
-          <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} />
-        </CollapsibleSection>
-      )}
+      <section id="space-panel-recent" role="tabpanel" aria-labelledby="space-tab-recent" hidden={activeTab !== 'recent'}>
+        <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} />
+      </section>
 
-      {/* Uploaded Charts */}
-      {hasUploadedCharts !== false && (
-        <CollapsibleSection title={t("space/SpacePage.UploadedCharts")}>
-          <SongList
-            url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + username, '', apiPage))}
-            onDataLoaded={setHasUploadedCharts}
-          />
-        </CollapsibleSection>
-      )}
+      <section id="space-panel-uploaded" role="tabpanel" aria-labelledby="space-tab-uploaded" hidden={activeTab !== 'uploaded'}>
+        <SongList
+          url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + username, '', apiPage))}
+          onDataLoaded={setHasUploadedCharts}
+        />
+      </section>
 
-      {/* Comments */}
-      <CollapsibleSection title={t("space/SpacePage.Comments")}>
-        <div className="mx-auto w-full md:w-[82%] lg:w-[70%]">
+      <section id="space-panel-comments" role="tabpanel" aria-labelledby="space-tab-comments" hidden={activeTab !== 'comments'}>
+        <div className="max-w-4xl">
           <CommentListView
             key={username}
             load={(page, signal) => apiRequest<CommentList>(endpoints.account.comments(username, 'new', page), { signal })}
             empty={t("space/SpacePage.NoComments")}
           />
         </div>
-      </CollapsibleSection>
+      </section>
 
-      {/* Who Loves To Play */}
       {hasUploadedCharts === true && (
-        <CollapsibleSection title={t("space/SpacePage.WhoLovesToPlay")}>
+        <section id="space-panel-fans" role="tabpanel" aria-labelledby="space-tab-fans" hidden={activeTab !== 'fans'}>
           <ScoreCount uploader={username} page={0} pageSize={30} />
-        </CollapsibleSection>
+        </section>
       )}
       </div>
     </PageLayout>
