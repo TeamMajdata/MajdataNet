@@ -75,9 +75,9 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
           </div>
 
           <div className="flex flex-col flex-1 min-w-0">
-            {/* 悬停卡片时，被截断的标题/曲师/上传者来回滚动显示全文 */}
+            {/* 悬停卡片时，被截断的标题/曲师/上传者向左循环滚动显示全文 */}
             <MarqueeText className="font-bold text-base leading-snug">
-              <span id={song.id}>{link('/song?id=' + song.id, parseTmpRichText(song.title))}</span>
+              {link('/song?id=' + song.id, parseTmpRichText(song.title))}
             </MarqueeText>
             <MarqueeText className="mt-0.5 text-[0.8rem] text-white/70">
               {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}

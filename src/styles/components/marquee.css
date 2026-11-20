@@ -1,4 +1,7 @@
-/* 卡片悬停时，被截断的单行文字来回滚动显示全文 */
+/*
+ * 单行文字：平时超出部分显示省略号；
+ * 悬停 .marquee-host 时，被截断的文字接上一份副本向左循环滚动（abc   abc），而不是来回摆动。
+ */
 .marquee {
   display: block;
   overflow: hidden;
@@ -6,8 +9,13 @@
   white-space: nowrap;
 }
 
-.marquee > .marquee-inner {
+.marquee > .marquee-track {
   display: inline;
+}
+
+/* 循环用的副本平时不显示 */
+.marquee .marquee-copy {
+  display: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -15,20 +23,24 @@
     text-overflow: clip;
   }
 
-  .marquee-host:hover .marquee[data-overflow] > .marquee-inner {
-    display: inline-block;
-    animation: marquee-scroll var(--marquee-duration, 4s) ease-in-out 0.35s infinite alternate;
+  .marquee-host:hover .marquee[data-overflow] > .marquee-track {
+    display: inline-flex;
+    gap: var(--marquee-gap, 2rem);
+    animation: marquee-loop var(--marquee-duration, 6s) linear 0.4s infinite;
+  }
+
+  .marquee-host:hover .marquee[data-overflow] .marquee-copy {
+    display: inline;
   }
 }
 
-@keyframes marquee-scroll {
-  0%,
-  12% {
+/* 正好移动“一份文字 + 间隔”的宽度，副本接上原文的位置，循环无缝 */
+@keyframes marquee-loop {
+  from {
     transform: translateX(0);
   }
 
-  88%,
-  100% {
+  to {
     transform: translateX(var(--marquee-shift, 0));
   }
 }
