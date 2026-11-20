@@ -339,8 +339,10 @@
   },
   "shared/Pager": {
     "First": "First page",
+    "Last": "Last page",
     "Next": "Next",
     "PageInput": "Page <input/>",
+    "PageInputWithTotal": "Page <input/> of {{total}}",
     "PageNumber": "Page number",
     "Previous": "Previous"
   },

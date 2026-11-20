@@ -281,6 +281,7 @@ export default function PersonalScoresPage() {
                   page={currentPage - 1}
                   hasNext={currentPage < totalPages}
                   onPageChange={(next) => setCurrentPage(Math.min(totalPages, next + 1))}
+                  totalPages={totalPages}
                 />
               </div>
             )}

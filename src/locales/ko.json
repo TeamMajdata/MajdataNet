@@ -335,8 +335,10 @@
   },
   "shared/Pager": {
     "First": "첫 페이지",
+    "Last": "마지막 페이지",
     "Next": "다음",
     "PageInput": "<input/> 페이지",
+    "PageInputWithTotal": "<input/> / {{total}} 페이지",
     "PageNumber": "페이지 번호",
     "Previous": "이전"
   },
