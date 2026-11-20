@@ -41,14 +41,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   const maxScore = data[0].acc.dx;
 
   return (
-    <div
-      style={{
-        maxWidth: 'var(--container-max-width)',
-        margin: 'var(--container-margin)',
-        marginTop: '2rem',
-        padding: 'var(--container-padding)',
-      }}
-    >
+    <div className="w-full">
       <div className="gap-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {data.map((player, index) => (
           <ScoreCard

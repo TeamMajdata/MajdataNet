@@ -6,6 +6,7 @@ import { ScoreCard, LoadingSpinner } from '@/components';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
 import { motion } from 'framer-motion';
 import RecentActivityChart from '@/components/chart/RecentActivityChart';
+import { SONG_GRID_CLASS } from '@/components/song/songGrid';
 import { parseRecentTime } from '@/utils/recentActivity';
 
 // ─── Fetcher ──────────────────────────────────────────────────────────────────
@@ -112,7 +113,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
-        className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
+        className="min-w-0"
       >
         <ScoreCard
           score={score}
@@ -128,7 +129,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   return (
     <>
       <RecentActivityChart records={sortedData} />
-      <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+      <div className={SONG_GRID_CLASS}>
         {scoreCards}
       </div>
     </>

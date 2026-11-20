@@ -47,7 +47,7 @@ export default function UserRating({ username }: UserRatingProps) {
   }
 
   return (
-    <div className="justify-center items-start gap-5 grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] mx-auto w-full md:w-[92%] lg:w-[86%]">
+    <div className="items-start gap-5 grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] w-full">
       <section
         aria-label={t('space/SpacePage.Rating')}
         className="mx-auto w-full max-w-[17rem] sm:max-w-[20rem] lg:max-w-none bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2)] backdrop-blur-[10px] p-3 sm:p-4 border border-white/10 rounded-2xl min-w-0"

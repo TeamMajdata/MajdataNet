@@ -27,8 +27,8 @@ export default function UserSeasons({ username }: { username: string }) {
   return (
     // Each season renders an item only while loading, on error, or if the user participated.
     // Hide the whole section when all queries return no participation.
-    <section className="mb-12 hidden has-[li]:block" aria-labelledby="user-seasons-title">
-      <h2 id="user-seasons-title" className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
+    <section className="mb-8 hidden has-[li]:block" aria-labelledby="user-seasons-title">
+      <h2 id="user-seasons-title" className="m-0 mb-3 font-semibold text-white! text-lg! text-left!">
         {t('user/UserSeasons.Title')}
       </h2>
       <ul className="user-season-list">
