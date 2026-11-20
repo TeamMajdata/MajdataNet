@@ -267,19 +267,19 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
             />
           </div>
 
-          <div className="flex flex-col gap-2 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl transition-all duration-300">
+          <div className="flex flex-wrap gap-2">
             <button
-              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
+              className="bg-blue-500 hover:bg-blue-400 px-4 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer"
               onClick={OnDownloadClick({ id: o.id, title: o.title })}
               title={t("song/SongPage.Download")}
             >
-              <span className="inline-flex justify-center items-center gap-2 w-full">
+              <span className="inline-flex justify-center items-center gap-2">
                 <svg
                   className="fill-current transition-transform duration-300 ease-in-out"
                   xmlns="http://www.w3.org/2000/svg"
-                  height="20"
+                  height="18"
                   viewBox="0 -960 960 960"
-                  width="20"
+                  width="18"
                 >
                   <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
                 </svg>
@@ -287,17 +287,17 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
               </span>
             </button>
             <button
-              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
+              className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/90 text-sm transition-colors cursor-pointer"
               onClick={shareSong()}
               title={t("song/SongPage.Share")}
             >
-              <span className="inline-flex justify-center items-center gap-2 w-full">
+              <span className="inline-flex justify-center items-center gap-2">
                 <svg
                   className="fill-current transition-transform duration-300 ease-in-out"
                   xmlns="http://www.w3.org/2000/svg"
-                  height="20"
+                  height="18"
                   viewBox="0 -960 960 960"
-                  width="20"
+                  width="18"
                 >
                   <path d="M720-80q-50 0-85-35t-35-85q0-7 1-14.5t3-13.5L322-392q-17 15-38 23.5t-44 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 44 8.5t38 23.5l282-164q-2-6-3-13.5t-1-14.5q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-44-8.5T638-672L356-508q2 6 3 13.5t1 14.5q0 7-1 14.5t-3 13.5l282 164q17-15 38-23.5t44-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-640q17 0 28.5-11.5T760-760q0-17-11.5-28.5T720-800q-17 0-28.5 11.5T680-760q0 17 11.5 28.5T720-720ZM240-440q17 0 28.5-11.5T280-480q0-17-11.5-28.5T240-520q-17 0-28.5 11.5T200-480q0 17 11.5 28.5T240-440Zm480 280q17 0 28.5-11.5T760-200q0-17-11.5-28.5T720-240q-17 0-28.5 11.5T680-200q0 17 11.5 28.5T720-160Zm0-600ZM240-480Zm480 280Z" />
                 </svg>
@@ -305,17 +305,17 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
               </span>
             </button>
             <button
-              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md border border-white/20 rounded-xl w-full h-11 font-bold text-white text-base transition-all"
+              className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/90 text-sm transition-colors cursor-pointer"
               onClick={() => setIsCollectionModalOpen(true)}
               title={t("song/SongPage.Collection") || '收藏'}
             >
-              <span className="inline-flex justify-center items-center gap-2 w-full">
+              <span className="inline-flex justify-center items-center gap-2">
                 <svg
                   className="fill-current transition-transform duration-300 ease-in-out"
                   xmlns="http://www.w3.org/2000/svg"
-                  height="20"
+                  height="18"
                   viewBox="0 -960 960 960"
-                  width="20"
+                  width="18"
                 >
                   <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
                 </svg>
@@ -339,7 +339,7 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
               className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md p-2.5 border border-white/20 rounded-xl w-full aspect-square font-bold text-base transition-all"
               onClick={() => setIsLoadMajdata(true)}
             >
-              <span className="inline-flex justify-center items-center gap-2 w-full">
+              <span className="inline-flex justify-center items-center gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   height="120px"
