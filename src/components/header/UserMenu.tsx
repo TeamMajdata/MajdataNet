@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useUserContext } from '@/hooks';
 import UserAvatar from '@/components/user/UserAvatar';
@@ -44,13 +44,35 @@ export default function UserMenu({ username }: UserMenuProps) {
     { to: '/user/profile', label: t("shared/UserMenu.AccountSetting"), Icon: LuSettings },
   ];
 
+  // 桌面端（能悬停的设备）悬停展开，和顶栏的“榜单”“工具”一致；手机仍点击展开
+  const hoverCloseTimer = useRef<number | undefined>(undefined);
+  const canHover = () => window.matchMedia('(min-width: 768px) and (hover: hover)').matches;
+  useEffect(() => () => window.clearTimeout(hoverCloseTimer.current), []);
+
+  const openOnHover = () => {
+    if (!canHover()) return;
+    window.clearTimeout(hoverCloseTimer.current);
+    setIsOpen(true);
+  };
+  // 稍等再关，指针从头像移到菜单途中不会闪退
+  const closeOnHoverEnd = () => {
+    if (!canHover()) return;
+    window.clearTimeout(hoverCloseTimer.current);
+    hoverCloseTimer.current = window.setTimeout(() => setIsOpen(false), 150);
+  };
+
   return (
-    <div className="relative" ref={containerRef}>
+    <div
+      className={`relative ${isOpen ? "after:absolute after:inset-x-0 after:top-full after:h-2.5 after:content-['']" : ''}`}
+      ref={containerRef}
+      onPointerEnter={openOnHover}
+      onPointerLeave={closeOnHoverEnd}
+    >
       <button
         className={`flex items-center gap-2 p-1 md:pr-3 rounded-full cursor-pointer text-white/85 text-sm font-medium h-10 border touch-manipulation transition-colors duration-150 ${
           isOpen ? 'bg-white/10 border-white/20' : 'bg-white/[0.04] border-white/10 hover:bg-white/[0.08] hover:border-white/20'
         }`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen(canHover() ? true : !isOpen)}
         aria-expanded={isOpen}
         aria-label={t("shared/UserMenu.UserMenu")}
       >
