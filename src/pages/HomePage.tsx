@@ -349,6 +349,12 @@ const SUGGESTION_ICONS: Record<SuggestionKind, React.ComponentType<{ className?:
   tag: LuTag,
 };
 
+/** 判断按键是否发生在可输入的元素里（这时 / 不应抢焦点） */
+function isTypingTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+}
+
 function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) {
   const { t } = useTranslation();
   const [currentValue, setCurrentValue] = useState(initS);
@@ -406,6 +412,18 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   useEffect(() => {
     setCurrentValue(initS);
   }, [initS]);
+
+  // 在页面任意位置按 / 聚焦搜索框（正在输入时除外）
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey || isTypingTarget(event.target)) return;
+      event.preventDefault();
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const setValue = (value: string) => {
     setCurrentValue(value);
@@ -471,6 +489,11 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
           onKeyDown={handleKeyDown}
           aria-label={t("home/HomePage.SearchPlaceholder")}
         />
+        {!currentValue && !isFocused && (
+          <kbd aria-hidden="true" className="top-1/2 right-3 absolute place-items-center grid bg-white/[0.06] border border-white/15 rounded-md w-6 h-6 font-mono text-white/50 text-xs -translate-y-1/2 pointer-events-none">
+            /
+          </kbd>
+        )}
         <AnimatePresence>
           {currentValue && (
             <motion.button
