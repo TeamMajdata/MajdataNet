@@ -73,6 +73,12 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
               zoomable={false}
               radiusClassName="rounded-lg"
             />
+            {/* 管理页：标签、删除按钮叠在封面右上角 */}
+            {isManage && (
+              <div className="top-1.5 right-1.5 absolute flex gap-1">
+                <ManageActions songid={song.id} title={stripTmpTags(song.title) || song.title} />
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col flex-1 min-w-0">
@@ -94,15 +100,11 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
             </MarqueeText>
             <div className="flex items-start gap-1 mt-1.5">
               <div className="flex-1 min-w-0">
-                {isManage ? (
-                  <ManageActions songid={song.id} title={stripTmpTags(song.title) || song.title} />
-                ) : (
-                  <Levels levels={song.levels} songid={song.id} isPlayer={false} linkToSong={!(disableLink || onClick)} />
-                )}
+                <Levels levels={song.levels} songid={song.id} isPlayer={false} linkToSong={!(disableLink || onClick)} />
               </div>
               <button
                 type="button"
-                className="flex justify-center items-center hover:bg-white/10 -my-1 rounded-md w-7 h-7 text-white/55 hover:text-white transition-colors cursor-pointer shrink-0 touch-manipulation"
+                className={ICON_BUTTON}
                 onClick={handleDownload}
                 aria-label="Download"
               >
@@ -123,12 +125,15 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
 export default SongCard;
 
 /** 谱面管理页卡片上的操作：编辑标签、删除（删除前弹窗确认） */
+const ICON_BUTTON = 'flex justify-center items-center hover:bg-white/10 -my-1 rounded-md w-7 h-7 text-white/55 hover:text-white transition-colors cursor-pointer shrink-0 touch-manipulation';
+/** 叠在封面上的按钮：深色半透明底，保证在任何封面上都看得清 */
+const COVER_BUTTON = 'grid place-items-center bg-black/60 hover:bg-black/80 backdrop-blur-sm border border-white/15 rounded-lg w-7 h-7 text-white/85 hover:text-white transition-colors cursor-pointer';
+
 const ManageActions = memo(function ManageActions({ songid, title }: { songid: string; title: string }) {
   const { t } = useTranslation();
   const tagWidget = useRef<TagManageWidgetRef>(null);
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const chip = 'inline-flex items-center gap-1 bg-white/[0.06] px-2 border whitespace-nowrap border-white/10 rounded-md h-6 text-white/75 text-xs transition-colors cursor-pointer';
 
   const handleDelete = useCallback(async () => {
     setDeleting(true);
@@ -153,14 +158,12 @@ const ManageActions = memo(function ManageActions({ songid, title }: { songid: s
   }, [songid, t]);
 
   return (
-    <div className="flex items-center gap-1.5">
-      <button type="button" className={chip + ' hover:bg-white/10 hover:border-white/20 hover:text-white'} onClick={() => tagWidget.current?.openWindow()}>
+    <>
+      <button type="button" className={COVER_BUTTON} onClick={() => tagWidget.current?.openWindow()} aria-label={t("song/SongCard.Tags")} title={t("song/SongCard.Tags")}>
         <LuTag aria-hidden="true" className="w-3.5 h-3.5" />
-        {t("song/SongCard.Tags")}
       </button>
-      <button type="button" className={chip + ' hover:bg-red-500/10 hover:border-red-400/40 hover:text-red-300'} onClick={() => setConfirming(true)}>
+      <button type="button" className={COVER_BUTTON + ' hover:bg-red-600/80! hover:border-red-400/50!'} onClick={() => setConfirming(true)} aria-label={t("song/SongCard.Delete")} title={t("song/SongCard.Delete")}>
         <LuTrash2 aria-hidden="true" className="w-3.5 h-3.5" />
-        {t("song/SongCard.Delete")}
       </button>
       {/* 标签弹窗由 ref 打开，自带的触发按钮不显示 */}
       <div hidden><TagManageWidget ref={tagWidget} songid={songid} /></div>
@@ -175,6 +178,6 @@ const ManageActions = memo(function ManageActions({ songid, title }: { songid: s
           onCancel={() => setConfirming(false)}
         />
       )}
-    </div>
+    </>
   );
 });
