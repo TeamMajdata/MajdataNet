@@ -110,6 +110,8 @@ interface NavigationGroupViewProps {
   menuId: string;
   triggerRef: (element: HTMLButtonElement | null) => void;
   onToggle: () => void;
+  onHoverStart: () => void;
+  onHoverEnd: () => void;
   onNavigate: () => void;
 }
 
@@ -122,12 +124,14 @@ function NavigationGroupView({
   menuId,
   triggerRef,
   onToggle,
+  onHoverStart,
+  onHoverEnd,
   onNavigate,
 }: NavigationGroupViewProps) {
   const active = isNavigationItemActive(item, pathname, search);
 
   return (
-    <li className="relative">
+    <li className="relative" onPointerEnter={onHoverStart} onPointerLeave={onHoverEnd}>
       <button
         ref={triggerRef}
         type="button"
@@ -154,7 +158,7 @@ function NavigationGroupView({
 
       <ul
         id={menuId}
-        className={`${isOpen ? 'flex' : 'hidden'} mt-1 list-none flex-col gap-0.5 border-t border-white/[0.07] pt-1 xl:absolute xl:top-[calc(100%+0.55rem)] xl:left-0 xl:mt-0 xl:min-w-52 xl:rounded-xl xl:border xl:border-white/10 xl:bg-[rgb(10_13_20/96%)] xl:p-1.5 xl:shadow-[0_18px_50px_rgb(0_0_0/42%),0_1px_0_rgb(255_255_255/7%)_inset] xl:backdrop-blur-2xl`}
+        className={`${isOpen ? 'flex' : 'hidden'} mt-1 list-none flex-col gap-0.5 border-t border-white/[0.07] pt-1 xl:absolute xl:top-[calc(100%+0.55rem)] xl:left-0 xl:before:absolute xl:before:inset-x-0 xl:before:-top-2.5 xl:before:h-2.5 xl:before:content-[''] xl:mt-0 xl:min-w-52 xl:rounded-xl xl:border xl:border-white/10 xl:bg-[rgb(10_13_20/96%)] xl:p-1.5 xl:shadow-[0_18px_50px_rgb(0_0_0/42%),0_1px_0_rgb(255_255_255/7%)_inset] xl:backdrop-blur-2xl`}
       >
         {item.children.map((child) => (
           <li key={child.id}>
@@ -237,7 +241,32 @@ function NavigationContent() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // 桌面端（能悬停的宽屏）悬停展开分组；手机和触屏仍然点击展开
+  const hoverCloseTimer = useRef<number | undefined>(undefined);
+  const canHover = () => window.matchMedia('(min-width: 1280px) and (hover: hover)').matches;
+
+  useEffect(() => () => window.clearTimeout(hoverCloseTimer.current), []);
+
+  const openGroupOnHover = (groupId: NavigationGroupId) => {
+    if (!canHover()) return;
+    window.clearTimeout(hoverCloseTimer.current);
+    setOpenGroup(groupId);
+  };
+
+  // 稍等一下再关，指针从按钮移到菜单途中不会闪退
+  const closeGroupOnHoverEnd = () => {
+    if (!canHover()) return;
+    window.clearTimeout(hoverCloseTimer.current);
+    hoverCloseTimer.current = window.setTimeout(() => setOpenGroup(null), 150);
+  };
+
   const toggleGroup = (groupId: NavigationGroupId) => {
+    // 悬停已经展开时，点击不应把菜单关掉
+    if (canHover()) {
+      window.clearTimeout(hoverCloseTimer.current);
+      setOpenGroup(groupId);
+      return;
+    }
     setOpenGroup((currentGroup) => currentGroup === groupId ? null : groupId);
   };
 
@@ -279,6 +308,8 @@ function NavigationContent() {
                   groupTriggerRefs.current[item.id] = element;
                 }}
                 onToggle={() => toggleGroup(item.id)}
+                onHoverStart={() => openGroupOnHover(item.id)}
+                onHoverEnd={closeGroupOnHoverEnd}
                 onNavigate={handleNavigate}
               />
             );
