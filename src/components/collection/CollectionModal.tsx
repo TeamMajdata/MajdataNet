@@ -14,6 +14,8 @@ interface CollectionModalProps {
   /** 谱面当前的 maidata hash，用于判断是否已在谱单中 */
   songHash?: string;
   onCreate?: () => void;
+  /** 只显示新建表单（我的收藏页的“新建收藏夹”按钮用），创建或取消后直接关闭 */
+  createOnly?: boolean;
 }
 
 const backdropVariants = {
@@ -46,7 +48,7 @@ const listItemVariants = {
   }),
 };
 
-export default function CollectionModal({ isOpen, onClose, chartId, songHash, onCreate }: CollectionModalProps) {
+export default function CollectionModal({ isOpen, onClose, chartId, songHash, onCreate, createOnly = false }: CollectionModalProps) {
   const { t } = useTranslation();
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState('');
@@ -55,6 +57,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
   const [searchQuery, setSearchQuery] = useState('');
   const [creatingLoading, setCreatingLoading] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const creating = createOnly || isCreating;
 
   const {
     collections,
@@ -80,8 +83,8 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
 
   // Auto-focus name input when create form opens
   useEffect(() => {
-    if (isCreating) nameInputRef.current?.focus();
-  }, [isCreating]);
+    if (isOpen && creating) nameInputRef.current?.focus();
+  }, [isOpen, creating]);
 
   // Close on Escape
   useEffect(() => {
@@ -125,6 +128,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
         mutateCollections();
         mutateHashLists();
         onCreate?.();
+        if (createOnly) onClose();
       } else {
         toast.error(t("collection/CollectionModal.CreateFailed"));
       }
@@ -133,9 +137,13 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
     } finally {
       setCreatingLoading(false);
     }
-  }, [newName, newDescription, newVisibility, creatingLoading, mutateCollections, mutateHashLists, onCreate, t]);
+  }, [newName, newDescription, newVisibility, creatingLoading, mutateCollections, mutateHashLists, onCreate, createOnly, onClose, t]);
 
   const resetCreateForm = () => {
+    if (createOnly) {
+      onClose();
+      return;
+    }
     setIsCreating(false);
     setNewName('');
     setNewDescription('');
@@ -163,11 +171,11 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="top-1/2 left-1/2 absolute flex flex-col bg-[rgba(20,20,25,0.95)] shadow-2xl border border-white/10 rounded-2xl w-[90%] max-w-md min-h-80 sm:min-h-95 max-h-[85vh] overflow-hidden -translate-x-1/2 -translate-y-1/2"
+            className={`top-1/2 left-1/2 absolute flex flex-col bg-[rgba(20,20,25,0.95)] shadow-2xl border border-white/10 rounded-2xl w-[90%] max-w-md ${createOnly ? '' : 'min-h-80 sm:min-h-95'} max-h-[85vh] overflow-hidden -translate-x-1/2 -translate-y-1/2`}
           >
             {/* Header */}
             <div className="flex justify-between items-center px-5 pt-5 pb-3 shrink-0">
-              <h2 className="font-bold text-white text-xl">{t("collection/CollectionModal.MyCollections")}</h2>
+              <h2 className="font-bold text-white text-xl">{createOnly ? t("collection/CollectionModal.NewCollection") : t("collection/CollectionModal.MyCollections")}</h2>
               <button
                 onClick={onClose}
                 className="flex justify-center items-center hover:bg-white/10 rounded-full w-8 h-8 text-white/60 hover:text-white transition-colors cursor-pointer"
@@ -181,13 +189,13 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
 
             {/* Scrollable body */}
             <div className="relative flex-1 px-5 pb-2 min-h-0 overflow-y-auto">
-              {!isLoading && error && (
+              {!createOnly && !isLoading && error && (
                 <div className="flex justify-center items-center py-12 w-full">
                   <p className="text-white/40 text-sm">{t("collection/CollectionModal.LoadFailed")}</p>
                 </div>
               )}
 
-              {!isLoading && !error && !hasCollections && !isCreating && (
+              {!creating && !isLoading && !error && !hasCollections && (
                 <div className="flex flex-col justify-center items-center gap-3 py-12 w-full">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/15">
                     <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
@@ -196,7 +204,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
                 </div>
               )}
 
-              {hasCollections && (
+              {!createOnly && hasCollections && (
                 <>
                   {/* Search */}
                   <div className="relative mb-3">
@@ -279,7 +287,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
                 </>
               )}
 
-              {isLoading && (
+              {!createOnly && isLoading && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -299,7 +307,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
 
               {/* Create form (collapsible) */}
               <AnimatePresence>
-                {isCreating && (
+                {creating && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
@@ -307,7 +315,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <div className="space-y-3 bg-white/5 mt-3 p-4 border border-white/10 rounded-xl">
+                    <div className={`space-y-3 ${createOnly ? "mb-3" : "bg-white/5 mt-3 p-4 border border-white/10 rounded-xl"}`}>
                       <div>
                         <label className="block mb-1.5 font-medium text-white/70 text-xs">
                           {t("collection/CollectionModal.CollectionName")} <span className="text-red-400">*</span>
@@ -374,7 +382,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
             </div>
 
             {/* Footer: create button */}
-            {(!isLoading || hasCollections) && !isCreating && (
+            {(!isLoading || hasCollections) && !creating && (
               <div className="px-5 py-3 border-white/5 border-t shrink-0">
                 <button
                   onClick={() => setIsCreating(true)}

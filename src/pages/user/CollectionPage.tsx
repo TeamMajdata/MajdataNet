@@ -163,6 +163,7 @@ export default function UserCollectionPage() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onCreate={() => mutate()}
+          createOnly
         />
       </div>
     </PageLayout>
