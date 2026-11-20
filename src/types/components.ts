@@ -129,8 +129,6 @@ export interface SongListProps {
   isRanking?: boolean;
   isManage?: boolean;
   onDataLoaded?: (hasData: boolean) => void;
-  /** 替换默认的卡片网格（窄栏里用更少的列） */
-  gridClassName?: string;
 }
 
 // ======================== 最近游玩组件 ========================

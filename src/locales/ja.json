@@ -594,10 +594,12 @@
     "ViewSeason": "大会を見る"
   },
   "user/charts/ChartsPage": {
+    "AcceptNotice": "読んで同意しました",
+    "Cancel": "キャンセル",
     "ChartsManagement": "譜面管理",
     "ManageAllYourCharts": "アップロードした全ての譜面を管理",
-    "MyCharts": "マイ譜面",
-    "UploadChart": "譜面アップロード",
+    "NoticeIntro": "アップロード前に以下を確認してください：",
+    "UploadChart": "譜面をアップロード",
     "UploadNotice": "アップロード注意事項",
     "UploadNoticeTerms1": "アップロードする譜面は、あなた自身が作成したもの、または共同制作したものであるか、原作者がアップロードに同意したものです；",
     "UploadNoticeTerms2": "この譜面は公開され、自由にダウンロードできます；",

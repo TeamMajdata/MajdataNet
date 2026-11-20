@@ -594,10 +594,12 @@
     "ViewSeason": "查看季赛"
   },
   "user/charts/ChartsPage": {
+    "AcceptNotice": "我已阅读并同意",
+    "Cancel": "取消",
     "ChartsManagement": "谱面管理",
     "ManageAllYourCharts": "管理您上传的所有谱面",
-    "MyCharts": "我的谱面",
-    "UploadChart": "谱面上传",
+    "NoticeIntro": "上传前请确认以下几点：",
+    "UploadChart": "上传谱面",
     "UploadNotice": "上传须知",
     "UploadNoticeTerms1": "上传的谱面是你自己写的或合作写的，又或是谱面原作者同意上传；",
     "UploadNoticeTerms2": "此谱面可以公开，自由下载；",

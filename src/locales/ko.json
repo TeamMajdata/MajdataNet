@@ -594,9 +594,11 @@
     "ViewSeason": "대회 보기"
   },
   "user/charts/ChartsPage": {
+    "AcceptNotice": "읽고 동의합니다",
+    "Cancel": "취소",
     "ChartsManagement": "채보",
     "ManageAllYourCharts": "업로드한 모든 채보를 관리하세요",
-    "MyCharts": "내 채보",
+    "NoticeIntro": "업로드 전에 다음을 확인해 주세요:",
     "UploadChart": "채보 업로드",
     "UploadNotice": "업로드 안내",
     "UploadNoticeTerms1": "채보는 본인이 제작했거나 공동으로 제작했으며, 원 저자의 동의를 받고 업로드합니다;",

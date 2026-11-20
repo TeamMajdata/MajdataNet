@@ -604,10 +604,12 @@
     "ViewSeason": "View season"
   },
   "user/charts/ChartsPage": {
+    "AcceptNotice": "I have read and agree",
+    "Cancel": "Cancel",
     "ChartsManagement": "Charts",
     "ManageAllYourCharts": "Manage all your uploaded charts",
-    "MyCharts": "My Charts",
-    "UploadChart": "Chart Upload",
+    "NoticeIntro": "Before uploading, please confirm:",
+    "UploadChart": "Upload chart",
     "UploadNotice": "Upload Notice",
     "UploadNoticeTerms1": "The chart is either created by you, co-created by you, or uploaded with the original author's consent;",
     "UploadNoticeTerms2": "The chart is allowed to be publicly available and freely downloaded;",
