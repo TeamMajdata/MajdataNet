@@ -635,6 +635,8 @@ function SortMenu({ options, value, onChange, label }: {
 
 const RECOMMEND_PAGE_SIZE = 30;
 const RECOMMEND_MAX_PAGE = 100; // 与后端 feed 的 page 上限一致
+// 随机推荐从全量列表里抽：36 条能被 1/2/3/4 列整除
+const RANDOM_RECOMMEND_COUNT = 36;
 
 const clampRecommendPage = (page: number) =>
   Number.isInteger(page) ? Math.min(Math.max(page, 0), RECOMMEND_MAX_PAGE) : 0;
@@ -971,7 +973,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
 
     return [...data]
       .sort((a, b) => hashWithSeed(a, refreshKey) - hashWithSeed(b, refreshKey))
-      .slice(0, 30);
+      .slice(0, RANDOM_RECOMMEND_COUNT);
   }, [data, refreshKey]);
 
   if (error) {
