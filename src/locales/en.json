@@ -549,7 +549,7 @@
     "UploadingPlzWait": "Uploading, plz wait!"
   },
   "user/ChartUploader": {
-    "BGVideoHint": "bg.mp4/pv.mp4 (Optional, Max 20MB)",
+    "ChooseFile": "Choose",
     "InvalidFileName": "Invalid file name (case-sensitive). Expected: ",
     "MaidataAlreadyExists": "This chart already exists on the site",
     "MaidataAlreadyExistsWithTitle": "This chart already exists on the site: {{title}}",
@@ -557,14 +557,17 @@
     "MaidataHashLookupFailed": "Failed to query maidata.txt hash",
     "MaidataHashNotFound": "No existing chart found",
     "MaidataWillInheritHistory": "This upload will inherit previous scores or interactions",
+    "NoFileChosen": "No file chosen",
     "NoFileSelected": "No file selected for {{file}}",
     "NotLoggedIn": "Not logged in",
+    "ReplaceFile": "Replace",
     "Upload": "Upload",
     "UploadFailed": "Upload failed",
     "UploadServerErrorHint": "Upload failed, please go to the main site to upload",
     "UploadSuccess": "Upload succeeded",
     "Uploading": "Uploading...",
     "UploadingPlzWait": "Uploading, plz wait!",
+    "VideoHint": "optional, up to 20 MB",
     "View": "View"
   },
   "user/IntroUploader": {

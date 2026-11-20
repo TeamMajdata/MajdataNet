@@ -539,7 +539,7 @@
     "UploadingPlzWait": "上传中啦等一会啦"
   },
   "user/ChartUploader": {
-    "BGVideoHint": "bg.mp4/pv.mp4(可选,限20M内)",
+    "ChooseFile": "选择",
     "InvalidFileName": "文件名不正确（区分大小写），应为：",
     "MaidataAlreadyExists": "这个谱面已经存在于网站上",
     "MaidataAlreadyExistsWithTitle": "这个谱面已经存在于网站上：{{title}}",
@@ -547,14 +547,17 @@
     "MaidataHashLookupFailed": "查询 maidata.txt 哈希失败",
     "MaidataHashNotFound": "未找到已存在的谱面",
     "MaidataWillInheritHistory": "这次上传会继承之前的分数或互动",
+    "NoFileChosen": "未选择文件",
     "NoFileSelected": "没有选中 {{file}}",
     "NotLoggedIn": "未登录",
+    "ReplaceFile": "更换",
     "Upload": "上传",
     "UploadFailed": "上传失败",
     "UploadServerErrorHint": "上传失败, 请前往主站上传",
     "UploadSuccess": "上传成功",
     "Uploading": "正在爆速上传...",
     "UploadingPlzWait": "上传中啦等一会啦",
+    "VideoHint": "可选，20MB 以内",
     "View": "查看"
   },
   "user/IntroUploader": {

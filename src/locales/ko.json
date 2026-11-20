@@ -539,7 +539,7 @@
     "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!"
   },
   "user/ChartUploader": {
-    "BGVideoHint": "bg.mp4/pv.mp4 (선택 사항, 최대 20MB)",
+    "ChooseFile": "선택",
     "InvalidFileName": "파일 이름이 올바르지 않습니다(대소문자 구분). 올바른 이름: ",
     "MaidataAlreadyExists": "이 채보는 이미 사이트에 존재합니다",
     "MaidataAlreadyExistsWithTitle": "이 채보는 이미 사이트에 존재합니다: {{title}}",
@@ -547,14 +547,17 @@
     "MaidataHashLookupFailed": "maidata.txt 해시 조회에 실패했습니다",
     "MaidataHashNotFound": "기존 채보를 찾지 못했습니다",
     "MaidataWillInheritHistory": "이번 업로드는 이전 점수 또는 상호작용을 이어받습니다",
+    "NoFileChosen": "선택된 파일 없음",
     "NoFileSelected": "파일이 선택되지 않았습니다: {{file}}",
     "NotLoggedIn": "로그인하지 않음",
+    "ReplaceFile": "변경",
     "Upload": "업로드",
     "UploadFailed": "업로드에 실패했습니다",
     "UploadServerErrorHint": "업로드 실패, 주 사이트로 가서 업로드하세요",
     "UploadSuccess": "업로드했습니다",
     "Uploading": "업로드 중...",
     "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!",
+    "VideoHint": "선택, 20MB 이하",
     "View": "보기"
   },
   "user/IntroUploader": {

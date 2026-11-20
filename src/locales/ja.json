@@ -539,7 +539,7 @@
     "UploadingPlzWait": "アップロード中です。しばらくお待ちください"
   },
   "user/ChartUploader": {
-    "BGVideoHint": "bg.mp4/pv.mp4 (オプション、20MB以内)",
+    "ChooseFile": "選択",
     "InvalidFileName": "ファイル名が正しくありません（大文字と小文字を区別）。正しい名前：",
     "MaidataAlreadyExists": "この譜面はすでにサイト上に存在します",
     "MaidataAlreadyExistsWithTitle": "この譜面はすでにサイト上に存在します：{{title}}",
@@ -547,14 +547,17 @@
     "MaidataHashLookupFailed": "maidata.txt のハッシュ照会に失敗しました",
     "MaidataHashNotFound": "既存の譜面は見つかりませんでした",
     "MaidataWillInheritHistory": "今回のアップロードは以前のスコアまたはインタラクションを引き継ぎます",
+    "NoFileChosen": "ファイル未選択",
     "NoFileSelected": "ファイルが選択されていません: {{file}}",
     "NotLoggedIn": "未ログイン",
+    "ReplaceFile": "変更",
     "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
     "UploadServerErrorHint": "アップロードに失敗しました。主サイトに行ってアップロードしてください",
     "UploadSuccess": "アップロードしました",
     "Uploading": "爆速アップロード中...",
     "UploadingPlzWait": "アップロード中です。しばらくお待ちください",
+    "VideoHint": "任意、20MB 以内",
     "View": "表示"
   },
   "user/IntroUploader": {
