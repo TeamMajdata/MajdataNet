@@ -1,6 +1,7 @@
 /*
  * 单行文字：平时超出部分显示省略号；
- * 悬停 .marquee-host 时，被截断的文字接上一份副本向左循环滚动（abc   abc），而不是来回摆动。
+ * 悬停 .marquee-host 时，被截断的文字接上一份副本向左循环滚动（abc   abc），
+ * 每次滚到下一份的起始位置会停一会儿再继续。
  */
 .marquee {
   display: block;
@@ -26,7 +27,7 @@
   .marquee-host:hover .marquee[data-overflow] > .marquee-track {
     display: inline-flex;
     gap: var(--marquee-gap, 2rem);
-    animation: marquee-loop var(--marquee-duration, 6s) linear 0.4s infinite;
+    animation: marquee-loop var(--marquee-duration, 6s) linear infinite;
   }
 
   .marquee-host:hover .marquee[data-overflow] .marquee-copy {
@@ -34,13 +35,17 @@
   }
 }
 
-/* 正好移动“一份文字 + 间隔”的宽度，副本接上原文的位置，循环无缝 */
+/*
+ * 前 25% 停在起始位置，之后正好移动“一份文字 + 间隔”的宽度；
+ * 结束时副本恰好停在原文的位置，下一轮从同样的画面开始停顿，循环无缝。
+ */
 @keyframes marquee-loop {
-  from {
+  0%,
+  25% {
     transform: translateX(0);
   }
 
-  to {
+  100% {
     transform: translateX(var(--marquee-shift, 0));
   }
 }

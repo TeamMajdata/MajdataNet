@@ -25,7 +25,9 @@ export default function MarqueeText({ children, className = '' }: { children: Re
         outer.dataset.overflow = '';
         outer.style.setProperty('--marquee-gap', `${GAP_PX}px`);
         outer.style.setProperty('--marquee-shift', `-${distance}px`);
-        outer.style.setProperty('--marquee-duration', `${Math.max(3, distance / SPEED_PX_PER_SECOND)}s`);
+        // 动画的后 75% 用来滚动（约 40px/s），前 25% 是在起点的停顿
+        const scrollSeconds = Math.max(2.5, distance / SPEED_PX_PER_SECOND);
+        outer.style.setProperty('--marquee-duration', `${(scrollSeconds / 0.75).toFixed(2)}s`);
       } else {
         delete outer.dataset.overflow;
       }
