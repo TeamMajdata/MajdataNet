@@ -616,7 +616,8 @@
     "UploadNoticeTerms2": "此谱面可以公开，自由下载；",
     "UploadNoticeTerms3": "公开这张谱面不会侵害第三方权益；",
     "UploadNoticeTerms4": "这张谱面至少可以被一种编辑器读取（majdata / maipad / astrodx / simai 等）；",
-    "UploadNoticeTerms5": "严禁上传 AI 生成的谱面：无论是全部还是部分由 AI 生成，一律不允许上传。"
+    "UploadNoticeTerms5": "严禁上传 AI 生成的谱面：无论是全部还是部分由 AI 生成，一律不允许上传；",
+    "UploadNoticeTerms6": "不得把本站当作网盘使用，无法被编辑器读取的谱面可能会被直接清理。"
   },
   "user/collections/CollectionPage": {
     "EmptyData": "还没有收藏夹，新建一个，或者去歌单广场订阅一个吧",

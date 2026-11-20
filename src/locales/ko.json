@@ -616,7 +616,8 @@
     "UploadNoticeTerms2": "채보는 공개되어 누구나 자유롭게 다운로드할 수 있습니다;",
     "UploadNoticeTerms3": "이 채보를 게시해도 어떠한 제3자의 권리도 침해하지 않습니다;",
     "UploadNoticeTerms4": "이 채보는 최소 하나의 편집기(majdata / maipad / astrodx / simai 등)에서 열 수 있어야 합니다.",
-    "UploadNoticeTerms5": "AI로 만든 채보는 전부든 일부든 업로드가 엄격히 금지됩니다."
+    "UploadNoticeTerms5": "AI로 만든 채보는 전부든 일부든 업로드가 엄격히 금지됩니다.",
+    "UploadNoticeTerms6": "이 사이트를 파일 저장소로 사용하지 마세요. 어떤 에디터로도 읽을 수 없는 채보는 삭제될 수 있습니다."
   },
   "user/collections/CollectionPage": {
     "EmptyData": "아직 컬렉션이 없습니다. 새로 만들거나 콜렉션 광장에서 구독해 보세요.",

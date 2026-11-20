@@ -626,7 +626,8 @@
     "UploadNoticeTerms2": "The chart is allowed to be publicly available and freely downloaded;",
     "UploadNoticeTerms3": "The publication of this chart will not infringe any third-party rights;",
     "UploadNoticeTerms4": "This chart can be read by at least one editor (majdata / maipad / astrodx / simai, etc.).",
-    "UploadNoticeTerms5": "AI-generated charts are strictly forbidden, whether wholly or partly made by AI."
+    "UploadNoticeTerms5": "AI-generated charts are strictly forbidden, whether wholly or partly made by AI.",
+    "UploadNoticeTerms6": "Do not use the site as file storage; charts that no editor can read may be removed."
   },
   "user/collections/CollectionPage": {
     "EmptyData": "No collections yet. Create one, or subscribe to one in Collections.",
