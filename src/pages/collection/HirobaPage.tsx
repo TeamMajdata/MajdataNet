@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageLayout, LoadingSpinner, CollectionCard, Tooltip } from '@/components';
+import { LuInfo, LuSearch, LuX } from 'react-icons/lu';
 import { endpoints } from '@/config/api';
 import { useDebouncedCallback } from 'use-debounce';
 import type { Collection } from '@/types';
@@ -75,9 +76,10 @@ export default function CollectionsHirobaPage() {
             {t("collection/hiroba/HirobaPage.CollectionsHiroba")}
           </h1>
           <div className="relative flex items-center w-full sm:max-w-sm">
+            <LuSearch aria-hidden="true" className="left-3.5 absolute w-4 h-4 text-white/40 pointer-events-none" />
             <input
               type="text"
-              className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 py-3 pr-10 pl-11 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
+              className="bg-white/[0.04] focus:bg-white/[0.06] pr-17 pl-10 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
               placeholder={t("collection/hiroba/HirobaPage.SearchCollectionsPlaceholder")}
               value={currentValue}
               onChange={handleInputChange}
@@ -92,37 +94,24 @@ export default function CollectionsHirobaPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.15 }}
-                  className="top-1/2 right-10 z-10 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-5 h-5 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
+                  className="top-1/2 right-9 z-10 absolute flex justify-center items-center hover:bg-white/10 border-none rounded-md w-7 h-7 text-white/50 hover:text-white transition-colors -translate-y-1/2 cursor-pointer"
                   onClick={handleClearSearch}
                   aria-label={t("collection/hiroba/HirobaPage.ClearSearch")}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                  </svg>
+                  <LuX aria-hidden="true" className="w-3.5 h-3.5" />
                 </motion.button>
               )}
             </AnimatePresence>
 
             {/* Help tooltip */}
-            <Tooltip
-              content={
-                <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-5 py-4 border border-white/20 rounded-2xl w-70 md:w-[320px]">
-                  <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">
-                    {t("collection/hiroba/HirobaPage.SearchCollectionHint")}
-                  </p>
-                </div>
-              }
-              side="top"
-              sideOffset={20}
-              plain={true}
-            >
-              <div
-                className="top-1/2 right-3 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-5 h-5 font-bold text-[10px] text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
-                role="button"
+            <Tooltip content={t("collection/hiroba/HirobaPage.SearchCollectionHint")} side="top">
+              <span
+                className="top-1/2 right-2 z-10 absolute flex justify-center items-center hover:bg-white/10 rounded-md w-7 h-7 text-white/40 hover:text-white transition-colors -translate-y-1/2 cursor-help"
+                role="img"
                 aria-label={t("collection/hiroba/HirobaPage.SearchCollectionHint")}
               >
-                ?
-              </div>
+                <LuInfo aria-hidden="true" className="w-3.5 h-3.5" />
+              </span>
             </Tooltip>
           </div>
         </header>
