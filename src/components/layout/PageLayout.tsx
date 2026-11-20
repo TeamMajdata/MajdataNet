@@ -121,7 +121,7 @@ export default function PageLayout({
               </div>
             </div>
 
-            <div className="mx-auto mt-6 pt-5 border-white/[0.06] border-t max-w-xl text-white/35 text-xs text-center">
+            <div className="mx-auto mt-6 pt-5 max-w-xl text-white/35 text-xs text-center">
               {t("shared/PageLayout.FooterCopyright")}
             </div>
           </div>
