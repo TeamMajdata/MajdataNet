@@ -343,17 +343,24 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
                         />
                       </div>
                       <div>
-                        <label className="block mb-1.5 font-medium text-white/70 text-xs">
+                        <span className="block mb-1.5 font-medium text-white/70 text-xs">
                           {t("collection/CollectionModal.Visibility")}
-                        </label>
-                        <select
-                          value={newVisibility}
-                          onChange={(e) => setNewVisibility(Number(e.target.value) as 0 | 1)}
-                          className="bg-white/5 px-3 py-2 border border-white/10 focus:border-blue-500/50 rounded-lg outline-none w-full text-white text-sm transition-colors"
-                        >
-                          <option value={0}>{t("collection/CollectionModal.Private")}</option>
-                          <option value={1}>{t("collection/CollectionModal.Public")}</option>
-                        </select>
+                        </span>
+                        {/* 两个选项，用分段按钮代替原生下拉框 */}
+                        <div className="flex bg-white/5 p-1 border border-white/10 rounded-lg" role="radiogroup" aria-label={t("collection/CollectionModal.Visibility")}>
+                          {([0, 1] as const).map((value) => (
+                            <button
+                              key={value}
+                              type="button"
+                              role="radio"
+                              aria-checked={newVisibility === value}
+                              onClick={() => setNewVisibility(value)}
+                              className={`flex-1 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${newVisibility === value ? 'bg-white/10 text-white' : 'text-white/55 hover:text-white'}`}
+                            >
+                              {value === 0 ? t("collection/CollectionModal.Private") : t("collection/CollectionModal.Public")}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                       <div className="flex gap-2 pt-1">
                         <button
