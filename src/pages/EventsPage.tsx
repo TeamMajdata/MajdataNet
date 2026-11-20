@@ -97,18 +97,18 @@ export default function EventsPage() {
                   openEvent(getEventHref(event));
                 }
               }}
-              className="relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 rounded-xl sm:rounded-2xl h-auto aspect-video sm:aspect-1279/372 overflow-hidden md:hover:scale-[1.03] transition-all md:hover:-translate-y-2 duration-[0.4s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer will-change-transform"
+              className="relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 rounded-xl sm:rounded-2xl h-auto aspect-video sm:aspect-1279/372 overflow-hidden md:hover:scale-[1.03] transition-all md:hover:-translate-y-2 duration-[0.4s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer"
             >
               <div className="relative w-full h-full overflow-hidden">
                 <img
-                  className="block w-full h-full object-cover hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform"
+                  className="block w-full h-full object-cover hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
                   src={eventThumbSrc(event.src)}
                   onError={fallbackToOriginal(event.src)}
                   alt={event.alt}
                   loading="lazy"
                   decoding="async"
                 />
-                <div className="absolute inset-0 flex flex-col justify-end sm:justify-center bg-linear-to-b from-black/10 via-black/20 to-black/90 sm:from-black/40 sm:to-black/80 opacity-100 sm:opacity-0 sm:hover:opacity-100 px-4 sm:px-6 py-3 sm:py-2 transition-all translate-y-0 sm:translate-y-2.5 sm:hover:translate-y-0 duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-[opacity,transform]">
+                <div className="absolute inset-0 flex flex-col justify-end sm:justify-center bg-linear-to-b from-black/10 via-black/20 to-black/90 sm:from-black/40 sm:to-black/80 opacity-100 sm:opacity-0 sm:hover:opacity-100 px-4 sm:px-6 py-3 sm:py-2 transition-all translate-y-0 sm:translate-y-2.5 sm:hover:translate-y-0 duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]">
                   <div className="text-left">
                     <h3 className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] m-0 mb-1.5 sm:mb-3 font-bold text-white text-base sm:text-xl md:text-2xl leading-tight line-clamp-2">
                       {event.title}
