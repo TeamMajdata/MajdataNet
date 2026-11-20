@@ -19,6 +19,8 @@ export interface CoverPicProps {
   to?: string;
   /** 点击放大查看原图，默认开启 */
   zoomable?: boolean;
+  /** 封面圆角（Tailwind rounded-* 类），默认 rounded-[10px] */
+  radiusClassName?: string;
 }
 
 export interface EnhancedDescriptionProps {

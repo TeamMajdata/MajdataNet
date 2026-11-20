@@ -48,7 +48,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
       className="flex justify-center w-full min-w-0"
     >
       <LazyLoad height={144} offset={300}>
-        <div className="flex gap-3 bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-[10px] w-full h-36 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
+        <div className="flex gap-3 bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-2xl w-full h-36 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
           {/* 封面点击进入谱面详情；列表本身接管点击时（onClick/disableLink）只展示 */}
           <div className="relative h-full aspect-square shrink-0">
             <CoverPic
@@ -56,6 +56,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
               display={isRanking ? 'No.' + (index + 1) : undefined}
               to={disableLink || onClick ? undefined : '/song?id=' + song.id}
               zoomable={false}
+              radiusClassName="rounded-lg"
             />
           </div>
 

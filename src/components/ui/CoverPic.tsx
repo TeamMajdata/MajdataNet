@@ -10,17 +10,17 @@ import LoadingSpinner from './LoadingSpinner';
  * 谱面封面图片组件
  * 传 to 时点击跳转到该地址；zoomable 时点击查看大图；否则只展示。
  */
-export default function CoverPic({ id, display, to, zoomable = true }: CoverPicProps) {
+export default function CoverPic({ id, display, to, zoomable = true, radiusClassName = 'rounded-[10px]' }: CoverPicProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const url = endpoints.maichart.image(id);
   const urlfull = endpoints.maichart.fullImage(id);
 
-  const idDisplay = display ? <div className="z-1 absolute bg-black/80 pr-1 pl-0.75 rounded-tl-[10px] rounded-br-[10px] select-none">{display}</div> : null;
+  const idDisplay = display ? <div className={`z-1 absolute bg-black/80 pr-1 pl-0.75 rounded-br-md select-none ${radiusClassName.replace(/rounded-/, 'rounded-tl-')}`}>{display}</div> : null;
 
   const image = (
     <img
-      className={`float-left rounded-[10px] h-full aspect-square object-cover transition-opacity duration-300 ease-in-out ${to || zoomable ? 'cursor-pointer' : ''} ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+      className={`float-left ${radiusClassName} h-full aspect-square object-cover transition-opacity duration-300 ease-in-out ${to || zoomable ? 'cursor-pointer' : ''} ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
       decoding="async"
       loading="lazy"
       src={url}
