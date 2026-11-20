@@ -14,6 +14,7 @@ import { stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
 import type { Song } from '@/types';
 import { Link } from 'react-router-dom';
 import { LuDownload } from 'react-icons/lu';
+import MarqueeText from '@/components/ui/MarqueeText';
 
 interface SongCardProps {
   song: Song;
@@ -49,7 +50,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
       className="flex justify-center w-full min-w-0"
     >
       <LazyLoad height={144} offset={300}>
-        <div className="flex gap-3 bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-2xl w-full h-36 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
+        <div className="marquee-host flex gap-3 bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-2xl w-full h-36 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
           {/* 封面点击进入谱面详情；列表本身接管点击时（onClick/disableLink）只展示 */}
           <div className="relative h-full aspect-square shrink-0">
             <CoverPic
@@ -62,13 +63,14 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
           </div>
 
           <div className="flex flex-col flex-1 min-w-0">
-            <div className="font-bold text-base truncate leading-snug" id={song.id}>
-              {link('/song?id=' + song.id, parseTmpRichText(song.title))}
-            </div>
-            <div className="mt-0.5 text-[0.8rem] text-white/70 truncate">
+            {/* 悬停卡片时，被截断的标题/曲师/上传者来回滚动显示全文 */}
+            <MarqueeText className="font-bold text-base leading-snug">
+              <span id={song.id}>{link('/song?id=' + song.id, parseTmpRichText(song.title))}</span>
+            </MarqueeText>
+            <MarqueeText className="mt-0.5 text-[0.8rem] text-white/70">
               {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}
-            </div>
-            <div className="mt-0.5 text-[0.8rem] text-white/70 truncate">
+            </MarqueeText>
+            <MarqueeText className="mt-0.5 text-[0.8rem] text-white/70">
               {disableLink || onClick ? (
                 song.uploader + '@' + song.designer
               ) : (
@@ -76,7 +78,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
                   {song.uploader + '@' + song.designer}
                 </Link>
               )}
-            </div>
+            </MarqueeText>
             <div className="flex items-start gap-1 mt-1.5">
               <div className="flex-1 min-w-0">
                 {isManage ? (
