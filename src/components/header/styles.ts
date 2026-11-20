@@ -8,4 +8,3 @@ export const HAMBURGER_BUTTON_ACTIVE = 'bg-white/10 border-white/20';
 
 export const HAMBURGER_BUTTON_HOVER = 'hover:bg-white/[0.08] hover:border-white/20';
 
-export const DIVIDER = 'bg-white/10 my-2 h-px';
