@@ -424,7 +424,7 @@ export function ScoreRanking({ songid }: ScoreListProps) {
     <div className="space-y-4 w-full">
       {/* 标题 */}
       <div className="flex justify-between items-center">
-        <h2 className="flex items-center gap-2 font-bold text-white text-xl">
+        <h2 className="flex items-center gap-2 m-0 font-semibold text-white! text-lg! text-left!">
           <svg
             className="w-5 h-5 text-white/70"
             xmlns="http://www.w3.org/2000/svg"

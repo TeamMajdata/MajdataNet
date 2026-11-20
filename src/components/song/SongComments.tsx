@@ -610,7 +610,7 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
       }}
     >
       <div className="flex flex-wrap justify-between items-center gap-3">
-        <h2 id="comments-heading" className="flex items-center gap-2 m-0 font-semibold text-white text-xl whitespace-nowrap shrink-0" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>
+        <h2 id="comments-heading" className="flex items-center gap-2 m-0 font-semibold text-white! text-lg! text-left! whitespace-nowrap shrink-0" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>
           <PiChatCircleBold aria-hidden="true" />
           {t("song/SongComments.Comments")}
           {summary && <span className="font-normal text-white/60 text-base tabular-nums">{summary.comments}</span>}
