@@ -284,6 +284,13 @@
     "FileTrack": "Audio",
     "FileVideo": "Video"
   },
+  "shared/DownloadFormatDialog": {
+    "AdxDescription": "AstroDX chart package for direct import",
+    "Cancel": "Cancel",
+    "LastUsed": "Last used",
+    "Title": "Choose a download format",
+    "ZipDescription": "A regular archive, ready to unzip"
+  },
   "shared/LanguageSelector": {
     "Language": "Language"
   },

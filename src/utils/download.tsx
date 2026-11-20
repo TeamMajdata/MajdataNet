@@ -1,6 +1,8 @@
 import { endpoints } from '@/config/api';
 import JSZip from 'jszip';
 import axios from 'axios';
+import { chooseDownloadFormat } from './downloadFormat';
+import { stripTmpTags } from './richTextUtils';
 import DownloadToast, { type DownloadFileKey, type DownloadFileState, type DownloadStatus } from '@/components/ui/DownloadToast';
 import type { DownloadSongParams } from '@/types/download';
 
@@ -33,6 +35,9 @@ function downloadFile(url: string, fileName: string): void {
 /** 并行下载谱面的音频、背景、谱面和视频，打包成 zip/adx；整个过程只显示一条通知 */
 export async function downloadSong(props: DownloadSongParams): Promise<void> {
   const { toast, title } = props;
+  // 先问要哪种格式，取消就什么都不下载
+  const downloadExtension = await chooseDownloadFormat(stripTmpTags(title) || title);
+  if (!downloadExtension) return;
   const zip = new JSZip();
   const abortController = new AbortController();
   const prefix = endpoints.maichart.prefix(props.id);
@@ -112,7 +117,6 @@ export async function downloadSong(props: DownloadSongParams): Promise<void> {
     if (blob !== undefined) zip.file(file.zipName, blob);
   });
 
-  const downloadExtension = localStorage.getItem('DownloadType') ?? 'zip';
   const blob = await zip.generateAsync({ type: 'blob' });
   const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/' + downloadExtension }));
   finish('done');

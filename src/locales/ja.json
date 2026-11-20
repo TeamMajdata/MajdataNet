@@ -280,6 +280,13 @@
     "FileTrack": "音源",
     "FileVideo": "動画"
   },
+  "shared/DownloadFormatDialog": {
+    "AdxDescription": "AstroDX 用の譜面パッケージ。そのままインポートできます",
+    "Cancel": "キャンセル",
+    "LastUsed": "前回使用",
+    "Title": "ダウンロード形式を選択",
+    "ZipDescription": "通常の圧縮ファイル。解凍してそのまま使えます"
+  },
   "shared/LanguageSelector": {
     "Language": "言語"
   },

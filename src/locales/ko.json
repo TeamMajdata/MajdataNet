@@ -280,6 +280,13 @@
     "FileTrack": "음원",
     "FileVideo": "영상"
   },
+  "shared/DownloadFormatDialog": {
+    "AdxDescription": "AstroDX 채보 패키지, 바로 가져오기 가능",
+    "Cancel": "취소",
+    "LastUsed": "지난번 선택",
+    "Title": "다운로드 형식 선택",
+    "ZipDescription": "일반 압축 파일, 압축을 풀어 바로 사용"
+  },
   "shared/LanguageSelector": {
     "Language": "언어"
   },

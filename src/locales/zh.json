@@ -280,6 +280,13 @@
     "FileTrack": "音频",
     "FileVideo": "视频"
   },
+  "shared/DownloadFormatDialog": {
+    "AdxDescription": "AstroDX 谱面包，可直接导入",
+    "Cancel": "取消",
+    "LastUsed": "上次使用",
+    "Title": "选择下载格式",
+    "ZipDescription": "通用压缩包，解压即可使用"
+  },
   "shared/LanguageSelector": {
     "Language": "语言"
   },
