@@ -274,6 +274,9 @@
     "Login": "Login",
     "Register": "Register"
   },
+  "shared/ConfirmDialog": {
+    "Cancel": "Cancel"
+  },
   "shared/Download": {
     "Done": "Download complete",
     "Downloading": "Downloading…",
@@ -415,6 +418,14 @@
     "RankingList": "Ranking List",
     "Records_one": "{{count}} record",
     "Records_other": "{{count}} records"
+  },
+  "song/SongCard": {
+    "Delete": "Delete",
+    "DeleteFailed": "Failed to delete",
+    "DeleteMessage": "Delete “{{title}}”? This cannot be undone.",
+    "DeleteSuccess": "Deleted",
+    "DeleteTitle": "Delete chart",
+    "Tags": "Tags"
   },
   "song/SongComments": {
     "Cancel": "Cancel",

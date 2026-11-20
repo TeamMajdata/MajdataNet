@@ -270,6 +270,9 @@
     "Login": "로그인",
     "Register": "회원가입"
   },
+  "shared/ConfirmDialog": {
+    "Cancel": "취소"
+  },
   "shared/Download": {
     "Done": "다운로드 완료",
     "Downloading": "다운로드 중…",
@@ -408,6 +411,14 @@
     "NoRecords": "아직 성적 기록이 없습니다",
     "RankingList": "랭킹",
     "Records_other": "{{count}}개 기록"
+  },
+  "song/SongCard": {
+    "Delete": "삭제",
+    "DeleteFailed": "삭제하지 못했습니다",
+    "DeleteMessage": "「{{title}}」을(를) 삭제할까요? 되돌릴 수 없습니다.",
+    "DeleteSuccess": "삭제했습니다",
+    "DeleteTitle": "채보 삭제",
+    "Tags": "태그"
   },
   "song/SongComments": {
     "Cancel": "취소",

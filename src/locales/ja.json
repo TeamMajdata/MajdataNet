@@ -270,6 +270,9 @@
     "Login": "ログイン",
     "Register": "登録"
   },
+  "shared/ConfirmDialog": {
+    "Cancel": "キャンセル"
+  },
   "shared/Download": {
     "Done": "ダウンロード完了",
     "Downloading": "ダウンロード中…",
@@ -408,6 +411,14 @@
     "NoRecords": "スコア記録はまだありません",
     "RankingList": "ランキング",
     "Records_other": "{{count}} 件の記録"
+  },
+  "song/SongCard": {
+    "Delete": "削除",
+    "DeleteFailed": "削除に失敗しました",
+    "DeleteMessage": "「{{title}}」を削除しますか？元に戻せません。",
+    "DeleteSuccess": "削除しました",
+    "DeleteTitle": "譜面を削除",
+    "Tags": "タグ"
   },
   "song/SongComments": {
     "Cancel": "キャンセル",

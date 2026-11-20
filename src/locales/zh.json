@@ -270,6 +270,9 @@
     "Login": "登录",
     "Register": "注册"
   },
+  "shared/ConfirmDialog": {
+    "Cancel": "取消"
+  },
   "shared/Download": {
     "Done": "下载完成",
     "Downloading": "正在下载…",
@@ -408,6 +411,14 @@
     "NoRecords": "暂无成绩记录",
     "RankingList": "排行榜",
     "Records_other": "{{count}} 条记录"
+  },
+  "song/SongCard": {
+    "Delete": "删除",
+    "DeleteFailed": "删除失败",
+    "DeleteMessage": "确定要删除「{{title}}」吗？删除后无法恢复。",
+    "DeleteSuccess": "已删除",
+    "DeleteTitle": "删除谱面",
+    "Tags": "标签"
   },
   "song/SongComments": {
     "Cancel": "取消",
