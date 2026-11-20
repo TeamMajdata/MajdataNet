@@ -12,7 +12,7 @@ import { useImpressionRef } from '@/hooks/useImpressionRef';
 import { downloadSong } from '@/utils/download';
 import { stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
 import type { Song } from '@/types';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LuDownload } from 'react-icons/lu';
 import MarqueeText from '@/components/ui/MarqueeText';
 
@@ -30,9 +30,21 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
   const impressionRef = useImpressionRef(song.hash);
 
   // 列表位置（搜索词/排序/页码）已在首页 URL 中，浏览器回退即可还原，无需本地记录
-  const handleClick = useCallback(() => {
-    onClick?.(song);
-  }, [onClick, song]);
+  const navigate = useNavigate();
+  const songHref = '/song?id=' + song.id;
+  // 整张卡片可点进谱面页；难度标签、上传者、下载等自身可交互的元素各管各的
+  const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (onClick) {
+      onClick(song);
+      return;
+    }
+    if (disableLink) return;
+    if ((event.target as HTMLElement).closest('a, button, input, select, textarea, [role="button"]')) return;
+    // 选中文字时不跳转
+    if (window.getSelection()?.toString()) return;
+    if (event.metaKey || event.ctrlKey) window.open(songHref, '_blank', 'noopener');
+    else navigate(songHref);
+  }, [onClick, song, disableLink, navigate, songHref]);
 
   const handleDownload = useCallback(async (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -50,7 +62,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
       className="flex justify-center w-full min-w-0"
     >
       <LazyLoad height={144} offset={300}>
-        <div className="marquee-host flex gap-3 bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-2xl w-full h-36 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
+        <div className={`marquee-host flex gap-3 ${disableLink && !onClick ? '' : 'cursor-pointer'} bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-2xl w-full h-36 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out`}>
           {/* 封面点击进入谱面详情；列表本身接管点击时（onClick/disableLink）只展示 */}
           <div className="relative h-full aspect-square shrink-0">
             <CoverPic
