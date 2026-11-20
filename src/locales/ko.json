@@ -457,17 +457,26 @@
     "ServerError": "서버 오류"
   },
   "song/SongPage": {
+    "ChartDetails": "채보 정보",
     "ClipboardSuccess": "복사되었습니다",
     "Collection": "콜렉션",
+    "CopyFailed": "복사하지 못했습니다",
+    "CopyValue": "{{field}} 복사",
+    "Designer": "채보 제작자",
+    "Difficulty": "난이도",
     "Download": "다운로드",
+    "ManageTags": "태그 관리",
     "NoTags": "태그 없음",
+    "Preview": "채보 미리보기",
+    "PreviewChart": "미리보기 재생",
     "SearchForArtist": "작곡가 검색",
     "SearchForTag": "태그 검색",
     "SearchForTitle": "제목 검색",
     "Share": "공유",
     "SongNotFound": "곡을 찾을 수 없습니다",
     "Tags": "태그",
-    "UploadTime": "업로드 시간"
+    "UploadTime": "업로드 시간",
+    "ViewCover": "재킷 확대"
   },
   "song/VoteControl": {
     "Downvote": "비추천",

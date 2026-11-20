@@ -62,10 +62,10 @@ describe('radar on the song page', () => {
     delete window.unitySendMessage;
     vi.unstubAllGlobals();
   });
-  async function render(children: ReactNode = <SongPage />) {
+  async function render(children: ReactNode = <SongPage />, entry = '/song?id=song') {
     await act(async () => root.render(
       <SWRConfig value={{ provider: () => cache }}>
-        <MemoryRouter initialEntries={['/song?id=song']}>{children}</MemoryRouter>
+        <MemoryRouter initialEntries={[entry]}>{children}</MemoryRouter>
       </SWRConfig>,
     ));
   }
@@ -84,6 +84,34 @@ describe('radar on the song page', () => {
     await act(async () => difficulty(5).querySelector('sup')!.click());
     expect(container.querySelector('aside section svg')?.textContent).toContain('14.83');
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('5');
+  });
+
+  it('keeps the cover, title, artist and difficulty in the header and both identifiers in the sidebar across tabs', async () => {
+    fetchMock.mockImplementation(async url => String(url).endsWith('/summary')
+      ? response({ ...summary, artist: 'Track artist' }) : response(radar()));
+    await render();
+    const heading = container.querySelector('header')!;
+    expect(heading.querySelector('h1')?.textContent).toBe('Song');
+    expect(heading.textContent).toContain('Track artist');
+    expect(heading.contains(difficulty(3))).toBe(true);
+    expect(heading.querySelector('.song-cover img')?.getAttribute('src')).toContain('/song/image');
+    expect(heading.querySelector('.song-credits, code')).toBeNull();
+    const sidebar = container.querySelector('aside')!;
+    expect(Array.from(sidebar.querySelectorAll('code'), item => item.textContent)).toEqual(['song', 'hash']);
+    expect(sidebar.querySelector('details')).toBeNull();
+    const scores = container.querySelector<HTMLButtonElement>('#song-tab-scores')!;
+    await act(async () => scores.click());
+    expect(scores.getAttribute('aria-selected')).toBe('true');
+    expect(container.querySelector('[role="tabpanel"]:not([hidden])')?.id).toBe('song-panel-scores');
+    expect(heading.contains(difficulty(3))).toBe(true);
+  });
+
+  it.each(['/song?id=song#comments', '/song?id=song&comment=specific'])('opens the discussion for %s', async entry => {
+    fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
+    await render(<SongPage />, entry);
+    expect(container.querySelector('#song-tab-comments')?.getAttribute('aria-selected')).toBe('true');
+    await act(async () => difficulty(3).click());
+    expect(container.querySelector('#song-panel-comments')?.hasAttribute('hidden')).toBe(false);
   });
 
   it('uses the default difficulty when navigating to another song', async () => {
@@ -107,7 +135,7 @@ describe('radar on the song page', () => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
     await render();
     await act(async () => difficulty(3).click());
-    await act(async () => container.querySelector<HTMLButtonElement>('button.aspect-square')!.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('button.song-preview')!.click());
     expect(container.querySelector('[data-player-level]')?.getAttribute('data-player-level')).toBe('lv3');
   });
 

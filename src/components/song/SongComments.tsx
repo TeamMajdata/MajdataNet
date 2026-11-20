@@ -602,12 +602,7 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
       ref={section}
       id="comments"
       aria-labelledby="comments-heading"
-      className="space-y-5 p-4 sm:p-5 border border-white/10 rounded-2xl w-full scroll-mt-24"
-      style={{
-        background: 'linear-gradient(135deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 5%))',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 8px 25px rgb(0 0 0 / 30%), 0 4px 12px rgb(0 0 0 / 20%)',
-      }}
+      className="space-y-5 min-w-0 scroll-mt-24"
     >
       <div className="flex flex-wrap justify-between items-center gap-3">
         <h2 id="comments-heading" className="flex items-center gap-2 m-0 font-semibold text-white! text-lg! text-left! whitespace-nowrap shrink-0" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>

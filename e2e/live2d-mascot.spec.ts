@@ -470,7 +470,7 @@ test('desktop: player surface stays above the mascot', async ({ page }, info) =>
   await page.goto('/song?id=mascot-test-0');
   const mascot = page.getByTestId('live2d-mascot');
   await expect(mascot).toHaveAttribute('data-model-status', 'ready');
-  await page.locator('button').filter({ has: page.locator('svg[height="120px"]') }).click();
+  await page.locator('button.song-preview').click();
   const player = page.locator('div.z-100').filter({ has: page.locator('canvas') }).last();
   await expect(player).toBeVisible();
   const playerBox = (await player.boundingBox())!;

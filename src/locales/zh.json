@@ -457,17 +457,26 @@
     "ServerError": "已闭店"
   },
   "song/SongPage": {
+    "ChartDetails": "谱面资料",
     "ClipboardSuccess": "已复制到剪贴板",
     "Collection": "收藏",
+    "CopyFailed": "复制失败",
+    "CopyValue": "复制 {{field}}",
+    "Designer": "谱师",
+    "Difficulty": "难度",
     "Download": "下载",
+    "ManageTags": "管理标签",
     "NoTags": "暂无标签",
+    "Preview": "谱面预览",
+    "PreviewChart": "播放预览",
     "SearchForArtist": "搜索该艺术家",
     "SearchForTag": "搜索标签",
     "SearchForTitle": "搜索该歌曲",
     "Share": "分享",
     "SongNotFound": "这是什么地方？没有这首歌哦",
     "Tags": "标签",
-    "UploadTime": "上传时间"
+    "UploadTime": "上传时间",
+    "ViewCover": "查看封面大图"
   },
   "song/VoteControl": {
     "Downvote": "踩",

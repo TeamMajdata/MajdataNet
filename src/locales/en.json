@@ -467,17 +467,26 @@
     "ServerError": "Server Error"
   },
   "song/SongPage": {
+    "ChartDetails": "Chart details",
     "ClipboardSuccess": "Copied",
     "Collection": "Collection",
+    "CopyFailed": "Could not copy to clipboard",
+    "CopyValue": "Copy {{field}}",
+    "Designer": "Charter",
+    "Difficulty": "Difficulty",
     "Download": "Download",
+    "ManageTags": "Manage tags",
     "NoTags": "No tags",
+    "Preview": "Chart preview",
+    "PreviewChart": "Play preview",
     "SearchForArtist": "Search for artist",
     "SearchForTag": "Search for tag",
     "SearchForTitle": "Search for title",
     "Share": "Share",
     "SongNotFound": "Song not found",
     "Tags": "Tags",
-    "UploadTime": "Upload time"
+    "UploadTime": "Upload time",
+    "ViewCover": "View cover"
   },
   "song/VoteControl": {
     "Downvote": "Downvote",

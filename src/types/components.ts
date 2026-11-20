@@ -67,6 +67,8 @@ export interface SongDifficultyLevelsProps {
   levels: (string | null)[];
   songid: string;
   isPlayer?: boolean;
+  selected?: number;
+  onSelect?: (level: number) => void;
 }
 
 // ======================== 交互计数组件 ========================

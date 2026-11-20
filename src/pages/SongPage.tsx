@@ -1,16 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState, useRef, type MouseEvent } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Activity, useEffect, useState, useRef, type KeyboardEvent } from 'react';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import {
   PageLayout,
-  CoverPic,
   Majdata,
-  Tooltip,
   TagManageWidget,
-  TagManageTagLauncher,
   SongDifficultyLevels,
   CommentSection,
   ChartVotePanel,
@@ -24,8 +21,11 @@ import { parseTmpRichText } from '@/utils/richTextUtils';
 import { getDefaultChartLevel, parseRequestedLevel } from '@/utils/radar';
 import ChartRadar from '@/components/song/ChartRadar';
 import UserAvatar from '@/components/user/UserAvatar';
-import '@/styles/components/song-radar.css';
-import type { SongDetailsContainerProps, SongSummary } from '@/types';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import { PiChartBar, PiChatCircle, PiMonitorPlay, PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiPenNib, PiPlayFill, PiTagSimple } from 'react-icons/pi';
+import { getLocale, useLanguage } from '@/i18n';
+import '@/styles/components/song-detail.css';
+import type { SongSummary, TagManageWidgetRef } from '@/types';
 
 export default function SongPage() {
   const { t } = useTranslation();
@@ -105,315 +105,172 @@ export default function SongPage() {
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content={metaImage} />
       </Helmet>
-      <PageLayout showBackToHome={false}>
-        <div
-          className="-z-10 fixed inset-0 bg-cover bg-top-left blur-[20px] brightness-30"
-          style={{ backgroundImage: `url(${endpoints.maichart.image(param!)})` }}
-        />
-
-        <SongDetailsContainer id={param} data={songData} focusId={focusedComment} />
+      <PageLayout showBackToHome={false} useAmbientBackground={false} className="song-detail">
+        <SongInfo key={param} data={songData} focusId={focusedComment} />
       </PageLayout>
     </>
   );
 }
 
-function SongDetailsContainer({ id, data, focusId }: SongDetailsContainerProps & { data: SongSummary; focusId?: string }) {
-  // Blur only the background, leaving the player's z-index in the page's stacking context.
+const songTabs = [
+  { id: 'preview', label: 'song/SongPage.Preview', Icon: PiMonitorPlay },
+  { id: 'scores', label: 'song/ScoreRanking.RankingList', Icon: PiChartBar },
+  { id: 'comments', label: 'song/SongComments.Comments', Icon: PiChatCircle },
+] as const;
+type SongTab = typeof songTabs[number]['id'];
+
+function ChartPreview({ song, chartLevel }: { song: SongSummary; chartLevel?: number }) {
+  const { t } = useTranslation();
+  const [playing, setPlaying] = useState(false);
+  const cover = endpoints.maichart.image(song.id);
+
   return (
-      <div className="relative bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] rounded-xl min-w-0 transition-all before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-xl before:backdrop-saturate-160 before:pointer-events-none before:content-['']">
-      <SongInfo id={id} data={data} focusId={focusId} />
+    <div className="song-player">
+      <div className="song-stage-glow" aria-hidden="true"><div style={{ backgroundImage: 'url(' + cover + ')' }} /></div>
+      <div className="song-stage">
+        {playing ? (
+          <div className="relative z-100 w-full">
+            <Majdata songid={song.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + chartLevel} />
+          </div>
+        ) : (
+          <button type="button" className="song-preview" onClick={() => setPlaying(true)} disabled={chartLevel === undefined}>
+            <img src={cover} srcSet={cover + ' 1x, ' + endpoints.maichart.fullImage(song.id) + ' 2x'} alt="" fetchPriority="high" />
+            <span className="song-play-action"><span><PiPlayFill /></span>{t('song/SongPage.PreviewChart')}</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
-
-function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: string }) {
+function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  // 站内跳转到首页搜索：关键词放在 URL 里，不再整页刷新
-  const searchHome = (keyword: string) => navigate(`/?search=${encodeURIComponent(keyword)}`);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tagButtonRef = useRef<any>(null);
-  const [isLoadMajdata, setIsLoadMajdata] = useState(false);
-  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-  const [radarSelection, setRadarSelection] = useState<{ id: string; hash: string; level: number }>();
-  // 从卡片难度标签进入时 URL 带 ?level=N，默认选中该难度
-  const [searchParams] = useSearchParams();
-  const requestedLevel = parseRequestedLevel(searchParams.get('level'), data.levels);
-  const chartLevel = radarSelection?.id === data.id && radarSelection.hash === data.hash
-    && data.levels[radarSelection.level]?.trim()
-    ? radarSelection.level : requestedLevel ?? getDefaultChartLevel(data.levels);
+  const language = useLanguage();
+  const [params, setParams] = useSearchParams();
+  const chartLevel = parseRequestedLevel(params.get('level'), song.levels) ?? getDefaultChartLevel(song.levels);
+  const tagWidget = useRef<TagManageWidgetRef>(null);
+  const location = useLocation();
+  const requestedTab = params.get('tab');
+  const activeTab: SongTab = songTabs.find(tab => tab.id === requestedTab)?.id
+    ?? (focusId || location.hash === '#comments' ? 'comments' : 'preview');
+  const [collecting, setCollecting] = useState(false);
+  const searchLink = (text: string) => '/?search=' + encodeURIComponent(text);
+  const uploadTime = new Date(song.timestamp);
+  const cover = endpoints.maichart.image(song.id);
 
-  const o = data;
+  async function copy(value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(t('song/SongPage.ClipboardSuccess'));
+    } catch {
+      toast.error(t('song/SongPage.CopyFailed'));
+    }
+  }
 
-  const handleDifficultyClick = (event: MouseEvent<HTMLDivElement>) => {
-    const target = event.target instanceof Element ? event.target.closest('[id^="lv"]') : null;
-    if (!target || !event.currentTarget.contains(target)) return;
-    const match = /^lv([0-6])$/.exec(target.id);
-    if (!match) return;
-    const level = Number(match[1]);
-    if (o.levels[level]?.trim()) setRadarSelection({ id: o.id, hash: o.hash, level });
-  };
+  function selectLevel(level: number) {
+    const next = new URLSearchParams(params);
+    next.set('level', String(level));
+    if (location.hash === '#comments') next.set('tab', activeTab);
+    setParams(next, { replace: true, preventScrollReset: true });
+  }
 
-  const OnDownloadClick = (params: { id: string; title: string }) => async () => {
-    await downloadSong({ id: params.id, title: params.title, toast: toast });
-  };
+  function selectTab(tab: SongTab) {
+    if (activeTab === tab) return;
+    const next = new URLSearchParams(params);
+    next.set('tab', tab);
+    setParams(next, { preventScrollReset: true });
+  }
 
-  const shareSong = () => async () => {
-    await navigator.clipboard.writeText(window.location.href);
-    toast.success(t("song/SongPage.ClipboardSuccess"));
-  };
+  function moveTab(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    const last = songTabs.length - 1;
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? last
+      : event.key === 'ArrowRight' ? (index + 1) % songTabs.length
+      : event.key === 'ArrowLeft' ? (index + last) % songTabs.length : undefined;
+    if (next === undefined) return;
+    event.preventDefault();
+    const tab = songTabs[next].id;
+    document.getElementById('song-tab-' + tab)?.focus();
+    selectTab(tab);
+  }
 
   return (
-    <div className="bg-transparent p-4 sm:p-6">
-      {/* Hero：封面在左，标题、上传者、标签、难度和操作按钮在右 */}
-      <section className="flex md:flex-row flex-col items-center md:items-start gap-5 md:gap-7 mb-6 min-w-0">
-        <div className="shrink-0">
-          <div className="shadow-[0_20px_40px_rgb(0_0_0/0.45)] rounded-xl w-40 md:w-48 h-40 md:h-48 overflow-hidden">
-                      <CoverPic id={o.id} radiusClassName="rounded-xl" />
-                    </div>
-        </div>
-
-        <div className="flex flex-col gap-3 w-full min-w-0">
-          <div className="min-w-0">
-            <Tooltip content={t("song/SongPage.SearchForTitle") || '点击搜索该歌曲'}>
-              <h1
-                className="m-0 font-bold text-white! hover:text-white/80 text-2xl! md:text-3xl! text-left! leading-tight tracking-tight transition-colors cursor-pointer"
-                id={o.id}
-                onClick={() => {
-                  if (o.title) searchHome(o.title);
-                }}
-              >
-                {parseTmpRichText(o.title)}
-              </h1>
-            </Tooltip>
-
-            <Tooltip content={t("song/SongPage.SearchForArtist") || '点击搜索该艺术家'}>
-              <div className="mt-1.5 font-medium text-white/70 text-base md:text-lg text-left">
-                <span
-                  className="hover:text-white transition-colors cursor-pointer"
-                  onClick={() => {
-                    if (o.artist) searchHome(o.artist);
-                  }}
-                >
-                  Artist: {o.artist === '' || o.artist == null ? '-' : o.artist}
-                </span>
-              </div>
-            </Tooltip>
+    <>
+      <div className="song-backdrop" aria-hidden="true" />
+      <div className="song-page">
+        <header className="song-header" aria-labelledby="song-title">
+          <div className="song-identity">
+            <PhotoProvider bannerVisible={false}>
+              <PhotoView src={endpoints.maichart.fullImage(song.id)}>
+                <button type="button" className="song-cover" title={t('song/SongPage.ViewCover')} aria-label={t('song/SongPage.ViewCover')}>
+                  <img src={cover} alt="" />
+                </button>
+              </PhotoView>
+            </PhotoProvider>
+            <div>
+              <h1 id="song-title"><Link to={searchLink(song.title)} title={t('song/SongPage.SearchForTitle')}>{parseTmpRichText(song.title) || song.id}</Link></h1>
+              {song.artist && <Link className="song-artist" to={searchLink(song.artist)} title={t('song/SongPage.SearchForArtist')}>{song.artist}</Link>}
+            </div>
           </div>
+          <div className="song-levels" data-radar-level={chartLevel}>
+            <h2 className="song-label">{t('song/SongPage.Difficulty')}</h2>
+            <SongDifficultyLevels levels={song.levels} songid={song.id} isPlayer={activeTab === 'preview'} selected={chartLevel} onSelect={selectLevel} />
+          </div>
+        </header>
 
-          <div className="flex flex-wrap items-center gap-2 min-w-0">
-            <Tooltip content={o.uploader + '@' + o.designer}>
-              <Link to={'/space?id=' + o.uploader} className="inline-flex items-center gap-2.5 bg-white/[0.06] hover:bg-white/10 py-1 pr-3.5 pl-1 border border-white/10 hover:border-white/20 rounded-full text-white/85 hover:text-white no-underline transition-colors">
-                <UserAvatar
-                  className="rounded-full w-8 min-w-8 h-8 aspect-square shrink-0"
-                  username={o.uploader}
-                />
-                <div className="flex flex-col items-start">
-                  <span className="font-semibold text-white text-sm leading-tight">{o.uploader}</span>
-                  <span className="text-white/55 text-xs leading-tight">{o.designer}</span>
-                </div>
+        <div className="song-workspace">
+          <div role="tablist" aria-label={t('song/SongPage.ChartDetails')} className="song-tabs">
+            {songTabs.map(({ id, label, Icon }, index) => (
+              <button key={id} type="button" role="tab" id={'song-tab-' + id} aria-controls={'song-panel-' + id}
+                aria-selected={activeTab === id} tabIndex={activeTab === id ? 0 : -1} onClick={() => selectTab(id)} onKeyDown={event => moveTab(event, index)}>
+                <Icon aria-hidden="true" />{t(label)}
+              </button>
+            ))}
+          </div>
+          <section id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
+            {activeTab === 'preview' && <ChartPreview song={song} chartLevel={chartLevel} />}
+          </section>
+          <section id="song-panel-scores" role="tabpanel" aria-labelledby="song-tab-scores" hidden={activeTab !== 'scores'}>
+            <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} /></Activity>
+          </section>
+          <section id="song-panel-comments" role="tabpanel" aria-labelledby="song-tab-comments" hidden={activeTab !== 'comments'}>
+            <Activity mode={activeTab === 'comments' ? 'visible' : 'hidden'}><CommentSection chartId={song.id} uploader={song.uploader} focusId={focusId} /></Activity>
+          </section>
+        </div>
+        <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}>
+          <h2 className="song-label">{t('song/SongPage.ChartDetails')}</h2>
+          <dl className="song-credits">
+            {song.designer && <div><dt>{t('song/SongPage.Designer')}</dt><dd><PiPenNib />{song.designer}</dd></div>}
+            {song.uploader && <div><dt>{t('song/SongComments.Uploader')}</dt><dd>
+              <Link to={'/space?id=' + encodeURIComponent(song.uploader)}>
+                <UserAvatar username={song.uploader} alt="" className="size-5 shrink-0 rounded-full" />{song.uploader}
               </Link>
-            </Tooltip>
-            <div className="flex items-center gap-2 min-w-0">
-              <h3 className="sr-only">
-                {t("song/SongPage.Tags") || '标签'}
-              </h3>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {(o.tags || o.publicTags) &&
-                  (o.tags.length > 0 || o.publicTags.length > 0) ? (
-                  <>
-                    {o.tags.map((tag, index) => (
-                      <Tooltip content={t("song/SongPage.SearchForTag")} key={index}>
-                        <span
-                          className="inline-flex items-center bg-[linear-gradient(135deg,rgb(139_69_19/0.3),rgb(101_67_33/0.2))] hover:bg-[linear-gradient(135deg,rgb(139_69_19/0.5),rgb(101_67_33/0.4))] hover:shadow-[0_4px_12px_rgb(139_69_19/0.3)] px-3 py-1 border border-[rgb(139_69_19/0.4)] hover:border-[rgb(139_69_19/0.7)] rounded-full font-medium text-[rgb(255_215_0/0.9)] hover:text-[#ffd700] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
-                          onClick={() => searchHome(tag)}
-                        >
-                          {tag}
-                        </span>
-                      </Tooltip>
-                    ))}
-                    {o.publicTags?.map((tag, index) => (
-                      <Tooltip content={t("song/SongPage.SearchForTag")} key={index}>
-                        <span
-                          className="inline-flex items-center bg-[linear-gradient(135deg,rgb(34_197_94/0.3),rgb(22_163_74/0.2))] hover:bg-[linear-gradient(135deg,rgb(34_197_94/0.5),rgb(22_163_74/0.4))] hover:shadow-[0_4px_12px_rgb(34_197_94/0.3)] px-3 py-1 border border-[rgb(34_197_94/0.4)] hover:border-[rgb(34_197_94/0.7)] rounded-full font-medium text-[rgb(74_222_128/0.9)] hover:text-[#4ade80] text-xs transition-all hover:-translate-y-0.5 duration-300 cursor-pointer"
-                          onClick={() => searchHome('tag:' + tag)}
-                        >
-                          {tag}
-                        </span>
-                      </Tooltip>
-                    ))}
-                  </>
-                ) : (
-                  <span className="text-white/40 text-sm italic">
-                    {t("song/SongPage.NoTags") || '暂无标签'}
-                  </span>
-                )}
-                <TagManageTagLauncher
-                  onClick={() => {
-                    tagButtonRef.current?.toggleWindow();
-                  }}
-                />
-              </div>
-            </div>
+            </dd></div>}
+            {Number.isFinite(uploadTime.getTime()) && <div><dt>{t('song/SongPage.UploadTime')}</dt><dd>
+              <time dateTime={uploadTime.toISOString()} title={uploadTime.toLocaleString(getLocale(language))}>{uploadTime.toLocaleDateString(getLocale(language))}</time>
+            </dd></div>}
+          </dl>
+          <div className="song-actions">
+            <button type="button" onClick={() => void downloadSong({ id: song.id, title: song.title, toast })}><PiDownloadSimple />{t('song/SongPage.Download')}</button>
+            <button type="button" onClick={() => setCollecting(true)}><PiBookmarkSimple />{t('song/SongPage.Collection')}</button>
+            <button type="button" onClick={() => void copy(window.location.href)}><PiLinkSimple />{t('song/SongPage.Share')}</button>
           </div>
-
-          <div className="song-radar-difficulties flex flex-col items-start" data-radar-level={chartLevel} onClickCapture={handleDifficultyClick}>
-            <h3 className="sr-only">All Difficulties</h3>
-            <SongDifficultyLevels
-              levels={o.levels}
-              songid={o.id}
-              isPlayer={true}
-            />
+          <div className="song-tags" role="group" aria-label={t('song/SongPage.Tags')}>
+            {song.tags?.map(tag => <Link key={tag} to={searchLink(tag)} title={t('song/SongPage.SearchForTag')}>{tag}</Link>)}
+            {song.publicTags?.map(tag => <Link key={tag} to={searchLink('tag:' + tag)} className="song-public-tag" title={t('song/SongPage.SearchForTag')}>{tag}</Link>)}
+            {!song.tags?.length && !song.publicTags?.length && <span>{t('song/SongPage.NoTags')}</span>}
+            <button type="button" onClick={() => tagWidget.current?.openWindow()} aria-label={t('song/SongPage.ManageTags')} title={t('song/SongPage.ManageTags')}><PiTagSimple />+</button>
           </div>
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              className="bg-blue-500 hover:bg-blue-400 px-4 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer"
-              onClick={OnDownloadClick({ id: o.id, title: o.title })}
-              title={t("song/SongPage.Download")}
-            >
-              <span className="inline-flex justify-center items-center gap-2">
-                <svg
-                  className="fill-current transition-transform duration-300 ease-in-out"
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="18"
-                  viewBox="0 -960 960 960"
-                  width="18"
-                >
-                  <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-                </svg>
-                <span>{t("song/SongPage.Download") || '下载'}</span>
-              </span>
-            </button>
-            <button
-              className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/90 text-sm transition-colors cursor-pointer"
-              onClick={shareSong()}
-              title={t("song/SongPage.Share")}
-            >
-              <span className="inline-flex justify-center items-center gap-2">
-                <svg
-                  className="fill-current transition-transform duration-300 ease-in-out"
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="18"
-                  viewBox="0 -960 960 960"
-                  width="18"
-                >
-                  <path d="M720-80q-50 0-85-35t-35-85q0-7 1-14.5t3-13.5L322-392q-17 15-38 23.5t-44 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 44 8.5t38 23.5l282-164q-2-6-3-13.5t-1-14.5q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-44-8.5T638-672L356-508q2 6 3 13.5t1 14.5q0 7-1 14.5t-3 13.5l282 164q17-15 38-23.5t44-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-640q17 0 28.5-11.5T760-760q0-17-11.5-28.5T720-800q-17 0-28.5 11.5T680-760q0 17 11.5 28.5T720-720ZM240-440q17 0 28.5-11.5T280-480q0-17-11.5-28.5T240-520q-17 0-28.5 11.5T200-480q0 17 11.5 28.5T240-440Zm480 280q17 0 28.5-11.5T760-200q0-17-11.5-28.5T720-240q-17 0-28.5 11.5T680-200q0 17 11.5 28.5T720-160Zm0-600ZM240-480Zm480 280Z" />
-                </svg>
-                <span>{t("song/SongPage.Share") || '分享'}</span>
-              </span>
-            </button>
-            <button
-              className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/90 text-sm transition-colors cursor-pointer"
-              onClick={() => setIsCollectionModalOpen(true)}
-              title={t("song/SongPage.Collection") || '收藏'}
-            >
-              <span className="inline-flex justify-center items-center gap-2">
-                <svg
-                  className="fill-current transition-transform duration-300 ease-in-out"
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="18"
-                  viewBox="0 -960 960 960"
-                  width="18"
-                >
-                  <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
-                </svg>
-                <span>{t("song/SongPage.Collection") || '收藏'}</span>
-              </span>
-            </button>
-            <div style={{ display: 'none' }}>
-              <TagManageWidget ref={tagButtonRef} songid={o.id} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 主体：左侧播放器和评论，右侧评价信息、雷达和排行榜；手机端按 播放器 → 侧栏 → 评论 排列 */}
-      <div className="lg:items-start gap-5 sm:gap-6 grid grid-cols-1 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] min-w-0">
-        <div className="mx-auto lg:mx-0 w-full max-w-[560px] lg:col-start-1 lg:row-start-1 min-w-0">
-          {isLoadMajdata ? (
-            <div className="relative z-100 w-full">
-              <Majdata songid={o.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + (chartLevel ?? -1)} />
-            </div>
-          ) : (
-            <button
-              className="bg-white/[0.04] hover:bg-white/[0.08] p-2.5 border border-white/10 rounded-2xl w-full aspect-square text-white/80 transition-colors cursor-pointer"
-              onClick={() => setIsLoadMajdata(true)}
-            >
-              <span className="inline-flex justify-center items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="88px"
-                  viewBox="0 -960 960 960"
-                  width="88px"
-                  fill="#e3e3e3"
-                >
-                  <path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
-                </svg>
-              </span>
-            </button>
-          )}
-        </div>
-
-        <aside className="items-start gap-4 grid grid-cols-1 xl:grid-cols-2 lg:col-start-2 lg:row-span-2 lg:row-start-1 min-w-0">
-          {/* ID/HASH/投票面板 */}
-          <div className="relative flex flex-col bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl min-w-0 overflow-hidden transition-all duration-300">
-            <div className="gap-y-3 grid grid-cols-[64px_minmax(0,1fr)] sm:grid-cols-[80px_minmax(0,1fr)] text-sm">
-              <span className="text-white/40">ID</span>
-              <code
-                className="bg-black/20 px-2 py-0.5 rounded w-fit font-mono text-white/80 text-xs text-center break-all"
-                style={{ cursor: 'pointer' }}
-                title="点击复制"
-                onClick={() => {
-                  navigator.clipboard.writeText(o.id);
-                  toast.success(t("song/SongPage.ClipboardSuccess"));
-                }}
-              >
-                {o.id}
-              </code>
-
-              <span className="text-white/40">HASH</span>
-              <code
-                className="bg-black/20 px-2 py-0.5 rounded w-fit font-mono text-white/80 text-xs text-center break-all"
-                style={{ cursor: 'pointer' }}
-                title="点击复制"
-                onClick={() => {
-                  navigator.clipboard.writeText(o.hash);
-                  toast.success(t("song/SongPage.ClipboardSuccess"));
-                }}
-              >
-                {o.hash}
-              </code>
-
-              <span className="text-white/40 text-xs">
-                {t("song/SongPage.UploadTime") || '上传时间'}
-              </span>
-              <span className="pl-1.75 w-fit text-white/80 text-xs text-center">
-                {new Date(o.timestamp).toLocaleString()}
-              </span>
-            </div>
-
-            <div className="my-3 border-white/10 border-t"></div>
-
-            <ChartVotePanel songid={o.id} />
-          </div>
-          <ChartRadar id={o.id} hash={o.hash} chartLevel={chartLevel} />
-          <div className="xl:col-span-2 min-w-0">
-            <ScoreRanking songid={o.id} />
-          </div>
+          <dl className="song-file">
+            {([['ID', song.id], ['HASH', song.hash]] as const).map(([key, value]) => (
+              <div key={key}><dt>{key}</dt><dd><button type="button" aria-label={t('song/SongPage.CopyValue', { field: key })} onClick={() => void copy(value)}><code>{value}</code><PiCopySimple /></button></dd></div>
+            ))}
+          </dl>
+          <ChartVotePanel songid={song.id} />
+          <ChartRadar id={song.id} hash={song.hash} chartLevel={chartLevel} />
         </aside>
-
-        <div className="lg:col-start-1 lg:row-start-2 min-w-0">
-          <CommentSection chartId={o.id} uploader={o.uploader} focusId={focusId} />
-        </div>
       </div>
-      <CollectionModal
-        isOpen={isCollectionModalOpen}
-        onClose={() => setIsCollectionModalOpen(false)}
-        chartId={o.id}
-        songHash={o.hash}
-      />
-    </div>
+      <div hidden><TagManageWidget ref={tagWidget} songid={song.id} /></div>
+      <CollectionModal isOpen={collecting} onClose={() => setCollecting(false)} chartId={song.id} songHash={song.hash} />
+    </>
   );
 }

@@ -457,17 +457,26 @@
     "ServerError": "閉店中"
   },
   "song/SongPage": {
+    "ChartDetails": "譜面情報",
     "ClipboardSuccess": "クリップボードにコピーしました",
     "Collection": "コレクション",
+    "CopyFailed": "コピーできませんでした",
+    "CopyValue": "{{field}} をコピー",
+    "Designer": "譜面作者",
+    "Difficulty": "難易度",
     "Download": "ダウンロード",
+    "ManageTags": "タグを管理",
     "NoTags": "タグがありません",
+    "Preview": "譜面プレビュー",
+    "PreviewChart": "プレビューを再生",
     "SearchForArtist": "アーティストを検索",
     "SearchForTag": "タグを検索",
     "SearchForTitle": "楽曲を検索",
     "Share": "共有",
     "SongNotFound": "曲が見つかりません",
     "Tags": "タグ",
-    "UploadTime": "アップロード日時"
+    "UploadTime": "アップロード日時",
+    "ViewCover": "ジャケットを拡大"
   },
   "song/VoteControl": {
     "Downvote": "低評価",
