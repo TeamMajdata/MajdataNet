@@ -26,6 +26,7 @@ import {
 } from 'react-icons/pi';
 import { endpoints } from '@/config/api';
 import { LoadingSpinner } from '@/components';
+import SortMenu from '@/components/ui/SortMenu';
 import UserAvatar from '@/components/user/UserAvatar';
 import { useIsAdministrator, useUserContext } from '@/hooks';
 import { apiFetcher, apiRequest, jsonRequest } from '@/utils/apiClient';
@@ -610,20 +611,12 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
           {t("song/SongComments.Comments")}
           {summary && <span className="font-normal text-white/60 text-base tabular-nums">{summary.comments}</span>}
         </h2>
-        <label className="flex items-center gap-2 text-white/60 text-sm shrink-0">
-          <span>{t("song/SongComments.SortBy")}</span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as CommentSort)}
-            className="bg-[rgba(20,20,25,0.8)] px-3 py-1 border border-white/20 rounded-full outline-none text-white text-sm cursor-pointer"
-          >
-            {COMMENT_SORTS.map((value) => (
-              <option key={value} value={value}>
-                {sortLabels[value]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <SortMenu
+          label={t("song/SongComments.SortBy")}
+          options={COMMENT_SORTS.map(value => sortLabels[value])}
+          value={COMMENT_SORTS.indexOf(sort)}
+          onChange={index => setSort(COMMENT_SORTS[index])}
+        />
       </div>
       {focusId ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-white/6 px-4 py-3 rounded-xl text-sm">
