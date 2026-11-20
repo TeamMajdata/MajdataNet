@@ -50,7 +50,7 @@ export default function Dropdown({ isOpen, onClose, children, position = 'left',
   return (
     <div 
       ref={menuRef}
-      className={`top-[calc(100%+0.5rem)] md:top-[calc(100%+0.75rem)] z-1001 absolute bg-linear-to-br from-[rgb(15_15_20/95%)] to-[rgb(10_12_18/98%)] shadow-[0_20px_60px_rgb(0_0_0/50%),0_4px_20px_rgb(59_130_246/10%),0_1px_0_rgb(255_255_255/10%)_inset] backdrop-blur-xl saturate-180 border border-white/15 rounded-2xl min-w-50 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain ${positionClass} ${className}`}
+      className={`top-[calc(100%+0.5rem)] z-1001 absolute bg-[rgb(14_16_22/98%)] shadow-[0_20px_50px_rgb(0_0_0/50%),0_1px_0_rgb(255_255_255/6%)_inset] border border-white/10 rounded-xl min-w-50 max-w-[calc(100vw-1.5rem)] max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain ${positionClass} ${className}`}
     >
       {children}
     </div>
