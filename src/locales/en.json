@@ -562,6 +562,10 @@
   "user/Logout": {
     "Logout": "Logout"
   },
+  "user/NicknameEditor": {
+    "Save": "Save",
+    "Saving": "Saving…"
+  },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "No Recent Records",
     "ServerError": "Server Error"

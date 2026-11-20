@@ -552,6 +552,10 @@
   "user/Logout": {
     "Logout": "ログアウト"
   },
+  "user/NicknameEditor": {
+    "Save": "保存",
+    "Saving": "保存中…"
+  },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "最近のプレイ記録はありません",
     "ServerError": "閉店中"

@@ -552,6 +552,10 @@
   "user/Logout": {
     "Logout": "로그아웃"
   },
+  "user/NicknameEditor": {
+    "Save": "저장",
+    "Saving": "저장 중…"
+  },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "최근 기록이 없습니다",
     "ServerError": "서버 오류"

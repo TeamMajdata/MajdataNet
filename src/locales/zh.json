@@ -552,6 +552,10 @@
   "user/Logout": {
     "Logout": "登出"
   },
+  "user/NicknameEditor": {
+    "Save": "保存",
+    "Saving": "保存中…"
+  },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "暂无最近游玩记录",
     "ServerError": "已闭店"
