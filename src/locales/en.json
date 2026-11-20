@@ -282,6 +282,15 @@
     "Login": "Login",
     "Register": "Register"
   },
+  "shared/Download": {
+    "Done": "Download complete",
+    "Downloading": "Downloading…",
+    "Failed": "Download failed, please try again",
+    "FileBg": "Cover",
+    "FileChart": "Chart",
+    "FileTrack": "Audio",
+    "FileVideo": "Video"
+  },
   "shared/LanguageSelector": {
     "Language": "Language"
   },

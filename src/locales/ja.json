@@ -278,6 +278,15 @@
     "Login": "ログイン",
     "Register": "登録"
   },
+  "shared/Download": {
+    "Done": "ダウンロード完了",
+    "Downloading": "ダウンロード中…",
+    "Failed": "ダウンロードに失敗しました。もう一度お試しください",
+    "FileBg": "背景",
+    "FileChart": "譜面",
+    "FileTrack": "音源",
+    "FileVideo": "動画"
+  },
   "shared/LanguageSelector": {
     "Language": "言語"
   },

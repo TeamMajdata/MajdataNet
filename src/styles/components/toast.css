@@ -23,3 +23,22 @@
   gap: 8px;
 }
 
+/* 下载通知自带进度条和状态，不需要底部计时条 */
+.download-toast .Toastify__progress-bar--wrp {
+  display: none;
+}
+
+/* 服务器没给文件大小时的不确定进度：一段色条来回滑动 */
+.download-toast-indeterminate {
+  animation: download-toast-slide 1.3s ease-in-out infinite;
+}
+
+@keyframes download-toast-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(300%);
+  }
+}

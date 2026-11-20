@@ -278,6 +278,15 @@
     "Login": "로그인",
     "Register": "회원가입"
   },
+  "shared/Download": {
+    "Done": "다운로드 완료",
+    "Downloading": "다운로드 중…",
+    "Failed": "다운로드에 실패했습니다. 다시 시도해 주세요",
+    "FileBg": "배경",
+    "FileChart": "채보",
+    "FileTrack": "음원",
+    "FileVideo": "영상"
+  },
   "shared/LanguageSelector": {
     "Language": "언어"
   },
