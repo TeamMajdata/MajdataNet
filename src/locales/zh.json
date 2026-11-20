@@ -163,7 +163,7 @@
   "home/HomePage": {
     "AllCharts": "全部谱面",
     "ClearSearch": "清空搜索",
-    "CommentCount": "评",
+    "CommentCount": "评论",
     "DownloadFormat": "下载格式：",
     "EmptyData": "空的",
     "EventCreatedAt": "活动创建于 {{date}}",
@@ -174,7 +174,7 @@
     "LoginForRecommend": "登录后即可获得个人推荐",
     "PageInput": "第 <input/> 页",
     "PersonalRecommend": "个人推荐",
-    "PlayCount": "播",
+    "PlayCount": "播放",
     "RandomRecommend": "随机推荐",
     "RecommendEnd": "没有更多推荐了",
     "RefreshBatch": "换一批",
@@ -186,7 +186,7 @@
     "SearchPlaceholder": "搜索曲目/作曲家/谱师...",
     "ServerError": "已闭店",
     "SortBy": "排序：",
-    "UploadDate": "时",
+    "UploadDate": "上传时间",
     "ViewAllEvents": "查看所有活动"
   },
   "minigame/MiniGamePage": {
