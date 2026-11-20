@@ -119,7 +119,8 @@ export interface ScoreListProps {
 
 // ======================== 歌曲列表组件 ========================
 export interface SongListProps {
-  url: string;
+  /** 一个或多个接口地址；多个时按顺序合并成一屏（见 apiPagesForView） */
+  url: string | string[];
   setMax?: (page: number) => void;
   page?: number;
   isRanking?: boolean;

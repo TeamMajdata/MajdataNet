@@ -8,6 +8,7 @@
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { PageLayout, SongList, EventBanner } from '@/components';
+import { apiPagesForView } from '@/components/song/songGrid';
 import { endpoints } from '@/config/api';
 import { getEventBySearchKeyword } from '@/utils/eventsData';
 import { type Event } from '@/types';
@@ -58,7 +59,7 @@ export default function EventTagPage() {
             <div className="relative mx-auto my-8 w-[70%] h-px" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 15%, rgba(255, 255, 255, 0.4) 30%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.4) 70%, rgba(255, 255, 255, 0.2) 85%, transparent 100%)' }}></div>
 
             <SongList
-              url={endpoints.maichart.listSearch(searchKeyword)}
+              url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort(searchKeyword, '', apiPage))}
               page={0}
               setMax={() => { }}
             />

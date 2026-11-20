@@ -31,7 +31,7 @@ import {
   getCategoryTranslation,
 } from '@/utils/eventsData';
 import type { SearchBarProps, Song } from '@/types';
-import { SONG_GRID_CLASS } from '@/components/song/songGrid';
+import { apiPagesForView, SONG_GRID_CLASS } from '@/components/song/songGrid';
 
 // 获取用户时区的次日午夜时间戳 (UTC)
 const getNextMidnightTimestamp = (): number => {
@@ -761,7 +761,7 @@ function MainComp() {
       {activeTab === 'all' ? (
         <>
           <SongList
-            url={endpoints.maichart.listSearchAndSort(search, SORT_WORDS[sortType], page)}
+            url={apiPagesForView(page).map((apiPage) => endpoints.maichart.listSearchAndSort(search, SORT_WORDS[sortType], apiPage))}
             page={page}
             setMax={(last) => setLastPage((prev) => (
               prev && prev.key === listKey && prev.page === last ? prev : { key: listKey, page: last }

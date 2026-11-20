@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner, CommentListView } from '@/components';
+import { apiPagesForView } from '@/components/song/songGrid';
 import CollapsibleSection from '@/components/ui/CollapsibleSection';
 import UserRating from '@/components/user/UserRating';
 import { endpoints } from '@/config/api';
@@ -91,7 +92,7 @@ export default function SpacePage() {
       {hasUploadedCharts !== false && (
         <CollapsibleSection title={t("space/SpacePage.UploadedCharts")}>
           <SongList
-            url={endpoints.maichart.listSearch('uploader:' + username)}
+            url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + username, '', apiPage))}
             onDataLoaded={setHasUploadedCharts}
           />
         </CollapsibleSection>

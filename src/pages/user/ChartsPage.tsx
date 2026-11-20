@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { PageLayout, ChartUploader, SongList, LoadingSpinner } from '@/components';
+import { apiPagesForView } from '@/components/song/songGrid';
 import { useUserContext } from '@/hooks';
 import { endpoints } from '@/config/api';
 import { motion, type Variants } from 'framer-motion';
@@ -114,7 +115,7 @@ export default function UserChartsPage() {
           </p>
         </div>
         <SongList
-          url={endpoints.maichart.listSearch('uploader:' + user?.username)}
+          url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + user?.username, '', apiPage))}
           isManage={true}
         />
       </motion.section>
