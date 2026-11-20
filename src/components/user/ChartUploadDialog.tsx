@@ -8,6 +8,7 @@ const NOTICE_TERMS = [
   'user/charts/ChartsPage.UploadNoticeTerms2',
   'user/charts/ChartsPage.UploadNoticeTerms3',
   'user/charts/ChartsPage.UploadNoticeTerms4',
+  'user/charts/ChartsPage.UploadNoticeTerms5',
 ] as const;
 
 /** 上传谱面的弹窗：先看上传须知，同意后才显示文件选择 */
