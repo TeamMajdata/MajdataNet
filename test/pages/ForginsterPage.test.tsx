@@ -153,11 +153,13 @@ describe('email challenge authentication', () => {
     expect(container.querySelector('[role="dialog"]')).toBeNull();
   });
 
-  it('closes with Escape and the close button, and switches tabs in place', async () => {
+  it('closes with Escape and switches to register from the footer link in place', async () => {
     await render('/login');
     expect(container.querySelector('[role="dialog"]')!.getAttribute('aria-modal')).toBe('true');
     expect(document.body.style.overflow).toBe('hidden');
-    await act(async () => [...container.querySelectorAll<HTMLButtonElement>('button[aria-pressed]')][1].click());
+    expect(container.querySelector('button[aria-pressed]')).toBeNull();
+    const goRegister = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === i18n.t('auth/ForginsterPage.GoRegister'))!;
+    await act(async () => goRegister.click());
     expect(container.querySelector('output')!.textContent).toBe('/register');
     await act(async () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
     expect(container.querySelector('output')!.textContent).toBe('/');

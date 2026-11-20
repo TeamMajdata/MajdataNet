@@ -1,5 +1,6 @@
 {
   "auth/ForginsterPage": {
+    "BackToLogin": "ログインに戻る",
     "Close": "閉じる",
     "CloudflareVerificationNotReady": "Cloudflare 認証が完了していません。ネットワークを確認して、しばらくしてから再試行してください。",
     "CodeExpired": "コードの有効期限が切れました。再取得してください。",
@@ -9,9 +10,12 @@
     "EightDigitCode": "8桁の認証コード",
     "EmailExists": "このメールアドレスは既に登録されています",
     "EmailLabel": "メールアドレス",
-    "ForgetPassword": "パスワードを忘れた方",
     "ForgetPasswordSubtitle": "登録済みのメールでコードを取得し、新しいパスワードを設定してください。",
     "ForgetPasswordTitle": "パスワードを忘れた方",
+    "ForgotPasswordLink": "パスワードをお忘れですか？",
+    "GoLogin": "ログイン",
+    "GoRegister": "新規登録",
+    "HaveAccount": "すでにアカウントをお持ちですか？",
     "InvalidEmail": "無効なメールアドレスです",
     "LegacyLink": "メール内の認証リンクは利用できません。コードを再取得してください。旧アカウントの有効化は管理者にお問い合わせください。",
     "Login": "ログイン",
@@ -20,6 +24,7 @@
     "LoginUserBanned": "このユーザーはBANされています。",
     "NetworkError": "通信に失敗しました。もう一度お試しください。",
     "Nickname": "ニックネーム",
+    "NoAccount": "アカウントをお持ちでないですか？",
     "PasswdNoMatch": "パスワードが一致しません",
     "Password": "パスワード",
     "Register": "登録",

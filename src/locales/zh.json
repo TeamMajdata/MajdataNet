@@ -1,5 +1,6 @@
 {
   "auth/ForginsterPage": {
+    "BackToLogin": "返回登录",
     "Close": "关闭",
     "CloudflareVerificationNotReady": "Cloudflare 验证尚未完成，请检查网络后稍候重试",
     "CodeExpired": "验证码已过期，请重新获取",
@@ -9,9 +10,12 @@
     "EightDigitCode": "8 位数字验证码",
     "EmailExists": "该邮箱已被注册",
     "EmailLabel": "邮箱",
-    "ForgetPassword": "找回密码",
     "ForgetPasswordSubtitle": "输入注册邮箱，获取验证码后设置新密码",
     "ForgetPasswordTitle": "找回密码",
+    "ForgotPasswordLink": "忘记密码？",
+    "GoLogin": "去登录",
+    "GoRegister": "去注册",
+    "HaveAccount": "已有账号？",
     "InvalidEmail": "邮箱地址无效",
     "LegacyLink": "邮件链接验证已停用，请重新获取验证码；旧账户激活问题请联系管理员。",
     "Login": "登录",
@@ -20,6 +24,7 @@
     "LoginUserBanned": "该用户已被封禁",
     "NetworkError": "网络请求失败，请重试",
     "Nickname": "昵称",
+    "NoAccount": "还没有账号？",
     "PasswdNoMatch": "确认密码不一致",
     "Password": "密码",
     "Register": "注册",

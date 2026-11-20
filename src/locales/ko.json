@@ -1,5 +1,6 @@
 {
   "auth/ForginsterPage": {
+    "BackToLogin": "로그인으로 돌아가기",
     "Close": "닫기",
     "CloudflareVerificationNotReady": "Cloudflare 인증이 완료되지 않았습니다. 네트워크를 확인한 후 잠시 뒤 다시 시도해 주세요.",
     "CodeExpired": "코드가 만료되었습니다. 새 코드를 요청하세요.",
@@ -9,9 +10,12 @@
     "EightDigitCode": "8자리 인증 코드",
     "EmailExists": "이미 등록된 이메일입니다",
     "EmailLabel": "이메일",
-    "ForgetPassword": "비밀번호 찾기",
     "ForgetPasswordSubtitle": "가입한 이메일로 코드를 받은 후 새 비밀번호를 설정하세요.",
     "ForgetPasswordTitle": "비밀번호 찾기",
+    "ForgotPasswordLink": "비밀번호를 잊으셨나요?",
+    "GoLogin": "로그인",
+    "GoRegister": "회원가입",
+    "HaveAccount": "이미 계정이 있으신가요?",
     "InvalidEmail": "유효하지 않은 이메일 주소입니다",
     "LegacyLink": "이메일 인증 링크는 더 이상 지원되지 않습니다. 코드를 다시 요청하세요. 기존 계정 활성화는 관리자에게 문의하세요.",
     "Login": "로그인",
@@ -20,6 +24,7 @@
     "LoginUserBanned": "이 계정은 정지되었습니다.",
     "NetworkError": "네트워크 요청에 실패했습니다. 다시 시도하세요.",
     "Nickname": "닉네임",
+    "NoAccount": "계정이 없으신가요?",
     "PasswdNoMatch": "비밀번호가 일치하지 않습니다",
     "Password": "비밀번호",
     "Register": "회원가입",

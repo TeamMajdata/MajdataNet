@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type InputHTMLAttributes } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from 'react';
 import { md5 } from 'js-md5';
 import { toast } from 'react-toastify';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -62,9 +62,7 @@ function loadTurnstileScript() {
 
 export default function ForginsterPage() {
   const { t } = useTranslation();
-  const location = useLocation();
-  const { pathname, search } = location;
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const titleId = useId();
   const pressedOnBackdrop = useRef(false);
@@ -98,20 +96,7 @@ export default function ForginsterPage() {
             <path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
         </button>
-        <div className="flex gap-1 bg-white/[0.04] mt-8 sm:mt-6 mb-6 p-1 border border-white/[0.06] rounded-xl">
-          {(['login', 'register', 'forget'] as const).map(tab => (
-            <button key={tab} type="button" aria-pressed={tab === activeTab}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${tab === activeTab ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white'}`}
-              onClick={() => {
-                const params = new URLSearchParams(search);
-                params.delete('otp');
-                navigate({ pathname: `/${tab}`, search: params.toString() }, { replace: true, state: location.state });
-              }}>
-              {tab === 'login' ? t("auth/ForginsterPage.Login") : tab === 'register' ? t("auth/ForginsterPage.Register") : t("auth/ForginsterPage.ForgetPassword")}
-            </button>
-          ))}
-        </div>
-        {searchParams.has('otp') && <p role="status" className="mb-4 text-amber-200 text-sm">{t("auth/ForginsterPage.LegacyLink")}</p>}
+        {searchParams.has('otp') && <p role="status" className="mt-6 mb-4 pr-8 text-amber-200! text-sm">{t("auth/ForginsterPage.LegacyLink")}</p>}
         {activeTab === 'login' ? <LoginTab titleId={titleId} /> : <ChallengeTab key={activeTab} mode={activeTab} titleId={titleId} />}
       </div>
     </div>
@@ -126,6 +111,23 @@ function useCloseAuth() {
     if (historyIndex > 0) navigate(-1);
     else navigate('/', { replace: true });
   }, [navigate]);
+}
+
+/** Switches between login / register / reset in place, keeping the redirect and the page underneath. */
+function AuthSwitch({ to, prompt, children }: { to: TabType; prompt?: string; children: ReactNode }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  return <p className="m-0 text-white/50! text-sm text-center">
+    {prompt}{' '}
+    <button type="button" className="bg-transparent p-0 border-0 font-medium text-blue-300 hover:text-blue-200 hover:underline underline-offset-4 cursor-pointer"
+      onClick={() => {
+        const params = new URLSearchParams(location.search);
+        params.delete('otp');
+        navigate({ pathname: `/${to}`, search: params.toString() }, { replace: true, state: location.state });
+      }}>
+      {children}
+    </button>
+  </p>;
 }
 
 function Field({ label, name, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; name: string }) {
@@ -190,16 +192,22 @@ function LoginTab({ titleId }: { titleId: string }) {
   }
 
   return <div>
-    <h2 id={titleId} className="mb-1 font-semibold! text-white! text-2xl! text-left!">{t("auth/ForginsterPage.WelcomeBack")}</h2>
+    <h2 id={titleId} className="mt-1 mb-1 pr-8 font-semibold! text-white! text-2xl! text-left!">{t("auth/ForginsterPage.WelcomeBack")}</h2>
     <p className="mb-6 text-white/50! text-sm">{t("auth/ForginsterPage.LoginSubtitle")}</p>
     <form onSubmit={onSubmit}>
       <fieldset disabled={busy} className="flex flex-col gap-4">
         <Field label={t("auth/ForginsterPage.UsernameOrEmail")} name="username" autoComplete="username" autoFocus required />
         <Field label={t("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="current-password" required />
-        <label className="flex items-center gap-2 text-white/70 text-sm cursor-pointer"><input type="checkbox" name="rememberMe" className="accent-blue-500" />{t("auth/ForginsterPage.RememberMe")}</label>
+        <div className="flex justify-between items-center gap-3">
+          <label className="flex items-center gap-2 text-white/70 text-sm cursor-pointer"><input type="checkbox" name="rememberMe" className="accent-blue-500" />{t("auth/ForginsterPage.RememberMe")}</label>
+          <AuthSwitch to="forget">{t("auth/ForginsterPage.ForgotPasswordLink")}</AuthSwitch>
+        </div>
         <button className={BUTTON_CLASSNAME} type="submit">{busy ? <LoadingSpinner size={20} /> : t("auth/ForginsterPage.Login")}</button>
       </fieldset>
     </form>
+    <div className="mt-5 pt-5 border-white/[0.07] border-t">
+      <AuthSwitch to="register" prompt={t("auth/ForginsterPage.NoAccount")}>{t("auth/ForginsterPage.GoRegister")}</AuthSwitch>
+    </div>
   </div>;
 }
 
@@ -300,7 +308,7 @@ function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId:
   }
 
   return <div>
-    <h2 id={titleId} className="mb-1 font-semibold! text-white! text-2xl! text-left!">{registering ? t("auth/ForginsterPage.CreateAccount") : t("auth/ForginsterPage.ForgetPasswordTitle")}</h2>
+    <h2 id={titleId} className="mt-1 mb-1 pr-8 font-semibold! text-white! text-2xl! text-left!">{registering ? t("auth/ForginsterPage.CreateAccount") : t("auth/ForginsterPage.ForgetPasswordTitle")}</h2>
     <p className="mb-6 text-white/50! text-sm">{registering ? t("auth/ForginsterPage.RegisterSubtitle") : t("auth/ForginsterPage.ForgetPasswordSubtitle")}</p>
     <form onSubmit={onSubmit}>
       <fieldset disabled={busy} className="flex flex-col gap-4">
@@ -332,6 +340,11 @@ function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId:
         </button>
       </fieldset>
     </form>
+    <div className="mt-5 pt-5 border-white/[0.07] border-t">
+      {registering
+        ? <AuthSwitch to="login" prompt={t("auth/ForginsterPage.HaveAccount")}>{t("auth/ForginsterPage.GoLogin")}</AuthSwitch>
+        : <AuthSwitch to="login">{t("auth/ForginsterPage.BackToLogin")}</AuthSwitch>}
+    </div>
   </div>;
 }
 

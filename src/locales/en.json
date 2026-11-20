@@ -1,5 +1,6 @@
 {
   "auth/ForginsterPage": {
+    "BackToLogin": "Back to login",
     "Close": "Close",
     "CloudflareVerificationNotReady": "Cloudflare verification is not ready. Check your network and try again shortly.",
     "CodeExpired": "The code has expired. Request a new one.",
@@ -9,9 +10,12 @@
     "EightDigitCode": "8-digit verification code",
     "EmailExists": "This email is already registered",
     "EmailLabel": "E-Mail",
-    "ForgetPassword": "Forgot Password",
     "ForgetPasswordSubtitle": "Enter your registered email, request a code, and set a new password.",
     "ForgetPasswordTitle": "Forgot Password",
+    "ForgotPasswordLink": "Forgot password?",
+    "GoLogin": "Log in",
+    "GoRegister": "Sign up",
+    "HaveAccount": "Already have an account?",
     "InvalidEmail": "Invalid email address",
     "LegacyLink": "Email verification links are no longer supported. Request a new code; contact an administrator for legacy account activation.",
     "Login": "Login",
@@ -20,6 +24,7 @@
     "LoginUserBanned": "This account has been banned.",
     "NetworkError": "Network request failed. Please try again.",
     "Nickname": "Nickname",
+    "NoAccount": "Don't have an account?",
     "PasswdNoMatch": "Password does not match",
     "Password": "Password",
     "Register": "Register",
