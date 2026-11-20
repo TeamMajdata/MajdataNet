@@ -138,7 +138,7 @@ export default function AvatarUploader() {
   const previewAvatarUrl = previewUrl || currentAvatarUrl;
 
   return (
-    <div className="flex sm:flex-row flex-col sm:items-center gap-4 sm:gap-5">
+    <div className="flex items-center gap-4 sm:gap-5">
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
 
       {/* 点头像选图；选中后直接显示预览，蓝色描边表示尚未上传 */}
