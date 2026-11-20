@@ -15,7 +15,7 @@ export default function ProtectedRoute() {
   useEffect(() => {
     if (!isLoading && !user && !authOpen && !redirected.current) {
       redirected.current = true;
-      const state: AuthLocationState = { authBackground: '/' };
+      const state: AuthLocationState = { fromProtectedRoute: true };
       navigate('/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search), { replace: true, state });
     }
   }, [isLoading, user, authOpen, navigate]);

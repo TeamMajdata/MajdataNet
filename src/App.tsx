@@ -50,12 +50,14 @@ function AppRoutes() {
   const location = useLocation();
   const showAuth = isAuthPath(location.pathname);
   const currentPath = location.pathname + location.search + location.hash;
-  // Remember the last regular page so it stays rendered behind the modal.
-  const [lastPage, setLastPage] = useState<string | null>(null);
-  if (!showAuth && lastPage !== currentPath) setLastPage(currentPath);
+  // Remember the last two regular pages: the modal normally shows the latest one, but a
+  // protected page that redirected to login can't render, so it shows the one before it.
+  const [pages, setPages] = useState<{ current: string | null; previous: string | null }>({ current: null, previous: null });
+  if (!showAuth && pages.current !== currentPath) setPages({ current: currentPath, previous: pages.current });
 
+  const authState = location.state as AuthLocationState;
   const backgroundLocation = showAuth
-    ? (location.state as AuthLocationState)?.authBackground ?? lastPage ?? '/'
+    ? authState?.authBackground ?? (authState?.fromProtectedRoute ? pages.previous : pages.current) ?? '/'
     : location;
 
   return (

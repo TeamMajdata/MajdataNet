@@ -7,6 +7,8 @@ export function isAuthPath(pathname: string): boolean {
 
 /**
  * Router state that picks the page shown behind the auth modal.
- * Protected routes set it to '/' because they cannot render for a signed-out visitor.
+ * - `authBackground`: an explicit page (logout uses '/').
+ * - `fromProtectedRoute`: a protected page redirected here; it cannot render for a signed-out
+ *   visitor, so the modal shows the page visited before it instead.
  */
-export type AuthLocationState = { authBackground?: string } | null;
+export type AuthLocationState = { authBackground?: string; fromProtectedRoute?: boolean } | null;
