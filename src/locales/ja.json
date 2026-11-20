@@ -289,11 +289,15 @@
     "DismissDialogue": "セリフを閉じる",
     "Encourage1": "今日も楽しく遊んでね！",
     "Encourage2": "次のプレイで AP が出ますように！",
-    "MoveHint": "ドラッグか矢印キーで移動できます",
+    "MoveHint": "ドラッグまたは矢印キーで移動、右クリックでサイズ変更",
     "Name": "小小蓝白",
     "Poke": "小小蓝白をつつく",
     "Shy1": "あっ、見つかっちゃった。",
-    "Shy2": "そんなにつつくと照れちゃうよ。"
+    "Shy2": "そんなにつつくと照れちゃうよ。",
+    "Size": "サイズ",
+    "SizeLarge": "大",
+    "SizeMedium": "中",
+    "SizeSmall": "小"
   },
   "shared/MajdataLogo": {
     "FUCKYOU": "クリックするな、くそったれ"

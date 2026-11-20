@@ -289,11 +289,15 @@
     "DismissDialogue": "关闭对白",
     "Encourage1": "今天也要玩得开心呀！",
     "Encourage2": "祝你下一把 AP！",
-    "MoveHint": "拖动可移动，方向键也可以",
+    "MoveHint": "拖动可移动，方向键也可以；右键可调整大小",
     "Name": "小小蓝白",
     "Poke": "戳一戳小小蓝白",
     "Shy1": "嘿，被你发现啦。",
-    "Shy2": "再戳就要害羞啦。"
+    "Shy2": "再戳就要害羞啦。",
+    "Size": "大小",
+    "SizeLarge": "大",
+    "SizeMedium": "中",
+    "SizeSmall": "小"
   },
   "shared/MajdataLogo": {
     "FUCKYOU": "不要点我 操你妈"

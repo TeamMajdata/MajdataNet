@@ -289,11 +289,15 @@
     "DismissDialogue": "대사 닫기",
     "Encourage1": "오늘도 즐겁게 플레이해!",
     "Encourage2": "다음 판은 AP 하길!",
-    "MoveHint": "드래그하거나 방향키로 움직일 수 있어요",
+    "MoveHint": "드래그나 방향키로 이동, 우클릭으로 크기 조절",
     "Name": "샤오샤오란바이",
     "Poke": "샤오샤오란바이 콕 찌르기",
     "Shy1": "앗, 들켰네.",
-    "Shy2": "자꾸 찌르면 부끄러워져."
+    "Shy2": "자꾸 찌르면 부끄러워져.",
+    "Size": "크기",
+    "SizeLarge": "크게",
+    "SizeMedium": "보통",
+    "SizeSmall": "작게"
   },
   "shared/MajdataLogo": {
     "FUCKYOU": "건들지 마, 꺼져 버려 이 개자식아"

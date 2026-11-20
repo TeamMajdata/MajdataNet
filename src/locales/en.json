@@ -293,11 +293,15 @@
     "DismissDialogue": "Dismiss dialogue",
     "Encourage1": "Have fun playing today!",
     "Encourage2": "Here's to an AP on your next try!",
-    "MoveHint": "Drag to move, or use the arrow keys",
+    "MoveHint": "Drag or use the arrow keys to move; right-click to resize",
     "Name": "Xiaoxiao Lanbai",
     "Poke": "Poke Xiaoxiao Lanbai",
     "Shy1": "Hey, you found me!",
-    "Shy2": "Keep poking and I'll get shy."
+    "Shy2": "Keep poking and I'll get shy.",
+    "Size": "Size",
+    "SizeLarge": "Large",
+    "SizeMedium": "Medium",
+    "SizeSmall": "Small"
   },
   "shared/MajdataLogo": {
     "FUCKYOU": "DONT TOUCH ME FUCK YOU SON OF A BITCH"

@@ -1,22 +1,29 @@
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
-import type { KeyboardEvent, PointerEvent } from 'react';
+import type { KeyboardEvent, MouseEvent, PointerEvent } from 'react';
 import { createMascotController } from './runtime';
 import {
   chooseReaction,
   chooseDialogueVariant,
   clampPosition,
+  MASCOT_SCALES,
   MASCOT_SIZE,
-  readPreferences,
-  savePreferences,
   TOP_BOUNDARY,
+  updateMascotPreferences,
+  useMascotPreferences,
   VIEWPORT_MARGIN,
 } from './mascotState';
-import type { MascotPosition, MascotPreferences } from './mascotState';
+import type { MascotPosition, MascotScale } from './mascotState';
 import './mascot.css';
 
 const DRAG_THRESHOLD = 6;
 const BUBBLE_SIZE = { width: 260, height: 84 };
+const MENU_SIZE = { width: 200, height: 96 };
+const SCALE_LABELS = {
+  0.75: 'shared/Live2DMascot.SizeSmall',
+  1: 'shared/Live2DMascot.SizeMedium',
+  1.25: 'shared/Live2DMascot.SizeLarge',
+} as const satisfies Record<MascotScale, string>;
 
 function useMediaQuery(query: string): boolean {
   const subscribe = useCallback((listener: () => void) => {
@@ -55,7 +62,9 @@ export default function Live2DMascot() {
   const [viewportWidth, viewportHeight, fullscreen] = viewportSnapshot.split(',');
   const viewport = { width: Number(viewportWidth), height: Number(viewportHeight) };
   const eligible = desktop && fullscreen !== 'true';
-  const [preferences, setPreferences] = useState(readPreferences);
+  const preferences = useMascotPreferences();
+  const [menu, setMenu] = useState<MascotPosition | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [controller] = useState(createMascotController);
   const runtimeStatus = useSyncExternalStore(controller.subscribe, controller.getSnapshot, () => 'idle');
   const visible = eligible && runtimeStatus !== 'error';
@@ -67,7 +76,8 @@ export default function Live2DMascot() {
   const suppressClickRef = useRef(false);
   const previousReactionRef = useRef<0 | 1 | 2 | null>(null);
   const hintId = useId();
-  const size = MASCOT_SIZE;
+  const scale = preferences.scale ?? 1;
+  const size = { width: Math.round(MASCOT_SIZE.width * scale), height: Math.round(MASCOT_SIZE.height * scale) };
   const position = clampPosition(preferences.position ?? {
     x: VIEWPORT_MARGIN,
     y: viewport.height - size.height - VIEWPORT_MARGIN,
@@ -110,19 +120,66 @@ export default function Live2DMascot() {
     };
   }, [speech, dismissSpeech]);
 
+  useEffect(() => {
+    if (!menu) return;
+    menuRef.current?.querySelector<HTMLButtonElement>('[aria-checked="true"], button')?.focus({ preventScroll: true });
+    const onPointerDown = (event: globalThis.PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenu(null);
+    };
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenu(null);
+        characterRef.current?.focus({ preventScroll: true });
+      }
+    };
+    const close = () => setMenu(null);
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('keydown', onKeyDown);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [menu]);
+
   const messages = [
     [t('shared/Live2DMascot.Shy1'), t('shared/Live2DMascot.Shy2')],
     [t('shared/Live2DMascot.Encourage1'), t('shared/Live2DMascot.Encourage2')],
     [t('shared/Live2DMascot.Cry1'), t('shared/Live2DMascot.Cry2')],
   ];
 
-  function updatePreferences(next: MascotPreferences) {
-    setPreferences(next);
-    savePreferences(next);
+  function move(nextPosition: MascotPosition) {
+    updateMascotPreferences({ position: clampPosition(nextPosition, size, viewport) });
   }
 
-  function move(nextPosition: MascotPosition) {
-    updatePreferences({ position: clampPosition(nextPosition, size, viewport) });
+  // 右键（或键盘的菜单键）打开小菜单；键盘触发时没有坐标，就贴着看板娘中间弹出
+  function openMenu(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    setSpeech(null);
+    const fromKeyboard = event.clientX === 0 && event.clientY === 0;
+    setMenu(clampPosition(
+      fromKeyboard ? { x: position.x + size.width / 2, y: position.y + size.height / 2 } : { x: event.clientX, y: event.clientY },
+      MENU_SIZE,
+      viewport,
+    ));
+  }
+
+  function closeMenu(refocus = true) {
+    setMenu(null);
+    if (refocus) characterRef.current?.focus({ preventScroll: true });
+  }
+
+  function resize(nextScale: MascotScale) {
+    // 以脚底中点为基准缩放，看起来是原地变大变小
+    const next = { width: Math.round(MASCOT_SIZE.width * nextScale), height: Math.round(MASCOT_SIZE.height * nextScale) };
+    updateMascotPreferences({
+      scale: nextScale,
+      position: clampPosition({ x: position.x + (size.width - next.width) / 2, y: position.y + size.height - next.height }, next, viewport),
+    });
+    closeMenu();
   }
 
   function poke() {
@@ -224,6 +281,7 @@ export default function Live2DMascot() {
         onPointerUp={finishDrag}
         onPointerCancel={finishDrag}
         onLostPointerCapture={finishDrag}
+        onContextMenu={openMenu}
       />}
       <span id={hintId} className="live2d-mascot__sr-only">{t('shared/Live2DMascot.MoveHint')}</span>
       {speech && shown && (
@@ -240,6 +298,32 @@ export default function Live2DMascot() {
           >
             <span aria-hidden="true">×</span>
           </button>
+        </div>
+      )}
+      {menu && shown && (
+        <div
+          ref={menuRef}
+          role="menu"
+          aria-label={t('shared/Live2DMascot.Name')}
+          className="live2d-mascot__menu"
+          data-testid="mascot-menu"
+          style={{ left: menu.x, top: menu.y, width: MENU_SIZE.width }}
+        >
+          <div className="live2d-mascot__menu-label" id={hintId + '-size'}>{t('shared/Live2DMascot.Size')}</div>
+          <div className="live2d-mascot__sizes" role="group" aria-labelledby={hintId + '-size'}>
+            {MASCOT_SCALES.map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="menuitemradio"
+                aria-checked={scale === value}
+                data-testid={'mascot-size-' + value}
+                onClick={() => resize(value)}
+              >
+                {t(SCALE_LABELS[value])}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </aside>

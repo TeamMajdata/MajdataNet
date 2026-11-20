@@ -125,3 +125,58 @@
     display: none;
   }
 }
+
+/* 右键菜单：样式与顶栏下拉菜单一致 */
+.live2d-mascot__menu {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 12px;
+  background: rgb(14 16 22 / 98%);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 45%);
+  pointer-events: auto;
+}
+
+.live2d-mascot__menu-label {
+  padding: 0 4px;
+  color: rgb(255 255 255 / 45%);
+  font-size: 12px;
+}
+
+.live2d-mascot__sizes {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 9px;
+  background: rgb(255 255 255 / 4%);
+}
+
+.live2d-mascot__sizes button {
+  flex: 1;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgb(255 255 255 / 60%);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.live2d-mascot__sizes button:hover {
+  color: white;
+}
+
+.live2d-mascot__sizes button[aria-checked='true'] {
+  background: rgb(255 255 255 / 10%);
+  color: white;
+}
+
+.live2d-mascot__menu button:focus-visible {
+  outline: 2px solid rgb(96 165 250);
+  outline-offset: 1px;
+}
