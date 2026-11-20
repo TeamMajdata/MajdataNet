@@ -69,7 +69,7 @@ export default function SongPage() {
 
   if (!songData) {
     return (
-      <PageLayout>
+      <PageLayout showBackToHome={false}>
         <div className="flex justify-center items-center min-h-[60vh]">
           <div className="text-white text-2xl">{t("song/SongPage.SongNotFound")}</div>
         </div>
@@ -105,7 +105,7 @@ export default function SongPage() {
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content={metaImage} />
       </Helmet>
-      <PageLayout>
+      <PageLayout showBackToHome={false}>
         <div
           className="-z-10 fixed inset-0 bg-cover bg-top-left blur-[20px] brightness-30"
           style={{ backgroundImage: `url(${endpoints.maichart.image(param!)})` }}
