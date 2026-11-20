@@ -14,7 +14,7 @@ vi.mock('@/components', async () => ({
   PageLayout: ({ children }: { children: ReactNode }) => children,
   Tooltip: ({ children }: { children: ReactNode }) => children,
   SongDifficultyLevels: (await import('@/components/song/SongDifficultyLevels')).default,
-  Majdata: () => null,
+  Majdata: ({ level }: { level: string }) => <output data-player-level={level} />,
   CoverPic: () => null, TagManageWidget: () => null, TagManageTagLauncher: () => null,
   CommentSection: () => null, ChartVotePanel: () => null,
   ScoreRanking: () => null, CollectionModal: () => null, LoadingSpinner: () => null,
@@ -101,6 +101,14 @@ describe('radar on the song page', () => {
     await act(async () => Array.from(container.querySelectorAll('button')).find(button => button.textContent === 'Next song')!.click());
     expect(radarRequests().at(-1)?.[0]).toBe('/api3/api/maichart/other/radar?chartLevel=6');
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('6');
+  });
+
+  it('opens the preview on the difficulty selected before loading Unity', async () => {
+    fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
+    await render();
+    await act(async () => difficulty(3).click());
+    await act(async () => container.querySelector<HTMLButtonElement>('button.aspect-square')!.click());
+    expect(container.querySelector('[data-player-level]')?.getAttribute('data-player-level')).toBe('lv3');
   });
 
   it('observes nested clicks while preserving exactly one original playback message per click', async () => {

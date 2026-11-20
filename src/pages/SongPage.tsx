@@ -333,7 +333,9 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
       <div className="lg:items-start gap-5 sm:gap-6 grid grid-cols-1 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] min-w-0">
         <div className="mx-auto lg:mx-0 w-full max-w-[560px] lg:col-start-1 lg:row-start-1 min-w-0">
           {isLoadMajdata ? (
-            <MajdataView id={o.id} data={o} />
+            <div className="relative z-100 w-full">
+              <Majdata songid={o.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + (chartLevel ?? -1)} />
+            </div>
           ) : (
             <button
               className="bg-white/[0.04] hover:bg-white/[0.08] p-2.5 border border-white/10 rounded-2xl w-full aspect-square text-white/80 transition-colors cursor-pointer"
@@ -412,26 +414,6 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
         chartId={o.id}
         songHash={o.hash}
       />
-    </div>
-  );
-}
-
-// ======================== Majdata View ========================
-function MajdataView({ data }: { id: string; data: SongSummary }) {
-  const o = data;
-  const [searchParams] = useSearchParams();
-  // URL 指定的难度优先，否则找到最后一个非空的level，从后往前遍历
-  let firstNonEmptyIndex = parseRequestedLevel(searchParams.get('level'), o.levels) ?? -1;
-  for (let i = o.levels.length - 1; firstNonEmptyIndex < 0 && i >= 0; i--) {
-    if (o.levels[i] !== '' && o.levels[i] !== null) {
-      firstNonEmptyIndex = i;
-      break;
-    }
-  }
-
-  return (
-    <div className="relative z-100 w-full">
-      <Majdata songid={o.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + firstNonEmptyIndex} />
     </div>
   );
 }
