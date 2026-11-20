@@ -117,6 +117,7 @@ export interface ScoreCardProps {
 
 export interface ScoreListProps {
   songid: string;
+  chartLevel?: number;
 }
 
 // ======================== 歌曲列表组件 ========================
