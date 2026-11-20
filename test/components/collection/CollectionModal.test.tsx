@@ -23,7 +23,8 @@ afterEach(async () => {
 const chartId = '0f8fad5b-d9cb-469f-a165-70867728950e';
 const songHash = 'd41d8cd98f00b204e9800998ecf8427e';
 const collectionButton = () =>
-  Array.from(container.querySelectorAll('button')).find((b) => b.textContent?.includes('Favorites'))!;
+  // 弹窗通过 portal 渲染在 body 下
+  Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes('Favorites'))!;
 
 describe('collection modal', () => {
   it('toggles with the chart ID and checks membership by hash', async () => {
