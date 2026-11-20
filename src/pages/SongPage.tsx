@@ -330,21 +330,21 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
       </section>
 
       {/* 主体：左侧播放器和评论，右侧评价信息、雷达和排行榜；手机端按 播放器 → 侧栏 → 评论 排列 */}
-      <div className="lg:items-start gap-5 sm:gap-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] min-w-0">
-        <div className="lg:col-start-1 lg:row-start-1 min-w-0">
+      <div className="lg:items-start gap-5 sm:gap-6 grid grid-cols-1 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] min-w-0">
+        <div className="mx-auto lg:mx-0 w-full max-w-[560px] lg:col-start-1 lg:row-start-1 min-w-0">
           {isLoadMajdata ? (
             <MajdataView id={o.id} data={o} />
           ) : (
             <button
-              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md p-2.5 border border-white/20 rounded-xl w-full aspect-square font-bold text-base transition-all"
+              className="bg-white/[0.04] hover:bg-white/[0.08] p-2.5 border border-white/10 rounded-2xl w-full aspect-square text-white/80 transition-colors cursor-pointer"
               onClick={() => setIsLoadMajdata(true)}
             >
               <span className="inline-flex justify-center items-center gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  height="120px"
+                  height="88px"
                   viewBox="0 -960 960 960"
-                  width="120px"
+                  width="88px"
                   fill="#e3e3e3"
                 >
                   <path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
@@ -354,7 +354,7 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
           )}
         </div>
 
-        <aside className="flex flex-col gap-4 lg:col-start-2 lg:row-span-2 lg:row-start-1 min-w-0">
+        <aside className="items-start gap-4 grid grid-cols-1 xl:grid-cols-2 lg:col-start-2 lg:row-span-2 lg:row-start-1 min-w-0">
           {/* ID/HASH/投票面板 */}
           <div className="relative flex flex-col bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl min-w-0 overflow-hidden transition-all duration-300">
             <div className="gap-y-3 grid grid-cols-[64px_minmax(0,1fr)] sm:grid-cols-[80px_minmax(0,1fr)] text-sm">
@@ -397,7 +397,9 @@ function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: 
             <ChartVotePanel songid={o.id} />
           </div>
           <ChartRadar id={o.id} hash={o.hash} chartLevel={chartLevel} />
-          <ScoreRanking songid={o.id} />
+          <div className="xl:col-span-2 min-w-0">
+            <ScoreRanking songid={o.id} />
+          </div>
         </aside>
 
         <div className="lg:col-start-1 lg:row-start-2 min-w-0">
