@@ -1,11 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LuHouse } from 'react-icons/lu';
 import type { ReactNode } from 'react';
 import { PageLayout, AvatarUploader, IntroUploader } from '@/components';
 import NicknameEditor from '@/components/user/NicknameEditor';
-import { useUserContext } from '@/hooks';
 
 /** 设置分组卡片：标题和说明在上，内容在下 */
 function SettingsCard({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
@@ -36,25 +33,14 @@ function SettingRow({ label, hint, children }: { label: string; hint?: string; c
 
 export default function UserProfilePage() {
   const { t } = useTranslation();
-  const { user } = useUserContext();
 
   return (
     <PageLayout showBackToHome={false}>
       <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-w-0">
-        {/* Header：标题居左，右侧是去个人主页的入口 */}
-        <header className="flex justify-between items-center gap-4 mb-5 sm:mb-6">
+        <header className="mb-5 sm:mb-6">
           <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
             {t("user/profile/ProfilePage.AccountSetting")}
           </h1>
-          {user && (
-            <Link
-              to={`/space?id=${user.username}`}
-              className="inline-flex items-center gap-2 bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/90 text-sm no-underline whitespace-nowrap transition-colors"
-            >
-              <LuHouse aria-hidden="true" className="w-4 h-4" />
-              {t("shared/UserMenu.PersonalHomePage")}
-            </Link>
-          )}
         </header>
 
         <motion.div
