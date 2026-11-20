@@ -111,27 +111,23 @@ export default function SongPage() {
           style={{ backgroundImage: `url(${endpoints.maichart.image(param!)})` }}
         />
 
-        <SongDetailsContainer id={param} data={songData} />
-        <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
-        <ScoreRanking songid={param} />
-        <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mt-10 h-px"></div>
-        <CommentSection chartId={param} uploader={songData.uploader} focusId={focusedComment} />
+        <SongDetailsContainer id={param} data={songData} focusId={focusedComment} />
       </PageLayout>
     </>
   );
 }
 
-function SongDetailsContainer({ id, data }: SongDetailsContainerProps & { data: SongSummary }) {
+function SongDetailsContainer({ id, data, focusId }: SongDetailsContainerProps & { data: SongSummary; focusId?: string }) {
   // Blur only the background, leaving the player's z-index in the page's stacking context.
   return (
       <div className="relative bg-white/12 shadow-[0_20px_50px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.25)] hover:shadow-[0_22px_60px_rgb(0_0_0/0.35),inset_0_1px_0_rgb(255_255_255/0.28)] rounded-xl min-w-0 transition-all before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-xl before:backdrop-saturate-160 before:pointer-events-none before:content-['']">
-      <SongInfo id={id} data={data} />
+      <SongInfo id={id} data={data} focusId={focusId} />
     </div>
   );
 }
 
 
-function SongInfo({ data }: { id: string; data: SongSummary }) {
+function SongInfo({ data, focusId }: { id: string; data: SongSummary; focusId?: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   // 站内跳转到首页搜索：关键词放在 URL 里，不再整页刷新
@@ -169,22 +165,17 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
   };
 
   return (
-    <div className="bg-transparent p-6">
-        <section className="gap-5 sm:gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] mb-8 sm:mb-10 min-w-0">
-        <div className="flex justify-center items-start">
+    <div className="bg-transparent p-4 sm:p-6">
+      {/* Hero：封面在左，标题、上传者、标签、难度和操作按钮在右 */}
+      <section className="flex md:flex-row flex-col items-center md:items-start gap-5 md:gap-8 mb-6 sm:mb-8 min-w-0">
+        <div className="shrink-0">
           <div className="shadow-[0_25px_50px_rgb(0_0_0/0.45)] w-48 md:w-64 h-48 md:h-64 hover:scale-105 transition-transform duration-300">
-            <CoverPic id={o.id} />
-          </div>
+                      <CoverPic id={o.id} />
+                    </div>
         </div>
 
-        <div className="flex flex-col justify-between gap-3">
-          <div
-            style={{
-              marginTop: '20px',
-              lineHeight: '5.5',
-              textAlign: 'center',
-            }}
-          >
+        <div className="flex flex-col gap-4 w-full min-w-0">
+          <div className="min-w-0">
             <Tooltip content={t("song/SongPage.SearchForTitle") || '点击搜索该歌曲'}>
               <h1
                 className="inline-block hover:shadow-lg hover:text-shadow drop-shadow-md px-5 py-2.5 rounded-lg font-black hover:text-white text-4xl md:text-5xl text-center tracking-tight transition-all hover:-translate-y-0.5 duration-300 cursor-pointer hover:transform"
@@ -211,21 +202,7 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
             </Tooltip>
           </div>
 
-          <div className="song-radar-difficulties flex flex-col items-start gap-3" data-radar-level={chartLevel} onClickCapture={handleDifficultyClick}>
-            <h3 className="m-0 font-bold text-white text-sm uppercase tracking-[0.05em]">All Difficulties</h3>
-            <SongDifficultyLevels
-              levels={o.levels}
-              songid={o.id}
-              isPlayer={true}
-            />
-          </div>
-        </div>
-      </section>
-
-        <div className="lg:items-start gap-5 sm:gap-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] min-w-0">
-        <aside className="flex flex-col gap-4">
-          {/* 移动端：设计师和标签水平排列 */}
-          <div className="flex md:flex-row flex-col lg:flex-col gap-4 md:gap-4 lg:gap-4">
+          <div className="flex md:flex-row flex-col md:items-start gap-3 min-w-0">
             <Tooltip content={o.uploader + '@' + o.designer}>
               <Link to={'/space?id=' + o.uploader} className="inline-flex flex-1 items-center gap-3.5 bg-white/10 hover:bg-white/15 shadow-[0_4px_12px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.1)] hover:shadow-[0_6px_16px_rgb(0_0_0/0.3),inset_0_1px_0_rgb(255_255_255/0.15)] backdrop-blur-lg px-3 py-1.5 border border-white/20 hover:border-white/30 rounded-xl text-white/85 hover:text-white no-underline transition-all hover:-translate-y-0.5 duration-300">
                 <UserAvatar
@@ -238,7 +215,6 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 </div>
               </Link>
             </Tooltip>
-
             <div className="flex-1 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl min-w-0 transition-all duration-300">
               <h3 className="mb-3 font-bold text-white text-sm uppercase tracking-wider">
                 {t("song/SongPage.Tags") || '标签'}
@@ -280,6 +256,15 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
                 />
               </div>
             </div>
+          </div>
+
+          <div className="song-radar-difficulties flex flex-col items-start gap-3" data-radar-level={chartLevel} onClickCapture={handleDifficultyClick}>
+            <h3 className="m-0 font-bold text-white text-sm uppercase tracking-[0.05em]">All Difficulties</h3>
+            <SongDifficultyLevels
+              levels={o.levels}
+              songid={o.id}
+              isPlayer={true}
+            />
           </div>
 
           <div className="flex flex-col gap-2 bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl transition-all duration-300">
@@ -341,7 +326,35 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
               <TagManageWidget ref={tagButtonRef} songid={o.id} />
             </div>
           </div>
+        </div>
+      </section>
 
+      {/* 主体：左侧播放器和评论，右侧评价信息、雷达和排行榜；手机端按 播放器 → 侧栏 → 评论 排列 */}
+      <div className="lg:items-start gap-5 sm:gap-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] min-w-0">
+        <div className="lg:col-start-1 lg:row-start-1 min-w-0">
+          {isLoadMajdata ? (
+            <MajdataView id={o.id} data={o} />
+          ) : (
+            <button
+              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md p-2.5 border border-white/20 rounded-xl w-full aspect-square font-bold text-base transition-all"
+              onClick={() => setIsLoadMajdata(true)}
+            >
+              <span className="inline-flex justify-center items-center gap-2 w-full">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="120px"
+                  viewBox="0 -960 960 960"
+                  width="120px"
+                  fill="#e3e3e3"
+                >
+                  <path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                </svg>
+              </span>
+            </button>
+          )}
+        </div>
+
+        <aside className="flex flex-col gap-4 lg:col-start-2 lg:row-span-2 lg:row-start-1 min-w-0">
           {/* ID/HASH/投票面板 */}
           <div className="relative flex flex-col bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2),0_2px_8px_rgb(0_0_0/0.1)] backdrop-blur-[10px] p-4 sm:p-5 border border-white/10 rounded-2xl min-w-0 overflow-hidden transition-all duration-300">
             <div className="gap-y-3 grid grid-cols-[64px_minmax(0,1fr)] sm:grid-cols-[80px_minmax(0,1fr)] text-sm">
@@ -384,30 +397,12 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
             <ChartVotePanel songid={o.id} />
           </div>
           <ChartRadar id={o.id} hash={o.hash} chartLevel={chartLevel} />
+          <ScoreRanking songid={o.id} />
         </aside>
 
-        <main className="flex flex-col gap-8">
-          {isLoadMajdata ? (
-            <MajdataView id={o.id} data={o} />
-          ) : (
-            <button
-              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md p-2.5 border border-white/20 rounded-xl w-full aspect-square font-bold text-base transition-all"
-              onClick={() => setIsLoadMajdata(true)}
-            >
-              <span className="inline-flex justify-center items-center gap-2 w-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="120px"
-                  viewBox="0 -960 960 960"
-                  width="120px"
-                  fill="#e3e3e3"
-                >
-                  <path d="m380-300 280-180-280-180v360ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
-                </svg>
-              </span>
-            </button>
-          )}
-        </main>
+        <div className="lg:col-start-1 lg:row-start-2 min-w-0">
+          <CommentSection chartId={o.id} uploader={o.uploader} focusId={focusId} />
+        </div>
       </div>
       <CollectionModal
         isOpen={isCollectionModalOpen}
