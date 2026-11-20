@@ -11,7 +11,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
-import { LuArrowDownUp, LuCheck, LuChevronDown, LuMic, LuMusic, LuPencilLine, LuSearch, LuTag, LuUser, LuX } from 'react-icons/lu';
+import { LuArrowDownUp, LuCheck, LuChevronDown, LuMic, LuMusic, LuPencilLine, LuSearch, LuShuffle, LuSparkles, LuTag, LuUser, LuX } from 'react-icons/lu';
 import { buildSuggestions, SEARCH_OPERATORS, type SuggestionKind, type SuggestionSource } from '@/utils/searchSuggestions';
 import Dropdown from '@/components/header/Dropdown';
 
@@ -652,7 +652,7 @@ type HomeTab = 'all' | 'recommend';
 
 function MainComp() {
   const { t } = useTranslation();
-  const { user } = useUserContext();
+  const { user, isLoading: isUserLoading } = useUserContext();
   const [searchParams, setSearchParams] = useSearchParams();
   // tab、推荐页码、搜索词、排序、页码全部放在 URL 里：链接可分享，浏览器回退即可还原
   const activeTab: HomeTab = searchParams.get('tab') === 'recommend' ? 'recommend' : 'all';
@@ -736,6 +736,26 @@ function MainComp() {
             onSortChange={onSortChange}
           />
         )}
+        {/* 随机推荐（未登录）：登录提示和换一批放在搜索框原来的位置 */}
+        {activeTab === 'recommend' && !user && !isUserLoading && (
+          <div className="flex flex-1 justify-between items-center gap-2 min-w-0">
+            <Link
+              to="/login"
+              className="flex items-center gap-2 px-1 min-w-0 text-white/60 hover:text-white text-sm no-underline transition-colors"
+            >
+              <LuSparkles aria-hidden="true" className="w-4 h-4 text-blue-300 shrink-0" />
+              <span className="truncate">{t("home/HomePage.LoginForRecommend")}</span>
+            </Link>
+            <button
+              type="button"
+              className="flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] px-3.5 border border-white/10 hover:border-white/20 rounded-xl h-11 font-medium text-white text-sm whitespace-nowrap transition-colors cursor-pointer shrink-0"
+              onClick={refreshRandomBatch}
+            >
+              <LuShuffle aria-hidden="true" className="w-4 h-4 text-white/60" />
+              {t("home/HomePage.RefreshBatch")}
+            </button>
+          </div>
+        )}
       </div>
 
       {activeTab === 'all' ? (
@@ -758,7 +778,6 @@ function MainComp() {
           page={recommendPage}
           onPageChange={(target) => navigateHome('recommend', clampRecommendPage(target))}
           randomSeed={randomSeed}
-          onRefreshRandom={refreshRandomBatch}
         />
       )}
     </>
@@ -830,13 +849,11 @@ function Pager({ page, hasNext, onPageChange }: {
 }
 
 // 登录用户看个人推荐；未登录或会话失效时回落到随机推荐
-function RecommendTab({ page, onPageChange, randomSeed, onRefreshRandom }: {
+function RecommendTab({ page, onPageChange, randomSeed }: {
   page: number;
   onPageChange: (page: number) => void;
   randomSeed: number;
-  onRefreshRandom: () => void;
 }) {
-  const { t } = useTranslation();
   const { user, isLoading } = useUserContext();
 
   if (isLoading) {
@@ -853,18 +870,6 @@ function RecommendTab({ page, onPageChange, randomSeed, onRefreshRandom }: {
 
   return (
     <>
-      <div className="flex flex-col items-center gap-4 mx-auto mb-6 px-4 max-w-7xl">
-        <Link to="/login" className="text-white/70 hover:text-white text-sm hover:underline underline-offset-4">
-          {t("home/HomePage.LoginForRecommend")}
-        </Link>
-        <button
-          className="bg-blue-500/80 hover:bg-blue-500 px-6 py-2 border-none rounded-lg font-medium text-white cursor-pointer"
-          onClick={onRefreshRandom}
-        >
-          {t("home/HomePage.RefreshBatch")}
-        </button>
-      </div>
-
       <RandomRecommendList refreshKey={randomSeed} />
 
       <div className="flex justify-center mt-12 px-4">
