@@ -595,8 +595,10 @@
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "个人设置",
+    "Avatar": "头像",
     "AvatarHint": "5MB之内",
-    "AvatarSettings": "头像设置",
+    "BasicInfo": "基本资料",
+    "IntroHint": "支持 Markdown 语法",
     "PersonalIntro": "个人简介"
   },
   "user/scores/ScoresPage": {

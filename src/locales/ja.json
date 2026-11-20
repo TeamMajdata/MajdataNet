@@ -595,8 +595,10 @@
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "個人設定",
+    "Avatar": "アバター",
     "AvatarHint": "5MB以内",
-    "AvatarSettings": "アバター設定",
+    "BasicInfo": "基本情報",
+    "IntroHint": "Markdown 記法に対応",
     "PersonalIntro": "自己紹介"
   },
   "user/scores/ScoresPage": {

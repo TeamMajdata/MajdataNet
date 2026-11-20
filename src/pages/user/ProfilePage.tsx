@@ -1,63 +1,81 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { LuHouse } from 'react-icons/lu';
+import type { ReactNode } from 'react';
 import { PageLayout, AvatarUploader, IntroUploader } from '@/components';
-import { motion, type Variants } from 'framer-motion';
 import NicknameEditor from '@/components/user/NicknameEditor';
+import { useUserContext } from '@/hooks';
 
-// slideInUp 动画变体
-const slideInUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.4, 0, 0.2, 1] as const,
-      delay,
-    },
-  }),
-};
+/** 设置分组卡片：标题和说明在上，内容在下 */
+function SettingsCard({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
+  return (
+    <section className="bg-white/[0.03] p-5 sm:p-6 border border-white/10 rounded-2xl min-w-0">
+      <header className="mb-5">
+        <h2 className="m-0 font-semibold text-white! text-lg! text-left!">{title}</h2>
+        {description && <p className="m-0 mt-1 text-white/50! text-sm">{description}</p>}
+      </header>
+      {children}
+    </section>
+  );
+}
+
+/** 设置项：桌面端标签在左、控件在右，手机端上下排列 */
+function SettingRow({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+  return (
+    <div className="items-start gap-3 sm:gap-6 grid grid-cols-1 sm:grid-cols-[140px_minmax(0,1fr)] py-5 first:pt-0 last:pb-0 border-white/[0.06] border-t first:border-t-0">
+      <div>
+        <div className="font-medium text-white/90 text-sm">{label}</div>
+        {hint && <div className="mt-0.5 text-white/45 text-xs">{hint}</div>}
+      </div>
+      <div className="min-w-0">{children}</div>
+    </div>
+  );
+}
 
 export default function UserProfilePage() {
   const { t } = useTranslation();
+  const { user } = useUserContext();
 
   return (
-    <PageLayout title={t("user/profile/ProfilePage.AccountSetting")} showBackToHome={false}>
-      {/* Profile Settings */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        custom={0.3}
-        variants={slideInUp}
-      >
-        <div className="flex flex-col gap-8 mx-auto my-0 w-full">
-          <div className="bg-white/5 p-5 sm:p-8 border border-white/10 rounded-2xl">
-            <NicknameEditor />
-          </div>
-          {/* Avatar Settings Card */}
-          <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-4 sm:px-6 lg:px-10 py-5 sm:py-7 lg:py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all md:hover:-translate-y-0.5 duration-300">
-            <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
-              <div className="font-semibold text-[#e5e5e5] text-xl">
-                {t("user/profile/ProfilePage.AvatarSettings")} ({t("user/profile/ProfilePage.AvatarHint")})
-              </div>
-            </div>
-            <div className="min-h-37.5">
-              <AvatarUploader />
-            </div>
-          </div>
+    <PageLayout showBackToHome={false}>
+      <div className="mx-auto px-0 sm:px-2 py-5 sm:py-8 w-full max-w-5xl min-w-0">
+        {/* Header：标题居左，右侧是去个人主页的入口 */}
+        <header className="flex justify-between items-center gap-4 mb-5 sm:mb-6">
+          <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+            {t("user/profile/ProfilePage.AccountSetting")}
+          </h1>
+          {user && (
+            <Link
+              to={`/space?id=${user.username}`}
+              className="inline-flex items-center gap-2 bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/90 text-sm no-underline whitespace-nowrap transition-colors"
+            >
+              <LuHouse aria-hidden="true" className="w-4 h-4" />
+              {t("shared/UserMenu.PersonalHomePage")}
+            </Link>
+          )}
+        </header>
 
-          {/* Personal Introduction Card */}
-          <div className="bg-[rgba(30,30,30,0.9)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)] backdrop-blur-[10px] px-4 sm:px-6 lg:px-10 py-5 sm:py-7 lg:py-10 border border-white/10 hover:border-[rgba(59,130,246,0.5)] rounded-2xl min-h-50 transition-all md:hover:-translate-y-0.5 duration-300">
-            <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
-              <div className="font-semibold text-[#e5e5e5] text-xl">
-                {t("user/profile/ProfilePage.PersonalIntro")}
-              </div>
-            </div>
-            <div className="min-h-37.5">
-              <IntroUploader />
-            </div>
-          </div>
-        </div>
-      </motion.div>
+        <motion.div
+          className="flex flex-col gap-5"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+        >
+          <SettingsCard title={t("user/profile/ProfilePage.BasicInfo")}>
+            <SettingRow label={t("user/profile/ProfilePage.Avatar")} hint={t("user/profile/ProfilePage.AvatarHint")}>
+              <AvatarUploader />
+            </SettingRow>
+            <SettingRow label={t("auth/ForginsterPage.Nickname")}>
+              <NicknameEditor />
+            </SettingRow>
+          </SettingsCard>
+
+          <SettingsCard title={t("user/profile/ProfilePage.PersonalIntro")} description={t("user/profile/ProfilePage.IntroHint")}>
+            <IntroUploader />
+          </SettingsCard>
+        </motion.div>
+      </div>
     </PageLayout>
   );
 }

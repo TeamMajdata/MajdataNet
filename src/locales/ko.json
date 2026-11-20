@@ -595,8 +595,10 @@
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "설정",
+    "Avatar": "아바타",
     "AvatarHint": "5MB 이하",
-    "AvatarSettings": "아바타 설정",
+    "BasicInfo": "기본 정보",
+    "IntroHint": "Markdown 문법 지원",
     "PersonalIntro": "자기소개"
   },
   "user/scores/ScoresPage": {

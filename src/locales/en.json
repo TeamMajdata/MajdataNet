@@ -605,8 +605,10 @@
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "Setting",
+    "Avatar": "Avatar",
     "AvatarHint": "Within 5MB",
-    "AvatarSettings": "Avatar Settings",
+    "BasicInfo": "Basic Info",
+    "IntroHint": "Markdown supported",
     "PersonalIntro": "Personal Introduction"
   },
   "user/scores/ScoresPage": {
