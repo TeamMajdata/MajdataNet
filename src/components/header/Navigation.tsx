@@ -13,7 +13,7 @@ import type {
   NavigationLink,
 } from './navigationItems';
 
-const TOP_LEVEL_ITEM = 'relative flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-4 text-sm font-medium tracking-[0.01em] no-underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090b11] xl:min-h-0 xl:w-auto xl:justify-center xl:gap-2 xl:px-2.5 xl:py-2.5 2xl:px-3.5';
+const TOP_LEVEL_ITEM = 'relative flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-4 text-sm font-medium tracking-[0.01em] no-underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090b11] xl:min-h-0 xl:h-9 xl:w-auto xl:justify-center xl:gap-1.5 xl:rounded-lg xl:px-3';
 const TOP_LEVEL_IDLE = 'text-white/72 hover:bg-white/[0.055] hover:text-white';
 const TOP_LEVEL_ACTIVE = 'bg-blue-400/[0.09] text-white';
 const CHILD_ITEM = 'group flex min-h-11 items-center gap-3 rounded-lg px-4 pl-7 text-[0.8125rem] font-medium no-underline transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 xl:min-h-10 xl:px-3.5 xl:text-sm';
