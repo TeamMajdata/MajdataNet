@@ -40,7 +40,7 @@ export default function UserProfilePage() {
 
   return (
     <PageLayout showBackToHome={false}>
-      <div className="mx-auto px-0 sm:px-2 py-5 sm:py-8 w-full max-w-5xl min-w-0">
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-5xl min-w-0">
         {/* Header：标题居左，右侧是去个人主页的入口 */}
         <header className="flex justify-between items-center gap-4 mb-5 sm:mb-6">
           <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">

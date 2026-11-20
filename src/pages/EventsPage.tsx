@@ -64,7 +64,7 @@ export default function EventsPage() {
 
   return (
     <PageLayout className="py-4 sm:py-8 min-h-screen mt-(--content-top-spacing)">
-      <div className="mx-auto my-0 px-0 sm:px-4 max-w-(--container-max-width) min-w-0">
+      <div className="mx-auto my-0 max-w-(--container-max-width) min-w-0">
         <header className="flex sm:flex-row flex-col justify-between sm:items-end gap-4 mb-5 sm:mb-6">
           <div className="min-w-0">
             <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
