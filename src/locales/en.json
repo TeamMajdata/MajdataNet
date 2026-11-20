@@ -630,7 +630,7 @@
     "UploadNoticeTerms6": "Do not use the site as file storage; charts that no editor can read may be removed."
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "No collections yet. Create one, or subscribe to one in Collections.",
+    "EmptyData": "No collections yet. Create one with New Collection.",
     "EmptyFavorites": "No subscriptions yet. Pick one from Collections.",
     "ExitManage": "Exit Manage",
     "GoToHiroba": "Browse Collections",

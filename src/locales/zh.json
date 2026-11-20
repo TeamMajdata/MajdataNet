@@ -620,7 +620,7 @@
     "UploadNoticeTerms6": "不得把本站当作网盘使用，无法被编辑器读取的谱面可能会被直接清理。"
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "还没有收藏夹，新建一个，或者去歌单广场订阅一个吧",
+    "EmptyData": "还没有收藏夹，点「新建收藏夹」创建一个",
     "EmptyFavorites": "还没有订阅的歌单，去歌单广场挑一个吧",
     "ExitManage": "退出管理",
     "GoToHiroba": "去歌单广场看看",

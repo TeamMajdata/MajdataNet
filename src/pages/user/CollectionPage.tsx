@@ -61,7 +61,7 @@ export default function UserCollectionPage() {
     { key: 'mine' as const, label: t("user/collections/CollectionPage.MyCollections") },
     { key: 'favorites' as const, label: t("user/collections/CollectionPage.MyFavCollections") },
   ];
-  // 空列表时引导去歌单广场订阅
+  // 订阅的歌单为空时引导去歌单广场（收藏夹只能自己新建）
   const toHiroba = (
     <Link to="/collection/hiroba" className={GHOST_BUTTON + ' no-underline'}>
       {t("user/collections/CollectionPage.GoToHiroba")}
@@ -109,7 +109,7 @@ export default function UserCollectionPage() {
             {isLoading ? loading : error ? (
               <Placeholder icon={<LuCircleX aria-hidden="true" className="w-12 h-12 text-red-400/60" />} text={t("user/collections/CollectionPage.ServerError")} />
             ) : !data || data.length === 0 ? (
-              <Placeholder icon={emptyIcon} text={t("user/collections/CollectionPage.EmptyData")} action={toHiroba} />
+              <Placeholder icon={emptyIcon} text={t("user/collections/CollectionPage.EmptyData")} />
             ) : (
               <>
                 {/* 列表工具栏：管理按钮属于“我的收藏夹”列表，提示放在旁边 */}
