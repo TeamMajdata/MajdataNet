@@ -98,7 +98,6 @@ export async function downloadSong(props: DownloadSongParams): Promise<void> {
       type: status === 'done' ? 'success' : 'error',
       isLoading: false,
       icon: false,
-      closeButton: true,
       autoClose: status === 'done' ? 3000 : 5000,
     });
   };

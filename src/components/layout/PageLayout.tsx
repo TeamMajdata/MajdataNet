@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { UnifiedHeader } from '@/components';
 import AmbientBackground from './AmbientBackground';
 import FloatingButtons from './FloatingButtons';
+import ToastIcon from '@/components/ui/ToastIcon';
 import type { PageLayoutProps } from '@/types';
 
 
@@ -139,6 +140,8 @@ export default function PageLayout({
         draggable
         pauseOnHover
         theme="dark"
+        icon={ToastIcon}
+        closeButton={false}
       />
     </>
   );

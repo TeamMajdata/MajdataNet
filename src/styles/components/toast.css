@@ -7,24 +7,44 @@
   --toastify-color-dark: rgb(18 20 27);
   --toastify-text-color-dark: rgb(255 255 255 / 88%);
   --toastify-font-family: inherit;
-  --toastify-toast-bd-radius: 14px;
-  --toastify-toast-padding: 12px 14px;
-  --toastify-toast-width: 360px;
+  --toastify-toast-bd-radius: 999px;
+  --toastify-toast-padding: 8px 16px 8px 8px;
+  --toastify-toast-width: auto;
   --toastify-color-success: rgb(52 211 153);
   --toastify-color-error: rgb(248 113 113);
   --toastify-color-info: rgb(96 165 250);
   --toastify-color-warning: rgb(251 191 36);
 }
 
+/* 普通通知：贴合文字宽度的胶囊，居中排在底部 */
 .Toastify .Toastify__toast {
-  border: 1px solid rgb(255 255 255 / 10%);
-  box-shadow: 0 20px 50px rgb(0 0 0 / 45%), 0 1px 0 rgb(255 255 255 / 6%) inset;
-  font-size: 0.875rem;
+  width: fit-content;
+  max-width: min(420px, calc(100vw - 32px));
   min-height: 0;
+  margin-inline: auto;
+  border: 1px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 45%), 0 1px 0 rgb(255 255 255 / 6%) inset;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .Toastify .Toastify__toast-container {
+  align-items: center;
   gap: 8px;
+}
+
+/* 图标是 24px 的浅色底圆点（ToastIcon），默认 20px 的槽位放不下 */
+.Toastify .Toastify__toast-icon {
+  width: auto;
+  margin-inline-end: 10px;
+}
+
+/* 下载通知是带进度和文件状态的卡片，保持固定宽度和圆角 */
+.Toastify .Toastify__toast.download-toast {
+  width: 360px;
+  border-radius: 14px;
+  padding: 12px 14px;
 }
 
 /* 下载通知自带进度条和状态，不需要底部计时条 */
@@ -46,3 +66,4 @@
     transform: translateX(300%);
   }
 }
+
