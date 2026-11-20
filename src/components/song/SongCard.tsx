@@ -64,7 +64,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
             <div className="font-bold text-base truncate leading-snug" id={song.id}>
               {link('/song?id=' + song.id, parseTmpRichText(song.title))}
             </div>
-            <div className="mt-0.5 text-[0.8rem] truncate italic">
+            <div className="mt-0.5 text-[0.8rem] truncate">
               {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}
             </div>
             <div className="mt-0.5 text-[0.8rem] truncate">
