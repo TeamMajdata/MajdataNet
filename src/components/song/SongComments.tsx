@@ -602,7 +602,7 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
       ref={section}
       id="comments"
       aria-labelledby="comments-heading"
-      className="space-y-6 mx-auto my-6 sm:my-8 p-4 sm:p-6 md:p-8 border border-white/10 rounded-2xl w-full md:w-[82%] lg:w-[70%] scroll-mt-24"
+      className="space-y-5 p-4 sm:p-5 border border-white/10 rounded-2xl w-full scroll-mt-24"
       style={{
         background: 'linear-gradient(135deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 5%))',
         backdropFilter: 'blur(10px)',
