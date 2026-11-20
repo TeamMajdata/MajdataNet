@@ -11,6 +11,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
+import { LuArrowDownUp, LuChevronDown, LuSearch, LuX } from 'react-icons/lu';
 
 import { useUserContext } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
@@ -340,9 +341,7 @@ function MobileEventsSwiper() {
 
 function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) {
   const { t } = useTranslation();
-  const [isMobile, setIsMobile] = useState(false);
   const [currentValue, setCurrentValue] = useState(initS);
-
 
   // 与 SORT_WORDS 一一对应
   const sortOptions = [
@@ -354,23 +353,10 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
     t("home/HomePage.UploadDate"),
   ];
 
-  // 检测是否为移动端
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
   // 更新当前值
   useEffect(() => {
     setCurrentValue(initS);
   }, [initS]);
-
-
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -386,7 +372,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
 
   // 提示内容组件
   const hintContent = (
-    <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-4 sm:px-5 py-4 border border-white/20 rounded-2xl w-[min(17.5rem,calc(100vw-1.5rem))] md:w-[320px]">
+    <div className="bg-[rgb(16_18_25/98%)] shadow-[0_12px_40px_rgba(0,0,0,0.5)] px-4 sm:px-5 py-4 border border-white/15 rounded-xl w-[min(17.5rem,calc(100vw-1.5rem))] md:w-[320px]">
       <div className="space-y-2.5 text-left">
         <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintID")}</p>
         <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintHash")}</p>
@@ -397,77 +383,63 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   );
 
   return (
-    <div className="mt-3 md:mt-0 mb-4 px-0 sm:px-4 w-full min-w-0">
-      <div className="relative border border-white/10 rounded-[20px] overflow-visible">
-        <div className="flex flex-row justify-center items-center gap-2 md:gap-6 p-2 sm:p-3 md:p-4 w-full min-w-0">
-          <div className="flex-1 min-w-0">
-            <div className="relative flex items-center w-full">
-              <input
-                type="text"
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-4 md:px-7 py-3 md:py-4 pr-18 md:pr-14 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-base transition-colors"
-                placeholder={initS === '' ? t("home/HomePage.SearchPlaceholder") : initS}
-                value={currentValue}
-                onChange={handleInputChange}
-                aria-label={t("home/HomePage.SearchPlaceholder")}
-              />
-              <AnimatePresence>
-                {currentValue && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.15 }}
-                    className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-7 h-7 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
-                    onClick={handleClearSearch}
-                    aria-label={t("home/HomePage.ClearSearch")}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                    </svg>
-                  </motion.button>
-                )}
-              </AnimatePresence>
-              <Tooltip
-                content={hintContent}
-                side="top"
-                sideOffset={20}
-                plain={true}
-              >
-                <div
-                  className="top-1/2 right-2 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-7 h-7 font-bold text-xs text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer touch-manipulation"
-                  role="button"
-                  aria-label='Search Hint Button'
-                >
-                  ?
-                </div>
-              </Tooltip>
-            </div>
-          </div>
-
-          <div className="shrink-0">
-            <select
-              value={isMobile ? (sortType === undefined ? 'placeholder' : sortType) : sortType}
-              onChange={(e) => {
-                if (e.target.value === 'placeholder') return;
-                const val = parseInt(e.target.value);
-                onSortChange(val);
-              }}
-              className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 md:px-3 py-1 border border-white/20 rounded-full outline-none w-28 sm:w-auto min-w-0 md:min-w-20 h-11 md:h-11.25 overflow-hidden text-white text-center whitespace-nowrap appearance-none cursor-pointer"
-              data-mobile-label={t("home/HomePage.SortBy")}
+    <div className="flex flex-1 gap-2 min-w-0">
+      <div className="relative flex flex-1 items-center min-w-0">
+        <LuSearch aria-hidden="true" className="left-3.5 absolute w-4 h-4 text-white/40 pointer-events-none" />
+        <input
+          type="text"
+          className="bg-white/[0.04] focus:bg-white/[0.06] pr-18 pl-10 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
+          placeholder={initS === '' ? t("home/HomePage.SearchPlaceholder") : initS}
+          value={currentValue}
+          onChange={handleInputChange}
+          aria-label={t("home/HomePage.SearchPlaceholder")}
+        />
+        <AnimatePresence>
+          {currentValue && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.15 }}
+              className="top-1/2 right-10 z-2 absolute flex justify-center items-center hover:bg-white/10 border-none rounded-md w-7 h-7 text-white/50 hover:text-white transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
+              onClick={handleClearSearch}
+              aria-label={t("home/HomePage.ClearSearch")}
             >
-              {isMobile && (
-                <option value="placeholder" disabled>
-                  {t("home/HomePage.SortBy")}
-                </option>
-              )}
-              {sortOptions.map((label, i) => (
-                <option key={i} value={i}>
-                  {label}
-                </option>
-              ))}
-            </select>
+              <LuX aria-hidden="true" className="w-3.5 h-3.5" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+        <Tooltip
+          content={hintContent}
+          side="top"
+          sideOffset={20}
+          plain={true}
+        >
+          <div
+            className="top-1/2 right-2 z-10 absolute flex justify-center items-center hover:bg-white/10 rounded-md w-7 h-7 font-semibold text-white/45 hover:text-white text-xs transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
+            role="button"
+            aria-label='Search Hint Button'
+          >
+            ?
           </div>
-        </div>
+        </Tooltip>
+      </div>
+
+      <div className="relative shrink-0">
+        <LuArrowDownUp aria-hidden="true" className="top-1/2 left-3 absolute w-4 h-4 text-white/45 -translate-y-1/2 pointer-events-none" />
+        <select
+          value={sortType}
+          onChange={(e) => onSortChange(parseInt(e.target.value))}
+          className="bg-white/[0.04] hover:bg-white/[0.07] pr-8 pl-9 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none h-11 text-white text-sm appearance-none transition-colors cursor-pointer"
+          aria-label={t("home/HomePage.SortBy")}
+        >
+          {sortOptions.map((label, i) => (
+            <option key={i} value={i} className="bg-[#14161d]">
+              {label}
+            </option>
+          ))}
+        </select>
+        <LuChevronDown aria-hidden="true" className="top-1/2 right-3 absolute w-3.5 h-3.5 text-white/45 -translate-y-1/2 pointer-events-none" />
       </div>
     </div>
   );
@@ -550,36 +522,36 @@ function MainComp() {
   // 渲染数据
   return (
     <>
-      <div className="flex justify-center px-4 pt-2 pb-3">
-        <div className="inline-flex bg-[rgba(20,20,25,0.7)] p-1 border border-white/10 rounded-full">
-          <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'all' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
-              }`}
-            onClick={() => navigateHome('all')}
-          >
-            {t("home/HomePage.AllCharts")}
-          </button>
-          <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'recommend' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
-              }`}
-            onClick={() => navigateHome('recommend', recommendPage)}
-          >
-            {user
-              ? t("home/HomePage.PersonalRecommend")
-              : t("home/HomePage.RandomRecommend")}
-          </button>
+      {/* 工具栏：与卡片网格同宽，标签切换 + 搜索 + 排序在一行（移动端分两行） */}
+      <div className="flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-3 mx-auto mt-3 md:mt-1 mb-4 sm:mb-5 px-0 sm:px-2 w-full max-w-350 min-w-0">
+        <div className="flex bg-white/[0.04] p-1 border border-white/10 rounded-xl h-11 shrink-0" role="tablist">
+          {(['all', 'recommend'] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab}
+              className={`flex-1 sm:flex-none px-4 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === tab ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
+              onClick={() => (tab === 'all' ? navigateHome('all') : navigateHome('recommend', recommendPage))}
+            >
+              {tab === 'all'
+                ? t("home/HomePage.AllCharts")
+                : user ? t("home/HomePage.PersonalRecommend") : t("home/HomePage.RandomRecommend")}
+            </button>
+          ))}
         </div>
-      </div>
-
-      {activeTab === 'all' ? (
-        <>
+        {activeTab === 'all' && (
           <SearchBar
             onChange={(e) => debounced(e.target.value)}
             initS={search}
             sortType={sortType}
             onSortChange={onSortChange}
           />
+        )}
+      </div>
 
+      {activeTab === 'all' ? (
+        <>
           <SongList
             url={endpoints.maichart.listSearchAndSort(search, SORT_WORDS[sortType], page)}
             page={page}
