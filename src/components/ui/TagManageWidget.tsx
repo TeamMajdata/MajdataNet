@@ -13,7 +13,7 @@ import {
   useState,
 } from 'react';
 import React from 'react';
-import { createPortal } from 'react-dom';
+import Modal from './Modal';
 import { LuPlus, LuX } from 'react-icons/lu';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
@@ -55,17 +55,19 @@ const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
           ref={buttonRef}
           onClick={() => setIsWindowOpen(!isWindowOpen)}
         />
-        {isWindowOpen &&
-          typeof window !== 'undefined' &&
-          createPortal(
-            <TagManageWindow
-              ref={windowRef}
-              onClose={() => setIsWindowOpen(false)}
-              buttonRef={buttonRef}
-              songid={songid}
-            />,
-            document.body
-          )}
+        <Modal
+          open={isWindowOpen}
+          onClose={() => setIsWindowOpen(false)}
+          labelledBy="tag-manage-title"
+          className="flex flex-col max-w-lg max-h-[85vh] overflow-hidden"
+        >
+          <TagManageWindow
+            ref={windowRef}
+            onClose={() => setIsWindowOpen(false)}
+            buttonRef={buttonRef}
+            songid={songid}
+          />
+        </Modal>
       </motion.div>
     );
   }
@@ -159,15 +161,6 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
     /** Tags as last read from or saved to the server: the base of the public-tag PATCH diff. */
     const serverTagsRef = useRef<string[]>([]);
     const [saving, setSaving] = useState(false);
-
-    // Esc 关闭
-    useEffect(() => {
-      const onKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'Escape') onClose();
-      };
-      document.addEventListener('keydown', onKeyDown);
-      return () => document.removeEventListener('keydown', onKeyDown);
-    }, [onClose]);
 
     const fetcher = (url: string) =>
       fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -389,48 +382,40 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
     }
 
     return (
-      <div className="z-[1001] fixed inset-0 flex justify-center items-center p-4" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-        <div
-          ref={ref}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="tag-manage-title"
-          className="relative flex flex-col bg-[rgb(14_16_22/98%)] shadow-[0_24px_64px_rgb(0_0_0/50%)] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden"
-        >
-          <header className="flex justify-between items-center gap-3 px-5 pt-5 pb-3 border-white/[0.07] border-b">
-            <div className="flex items-baseline gap-2 min-w-0">
-              <h2 id="tag-manage-title" className="m-0 font-semibold text-white! text-lg! text-left!">
-                {isInPrivatePage ? t("shared/TagManageWidget.AuthorTags") : t("shared/TagManageWidget.PlayerTags")}
-              </h2>
-              {data !== undefined && <span className="text-white/40 text-xs tabular-nums">{tags.length}/{MAX_CHART_TAGS}</span>}
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label={t("shared/TagManageWidget.Cancel")}
-              className="place-items-center grid hover:bg-white/10 rounded-full w-8 h-8 text-white/50 hover:text-white transition-colors cursor-pointer shrink-0"
-            >
-              <LuX aria-hidden="true" className="w-4 h-4" />
-            </button>
-          </header>
+      // 外框（遮罩、动画、Esc）由 TagManageWidget 里的 Modal 提供
+      <div ref={ref} className="flex flex-col min-h-0" onMouseDown={(e) => e.stopPropagation()}>
+        <header className="flex justify-between items-center gap-3 px-5 pt-5 pb-3 border-white/[0.07] border-b">
+          <div className="flex items-baseline gap-2 min-w-0">
+            <h2 id="tag-manage-title" className="m-0 font-semibold text-white! text-lg! text-left!">
+              {isInPrivatePage ? t("shared/TagManageWidget.AuthorTags") : t("shared/TagManageWidget.PlayerTags")}
+            </h2>
+            {data !== undefined && <span className="text-white/40 text-xs tabular-nums">{tags.length}/{MAX_CHART_TAGS}</span>}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t("shared/TagManageWidget.Cancel")}
+            className="place-items-center grid hover:bg-white/10 rounded-full w-8 h-8 text-white/50 hover:text-white transition-colors cursor-pointer shrink-0"
+          >
+            <LuX aria-hidden="true" className="w-4 h-4" />
+          </button>
+        </header>
 
-          {body}
+        {body}
 
-          <footer className="flex justify-end gap-2 px-5 py-3 border-white/[0.07] border-t">
-            <button type="button" onClick={onClose} className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/85 text-sm transition-colors cursor-pointer">
-              {t("shared/TagManageWidget.Cancel")}
-            </button>
-            <button
-              type="button"
-              onClick={uploadTags}
-              disabled={!changed || saving || data === undefined}
-              className="bg-blue-500 hover:bg-blue-400 disabled:opacity-40 px-5 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
-            >
-              {t("shared/TagManageWidget.Save")}
-            </button>
-          </footer>
-        </div>
+        <footer className="flex justify-end gap-2 px-5 py-3 border-white/[0.07] border-t">
+          <button type="button" onClick={onClose} className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/85 text-sm transition-colors cursor-pointer">
+            {t("shared/TagManageWidget.Cancel")}
+          </button>
+          <button
+            type="button"
+            onClick={uploadTags}
+            disabled={!changed || saving || data === undefined}
+            className="bg-blue-500 hover:bg-blue-400 disabled:opacity-40 px-5 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+          >
+            {t("shared/TagManageWidget.Save")}
+          </button>
+        </footer>
       </div>
     );
   }
