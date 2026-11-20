@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuInfo, LuX } from 'react-icons/lu';
+import { LuTriangleAlert, LuX } from 'react-icons/lu';
 import ChartUploader from './ChartUploader';
 
 const NOTICE_TERMS = [
@@ -52,12 +52,12 @@ export default function ChartUploadDialog({ onClose }: { onClose: () => void }) 
             <ChartUploader />
           ) : (
             <>
-              <div className="bg-blue-400/[0.06] p-4 border border-blue-400/20 rounded-xl">
-                <div className="flex items-center gap-2 mb-2.5 text-blue-200 text-sm">
-                  <LuInfo aria-hidden="true" className="w-4 h-4 shrink-0" />
+              <div className="bg-amber-400/[0.07] p-4 border border-amber-400/25 rounded-xl">
+                <div className="flex items-center gap-2 mb-2.5 text-amber-200 text-sm">
+                  <LuTriangleAlert aria-hidden="true" className="w-4 h-4 shrink-0" />
                   {t("user/charts/ChartsPage.NoticeIntro")}
                 </div>
-                <ol className="space-y-2 m-0 pl-5 text-white/80 text-sm leading-relaxed list-decimal marker:text-blue-300/70">
+                <ol className="space-y-2 m-0 pl-5 text-white/80 text-sm leading-relaxed list-decimal marker:text-amber-300/80">
                   {NOTICE_TERMS.map((key) => <li key={key}>{t(key)}</li>)}
                 </ol>
               </div>
