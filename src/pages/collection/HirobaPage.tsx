@@ -1,9 +1,10 @@
-import { Trans, useTranslation } from 'react-i18next';
-import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageLayout, LoadingSpinner, CollectionCard, Tooltip } from '@/components';
 import { LuInfo, LuSearch, LuX } from 'react-icons/lu';
+import Pager from '@/components/ui/Pager';
 import { endpoints } from '@/config/api';
 import { useDebouncedCallback } from 'use-debounce';
 import type { Collection } from '@/types';
@@ -29,7 +30,6 @@ export default function CollectionsHirobaPage() {
   });
   const isSearching = keyword !== currentValue;
   const pageSize = 30;
-  const pageInputRef = useRef<HTMLInputElement>(null);
 
   const debounced = useDebouncedCallback(
     (value: string) => {
@@ -184,83 +184,8 @@ export default function CollectionsHirobaPage() {
 
         {/* Paginator */}
         {shouldShowPaginator && (
-          <div className="flex flex-col items-center gap-4 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
-            <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-3 sm:p-4 border border-white/10 rounded-xl w-full sm:w-auto">
-              {/* Prev */}
-              <button
-                className={`flex justify-center items-center px-4 py-2.5 bg-blue-500/80 border-none rounded-lg text-white cursor-pointer min-w-10 h-9 transition-colors ${page <= 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-50' : 'hover:bg-blue-500'}`}
-                disabled={page <= 0}
-                onClick={() => goToPage(page - 1)}
-                aria-label={t("collection/hiroba/HirobaPage.PreviousPage")}
-              >
-                <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m15 18-6-6 6-6" />
-                </svg>
-              </button>
-
-              {/* Page input */}
-              <div className="flex items-center gap-2 text-white/60 text-sm">
-                <Trans
-                  i18nKey="collection/hiroba/HirobaPage.PageInput"
-                  components={{
-                    input: (
-                      <input
-                        ref={pageInputRef}
-                        type="number"
-                        value={page}
-                        className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-1.5 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-14 h-9 font-medium text-white text-sm text-center"
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val !== '') {
-                            const num = parseInt(val);
-                            if (!isNaN(num) && num >= 0) {
-                              setPage(num);
-                              localStorage.setItem('lastCollectionPage', num.toString());
-                            }
-                          } else {
-                            setPage(0);
-                            localStorage.setItem('lastCollectionPage', '0');
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            pageInputRef.current?.blur();
-                            goToPage(page);
-                          }
-                        }}
-                        min="0"
-                        step="1"
-                        aria-label={t("collection/hiroba/HirobaPage.Page")}
-                      />
-                    ),
-                  }}
-                />
-              </div>
-
-              {/* Next */}
-              <button
-                className={`flex justify-center items-center px-4 py-2.5 bg-blue-500/80 border-none rounded-lg text-white cursor-pointer min-w-10 h-9 transition-colors ${isLastPage ? 'bg-gray-500/50 cursor-not-allowed opacity-50' : 'hover:bg-blue-500'}`}
-                disabled={!!isLastPage}
-                onClick={() => goToPage(page + 1)}
-                aria-label={t("collection/hiroba/HirobaPage.NextPage")}
-              >
-                <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m9 18 6-6-6-6" />
-                </svg>
-              </button>
-
-              {/* Divider */}
-              <div className="hidden sm:block bg-white/10 mx-1 w-px h-6" />
-
-              {/* Front page */}
-              <button
-                className="bg-white/10 hover:bg-white/20 px-4 py-2 border border-white/20 rounded-lg w-full sm:w-auto h-10 sm:h-9 text-white text-sm transition-colors cursor-pointer"
-                onClick={() => goToPage(0)}
-              >
-                {t("collection/hiroba/HirobaPage.FrontPage")}
-              </button>
-            </div>
+          <div className="flex justify-center mt-8 sm:mt-10">
+            <Pager page={page} hasNext={!isLastPage} onPageChange={goToPage} />
           </div>
         )}
       </div>

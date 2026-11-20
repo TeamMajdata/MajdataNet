@@ -145,12 +145,7 @@
     "ClearSearch": "清空搜索",
     "CollectionsHiroba": "歌单广场",
     "EmptyData": "空的",
-    "FrontPage": "首页",
-    "NextPage": "下一页",
     "NoSearchResults": "未找到相关歌单",
-    "Page": "页码",
-    "PageInput": "第 <input/> 页",
-    "PreviousPage": "上一页",
     "SearchCollectionHint": "按歌单名称或描述搜索",
     "SearchCollectionsPlaceholder": "搜索歌单...",
     "ServerError": "已闭店"
@@ -323,6 +318,13 @@
     "FooterCommunity": "感谢谱面创作者们的支持",
     "FooterCopyright": "© Majdata Net - 开源自制谱分享平台",
     "MiniGame": "小游戏"
+  },
+  "shared/Pager": {
+    "First": "回到第一页",
+    "Next": "下一页",
+    "PageInput": "第 <input/> 页",
+    "PageNumber": "页码",
+    "Previous": "上一页"
   },
   "shared/RecentActivityChart": {
     "LatestPlay": "最近 {{time}}",

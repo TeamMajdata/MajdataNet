@@ -148,12 +148,7 @@
     "ClearSearch": "Clear search",
     "CollectionsHiroba": "Collections",
     "EmptyData": "Empty",
-    "FrontPage": "Back to First Page",
-    "NextPage": "Next",
     "NoSearchResults": "No matching collections found",
-    "Page": "Page number",
-    "PageInput": "Page <input/>",
-    "PreviousPage": "Previous",
     "SearchCollectionHint": "Search by collection name or description",
     "SearchCollectionsPlaceholder": "Search collections...",
     "ServerError": "Server Error"
@@ -327,6 +322,13 @@
     "FooterCommunity": "Thanks to chart creators for their support",
     "FooterCopyright": "© Majdata Net - Open Source Chart Sharing Platform",
     "MiniGame": "Mini Game"
+  },
+  "shared/Pager": {
+    "First": "First page",
+    "Next": "Next",
+    "PageInput": "Page <input/>",
+    "PageNumber": "Page number",
+    "Previous": "Previous"
   },
   "shared/RecentActivityChart": {
     "LatestPlay": "Latest: {{time}}",

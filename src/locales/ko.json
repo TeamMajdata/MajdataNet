@@ -145,12 +145,7 @@
     "ClearSearch": "검색 지우기",
     "CollectionsHiroba": "콜렉션 광장",
     "EmptyData": "비어있음",
-    "FrontPage": "첫 페이지로 돌아가기",
-    "NextPage": "다음",
     "NoSearchResults": "일치하는 콜렉션이 없습니다",
-    "Page": "페이지 번호",
-    "PageInput": "<input/> 페이지",
-    "PreviousPage": "이전",
     "SearchCollectionHint": "콜렉션 이름 또는 설명으로 검색",
     "SearchCollectionsPlaceholder": "콜렉션 검색...",
     "ServerError": "서버 오류"
@@ -323,6 +318,13 @@
     "FooterCommunity": "채보 제작자 여러분의 응원에 감사드립니다",
     "FooterCopyright": "© Majdata Net - 오픈 소스 채보 공유 플랫폼",
     "MiniGame": "미니 게임"
+  },
+  "shared/Pager": {
+    "First": "첫 페이지",
+    "Next": "다음",
+    "PageInput": "<input/> 페이지",
+    "PageNumber": "페이지 번호",
+    "Previous": "이전"
   },
   "shared/RecentActivityChart": {
     "LatestPlay": "최근: {{time}}",

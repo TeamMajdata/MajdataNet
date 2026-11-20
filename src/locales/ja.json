@@ -145,12 +145,7 @@
     "ClearSearch": "検索をクリア",
     "CollectionsHiroba": "コレクション広場",
     "EmptyData": "空です",
-    "FrontPage": "ホームへ",
-    "NextPage": "次へ",
     "NoSearchResults": "該当するコレクションが見つかりません",
-    "Page": "ページ番号",
-    "PageInput": "<input/> ページ",
-    "PreviousPage": "前へ",
     "SearchCollectionHint": "コレクション名や説明で検索",
     "SearchCollectionsPlaceholder": "コレクションを検索...",
     "ServerError": "閉店中"
@@ -323,6 +318,13 @@
     "FooterCommunity": "譜面作成者の皆様に感謝",
     "FooterCopyright": "© Majdata Net - オープンソース譜面共有プラットフォーム",
     "MiniGame": "ミニゲーム"
+  },
+  "shared/Pager": {
+    "First": "最初のページへ",
+    "Next": "次へ",
+    "PageInput": "<input/> ページ",
+    "PageNumber": "ページ番号",
+    "Previous": "前へ"
   },
   "shared/RecentActivityChart": {
     "LatestPlay": "最近：{{time}}",
