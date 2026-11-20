@@ -12,7 +12,7 @@ const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'includ
 
 type CollectionTab = 'mine' | 'favorites';
 
-const GHOST_BUTTON = 'inline-flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] px-4 border border-white/10 hover:border-white/20 rounded-xl h-11 font-medium text-white/85 text-sm whitespace-nowrap transition-colors cursor-pointer';
+const GHOST_BUTTON = 'inline-flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] px-4 border border-white/10 hover:border-white/20 rounded-xl h-9 font-medium text-white/85 text-sm whitespace-nowrap transition-colors cursor-pointer';
 
 /** 加载、出错、空列表时的占位，和歌单广场一致 */
 function Placeholder({ icon, text }: { icon: ReactNode; text: string }) {
@@ -65,56 +65,35 @@ export default function UserCollectionPage() {
   return (
     <PageLayout showBackToHome={false}>
       <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-h-screen min-w-0">
-        {/* Header：标题居左；右侧是收藏夹/订阅切换，以及新建、管理按钮 */}
-        <header className="flex sm:flex-row flex-col justify-between sm:items-center gap-4 mb-5 sm:mb-6">
+        {/* Header：标题居左，新建按钮在右，两个分页都显示 */}
+        <header className="flex justify-between items-center gap-4 mb-5 sm:mb-6">
           <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
             {t("user/collections/CollectionPage.Title")}
           </h1>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <div className="flex bg-white/[0.04] p-1 border border-white/10 rounded-xl h-11 shrink-0" role="tablist">
-              {tabItems.map((tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === tab.key}
-                  className={`px-4 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === tab.key ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
-                  onClick={() => {
-                    setActiveTab(tab.key);
-                    setIsManaging(false);
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-            {activeTab === 'mine' && (
-              <>
-                <button type="button" onClick={() => setIsModalOpen(true)} className="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-400 px-4 border-none rounded-xl h-11 font-semibold text-white text-sm whitespace-nowrap transition-colors cursor-pointer">
-                  <LuPlus aria-hidden="true" className="w-4 h-4" />
-                  {t("user/collections/CollectionPage.NewCollection")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsManaging((prev) => !prev)}
-                  aria-pressed={isManaging}
-                  className={isManaging ? GHOST_BUTTON.replace('text-white/85', 'text-red-300') + ' border-red-400/40! bg-red-500/10!' : GHOST_BUTTON}
-                >
-                  {isManaging ? <LuCheck aria-hidden="true" className="w-4 h-4" /> : <LuSettings2 aria-hidden="true" className="w-4 h-4" />}
-                  {isManaging ? t("user/collections/CollectionPage.ExitManage") : t("user/collections/CollectionPage.Manage")}
-                </button>
-              </>
-            )}
-          </div>
+          <button type="button" onClick={() => setIsModalOpen(true)} className="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-400 px-4 border-none rounded-xl h-11 font-semibold text-white text-sm whitespace-nowrap transition-colors cursor-pointer">
+            <LuPlus aria-hidden="true" className="w-4 h-4" />
+            {t("user/collections/CollectionPage.NewCollection")}
+          </button>
         </header>
 
-        {/* 管理模式提示 */}
-        {activeTab === 'mine' && isManaging && (
-          <div className="flex items-center gap-2 bg-red-500/[0.06] mb-5 px-4 py-2.5 border border-red-400/20 rounded-xl">
-            <LuTriangleAlert aria-hidden="true" className="w-4 h-4 text-red-300 shrink-0" />
-            <span className="text-red-200/80 text-sm">{t("user/collections/CollectionPage.ManageHint")}</span>
-          </div>
-        )}
+        {/* 收藏夹 / 订阅 切换 */}
+        <div className="flex bg-white/[0.04] mb-4 p-1 border border-white/10 rounded-xl w-fit h-11" role="tablist">
+          {tabItems.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab.key}
+              className={`px-4 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === tab.key ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
+              onClick={() => {
+                setActiveTab(tab.key);
+                setIsManaging(false);
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
         {activeTab === 'mine' ? (
           <>
@@ -123,6 +102,25 @@ export default function UserCollectionPage() {
             ) : !data || data.length === 0 ? (
               <Placeholder icon={emptyIcon} text={t("user/collections/CollectionPage.EmptyData")} />
             ) : (
+              <>
+                {/* 列表工具栏：管理按钮属于“我的收藏夹”列表，提示放在旁边 */}
+                <div className="flex justify-end items-center gap-3 mb-4">
+                  {isManaging && (
+                    <span className="flex items-center gap-2 mr-auto min-w-0 text-red-200/80 text-sm">
+                      <LuTriangleAlert aria-hidden="true" className="w-4 h-4 text-red-300 shrink-0" />
+                      {t("user/collections/CollectionPage.ManageHint")}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setIsManaging((prev) => !prev)}
+                    aria-pressed={isManaging}
+                    className={isManaging ? GHOST_BUTTON.replace('text-white/85', 'text-red-300') + ' border-red-400/40! bg-red-500/10!' : GHOST_BUTTON}
+                  >
+                    {isManaging ? <LuCheck aria-hidden="true" className="w-4 h-4" /> : <LuSettings2 aria-hidden="true" className="w-4 h-4" />}
+                    {isManaging ? t("user/collections/CollectionPage.ExitManage") : t("user/collections/CollectionPage.Manage")}
+                  </button>
+                </div>
               <div className="gap-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {data.map((collection) => (
                   <CollectionCard
@@ -133,6 +131,7 @@ export default function UserCollectionPage() {
                   />
                 ))}
               </div>
+              </>
             )}
 
             {data && data.length > 0 && (
@@ -162,7 +161,10 @@ export default function UserCollectionPage() {
         <CollectionModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onCreate={() => mutate()}
+          onCreate={() => {
+            setActiveTab('mine');
+            mutate();
+          }}
           createOnly
         />
       </div>
