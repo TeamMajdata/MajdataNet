@@ -596,13 +596,11 @@
     "EmptyData": "Empty",
     "EmptyFavorites": "No favorites yet",
     "ExitManage": "Exit Manage",
-    "FrontPage": "Back to First Page",
     "Manage": "Manage",
     "ManageHint": "Manage mode: use the button at the top-right of a collection to delete it",
     "MyCollections": "My Collections",
     "MyFavCollections": "My Favorites",
     "NewCollection": "New Collection",
-    "PageInput": "Page <input/>",
     "ServerError": "Server Error",
     "Title": "My Collections"
   },

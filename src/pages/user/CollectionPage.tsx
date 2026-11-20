@@ -1,11 +1,11 @@
-import type { TFunction } from 'i18next';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useState, type ReactNode } from 'react';
 import useSWR from 'swr';
 import { PageLayout, LoadingSpinner, CollectionCard, CollectionModal } from '@/components';
 import { endpoints } from '@/config/api';
 import { useUserContext, useFavorites } from '@/hooks';
 import { LuCheck, LuCircleX, LuFolderOpen, LuPlus, LuSettings2, LuTriangleAlert } from 'react-icons/lu';
+import Pager from '@/components/ui/Pager';
 import type { Collection } from '@/types';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -34,7 +34,6 @@ export default function UserCollectionPage() {
     const stored = localStorage.getItem('lastMyCollectionPage');
     return parseInt(stored || '0');
   });
-  const [favPage, setFavPage] = useState(0);
   const pageSize = 30;
 
   const url = user
@@ -47,9 +46,14 @@ export default function UserCollectionPage() {
 
   const { favorites, isLoadingFavorites: favLoading } = useFavorites();
   const isLastPage = Boolean(data && data.length < pageSize && data.length > 0);
-  const isFavLastPage = Boolean(favorites && favorites.length < pageSize && favorites.length > 0);
 
   if (!user) return null;
+
+  const goToPage = (newPage: number) => {
+    setPage(newPage);
+    localStorage.setItem('lastMyCollectionPage', newPage.toString());
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const tabItems = [
     { key: 'mine' as const, label: t("user/collections/CollectionPage.MyCollections") },
@@ -131,15 +135,10 @@ export default function UserCollectionPage() {
               </div>
             )}
 
-            {/* Paginator - My Collections */}
             {data && data.length > 0 && (
-              <Paginator
-                page={page}
-                setPage={setPage}
-                storageKey="lastMyCollectionPage"
-                isLastPage={isLastPage}
-                t={t}
-              />
+              <div className="flex justify-center mt-8 sm:mt-10">
+                <Pager page={page} hasNext={!isLastPage} onPageChange={goToPage} />
+              </div>
             )}
           </>
         ) : (
@@ -156,17 +155,6 @@ export default function UserCollectionPage() {
                 ))}
               </div>
             )}
-
-            {/* Paginator - Favorites */}
-            {favorites && favorites.length > 0 && (
-              <Paginator
-                page={favPage}
-                setPage={setFavPage}
-                storageKey="lastMyFavoritePage"
-                isLastPage={isFavLastPage}
-                t={t}
-              />
-            )}
           </>
         )}
 
@@ -178,72 +166,5 @@ export default function UserCollectionPage() {
         />
       </div>
     </PageLayout>
-  );
-}
-
-function Paginator({ page, setPage, storageKey, isLastPage, t }: {
-  page: number;
-  setPage: (p: number) => void;
-  storageKey: string;
-  isLastPage: boolean;
-  t: TFunction;
-}) {
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    localStorage.setItem(storageKey, newPage.toString());
-    window.scrollTo(0, 200);
-  };
-
-  return (
-      <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
-        <div className="gap-2 sm:gap-4 grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] sm:flex items-center bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-2.5 sm:p-6 border border-white/10 rounded-xl w-full sm:w-auto max-w-md">
-        <button
-          className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-          disabled={page - 1 < 0}
-          onClick={() => handlePageChange(page - 1)}
-        >
-          &larr;
-        </button>
-
-        <div className="flex justify-center items-center gap-1.5 sm:gap-2 min-w-0 text-[#ccc] text-sm">
-          <Trans
-            i18nKey="user/collections/CollectionPage.PageInput"
-            components={{
-              input: (
-                <input
-                  type="number"
-                  value={page}
-                  className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
-                  onChange={(event) => {
-                    if (event.target.value !== '') {
-                      const newPage = parseInt(event.target.value);
-                      if (newPage >= 0) handlePageChange(newPage);
-                    } else {
-                      handlePageChange(0);
-                    }
-                  }}
-                  min="0"
-                  step="1"
-                />
-              ),
-            }}
-          />
-        </div>
-
-        <button
-          className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${isLastPage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-          disabled={isLastPage}
-          onClick={() => handlePageChange(page + 1)}
-        >
-          &rarr;
-        </button>
-        <button
-          className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer"
-          onClick={() => handlePageChange(0)}
-        >
-          {t("user/collections/CollectionPage.FrontPage")}
-        </button>
-      </div>
-    </div>
   );
 }
