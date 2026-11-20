@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import { FaDiscord, FaGithub, FaQq } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion } from 'framer-motion';
 import { UnifiedHeader } from '@/components';
@@ -8,6 +9,13 @@ import AmbientBackground from './AmbientBackground';
 import FloatingButtons from './FloatingButtons';
 import type { PageLayoutProps } from '@/types';
 
+
+/** 页脚的社区链接 */
+const FOOTER_LINKS = [
+  { href: 'https://github.com/TeamMajdata/MajdataNet', label: 'GitHub', Icon: FaGithub },
+  { href: 'https://discord.gg/AcWgZN7j6K', label: 'Discord', Icon: FaDiscord },
+  { href: 'https://qun.qq.com/universal-share/share?ac=1&authKey=2m%2BXMJ2NrjiomE9CYBVp6ys1K9SjAJ3kl%2B3OCfVEff4ffLj3Z%2BYXJIBXbWJrdGvJ&busi_data=eyJncm91cENvZGUiOiI2Njc2NDQzMzgiLCJ0b2tlbiI6IjV0VTk1STl1Ti9RbmhvR0lHdVdySVVpR09DWFk3Y1JGelY0Qlg2YWFmYkxjYlhWZzZraDFUWTlyNHI5N243cG8iLCJ1aW4iOiIxMzIzMjkxMDk0In0%3D&data=oyLVI6BKjGNDg5-SEEe1Qw_DjQ3EnQSayTWrGQBDgGTxOw0_YffoTI_g4KQ3cJLbkkwkmzUxY3cWDqnRk-NTyw&svctype=4&tempid=h5_group_info', label: 'QQ', Icon: FaQq },
+] as const;
 
 export default function PageLayout({
   children,
@@ -70,89 +78,49 @@ export default function PageLayout({
 
       {/* Footer */}
       {showFooter && (
-        <footer className="bg-linear-to-b from-[rgba(20,20,20,0.3)] to-[rgba(10,10,10,0.3)] backdrop-blur-[10px] mt-12 sm:mt-16 px-4 pt-10 sm:pt-12 pb-[calc(4rem+env(safe-area-inset-bottom))] border-white/10 border-t text-center">
-          {/* Footer Content */}
-          <div className="flex flex-col items-center gap-3 mb-8">
-            {/* Copyright */}
-            <div className="font-semibold text-white/90 text-sm text-center">
+        <footer className="mt-12 sm:mt-16 px-4 sm:px-6 pt-8 pb-[calc(4.5rem+env(safe-area-inset-bottom))] border-white/[0.07] border-t">
+          {/* 居中排版：左下角固定的 Live2D 看板娘不会挡住内容 */}
+          <div className="mx-auto max-w-350">
+            <div className="flex flex-col items-center gap-5">
+              <div className="flex md:flex-row flex-col items-center gap-3 md:text-left text-center">
+                <img className="rounded-lg ring-1 ring-white/15 w-9 h-9" src="/salt.webp" alt="" aria-hidden="true" loading="lazy" />
+                <div>
+                  <div className="font-semibold text-white text-base tracking-tight">
+                    Majdata<span className="text-blue-300">.Net</span>
+                  </div>
+                  <div className="text-white/50 text-sm">{t("shared/PageLayout.FooterCommunity")}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {FOOTER_LINKS.map(({ href, label, Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="place-items-center grid bg-white/[0.04] hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl w-10 h-10 text-white/60 hover:text-white transition-colors"
+                  >
+                    <Icon aria-hidden="true" className="w-[18px] h-[18px]" />
+                  </a>
+                ))}
+                <Link
+                  to="/minigame"
+                  title={t("shared/PageLayout.MiniGame")}
+                  className="group flex items-center gap-2 bg-white/[0.04] hover:bg-white/10 ml-1 pr-3 pl-1 border border-white/10 hover:border-white/20 rounded-xl h-10 text-white/60 hover:text-white text-sm no-underline transition-colors"
+                >
+                  <img className="rounded-lg w-8 h-8 object-cover group-hover:rotate-6 transition-transform" loading="lazy" src="/bee.webp" alt="" aria-hidden="true" />
+                  {t("shared/PageLayout.MiniGame")}
+                </Link>
+              </div>
+            </div>
+
+            <div className="mx-auto mt-6 pt-5 border-white/[0.06] border-t max-w-xl text-white/35 text-xs text-center">
               {t("shared/PageLayout.FooterCopyright")}
             </div>
-
-            {/* Open Source Info */}
-            <div className="text-[0.85rem] text-white/80 text-center">
-              <a
-                href="https://github.com/TeamMajdata/MajdataNet"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400/90 hover:text-blue-400 no-underline transition-all duration-300"
-                style={{
-                  textShadow: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.textShadow = '0 0 8px rgba(59, 130, 246, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.textShadow = 'none';
-                }}
-              >
-                GitHub
-              </a>
-              {' | '}
-              <a
-                href="https://discord.gg/AcWgZN7j6K"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400/90 hover:text-blue-400 no-underline transition-all duration-300"
-                style={{
-                  textShadow: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.textShadow = '0 0 8px rgba(59, 130, 246, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.textShadow = 'none';
-                }}
-              >
-                Discord
-              </a>
-              {' | '}
-              <a
-                href="https://qun.qq.com/universal-share/share?ac=1&authKey=2m%2BXMJ2NrjiomE9CYBVp6ys1K9SjAJ3kl%2B3OCfVEff4ffLj3Z%2BYXJIBXbWJrdGvJ&busi_data=eyJncm91cENvZGUiOiI2Njc2NDQzMzgiLCJ0b2tlbiI6IjV0VTk1STl1Ti9RbmhvR0lHdVdySVVpR09DWFk3Y1JGelY0Qlg2YWFmYkxjYlhWZzZraDFUWTlyNHI5N243cG8iLCJ1aW4iOiIxMzIzMjkxMDk0In0%3D&data=oyLVI6BKjGNDg5-SEEe1Qw_DjQ3EnQSayTWrGQBDgGTxOw0_YffoTI_g4KQ3cJLbkkwkmzUxY3cWDqnRk-NTyw&svctype=4&tempid=h5_group_info"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400/90 hover:text-blue-400 no-underline transition-all duration-300"
-                style={{
-                  textShadow: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.textShadow = '0 0 8px rgba(59, 130, 246, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.textShadow = 'none';
-                }}
-              >
-                QQ
-              </a>
-            </div>
-
-            {/* Community */}
-            <div className="text-white/70 text-xs text-center italic">
-              {t("shared/PageLayout.FooterCommunity")}
-            </div>
           </div>
-
-          {/* Mini Game Link */}
-          <Link
-            to="/minigame"
-            className="group inline-block relative mt-8 hover:rotate-2 hover:scale-110 transition-all duration-300"
-          >
-            <img
-              className="group-hover:shadow-[0_8px_20px_rgba(59,130,246,0.3)] rounded-xl w-30 h-auto transition-all duration-300"
-              loading="lazy"
-              src="/bee.webp"
-              alt={t("shared/PageLayout.MiniGame")}
-            />
-          </Link>
         </footer>
       )}
 
