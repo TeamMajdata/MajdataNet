@@ -12,8 +12,8 @@ describe('chooseDownloadFormat', () => {
   });
 
   afterEach(async () => {
-    // 卸载是推迟到下一个任务的
-    await act(async () => new Promise((resolve) => setTimeout(resolve)));
+    // 弹窗播完关闭动画（约 150ms）后才卸载，等它结束再清理，避免和下一个用例重叠
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 400)));
     document.body.innerHTML = '';
   });
 

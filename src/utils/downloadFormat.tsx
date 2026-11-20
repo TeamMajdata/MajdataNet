@@ -30,15 +30,15 @@ export function chooseDownloadFormat(title: string): Promise<DownloadFormat | nu
 
     const done = (format: DownloadFormat | null) => {
       if (format) saveLastFormat(format);
-      // 在自己的点击事件里同步卸载会报警告，放到下一个任务再卸载
-      setTimeout(() => {
-        root.unmount();
-        host.remove();
-      });
       previousFocus?.focus?.({ preventScroll: true });
       resolve(format);
     };
+    // 关闭动画播完才卸载；放到下一个任务里，避免在 React 自己的回调里同步卸载
+    const closed = () => setTimeout(() => {
+      root.unmount();
+      host.remove();
+    });
 
-    root.render(<DownloadFormatDialog title={title} lastFormat={readLastFormat()} onDone={done} />);
+    root.render(<DownloadFormatDialog title={title} lastFormat={readLastFormat()} onDone={done} onClosed={closed} />);
   });
 }

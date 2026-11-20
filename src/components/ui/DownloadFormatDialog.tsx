@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuFileArchive, LuSmartphone, LuX } from 'react-icons/lu';
+import Modal from './Modal';
 
 export type DownloadFormat = 'zip' | 'adx';
 
@@ -9,34 +10,39 @@ const OPTIONS = [
   { format: 'adx', Icon: LuSmartphone, label: 'ADX', description: 'shared/DownloadFormatDialog.AdxDescription' },
 ] as const;
 
-export default function DownloadFormatDialog({ title, lastFormat, onDone }: {
+/**
+ * 选好（或取消）后立刻通过 onDone 回报结果，弹窗自己播完关闭动画后再调用 onClosed 让外面卸载
+ */
+export default function DownloadFormatDialog({ title, lastFormat, onDone, onClosed }: {
   title: string;
   lastFormat: DownloadFormat | null;
   onDone: (format: DownloadFormat | null) => void;
+  onClosed: () => void;
 }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(true);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const finish = (format: DownloadFormat | null) => {
+    if (!open) return;
+    setOpen(false);
+    onDone(format);
+  };
 
   useEffect(() => {
     // 上次用过的格式获得焦点，直接回车就能沿用
     dialogRef.current?.querySelector<HTMLButtonElement>(`[data-format="${lastFormat ?? 'zip'}"]`)?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onDone(null);
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [lastFormat, onDone]);
+  }, [lastFormat]);
 
   return (
-    <div className="z-[10000] fixed inset-0 flex justify-center items-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => onDone(null)} />
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="download-format-title"
-        className="relative bg-[rgb(14_16_22/98%)] shadow-[0_24px_64px_rgb(0_0_0/50%)] p-5 border border-white/10 rounded-2xl w-full max-w-sm"
-      >
+    <Modal
+      open={open}
+      onClose={() => finish(null)}
+      onExitComplete={onClosed}
+      labelledBy="download-format-title"
+      zIndexClass="z-[10000]"
+      className="p-5 max-w-sm"
+    >
+      <div ref={dialogRef}>
         <div className="flex justify-between items-start gap-3 mb-4">
           <div className="min-w-0">
             <h2 id="download-format-title" className="m-0 font-semibold text-white! text-lg! text-left!">
@@ -46,7 +52,7 @@ export default function DownloadFormatDialog({ title, lastFormat, onDone }: {
           </div>
           <button
             type="button"
-            onClick={() => onDone(null)}
+            onClick={() => finish(null)}
             aria-label={t('shared/DownloadFormatDialog.Cancel')}
             className="place-items-center grid hover:bg-white/10 rounded-full w-8 h-8 text-white/50 hover:text-white transition-colors cursor-pointer shrink-0"
           >
@@ -60,7 +66,7 @@ export default function DownloadFormatDialog({ title, lastFormat, onDone }: {
               key={format}
               type="button"
               data-format={format}
-              onClick={() => onDone(format)}
+              onClick={() => finish(format)}
               className="group flex items-center gap-3 bg-white/[0.03] hover:bg-white/[0.07] focus-visible:bg-white/[0.07] p-3 border border-white/10 hover:border-blue-400/50 focus-visible:border-blue-400/60 rounded-xl outline-none w-full text-left transition-colors cursor-pointer"
             >
               <span className="place-items-center grid bg-white/[0.06] rounded-lg w-10 h-10 text-white/70 group-hover:text-blue-300 shrink-0">
@@ -81,6 +87,6 @@ export default function DownloadFormatDialog({ title, lastFormat, onDone }: {
           ))}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
