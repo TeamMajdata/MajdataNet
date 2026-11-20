@@ -24,7 +24,7 @@ export default function UnifiedHeader() {
         <div className="flex flex-1 items-center gap-6 2xl:gap-8 min-w-0">
           {/* Logo Section */}
           <div className="hidden md:flex items-center shrink-0">
-            <Link to="/" className="flex items-center no-underline">
+            <Link to="/" className="flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 no-underline">
               <MajdataLogo />
             </Link>
           </div>
