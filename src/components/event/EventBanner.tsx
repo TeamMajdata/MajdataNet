@@ -9,6 +9,7 @@ import { IoChevronUpOutline } from 'react-icons/io5';
 import EnhancedDescription from './EnhancedDescription';
 import type { EventBannerProps } from '@/types';
 import { getCategoryTranslation, getTimeAgo } from '@/utils/eventsData';
+import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
 
 const EventBanner: React.FC<EventBannerProps> = memo(({ event, containerClassName }) => {
   // Subscribe to language changes for the shared event text formatters.
@@ -23,7 +24,8 @@ const EventBanner: React.FC<EventBannerProps> = memo(({ event, containerClassNam
         {/* 活动背景图片 */}
         <img
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-          src={event.src}
+          src={eventThumbSrc(event.src)}
+          onError={fallbackToOriginal(event.src)}
           alt={event.alt}
           loading="eager"
         />

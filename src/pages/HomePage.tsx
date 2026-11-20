@@ -1,6 +1,7 @@
 import { Trans, useTranslation } from 'react-i18next';
 import { getLocale, useLanguage } from '@/i18n';
 import { getEventHref } from '@/utils/eventLink';
+import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
 import React, { useEffect, useState, useMemo, useCallback, useRef, useId } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -197,7 +198,8 @@ function DesktopEventsSwiper() {
                     <div className="relative w-full h-full overflow-hidden">
                       <img
                         className="block w-full h-full object-cover"
-                        src={event.src}
+                        src={eventThumbSrc(event.src)}
+                        onError={fallbackToOriginal(event.src)}
                         alt={event.alt}
                         loading="lazy"
                       />
@@ -313,7 +315,8 @@ function MobileEventsSwiper() {
                     <div className="relative w-full h-full overflow-hidden">
                       <img
                         className="w-full h-full object-cover"
-                        src={event.src}
+                        src={eventThumbSrc(event.src)}
+                        onError={fallbackToOriginal(event.src)}
                         alt={event.alt}
                         loading="lazy"
                       />

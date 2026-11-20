@@ -8,6 +8,7 @@ import { getSeasonStatus, validateSeasonEvent } from '@/utils/season';
 import { Link } from 'react-router-dom';
 import { IoArrowForwardOutline, IoTrophyOutline } from 'react-icons/io5';
 import type { Event, RankedSeasonEntry } from '@/types/event';
+import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
 import '@/styles/components/user-season-achievements.css';
 
 export default function UserSeasons({ username }: { username: string }) {
@@ -85,8 +86,12 @@ function UserSeasonCard({ event, status, entry }: UserSeasonCardProps) {
 
   return (
     <Link to={`/season?id=${encodeURIComponent(event.id)}`} className={`user-season-card${entry.rank === 1 ? ' user-season-card--first' : ''}`}>
-      <img className="user-season-card__background" src={event.src} alt="" aria-hidden="true" loading="lazy"
-        onError={e => { e.currentTarget.style.visibility = 'hidden'; }} />
+      <img className="user-season-card__background" src={eventThumbSrc(event.src)} alt="" aria-hidden="true" loading="lazy"
+        onError={e => {
+          // 缩略图缺失先退回原图，原图也失败才隐藏
+          if (e.currentTarget.dataset.fallback) e.currentTarget.style.visibility = 'hidden';
+          else fallbackToOriginal(event.src)(e);
+        }} />
       <div className="user-season-card__header">
         <span className={`user-season-card__status user-season-card__status--${status}`}>• {statusText}</span>
         <span className="user-season-card__dates" title={t('season/SeasonPage.TimeZone')}>

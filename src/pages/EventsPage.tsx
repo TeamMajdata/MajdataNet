@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { getEventHref } from '@/utils/eventLink';
+import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
 /**
  * 活动页面 - 从 legacy/src/app/events/page.jsx 迁移
  * 使用 TailwindCSS 重现原样式
@@ -101,7 +102,8 @@ export default function EventsPage() {
               <div className="relative w-full h-full overflow-hidden">
                 <img
                   className="block w-full h-full object-cover hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform"
-                  src={event.src}
+                  src={eventThumbSrc(event.src)}
+                  onError={fallbackToOriginal(event.src)}
                   alt={event.alt}
                   loading="lazy"
                   decoding="async"

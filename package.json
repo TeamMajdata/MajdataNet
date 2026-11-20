@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "preview": "vite preview --host"
+    "preview": "vite preview --host",
+    "events:thumbs": "bash scripts/gen-event-thumbs.sh"
   },
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
