@@ -16,24 +16,11 @@ import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkCenter from '@/utils/remarkCenter';
-import { motion, type Variants } from 'framer-motion';
+import { LuPencil } from 'react-icons/lu';
+import { useUsername } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
 import type { IntroductionData } from '@/types';
 import UserSeasons from '@/components/user/UserSeasons';
-
-// slideInUp 动画变体
-const slideInUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.4, 0, 0.2, 1] as const,
-      delay,
-    },
-  }),
-};
 
 import { apiFetcher as fetcher, apiRequest } from '@/utils/apiClient';
 import type { CommentList } from '@/types';
@@ -62,17 +49,11 @@ export default function SpacePage() {
   }
 
   return (
-    <PageLayout className="pb-8">
-      {/* User Introduction */}
-      <motion.section
-        className="mt-(--content-top-spacing) mb-12"
-        initial="hidden"
-        animate="visible"
-        custom={0.3}
-        variants={slideInUp}
-      >
+    <PageLayout showBackToHome={false}>
+      <div className="mx-auto pt-5 sm:pt-8 w-full max-w-350 min-w-0">
+      <section className="mb-8">
         <Introduction username={username} />
-      </motion.section>
+      </section>
 
       <UserSeasons key={username} username={username} />
 
@@ -115,6 +96,7 @@ export default function SpacePage() {
           <ScoreCount uploader={username} page={0} pageSize={30} />
         </CollapsibleSection>
       )}
+      </div>
     </PageLayout>
   );
 }
@@ -122,6 +104,7 @@ export default function SpacePage() {
 function Introduction({ username }: { username: string }) {
   const { t } = useTranslation();
   const language = useLanguage();
+  const currentUsername = useUsername();
   const { data, error, isLoading } = useSWR<IntroductionData>(
     endpoints.account.profile(username),
     fetcher
@@ -129,9 +112,7 @@ function Introduction({ username }: { username: string }) {
 
   if (error) {
     return (
-      <div className="mx-auto w-full text-5xl text-center">
-        {t("space/SpacePage.ServerError")}
-      </div>
+      <p className="m-0 py-16 text-white/50! text-base text-center">{t("space/SpacePage.ServerError")}</p>
     );
   }
 
@@ -145,59 +126,59 @@ function Introduction({ username }: { username: string }) {
 
   if (!data) {
     return (
-      <div className="mx-auto w-full text-5xl text-center">
-        {t("space/SpacePage.UserNotFound")}
-      </div>
+      <p className="m-0 py-16 text-white/50! text-base text-center">{t("space/SpacePage.UserNotFound")}</p>
     );
   }
 
-  return (
-    <div className="bg-[rgb(30_30_30/90%)] shadow-[0_8px_25px_rgb(0_0_0/30%)] backdrop-blur-xl backdrop-saturate-180 p-4 sm:p-6 md:p-8 border border-white/12 rounded-2xl min-w-0">
-      {/* Profile Header */}
-      <div className="flex md:flex-row flex-col items-center gap-6 md:gap-8 mb-6 sm:mb-8 pb-6 sm:pb-8 border-white/10 border-b md:text-left text-center">
-        {/* Avatar */}
-        <div className="shrink-0">
-          <img
-            className="border-[3px] border-blue-500/50 rounded-full w-30 max-md:w-25 min-w-30 max-md:min-w-25 h-30 max-md:h-25 min-h-30 max-md:min-h-25 object-cover aspect-square"
-            src={endpoints.account.avatar(data.avatarId)}
-            alt={username}
-          />
-        </div>
+  const isSelf = currentUsername !== '' && currentUsername.toLowerCase() === data.username.toLowerCase();
 
-        {/* User Info */}
-        <div className="flex-1">
-          <h1 className="mb-2 font-bold text-[2rem] text-gray-200 max-md:text-2xl">{data.nickname || data.username}</h1>
-          <p className="text-gray-400 text-sm">@{data.username}</p>
-          <p className="m-0 text-gray-400 text-sm sm:text-base md:text-right text-center break-words">
-            {t("space/SpacePage.JoinAt", { date: new Date(data.joinDate).toLocaleString(getLocale(language)) })}
+  return (
+    <div className="bg-white/[0.03] p-5 sm:p-6 border border-white/10 rounded-2xl min-w-0">
+      {/* 资料：头像在左，昵称、用户名和注册时间在右；自己的空间多一个“编辑资料” */}
+      <div className="flex items-center gap-4 sm:gap-5 min-w-0">
+        <img
+          className="border border-white/15 rounded-full w-16 sm:w-20 h-16 sm:h-20 object-cover aspect-square shrink-0"
+          src={endpoints.account.avatar(data.avatarId)}
+          alt={username}
+        />
+        <div className="flex-1 min-w-0">
+          <h1 className="m-0 font-semibold text-white! text-xl! sm:text-2xl! text-left! truncate tracking-tight">{data.nickname || data.username}</h1>
+          <p className="m-0 mt-1 text-white/50! text-sm truncate">
+            @{data.username}
+            <span className="mx-1.5 text-white/25">·</span>
+            {t("space/SpacePage.JoinAt", { date: new Date(data.joinDate).toLocaleDateString(getLocale(language)) })}
           </p>
         </div>
+        {isSelf && (
+          <Link
+            to="/user/profile"
+            className="inline-flex items-center gap-2 bg-white/[0.06] hover:bg-white/10 px-3.5 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/85 text-sm no-underline whitespace-nowrap transition-colors shrink-0"
+          >
+            <LuPencil aria-hidden="true" className="w-4 h-4" />
+            <span className="max-sm:hidden">{t("space/SpacePage.EditProfile")}</span>
+          </Link>
+        )}
       </div>
 
-      {/* Introduction */}
+      {/* 自我介绍 */}
       {data.introduction && (
-        <div className="mt-4">
-          <h3 className="mb-4 font-semibold text-gray-200 text-xl text-center">
-            {t("space/SpacePage.SelfIntro")}
-          </h3>
-          <article className="bg-black/30 p-0 sm:p-2 rounded-xl min-w-0 select-text **:select-text markdown-body">
-            <Markdown
-              remarkPlugins={[remarkGfm, remarkCenter]}
-              components={{
-                ol(props) {
-                  const { ...rest } = props;
-                  return <ol type="1" {...rest} />;
-                },
-                img(props) {
-                  const { ...rest } = props;
-                  return <img style={{ margin: 'auto' }} {...rest} />;
-                },
-              }}
-            >
-              {data.introduction}
-            </Markdown>
-          </article>
-        </div>
+        <article className="bg-transparent! mt-5 p-0! pt-5! border-white/[0.07] border-t min-w-0 text-sm select-text **:select-text markdown-body">
+          <Markdown
+            remarkPlugins={[remarkGfm, remarkCenter]}
+            components={{
+              ol(props) {
+                const { ...rest } = props;
+                return <ol type="1" {...rest} />;
+              },
+              img(props) {
+                const { ...rest } = props;
+                return <img style={{ margin: 'auto' }} {...rest} />;
+              },
+            }}
+          >
+            {data.introduction}
+          </Markdown>
+        </article>
       )}
     </div>
   );
