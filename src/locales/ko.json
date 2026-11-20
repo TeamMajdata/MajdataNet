@@ -159,7 +159,6 @@
     "AllCharts": "모든 채보",
     "ClearSearch": "검색 지우기",
     "CommentCount": "댓글",
-    "DownloadFormat": "다운로드 형식:",
     "EmptyData": "비어있음",
     "EventCreatedAt": "이벤트 생성일: {{date}}",
     "EventsCount_other": "+{{count}}개의 이벤트",

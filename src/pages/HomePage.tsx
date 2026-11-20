@@ -773,9 +773,8 @@ function MainComp() {
             ))}
           />
 
-          <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
+          <div className="flex justify-center mt-8 sm:mt-10">
             <Pager page={page} hasNext={hasNext} onPageChange={goToPage} />
-            <IntegratedDownloadTypeSelector isMobile={true} />
           </div>
         </>
       ) : (
@@ -809,15 +808,7 @@ function RecommendTab({ page, onPageChange, randomSeed }: {
     return <RecommendFeed userKey={user.id ?? user.username} page={page} onPageChange={onPageChange} />;
   }
 
-  return (
-    <>
-      <RandomRecommendList refreshKey={randomSeed} />
-
-      <div className="flex justify-center mt-12 px-4">
-        <IntegratedDownloadTypeSelector isMobile={true} />
-      </div>
-    </>
-  );
+  return <RandomRecommendList refreshKey={randomSeed} />;
 }
 
 // 后端按用户快照分页，有效期内翻页顺序稳定；返回不足一页即为最后一页
@@ -876,9 +867,8 @@ function RecommendFeed({ userKey, page, onPageChange }: {
       {/* 作用域跨翻页保留，同一会话内已上报的谱面不再重复计时 */}
       <ImpressionScope source="feed">{content}</ImpressionScope>
 
-      <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
+      <div className="flex justify-center mt-8 sm:mt-10">
         <Pager page={page} hasNext={hasNext} onPageChange={onPageChange} />
-        <IntegratedDownloadTypeSelector isMobile={true} />
       </div>
     </>
   );
@@ -936,50 +926,6 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
       {randomSongs.map((song, index) => (
         <SongCard key={song.id} song={song} index={index} />
       ))}
-    </div>
-  );
-}
-
-function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
-  const { t } = useTranslation();
-  const [currentType, setCurrentType] = useState(() => {
-    return localStorage.getItem('DownloadType') || 'zip';
-  });
-  const [justChanged, setJustChanged] = useState(false);
-
-  const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newtype = e.target.value;
-    if (newtype === 'placeholder') return;
-    localStorage.setItem('DownloadType', newtype);
-    setCurrentType(newtype);
-
-    setJustChanged(true);
-    setTimeout(() => setJustChanged(false), 2000);
-  };
-
-  return (
-    <div className="flex items-center gap-3">
-      {!isMobile && (
-        <label className={`${justChanged ? 'text-[#22c55e]' : ''}`}>
-          {t("home/HomePage.DownloadFormat")}
-          {justChanged && <span className="ml-2 font-semibold text-[#22c55e] text-sm">✓</span>}
-        </label>
-      )}
-      <select
-        value={isMobile ? currentType || 'placeholder' : currentType}
-        onChange={handleChange}
-        className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
-        data-mobile-label={t("home/HomePage.DownloadFormat")}
-      >
-        {isMobile && (
-          <option value="placeholder" disabled>
-            {t("home/HomePage.DownloadFormat")}
-            {justChanged && ' ✓'}
-          </option>
-        )}
-        <option value="zip">ZIP</option>
-        <option value="adx">ADX</option>
-      </select>
     </div>
   );
 }

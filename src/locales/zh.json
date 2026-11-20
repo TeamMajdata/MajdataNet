@@ -159,7 +159,6 @@
     "AllCharts": "全部谱面",
     "ClearSearch": "清空搜索",
     "CommentCount": "评论",
-    "DownloadFormat": "下载格式：",
     "EmptyData": "空的",
     "EventCreatedAt": "活动创建于 {{date}}",
     "EventsCount_other": "+{{count}} 个活动",
