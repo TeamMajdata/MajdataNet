@@ -37,17 +37,15 @@ export default function UserMenu({ username }: UserMenuProps) {
   return (
     <div className="relative" ref={containerRef}>
       <button
-        className={`flex rounded-[10px] items-center gap-2 md:gap-3 px-2.5 md:px-4 cursor-pointer text-[#e5e5e5] text-sm font-medium h-11 md:h-12 bg-white/5 border border-white/10 backdrop-blur-[10px] touch-manipulation ${
-          isOpen
-            ? 'bg-linear-to-br from-white/15 to-white/10 border-white/30 shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'
-            : 'hover:bg-linear-to-br hover:from-white/15 hover:to-white/10 hover:border-white/30 hover:shadow-[0_8px_25px_rgb(0_0_0/25%),0_1px_0_rgb(255_255_255/10%)_inset]'
+        className={`flex items-center gap-2 p-1 md:pr-3 rounded-full cursor-pointer text-white/85 text-sm font-medium h-10 border touch-manipulation transition-colors duration-150 ${
+          isOpen ? 'bg-white/10 border-white/20' : 'bg-white/[0.04] border-white/10 hover:bg-white/[0.08] hover:border-white/20'
         }`}
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-label={t("shared/UserMenu.UserMenu")}
       >
         <UserAvatar
-          className={`w-7 h-7 md:w-9 md:h-9 rounded-full border-2 object-cover ${isOpen ? 'border-white/60' : 'border-white/30 hover:border-white/60'}`}
+          className={"w-8 h-8 rounded-full object-cover"}
           username={username}
           avatarId={user?.avatarId}
         />
