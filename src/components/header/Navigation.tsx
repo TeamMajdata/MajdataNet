@@ -42,7 +42,7 @@ function ActiveMarker({ active, nested = false }: { active: boolean; nested?: bo
   return (
     <span
       aria-hidden="true"
-      className={`absolute bottom-1.5 left-4 h-px rounded-full bg-blue-300 transition-all duration-200 xl:bottom-0 xl:left-1/2 xl:-translate-x-1/2 ${active ? 'w-5 opacity-100 xl:w-4' : 'w-0 opacity-0'}`}
+      className={`absolute bottom-1.5 left-4 h-0.5 rounded-full bg-blue-400 transition-all duration-200 xl:-bottom-[0.6875rem] xl:left-1/2 xl:-translate-x-1/2 ${active ? 'w-5 opacity-100 xl:w-6' : 'w-0 opacity-0'}`}
     />
   );
 }
