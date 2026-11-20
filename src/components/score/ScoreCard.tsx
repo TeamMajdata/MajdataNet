@@ -132,72 +132,54 @@ export function ScoreCard({
       : 'bg-white/15 text-white/85';
 
   return (
-    <LazyLoad height={165} width={352} offset={300}>
+    <LazyLoad height={144} offset={300}>
       <div
-        className={`
-          relative bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass}
-          ${comboCardClass}
-          m-auto p-[0.8rem] border rounded-[10px] w-full max-w-[20rem] h-40 overflow-hidden
-          transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out
-        `}
+        className={`relative flex gap-3 bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass} ${comboCardClass} p-2.5 border rounded-2xl w-full h-36 overflow-hidden ring-1 ring-transparent hover:ring-white/30 transition-shadow duration-200`}
       >
-        <CoverPic id={score.chartInfo.id} />
-        <div className="ml-[8.9rem]">
-          <div className="mb-1.25 font-bold text-base truncate">
-            <Link to={'/song?id=' + score.chartInfo.id}>
-              {score.chartInfo.title}
-            </Link>
-          </div>
-
-          <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
-            <Link to={'/song?id=' + score.chartInfo.id}>
-              {score.chartInfo.artist === '' || score.chartInfo.artist == null
-                ? '-'
-                : score.chartInfo.artist}
-            </Link>
-          </div>
-
-          <div className="mb-2 text-[0.8rem] truncate">
-            <Link to={'/space?id=' + score.chartInfo.uploader}>
-              <UserAvatar
-                className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
-                username={score.chartInfo.uploader}
-              />
-              {score.chartInfo.designer}
-            </Link>
-          </div>
-
-          <Level
-            level={score.chartLevel.toString()}
-            difficulty={score.chartInfo.levels[score.chartLevel]}
-            songid={score.chartInfo.id}
-            isPlayer={false}
-          />
-
-          <div className="flex flex-wrap items-center gap-1 mt-1">
-            <div
-              className={`float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none ${scoreTextClass}`}
-              title={`DX: ${score.acc.dx.toFixed(4)}`}
+        <div className="relative h-full aspect-square shrink-0">
+          <CoverPic id={score.chartInfo.id} to={'/song?id=' + score.chartInfo.id} zoomable={false} radiusClassName="rounded-lg" />
+          {/* 榜单名次放在封面左上角，不和准确率挤在一行 */}
+          {resolvedRank && (
+            <span
+              className="top-1.5 left-1.5 absolute bg-linear-to-r from-yellow-300 to-amber-500 shadow-[0_2px_8px_rgb(0_0_0/0.4)] px-1.5 py-0.5 rounded font-bold text-[0.7rem] text-black leading-none pointer-events-none"
+              title={resolvedRankTotal ? `#${resolvedRank} / ${resolvedRankTotal}` : `#${resolvedRank}`}
             >
-              {score.acc.dx.toFixed(4)}
-            </div>
+              #{resolvedRank}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-col flex-1 gap-0.5 min-w-0">
+          <Link to={'/song?id=' + score.chartInfo.id} className="font-bold text-white text-base truncate leading-snug no-underline hover:underline underline-offset-2">
+            {score.chartInfo.title}
+          </Link>
+          <Link to={'/song?id=' + score.chartInfo.id} className="text-white/65 text-sm truncate no-underline">
+            {score.chartInfo.artist === '' || score.chartInfo.artist == null ? '-' : score.chartInfo.artist}
+          </Link>
+          <Link to={'/space?id=' + score.chartInfo.uploader} className="flex items-center gap-1.5 min-w-0 text-white/65 hover:text-white text-sm no-underline">
+            <UserAvatar className="rounded-full w-4 h-4 shrink-0" username={score.chartInfo.uploader} />
+            <span className="truncate">{score.chartInfo.designer}</span>
+          </Link>
+
+          <div className="flex items-center gap-1.5 mt-1 min-w-0 overflow-hidden">
+            <Level
+              level={score.chartLevel.toString()}
+              difficulty={score.chartInfo.levels[score.chartLevel]}
+              songid={score.chartInfo.id}
+              isPlayer={false}
+            />
+            <span className={`font-semibold text-[13px] tabular-nums whitespace-nowrap ${scoreTextClass || 'text-white/90'}`} title={`DX: ${score.acc.dx.toFixed(4)}`}>
+              {score.acc.dx.toFixed(4)}%
+            </span>
             {comboStateText && (
-              <span className={`rounded px-1.5 py-0.5 text-[0.65rem] font-bold leading-none ${comboBadgeClass}`}>
+              <span className={`rounded px-1.5 py-0.5 text-[0.65rem] font-bold leading-none shrink-0 ${comboBadgeClass}`}>
                 {comboStateText}
-              </span>
-            )}
-            {resolvedRank && (
-              <span
-                className="bg-linear-to-r from-yellow-300 to-amber-500 shadow-[0_0_12px_rgb(251_191_36/0.35)] px-1.5 py-0.5 rounded font-bold text-[0.65rem] text-black leading-none"
-                title={resolvedRankTotal ? `#${resolvedRank} / ${resolvedRankTotal}` : `#${resolvedRank}`}
-              >
-                #{resolvedRank}
               </span>
             )}
           </div>
 
           {showLikeButton && (
-            <div className="flex flex-wrap gap-1 mt-1">
+            <div className="mt-auto">
               <ChartVoteBadge songid={score.chartInfo.id} />
             </div>
           )}
