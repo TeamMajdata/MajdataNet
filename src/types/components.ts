@@ -15,6 +15,10 @@ export interface CoverPicProps {
   id: string | number;
   /** 可选的显示文本（通常是ID） */
   display?: string;
+  /** 点击封面跳转的地址；设置后不再放大查看 */
+  to?: string;
+  /** 点击放大查看原图，默认开启 */
+  zoomable?: boolean;
 }
 
 export interface EnhancedDescriptionProps {
