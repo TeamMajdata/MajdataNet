@@ -79,17 +79,17 @@ export default function SongDifficultyLevels({
         return (
           <div
             key={index}
-            className={`flex flex-row items-center justify-between gap-3 px-4 py-2 rounded w-40 shrink-0 transition-all duration-200 ease-out min-h-10 ${isPlayer ? 'cursor-pointer hover:translate-x-1 hover:shadow-lg' : ''
+            className={`flex flex-row items-center justify-between gap-3 px-3 rounded-lg min-w-32 h-10 shrink-0 transition-[filter] duration-150 ${isPlayer ? 'cursor-pointer hover:brightness-125' : ''
               }`}
             style={{ background: levelGradients[index] }}
             id={`lv${index}`}
             onClick={levelClickCallback}
             title={`${levelNames[index]} ${level}`}
           >
-            <span className="flex-1 font-semibold text-white text-xs uppercase tracking-wide">
+            <span className="flex-1 font-semibold text-white/90 text-[0.7rem] uppercase tracking-wide">
               {levelNames[index]}
             </span>
-            <span className="min-w-8 font-black text-white text-2xl text-right" style={{ textShadow: '0 2px 8px rgb(0 0 0 / 0.4)' }}>
+            <span className="min-w-7 font-bold text-white text-lg text-right" style={{ textShadow: '0 1px 4px rgb(0 0 0 / 0.35)' }}>
               {renderLevel(level)}
             </span>
           </div>
