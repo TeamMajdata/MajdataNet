@@ -278,23 +278,6 @@ export default function ChartUploader() {
   const cannotUploadByHash = hashLookup.status === 'checking' || hashLookup.status === 'exists' || hashLookup.status === 'loginRequired';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="mx-auto px-4 py-8 w-full max-w-4xl"
-    >
-      <div className="bg-[rgba(20,20,20,0.8)] shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-md p-6 md:p-8 border border-white/10 rounded-xl">
-
-        <div className="flex items-center gap-3 mb-6 pb-4 border-white/10 border-b">
-          <div className="bg-white/5 p-2 rounded-lg">
-            <MdCloudUpload className="text-gray-200 text-2xl" />
-          </div>
-          <h2 className="font-bold text-gray-200 text-xl">
-            {t("user/ChartUploader.Upload") || 'Upload Chart'}
-          </h2>
-        </div>
-
         <form className="flex flex-col gap-6" onSubmit={onSubmit}>
           <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
             {uploadFields.map((field, index) => (
@@ -355,7 +338,5 @@ export default function ChartUploader() {
             )}
           </motion.button>
         </form>
-      </div>
-    </motion.div>
   );
 }

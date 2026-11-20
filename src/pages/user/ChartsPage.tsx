@@ -1,124 +1,76 @@
 import { useTranslation } from 'react-i18next';
+import { LuInfo } from 'react-icons/lu';
 import { PageLayout, ChartUploader, SongList, LoadingSpinner } from '@/components';
 import { apiPagesForView } from '@/components/song/songGrid';
 import { useUserContext } from '@/hooks';
 import { endpoints } from '@/config/api';
-import { motion, type Variants } from 'framer-motion';
 
-// slideInUp 动画变体
-const slideInUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.4, 0, 0.2, 1] as const,
-      delay,
-    },
-  }),
-};
+const NOTICE_TERMS = [
+  'user/charts/ChartsPage.UploadNoticeTerms1',
+  'user/charts/ChartsPage.UploadNoticeTerms2',
+  'user/charts/ChartsPage.UploadNoticeTerms3',
+  'user/charts/ChartsPage.UploadNoticeTerms4',
+] as const;
+
+/** 右栏的谱面网格：比全宽列表少一列 */
+const MANAGE_GRID_CLASS = 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 w-full min-w-0';
 
 export default function UserChartsPage() {
   const { t } = useTranslation();
   const { user, isLoading } = useUserContext();
-  if (isLoading && !user ) {
-      return (
-        <div className="flex justify-center items-center h-screen">
-          <LoadingSpinner size="50px" />
-        </div>
-      );
+  if (isLoading && !user) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingSpinner size="50px" />
+      </div>
+    );
   }
-  
+
   return (
-    <PageLayout title={t("user/charts/ChartsPage.ChartsManagement")} showBackToHome={false}>
-      {/* Upload Section */}
-      <section className="mb-16">
-        <motion.div
-          className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl"
-          initial="hidden"
-          animate="visible"
-          custom={0.3}
-          variants={slideInUp}
-        >
-          <div className="mb-8">
-            <h2 className="m-0 mb-6 font-semibold text-[#e5e5e5] text-[1.8rem] text-center">
+    <PageLayout showBackToHome={false}>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-w-0">
+        <header className="mb-5 sm:mb-6">
+          <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+            {t("user/charts/ChartsPage.ChartsManagement")}
+          </h1>
+        </header>
+
+        {/* 桌面端左边上传、右边我的谱面；手机端上下排列 */}
+        <div className="items-start gap-5 grid grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)]">
+          <section className="lg:top-24 lg:sticky bg-white/[0.03] p-5 border border-white/10 rounded-2xl min-w-0" aria-labelledby="upload-heading">
+            <h2 id="upload-heading" className="m-0 mb-4 font-semibold text-white! text-lg! text-left!">
               {t("user/charts/ChartsPage.UploadChart")}
             </h2>
 
-            {/* Notice Board */}
-            <div className="relative bg-linear-to-br from-[rgba(59,130,246,0.15)] via-[rgba(59,130,246,0.1)] to-[rgba(99,102,241,0.1)] shadow-[0_0_30px_rgba(59,130,246,0.2),inset_0_0_20px_rgba(59,130,246,0.05)] mb-8 p-8 border-[rgba(59,130,246,0.4)] border-2 rounded-2xl overflow-hidden">
-              {/* Decorative corner pins */}
-              <div className="top-3 left-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
-              <div className="top-3 right-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
-              <div className="bottom-3 left-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
-              <div className="right-3 bottom-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
-
-              {/* Header with icon */}
-              <div className="flex justify-center items-center gap-3 mb-6 pb-4 border-[rgba(59,130,246,0.3)] border-b-2">
-                <div className="drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] text-4xl"></div>
-                <h3 className="drop-shadow-[0_2px_8px_rgba(59,130,246,0.4)] m-0 font-bold text-[#60a5fa] text-3xl">
-                  {t("user/charts/ChartsPage.UploadNotice")}
-                </h3>
+            {/* 上传须知 */}
+            <div className="bg-blue-400/[0.06] mb-5 p-3.5 border border-blue-400/20 rounded-xl">
+              <div className="flex items-center gap-2 mb-2 font-medium text-blue-200 text-sm">
+                <LuInfo aria-hidden="true" className="w-4 h-4 shrink-0" />
+                {t("user/charts/ChartsPage.UploadNotice")}
               </div>
-
-              {/* Notice content */}
-              <ol className="space-y-3 m-0 pl-8 text-[#e5e5e5] list-decimal">
-                <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
-                  <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {t("user/charts/ChartsPage.UploadNoticeTerms1")}
-                  </span>
-                </li>
-                <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
-                  <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {t("user/charts/ChartsPage.UploadNoticeTerms2")}
-                  </span>
-                </li>
-                <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
-                  <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {t("user/charts/ChartsPage.UploadNoticeTerms3")}
-                  </span>
-                </li>
-                <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
-                  <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {t("user/charts/ChartsPage.UploadNoticeTerms4")}
-                  </span>
-                </li>
+              <ol className="space-y-1.5 m-0 pl-5 text-white/70 text-xs leading-relaxed list-decimal marker:text-blue-300/70">
+                {NOTICE_TERMS.map((key) => <li key={key}>{t(key)}</li>)}
               </ol>
-
-              {/* Bottom accent line */}
-              <div className="mt-6 pt-4 border-[rgba(59,130,246,0.2)] border-t">
-                <div className="flex justify-center items-center gap-2 opacity-80 text-[#60a5fa] text-sm">
-                  <span className="font-semibold">请仔细阅读以上条款</span>
-                </div>
-              </div>
             </div>
-          </div>
-          <ChartUploader />
-        </motion.div>
-      </section>
 
-      {/* Charts Management Section */}
-      <motion.section
-        className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl"
-        initial="hidden"
-        animate="visible"
-        custom={0.5}
-        variants={slideInUp}
-      >
-        <div className="mb-8 pb-4 border-white/10 border-b text-center">
-          <h2 className="m-0 mb-2 font-semibold text-[#e5e5e5] text-[1.8rem]">
-            {t("user/charts/ChartsPage.MyCharts")}
-          </h2>
-          <p className="m-0 text-[#a0a0a0] text-base">
-            {t("user/charts/ChartsPage.ManageAllYourCharts")}
-          </p>
+            <ChartUploader />
+          </section>
+
+          <section className="min-w-0" aria-labelledby="my-charts-heading">
+            <div className="mb-4">
+              <h2 id="my-charts-heading" className="m-0 font-semibold text-white! text-lg! text-left!">
+                {t("user/charts/ChartsPage.MyCharts")}
+              </h2>
+              <p className="m-0 mt-1 text-white/50! text-sm">{t("user/charts/ChartsPage.ManageAllYourCharts")}</p>
+            </div>
+            <SongList
+              url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + user?.username, '', apiPage))}
+              isManage={true}
+              gridClassName={MANAGE_GRID_CLASS}
+            />
+          </section>
         </div>
-        <SongList
-          url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + user?.username, '', apiPage))}
-          isManage={true}
-        />
-      </motion.section>
+      </div>
     </PageLayout>
   );
 }

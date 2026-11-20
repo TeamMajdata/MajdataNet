@@ -25,7 +25,7 @@ const fetcher = async (key: string): Promise<Song[]> => {
     .filter((song) => !seen.has(song.id) && seen.add(song.id));
 };
 
-export default function SongList({ url, setMax, page, isRanking, isManage, onDataLoaded }: SongListProps) {
+export default function SongList({ url, setMax, page, isRanking, isManage, onDataLoaded, gridClassName }: SongListProps) {
   const { t } = useTranslation();
 
   const urls = Array.isArray(url) ? url : [url];
@@ -56,7 +56,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
   // 整页卡片的计数由一次批量请求提供，卡片不再各自请求
   return (
     <InteractSummaryProvider ids={data.map((song) => song.id)}>
-      <div className={isRanking ? RANKING_GRID_CLASS : SONG_GRID_CLASS}>
+      <div className={gridClassName ?? (isRanking ? RANKING_GRID_CLASS : SONG_GRID_CLASS)}>
         {data.map((song, index) => (
           <SongCard
             key={song.id}
