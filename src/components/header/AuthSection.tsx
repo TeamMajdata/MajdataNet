@@ -19,7 +19,7 @@ export default function AuthSection() {
         <Link to="/login" className="flex items-center hover:bg-white/[0.06] px-3.5 rounded-lg h-9 font-medium text-white/75 hover:text-white text-sm no-underline transition-colors duration-150">
           <span className="text-sm">{t("shared/AuthSection.Login")}</span>
         </Link>
-        <Link to="/register" className="flex items-center gap-2 bg-linear-to-br from-[#10b981] hover:from-[#059669] to-[#059669] hover:to-[#047857] px-4 py-2 md:py-3 border border-transparent rounded-[10px] min-h-10 font-medium text-white text-sm no-underline">
+        <Link to="/register" className="flex items-center bg-blue-500 hover:bg-blue-400 shadow-[0_1px_0_rgb(255_255_255/18%)_inset] px-3.5 rounded-lg h-9 font-medium text-white text-sm no-underline transition-colors duration-150">
           <span className="text-sm">{t("shared/AuthSection.Register")}</span>
         </Link>
       </div>
