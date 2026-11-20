@@ -309,7 +309,8 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
               <AnimatePresence>
                 {creating && (
                   <motion.div
-                    initial={{ height: 0, opacity: 0 }}
+                    // 只新建模式下表单就是全部内容，不再单独展开，否则弹窗会边弹出边被撑高
+                    initial={createOnly ? false : { height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.2 }}
