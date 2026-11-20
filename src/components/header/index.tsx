@@ -36,7 +36,7 @@ export default function UnifiedHeader() {
         {/* 移动端中间Logo */}
         <div className="md:hidden left-1/2 absolute flex items-center h-8 -translate-x-1/2">
           <Link to="/" className="flex items-center">
-            <img className="rounded-[7px] w-8 h-8" src="/salt.webp" alt="Majdata Net" />
+            <img className="rounded-lg ring-1 ring-white/15 w-8 h-8" src="/salt.webp" alt="Majdata Net" />
           </Link>
         </div>
 
