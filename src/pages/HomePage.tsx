@@ -31,7 +31,7 @@ import {
   getCategoryTranslation,
 } from '@/utils/eventsData';
 import type { SearchBarProps, Song } from '@/types';
-import { apiPagesForView, SONG_GRID_CLASS } from '@/components/song/songGrid';
+import { API_PAGES_PER_VIEW, apiPagesForView, SONG_GRID_CLASS } from '@/components/song/songGrid';
 
 // 获取用户时区的次日午夜时间戳 (UTC)
 const getNextMidnightTimestamp = (): number => {
@@ -634,7 +634,9 @@ function SortMenu({ options, value, onChange, label }: {
 }
 
 const RECOMMEND_PAGE_SIZE = 30;
-const RECOMMEND_MAX_PAGE = 100; // 与后端 feed 的 page 上限一致
+const RECOMMEND_API_MAX_PAGE = 100; // 与后端 feed 的 page 上限一致
+// 每屏合并两页（60 条，4 列不缺卡），最后一屏用到接口第 98、99 页
+const RECOMMEND_MAX_PAGE = Math.floor((RECOMMEND_API_MAX_PAGE + 1) / API_PAGES_PER_VIEW) - 1;
 // 随机推荐从全量列表里抽：36 条能被 1/2/3/4 列整除
 const RANDOM_RECOMMEND_COUNT = 36;
 
@@ -892,8 +894,8 @@ function RecommendFeed({ userKey, page, onPageChange }: {
 
   // key 带上用户，切换账号时不会复用上一个人的推荐
   const { data, error, isLoading } = useSWR<Song[], Error, [string, string]>(
-    [endpoints.recommend.feed(page, RECOMMEND_PAGE_SIZE), userKey],
-    ([url]) => apiFetcher<Song[]>(url),
+    [apiPagesForView(page).map((apiPage) => endpoints.recommend.feed(apiPage, RECOMMEND_PAGE_SIZE)).join('\n'), userKey],
+    async ([urls]) => (await Promise.all(urls.split('\n').map((url) => apiFetcher<Song[]>(url)))).flat(),
     {
       revalidateOnFocus: false,
       onError: (err) => {
@@ -903,7 +905,7 @@ function RecommendFeed({ userKey, page, onPageChange }: {
     }
   );
 
-  const hasNext = page < RECOMMEND_MAX_PAGE && data?.length === RECOMMEND_PAGE_SIZE;
+  const hasNext = page < RECOMMEND_MAX_PAGE && data?.length === RECOMMEND_PAGE_SIZE * API_PAGES_PER_VIEW;
 
   let content: React.ReactNode;
   if (error) {
