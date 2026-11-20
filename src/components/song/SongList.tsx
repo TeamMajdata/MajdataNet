@@ -10,6 +10,7 @@ import SongCard from './SongCard';
 import { LoadingSpinner } from '@/components';
 import InteractSummaryProvider from './InteractSummaryProvider';
 import type { Song, SongListProps } from '@/types';
+import { SONG_GRID_CLASS } from './songGrid';
 
 
 const fetcher = (url: string) =>
@@ -45,7 +46,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
   // 整页卡片的计数由一次批量请求提供，卡片不再各自请求
   return (
     <InteractSummaryProvider ids={data.map((song) => song.id)}>
-      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+      <div className={SONG_GRID_CLASS}>
         {data.map((song, index) => (
           <SongCard
             key={song.id}

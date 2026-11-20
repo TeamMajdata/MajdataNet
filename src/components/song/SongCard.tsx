@@ -47,8 +47,8 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
       onClick={handleClick}
       className="flex justify-center w-full min-w-0"
     >
-      <LazyLoad height={165} width={352} offset={300}>
-        <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-full max-w-[20rem] h-40 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
+      <LazyLoad height={165} offset={300}>
+        <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-full h-40 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
           {/* 封面点击进入谱面详情；列表本身接管点击时（onClick/disableLink）只展示 */}
           <CoverPic
             id={song.id}

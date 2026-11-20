@@ -29,6 +29,7 @@ import {
   getCategoryTranslation,
 } from '@/utils/eventsData';
 import type { SearchBarProps, Song } from '@/types';
+import { SONG_GRID_CLASS } from '@/components/song/songGrid';
 
 // 获取用户时区的次日午夜时间戳 (UTC)
 const getNextMidnightTimestamp = (): number => {
@@ -729,7 +730,7 @@ function RecommendFeed({ userKey, page, onPageChange }: {
     );
   } else {
     content = (
-      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+      <div className={SONG_GRID_CLASS}>
         {data.map((song, index) => (
           <SongCard key={song.id} song={song} index={index} />
         ))}
@@ -798,7 +799,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }
 
   return (
-    <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+    <div className={SONG_GRID_CLASS}>
       {randomSongs.map((song, index) => (
         <SongCard key={song.id} song={song} index={index} />
       ))}
