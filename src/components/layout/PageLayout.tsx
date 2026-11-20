@@ -94,7 +94,7 @@ export default function PageLayout({
 
       {/* Footer */}
       {showFooter && (
-        <footer className="mt-12 sm:mt-16 px-4 sm:px-6 pt-8 pb-[calc(1.5rem+env(safe-area-inset-bottom))] border-white/[0.07] border-t">
+        <footer className="mt-8 sm:mt-10 px-4 sm:px-6 pt-8 pb-[calc(1.5rem+env(safe-area-inset-bottom))] border-white/[0.07] border-t">
           {/* 居中排版：左下角固定的 Live2D 看板娘不会挡住内容 */}
           <div className="mx-auto max-w-350">
             <div className="flex flex-col items-center gap-5">
