@@ -603,7 +603,8 @@
     "MyFavCollections": "My Favorites",
     "NewCollection": "New Collection",
     "PageInput": "Page <input/>",
-    "ServerError": "Server Error"
+    "ServerError": "Server Error",
+    "Title": "My Collections"
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "Setting",

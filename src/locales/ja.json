@@ -587,13 +587,14 @@
     "EmptyFavorites": "お気に入りはまだありません",
     "ExitManage": "管理を終了",
     "FrontPage": "ホームへ",
-    "Manage": "管理モード",
+    "Manage": "管理",
     "ManageHint": "管理モード：コレクション右上のボタンで削除できます",
     "MyCollections": "マイコレクション",
     "MyFavCollections": "購読中のコレクション",
     "NewCollection": "新しいコレクション",
     "PageInput": "<input/> ページ",
-    "ServerError": "閉店中"
+    "ServerError": "閉店中",
+    "Title": "マイコレクション"
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "個人設定",

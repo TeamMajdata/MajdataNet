@@ -587,13 +587,14 @@
     "EmptyFavorites": "아직 즐겨찾기가 없습니다",
     "ExitManage": "관리 종료",
     "FrontPage": "첫 페이지로 돌아가기",
-    "Manage": "관리 모드",
+    "Manage": "관리",
     "ManageHint": "관리 모드: 콜렉션 오른쪽 위 버튼으로 삭제할 수 있습니다",
     "MyCollections": "내 컬렉션",
     "MyFavCollections": "구독한 콜렉션",
     "NewCollection": "새 컬렉션",
     "PageInput": "<input/> 페이지",
-    "ServerError": "서버 오류"
+    "ServerError": "서버 오류",
+    "Title": "내 컬렉션"
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "설정",

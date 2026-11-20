@@ -1,32 +1,33 @@
 import type { TFunction } from 'i18next';
 import { Trans, useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import useSWR from 'swr';
 import { PageLayout, LoadingSpinner, CollectionCard, CollectionModal } from '@/components';
 import { endpoints } from '@/config/api';
 import { useUserContext, useFavorites } from '@/hooks';
-import { motion, type Variants } from 'framer-motion';
+import { LuCheck, LuCircleX, LuFolderOpen, LuPlus, LuSettings2, LuTriangleAlert } from 'react-icons/lu';
 import type { Collection } from '@/types';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
-const slideInUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.4, 0, 0.2, 1] as const,
-      delay,
-    },
-  }),
-};
+type CollectionTab = 'mine' | 'favorites';
+
+const GHOST_BUTTON = 'inline-flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] px-4 border border-white/10 hover:border-white/20 rounded-xl h-11 font-medium text-white/85 text-sm whitespace-nowrap transition-colors cursor-pointer';
+
+/** 加载、出错、空列表时的占位，和歌单广场一致 */
+function Placeholder({ icon, text }: { icon: ReactNode; text: string }) {
+  return (
+    <div className="flex flex-col justify-center items-center gap-4 py-20">
+      {icon}
+      <p className="m-0 text-white/40! text-base">{text}</p>
+    </div>
+  );
+}
 
 export default function UserCollectionPage() {
   const { t } = useTranslation();
   const { user } = useUserContext();
-  const [activeTab, setActiveTab] = useState<'mine' | 'favorites'>('mine');
+  const [activeTab, setActiveTab] = useState<CollectionTab>('mine');
   const [isManaging, setIsManaging] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(() => {
@@ -51,85 +52,74 @@ export default function UserCollectionPage() {
   if (!user) return null;
 
   const tabItems = [
-    { key: 'favorites' as const, label: t("user/collections/CollectionPage.MyFavCollections") },
     { key: 'mine' as const, label: t("user/collections/CollectionPage.MyCollections") },
+    { key: 'favorites' as const, label: t("user/collections/CollectionPage.MyFavCollections") },
   ];
+  const emptyIcon = <LuFolderOpen aria-hidden="true" className="w-12 h-12 text-white/20" />;
+  const loading = <div className="flex justify-center items-center py-20 w-full"><LoadingSpinner size="50px" /></div>;
 
   return (
-    <PageLayout>
-      <div className="mx-auto px-4 py-8 w-full max-w-7xl min-h-screen">
-        <motion.div
-          className="flex sm:flex-row flex-col justify-between items-start sm:items-center gap-4 mb-8"
-          initial="hidden"
-          animate="visible"
-          custom={0}
-          variants={slideInUp}
-        >
-          <h1 className="font-bold text-white text-2xl md:text-3xl">
-            {activeTab === 'mine' ? t("user/collections/CollectionPage.MyCollections") : t("user/collections/CollectionPage.MyFavCollections")}
+    <PageLayout showBackToHome={false}>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-h-screen min-w-0">
+        {/* Header：标题居左；右侧是收藏夹/订阅切换，以及新建、管理按钮 */}
+        <header className="flex sm:flex-row flex-col justify-between sm:items-center gap-4 mb-5 sm:mb-6">
+          <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+            {t("user/collections/CollectionPage.Title")}
           </h1>
-          <div className="flex items-center gap-3">
-            {isManaging && (
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-blue-500/80 hover:bg-blue-500 px-4 py-2 border border-blue-500/80 rounded-xl font-medium text-white text-sm transition-all cursor-pointer"
-              >
-                + {t("user/collections/CollectionPage.NewCollection")}
-              </button>
-            )}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="flex bg-white/[0.04] p-1 border border-white/10 rounded-xl h-11 shrink-0" role="tablist">
+              {tabItems.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab.key}
+                  className={`px-4 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === tab.key ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
+                  onClick={() => {
+                    setActiveTab(tab.key);
+                    setIsManaging(false);
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
             {activeTab === 'mine' && (
-              <button
-                onClick={() => setIsManaging((prev) => !prev)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer border ${isManaging
-                  ? 'bg-red-500/80 text-white border-red-500/80'
-                  : 'bg-white/10 text-white/80 border-white/20 hover:bg-white/15'
-                  }`}
-              >
-                {isManaging ? t("user/collections/CollectionPage.ExitManage") : t("user/collections/CollectionPage.Manage")}
-              </button>
+              <>
+                <button type="button" onClick={() => setIsModalOpen(true)} className="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-400 px-4 border-none rounded-xl h-11 font-semibold text-white text-sm whitespace-nowrap transition-colors cursor-pointer">
+                  <LuPlus aria-hidden="true" className="w-4 h-4" />
+                  {t("user/collections/CollectionPage.NewCollection")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsManaging((prev) => !prev)}
+                  aria-pressed={isManaging}
+                  className={isManaging ? GHOST_BUTTON.replace('text-white/85', 'text-red-300') + ' border-red-400/40! bg-red-500/10!' : GHOST_BUTTON}
+                >
+                  {isManaging ? <LuCheck aria-hidden="true" className="w-4 h-4" /> : <LuSettings2 aria-hidden="true" className="w-4 h-4" />}
+                  {isManaging ? t("user/collections/CollectionPage.ExitManage") : t("user/collections/CollectionPage.Manage")}
+                </button>
+              </>
             )}
           </div>
-        </motion.div>
+        </header>
 
-        {/* Tabs */}
-        <div className="flex gap-1 bg-white/5 mb-6 p-1 border border-white/10 rounded-xl">
-          {tabItems.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => {
-                setActiveTab(tab.key);
-                setIsManaging(false);
-              }}
-              className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border-none ${activeTab === tab.key
-                ? 'bg-white/15 text-white shadow-sm'
-                : 'bg-transparent text-white/60 hover:text-white/80 hover:bg-white/5'
-                }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Management mode hint bar */}
+        {/* 管理模式提示 */}
         {activeTab === 'mine' && isManaging && (
-          <div className="flex items-center gap-2 bg-red-500/10 mb-6 px-4 py-2.5 border border-red-500/20 rounded-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-            <span className="text-red-300/80 text-sm">{t("user/collections/CollectionPage.ManageHint")}</span>
+          <div className="flex items-center gap-2 bg-red-500/[0.06] mb-5 px-4 py-2.5 border border-red-400/20 rounded-xl">
+            <LuTriangleAlert aria-hidden="true" className="w-4 h-4 text-red-300 shrink-0" />
+            <span className="text-red-200/80 text-sm">{t("user/collections/CollectionPage.ManageHint")}</span>
           </div>
         )}
 
         {activeTab === 'mine' ? (
           <>
-            {isLoading ? (
-              <div className="flex justify-center items-center py-20 w-full">
-                <LoadingSpinner size="50px" />
-              </div>
-            ) : error ? (
-    <div className="m-auto w-full text-2xl sm:text-[50px] text-white text-center">{t("user/collections/CollectionPage.ServerError")}</div>
+            {isLoading ? loading : error ? (
+              <Placeholder icon={<LuCircleX aria-hidden="true" className="w-12 h-12 text-red-400/60" />} text={t("user/collections/CollectionPage.ServerError")} />
             ) : !data || data.length === 0 ? (
-    <div className="m-auto w-full text-2xl sm:text-[50px] text-white text-center">{t("user/collections/CollectionPage.EmptyData")}</div>
+              <Placeholder icon={emptyIcon} text={t("user/collections/CollectionPage.EmptyData")} />
             ) : (
-              <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              <div className="gap-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {data.map((collection) => (
                   <CollectionCard
                     key={collection.id}
@@ -154,14 +144,10 @@ export default function UserCollectionPage() {
           </>
         ) : (
           <>
-            {favLoading ? (
-              <div className="flex justify-center items-center py-20 w-full">
-                <LoadingSpinner size="50px" />
-              </div>
-            ) : !favorites || favorites.length === 0 ? (
-    <div className="m-auto w-full text-2xl sm:text-[50px] text-white text-center">{t("user/collections/CollectionPage.EmptyFavorites")}</div>
+            {favLoading ? loading : !favorites || favorites.length === 0 ? (
+              <Placeholder icon={emptyIcon} text={t("user/collections/CollectionPage.EmptyFavorites")} />
             ) : (
-              <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              <div className="gap-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {favorites.map((collection) => (
                   <CollectionCard
                     key={collection.id}

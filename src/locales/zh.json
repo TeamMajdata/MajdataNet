@@ -587,13 +587,14 @@
     "EmptyFavorites": "暂无收藏",
     "ExitManage": "退出管理",
     "FrontPage": "首页",
-    "Manage": "管理模式",
+    "Manage": "管理",
     "ManageHint": "管理模式：点击歌单右上角按钮可删除歌单",
     "MyCollections": "我的收藏夹",
     "MyFavCollections": "订阅的歌单",
     "NewCollection": "新建收藏夹",
     "PageInput": "第 <input/> 页",
-    "ServerError": "已闭店"
+    "ServerError": "已闭店",
+    "Title": "我的收藏"
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "个人设置",
