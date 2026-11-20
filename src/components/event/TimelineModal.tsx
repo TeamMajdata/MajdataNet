@@ -7,7 +7,7 @@ import { getEventHref } from '@/utils/eventLink';
  */
 
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import Modal from '@/components/ui/Modal';
 import { getActiveEvents, getAllEvents, getCategoryTranslation, isEventOngoing, isEventUpcoming } from '@/utils/eventsData';
 import { useEventClock } from '@/hooks/useEventClock';
 import type {
@@ -392,145 +392,119 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
     return baseColor;
   };
 
-  // 打开时按 Esc 关闭
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="z-1100 fixed inset-0 flex justify-center items-center bg-black/60 backdrop-blur-sm p-3"
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      zIndexClass="z-1100"
+      labelledBy="timeline-title"
+      className="flex flex-col max-w-225 max-h-[calc(100dvh-1.5rem)] sm:max-h-[88vh] overflow-hidden"
+    >
+      {/* Header */}
+      <div className="flex justify-between items-start gap-4 px-5 sm:px-6 py-4 border-white/[0.07] border-b">
+        <div className="min-w-0">
+          <h2 id="timeline-title" className="flex items-center gap-2 m-0 font-semibold text-white! text-lg! text-left!">
+            <LuCalendarRange aria-hidden="true" className="w-5 h-5 text-blue-300" />
+            {t("chart-events/TimelineModal.EventTimeline")}
+          </h2>
+          {ongoingEvents.length > 0 && timelineData.startDate && timelineData.endDate && (
+            <p className="m-0 mt-1 text-white/50! text-sm tabular-nums">
+              {formatDate(timelineData.startDate)} — {formatDate(timelineData.endDate)}
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          className="place-items-center grid hover:bg-white/10 -mr-1.5 rounded-lg w-9 h-9 text-white/50 hover:text-white transition-colors cursor-pointer shrink-0"
           onClick={onClose}
+          aria-label={t("auth/ForginsterPage.Close")}
         >
-          <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            role="dialog"
-            aria-modal="true"
-            className="flex flex-col bg-[rgb(18_20_27/97%)] shadow-[0_24px_70px_rgb(0_0_0/55%),0_1px_0_rgb(255_255_255/6%)_inset] border border-white/10 rounded-2xl w-225 max-w-full max-h-[calc(100dvh-1.5rem)] sm:max-h-[88vh] overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex justify-between items-start gap-4 px-5 sm:px-6 py-4 border-white/[0.07] border-b">
-              <div className="min-w-0">
-                <h2 className="flex items-center gap-2 m-0 font-semibold text-white! text-lg! text-left!">
-                  <LuCalendarRange aria-hidden="true" className="w-5 h-5 text-blue-300" />
-                  {t("chart-events/TimelineModal.EventTimeline")}
-                </h2>
-                {ongoingEvents.length > 0 && timelineData.startDate && timelineData.endDate && (
-                  <p className="m-0 mt-1 text-white/50! text-sm tabular-nums">
-                    {formatDate(timelineData.startDate)} — {formatDate(timelineData.endDate)}
-                  </p>
-                )}
-              </div>
-              <button
-                type="button"
-                className="place-items-center grid hover:bg-white/10 -mr-1.5 rounded-lg w-9 h-9 text-white/50 hover:text-white transition-colors cursor-pointer shrink-0"
-                onClick={onClose}
-                aria-label={t("auth/ForginsterPage.Close")}
-              >
-                <LuX aria-hidden="true" className="w-4 h-4" />
-              </button>
+          <LuX aria-hidden="true" className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 px-4 sm:px-6 py-4 sm:py-5 overflow-y-auto overscroll-contain">
+        {ongoingEvents.length === 0 ? (
+          <div className="px-4 py-12 text-white/70 text-lg text-center">
+            <p>{t("chart-events/TimelineModal.NoActiveEvents")}</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <span className="flex items-center gap-1.5 bg-emerald-400/10 px-2.5 rounded-lg h-7 text-emerald-200 text-xs">
+                <Trans i18nKey="chart-events/TimelineModal.ActiveEvents" count={ongoingEvents.length} components={{ strong: <strong className="font-semibold text-emerald-100" /> }} />
+              </span>
+              <span className="flex items-center gap-1.5 bg-white/[0.05] px-2.5 rounded-lg h-7 text-white/70 text-xs">
+                <Trans i18nKey="chart-events/TimelineModal.TimeSpan" count={timelineData.totalDays} components={{ strong: <strong className="font-semibold text-white" /> }} />
+              </span>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 px-4 sm:px-6 py-4 sm:py-5 overflow-y-auto overscroll-contain">
-              {ongoingEvents.length === 0 ? (
-                <div className="px-4 py-12 text-white/70 text-lg text-center">
-                  <p>{t("chart-events/TimelineModal.NoActiveEvents")}</p>
+            <div>
+              <div className="relative overflow-hidden">
+                {/* Grid Lines */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {timelineData.timeScale.map((tick, index) => (
+                    <div
+                      key={index}
+                      className={`absolute top-0 bottom-0 ${tick.isMonth ? 'w-px bg-white/15' :
+                        tick.isWeek ? 'w-px bg-white/8' :
+                          'w-px bg-white/3'
+                        }`}
+                      style={{ left: `${tick.position}%` }}
+                    />
+                  ))}
                 </div>
-              ) : (
-                <>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="flex items-center gap-1.5 bg-emerald-400/10 px-2.5 rounded-lg h-7 text-emerald-200 text-xs">
-                      <Trans i18nKey="chart-events/TimelineModal.ActiveEvents" count={ongoingEvents.length} components={{ strong: <strong className="font-semibold text-emerald-100" /> }} />
-                    </span>
-                    <span className="flex items-center gap-1.5 bg-white/[0.05] px-2.5 rounded-lg h-7 text-white/70 text-xs">
-                      <Trans i18nKey="chart-events/TimelineModal.TimeSpan" count={timelineData.totalDays} components={{ strong: <strong className="font-semibold text-white" /> }} />
-                    </span>
-                  </div>
 
-                  <div>
-                    <div className="relative overflow-hidden">
-                      {/* Grid Lines */}
-                      <div className="absolute inset-0 pointer-events-none">
-                        {timelineData.timeScale.map((tick, index) => (
-                          <div
-                            key={index}
-                            className={`absolute top-0 bottom-0 ${tick.isMonth ? 'w-px bg-white/15' :
-                              tick.isWeek ? 'w-px bg-white/8' :
-                                'w-px bg-white/3'
-                              }`}
-                            style={{ left: `${tick.position}%` }}
-                          />
-                        ))}
+                {/* Events */}
+                <div className="flex flex-col gap-1 py-1 text-left">
+                  {timelineData.events.map((event) => (
+                    <div key={event.id} className="flex sm:flex-row flex-col items-stretch sm:items-center gap-2 sm:gap-4 hover:bg-white/[0.03] px-2 py-2.5 sm:py-2 rounded-lg transition-colors">
+                      <div className="flex-auto sm:flex-[0_0_180px] min-w-0 text-left">
+                        <div className="mb-0.5 overflow-hidden font-medium text-[0.85rem] text-white text-ellipsis leading-tight whitespace-nowrap">
+                          {event.title}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.7rem]">
+                          <span
+                            className="font-medium"
+                            style={{ color: getEventColor(event) }}
+                          >
+                            {getCategoryTranslation(event.category)}
+                          </span>
+                          <span className="text-white/45 tabular-nums">
+                            {formatCompactDate(new Date(event.createDate))} - {formatCompactDate(new Date(event.endDate))}
+                          </span>
+                        </div>
                       </div>
-
-                      {/* Events */}
-                      <div className="flex flex-col gap-1 py-1 text-left">
-                        {timelineData.events.map((event) => (
-                          <div key={event.id} className="flex sm:flex-row flex-col items-stretch sm:items-center gap-2 sm:gap-4 hover:bg-white/[0.03] px-2 py-2.5 sm:py-2 rounded-lg transition-colors">
-                            <div className="flex-auto sm:flex-[0_0_180px] min-w-0 text-left">
-                              <div className="mb-0.5 overflow-hidden font-medium text-[0.85rem] text-white text-ellipsis leading-tight whitespace-nowrap">
-                                {event.title}
-                              </div>
-                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.7rem]">
-                                <span
-                                  className="font-medium"
-                                  style={{ color: getEventColor(event) }}
-                                >
-                                  {getCategoryTranslation(event.category)}
-                                </span>
-                                <span className="text-white/45 tabular-nums">
-                                  {formatCompactDate(new Date(event.createDate))} - {formatCompactDate(new Date(event.endDate))}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="relative flex-none sm:flex-1 bg-white/[0.04] rounded-md w-full h-6">
-                              <Link
-                                to={getEventHref(event)}
-                                className="block top-0 hover:z-10 absolute hover:brightness-125 rounded-md min-w-1.5 h-full overflow-hidden no-underline transition-[filter] cursor-pointer"
-                                style={{
-                                  left: `${event.startOffset}%`,
-                                  width: `${event.width}%`,
-                                  backgroundColor: getEventColor(event),
-                                }}
-                                title={`${event.title}\n${formatCompactDate(new Date(event.createDate))} - ${formatCompactDate(new Date(event.endDate))}\n${t("chart-events/TimelineModal.Duration", { count: event.duration })}\n${t("chart-events/TimelineModal.ClickToViewDetails")}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <div className="flex items-center px-2 w-full h-full">
-                                  <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] overflow-hidden font-medium text-[0.7rem] text-white text-ellipsis whitespace-nowrap">
-                                    {event.title}
-                                  </span>
-                                </div>
-                              </Link>
-                            </div>
+                      <div className="relative flex-none sm:flex-1 bg-white/[0.04] rounded-md w-full h-6">
+                        <Link
+                          to={getEventHref(event)}
+                          className="block top-0 hover:z-10 absolute hover:brightness-125 rounded-md min-w-1.5 h-full overflow-hidden no-underline transition-[filter] cursor-pointer"
+                          style={{
+                            left: `${event.startOffset}%`,
+                            width: `${event.width}%`,
+                            backgroundColor: getEventColor(event),
+                          }}
+                          title={`${event.title}\n${formatCompactDate(new Date(event.createDate))} - ${formatCompactDate(new Date(event.endDate))}\n${t("chart-events/TimelineModal.Duration", { count: event.duration })}\n${t("chart-events/TimelineModal.ClickToViewDetails")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <div className="flex items-center px-2 w-full h-full">
+                            <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] overflow-hidden font-medium text-[0.7rem] text-white text-ellipsis whitespace-nowrap">
+                              {event.title}
+                            </span>
                           </div>
-                        ))}
+                        </Link>
                       </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  ))}
+                </div>
+              </div>
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </>
+        )}
+      </div>
+    </Modal>
   );
 };
 
