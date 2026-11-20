@@ -18,7 +18,7 @@ export default function UnifiedHeader() {
   const isLoggedIn = !!username && !error;
 
   return (
-    <header className="top-0 before:top-0 right-0 before:right-0 left-0 before:left-0 z-1000 fixed before:absolute bg-[rgb(8_10_15/52%)] before:bg-linear-to-r before:from-transparent before:via-[rgb(96_165_250/45%)] before:to-transparent before:opacity-70 shadow-[0_10px_32px_rgb(0_0_0/22%),0_1px_0_rgb(255_255_255/6%)_inset] backdrop-blur-[22px] backdrop-saturate-150 pt-[env(safe-area-inset-top)] border-white/10 border-b before:h-px before:content-['']">
+    <header className="top-0 right-0 left-0 z-1000 fixed bg-[rgb(9_11_17/72%)] backdrop-blur-xl backdrop-saturate-150 pt-[env(safe-area-inset-top)] border-white/[0.07] border-b">
       <div className="flex justify-between items-center gap-4 mx-auto px-3 sm:px-6 lg:px-8 max-w-350 h-(--header-height)">
         {/* 左侧区域：Logo + 导航 */}
         <div className="flex flex-1 items-center gap-5 2xl:gap-7">
