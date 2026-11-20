@@ -89,7 +89,7 @@ export default function ForginsterPage() {
       onClick={event => { if (pressedOnBackdrop.current && event.target === event.currentTarget) close(); }}
     >
       <div role="dialog" aria-modal="true" aria-labelledby={titleId}
-        className="relative bg-[rgb(18_20_27/97%)] shadow-[0_24px_70px_rgb(0_0_0/55%),0_1px_0_rgb(255_255_255/6%)_inset] my-auto p-5 sm:p-7 border border-white/10 rounded-2xl w-full max-w-md min-w-0">
+        className={`relative bg-[rgb(18_20_27/97%)] shadow-[0_24px_70px_rgb(0_0_0/55%),0_1px_0_rgb(255_255_255/6%)_inset] my-auto p-5 sm:p-7 border border-white/10 rounded-2xl w-full min-w-0 ${activeTab === 'register' ? 'max-w-md md:max-w-3xl' : 'max-w-md'}`}>
         <button type="button" onClick={close} aria-label={t("auth/ForginsterPage.Close")}
           className="top-3 right-3 absolute place-items-center grid hover:bg-white/10 rounded-lg w-9 h-9 text-white/50 hover:text-white transition-colors cursor-pointer">
           <svg aria-hidden="true" viewBox="0 0 16 16" className="w-4 h-4" fill="none">
@@ -229,6 +229,7 @@ function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId:
   const [retryAt, setRetryAt] = useState(0);
   const [now, setNow] = useState(Date.now);
   const emailRef = useRef<HTMLInputElement>(null);
+  const emailId = useId();
   const busy = sending || submitting;
   const expired = !!challenge && now >= challenge.expiresAt;
   const seconds = Math.max(0, Math.ceil((retryAt - now) / 1000));
@@ -311,31 +312,46 @@ function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId:
     <h2 id={titleId} className="mt-1 mb-1 pr-8 font-semibold! text-white! text-2xl! text-left!">{registering ? t("auth/ForginsterPage.CreateAccount") : t("auth/ForginsterPage.ForgetPasswordTitle")}</h2>
     <p className="mb-6 text-white/50! text-sm">{registering ? t("auth/ForginsterPage.RegisterSubtitle") : t("auth/ForginsterPage.ForgetPasswordSubtitle")}</p>
     <form onSubmit={onSubmit}>
-      <fieldset disabled={busy} className="flex flex-col gap-4">
+      <fieldset disabled={busy} className={`grid gap-4 ${registering ? 'md:grid-cols-2 md:gap-x-6' : ''}`}>
+        {/* 移动端按填写顺序单列排列；桌面端注册时左列账户信息、右列邮箱验证 */}
         {registering && <>
-          <Field label={t("auth/ForginsterPage.Username")} name="username" autoComplete="username" autoFocus maxLength={24} pattern="[A-Za-z0-9]+"
-            placeholder={t("auth/ForginsterPage.UsernameHint")}
-            onInvalid={event => event.currentTarget.setCustomValidity(event.currentTarget.validity.patternMismatch ? t("auth/ForginsterPage.UsernameHint") : '')}
-            onInput={event => event.currentTarget.setCustomValidity('')} required />
-          <Field label={t("auth/ForginsterPage.Nickname")} name="nickname" autoComplete="nickname" required />
+          <div className="md:col-start-1 md:row-start-1">
+            <Field label={t("auth/ForginsterPage.Username")} name="username" autoComplete="username" autoFocus maxLength={24} pattern="[A-Za-z0-9]+"
+              placeholder={t("auth/ForginsterPage.UsernameHint")}
+              onInvalid={event => event.currentTarget.setCustomValidity(event.currentTarget.validity.patternMismatch ? t("auth/ForginsterPage.UsernameHint") : '')}
+              onInput={event => event.currentTarget.setCustomValidity('')} required />
+          </div>
+          <div className="md:col-start-1 md:row-start-2">
+            <Field label={t("auth/ForginsterPage.Nickname")} name="nickname" autoComplete="nickname" required />
+          </div>
         </>}
-        <label className="flex flex-col gap-1.5 text-white/70 text-sm">
-          <span>{t("auth/ForginsterPage.EmailLabel")}</span>
-          <input ref={emailRef} className={INPUT_CLASSNAME} name="email" type="email" autoComplete="email" autoFocus={!registering} required value={email} onChange={event => {
-            setEmail(event.target.value);
-            setChallenge(null);
-            setCode('');
-          }} />
-        </label>
-        <button className={SECONDARY_BUTTON_CLASSNAME} type="button" disabled={busy || seconds > 0} onClick={sendCode}>
-          {sending ? t("auth/ForginsterPage.SendingCode") : seconds > 0 ? t("auth/ForginsterPage.ResendCode", { seconds }) : t("auth/ForginsterPage.SendCode")}
-        </button>
-        <p role="status" className="-mt-1 text-white/45! text-xs">{expired ? t("auth/ForginsterPage.CodeExpired") : challenge ? t("auth/ForginsterPage.CodeSent") : t("auth/ForginsterPage.RequestCodeFirst")}</p>
-        <Field label={t("auth/ForginsterPage.VerificationCode")} name="challengeCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" maxLength={8} minLength={8} placeholder={t("auth/ForginsterPage.EightDigitCode")} value={code} onChange={event => setCode(event.target.value)} required />
-        <Field label={t("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="new-password" required />
-        <Field label={t("auth/ForginsterPage.ConfirmPassword")} name="password2" type="password" autoComplete="new-password" required />
-        {registering && <TurnstileWidget key={captchaVersion} />}
-        <button className={BUTTON_CLASSNAME} type="submit" disabled={busy || !challenge || expired}>
+        <div className={`flex flex-col gap-1.5 ${registering ? 'md:col-start-2 md:row-start-1' : ''}`}>
+          <label htmlFor={emailId} className="text-white/70 text-sm">{t("auth/ForginsterPage.EmailLabel")}</label>
+          <div className="flex gap-2">
+            <input id={emailId} ref={emailRef} className={INPUT_CLASSNAME} name="email" type="email" autoComplete="email" autoFocus={!registering} required value={email} onChange={event => {
+              setEmail(event.target.value);
+              setChallenge(null);
+              setCode('');
+            }} />
+            <button className={`${SECONDARY_BUTTON_CLASSNAME} shrink-0 px-3.5 whitespace-nowrap`} type="button" disabled={busy || seconds > 0} onClick={sendCode}>
+              {sending ? t("auth/ForginsterPage.SendingCode") : seconds > 0 ? t("auth/ForginsterPage.ResendCode", { seconds }) : t("auth/ForginsterPage.SendCode")}
+            </button>
+          </div>
+          <p role="status" className="m-0 text-white/45! text-xs">{expired ? t("auth/ForginsterPage.CodeExpired") : challenge ? t("auth/ForginsterPage.CodeSent") : t("auth/ForginsterPage.RequestCodeFirst")}</p>
+        </div>
+        <div className={registering ? 'md:col-start-2 md:row-start-2' : ''}>
+          <Field label={t("auth/ForginsterPage.VerificationCode")} name="challengeCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" maxLength={8} minLength={8} placeholder={t("auth/ForginsterPage.EightDigitCode")} value={code} onChange={event => setCode(event.target.value)} required />
+        </div>
+        <div className={registering ? 'md:col-start-1 md:row-start-3' : ''}>
+          <Field label={t("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="new-password" required />
+        </div>
+        <div className={registering ? 'md:col-start-1 md:row-start-4' : ''}>
+          <Field label={t("auth/ForginsterPage.ConfirmPassword")} name="password2" type="password" autoComplete="new-password" required />
+        </div>
+        {registering && <div className="flex md:items-end md:col-start-2 md:row-span-2 md:row-start-3">
+          <TurnstileWidget key={captchaVersion} />
+        </div>}
+        <button className={`${BUTTON_CLASSNAME} ${registering ? 'md:col-span-2 md:mt-1' : ''}`} type="submit" disabled={busy || !challenge || expired}>
           {submitting ? <LoadingSpinner size={20} /> : registering ? t("auth/ForginsterPage.Register") : t("auth/ForginsterPage.ResetPasswordButton")}
         </button>
       </fieldset>
