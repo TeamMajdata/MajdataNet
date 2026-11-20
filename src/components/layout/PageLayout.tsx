@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, cssTransition } from 'react-toastify';
 import { FaDiscord, FaGithub, FaQq } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion } from 'framer-motion';
@@ -10,6 +10,9 @@ import FloatingButtons from './FloatingButtons';
 import ToastIcon from '@/components/ui/ToastIcon';
 import type { PageLayoutProps } from '@/types';
 
+
+/** 通知进出场动画（样式见 styles/components/toast.css），替换默认的 Bounce */
+const ToastFade = cssTransition({ enter: 'toast-enter', exit: 'toast-exit', collapseDuration: 200 });
 
 /** 页脚的社区链接 */
 const FOOTER_LINKS = [
@@ -142,6 +145,7 @@ export default function PageLayout({
         theme="dark"
         icon={ToastIcon}
         closeButton={false}
+        transition={ToastFade}
       />
     </>
   );

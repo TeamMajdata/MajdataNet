@@ -11,7 +11,8 @@ import { TooltipProvider } from '@/components/ui/Tooltip';
 const toastMock = vi.hoisted(() => ({
   loading: vi.fn(() => 'toast-id'), done: vi.fn(), error: vi.fn(), success: vi.fn(),
 }));
-vi.mock('react-toastify', () => ({ toast: toastMock }));
+// 保留库的其他导出（PageLayout 在模块加载时调用 cssTransition），只替换 toast
+vi.mock('react-toastify', async (importOriginal) => ({ ...(await importOriginal<typeof import('react-toastify')>()), toast: toastMock }));
 // The song page reloads a second after saving; never let that reach jsdom.
 vi.mock('@/utils/sleep', () => ({ default: () => new Promise<void>(() => {}) }));
 
