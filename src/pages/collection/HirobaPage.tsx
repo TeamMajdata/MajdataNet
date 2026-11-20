@@ -68,15 +68,13 @@ export default function CollectionsHirobaPage() {
 
   return (
     <PageLayout showBackToHome={false}>
-      <div className="mx-auto px-0 sm:px-4 py-5 sm:py-8 w-full max-w-7xl min-h-screen min-w-0">
-        {/* Header */}
-        <div className="flex flex-col gap-2 mb-8">
-          <h1 className="text-left">{t("collection/hiroba/HirobaPage.CollectionsHiroba")}</h1>
-        </div>
-
-        {/* Search Bar */}
-        <div className="mb-8 w-full">
-          <div className="relative flex items-center mx-auto w-full max-w-lg">
+      <div className="mx-auto px-0 sm:px-2 py-5 sm:py-8 w-full max-w-350 min-h-screen min-w-0">
+        {/* Header：标题居左，搜索框在同一行右侧（移动端换行） */}
+        <header className="flex sm:flex-row flex-col justify-between sm:items-center gap-4 mb-5 sm:mb-6">
+          <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+            {t("collection/hiroba/HirobaPage.CollectionsHiroba")}
+          </h1>
+          <div className="relative flex items-center w-full sm:max-w-sm">
             <input
               type="text"
               className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 py-3 pr-10 pl-11 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
@@ -127,7 +125,7 @@ export default function CollectionsHirobaPage() {
               </div>
             </Tooltip>
           </div>
-        </div>
+        </header>
 
         {/* Content */}
         <AnimatePresence mode="wait">
@@ -178,7 +176,7 @@ export default function CollectionsHirobaPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              className="gap-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
             >
               {data.map((collection, i) => (
                 <motion.div
