@@ -40,6 +40,8 @@ let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>;
 beforeEach(() => {
   container = document.createElement('div'); document.body.append(container); root = createRoot(container);
   fetchMock = vi.fn<typeof fetch>(); vi.stubGlobal('fetch', fetchMock);
+  // 卡片里的跑马灯文字用 ResizeObserver 测量宽度，jsdom 没有
+  vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} unobserve() {} });
 });
 afterEach(() => { act(() => root.unmount()); container.remove(); vi.unstubAllGlobals(); });
 async function render(component: ReactNode) {

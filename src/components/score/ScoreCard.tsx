@@ -8,7 +8,8 @@ import useSWR from 'swr';
 import { Link } from 'react-router-dom';
 import { CoverPic, Level, LazyLoad } from '@/components';
 import { ChartVoteBadge } from '@/components/song/SongInteraction';
-import UserAvatar from '@/components/user/UserAvatar';
+import MarqueeText from '@/components/ui/MarqueeText';
+import { parseTmpRichText } from '@/utils/richTextUtils';
 import { apiFetcher } from '@/utils/apiClient';
 import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';
@@ -134,7 +135,7 @@ export function ScoreCard({
   return (
     <LazyLoad height={144} offset={300}>
       <div
-        className={`relative flex gap-3 bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass} ${comboCardClass} p-2.5 border rounded-2xl w-full h-36 overflow-hidden ring-1 ring-transparent hover:ring-white/30 transition-shadow duration-200`}
+        className={`marquee-host relative flex gap-3 bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass} ${comboCardClass} p-2.5 border rounded-2xl w-full h-36 overflow-hidden ring-1 ring-transparent hover:ring-white/30 transition-shadow duration-200`}
       >
         <div className="relative h-full aspect-square shrink-0">
           <CoverPic id={score.chartInfo.id} to={'/song?id=' + score.chartInfo.id} zoomable={false} radiusClassName="rounded-lg" />
@@ -149,19 +150,23 @@ export function ScoreCard({
           )}
         </div>
 
-        <div className="flex flex-col flex-1 gap-0.5 min-w-0">
-          <Link to={'/song?id=' + score.chartInfo.id} className="font-bold text-white text-base truncate leading-snug no-underline hover:underline underline-offset-2">
-            {score.chartInfo.title}
-          </Link>
-          <Link to={'/song?id=' + score.chartInfo.id} className="text-white/65 text-sm truncate no-underline">
-            {score.chartInfo.artist === '' || score.chartInfo.artist == null ? '-' : score.chartInfo.artist}
-          </Link>
-          <Link to={'/space?id=' + score.chartInfo.uploader} className="flex items-center gap-1.5 min-w-0 text-white/65 hover:text-white text-sm no-underline">
-            <UserAvatar className="rounded-full w-4 h-4 shrink-0" username={score.chartInfo.uploader} />
-            <span className="truncate">{score.chartInfo.designer}</span>
-          </Link>
+        {/* 文字部分与首页歌曲卡片一致：标题、曲师、上传者@谱师，悬停卡片时被截断的文字循环滚动 */}
+        <div className="flex flex-col flex-1 min-w-0">
+          <MarqueeText className="font-bold text-base leading-snug">
+            <Link to={'/song?id=' + score.chartInfo.id}>{parseTmpRichText(score.chartInfo.title)}</Link>
+          </MarqueeText>
+          <MarqueeText className="mt-0.5 text-[0.8rem] text-white/70">
+            <Link to={'/song?id=' + score.chartInfo.id}>
+              {score.chartInfo.artist === '' || score.chartInfo.artist == null ? '-' : score.chartInfo.artist}
+            </Link>
+          </MarqueeText>
+          <MarqueeText className="mt-0.5 text-[0.8rem] text-white/70">
+            <Link to={'/space?id=' + score.chartInfo.uploader} className="hover:underline underline-offset-2 decoration-white/60">
+              {score.chartInfo.uploader + '@' + score.chartInfo.designer}
+            </Link>
+          </MarqueeText>
 
-          <div className="flex items-center gap-1.5 mt-1 min-w-0 overflow-hidden">
+          <div className="flex items-center gap-1.5 mt-1.5 min-w-0 overflow-hidden">
             <Level
               level={score.chartLevel.toString()}
               difficulty={score.chartInfo.levels[score.chartLevel]}
