@@ -201,7 +201,8 @@ function DesktopEventsSwiper() {
                         alt={event.alt}
                         loading="lazy"
                       />
-                      <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-black/50 via-30% via-black/30 to-black/90 opacity-0 hover:opacity-100 p-4">
+                      {/* 活动信息常驻显示：只在底部加渐变，不压暗整张图 */}
+                      <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-transparent via-45% via-black/20 to-black/85 p-4">
                         <div className="text-left">
                           <h3 className="m-0 mb-2 font-bold text-white text-xl leading-tight">{event.title}</h3>
                           <div className="flex flex-wrap items-center gap-2 text-white/90 text-sm">
