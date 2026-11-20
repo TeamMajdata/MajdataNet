@@ -7,6 +7,7 @@ import { createMascotController } from './runtime';
 import {
   chooseReaction,
   chooseDialogueVariant,
+  clampMascotPosition,
   clampPosition,
   MASCOT_SCALES,
   MASCOT_SIZE,
@@ -80,7 +81,7 @@ export default function Live2DMascot() {
   const hintId = useId();
   const scale = preferences.scale ?? 1;
   const size = { width: Math.round(MASCOT_SIZE.width * scale), height: Math.round(MASCOT_SIZE.height * scale) };
-  const position = clampPosition(preferences.position ?? {
+  const position = clampMascotPosition(preferences.position ?? {
     x: VIEWPORT_MARGIN,
     y: viewport.height - size.height - VIEWPORT_MARGIN,
   }, size, viewport);
@@ -154,7 +155,7 @@ export default function Live2DMascot() {
   ];
 
   function move(nextPosition: MascotPosition) {
-    updateMascotPreferences({ position: clampPosition(nextPosition, size, viewport) });
+    updateMascotPreferences({ position: clampMascotPosition(nextPosition, size, viewport) });
   }
 
   // 右键（或键盘的菜单键）打开小菜单；键盘触发时没有坐标，就贴着看板娘中间弹出
@@ -179,7 +180,7 @@ export default function Live2DMascot() {
     const next = { width: Math.round(MASCOT_SIZE.width * nextScale), height: Math.round(MASCOT_SIZE.height * nextScale) };
     updateMascotPreferences({
       scale: nextScale,
-      position: clampPosition({ x: position.x + (size.width - next.width) / 2, y: position.y + size.height - next.height }, next, viewport),
+      position: clampMascotPosition({ x: position.x + (size.width - next.width) / 2, y: position.y + size.height - next.height }, next, viewport),
     });
     closeMenu();
   }

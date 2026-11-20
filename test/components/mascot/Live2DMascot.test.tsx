@@ -294,7 +294,7 @@ describe('Live2DMascot', () => {
     localStorage.setItem(MASCOT_STORAGE_KEY, JSON.stringify({ collapsed: false, position: { x: 9_000, y: -500 } }));
     render();
     expect(element('live2d-mascot').style.left).toBe('1208px');
-    expect(element('live2d-mascot').style.top).toBe('82px');
+    expect(element('live2d-mascot').style.top).toBe('14px');
     act(() => {
       window.innerWidth = 900;
       window.dispatchEvent(new Event('resize'));
