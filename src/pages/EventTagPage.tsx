@@ -43,14 +43,14 @@ export default function EventTagPage() {
     : null;
 
   return (
-    <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen" showBackToHome={eventId !== 'Original'}>
+    <PageLayout className="pt-4 sm:pt-6 md:pt-8 min-h-screen" showBackToHome={eventId !== 'Original'}>
       {/* 活动横幅 */}
       {currentEvent && <EventBanner event={currentEvent} />}
 
       {/* 活动相关谱面列表 */}
       {searchKeyword && (
         <div className="mx-auto mt-4 sm:mt-6 md:mt-8 px-2 sm:px-3 md:px-4 max-w-300">
-          <div className="mb-8">
+          <div>
             <h2 className="m-0 mb-3 sm:mb-4 md:mb-6 font-bold text-white text-xl sm:text-2xl md:text-3xl text-center" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
               {t("eventTag/EventTagPage.RelatedCharts")}
             </h2>
