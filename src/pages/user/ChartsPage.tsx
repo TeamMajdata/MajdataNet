@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { LuUpload } from 'react-icons/lu';
 import { PageLayout, SongList, LoadingSpinner } from '@/components';
 import ChartUploadDialog from '@/components/user/ChartUploadDialog';
+import Pager from '@/components/ui/Pager';
 import { apiPagesForView } from '@/components/song/songGrid';
 import { useUserContext } from '@/hooks';
 import { endpoints } from '@/config/api';
@@ -11,6 +12,10 @@ export default function UserChartsPage() {
   const { t } = useTranslation();
   const { user, isLoading } = useUserContext();
   const [uploading, setUploading] = useState(false);
+  const [page, setPage] = useState(0);
+  /** SongList 发现某页不足一屏时报告的最后一页 */
+  const [lastPage, setLastPage] = useState<number | null>(null);
+  const [firstPageEmpty, setFirstPageEmpty] = useState(false);
   if (isLoading && !user) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -41,9 +46,25 @@ export default function UserChartsPage() {
         </header>
 
         <SongList
-          url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + user?.username, '', apiPage))}
+          url={apiPagesForView(page).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + user?.username, '', apiPage))}
+          page={page}
+          setMax={setLastPage}
+          onDataLoaded={(hasData) => { if (page === 0) setFirstPageEmpty(!hasData); }}
           isManage={true}
         />
+        {/* 第一页就不足一屏（或一张都没有）时不显示翻页 */}
+        {!(page === 0 && (lastPage === 0 || firstPageEmpty)) && (
+          <div className="flex justify-center mt-8 sm:mt-10">
+            <Pager
+              page={page}
+              hasNext={lastPage === null || page < lastPage}
+              onPageChange={(next) => {
+                setPage(next);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {uploading && <ChartUploadDialog onClose={() => setUploading(false)} />}
