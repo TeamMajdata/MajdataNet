@@ -41,10 +41,10 @@ export default function UnifiedHeader() {
         </div>
 
         {/* User Section */}
-        <div className="relative flex items-center rounded-[10px] shrink-0">
+        <div className="relative flex items-center shrink-0">
           {isLoading ? (
-            <div className="flex items-center gap-2 opacity-70 px-3 md:px-4 py-2 md:py-3 border border-white/10 rounded-[10px] h-10 md:min-h-10 font-medium text-white/85 text-sm no-underline transition-all duration-200 cursor-default pointer-events-none">
-              <LoadingSpinner className="animate-pulse" size={25} />
+            <div className="flex items-center gap-2 opacity-70 px-3 h-9 font-medium text-white/70 text-sm pointer-events-none">
+              <LoadingSpinner className="animate-pulse" size={20} />
               <span className="hidden md:inline text-sm">{t("shared/header.Loading")}</span>
             </div>
           ) : isLoggedIn ? (
