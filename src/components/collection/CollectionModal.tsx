@@ -175,7 +175,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
           >
             {/* Header */}
             <div className="flex justify-between items-center px-5 pt-5 pb-3 shrink-0">
-              <h2 className="font-bold text-white text-xl">{createOnly ? t("collection/CollectionModal.NewCollection") : t("collection/CollectionModal.MyCollections")}</h2>
+              <h2 className="m-0 font-bold text-white! text-xl! text-left!">{createOnly ? t("collection/CollectionModal.NewCollection") : t("collection/CollectionModal.MyCollections")}</h2>
               <button
                 onClick={onClose}
                 className="flex justify-center items-center hover:bg-white/10 rounded-full w-8 h-8 text-white/60 hover:text-white transition-colors cursor-pointer"
