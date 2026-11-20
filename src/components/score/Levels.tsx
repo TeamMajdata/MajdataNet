@@ -1,6 +1,7 @@
 import { makeLevelClickCallback } from '@/utils/scrollUtils';
 import { renderLevel } from '@/utils/renderLevel';
 import type { LevelsProps } from '@/types';
+import { Link } from 'react-router-dom';
 
 // 难度等级背景色映射
 const levelColors: Record<number, string> = {
@@ -20,7 +21,7 @@ const levelNames = ['Easy', 'Basic', 'Advanced', 'Expert', 'Master', 'Re:Master'
  * 多难度等级列表组件
  * 标签宽度随文字变化；只有一个难度时显示“难度名 + 等级”。
  */
-export default function Levels({ levels, songid, isPlayer = false }: LevelsProps) {
+export default function Levels({ levels, songid, isPlayer = false, linkToSong = false }: LevelsProps) {
   // 难度顺序：0=Easy, 1=Basic, 2=Advanced, 3=Expert, 4=Master, 5=ReMaster, 6=Utage
   const available = levels
     .map((level, index) => ({ level, index }))
@@ -31,17 +32,18 @@ export default function Levels({ levels, songid, isPlayer = false }: LevelsProps
 
   return (
     <div className="flex flex-wrap gap-1">
-      {available.map(({ level, index }) => (
-        <button
-          key={index}
-          type="button"
-          className={`inline-flex items-center gap-1 px-1.5 rounded-md min-w-5.5 h-5 font-bold text-[0.7rem] text-white leading-none whitespace-nowrap justify-center hover:brightness-125 shadow-[0_0_0_1px_rgb(255_255_255/12%)_inset] transition-[filter] cursor-pointer select-none ${levelColors[index] || ''}`}
-          onClick={levelClickCallback}
-        >
+      {available.map(({ level, index }) => {
+        const className = `inline-flex items-center gap-1 px-1.5 rounded-md min-w-5.5 h-5 font-bold text-[0.7rem] text-white leading-none whitespace-nowrap justify-center hover:brightness-125 shadow-[0_0_0_1px_rgb(255_255_255/12%)_inset] transition-[filter] cursor-pointer select-none no-underline ${levelColors[index] || ''}`;
+        const content = <>
           {single && <span className="font-semibold">{levelNames[index]}</span>}
           <span>{renderLevel(level)}</span>
-        </button>
-      ))}
+        </>;
+        return linkToSong ? (
+          <Link key={index} to={`/song?id=${songid}&level=${index}`} className={className}>{content}</Link>
+        ) : (
+          <button key={index} type="button" className={className} onClick={levelClickCallback}>{content}</button>
+        );
+      })}
     </div>
   );
 }

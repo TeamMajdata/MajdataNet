@@ -48,6 +48,8 @@ export interface LevelsProps {
   songid: string;
   /** 是否为玩家页面 */
   isPlayer?: boolean;
+  /** 点击标签跳到谱面页并选中该难度（列表卡片里使用） */
+  linkToSong?: boolean;
 }
 
 export interface LevelProps {

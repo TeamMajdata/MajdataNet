@@ -85,7 +85,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
                     <TagManageWidget newClassName="mt-[0.1rem]" songid={song.id} />
                   </>
                 ) : (
-                  <Levels levels={song.levels} songid={song.id} isPlayer={false} />
+                  <Levels levels={song.levels} songid={song.id} isPlayer={false} linkToSong={!(disableLink || onClick)} />
                 )}
               </div>
               <button

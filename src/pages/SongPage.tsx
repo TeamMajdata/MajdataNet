@@ -21,7 +21,7 @@ import {
 import { downloadSong } from '@/utils/download';
 import { stripTmpTags } from '@/utils';
 import { parseTmpRichText } from '@/utils/richTextUtils';
-import { getDefaultChartLevel } from '@/utils/radar';
+import { getDefaultChartLevel, parseRequestedLevel } from '@/utils/radar';
 import ChartRadar from '@/components/song/ChartRadar';
 import UserAvatar from '@/components/user/UserAvatar';
 import '@/styles/components/song-radar.css';
@@ -141,9 +141,12 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
   const [isLoadMajdata, setIsLoadMajdata] = useState(false);
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const [radarSelection, setRadarSelection] = useState<{ id: string; hash: string; level: number }>();
+  // 从卡片难度标签进入时 URL 带 ?level=N，默认选中该难度
+  const [searchParams] = useSearchParams();
+  const requestedLevel = parseRequestedLevel(searchParams.get('level'), data.levels);
   const chartLevel = radarSelection?.id === data.id && radarSelection.hash === data.hash
     && data.levels[radarSelection.level]?.trim()
-    ? radarSelection.level : getDefaultChartLevel(data.levels);
+    ? radarSelection.level : requestedLevel ?? getDefaultChartLevel(data.levels);
 
   const o = data;
 
@@ -419,9 +422,10 @@ function SongInfo({ data }: { id: string; data: SongSummary }) {
 // ======================== Majdata View ========================
 function MajdataView({ data }: { id: string; data: SongSummary }) {
   const o = data;
-  // 找到最后一个非空的level，从后往前遍历
-  let firstNonEmptyIndex = -1;
-  for (let i = o.levels.length - 1; i >= 0; i--) {
+  const [searchParams] = useSearchParams();
+  // URL 指定的难度优先，否则找到最后一个非空的level，从后往前遍历
+  let firstNonEmptyIndex = parseRequestedLevel(searchParams.get('level'), o.levels) ?? -1;
+  for (let i = o.levels.length - 1; firstNonEmptyIndex < 0 && i >= 0; i--) {
     if (o.levels[i] !== '' && o.levels[i] !== null) {
       firstNonEmptyIndex = i;
       break;
