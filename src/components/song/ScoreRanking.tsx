@@ -200,7 +200,7 @@ function RankingCard({
     >
       <div
         className={`
-          group relative flex items-center gap-3 p-3 rounded-xl
+          group relative flex items-center gap-2.5 px-2.5 py-2 rounded-xl
           bg-white/8 hover:bg-white/12 backdrop-blur-md
           border ${styles.border} ${styles.shadow}
           transition-all duration-200 ease-out
@@ -211,8 +211,8 @@ function RankingCard({
         {/* 排名标记 */}
         <div
           className={`
-            flex items-center justify-center min-w-9 h-9 rounded-lg
-            font-bold text-sm ${getRankBadgeStyle()}
+            flex items-center justify-center min-w-8 h-8 rounded-lg
+            font-bold text-xs ${getRankBadgeStyle()}
             transition-transform duration-200 group-hover:scale-105
           `}
         >
@@ -228,7 +228,7 @@ function RankingCard({
           <div className="relative shrink-0">
             <UserAvatar
               className={`
-                w-10 h-10 rounded-full object-cover
+                w-8 h-8 rounded-full object-cover
                 border-2 transition-all duration-200
                 group-hover:scale-105
                 ${rank <= 3 ? topThreeAvatarClass : 'border-white/20 group-hover:border-white/40'}
@@ -263,7 +263,7 @@ function RankingCard({
         <div className="flex flex-col items-end gap-0.5 shrink-0">
           <span
             className={`
-              text-lg font-bold tabular-nums
+              text-base font-bold tabular-nums
               ${styles.textClass}
             `}
           >
