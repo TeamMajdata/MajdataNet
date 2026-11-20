@@ -47,24 +47,26 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
       onClick={handleClick}
       className="flex justify-center w-full min-w-0"
     >
-      <LazyLoad height={165} offset={300}>
-        <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-full h-40 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
+      <LazyLoad height={144} offset={300}>
+        <div className="flex gap-3 bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-[10px] w-full h-36 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
           {/* 封面点击进入谱面详情；列表本身接管点击时（onClick/disableLink）只展示 */}
-          <CoverPic
-            id={song.id}
-            display={isRanking ? 'No.' + (index + 1) : undefined}
-            to={disableLink || onClick ? undefined : '/song?id=' + song.id}
-            zoomable={false}
-          />
+          <div className="relative h-full aspect-square shrink-0">
+            <CoverPic
+              id={song.id}
+              display={isRanking ? 'No.' + (index + 1) : undefined}
+              to={disableLink || onClick ? undefined : '/song?id=' + song.id}
+              zoomable={false}
+            />
+          </div>
 
-          <div className="ml-[8.9rem]">
-            <div className="mb-1.25 font-bold text-base truncate" id={song.id}>
+          <div className="flex flex-col flex-1 min-w-0">
+            <div className="font-bold text-base truncate leading-snug" id={song.id}>
               {link('/song?id=' + song.id, parseTmpRichText(song.title))}
             </div>
-            <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
+            <div className="mt-0.5 text-[0.8rem] truncate italic">
               {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}
             </div>
-            <div className="mb-2 text-[0.8rem] truncate">
+            <div className="mt-0.5 text-[0.8rem] truncate">
               {disableLink || onClick ? (
                 song.uploader + '@' + song.designer
               ) : (
@@ -73,34 +75,36 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
                 </Link>
               )}
             </div>
-            {isManage ? (
-              <>
-                {' '}
-                <Delbutton songid={song.id} />
-                <TagManageWidget newClassName="mt-[0.1rem]" songid={song.id} />
-              </>
-            ) : (
-              <Levels levels={song.levels} songid={song.id} isPlayer={false} />
-            )}
+            <div className="mt-1.5">
+              {isManage ? (
+                <>
+                  <Delbutton songid={song.id} />
+                  <TagManageWidget newClassName="mt-[0.1rem]" songid={song.id} />
+                </>
+              ) : (
+                <Levels levels={song.levels} songid={song.id} isPlayer={false} />
+              )}
+            </div>
 
-            <br />
-            <motion.div
-              className="float-left flex justify-center items-center m-[0.1rem] mt-1.5 sm:mt-2 border border-gray-500 rounded-md w-7 sm:w-[1.3rem] h-7 sm:h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none touch-manipulation"
-              onClick={handleDownload}
-              whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
-              transition={{ duration: 0.125, ease: 'easeInOut' }}
-            >
-              <svg
-                className="fill-white stroke-white w-full h-full"
-                xmlns="http://www.w3.org/2000/svg"
-                height="24"
-                viewBox="0 -960 960 960"
-                width="24"
+            <div className="flex items-center gap-1 mt-auto">
+              <motion.div
+                className="flex justify-center items-center m-[0.1rem] border border-gray-500 rounded-md w-7 sm:w-[1.3rem] h-7 sm:h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none touch-manipulation shrink-0"
+                onClick={handleDownload}
+                whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
+                transition={{ duration: 0.125, ease: 'easeInOut' }}
               >
-                <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-              </svg>
-            </motion.div>
-            <InteractCount songid={song.id} />
+                <svg
+                  className="fill-white stroke-white w-full h-full"
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24"
+                  viewBox="0 -960 960 960"
+                  width="24"
+                >
+                  <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
+                </svg>
+              </motion.div>
+              <InteractCount songid={song.id} />
+            </div>
           </div>
         </div>
       </LazyLoad>
