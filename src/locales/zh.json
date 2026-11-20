@@ -646,15 +646,17 @@
     "NoFilterResults": "没有符合筛选条件的成绩",
     "NoFilterResultsHint": "请尝试调整上方的 Combo 筛选条件",
     "NoScores": "暂无成绩记录",
+    "NotFc": "未FC",
     "PersonalScores": "我的成绩",
     "ServerError": "已闭店",
-    "SortBy": "排序：",
+    "SortBy": "排序",
     "SortByClassicAcc": "Classic准确率",
     "SortByCombo": "Combo状态",
     "SortByDxAcc": "DX准确率",
     "SortByDxScore": "DX分数",
     "SortByTime": "游玩时间",
     "TotalClassicAcc": "Classic 准确率合计",
+    "TotalCount_other": "共 {{count}} 条成绩",
     "TotalDxAcc": "DX 准确率合计",
     "TotalDxScore": "DX 分数合计"
   }

@@ -646,15 +646,17 @@
     "NoFilterResults": "필터 조건에 맞는 성적이 없습니다",
     "NoFilterResultsHint": "위의 콤보 필터 조건을 조정해 보세요",
     "NoScores": "점수 기록이 없습니다",
+    "NotFc": "FC 아님",
     "PersonalScores": "내 점수",
     "ServerError": "서버 오류",
-    "SortBy": "정렬 기준:",
+    "SortBy": "정렬",
     "SortByClassicAcc": "클래식 정확도",
     "SortByCombo": "콤보 상태",
     "SortByDxAcc": "DX 정확도",
     "SortByDxScore": "DX 점수",
     "SortByTime": "플레이 시간",
     "TotalClassicAcc": "Classic 정확도 합계",
+    "TotalCount_other": "총 {{count}}개",
     "TotalDxAcc": "DX 정확도 합계",
     "TotalDxScore": "DX 점수 합계"
   }

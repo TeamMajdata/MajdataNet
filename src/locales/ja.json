@@ -646,15 +646,17 @@
     "NoFilterResults": "条件に一致するスコアはありません",
     "NoFilterResultsHint": "上のコンボ条件を変更してみてください",
     "NoScores": "スコア記録がありません",
+    "NotFc": "未FC",
     "PersonalScores": "マイスコア",
     "ServerError": "閉店中",
-    "SortBy": "並び順：",
+    "SortBy": "並び替え",
     "SortByClassicAcc": "クラシック精度",
     "SortByCombo": "コンボ状態",
     "SortByDxAcc": "DX精度",
     "SortByDxScore": "DXスコア",
     "SortByTime": "プレイ時間",
     "TotalClassicAcc": "Classic精度合計",
+    "TotalCount_other": "全 {{count}} 件",
     "TotalDxAcc": "DX精度合計",
     "TotalDxScore": "DXスコア合計"
   }

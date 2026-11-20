@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { ScoreCard, PageLayout, LoadingSpinner } from '@/components';
+import SortMenu from '@/components/ui/SortMenu';
 import type { Score } from '@/types';
 import { ComboState } from '@/types';
 import { motion, type Variants } from 'framer-motion';
@@ -41,7 +42,7 @@ const COMBO_FILTER_LABELS: Record<ComboStateFilter, string> = {
   ap: 'AP',
   fcPlus: 'FC+',
   fc: 'FC',
-  notFc: '未FC',
+  notFc: 'Not FC',
 };
 
 /** 筛选芯片激活态颜色，参照 ScoreCard 的 comboBadgeClass */
@@ -177,153 +178,94 @@ export default function PersonalScoresPage() {
     setCurrentPage(1);
   };
 
-  if (error) {
+  const sortOptions: SortOption[] = ['timestamp', 'dxAcc', 'classicAcc', 'dxScore', 'comboState'];
+  const sortLabels: Record<SortOption, string> = {
+    timestamp: t("user/scores/ScoresPage.SortByTime"),
+    dxAcc: t("user/scores/ScoresPage.SortByDxAcc"),
+    classicAcc: t("user/scores/ScoresPage.SortByClassicAcc"),
+    dxScore: t("user/scores/ScoresPage.SortByDxScore"),
+    comboState: t("user/scores/ScoresPage.SortByCombo"),
+  };
+
+  const header = (
+    <header className="mb-5 sm:mb-6">
+      <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+        {t("user/scores/ScoresPage.PersonalScores")}
+      </h1>
+      {data && data.length > 0 && (
+        <p className="m-0 mt-1.5 text-white/55! text-sm">{t("user/scores/ScoresPage.TotalCount", { count: data.length })}</p>
+      )}
+    </header>
+  );
+
+  if (error || isLoading || !data || data.length === 0) {
     return (
-      <PageLayout>
-        <div className="m-auto w-full text-[50px] text-center">
-          {t("user/scores/ScoresPage.ServerError")}
+      <PageLayout showBackToHome={false}>
+        <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-w-0">
+          {header}
+          {isLoading ? (
+            <div className="flex justify-center items-center py-24"><LoadingSpinner size="50px" /></div>
+          ) : (
+            <p className="m-0 py-24 text-white/45! text-base text-center">
+              {error ? t("user/scores/ScoresPage.ServerError") : t("user/scores/ScoresPage.NoScores")}
+            </p>
+          )}
         </div>
       </PageLayout>
     );
   }
 
-  if (isLoading) {
-    return (
-      <PageLayout>
-        <div className="flex justify-center items-center h-screen">
-          <LoadingSpinner size="50px" />
-        </div>
-      </PageLayout>
-    );
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <PageLayout>
-        <div className="flex justify-center items-center min-h-screen">
-          <p className="text-xl">{t("user/scores/ScoresPage.NoScores")}</p>
-        </div>
-      </PageLayout>
-    );
-  }
+  const stats = [
+    { label: t("user/scores/ScoresPage.TotalDxAcc"), value: totalDxAcc.toFixed(4), color: 'text-purple-300' },
+    { label: t("user/scores/ScoresPage.TotalClassicAcc"), value: totalClassicAcc.toFixed(4), color: 'text-emerald-300' },
+    { label: t("user/scores/ScoresPage.TotalDxScore"), value: totalDxScoreSum.toFixed(0), color: 'text-amber-300' },
+    { label: t("user/scores/ScoresPage.FilteredCount"), value: String(filteredData.length), color: 'text-white' },
+  ];
 
   return (
-    <PageLayout className="pb-8">
-      <motion.section
-        className="mt-(--content-top-spacing) mb-8"
-        initial="hidden"
-        animate="visible"
-        custom={0.2}
-        variants={slideInUp}
-      >
-        <h1 className="my-5 sm:my-8 font-semibold text-white text-3xl sm:text-4xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
-          {t("user/scores/ScoresPage.PersonalScores")}
-        </h1>
+    <PageLayout showBackToHome={false}>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-w-0">
+        {header}
 
-        {/* 统计数据卡片 — 基于筛选后数据 */}
-        <div className="gap-3 grid grid-cols-2 lg:grid-cols-4 mx-auto mb-6 max-w-3xl">
-          <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
-            <div className="mb-1 text-gray-400 text-xs tracking-wide">{t("user/scores/ScoresPage.TotalDxAcc")}</div>
-            <div className="font-bold tabular-nums text-purple-400 text-xl sm:text-2xl">{totalDxAcc.toFixed(4)}</div>
-          </div>
-          <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
-            <div className="mb-1 text-gray-400 text-xs tracking-wide">{t("user/scores/ScoresPage.TotalClassicAcc")}</div>
-            <div className="font-bold tabular-nums text-emerald-400 text-xl sm:text-2xl">{totalClassicAcc.toFixed(4)}</div>
-          </div>
-          <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
-            <div className="mb-1 text-gray-400 text-xs tracking-wide">{t("user/scores/ScoresPage.TotalDxScore")}</div>
-            <div className="font-bold tabular-nums text-amber-400 text-xl sm:text-2xl">{totalDxScoreSum.toFixed(0)}</div>
-          </div>
-          <div className="flex flex-col justify-center bg-[rgb(var(--background-start)/0.5)] backdrop-blur-sm px-4 py-4 border border-white/10 rounded-xl text-center">
-            <div className="mb-1 text-gray-400 text-xs tracking-wide">{t("user/scores/ScoresPage.FilteredCount")}</div>
-            <div className="font-bold tabular-nums text-white text-xl sm:text-2xl">{filteredData.length}</div>
-          </div>
+        {/* 统计：基于筛选后的成绩 */}
+        <div className="gap-3 grid grid-cols-2 lg:grid-cols-4 mb-5">
+          {stats.map(({ label, value, color }) => (
+            <div key={label} className="bg-white/[0.03] px-4 py-3 border border-white/10 rounded-2xl min-w-0">
+              <div className="text-white/50 text-xs">{label}</div>
+              <div className={`mt-1 font-semibold text-xl sm:text-2xl tabular-nums truncate ${color}`}>{value}</div>
+            </div>
+          ))}
         </div>
 
-        {/* 第一行：排序依据 */}
-        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-stretch sm:items-center gap-3 sm:gap-4 mx-auto mb-4 max-w-4xl">
-          <span className="font-medium text-white text-sm">
-            {t("user/scores/ScoresPage.SortBy")}
-          </span>
-          <div className="flex flex-wrap justify-center gap-2">
-            <button
-              onClick={() => handleSortChange('timestamp')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'timestamp'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-                }`}
-            >
-              {t("user/scores/ScoresPage.SortByTime")}
-            </button>
-            <button
-              onClick={() => handleSortChange('dxAcc')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'dxAcc'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-                }`}
-            >
-              {t("user/scores/ScoresPage.SortByDxAcc")}
-            </button>
-            <button
-              onClick={() => handleSortChange('classicAcc')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'classicAcc'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-                }`}
-            >
-              {t("user/scores/ScoresPage.SortByClassicAcc")}
-            </button>
-            <button
-              onClick={() => handleSortChange('dxScore')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'dxScore'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-                }`}
-            >
-              {t("user/scores/ScoresPage.SortByDxScore")}
-            </button>
-            <button
-              onClick={() => handleSortChange('comboState')}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${sortBy === 'comboState'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-                }`}
-            >
-              {t("user/scores/ScoresPage.SortByCombo")}
-            </button>
-          </div>
-        </div>
-
-        {/* 第二行：Combo状态筛选 */}
-        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-stretch sm:items-center gap-3 sm:gap-4 mx-auto mb-8 max-w-4xl">
-          <span className="font-medium text-white text-sm">
-            {t("user/scores/ScoresPage.FilterByCombo")}
-          </span>
-          <div className="flex flex-wrap justify-center gap-2">
+        {/* 工具栏：左边 Combo 筛选（可多选），右边排序 */}
+        <div className="z-30 relative flex flex-wrap justify-between items-center gap-3 mb-5">
+          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t("user/scores/ScoresPage.FilterByCombo")}>
+            <span className="mr-1 text-white/50 text-sm">{t("user/scores/ScoresPage.FilterByCombo")}</span>
             {ALL_COMBO_FILTERS.map((filter) => {
               const isActive = comboFilter.includes(filter);
               return (
                 <button
                   key={filter}
+                  type="button"
+                  aria-pressed={isActive}
                   onClick={() => handleFilterToggle(filter)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${isActive
-                    ? COMBO_FILTER_COLORS[filter]
-                    : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
+                  className={`px-3 rounded-full h-8 text-xs font-semibold border transition-colors cursor-pointer ${isActive
+                    ? COMBO_FILTER_COLORS[filter] + ' border-transparent'
+                    : 'bg-white/[0.03] border-white/10 text-white/45 hover:text-white/75 hover:border-white/20'
                     }`}
                 >
-                  {COMBO_FILTER_LABELS[filter]}
+                  {filter === 'notFc' ? t("user/scores/ScoresPage.NotFc") : COMBO_FILTER_LABELS[filter]}
                 </button>
               );
             })}
           </div>
+          <SortMenu
+            label={t("user/scores/ScoresPage.SortBy")}
+            options={sortOptions.map((option) => sortLabels[option])}
+            value={sortOptions.indexOf(sortBy)}
+            onChange={(index) => handleSortChange(sortOptions[index])}
+          />
         </div>
-
-        <div
-          className="relative mx-auto my-8 border-0 w-[70%] h-px"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 20%) 15%, rgb(255 255 255 / 40%) 30%, rgb(255 255 255 / 60%) 50%, rgb(255 255 255 / 40%) 70%, rgb(255 255 255 / 20%) 85%, transparent 100%)'
-          }}
-        />
 
         {/* 成绩卡片列表 / 无筛选结果提示 */}
         {filteredData.length === 0 ? (
@@ -433,7 +375,7 @@ export default function PersonalScoresPage() {
           </>
         )}
 
-      </motion.section>
+      </div>
     </PageLayout>
   );
 }
