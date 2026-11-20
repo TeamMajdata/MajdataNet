@@ -1,33 +1,21 @@
 import { useTranslation } from 'react-i18next';
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { ScoreCard, PageLayout, LoadingSpinner } from '@/components';
 import SortMenu from '@/components/ui/SortMenu';
+import Pager from '@/components/ui/Pager';
+import { SONG_GRID_CLASS } from '@/components/song/songGrid';
 import type { Score } from '@/types';
 import { ComboState } from '@/types';
-import { motion, type Variants } from 'framer-motion';
-
-// 动画变体
-const slideInUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.4, 0, 0.2, 1] as const,
-      delay,
-    },
-  }),
-};
 
 const fetcher = async (...args: Parameters<typeof fetch>) =>
   await fetch(...args).then(async (res) => res.json());
 
 type SortOption = 'timestamp' | 'dxAcc' | 'dxScore' | 'comboState' | 'classicAcc';
 
-const ITEMS_PER_PAGE = 18;
+// 24 能被 1/2/3/4 列整除，每页最后一行不会缺卡
+const ITEMS_PER_PAGE = 24;
 
 // ---- ComboState 筛选相关 ----
 
@@ -270,111 +258,34 @@ export default function PersonalScoresPage() {
         {/* 成绩卡片列表 / 无筛选结果提示 */}
         {filteredData.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-gray-400 text-lg">
-              {t("user/scores/ScoresPage.NoFilterResults")}
-            </p>
-            <p className="mt-2 text-gray-500 text-sm">
-              {t("user/scores/ScoresPage.NoFilterResultsHint")}
-            </p>
+            <p className="m-0 text-white/50! text-base">{t("user/scores/ScoresPage.NoFilterResults")}</p>
+            <p className="m-0 mt-2 text-white/35! text-sm">{t("user/scores/ScoresPage.NoFilterResultsHint")}</p>
           </div>
         ) : (
           <>
-            <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+            <div className={SONG_GRID_CLASS}>
               {paginatedData.map((score) => (
-                <motion.div
+                <ScoreCard
                   key={score.levelHash || `${score.hash}-${score.timestamp}`}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex justify-center w-full min-w-0"
-                >
-                  <ScoreCard
-                    score={score}
-                    showLikeButton={true}
-                    showComboEffects={true}
-                    showRank={true}
-                  />
-                </motion.div>
+                  score={score}
+                  showLikeButton={true}
+                  showComboEffects={true}
+                  showRank={true}
+                />
               ))}
             </div>
 
-            {/* 分页控件 */}
             {totalPages > 1 && (
-              <motion.div
-                className="flex flex-col gap-4 mx-auto mt-8 max-w-4xl"
-                initial="hidden"
-                animate="visible"
-                custom={0.3}
-                variants={slideInUp}
-              >
-                <div className="text-gray-400 text-sm text-center">
-                  显示 {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, sortedData.length)} / {sortedData.length} 条成绩
-                </div>
-
-                <div className="flex flex-wrap justify-center items-center gap-2">
-                  <button
-                    onClick={() => setCurrentPage(1)}
-                    disabled={currentPage === 1}
-                    className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
-                  >
-                    «
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
-                  >
-                    ‹
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(page => {
-                      if (page === 1 || page === totalPages) return true;
-                      if (Math.abs(page - currentPage) <= 2) return true;
-                      return false;
-                    })
-                    .map((page, index, arr) => {
-                      const prevPage = arr[index - 1];
-                      const showEllipsis = prevPage && page - prevPage > 1;
-
-                      return (
-                        <React.Fragment key={page}>
-                          {showEllipsis && (
-                            <span className="px-2 text-gray-400">...</span>
-                          )}
-                          <button
-                            onClick={() => setCurrentPage(page)}
-                            className={`flex justify-center items-center px-4 py-2 rounded-lg font-medium text-sm transition-all min-w-10 ${currentPage === page
-                              ? 'bg-blue-500 text-white shadow-lg'
-                              : 'bg-[rgb(var(--background-start)/0.6)] text-gray-300 hover:bg-[rgb(var(--background-start)/0.8)]'
-                              }`}
-                          >
-                            {page}
-                          </button>
-                        </React.Fragment>
-                      );
-                    })}
-
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                    className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
-                  >
-                    ›
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(totalPages)}
-                    disabled={currentPage === totalPages}
-                    className="flex justify-center items-center bg-[rgb(var(--background-start)/0.6)] hover:bg-[rgb(var(--background-start)/0.8)] disabled:opacity-40 px-3 py-2 rounded-lg font-medium text-white text-sm transition-all disabled:cursor-not-allowed"
-                  >
-                    »
-                  </button>
-                </div>
-              </motion.div>
+              <div className="flex justify-center mt-8 sm:mt-10">
+                <Pager
+                  page={currentPage - 1}
+                  hasNext={currentPage < totalPages}
+                  onPageChange={(next) => setCurrentPage(Math.min(totalPages, next + 1))}
+                />
+              </div>
             )}
           </>
         )}
-
       </div>
     </PageLayout>
   );
