@@ -6,7 +6,7 @@
 import { memo, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad, Tooltip } from '@/components';
+import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad } from '@/components';
 import { endpoints } from '@/config/api';
 import { useImpressionRef } from '@/hooks/useImpressionRef';
 import { downloadSong } from '@/utils/download';
@@ -64,11 +64,15 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
             <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
               {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}
             </div>
-            <Tooltip content={song.uploader + '@' + song.designer}>
-              <div className="mb-2 text-[0.8rem] truncate">
-                {link('/space?id=' + song.uploader, song.uploader + '@' + song.designer)}
-              </div>
-            </Tooltip>
+            <div className="mb-2 text-[0.8rem] truncate">
+              {disableLink || onClick ? (
+                song.uploader + '@' + song.designer
+              ) : (
+                <Link to={'/space?id=' + song.uploader} className="hover:underline underline-offset-2 decoration-white/60">
+                  {song.uploader + '@' + song.designer}
+                </Link>
+              )}
+            </div>
             {isManage ? (
               <>
                 {' '}
