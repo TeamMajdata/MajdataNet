@@ -15,7 +15,8 @@ function SettingsCard({ title, description, children }: { title: string; descrip
         <h2 className="m-0 font-semibold text-white! text-lg! text-left!">{title}</h2>
         {description && <p className="m-0 mt-1 text-white/50! text-sm">{description}</p>}
       </header>
-      {children}
+      {/* 包一层，让设置项的 first:/last: 只在设置项之间生效 */}
+      <div>{children}</div>
     </section>
   );
 }
