@@ -539,15 +539,14 @@
     "View": "表示"
   },
   "user/IntroUploader": {
-    "MarkdownSupported": "（Markdown記法対応）",
     "NoIntroTypedIn": "自己紹介がまだ書かれていません",
     "Preview": "プレビュー",
+    "Save": "保存",
+    "Saving": "保存中…",
     "SelfIntro": "自己紹介",
-    "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
     "UploadSuccess": "アップロードしました",
-    "Uploading": "爆速アップロード中...",
-    "UploadingPlzWait": "アップロード中です。しばらくお待ちください"
+    "Uploading": "爆速アップロード中..."
   },
   "user/Logout": {
     "Logout": "ログアウト"

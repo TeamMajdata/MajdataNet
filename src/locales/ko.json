@@ -539,15 +539,14 @@
     "View": "보기"
   },
   "user/IntroUploader": {
-    "MarkdownSupported": " (마크다운 지원)",
     "NoIntroTypedIn": "아직 자기소개를 작성하지 않았어요.",
     "Preview": "미리보기",
+    "Save": "저장",
+    "Saving": "저장 중…",
     "SelfIntro": "자기소개",
-    "Upload": "업로드",
     "UploadFailed": "업로드에 실패했습니다",
     "UploadSuccess": "업로드했습니다",
-    "Uploading": "업로드 중...",
-    "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!"
+    "Uploading": "업로드 중..."
   },
   "user/Logout": {
     "Logout": "로그아웃"

@@ -549,15 +549,14 @@
     "View": "View"
   },
   "user/IntroUploader": {
-    "MarkdownSupported": " (Markdown Supported)",
     "NoIntroTypedIn": "You haven't written down your intro yet.",
     "Preview": "Preview",
+    "Save": "Save",
+    "Saving": "Saving…",
     "SelfIntro": "Self-Intro",
-    "Upload": "Upload",
     "UploadFailed": "Upload failed",
     "UploadSuccess": "Upload succeeded",
-    "Uploading": "Uploading...",
-    "UploadingPlzWait": "Uploading, plz wait!"
+    "Uploading": "Uploading..."
   },
   "user/Logout": {
     "Logout": "Logout"

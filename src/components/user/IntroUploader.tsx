@@ -84,52 +84,54 @@ export default function IntroUploader() {
     }
   }
 
+  const paneCaption = 'mb-2 font-medium text-white/50 text-xs uppercase tracking-wider';
+  const paneBox = 'border border-white/10 rounded-xl w-full h-80 lg:h-[28rem]';
+
   return (
-    <>
-      <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">
-        {t("user/IntroUploader.SelfIntro")}
-        {t("user/IntroUploader.MarkdownSupported")}
-      </h2>
-      <div className="flex flex-wrap justify-center max-w-(--container-max-width) mx-auto my-0 px-(--container-padding)">
-        <form className="flex flex-col justify-center w-full" onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      {/* 桌面端左边编辑、右边实时预览；手机端上下排列 */}
+      <div className="gap-4 grid grid-cols-1 lg:grid-cols-2 min-w-0">
+        <label className="flex flex-col min-w-0">
+          <span className={paneCaption}>{t("user/IntroUploader.SelfIntro")}</span>
           <textarea
-            className="bg-black shadow-[2px_2px_5px_gray] focus:shadow-[0_0_8px_rgba(0,123,255,0.5)] mx-2.5 my-2.5 px-3 py-3 border border-white focus:border-[#007bff] rounded-[10px] focus:outline-none min-h-75 font-['Consolas',monospace] text-white text-sm leading-relaxed caret-white resize-vertical"
+            className={`${paneBox} bg-black/40 focus:bg-black/50 disabled:opacity-60 p-3.5 focus:border-blue-400/60 outline-none focus:ring-2 focus:ring-blue-400/20 font-mono text-white text-sm leading-relaxed resize-none transition-colors`}
             name="introduction"
             id="IntroBox"
             defaultValue={data?.introduction || ''}
             onChange={(e) => setIntro(e.target.value)}
             disabled={isUploading}
           />
+        </label>
 
-          <button
-            className="hover:bg-[rgb(46,46,46)] disabled:bg-[rgb(92,0,0)] hover:shadow-[2px_2px_5px_gray] mx-2.5 my-7.5 px-1.5 py-1.5 border border-transparent hover:border-white rounded-[10px] text-[gainsboro] hover:text-white transition-all duration-200"
-            type="submit"
-            disabled={isUploading}
-          >
-            {isUploading ? t("user/IntroUploader.UploadingPlzWait") : t("user/IntroUploader.Upload")}
-          </button>
-        </form>
+        <div className="flex flex-col min-w-0">
+          <span className={paneCaption}>{t("user/IntroUploader.Preview")}</span>
+          <article className={`${paneBox} bg-white/[0.02]! p-4 overflow-auto markdown-body`}>
+            <Markdown
+              remarkPlugins={[remarkGfm, remarkCenter]}
+              components={{
+                ol(props) {
+                  return <ol type="1" {...props} />;
+                },
+                img(props) {
+                  return <img style={{ margin: 'auto' }} {...props} />;
+                },
+              }}
+            >
+              {intro}
+            </Markdown>
+          </article>
+        </div>
       </div>
 
-      {/* HR Divider */}
-      <div className="my-8 border-white/20 border-t"></div>
-
-      <h2 className="mb-4 font-semibold text-[#e5e5e5] text-2xl">{t("user/IntroUploader.Preview")}</h2>
-      <article className="bg-transparent px-4 markdown-body">
-        <Markdown
-          remarkPlugins={[remarkGfm, remarkCenter]}
-          components={{
-            ol(props) {
-              return <ol type="1" {...props} />;
-            },
-            img(props) {
-              return <img style={{ margin: 'auto' }} {...props} />;
-            },
-          }}
+      <div className="flex justify-end">
+        <button
+          className="bg-blue-500 hover:bg-blue-400 disabled:opacity-50 px-5 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+          type="submit"
+          disabled={isUploading}
         >
-          {intro}
-        </Markdown>
-      </article>
-    </>
+          {isUploading ? t("user/IntroUploader.Saving") : t("user/IntroUploader.Save")}
+        </button>
+      </div>
+    </form>
   );
 }

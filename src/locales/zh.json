@@ -539,15 +539,14 @@
     "View": "查看"
   },
   "user/IntroUploader": {
-    "MarkdownSupported": "（支持Markdown语法）",
     "NoIntroTypedIn": "你还没有填写自我介绍哦",
     "Preview": "预览",
+    "Save": "保存",
+    "Saving": "保存中…",
     "SelfIntro": "自我介绍",
-    "Upload": "上传",
     "UploadFailed": "上传失败",
     "UploadSuccess": "上传成功",
-    "Uploading": "正在爆速上传...",
-    "UploadingPlzWait": "上传中啦等一会啦"
+    "Uploading": "正在爆速上传..."
   },
   "user/Logout": {
     "Logout": "登出"
