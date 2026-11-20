@@ -246,7 +246,7 @@ function NavigationContent() {
       <button
         ref={menuButtonRef}
         type="button"
-        className={`relative grid h-11 w-11 touch-manipulation place-items-center rounded-xl border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 xl:hidden ${isMobileMenuOpen ? 'border-blue-300/30 bg-blue-400/10' : 'border-white/10 bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.07]'}`}
+        className={`relative grid h-10 w-10 touch-manipulation place-items-center rounded-xl border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 xl:hidden ${isMobileMenuOpen ? 'border-blue-300/30 bg-blue-400/10' : 'border-white/10 bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.07]'}`}
         onClick={toggleMobileMenu}
         aria-label={t("shared/Navigation.NavigationMenu")}
         aria-expanded={isMobileMenuOpen}
