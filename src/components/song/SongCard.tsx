@@ -58,16 +58,12 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
           />
 
           <div className="ml-[8.9rem]">
-            <Tooltip content={stripTmpTags(song.title)}>
-              <div className="mb-1.25 font-bold text-base truncate" id={song.id}>
-                {link('/song?id=' + song.id, parseTmpRichText(song.title))}
-              </div>
-            </Tooltip>
-            <Tooltip content={song.artist}>
-              <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
-                {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}
-              </div>
-            </Tooltip>
+            <div className="mb-1.25 font-bold text-base truncate" id={song.id}>
+              {link('/song?id=' + song.id, parseTmpRichText(song.title))}
+            </div>
+            <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
+              {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}
+            </div>
             <Tooltip content={song.uploader + '@' + song.designer}>
               <div className="mb-2 text-[0.8rem] truncate">
                 {link('/space?id=' + song.uploader, song.uploader + '@' + song.designer)}
