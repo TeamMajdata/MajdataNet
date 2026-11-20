@@ -68,20 +68,21 @@ export default function UserMenu({ username }: UserMenuProps) {
       onPointerEnter={openOnHover}
       onPointerLeave={closeOnHoverEnd}
     >
+      {/* 只显示头像：细圆环悬停变亮、展开时变蓝；昵称放在下拉菜单顶部 */}
       <button
-        className={`flex items-center gap-2 p-1 md:pr-3 rounded-full cursor-pointer text-white/85 text-sm font-medium h-10 border touch-manipulation transition-colors duration-150 ${
-          isOpen ? 'bg-white/10 border-white/20' : 'bg-white/[0.04] border-white/10 hover:bg-white/[0.08] hover:border-white/20'
+        className={`flex justify-center items-center bg-transparent p-0.5 border-none rounded-full w-10 h-10 cursor-pointer touch-manipulation ring-1 transition-shadow duration-150 ${
+          isOpen ? 'ring-2 ring-blue-400/70' : 'ring-white/15 hover:ring-white/40'
         }`}
         onClick={() => setIsOpen(canHover() ? true : !isOpen)}
         aria-expanded={isOpen}
         aria-label={t("shared/UserMenu.UserMenu")}
+        title={user?.nickname || username}
       >
         <UserAvatar
-          className={"w-8 h-8 rounded-full object-cover"}
+          className={"w-full h-full rounded-full object-cover"}
           username={username}
           avatarId={user?.avatarId}
         />
-        <span className="hidden md:inline max-w-30 overflow-hidden font-medium text-ellipsis whitespace-nowrap">{user?.nickname || username}</span>
       </button>
 
       <Dropdown isOpen={isOpen} onClose={() => setIsOpen(false)} position="right" className="p-1.5 w-[min(15rem,calc(100vw-1.5rem))]" containerRef={containerRef}>
