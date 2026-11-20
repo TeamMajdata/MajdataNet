@@ -583,7 +583,7 @@
     "UploadNoticeTerms4": "この譜面は、少なくとも一種類のエディター（majdata / maipad / astrodx / simai 等）で読み込むことができます。"
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "空です",
+    "EmptyData": "まだコレクションがありません。「新しいコレクション」から作成できます。",
     "EmptyFavorites": "お気に入りはまだありません",
     "ExitManage": "管理を終了",
     "Manage": "管理",

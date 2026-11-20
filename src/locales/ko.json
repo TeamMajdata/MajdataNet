@@ -583,7 +583,7 @@
     "UploadNoticeTerms4": "이 채보는 최소 하나의 편집기(majdata / maipad / astrodx / simai 등)에서 열 수 있어야 합니다."
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "비어있음",
+    "EmptyData": "아직 컬렉션이 없습니다. 새 컬렉션을 만들어 보세요.",
     "EmptyFavorites": "아직 즐겨찾기가 없습니다",
     "ExitManage": "관리 종료",
     "Manage": "관리",

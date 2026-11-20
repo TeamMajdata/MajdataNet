@@ -583,7 +583,7 @@
     "UploadNoticeTerms4": "这张谱面至少可以被一种编辑器读取（majdata / maipad / astrodx / simai 等）。"
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "空的",
+    "EmptyData": "还没有收藏夹，点「新建收藏夹」创建一个",
     "EmptyFavorites": "暂无收藏",
     "ExitManage": "退出管理",
     "Manage": "管理",

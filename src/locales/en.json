@@ -593,7 +593,7 @@
     "UploadNoticeTerms4": "This chart can be read by at least one editor (majdata / maipad / astrodx / simai, etc.)."
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "Empty",
+    "EmptyData": "No collections yet. Create one with New Collection.",
     "EmptyFavorites": "No favorites yet",
     "ExitManage": "Exit Manage",
     "Manage": "Manage",
