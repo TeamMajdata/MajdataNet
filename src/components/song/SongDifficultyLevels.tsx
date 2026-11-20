@@ -1,6 +1,5 @@
 import { getLevelName } from '@/utils/levelUtils';
 import { endpoints } from '@/config/api';
-import { renderLevel } from '@/utils/renderLevel';
 import type { SongDifficultyLevelsProps } from '@/types';
 
 export default function SongDifficultyLevels({
@@ -29,7 +28,7 @@ export default function SongDifficultyLevels({
         return (
           <button key={index} type="button" id={'lv' + index} data-level={index}
             aria-pressed={selected === index} onClick={() => choose(index)} disabled={!isPlayer && !onSelect}>
-            <span>{label}</span><strong>{renderLevel(level)}</strong>
+            <span>{label}</span><strong>{level}</strong>
           </button>
         );
       })}

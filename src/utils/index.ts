@@ -7,7 +7,6 @@ export { default as sleep } from './sleep';
 
 // 难度等级工具
 export { getLevelName, formatLevel } from './levelUtils';
-export { renderLevel } from './renderLevel';
 
 // Combo工具
 export { getComboState } from './comboUtils';
