@@ -32,7 +32,7 @@ export default function NicknameEditor() {
   return <form onSubmit={submit} className="flex sm:flex-row flex-col gap-2 max-w-lg">
     <input key={user.nickname} name="nickname" defaultValue={user.nickname || user.username} autoComplete="nickname" required disabled={busy}
       aria-label={t("auth/ForginsterPage.Nickname")}
-      className="flex-1 bg-white/[0.04] focus:bg-white/[0.06] disabled:opacity-60 px-3.5 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full min-w-0 h-10 text-white text-sm transition-colors" />
+      className="sm:flex-1 bg-white/[0.04] focus:bg-white/[0.06] disabled:opacity-60 px-3.5 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full min-w-0 h-10 text-white text-sm transition-colors" />
     <button type="submit" disabled={busy} className="bg-blue-500 hover:bg-blue-400 disabled:opacity-50 px-4 border-none rounded-xl h-10 font-semibold text-white text-sm whitespace-nowrap transition-colors cursor-pointer disabled:cursor-not-allowed">
       {busy ? t("user/NicknameEditor.Saving") : t("user/NicknameEditor.Save")}
     </button>
