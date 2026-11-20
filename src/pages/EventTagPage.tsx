@@ -43,7 +43,7 @@ export default function EventTagPage() {
     : null;
 
   return (
-    <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen">
+    <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen" showBackToHome={eventId !== 'Original'}>
       {/* 活动横幅 */}
       {currentEvent && <EventBanner event={currentEvent} />}
 
