@@ -1,7 +1,8 @@
 import { act, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MotionGlobalConfig } from 'framer-motion';
 import { md5 } from 'js-md5';
 import ForginsterPage from '@/pages/ForginsterPage';
 import { endpoints } from '@/config/api';
@@ -21,6 +22,11 @@ function Location() { return <output>{useLocation().pathname + useLocation().sea
 let root: Root;
 let container: HTMLDivElement;
 let fetchMock: ReturnType<typeof vi.fn>;
+
+// 这里测的是登录路由和表单，不是动画；而且有用例把假时钟拨快了五分钟，
+// framer-motion 沿用那个时间戳后，之后用例里的关闭动画迟迟播不完。直接跳过动画。
+beforeAll(() => { MotionGlobalConfig.skipAnimations = true; });
+afterAll(() => { MotionGlobalConfig.skipAnimations = false; });
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -43,7 +49,8 @@ afterEach(() => {
 async function render(path: string) {
   await act(async () => root.render(<MemoryRouter initialEntries={[path]}><AuthModalRoute /><Location /></MemoryRouter>));
 }
-function field(name: string) { return container.querySelector<HTMLInputElement>(`input[name="${name}"]`)!; }
+// 弹窗通过 portal 渲染在 body 下，查询都在 document.body 里做
+function field(name: string) { return document.body.querySelector<HTMLInputElement>(`input[name="${name}"]`)!; }
 function fill(name: string, value: string) {
   act(() => {
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(field(name), value);
@@ -51,13 +58,13 @@ function fill(name: string, value: string) {
   });
 }
 async function sendCode() {
-  await act(async () => container.querySelector<HTMLButtonElement>('form button[type="button"]')!.click());
+  await act(async () => document.body.querySelector<HTMLButtonElement>('form button[type="button"]')!.click());
 }
 async function submit() {
-  await act(async () => container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+  await act(async () => document.body.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
 }
 function body(index: number) { return fetchMock.mock.calls[index][1].body as FormData; }
-function submitButton() { return container.querySelector<HTMLButtonElement>('button[type="submit"]')!; }
+function submitButton() { return document.body.querySelector<HTMLButtonElement>('button[type="submit"]')!; }
 
 describe('email challenge authentication', () => {
   it('requests a registration challenge, submits its key/code and nickname, then returns to login', async () => {
@@ -71,7 +78,7 @@ describe('email challenge authentication', () => {
     await submit();
     expect(fetchMock.mock.calls[1][0]).toBe(endpoints.account.register);
     expect(Object.fromEntries(body(1))).toEqual({ username: 'player', nickname: 'Player One', email: 'player+test@example.com', password: md5('secret'), challengeKey: 'secret-key', challengeCode: '12345678', 'cf-turnstile-response': 'captcha-token' });
-    expect(container.querySelector('output')!.textContent).toBe('/login?redirect=%2Fqrauth%3Fauth-id%3Dabc');
+    expect(document.body.querySelector('output')!.textContent).toBe('/login?redirect=%2Fqrauth%3Fauth-id%3Dabc');
   });
 
   it('resets with email in the request query and newPassword in the confirm form', async () => {
@@ -86,7 +93,7 @@ describe('email challenge authentication', () => {
     expect(fetchMock.mock.calls[1][1].method).toBe('POST');
     expect(Object.fromEntries(body(1))).toEqual({ email: 'player+test@example.com', newPassword: md5('new-secret'), challengeCode: '12345678', challengeKey: 'reset-key' });
     expect(mocks.refetch).toHaveBeenCalledOnce();
-    expect(container.querySelector('output')!.textContent).toBe('/login');
+    expect(document.body.querySelector('output')!.textContent).toBe('/login');
   });
 
   it('invalidates the challenge when the email changes', async () => {
@@ -103,7 +110,7 @@ describe('email challenge authentication', () => {
     fetchMock.mockResolvedValueOnce(new Response('old-key')).mockResolvedValueOnce(new Response('new-key'));
     await render('/forget'); fill('email', 'one@example.com'); await sendCode();
     await act(async () => { vi.advanceTimersByTime(5 * 60_000); });
-    expect(submitButton().disabled).toBe(true); expect(container.textContent).toContain(i18n.t('auth/ForginsterPage.CodeExpired'));
+    expect(submitButton().disabled).toBe(true); expect(document.body.textContent).toContain(i18n.t('auth/ForginsterPage.CodeExpired'));
     await sendCode(); expect(submitButton().disabled).toBe(false);
     fill('password', 'x'); fill('password2', 'y'); await submit();
     expect(fetchMock).toHaveBeenCalledTimes(2); expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.PasswdNoMatch'));
@@ -121,14 +128,14 @@ describe('email challenge authentication', () => {
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch')).mockResolvedValueOnce(new Response('', { status: 429 }));
     await render('/forget'); fill('email', 'one@example.com'); await sendCode();
     expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.NetworkError'));
-    expect(container.querySelector<HTMLFieldSetElement>('fieldset')!.disabled).toBe(false);
+    expect(document.body.querySelector<HTMLFieldSetElement>('fieldset')!.disabled).toBe(false);
     await sendCode(); expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.TooManyRequests'));
-    expect(container.querySelector<HTMLButtonElement>('form button[type="button"]')!.disabled).toBe(true);
+    expect(document.body.querySelector<HTMLButtonElement>('form button[type="button"]')!.disabled).toBe(true);
   });
 
   it('does not submit an old activation link to a removed endpoint', async () => {
     await render('/login?otp=old-key');
-    expect(container.textContent).toContain(i18n.t('auth/ForginsterPage.LegacyLink')); expect(fetchMock).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain(i18n.t('auth/ForginsterPage.LegacyLink')); expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('logs in with an email and retains rememberMe and the internal redirect', async () => {
@@ -136,33 +143,38 @@ describe('email challenge authentication', () => {
     await render('/login?redirect=%2Fuser%2Fprofile'); fill('username', 'one@example.com'); fill('password', 'secret');
     act(() => field('rememberMe').click()); await submit();
     expect(Object.fromEntries(body(0))).toEqual({ username: 'one@example.com', password: md5('secret'), rememberMe: 'true' });
-    expect(mocks.refetch).toHaveBeenCalledOnce(); expect(container.querySelector('output')!.textContent).toBe('/user/profile');
+    expect(mocks.refetch).toHaveBeenCalledOnce(); expect(document.body.querySelector('output')!.textContent).toBe('/user/profile');
   });
 
   it('shows login errors without reading the response body twice', async () => {
     fetchMock.mockResolvedValueOnce(Response.json({ code: -114514, message: 'Service unavailable' }, { status: 500 }));
     await render('/login'); fill('username', 'player'); fill('password', 'secret'); await submit();
     expect(mocks.error).toHaveBeenCalledWith('Service unavailable');
-    expect(container.querySelector<HTMLFieldSetElement>('fieldset')!.disabled).toBe(false);
+    expect(document.body.querySelector<HTMLFieldSetElement>('fieldset')!.disabled).toBe(false);
   });
 
   it('closes the modal after a login without a redirect', async () => {
     fetchMock.mockResolvedValueOnce(Response.json({ code: 114514 }));
     await render('/login'); fill('username', 'player'); fill('password', 'secret'); await submit();
-    expect(container.querySelector('output')!.textContent).toBe('/');
-    expect(container.querySelector('[role="dialog"]')).toBeNull();
+    expect(document.body.querySelector('output')!.textContent).toBe('/');
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull();
   });
 
   it('closes with Escape and switches to register from the footer link in place', async () => {
     await render('/login');
-    expect(container.querySelector('[role="dialog"]')!.getAttribute('aria-modal')).toBe('true');
+    expect(document.body.querySelector('[role="dialog"]')!.getAttribute('aria-modal')).toBe('true');
     expect(document.body.style.overflow).toBe('hidden');
-    expect(container.querySelector('button[aria-pressed]')).toBeNull();
-    const goRegister = [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === i18n.t('auth/ForginsterPage.GoRegister'))!;
+    expect(document.body.querySelector('button[aria-pressed]')).toBeNull();
+    const goRegister = [...document.body.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === i18n.t('auth/ForginsterPage.GoRegister'))!;
     await act(async () => goRegister.click());
-    expect(container.querySelector('output')!.textContent).toBe('/register');
+    expect(document.body.querySelector('output')!.textContent).toBe('/register');
     await act(async () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
-    expect(container.querySelector('output')!.textContent).toBe('/');
+    // 关闭动画播完才离开登录路由
+    // act 里的状态更新要等 act 结束才生效，所以分多次短暂等待，直到路由变化（最多约 2 秒）
+    for (let i = 0; i < 40 && document.body.querySelector('output')!.textContent !== '/'; i++) {
+      await act(async () => new Promise((resolve) => setTimeout(resolve, 50)));
+    }
+    expect(document.body.querySelector('output')!.textContent).toBe('/');
     expect(document.body.style.overflow).toBe('');
   });
 });

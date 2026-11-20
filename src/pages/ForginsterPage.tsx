@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import Modal from '@/components/ui/Modal';
 import { ApiError, apiRequest } from '@/utils/apiClient';
 import * as retCode from '@/config/apiRetCode';
 
@@ -65,41 +66,39 @@ export default function ForginsterPage() {
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const titleId = useId();
-  const pressedOnBackdrop = useRef(false);
   const activeTab: TabType = pathname === '/register' ? 'register' : pathname === '/forget' ? 'forget' : 'login';
-  const close = useCloseAuth();
+  const leave = useCloseAuth();
+  // 先播放关闭动画，播完再离开登录路由
+  const [open, setOpen] = useState(true);
+  const close = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close();
-    };
-    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [close]);
+  }, []);
 
   return (
-    <div
-      className="z-1100 fixed inset-0 flex justify-center items-start sm:items-center bg-black/60 backdrop-blur-sm px-3 py-[max(1rem,env(safe-area-inset-top))] overflow-y-auto overscroll-contain"
-      onMouseDown={event => { pressedOnBackdrop.current = event.target === event.currentTarget; }}
-      onClick={event => { if (pressedOnBackdrop.current && event.target === event.currentTarget) close(); }}
+    <Modal
+      open={open}
+      onClose={close}
+      onExitComplete={leave}
+      scrollable
+      zIndexClass="z-1100"
+      labelledBy={titleId}
+      className={`p-5 sm:p-7 min-w-0 ${activeTab === 'register' ? 'max-w-md md:max-w-3xl' : 'max-w-md'}`}
     >
-      <div role="dialog" aria-modal="true" aria-labelledby={titleId}
-        className={`relative bg-[rgb(18_20_27/97%)] shadow-[0_24px_70px_rgb(0_0_0/55%),0_1px_0_rgb(255_255_255/6%)_inset] my-auto p-5 sm:p-7 border border-white/10 rounded-2xl w-full min-w-0 ${activeTab === 'register' ? 'max-w-md md:max-w-3xl' : 'max-w-md'}`}>
-        <button type="button" onClick={close} aria-label={t("auth/ForginsterPage.Close")}
-          className="top-3 right-3 absolute place-items-center grid hover:bg-white/10 rounded-lg w-9 h-9 text-white/50 hover:text-white transition-colors cursor-pointer">
-          <svg aria-hidden="true" viewBox="0 0 16 16" className="w-4 h-4" fill="none">
-            <path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          </svg>
-        </button>
-        {searchParams.has('otp') && <p role="status" className="mt-6 mb-4 pr-8 text-amber-200! text-sm">{t("auth/ForginsterPage.LegacyLink")}</p>}
-        {activeTab === 'login' ? <LoginTab titleId={titleId} /> : <ChallengeTab key={activeTab} mode={activeTab} titleId={titleId} />}
-      </div>
-    </div>
+      <button type="button" onClick={close} aria-label={t("auth/ForginsterPage.Close")}
+        className="top-3 right-3 absolute place-items-center grid hover:bg-white/10 rounded-lg w-9 h-9 text-white/50 hover:text-white transition-colors cursor-pointer">
+        <svg aria-hidden="true" viewBox="0 0 16 16" className="w-4 h-4" fill="none">
+          <path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      </button>
+      {searchParams.has('otp') && <p role="status" className="mt-6 mb-4 pr-8 text-amber-200! text-sm">{t("auth/ForginsterPage.LegacyLink")}</p>}
+      {activeTab === 'login' ? <LoginTab titleId={titleId} /> : <ChallengeTab key={activeTab} mode={activeTab} titleId={titleId} />}
+    </Modal>
   );
 }
 

@@ -28,6 +28,7 @@ export default function Modal({
   dismissible = true,
   zIndexClass = 'z-[1001]',
   onExitComplete,
+  scrollable = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -42,6 +43,8 @@ export default function Modal({
   zIndexClass?: string;
   /** 关闭动画播完后调用 */
   onExitComplete?: () => void;
+  /** 内容可能比屏幕高（例如注册表单）：遮罩层可以滚动，放得下时仍然居中 */
+  scrollable?: boolean;
 }) {
   const reduceMotion = useReducedMotion();
 
@@ -67,12 +70,12 @@ export default function Modal({
     <AnimatePresence onExitComplete={onExitComplete}>
       {open && (
         <div
-          className={`${zIndexClass} fixed inset-0 flex justify-center items-center p-4`}
+          className={`${zIndexClass} fixed inset-0 flex justify-center p-4 ${scrollable ? 'items-start sm:items-center overflow-y-auto overscroll-contain' : 'items-center'}`}
           // 弹窗里的点击不要冒泡到触发它的卡片等元素上
           onClick={(event) => event.stopPropagation()}
         >
           <motion.div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             // 遮罩和面板的退出时长要一致，否则先结束的面板会闪回一帧
@@ -86,7 +89,7 @@ export default function Modal({
             aria-modal="true"
             aria-labelledby={labelledBy}
             aria-describedby={describedBy}
-            className={`${MODAL_PANEL_CLASS} ${className}`}
+            className={`${MODAL_PANEL_CLASS} ${scrollable ? 'my-auto' : ''} ${className}`}
             onUpdate={keepJsAnimation}
             {...panelMotion}
           >
