@@ -1,19 +1,18 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useRef, useState, type FormEvent, type InputHTMLAttributes } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type InputHTMLAttributes } from 'react';
 import { md5 } from 'js-md5';
 import { toast } from 'react-toastify';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
-import { PageLayout } from '@/components';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { ApiError, apiRequest } from '@/utils/apiClient';
 import * as retCode from '@/config/apiRetCode';
 
 type TabType = 'login' | 'register' | 'forget';
-const AUTH_CARD_CLASSNAME = 'bg-[rgb(30_30_30/90%)] shadow-[0_20px_40px_rgb(0_0_0/40%)] backdrop-blur-[20px] p-4 sm:p-8 border border-white/10 rounded-[20px]';
-const INPUT_CLASSNAME = 'w-full min-w-0 bg-black/60 p-4 border-2 border-white/10 focus:border-blue-500 rounded-xl outline-none text-white disabled:opacity-50';
-const BUTTON_CLASSNAME = 'bg-blue-600 hover:bg-blue-700 disabled:opacity-50 p-4 rounded-xl font-semibold text-white cursor-pointer disabled:cursor-not-allowed';
+const INPUT_CLASSNAME = 'w-full min-w-0 bg-black/40 px-3.5 h-11 border border-white/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/25 rounded-lg outline-none text-white placeholder:text-white/30 transition-colors disabled:opacity-50';
+const BUTTON_CLASSNAME = 'flex justify-center items-center bg-blue-500 hover:bg-blue-400 disabled:hover:bg-blue-500 disabled:opacity-50 h-11 rounded-lg font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed';
+const SECONDARY_BUTTON_CLASSNAME = 'flex justify-center items-center bg-white/[0.06] hover:bg-white/10 disabled:hover:bg-white/[0.06] disabled:opacity-50 border border-white/10 h-11 rounded-lg font-medium text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed';
 const TURNSTILE_SITE_KEY = '0x4AAAAAACAEyA1EhHmEDS0o';
 const TURNSTILE_SCRIPT_ID = 'cloudflare-turnstile-script';
 
@@ -63,36 +62,74 @@ function loadTurnstileScript() {
 
 export default function ForginsterPage() {
   const { t } = useTranslation();
-  const { pathname, search } = useLocation();
+  const location = useLocation();
+  const { pathname, search } = location;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const titleId = useId();
+  const pressedOnBackdrop = useRef(false);
   const activeTab: TabType = pathname === '/register' ? 'register' : pathname === '/forget' ? 'forget' : 'login';
+  const close = useCloseAuth();
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') close();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [close]);
 
   return (
-    <PageLayout className="flex justify-center items-center min-h-[60vh]">
-      <div className="mx-auto px-0 sm:px-4 py-4 sm:py-8 w-full max-w-md min-w-0">
-        <div className="flex bg-black/40 mb-6 p-1 rounded-xl">
+    <div
+      className="z-1100 fixed inset-0 flex justify-center items-start sm:items-center bg-black/60 backdrop-blur-sm px-3 py-[max(1rem,env(safe-area-inset-top))] overflow-y-auto overscroll-contain"
+      onMouseDown={event => { pressedOnBackdrop.current = event.target === event.currentTarget; }}
+      onClick={event => { if (pressedOnBackdrop.current && event.target === event.currentTarget) close(); }}
+    >
+      <div role="dialog" aria-modal="true" aria-labelledby={titleId}
+        className="relative bg-[rgb(18_20_27/97%)] shadow-[0_24px_70px_rgb(0_0_0/55%),0_1px_0_rgb(255_255_255/6%)_inset] my-auto p-5 sm:p-7 border border-white/10 rounded-2xl w-full max-w-md min-w-0">
+        <button type="button" onClick={close} aria-label={t("auth/ForginsterPage.Close")}
+          className="top-3 right-3 absolute place-items-center grid hover:bg-white/10 rounded-lg w-9 h-9 text-white/50 hover:text-white transition-colors cursor-pointer">
+          <svg aria-hidden="true" viewBox="0 0 16 16" className="w-4 h-4" fill="none">
+            <path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        </button>
+        <div className="flex gap-1 bg-white/[0.04] mt-8 sm:mt-6 mb-6 p-1 border border-white/[0.06] rounded-xl">
           {(['login', 'register', 'forget'] as const).map(tab => (
             <button key={tab} type="button" aria-pressed={tab === activeTab}
-              className={`flex-1 py-3 rounded-lg text-sm ${tab === activeTab ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${tab === activeTab ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white'}`}
               onClick={() => {
                 const params = new URLSearchParams(search);
                 params.delete('otp');
-                navigate({ pathname: `/${tab}`, search: params.toString() });
+                navigate({ pathname: `/${tab}`, search: params.toString() }, { replace: true, state: location.state });
               }}>
               {tab === 'login' ? t("auth/ForginsterPage.Login") : tab === 'register' ? t("auth/ForginsterPage.Register") : t("auth/ForginsterPage.ForgetPassword")}
             </button>
           ))}
         </div>
         {searchParams.has('otp') && <p role="status" className="mb-4 text-amber-200 text-sm">{t("auth/ForginsterPage.LegacyLink")}</p>}
-        {activeTab === 'login' ? <LoginTab /> : <ChallengeTab key={activeTab} mode={activeTab} />}
+        {activeTab === 'login' ? <LoginTab titleId={titleId} /> : <ChallengeTab key={activeTab} mode={activeTab} titleId={titleId} />}
       </div>
-    </PageLayout>
+    </div>
   );
 }
 
+/** Leaves the modal: back to the page underneath, or home when the modal was opened directly. */
+function useCloseAuth() {
+  const navigate = useNavigate();
+  return useCallback(() => {
+    const historyIndex = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+    if (historyIndex > 0) navigate(-1);
+    else navigate('/', { replace: true });
+  }, [navigate]);
+}
+
 function Field({ label, name, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; name: string }) {
-  return <label className="flex flex-col gap-2 text-[#e5e5e5] text-sm">
+  return <label className="flex flex-col gap-1.5 text-white/70 text-sm">
     <span>{label}</span>
     <input className={INPUT_CLASSNAME} name={name} {...props} />
   </label>;
@@ -120,9 +157,10 @@ function useAuthError() {
   };
 }
 
-function LoginTab() {
+function LoginTab({ titleId }: { titleId: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const close = useCloseAuth();
   const [params] = useSearchParams();
   const { refetch } = useUserContext();
   const [busy, setBusy] = useState(false);
@@ -143,34 +181,36 @@ function LoginTab() {
       }
       await refetch();
       const redirect = params.get('redirect');
-      navigate(redirect?.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('\\') ? redirect : '/', { replace: true });
+      if (redirect?.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('\\')) navigate(redirect, { replace: true });
+      else close();
     } catch (error) {
       if (error instanceof ApiError && error.code === retCode.CODE_INVALID_CREDENTIALS) toast.error(t("auth/ForginsterPage.WrongCredential"));
       else showError(error);
     } finally { setBusy(false); }
   }
 
-  return <div className={AUTH_CARD_CLASSNAME}>
-    <h2 className="mb-2 font-bold text-white text-3xl text-center">{t("auth/ForginsterPage.WelcomeBack")}</h2>
-    <p className="mb-8 text-gray-400 text-sm text-center">{t("auth/ForginsterPage.LoginSubtitle")}</p>
+  return <div>
+    <h2 id={titleId} className="mb-1 font-semibold! text-white! text-2xl! text-left!">{t("auth/ForginsterPage.WelcomeBack")}</h2>
+    <p className="mb-6 text-white/50! text-sm">{t("auth/ForginsterPage.LoginSubtitle")}</p>
     <form onSubmit={onSubmit}>
-      <fieldset disabled={busy} className="flex flex-col gap-6">
-        <Field label={t("auth/ForginsterPage.UsernameOrEmail")} name="username" autoComplete="username" required />
+      <fieldset disabled={busy} className="flex flex-col gap-4">
+        <Field label={t("auth/ForginsterPage.UsernameOrEmail")} name="username" autoComplete="username" autoFocus required />
         <Field label={t("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="current-password" required />
-        <label className="flex items-center gap-2 text-white text-sm"><input type="checkbox" name="rememberMe" />{t("auth/ForginsterPage.RememberMe")}</label>
-        <button className={BUTTON_CLASSNAME} type="submit">{busy ? <LoadingSpinner size={24} /> : t("auth/ForginsterPage.Login")}</button>
+        <label className="flex items-center gap-2 text-white/70 text-sm cursor-pointer"><input type="checkbox" name="rememberMe" className="accent-blue-500" />{t("auth/ForginsterPage.RememberMe")}</label>
+        <button className={BUTTON_CLASSNAME} type="submit">{busy ? <LoadingSpinner size={20} /> : t("auth/ForginsterPage.Login")}</button>
       </fieldset>
     </form>
   </div>;
 }
 
 /** A challenge key belongs to one email address and expires after five minutes. */
-function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
+function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId: string }) {
   const registering = mode === 'register';
   const { t } = useTranslation();
   const { refetch } = useUserContext();
   const navigate = useNavigate();
-  const { search } = useLocation();
+  const location = useLocation();
+  const { search } = location;
   const showError = useAuthError();
   const [email, setEmail] = useState('');
   const [challenge, setChallenge] = useState<{ key: string; expiresAt: number } | null>(null);
@@ -247,7 +287,7 @@ function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
       if (!registering) await refetch(); // Password reset revokes every existing session.
       const params = new URLSearchParams(search);
       params.delete('otp');
-      navigate({ pathname: '/login', search: params.toString() }, { replace: true });
+      navigate({ pathname: '/login', search: params.toString() }, { replace: true, state: location.state });
     } catch (error) {
       showError(error);
       // Registration consumes the challenge before checking captcha and uniqueness.
@@ -259,36 +299,36 @@ function ChallengeTab({ mode }: { mode: 'register' | 'forget' }) {
     } finally { setSubmitting(false); }
   }
 
-  return <div className={AUTH_CARD_CLASSNAME}>
-    <h2 className="mb-2 font-bold text-white text-3xl text-center">{registering ? t("auth/ForginsterPage.CreateAccount") : t("auth/ForginsterPage.ForgetPasswordTitle")}</h2>
-    <p className="mb-8 text-gray-400 text-sm text-center">{registering ? t("auth/ForginsterPage.RegisterSubtitle") : t("auth/ForginsterPage.ForgetPasswordSubtitle")}</p>
+  return <div>
+    <h2 id={titleId} className="mb-1 font-semibold! text-white! text-2xl! text-left!">{registering ? t("auth/ForginsterPage.CreateAccount") : t("auth/ForginsterPage.ForgetPasswordTitle")}</h2>
+    <p className="mb-6 text-white/50! text-sm">{registering ? t("auth/ForginsterPage.RegisterSubtitle") : t("auth/ForginsterPage.ForgetPasswordSubtitle")}</p>
     <form onSubmit={onSubmit}>
-      <fieldset disabled={busy} className="flex flex-col gap-5">
+      <fieldset disabled={busy} className="flex flex-col gap-4">
         {registering && <>
-          <Field label={t("auth/ForginsterPage.Username")} name="username" autoComplete="username" maxLength={24} pattern="[A-Za-z0-9]+"
+          <Field label={t("auth/ForginsterPage.Username")} name="username" autoComplete="username" autoFocus maxLength={24} pattern="[A-Za-z0-9]+"
             placeholder={t("auth/ForginsterPage.UsernameHint")}
             onInvalid={event => event.currentTarget.setCustomValidity(event.currentTarget.validity.patternMismatch ? t("auth/ForginsterPage.UsernameHint") : '')}
             onInput={event => event.currentTarget.setCustomValidity('')} required />
           <Field label={t("auth/ForginsterPage.Nickname")} name="nickname" autoComplete="nickname" required />
         </>}
-        <label className="flex flex-col gap-2 text-white text-sm">
+        <label className="flex flex-col gap-1.5 text-white/70 text-sm">
           <span>{t("auth/ForginsterPage.EmailLabel")}</span>
-          <input ref={emailRef} className={INPUT_CLASSNAME} name="email" type="email" autoComplete="email" required value={email} onChange={event => {
+          <input ref={emailRef} className={INPUT_CLASSNAME} name="email" type="email" autoComplete="email" autoFocus={!registering} required value={email} onChange={event => {
             setEmail(event.target.value);
             setChallenge(null);
             setCode('');
           }} />
         </label>
-        <button className={BUTTON_CLASSNAME} type="button" disabled={busy || seconds > 0} onClick={sendCode}>
+        <button className={SECONDARY_BUTTON_CLASSNAME} type="button" disabled={busy || seconds > 0} onClick={sendCode}>
           {sending ? t("auth/ForginsterPage.SendingCode") : seconds > 0 ? t("auth/ForginsterPage.ResendCode", { seconds }) : t("auth/ForginsterPage.SendCode")}
         </button>
-        <p role="status" className="text-gray-400 text-sm">{expired ? t("auth/ForginsterPage.CodeExpired") : challenge ? t("auth/ForginsterPage.CodeSent") : t("auth/ForginsterPage.RequestCodeFirst")}</p>
+        <p role="status" className="-mt-1 text-white/45! text-xs">{expired ? t("auth/ForginsterPage.CodeExpired") : challenge ? t("auth/ForginsterPage.CodeSent") : t("auth/ForginsterPage.RequestCodeFirst")}</p>
         <Field label={t("auth/ForginsterPage.VerificationCode")} name="challengeCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" maxLength={8} minLength={8} placeholder={t("auth/ForginsterPage.EightDigitCode")} value={code} onChange={event => setCode(event.target.value)} required />
         <Field label={t("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="new-password" required />
         <Field label={t("auth/ForginsterPage.ConfirmPassword")} name="password2" type="password" autoComplete="new-password" required />
         {registering && <TurnstileWidget key={captchaVersion} />}
         <button className={BUTTON_CLASSNAME} type="submit" disabled={busy || !challenge || expired}>
-          {submitting ? <LoadingSpinner size={24} /> : registering ? t("auth/ForginsterPage.Register") : t("auth/ForginsterPage.ResetPasswordButton")}
+          {submitting ? <LoadingSpinner size={20} /> : registering ? t("auth/ForginsterPage.Register") : t("auth/ForginsterPage.ResetPasswordButton")}
         </button>
       </fieldset>
     </form>

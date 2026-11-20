@@ -1,5 +1,6 @@
 {
   "auth/ForginsterPage": {
+    "Close": "Close",
     "CloudflareVerificationNotReady": "Cloudflare verification is not ready. Check your network and try again shortly.",
     "CodeExpired": "The code has expired. Request a new one.",
     "CodeSent": "If the email is eligible, a code will arrive shortly. Enter it within 5 minutes.",

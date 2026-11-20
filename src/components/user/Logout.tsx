@@ -12,10 +12,10 @@ export default function Logout() {
 
   const handleLogout = async () => {
     await logoutUtil(
-      () => navigate('/login'), // 登出成功，跳转到登录页
+      () => navigate('/login', { state: { authBackground: '/' } }), // 登出成功，跳转到登录页
       (error) => {
         console.error('登出失败:', error);
-        navigate('/login'); // 即使失败也跳转到登录页
+        navigate('/login', { state: { authBackground: '/' } }); // 即使失败也跳转到登录页
       }
     );
   };

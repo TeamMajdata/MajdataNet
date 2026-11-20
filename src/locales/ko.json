@@ -1,5 +1,6 @@
 {
   "auth/ForginsterPage": {
+    "Close": "닫기",
     "CloudflareVerificationNotReady": "Cloudflare 인증이 완료되지 않았습니다. 네트워크를 확인한 후 잠시 뒤 다시 시도해 주세요.",
     "CodeExpired": "코드가 만료되었습니다. 새 코드를 요청하세요.",
     "CodeSent": "사용 가능한 이메일이면 코드가 전송됩니다. 5분 이내에 입력하세요.",

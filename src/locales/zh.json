@@ -1,5 +1,6 @@
 {
   "auth/ForginsterPage": {
+    "Close": "关闭",
     "CloudflareVerificationNotReady": "Cloudflare 验证尚未完成，请检查网络后稍候重试",
     "CodeExpired": "验证码已过期，请重新获取",
     "CodeSent": "如果邮箱可用，验证码将发送到邮箱，请在 5 分钟内填写。",

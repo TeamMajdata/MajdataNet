@@ -1,5 +1,6 @@
 {
   "auth/ForginsterPage": {
+    "Close": "閉じる",
     "CloudflareVerificationNotReady": "Cloudflare 認証が完了していません。ネットワークを確認して、しばらくしてから再試行してください。",
     "CodeExpired": "コードの有効期限が切れました。再取得してください。",
     "CodeSent": "利用可能なメールアドレスの場合、コードが届きます。5分以内に入力してください。",

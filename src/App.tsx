@@ -1,10 +1,11 @@
-import { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { UserProvider } from '@/contexts/UserContext';
 import { LoadingSpinner, TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
 import HomePage from './pages/HomePage';
 import Live2DMascot from './components/mascot/Live2DMascot';
+import { isAuthPath, type AuthLocationState } from './utils/authPaths';
 import './App.css';
 
 // 首页保持同步加载；其余页面按路由拆成独立 chunk，首次访问时再下载。
@@ -41,6 +42,56 @@ function ExternalRedirect({ to }: { to: string }) {
   return null;
 }
 
+/**
+ * Auth routes (/login, /register, /forget) open as a modal over the page the visitor came from,
+ * so existing links and email deep links keep working.
+ */
+function AppRoutes() {
+  const location = useLocation();
+  const showAuth = isAuthPath(location.pathname);
+  const currentPath = location.pathname + location.search + location.hash;
+  // Remember the last regular page so it stays rendered behind the modal.
+  const [lastPage, setLastPage] = useState<string | null>(null);
+  if (!showAuth && lastPage !== currentPath) setLastPage(currentPath);
+
+  const backgroundLocation = showAuth
+    ? (location.state as AuthLocationState)?.authBackground ?? lastPage ?? '/'
+    : location;
+
+  return (
+    <>
+      <Routes location={backgroundLocation}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/edit" element={<ExternalRedirect to="https://docs.majdata.net/majdatax/" />} />
+        <Route path="/play" element={<ExternalRedirect to="https://docs.majdata.net/majdataplay/" />} />
+        <Route path="/chart-events" element={<EventsPage />} />
+        <Route path="/ranking" element={<RankingPage />} />
+        <Route path="/ranking/user" element={<UserRankingPage />} />
+        <Route path="/song" element={<SongPage />} />
+        <Route path="/space" element={<SpacePage />} />
+        <Route path="/eventTag" element={<EventTagPage />} />
+        <Route path="/minigame" element={<MiniGamePage />} />
+        <Route path="*" element={<NotFoundPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/season" element={<SeasonPage />} />
+          <Route path="/user/charts" element={<UserChartsPage />} />
+          <Route path="/user/profile" element={<UserProfilePage />} />
+          <Route path="/user/scores" element={<PersonalScoresPage />} />
+          <Route path="/user/collections" element={<UserCollectionPage />} />
+          <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
+          <Route path="/collection" element={<CollectionPage />} />
+          <Route path="/qrauth" element={<QRAuthPage />} />
+        </Route>
+      </Routes>
+      {showAuth && (
+        <Suspense fallback={null}>
+          <ForginsterPage />
+        </Suspense>
+      )}
+    </>
+  );
+}
+
 function App() {
   return (
     <HelmetProvider>
@@ -71,32 +122,7 @@ function App() {
             <Router>
               <ScrollToTopListener />
               <Suspense fallback={<RouteFallback />}>
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/login" element={<ForginsterPage />} />
-                  <Route path="/register" element={<ForginsterPage />} />
-                  <Route path="/forget" element={<ForginsterPage />} />
-                  <Route path="/edit" element={<ExternalRedirect to="https://docs.majdata.net/majdatax/" />} />
-                  <Route path="/play" element={<ExternalRedirect to="https://docs.majdata.net/majdataplay/" />} />
-                  <Route path="/chart-events" element={<EventsPage />} />
-                  <Route path="/ranking" element={<RankingPage />} />
-                  <Route path="/ranking/user" element={<UserRankingPage />} />
-                  <Route path="/song" element={<SongPage />} />
-                  <Route path="/space" element={<SpacePage />} />
-                  <Route path="/eventTag" element={<EventTagPage />} />
-                  <Route path="/minigame" element={<MiniGamePage />} />
-                  <Route path="*" element={<NotFoundPage />} />
-                  <Route element={<ProtectedRoute />}>
-                    <Route path="/season" element={<SeasonPage />} />
-                    <Route path="/user/charts" element={<UserChartsPage />} />
-                    <Route path="/user/profile" element={<UserProfilePage />} />
-                    <Route path="/user/scores" element={<PersonalScoresPage />} />
-                    <Route path="/user/collections" element={<UserCollectionPage />} />
-                    <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
-                    <Route path="/collection" element={<CollectionPage />} />
-                    <Route path="/qrauth" element={<QRAuthPage />} />
-                  </Route>
-                </Routes>
+                <AppRoutes />
               </Suspense>
               <Live2DMascot />
             </Router>

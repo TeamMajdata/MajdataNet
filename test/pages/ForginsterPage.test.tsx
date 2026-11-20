@@ -6,6 +6,7 @@ import { md5 } from 'js-md5';
 import ForginsterPage from '@/pages/ForginsterPage';
 import { endpoints } from '@/config/api';
 import i18n from '@/i18n';
+import { isAuthPath } from '@/utils/authPaths';
 
 const mocks = vi.hoisted(() => ({ refetch: vi.fn(), error: vi.fn(), success: vi.fn(), info: vi.fn() }));
 vi.mock('@/hooks', () => ({
@@ -15,6 +16,7 @@ vi.mock('@/components', () => ({ PageLayout: ({ children }: { children: ReactNod
 vi.mock('react-toastify', () => ({ toast: mocks }));
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
+function AuthModalRoute() { return isAuthPath(useLocation().pathname) ? <ForginsterPage /> : null; }
 function Location() { return <output>{useLocation().pathname + useLocation().search}</output>; }
 let root: Root;
 let container: HTMLDivElement;
@@ -39,7 +41,7 @@ afterEach(() => {
   act(() => root.unmount()); container.remove(); vi.useRealTimers(); vi.unstubAllGlobals(); delete window.turnstile;
 });
 async function render(path: string) {
-  await act(async () => root.render(<MemoryRouter initialEntries={[path]}><ForginsterPage /><Location /></MemoryRouter>));
+  await act(async () => root.render(<MemoryRouter initialEntries={[path]}><AuthModalRoute /><Location /></MemoryRouter>));
 }
 function field(name: string) { return container.querySelector<HTMLInputElement>(`input[name="${name}"]`)!; }
 function fill(name: string, value: string) {
@@ -142,5 +144,23 @@ describe('email challenge authentication', () => {
     await render('/login'); fill('username', 'player'); fill('password', 'secret'); await submit();
     expect(mocks.error).toHaveBeenCalledWith('Service unavailable');
     expect(container.querySelector<HTMLFieldSetElement>('fieldset')!.disabled).toBe(false);
+  });
+
+  it('closes the modal after a login without a redirect', async () => {
+    fetchMock.mockResolvedValueOnce(Response.json({ code: 114514 }));
+    await render('/login'); fill('username', 'player'); fill('password', 'secret'); await submit();
+    expect(container.querySelector('output')!.textContent).toBe('/');
+    expect(container.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('closes with Escape and the close button, and switches tabs in place', async () => {
+    await render('/login');
+    expect(container.querySelector('[role="dialog"]')!.getAttribute('aria-modal')).toBe('true');
+    expect(document.body.style.overflow).toBe('hidden');
+    await act(async () => [...container.querySelectorAll<HTMLButtonElement>('button[aria-pressed]')][1].click());
+    expect(container.querySelector('output')!.textContent).toBe('/register');
+    await act(async () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
+    expect(container.querySelector('output')!.textContent).toBe('/');
+    expect(document.body.style.overflow).toBe('');
   });
 });
