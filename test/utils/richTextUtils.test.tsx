@@ -1,32 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { hasTmpTags, stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
+import { stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
 import type { ReactElement } from 'react';
 
 // Representative TMP rich-text fixture.
 const SONG_TITLE =
   '<color=#FF5AFB>E</color><color=#58C6FF>x</color><color=#404040>-</color>Otogibanashi   <color=#D13B40>[Full Ver.|3:37]</color>';
-
-// ======================== hasTmpTags ========================
-
-describe('hasTmpTags', () => {
-  it('returns false for plain text', () => {
-    expect(hasTmpTags('Hello World')).toBe(false);
-    expect(hasTmpTags('普通文本')).toBe(false);
-    expect(hasTmpTags('')).toBe(false);
-  });
-
-  it('returns true for TMP color tags', () => {
-    expect(hasTmpTags('<color=#FF0000>Red</color>')).toBe(true);
-  });
-
-  it('returns true for nested tags', () => {
-    expect(hasTmpTags('<b><i>Bold Italic</i></b>')).toBe(true);
-  });
-
-  it('returns true for the song title test case', () => {
-    expect(hasTmpTags(SONG_TITLE)).toBe(true);
-  });
-});
 
 // ======================== stripTmpTags ========================
 

@@ -27,7 +27,7 @@ export { getDisplayMessage } from './httpMessage';
 export { compactNumber, loginPath } from './interaction';
 
 // TMP 富文本工具
-export { hasTmpTags, stripTmpTags, parseTmpRichText } from './richTextUtils';
+export { stripTmpTags, parseTmpRichText } from './richTextUtils';
 
 // 活动数据工具
 export {
