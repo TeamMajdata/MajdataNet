@@ -19,7 +19,7 @@ interface SeasonScoreDetailsProps {
 }
 
 const levelNames = ['Easy', 'Basic', 'Advanced', 'Expert', 'Master', 'Re:Master', 'UTAGE'];
-const levelColors = ['#6fabfa', '#5dd45d', '#caca54', '#ff5b5b', '#dca5ef', '#e6a4e6', '#ff9100'];
+const levelColors = ['#7cc4ff', '#7ee06a', '#ffd24a', '#ff5b5b', '#dca5ef', '#e6a4e6', '#ff9100'];
 
 export default function SeasonScoreDetails({ event, chartState, player, status, children }: SeasonScoreDetailsProps) {
   const { t } = useTranslation();

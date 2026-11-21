@@ -46,5 +46,5 @@ export default function SongDifficultyLevels({
 
 /** 没选中时定数的颜色：难度色的浅色版本，在深色底上看得清 */
 const LEVEL_TEXT_COLORS: Record<number, string> = {
-  0: '#9cc4ff', 1: '#8ee08e', 2: '#e6e27a', 3: '#ff8f8f', 4: '#d79bff', 5: '#f0a8f0', 6: '#ffb45c',
+  0: '#7cc4ff', 1: '#7ee06a', 2: '#ffd24a', 3: '#ff8f8f', 4: '#d79bff', 5: '#f0a8f0', 6: '#ffb45c',
 };
