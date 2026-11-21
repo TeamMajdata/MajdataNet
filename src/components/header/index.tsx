@@ -20,7 +20,7 @@ export default function UnifiedHeader() {
 
   return (
     <header className="top-0 right-0 left-0 z-1000 fixed bg-[rgb(9_11_17/72%)] backdrop-blur-xl backdrop-saturate-150 pt-[env(safe-area-inset-top)] border-white/[0.07] border-b">
-      <div className="flex justify-between items-center gap-4 mx-auto px-3 sm:px-6 lg:px-8 max-w-320 h-(--header-height)">
+      <div className="flex justify-between items-center gap-4 mx-auto px-3 sm:px-4 max-w-320 h-(--header-height)">
         {/* 左侧区域：Logo + 导航 */}
         <div className="flex flex-1 items-center gap-6 2xl:gap-8 min-w-0">
           {/* Logo Section */}
