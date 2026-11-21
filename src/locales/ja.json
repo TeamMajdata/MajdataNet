@@ -188,6 +188,7 @@
     "ViewAllEvents": "すべてのイベントを見る"
   },
   "minigame/MiniGamePage": {
+    "Loading": "ミニゲームを読み込み中 {{percent}}%",
     "MiniGame": "ミニゲーム"
   },
   "not-found/NotFoundPage": {

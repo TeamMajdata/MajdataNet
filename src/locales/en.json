@@ -192,6 +192,7 @@
     "ViewAllEvents": "View All Events"
   },
   "minigame/MiniGamePage": {
+    "Loading": "Loading the mini game {{percent}}%",
     "MiniGame": "Mini Game"
   },
   "not-found/NotFoundPage": {

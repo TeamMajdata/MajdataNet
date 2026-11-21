@@ -188,6 +188,7 @@
     "ViewAllEvents": "查看所有活动"
   },
   "minigame/MiniGamePage": {
+    "Loading": "正在加载小游戏 {{percent}}%",
     "MiniGame": "小游戏"
   },
   "not-found/NotFoundPage": {
