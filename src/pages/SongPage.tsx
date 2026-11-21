@@ -23,7 +23,7 @@ import ChartRadar from '@/components/song/ChartRadar';
 import UserAvatar from '@/components/user/UserAvatar';
 import UnderlineTabs from '@/components/ui/UnderlineTabs';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
-import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiPenNib, PiPlayFill, PiTagSimple } from 'react-icons/pi';
+import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiPlayFill, PiTagSimple } from 'react-icons/pi';
 import { getLocale, useLanguage } from '@/i18n';
 import '@/styles/components/song-detail.css';
 import type { ChartInteractSummary, SongSummary, TagManageWidgetRef } from '@/types';
@@ -222,7 +222,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
         <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}>
           <h2 className="song-label">{t('song/SongPage.ChartDetails')}</h2>
           <dl className="song-credits">
-            {song.designer && <div><dt>{t('song/SongPage.Designer')}</dt><dd><PiPenNib />{song.designer}</dd></div>}
+            {song.designer && <div><dt>{t('song/SongPage.Designer')}</dt><dd>{song.designer}</dd></div>}
             {song.uploader && <div><dt>{t('song/SongComments.Uploader')}</dt><dd>
               <Link to={'/space?id=' + encodeURIComponent(song.uploader)}>
                 <UserAvatar username={song.uploader} alt="" className="size-5 shrink-0 rounded-full" />{song.uploader}
