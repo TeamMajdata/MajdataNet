@@ -160,6 +160,10 @@
     "OriginalSongsDesc": "Original songs and charts from the maj collaboration team!",
     "RelatedCharts": "Related Charts"
   },
+  "home/HomeHighlights": {
+    "RecentUploads": "Recent uploads",
+    "RecentUploadsHint": "New from the community"
+  },
   "home/HomePage": {
     "AllCharts": "All Charts",
     "ClearSearch": "Clear search",

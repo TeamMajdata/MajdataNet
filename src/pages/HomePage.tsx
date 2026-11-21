@@ -35,6 +35,7 @@ import {
 } from '@/utils/eventsData';
 import type { SearchBarProps, Song } from '@/types';
 import { API_PAGES_PER_VIEW, apiPagesForView, SONG_GRID_CLASS } from '@/components/song/songGrid';
+import RecentUploads from '@/components/home/RecentUploads';
 
 // 获取用户时区的次日午夜时间戳 (UTC)
 const getNextMidnightTimestamp = (): number => {
@@ -115,6 +116,11 @@ export default function HomePage() {
     <PageLayout>
       {/* Events Carousel */}
       <EventsCarousel />
+
+      {/* 活动下面：最近上传、大家最近都在玩、人气排行 */}
+      <div className="mx-auto mt-6 w-full max-w-320 min-w-0">
+        <RecentUploads />
+      </div>
 
       {/* Main Content */}
       <MainComp />

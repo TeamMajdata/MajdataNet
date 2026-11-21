@@ -157,6 +157,10 @@
     "OriginalSongsDesc": "来自maj合作团队的原创歌曲与谱面哟!",
     "RelatedCharts": "相关谱面"
   },
+  "home/HomeHighlights": {
+    "RecentUploads": "最近上传",
+    "RecentUploadsHint": "来自社区的新作品"
+  },
   "home/HomePage": {
     "AllCharts": "全部谱面",
     "ClearSearch": "清空搜索",

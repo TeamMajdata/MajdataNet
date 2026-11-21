@@ -157,6 +157,10 @@
     "OriginalSongsDesc": "Maj 협업 팀이 만든 오리지널 곡과 채보!",
     "RelatedCharts": "관련 채보"
   },
+  "home/HomeHighlights": {
+    "RecentUploads": "최근 업로드",
+    "RecentUploadsHint": "커뮤니티의 새 작품"
+  },
   "home/HomePage": {
     "AllCharts": "모든 채보",
     "ClearSearch": "검색 지우기",

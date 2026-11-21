@@ -157,6 +157,10 @@
     "OriginalSongsDesc": "majコラボチームによるオリジナル楽曲と譜面です！",
     "RelatedCharts": "関連譜面"
   },
+  "home/HomeHighlights": {
+    "RecentUploads": "最近のアップロード",
+    "RecentUploadsHint": "コミュニティの新作"
+  },
   "home/HomePage": {
     "AllCharts": "すべての譜面",
     "ClearSearch": "検索をクリア",
