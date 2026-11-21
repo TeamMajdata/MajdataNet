@@ -6,33 +6,37 @@ import { apiFetcher } from '@/utils/apiClient';
 import { getLocale, useLanguage } from '@/i18n';
 import { parseTmpRichText } from '@/utils/richTextUtils';
 import Levels from '@/components/score/Levels';
-import { SECTION_HEADING_CLASS } from '@/components/ui/surface';
+import { CarouselHeader } from './carousel';
+import { useCarousel, usePerPage } from './useCarousel';
 import type { Song } from '@/types';
 
+/** 最多取 15 张：宽屏 5 张一页正好 3 页 */
+const MAX_SONGS = 15;
+
 /**
- * 首页“最近上传”：最新上传的几张谱面，大封面 + 难度标签叠在封面左下角，下面是标题和“上传者 · 日期”。
- * 宽屏一排 5 张；窄屏 2、3 列时多取一张凑满整行，宽屏把第 6 张藏起来。
+ * 首页“最近上传”：最新上传的谱面，大封面 + 难度标签叠在封面左下角，下面是标题和“上传者 · 日期”。
+ * 和人气榜一样自动翻页；宽屏一页 5 张，平板 3 张，手机 2 张。
  */
 export default function RecentUploads() {
   const { t } = useTranslation();
   const language = useLanguage();
   const { data } = useSWR<Song[]>(endpoints.maichart.listSearchAndSort('', 'timep', 0), apiFetcher, { revalidateOnFocus: false });
-  const songs = data?.slice(0, 6) ?? [];
+  const songs = data?.slice(0, MAX_SONGS) ?? [];
+  const perPage = usePerPage([[0, 2], [640, 3], [1024, 5]]);
+  const carousel = useCarousel(songs.length, perPage);
   if (!data) return <SectionSkeleton count={5} />;
   if (songs.length === 0) return null;
+  const visible = songs.slice(carousel.page * perPage, carousel.page * perPage + perPage);
 
   return (
-    <section aria-labelledby="home-recent-uploads" className="mb-10">
-      <div className="flex justify-between items-baseline gap-3 mb-4">
-        <h2 id="home-recent-uploads" className={`${SECTION_HEADING_CLASS} mb-0! text-lg!`}>{t('home/HomeHighlights.RecentUploads')}</h2>
-        <span className="text-white/45 text-xs">{t('home/HomeHighlights.RecentUploadsHint')}</span>
-      </div>
-      <ul className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 m-0 p-0 list-none">
-        {songs.map((song, index) => {
+    <section aria-labelledby="home-recent-uploads" className="mb-10" {...carousel.hoverProps}>
+      <CarouselHeader id="home-recent-uploads" title={t('home/HomeHighlights.RecentUploads')} hint={t('home/HomeHighlights.RecentUploadsHint')} carousel={carousel} />
+      <ul key={carousel.page} className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 m-0 p-0 list-none motion-safe:animate-[carousel-in_.35s_ease-out]">
+        {visible.map((song) => {
           const href = '/song?id=' + song.id;
           const uploaded = new Date(song.timestamp ?? '');
           return (
-            <li key={song.id} className={`group min-w-0 ${index === 5 ? 'lg:hidden' : ''}`}>
+            <li key={song.id} className="group min-w-0">
               <div className="relative">
                 <Link to={href} className="block bg-white/5 rounded-xl aspect-[4/3] overflow-hidden" aria-label={song.title}>
                   <img src={endpoints.maichart.image(song.id)} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
