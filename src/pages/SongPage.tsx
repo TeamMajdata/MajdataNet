@@ -218,7 +218,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             onSelect={selectTab}
             idPrefix="song"
             label={t('song/SongPage.ChartDetails')}
-            trailing={activeTab === 'comments' && !focusId && <CommentSortMenu value={commentSort} onChange={setCommentSort} />}
+            trailing={activeTab === 'comments' && !focusId && <CommentSortMenu compact value={commentSort} onChange={setCommentSort} />}
           />
           <section id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
             {activeTab === 'preview' && <ChartPreview song={song} chartLevel={chartLevel} />}

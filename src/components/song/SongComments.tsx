@@ -501,7 +501,7 @@ export interface CommentSectionProps {
 }
 
 /** 评论排序菜单：最佳、最高分、最新、最早、争议 */
-export function CommentSortMenu({ value, onChange }: { value: CommentSort; onChange: (sort: CommentSort) => void }) {
+export function CommentSortMenu({ value, onChange, compact }: { value: CommentSort; onChange: (sort: CommentSort) => void; compact?: boolean }) {
   const { t } = useTranslation();
   const labels: Record<CommentSort, string> = {
     best: t("song/SongComments.SortBest"),
@@ -516,6 +516,7 @@ export function CommentSortMenu({ value, onChange }: { value: CommentSort; onCha
       options={COMMENT_SORTS.map(sort => labels[sort])}
       value={COMMENT_SORTS.indexOf(value)}
       onChange={index => onChange(COMMENT_SORTS[index])}
+      compact={compact}
     />
   );
 }

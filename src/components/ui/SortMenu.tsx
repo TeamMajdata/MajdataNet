@@ -3,11 +3,13 @@ import { LuArrowDownUp, LuCheck, LuChevronDown } from 'react-icons/lu';
 import Dropdown from '@/components/header/Dropdown';
 
 /** 排序下拉菜单：样式与顶栏语言菜单一致，不用原生 select */
-export default function SortMenu({ options, value, onChange, label }: {
+export default function SortMenu({ options, value, onChange, label, compact = false }: {
   options: string[];
   value: number;
   onChange: (value: number) => void;
   label: string;
+  /** 紧凑版：没有边框和底色、矮一些，用在页签栏这类一行文字旁边 */
+  compact?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -50,9 +52,13 @@ export default function SortMenu({ options, value, onChange, label }: {
     >
       <button
         type="button"
-        className={`flex items-center gap-2 px-3 border rounded-xl h-11 text-white text-sm whitespace-nowrap transition-colors cursor-pointer ${
-          isOpen ? 'bg-white/10 border-white/20' : 'bg-white/[0.04] border-white/10 hover:bg-white/[0.07]'
-        }`}
+        className={compact
+          ? `flex items-center gap-1.5 px-2 border-0 rounded-lg h-8 text-sm whitespace-nowrap transition-colors cursor-pointer ${
+            isOpen ? 'bg-white/10 text-white' : 'bg-transparent text-white/60 hover:bg-white/[0.06] hover:text-white'
+          }`
+          : `flex items-center gap-2 px-3 border rounded-xl h-11 text-white text-sm whitespace-nowrap transition-colors cursor-pointer ${
+            isOpen ? 'bg-white/10 border-white/20' : 'bg-white/[0.04] border-white/10 hover:bg-white/[0.07]'
+          }`}
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={event => {
