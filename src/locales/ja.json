@@ -405,7 +405,6 @@
   "shared/useFavorites": {
     "FavoriteSuccess": "お気に入りに追加しました",
     "OperationFailed": "操作に失敗しました",
-    "PleaseLogin": "先にログインしてください",
     "UnfavoriteSuccess": "お気に入りから削除しました"
   },
   "song/ChartRadar": {

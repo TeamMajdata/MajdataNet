@@ -405,7 +405,6 @@
   "shared/useFavorites": {
     "FavoriteSuccess": "收藏成功",
     "OperationFailed": "操作失败",
-    "PleaseLogin": "请先登录",
     "UnfavoriteSuccess": "已取消收藏"
   },
   "song/ChartRadar": {

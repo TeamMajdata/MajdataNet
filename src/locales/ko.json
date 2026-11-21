@@ -405,7 +405,6 @@
   "shared/useFavorites": {
     "FavoriteSuccess": "즐겨찾기에 추가했습니다",
     "OperationFailed": "작업에 실패했습니다",
-    "PleaseLogin": "먼저 로그인해 주세요",
     "UnfavoriteSuccess": "즐겨찾기에서 삭제했습니다"
   },
   "song/ChartRadar": {

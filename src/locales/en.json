@@ -411,7 +411,6 @@
   "shared/useFavorites": {
     "FavoriteSuccess": "Added to favorites",
     "OperationFailed": "Operation failed",
-    "PleaseLogin": "Please log in first",
     "UnfavoriteSuccess": "Removed from favorites"
   },
   "song/ChartRadar": {
