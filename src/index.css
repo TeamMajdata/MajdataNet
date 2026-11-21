@@ -302,10 +302,9 @@ input[type="number"]::-webkit-inner-spin-button {
   }
 }
 
-/* 全站背景极光（AmbientBackground）：三团柔光各自缓慢漂移、缩放，只动 transform */
-@keyframes aurora-a { from { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); } to { transform: translate3d(25vw, 18vh, 0) rotate(25deg) scale(1.2); } }
-@keyframes aurora-b { from { transform: translate3d(0, 0, 0) rotate(0deg) scale(1.1); } to { transform: translate3d(-30vw, 25vh, 0) rotate(-20deg) scale(0.85); } }
-@keyframes aurora-c { from { transform: translate3d(0, 0, 0) rotate(0deg) scale(0.9); } to { transform: translate3d(-20vw, -30vh, 0) rotate(30deg) scale(1.15); } }
+/* 全站背景极光带（AmbientBackground）：两条光带各自缓慢摆动、伸缩，只动 transform */
+@keyframes aurora-band-a { from { transform: rotate(-6deg); } to { transform: rotate(-2deg) translateX(6%) scaleY(1.25); } }
+@keyframes aurora-band-b { from { transform: rotate(4deg); } to { transform: rotate(8deg) translateX(-8%) scaleY(0.8); } }
 
 /* 首页轮播翻页时新的一页淡入 */
 @keyframes carousel-in { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }

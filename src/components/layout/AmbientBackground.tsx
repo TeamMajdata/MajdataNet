@@ -1,18 +1,18 @@
 /**
- * 全站背景：流动的极光。
- * 深色底上三团很大的蓝、青、紫色柔光，十几到几十秒一个来回地缓慢流动、互相混色。
+ * 全站背景：极光带。
+ * 页面上方两条斜着的、模糊的青蓝 / 紫蓝色光带，缓慢地摆动、伸缩，往下渐渐融进深色底色。
  *
- * 纯 CSS：每团光是一个径向渐变（不用 filter: blur），动画只改 transform，交给 GPU 合成，
+ * 纯 CSS：光带用 filter: blur 做柔边，动画只改 transform（will-change 让模糊只栅格化一次），
  * 几乎不占 CPU；“减少动态效果”时停在原位（index.css 里全局关掉了动画）。
  */
 export default function AmbientBackground() {
+  const band = 'absolute left-[-20%] w-[140%] h-[38vh] rounded-[50%] blur-[40px] opacity-55 mix-blend-screen will-change-transform';
   return (
-    <div aria-hidden="true" className="-z-99 fixed inset-0 bg-[#12161d] overflow-hidden pointer-events-none">
-      <div className="top-[-30%] left-[-15%] absolute bg-[radial-gradient(closest-side,rgb(56_120_255/0.30),rgb(56_120_255/0.08)_55%,transparent)] mix-blend-screen w-[75vmax] h-[60vmax] animate-[aurora-a_26s_ease-in-out_infinite_alternate]" />
-      <div className="top-[-10%] right-[-25%] absolute bg-[radial-gradient(closest-side,rgb(34_211_238/0.20),rgb(34_211_238/0.05)_55%,transparent)] mix-blend-screen w-[70vmax] h-[55vmax] animate-[aurora-b_32s_ease-in-out_infinite_alternate]" />
-      <div className="bottom-[-35%] left-[15%] absolute bg-[radial-gradient(closest-side,rgb(139_92_246/0.24),rgb(139_92_246/0.06)_55%,transparent)] mix-blend-screen w-[80vmax] h-[65vmax] animate-[aurora-c_38s_ease-in-out_infinite_alternate]" />
-      {/* 页面下半部分压暗一点，长列表往下翻时背景不会太花 */}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,rgb(18_22_29/0.35)_70%,rgb(18_22_29/0.6)_100%)]" />
+    <div aria-hidden="true" className="-z-99 fixed inset-0 bg-[#0f131a] overflow-hidden pointer-events-none">
+      <div className={`${band} top-[-8vh] bg-[linear-gradient(90deg,transparent,rgb(40_200_170/0.55),rgb(70_120_255/0.55),transparent)] motion-safe:animate-[aurora-band-a_18s_ease-in-out_infinite_alternate]`} />
+      <div className={`${band} top-[4vh] bg-[linear-gradient(90deg,transparent_10%,rgb(130_90_255/0.45),rgb(60_180_255/0.35),transparent_90%)] motion-safe:animate-[aurora-band-b_24s_ease-in-out_infinite_alternate]`} />
+      {/* 往下渐渐融进底色，内容区域保持干净 */}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_20%,#0f131a_65%)]" />
     </div>
   );
 }
