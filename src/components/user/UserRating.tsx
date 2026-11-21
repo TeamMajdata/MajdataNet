@@ -102,7 +102,8 @@ export default function UserRating({ username }: UserRatingProps) {
 function RatingSection({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   return (
-    <section aria-labelledby="user-rating-title">
+    // data-filled：告诉个人空间的概览这里有内容
+    <section aria-labelledby="user-rating-title" data-filled="">
       <h2 id="user-rating-title" className={SECTION_HEADING_CLASS}>{t('space/SpacePage.Rating')}</h2>
       {children}
     </section>

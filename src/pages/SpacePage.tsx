@@ -20,6 +20,7 @@ import { useUsername } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
 import type { IntroductionData } from '@/types';
 import UserSeasons from '@/components/user/UserSeasons';
+import EmptyState from '@/components/ui/EmptyState';
 import { CARD_SURFACE_CLASS, SECTION_HEADING_CLASS } from '@/components/ui/surface';
 
 import { apiFetcher as fetcher, apiRequest } from '@/utils/apiClient';
@@ -91,17 +92,21 @@ export default function SpacePage() {
             ))}
           </div>
 
-          <section id="space-panel-overview" role="tabpanel" aria-labelledby="space-tab-overview" hidden={activeTab !== 'overview'}>
+          <section id="space-panel-overview" role="tabpanel" aria-labelledby="space-tab-overview" hidden={activeTab !== 'overview'} className="group/overview">
             {profile.data?.introduction && <IntroductionCard text={profile.data.introduction} />}
             <UserSeasons key={username} username={username} />
             <UserRating key={`rating-${username}`} username={username} />
             {/* 最近游玩接在概览最后；没有记录时整块不显示 */}
-            <section className="mt-10" aria-labelledby="space-recent-title" hidden={hasRecentPlayed === false}>
+            <section className="mt-10" aria-labelledby="space-recent-title" hidden={hasRecentPlayed === false} data-filled={hasRecentPlayed === false ? undefined : ''}>
               <h2 id="space-recent-title" className={SECTION_HEADING_CLASS}>
                 {t("space/SpacePage.RecentlyPlayedCharts")}
               </h2>
               <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} gridClassName={SONG_GRID_CONTAINER_CLASS} />
             </section>
+            {/* 每个有内容的区块都带着 data-filled；一个都没有（新用户）时显示这条提示 */}
+            <div className="hidden group-[:not(:has([data-filled]))]/overview:block">
+              <EmptyState>{t("space/SpacePage.OverviewEmpty")}</EmptyState>
+            </div>
           </section>
 
           <section id="space-panel-uploaded" role="tabpanel" aria-labelledby="space-tab-uploaded" hidden={activeTab !== 'uploaded'}>
@@ -196,7 +201,7 @@ function ProfileSidebar({ username, data, error, isLoading }: {
 function IntroductionCard({ text }: { text: string }) {
   const { t } = useTranslation();
   return (
-    <section className="mb-10 min-w-0" aria-labelledby="space-intro-title">
+    <section className="mb-10 min-w-0" aria-labelledby="space-intro-title" data-filled="">
       <h2 id="space-intro-title" className={SECTION_HEADING_CLASS}>{t("space/SpacePage.Introduction")}</h2>
       <div className={`${CARD_SURFACE_CLASS} px-5 sm:px-6 py-5 min-w-0`}>
         <div className="bg-transparent! p-0! min-w-0 text-[14px]! select-text **:select-text markdown-body">

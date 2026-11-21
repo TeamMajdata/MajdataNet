@@ -527,6 +527,7 @@
     "JoinAt": "登録日：{{date}}",
     "NoComments": "まだコメントを投稿していません",
     "Overview": "概要",
+    "OverviewEmpty": "まだ何もありません",
     "Rating": "レーティング",
     "RatingCharts": "{{count}} 譜面を平均",
     "RatingFailed": "レーティングの読み込みに失敗しました",

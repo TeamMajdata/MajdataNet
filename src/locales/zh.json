@@ -527,6 +527,7 @@
     "JoinAt": "注册于 {{date}}",
     "NoComments": "还没有发表过评论",
     "Overview": "概览",
+    "OverviewEmpty": "这里还什么都没有",
     "Rating": "评分",
     "RatingCharts": "{{count}} 张谱面参与计算",
     "RatingFailed": "Rating 加载失败",

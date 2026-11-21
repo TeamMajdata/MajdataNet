@@ -55,7 +55,8 @@ function UserSeasonResult({ event, status, username }: Omit<UserSeasonCardProps,
   }
 
   return (
-    <li className={error ? '[&>.user-season-card]:h-auto' : undefined}>
+    // data-filled：告诉个人空间的概览这里有内容
+    <li data-filled="" className={error ? '[&>.user-season-card]:h-auto' : undefined}>
       {entry && <UserSeasonCard event={event} status={status} entry={entry} />}
       {isLoading && !entry && <p role="status" className="py-5 text-center text-sm text-white/60">{t('user/UserSeasons.Loading')}</p>}
       {error && <div role="status" className="mt-4 flex flex-wrap items-center justify-center gap-3 text-sm text-white/65">

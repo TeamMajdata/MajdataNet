@@ -537,6 +537,7 @@
     "JoinAt": "Joined {{date}}",
     "NoComments": "No comments yet",
     "Overview": "Overview",
+    "OverviewEmpty": "Nothing here yet",
     "Rating": "Rating",
     "RatingCharts": "{{count}} charts averaged",
     "RatingFailed": "Failed to load the rating",

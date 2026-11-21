@@ -527,6 +527,7 @@
     "JoinAt": "가입일: {{date}}",
     "NoComments": "아직 작성한 댓글이 없습니다",
     "Overview": "개요",
+    "OverviewEmpty": "아직 아무것도 없습니다",
     "Rating": "레이팅",
     "RatingCharts": "{{count}}개 채보 평균",
     "RatingFailed": "레이팅을 불러오지 못했습니다",
