@@ -20,6 +20,7 @@ import 'github-markdown-css/github-markdown-dark.css';
 import type { IntroductionData } from '@/types';
 import UserSeasons from '@/components/user/UserSeasons';
 import EmptyState from '@/components/ui/EmptyState';
+import UnderlineTabs from '@/components/ui/UnderlineTabs';
 import { CARD_SURFACE_CLASS, SECTION_HEADING_CLASS } from '@/components/ui/surface';
 
 import { apiFetcher as fetcher, apiRequest } from '@/utils/apiClient';
@@ -73,23 +74,8 @@ export default function SpacePage() {
 
         {/* 右栏比整页窄，里面的网格按这一栏的宽度分列 */}
         <div className="@container min-w-0">
-          {/* 页签：和谱面页一样的下划线样式；一次只看一块；没有内容的页签自动隐藏（内容一直挂载着，好知道有没有数据） */}
-          <div className="flex gap-6 mb-6 border-white/10 border-b overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={t("space/SpacePage.Sections")}>
-            {tabs.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                id={'space-tab-' + key}
-                aria-controls={'space-panel-' + key}
-                aria-selected={activeTab === key}
-                onClick={() => selectTab(key)}
-                className={`-mb-px bg-transparent px-0.5 py-3 border-0 border-b-2 border-solid font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === key ? 'border-blue-400 text-white' : 'border-transparent text-white/55 hover:text-white'}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          {/* 一次只看一块；没有内容的页签自动隐藏（内容一直挂载着，好知道有没有数据） */}
+          <UnderlineTabs tabs={tabs} active={activeTab} onSelect={selectTab} idPrefix="space" label={t("space/SpacePage.Sections")} />
 
           <section id="space-panel-overview" role="tabpanel" aria-labelledby="space-tab-overview" hidden={activeTab !== 'overview'} className="group/overview">
             {profile.data?.introduction && <IntroductionCard text={profile.data.introduction} />}
