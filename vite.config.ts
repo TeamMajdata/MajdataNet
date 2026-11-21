@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, type Plugin, type ProxyOptions } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
@@ -11,6 +11,17 @@ const devNoReferrer: Plugin = {
   transformIndexHtml: () => [
     { tag: 'meta', attrs: { name: 'referrer', content: 'no-referrer' }, injectTo: 'head-prepend' },
   ],
+}
+
+// CDN 的 CORS 只放行 localhost 和线上域名，手机用局域网 IP 打开开发服务器时，
+// API 302 跳到 CDN 的谱面、音乐会被浏览器拦下。开发时把跳转改写成同源的 /__cdn，再由下面的代理转发。
+const CDN_ORIGIN = 'https://cdn.majdata.net'
+const CDN_PATH = '/__cdn'
+const sameOriginCdn: ProxyOptions['configure'] = (proxy) => {
+  proxy.on('proxyRes', (res) => {
+    const location = res.headers.location
+    if (location?.startsWith(CDN_ORIGIN + '/')) res.headers.location = CDN_PATH + location.slice(CDN_ORIGIN.length)
+  })
 }
 
 // https://vite.dev/config/
@@ -36,12 +47,20 @@ export default defineConfig({
             changeOrigin: true,
             secure: false,
             rewrite: (path) => path.replace(/^\/api3/, ''),
+            configure: sameOriginCdn,
           }
         : {
             target: 'https://majdata.net',
             changeOrigin: true,
             secure: true,
+            configure: sameOriginCdn,
           },
+      [CDN_PATH]: {
+        target: CDN_ORIGIN,
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.slice(CDN_PATH.length),
+      },
     },
   },
 })
