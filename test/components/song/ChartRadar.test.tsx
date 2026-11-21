@@ -10,6 +10,9 @@ import { getDefaultChartLevel } from '@/utils/radar';
 vi.mock('react-helmet-async', () => ({ Helmet: () => null }));
 vi.mock('@/utils', () => ({ stripTmpTags: (value: string) => value }));
 vi.mock('framer-motion', async () => ({ ...await vi.importActual('framer-motion'), useReducedMotion: () => true }));
+vi.mock('@/components/song/MajView', () => ({
+  default: ({ level }: { level: number }) => <output data-player-level={level} />,
+}));
 vi.mock('@/components', async () => ({
   PageLayout: ({ children }: { children: ReactNode }) => children,
   Tooltip: ({ children }: { children: ReactNode }) => children,
@@ -54,12 +57,10 @@ describe('radar on the song page', () => {
     cache = new Map();
     fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', fetchMock);
-    delete window.unitySendMessage;
   });
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
-    delete window.unitySendMessage;
     vi.unstubAllGlobals();
   });
   async function render(children: ReactNode = <SongPage />, entry = '/song?id=song') {
@@ -131,28 +132,22 @@ describe('radar on the song page', () => {
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('6');
   });
 
-  it('opens the preview on the difficulty selected before loading Unity', async () => {
+  it('shows the preview player on the selected difficulty', async () => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
     await render();
     await act(async () => difficulty(3).click());
-    await act(async () => container.querySelector<HTMLButtonElement>('button.song-preview')!.click());
-    expect(container.querySelector('[data-player-level]')?.getAttribute('data-player-level')).toBe('lv3');
+    await act(async () => { await vi.dynamicImportSettled(); });
+    expect(container.querySelector('[data-player-level]')?.getAttribute('data-player-level')).toBe('3');
   });
 
-  it('observes nested clicks while preserving exactly one original playback message per click', async () => {
+  it('selects a difficulty from clicks on its nested labels, loading the radar once', async () => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
-    const sendMessage = vi.fn();
-    window.unitySendMessage = sendMessage;
     await render();
     await act(async () => difficulty(5).querySelector('span')!.click());
-    expect(sendMessage).toHaveBeenCalledTimes(1);
-    expect(sendMessage.mock.calls[0][2]).toMatch(/\nlv5$/);
     expect(radarRequests().at(-1)?.[0]).toBe('/api3/api/maichart/song/radar?chartLevel=5');
     await act(async () => difficulty(5).querySelector('span:last-child')!.click());
-    expect(sendMessage).toHaveBeenCalledTimes(2);
     expect(radarRequests()).toHaveLength(2);
     await act(async () => container.querySelector<HTMLElement>('[data-radar-level]')!.click());
-    expect(sendMessage).toHaveBeenCalledTimes(2);
     expect(radarRequests()).toHaveLength(2);
   });
 

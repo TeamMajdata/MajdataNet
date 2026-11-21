@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import PageLoading from '@/components/ui/PageLoading';
-import { Activity, useState, useRef } from 'react';
+import { Activity, Suspense, lazy, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import {
   PageLayout,
-  Majdata,
   TagManageWidget,
   SongDifficultyLevels,
   CommentSection,
@@ -21,11 +20,12 @@ import { stripTmpTags } from '@/utils';
 import { parseTmpRichText } from '@/utils/richTextUtils';
 import { getDefaultChartLevel, parseRequestedLevel } from '@/utils/radar';
 import ChartRadar from '@/components/song/ChartRadar';
+import { ChartMarkContext, type ChartMark, type ChartMarkTarget } from '@/components/song/chartMarks';
 import UserAvatar from '@/components/user/UserAvatar';
 import UnderlineTabs from '@/components/ui/UnderlineTabs';
 import { LuMessageCircle, LuPlay, LuTrophy } from 'react-icons/lu';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
-import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiPlayFill, PiTagSimple } from 'react-icons/pi';
+import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiTagSimple } from 'react-icons/pi';
 import { getLocale, useLanguage } from '@/i18n';
 import '@/styles/components/song-detail.css';
 import type { CommentSort, ChartInteractSummary, ChartLeaderboardResponse, SongSummary, TagManageWidgetRef } from '@/types';
@@ -35,6 +35,10 @@ import { compactNumber } from '@/utils/interaction';
 import { formatDuration } from '@/utils/simai';
 import { useChartMeta } from '@/hooks/useChartMeta';
 import { useChartMediaUrl } from '@/hooks/useChartMediaUrl';
+import { preloadMajView } from '@/majview/preload';
+
+// 网页版谱面预览带着 PixiJS，只在点开预览时加载
+const MajView = lazy(() => import('@/components/song/MajView'));
 
 export default function SongPage() {
   const { t } = useTranslation();
@@ -46,6 +50,11 @@ export default function SongPage() {
     revalidateOnFocus: false,
     shouldRetryOnError: false,
   });
+
+  // 谱面预览的代码块、谱面文本和皮肤：拿到 id 就开始取，和 summary 并行，不等页面渲染完
+  useEffect(() => {
+    if (param) preloadMajView(param);
+  }, [param]);
 
   if (!param || isLoading) {
     return (
@@ -112,20 +121,32 @@ const songTabs = [
 ] as const;
 type SongTab = typeof songTabs[number]['id'];
 
-function ChartPreview({ song, chartLevel, trackRecovering }: { song: SongSummary; chartLevel?: number; trackRecovering: boolean }) {
-  const { t } = useTranslation();
-  const [playing, setPlaying] = useState(false);
+// 打开页面就显示播放器（停在开头）；没有可预览的难度时只显示封面
+type MarkRange = { length: number; maxCombo: number } | null;
+
+function ChartPreview({ song, chartLevel, active, jump, onMarkRange }: {
+  song: SongSummary;
+  chartLevel?: number;
+  active: boolean;
+  jump: (ChartMark & { key: number }) | null;
+  onMarkRange: (range: MarkRange) => void;
+}) {
   const cover = useChartMediaUrl(endpoints.maichart.fullImage(song.id));
-  const showPlayer = playing && !cover.recovering && !trackRecovering;
+  const coverSrc = cover.src ?? endpoints.maichart.image(song.id);
+  const coverImage = (
+    <div className="song-preview">
+      <img src={coverSrc} onError={cover.onError} alt="" crossOrigin={cover.src ? 'anonymous' : undefined} fetchPriority="high" />
+    </div>
+  );
 
   return (
     <div className="song-stage">
-      <button type="button" className="song-preview" hidden={showPlayer} onClick={() => setPlaying(true)} disabled={chartLevel === undefined}>
-        <img src={cover.src ?? endpoints.maichart.image(song.id)} onError={cover.onError}
-          alt="" crossOrigin={cover.src ? 'anonymous' : undefined} fetchPriority="high" />
-        <span className="song-play-action"><span><PiPlayFill /></span>{t('song/SongPage.PreviewChart')}</span>
-      </button>
-      {showPlayer && <Majdata songid={song.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + chartLevel} />}
+      {chartLevel === undefined || cover.recovering ? coverImage : (
+        <Suspense fallback={coverImage}>
+          <MajView songId={song.id} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
+            active={active} jump={jump} onMarkRange={onMarkRange} />
+        </Suspense>
+      )}
     </div>
   );
 }
@@ -143,11 +164,15 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const [collecting, setCollecting] = useState(false);
   // 评论排序：菜单放在页签栏右边，评论区按它加载
   const [commentSort, setCommentSort] = useState<CommentSort>('best');
+  // 评论里的时间 / combo：播放器报告当前谱面的范围，点了切到预览页签并跳过去
+  const [markRange, setMarkRange] = useState<MarkRange>(null);
+  const [jump, setJump] = useState<(ChartMark & { key: number }) | null>(null);
+  const previewRef = useRef<HTMLElement>(null);
   const searchLink = (text: string) => '/?search=' + encodeURIComponent(text);
   const uploadTime = new Date(song.timestamp);
   const cover = endpoints.maichart.image(song.id);
   // 和侧栏投票面板同一个请求（SWR 会合并），这里只取播放次数
-  const { bpm, duration, trackRecovering } = useChartMeta(song.id, chartLevel);
+  const { bpm, duration } = useChartMeta(song.id, chartLevel);
   // 页签上的数字：当前难度的上榜人数、评论数（都和面板里的请求共用 SWR 缓存）
   const { data: leaderboard } = useSWR<ChartLeaderboardResponse>(endpoints.maiscore.chartLeaderboard(song.id), apiFetcher);
   const { data: interact } = useSWR<ChartInteractSummary>(endpoints.maichart.interactsum(song.id), apiFetcher, { revalidateOnFocus: false });
@@ -171,6 +196,18 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
     if (location.hash === '#comments') next.set('tab', activeTab);
     setParams(next, { replace: true, preventScrollReset: true });
   }
+
+  const jumpTo = useCallback((mark: ChartMark) => {
+    setJump({ ...mark, key: Date.now() });
+    const next = new URLSearchParams(params);
+    next.set('tab', 'preview');
+    setParams(next, { preventScrollReset: true });
+    requestAnimationFrame(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  }, [params, setParams]);
+  const markTarget = useMemo<ChartMarkTarget | null>(
+    () => markRange && { ...markRange, jump: jumpTo },
+    [markRange, jumpTo],
+  );
 
   function selectTab(tab: SongTab) {
     if (activeTab === tab) return;
@@ -208,7 +245,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             ))}
           </div>
           <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
-            <SongDifficultyLevels levels={song.levels} songid={song.id} isPlayer={activeTab === 'preview'} selected={chartLevel} onSelect={selectLevel} />
+            <SongDifficultyLevels levels={song.levels} selected={chartLevel} onSelect={selectLevel} />
           </div>
         </header>
 
@@ -221,14 +258,15 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             label={t('song/SongPage.ChartDetails')}
             trailing={activeTab === 'comments' && !focusId && <CommentSortMenu compact value={commentSort} onChange={setCommentSort} />}
           />
-          <section id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
-            {activeTab === 'preview' && <ChartPreview song={song} chartLevel={chartLevel} trackRecovering={trackRecovering} />}
+          {/* 播放器一直挂着：切到别的页签不用重新加载，评论里的时间 / combo 也要靠它判断范围 */}
+          <section ref={previewRef} id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
+            <ChartPreview song={song} chartLevel={chartLevel} active={activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} />
           </section>
           <section id="song-panel-scores" role="tabpanel" aria-labelledby="song-tab-scores" hidden={activeTab !== 'scores'}>
             <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} chartLevel={chartLevel} /></Activity>
           </section>
           <section id="song-panel-comments" role="tabpanel" aria-labelledby="song-tab-comments" hidden={activeTab !== 'comments'}>
-            <Activity mode={activeTab === 'comments' ? 'visible' : 'hidden'}><CommentSection chartId={song.id} uploader={song.uploader} focusId={focusId} sort={commentSort} /></Activity>
+            <Activity mode={activeTab === 'comments' ? 'visible' : 'hidden'}><ChartMarkContext value={markTarget}><CommentSection chartId={song.id} uploader={song.uploader} focusId={focusId} sort={commentSort} /></ChartMarkContext></Activity>
           </section>
         </div>
         <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}>

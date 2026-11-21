@@ -1,0 +1,246 @@
+/* 网页版谱面预览（MajView）：上面是正方形的判定盘，下面是播放控制条 */
+@font-face {
+  font-family: Minimoon;
+  src: url('/majview/skin/Minimoon.ttf') format('truetype');
+  font-display: swap;
+}
+
+.majview {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: #0b0e13;
+}
+.majview:fullscreen { border-radius: 0; }
+/* 全屏：判定盘铺满整块屏幕（背景也不再是圆形），控制条变成自动隐藏的浮层 */
+.majview:fullscreen .majview-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: auto;
+}
+.majview:fullscreen .majview-background { border-radius: 0; }
+.majview:fullscreen .majview-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  padding-bottom: calc(.375rem + env(safe-area-inset-bottom, 0px));
+  transition: opacity .25s ease;
+}
+.majview:fullscreen .majview-controls[data-hidden='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+/* 连击数用 cqw 定位：全屏时按判定盘（短边）算，别按屏幕宽度 */
+.majview:fullscreen .majview-combo {
+  inset: 50% auto auto 50%;
+  width: min(100vw, 100vh);
+  height: min(100vw, 100vh);
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+/* 判定盘圆形以外的地方：铺一层放大、模糊、压暗的封面 */
+.majview-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.15);
+  filter: blur(32px) brightness(.4) saturate(1.1);
+}
+/* 外圈再加一层暗角：中间稍亮、往四角变暗，和页面背景（整片均匀压暗）区分开，也把视线收到判定盘上 */
+.majview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 45%, transparent 40%, rgb(0 0 0 / 40%) 100%);
+}
+
+.majview-scene {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: 1;
+  max-width: 100%;
+  margin-inline: auto;
+  container-type: size;
+  /* 判定盘手势：横向调进度、竖向调音量/亮度，所以默认不让浏览器接管触摸方向；
+     手势关掉时组件会把 touch-action 改回 pan-y，恢复页面滚动。
+     同时去掉长按菜单和文字选中，iOS 只认带前缀的 -webkit-user-select */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.majview-board,
+.majview-background,
+.majview-background > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* 画布是正方形（渲染器按宿主短边算好并居中），和 Play 一样裁成圆形遮罩 */
+.majview-board canvas {
+  position: absolute;
+  clip-path: circle(50%);
+}
+.majview-background { overflow: hidden; border-radius: 50%; background: #262626; }
+.majview-board { clip-path: none; }
+.majview-background img,
+.majview-background video { object-fit: contain; -webkit-user-drag: none; }
+.majview-background video { opacity: 0; background: #000; }
+.majview-background video.visible { opacity: 1; }
+.majview-shade { background: #000; }
+
+.majview-message {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  max-width: 90%;
+  padding: .75rem 1rem;
+  border-radius: .5rem;
+  background: rgb(20 24 30 / 90%);
+  color: rgb(255 255 255 / 80%);
+  font-size: .875rem;
+  text-align: center;
+}
+
+/* 帧率诊断覆盖层（开发期 / ?perf=1）：压在判定盘左上角，等宽字体，不抢焦点 */
+.majview-perf {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  z-index: 3;
+  padding: .25rem .5rem;
+  border-radius: .375rem;
+  background: rgb(0 0 0 / 65%);
+  color: #7dd3fc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .6875rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  white-space: pre;
+  pointer-events: none;
+}
+
+/* 只给音量 / 亮度用：拖动时压在判定盘正中间。
+   进度看时间读数右边的 ±，倍速看控制条上的倍速按钮，都不需要额外浮层 */
+.majview-value-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  transform: translate(-50%, -50%);
+  padding: .25rem .75rem;
+  border-radius: 999px;
+  background: rgb(8 10 14 / 78%);
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
+.majview-value-hint[hidden] { display: none; }
+.majview-value-hint span { font-size: .8125rem; color: rgb(255 255 255 / 65%); }
+.majview-value-hint strong { font-size: 1.5rem; font-weight: 500; }
+
+/* 拖动进度时跟在时间读数右边的 ±，和时间读数是同一套字号 */
+.majview-seek-delta {
+  margin-left: .4rem;
+  color: #7dd3fc;
+}
+.majview-seek-delta[hidden] { display: none; }
+
+/* 连击数：位置和字号按 Play 的 CanvasCombo 换算到正方形判定盘 */
+.majview-combo {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  pointer-events: none;
+  color: #ca3e7c;
+  font-family: Minimoon, sans-serif;
+  text-align: center;
+}
+.majview-combo[hidden] { display: none; }
+.majview-combo span,
+.majview-combo strong {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: normal;
+  line-height: 1;
+  white-space: nowrap;
+  /* 描边和投影都用 text-shadow 画：iOS Safari 会把带 filter 的元素按低分辨率栅格化，文字会糊。
+     投影是描边后整个字形的偏移，所以黑色这组也按描边的四个角各画一次 */
+  --sx-l: calc(var(--shadow-x) - var(--edge));
+  --sx-r: calc(var(--shadow-x) + var(--edge));
+  --sy-t: calc(var(--shadow-y) - var(--edge));
+  --sy-b: calc(var(--shadow-y) + var(--edge));
+  text-shadow:
+    var(--edge) var(--edge) #ddd, calc(-1 * var(--edge)) var(--edge) #ddd,
+    var(--edge) calc(-1 * var(--edge)) #ddd, calc(-1 * var(--edge)) calc(-1 * var(--edge)) #ddd,
+    var(--sx-r) var(--sy-b) black, var(--sx-l) var(--sy-b) black,
+    var(--sx-r) var(--sy-t) black, var(--sx-l) var(--sy-t) black;
+}
+.majview-combo span {
+  top: 43.41%;
+  font-size: 3.407cqw;
+  --edge: 0.05em;
+  --shadow-x: 0.055em;
+  --shadow-y: 0.0875em;
+}
+.majview-combo strong {
+  top: 50.25%;
+  font-size: 6.896cqw;
+  --edge: 0.03333em;
+  --shadow-x: 0.03667em;
+  --shadow-y: 0.05833em;
+}
+
+.majview-controls {
+  flex: none;
+  padding: .25rem .5rem .375rem;
+  background: linear-gradient(transparent, rgb(0 0 0 / 45%));
+}
+/* 块级：行内的 range 下面会多出一段行高空隙 */
+.majview-controls input[type='range'] { display: block; }
+/* 手机上判定盘贴着控制条：判定线外面本来就有一圈封面，不用再留内边距 */
+@media (max-width: 48rem) {
+  .majview-controls { padding-top: 0; }
+}
+
+/* 设置面板：盖在播放器右侧（窄屏铺满），内容多了可以滚动 */
+.majview-settings {
+  position: absolute;
+  inset: .75rem .75rem auto auto;
+  z-index: 2;
+  width: min(20rem, calc(100% - 1.5rem));
+  /* 停在控制条上面（控制条高 4.375rem），不然在手机上会盖住设置按钮，没法再点一次收起 */
+  max-height: calc(100% - 4.375rem - 1.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: .75rem 1rem 1rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 1rem;
+  background: rgb(14 16 22 / 94%);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 50%);
+  backdrop-filter: blur(12px);
+}

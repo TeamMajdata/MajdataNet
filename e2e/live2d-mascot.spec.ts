@@ -44,12 +44,6 @@ async function mockApi(page: Page) {
                 : [];
     await route.fulfill({ json: body });
   });
-  // The player itself is outside this feature; keep its real DOM/stacking surface
-  // without downloading the Unity game or sending play events to the live API.
-  await page.route('**/WebGLBuild/Build.loader.js', (route) => route.fulfill({
-    contentType: 'text/javascript',
-    body: 'window.createUnityInstance = async (_canvas, _config, progress) => { progress(1); return { SendMessage() {}, Quit: async () => {}, SetFullscreen() {} }; };',
-  }));
 }
 
 async function expectNoMascotControls(page: Page) {

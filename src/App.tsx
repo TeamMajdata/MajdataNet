@@ -5,12 +5,13 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { UserProvider } from '@/contexts/UserContext';
 import { TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
 import HomePage from './pages/HomePage';
-import Live2DMascot from './components/mascot/Live2DMascot';
 import { isAuthPath, type AuthLocationState } from './utils/authPaths';
 import './App.css';
 
 // 首页保持同步加载；其余页面按路由拆成独立 chunk，首次访问时再下载。
 const AuthModal = lazy(() => import('./components/auth/AuthModal'));
+// 吉祥物带着 Live2D 运行时（几百 KB），不该挡在首屏前
+const Live2DMascot = lazy(() => import('./components/mascot/Live2DMascot'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
 const UserRankingPage = lazy(() => import('./pages/ranking/UserRankingPage'));
 const SongPage = lazy(() => import('./pages/SongPage'));
@@ -115,7 +116,9 @@ function App() {
               <Suspense fallback={<RouteFallback />}>
                 <AppRoutes />
               </Suspense>
-              <Live2DMascot />
+              <Suspense fallback={null}>
+                <Live2DMascot />
+              </Suspense>
             </Router>
           </UserProvider>
         </Suspense>

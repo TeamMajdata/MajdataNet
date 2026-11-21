@@ -13,9 +13,10 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
-import { LuMic, LuMusic, LuPencilLine, LuSearch, LuShuffle, LuSparkles, LuTag, LuUser, LuX } from 'react-icons/lu';
+import { LuSearch, LuX } from 'react-icons/lu';
 import { buildSuggestions, SEARCH_OPERATORS, type SuggestionKind, type SuggestionSource } from '@/utils/searchSuggestions';
 import SortMenu from '@/components/ui/SortMenu';
+import SuggestionListbox, { type SuggestionListboxItem } from '@/components/ui/SuggestionListbox';
 
 import { useUserContext } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
@@ -37,80 +38,6 @@ import type { SearchBarProps, Song } from '@/types';
 import { API_PAGES_PER_VIEW, apiPagesForView, SONG_GRID_CLASS } from '@/components/song/songGrid';
 import RecentUploads from '@/components/home/RecentUploads';
 import PopularRanking from '@/components/home/PopularRanking';
-
-// 获取用户时区的次日午夜时间戳 (UTC)
-const getNextMidnightTimestamp = (): number => {
-  const now = new Date();
-  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    timeZone: userTimeZone,
-  });
-
-  const parts = formatter.formatToParts(now);
-  const dateObj: Record<string, string> = {};
-  parts.forEach(({ type, value }) => {
-    dateObj[type] = value;
-  });
-
-  const userLocalDate = new Date(
-    parseInt(dateObj.year),
-    parseInt(dateObj.month) - 1,
-    parseInt(dateObj.day)
-  );
-
-  const tomorrow = new Date(userLocalDate);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  const millisUntilMidnight = tomorrow.getTime() - now.getTime() + (now.getTime() - userLocalDate.getTime());
-  return now.getTime() + millisUntilMidnight;
-};
-
-const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
-  const cacheKey = 'homeSongListCache';
-  const cacheExpireTimeKey = 'homeSongListCacheExpireTime';
-
-  // 1. 尝试从 localStorage 读取缓存
-  try {
-    const cachedData = localStorage.getItem(cacheKey);
-    const cacheExpireTime = localStorage.getItem(cacheExpireTimeKey);
-    const now = Date.now();
-
-    if (cachedData && cacheExpireTime) {
-      const expireTimestamp = parseInt(cacheExpireTime);
-
-      if (now < expireTimestamp) {
-        const parsed = JSON.parse(cachedData);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    }
-  } catch (e) {
-    console.error('缓存读取错误:', e)
-  }
-
-  // 2. 缓存不存在或已过期，发起请求
-  const data = await fetch(url, { mode: 'cors', credentials: 'include' })
-    .then((res) => res.json());
-
-  // 3. 请求成功后存入 localStorage，同时存储时间戳和过期时间
-  if (Array.isArray(data) && data.length > 0) {
-    try {
-      const nextMidnightTime = getNextMidnightTimestamp();
-
-      localStorage.setItem(cacheKey, JSON.stringify(data));
-      localStorage.setItem(cacheExpireTimeKey, nextMidnightTime.toString());
-    } catch (e) {
-      console.error('缓存保存错误:', e)
-    }
-  }
-
-  return data;
-};
 
 export default function HomePage() {
   return (
@@ -351,14 +278,6 @@ function MobileEventsSwiper() {
   );
 }
 
-const SUGGESTION_ICONS: Record<SuggestionKind, React.ComponentType<{ className?: string }>> = {
-  title: LuMusic,
-  artist: LuMic,
-  designer: LuPencilLine,
-  uploader: LuUser,
-  tag: LuTag,
-};
-
 /** 判断按键是否发生在可输入的元素里（这时 / 不应抢焦点） */
 function isTypingTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
@@ -413,7 +332,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
     [trimmedValue, suggestSource],
   );
   // 空输入时列出搜索操作符，点击补全前缀
-  const items: { key: string; value: string; label: string; hint: string; kind?: SuggestionKind; keepOpen?: boolean }[] = trimmedValue
+  const items: SuggestionListboxItem[] = trimmedValue
     ? suggestions.map((item) => ({ key: `${item.kind}:${item.value}`, value: item.value, label: item.label, hint: kindLabels[item.kind], kind: item.kind }))
     : SEARCH_OPERATORS.map((op) => ({ key: op, value: op, label: op, hint: operatorHints[op], keepOpen: true }));
   const isOpen = isFocused && items.length > 0;
@@ -522,35 +441,15 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
         </AnimatePresence>
 
         {isOpen && (
-          <ul
+          <SuggestionListbox
             id={listboxId}
-            role="listbox"
-            aria-label={t("home/HomePage.SearchSuggestions")}
-            className="top-[calc(100%+0.5rem)] z-1001 absolute inset-x-0 bg-[rgb(14_16_22)] shadow-[0_20px_60px_rgb(0_0_0/50%)] m-0 p-1.5 border border-white/15 rounded-xl max-h-[min(24rem,60dvh)] overflow-y-auto list-none"
-          >
-            {items.map((item, index) => {
-              const Icon = item.kind ? SUGGESTION_ICONS[item.kind] : LuSearch;
-              const active = index === activeIndex;
-              return (
-                <li
-                  key={item.key}
-                  id={`${listboxId}-${index}`}
-                  role="option"
-                  aria-selected={active}
-                  className={`flex items-center gap-3 px-3 rounded-lg h-10 text-sm cursor-pointer ${active ? 'bg-white/[0.08] text-white' : 'text-white/80 hover:bg-white/[0.05]'}`}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => pick(item)}
-                >
-                  <Icon aria-hidden="true" className="w-4 h-4 text-white/40 shrink-0" />
-                  <span className={`truncate ${item.kind ? '' : 'font-mono text-blue-200'}`}>
-                    {item.kind ? <HighlightMatch text={item.label} query={trimmedValue.replace(/^(uploader|tag):/i, '')} /> : item.label}
-                  </span>
-                  <span className="ml-auto pl-2 text-white/35 text-xs truncate shrink-0 max-w-[60%]">{item.hint}</span>
-                </li>
-              );
-            })}
-          </ul>
+            label={t("home/HomePage.SearchSuggestions")}
+            items={items}
+            activeIndex={activeIndex}
+            highlight={trimmedValue.replace(/^(uploader|tag):/i, '')}
+            onHover={setActiveIndex}
+            onPick={pick}
+          />
         )}
       </div>
 
@@ -564,26 +463,16 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
   );
 }
 
-/** 联想词里加粗匹配到的部分 */
-function HighlightMatch({ text, query }: { text: string; query: string }) {
-  const needle = query.trim().toLowerCase();
-  const index = needle ? text.toLowerCase().indexOf(needle) : -1;
-  if (index < 0) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, index)}
-      <span className="font-semibold text-white">{text.slice(index, index + needle.length)}</span>
-      {text.slice(index + needle.length)}
-    </>
-  );
-}
+// 以前随机推荐把全量谱面缓存在 localStorage，功能已删除，顺手清掉旧数据
+try {
+  localStorage.removeItem('homeSongListCache');
+  localStorage.removeItem('homeSongListCacheExpireTime');
+} catch { /* 无痕模式等情况下访问不了，忽略 */ }
 
 const RECOMMEND_PAGE_SIZE = 30;
 const RECOMMEND_API_MAX_PAGE = 100; // 与后端 feed 的 page 上限一致
 // 每屏合并两页（60 条，4 列不缺卡），最后一屏用到接口第 98、99 页
 const RECOMMEND_MAX_PAGE = Math.floor((RECOMMEND_API_MAX_PAGE + 1) / API_PAGES_PER_VIEW) - 1;
-// 随机推荐从全量列表里抽：36 条能被 1/2/3/4 列整除
-const RANDOM_RECOMMEND_COUNT = 36;
 
 const clampRecommendPage = (page: number) =>
   Number.isInteger(page) ? Math.min(Math.max(page, 0), RECOMMEND_MAX_PAGE) : 0;
@@ -604,7 +493,9 @@ function MainComp() {
   const { user, isLoading: isUserLoading } = useUserContext();
   const [searchParams, setSearchParams] = useSearchParams();
   // tab、推荐页码、搜索词、排序、页码全部放在 URL 里：链接可分享，浏览器回退即可还原
-  const activeTab: HomeTab = searchParams.get('tab') === 'recommend' ? 'recommend' : 'all';
+  // 个人推荐只对登录用户显示；登录状态确认前先按 URL 来，避免已登录用户闪一下全部谱面
+  const canRecommend = !!user || isUserLoading;
+  const activeTab: HomeTab = canRecommend && searchParams.get('tab') === 'recommend' ? 'recommend' : 'all';
   const recommendPage = clampRecommendPage(Number(searchParams.get('rpage') ?? 0));
   const search = searchParams.get('search') ?? '';
   const sortType = parseIndexParam(searchParams.get('sort'), SORT_WORDS.length - 1);
@@ -625,7 +516,6 @@ function MainComp() {
   const listKey = `${search}|${sortType}`;
   const [lastPage, setLastPage] = useState<{ key: string; page: number } | null>(null);
   const hasNext = !(lastPage && lastPage.key === listKey && page >= lastPage.page);
-  const [randomSeed, setRandomSeed] = useState(() => Math.floor(Math.random() * 1000000));
 
   // 更新 URL 参数；值为 null 时删除该参数（默认值不落到 URL 里）
   const updateListParams = useCallback((patch: Record<string, string | null>, replace: boolean) => {
@@ -658,31 +548,28 @@ function MainComp() {
     document.getElementById('home-list-toolbar')?.scrollIntoView({ block: 'start' });
   };
 
-  const refreshRandomBatch = useCallback(() => {
-    setRandomSeed((prev) => prev + 1);
-  }, []);
-
   // 渲染数据
   return (
     <>
       {/* 工具栏：与卡片网格同宽，标签切换 + 搜索 + 排序在一行（移动端分两行） */}
       <div id="home-list-toolbar" className="z-30 relative flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-3 mx-auto mt-3 md:mt-1 mb-4 sm:mb-5 w-full max-w-320 min-w-0 scroll-mt-24">
-        <div className="flex bg-white/[0.04] p-1 border border-white/10 rounded-xl h-11 shrink-0" role="tablist">
-          {(['all', 'recommend'] as const).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab}
-              className={`flex-1 sm:flex-none px-4 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === tab ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
-              onClick={() => (tab === 'all' ? navigateHome('all') : navigateHome('recommend', recommendPage))}
-            >
-              {tab === 'all'
-                ? t("home/HomePage.AllCharts")
-                : user ? t("home/HomePage.PersonalRecommend") : t("home/HomePage.RandomRecommend")}
-            </button>
-          ))}
-        </div>
+        {/* 游客只有全部谱面，不显示切换 */}
+        {user && (
+          <div className="flex bg-white/[0.04] p-1 border border-white/10 rounded-xl h-11 shrink-0" role="tablist">
+            {(['all', 'recommend'] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab}
+                className={`flex-1 sm:flex-none px-4 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === tab ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
+                onClick={() => (tab === 'all' ? navigateHome('all') : navigateHome('recommend', recommendPage))}
+              >
+                {tab === 'all' ? t("home/HomePage.AllCharts") : t("home/HomePage.PersonalRecommend")}
+              </button>
+            ))}
+          </div>
+        )}
         {activeTab === 'all' && (
           <SearchBar
             onChange={(e) => debounced(e.target.value)}
@@ -690,26 +577,6 @@ function MainComp() {
             sortType={sortType}
             onSortChange={onSortChange}
           />
-        )}
-        {/* 随机推荐（未登录）：登录提示和换一批放在搜索框原来的位置 */}
-        {activeTab === 'recommend' && !user && !isUserLoading && (
-          <div className="flex flex-1 justify-between items-center gap-2 min-w-0">
-            <Link
-              to="/login"
-              className="flex items-center gap-2 px-1 min-w-0 text-white/60 hover:text-white text-sm no-underline transition-colors"
-            >
-              <LuSparkles aria-hidden="true" className="w-4 h-4 text-blue-300 shrink-0" />
-              <span className="truncate">{t("home/HomePage.LoginForRecommend")}</span>
-            </Link>
-            <button
-              type="button"
-              className="flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] px-3.5 border border-white/10 hover:border-white/20 rounded-xl h-11 font-medium text-white text-sm whitespace-nowrap transition-colors cursor-pointer shrink-0"
-              onClick={refreshRandomBatch}
-            >
-              <LuShuffle aria-hidden="true" className="w-4 h-4 text-white/60" />
-              {t("home/HomePage.RefreshBatch")}
-            </button>
-          </div>
         )}
       </div>
 
@@ -731,18 +598,16 @@ function MainComp() {
         <RecommendTab
           page={recommendPage}
           onPageChange={goToPage}
-          randomSeed={randomSeed}
         />
       )}
     </>
   );
 }
 
-// 登录用户看个人推荐；未登录或会话失效时回落到随机推荐
-function RecommendTab({ page, onPageChange, randomSeed }: {
+// 个人推荐只给登录用户；游客或会话失效时外层已经切回全部谱面
+function RecommendTab({ page, onPageChange }: {
   page: number;
   onPageChange: (page: number) => void;
-  randomSeed: number;
 }) {
   const { user, isLoading } = useUserContext();
 
@@ -752,11 +617,8 @@ function RecommendTab({ page, onPageChange, randomSeed }: {
     );
   }
 
-  if (user) {
-    return <RecommendFeed userKey={user.id ?? user.username} page={page} onPageChange={onPageChange} />;
-  }
-
-  return <RandomRecommendList refreshKey={randomSeed} />;
+  if (!user) return null;
+  return <RecommendFeed userKey={user.id ?? user.username} page={page} onPageChange={onPageChange} />;
 }
 
 // 后端按用户快照分页，有效期内翻页顺序稳定；返回不足一页即为最后一页
@@ -775,7 +637,7 @@ function RecommendFeed({ userKey, page, onPageChange }: {
     {
       revalidateOnFocus: false,
       onError: (err) => {
-        // 会话过期：刷新登录状态，页面随之回落到随机推荐
+        // 会话过期：刷新登录状态，页面随之切回全部谱面
         if (err instanceof ApiError && err.status === 401) refetch();
       },
     }
@@ -820,56 +682,3 @@ function RecommendFeed({ userKey, page, onPageChange }: {
   );
 }
 
-function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
-  const { t } = useTranslation();
-
-  const { data, error, isLoading } = useSWR<Song[]>(
-    endpoints.maichart.list,
-    cachedSongListFetcher,
-    {
-      revalidateOnFocus: false,
-    }
-  );
-
-  const randomSongs = useMemo(() => {
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      return [] as Song[];
-    }
-
-    const hashWithSeed = (song: Song, seed: number) => {
-      const key = `${song.id}|${song.title}|${song.uploader}|${seed}`;
-      let hash = 2166136261;
-      for (let i = 0; i < key.length; i++) {
-        hash ^= key.charCodeAt(i);
-        hash = Math.imul(hash, 16777619);
-      }
-      return hash >>> 0;
-    };
-
-    return [...data]
-      .sort((a, b) => hashWithSeed(a, refreshKey) - hashWithSeed(b, refreshKey))
-      .slice(0, RANDOM_RECOMMEND_COUNT);
-  }, [data, refreshKey]);
-
-  if (error) {
-    return <EmptyState>{t("home/HomePage.ServerError")}</EmptyState>;
-  }
-
-  if (isLoading) {
-    return (
-      <SectionLoading />
-    );
-  }
-
-  if (randomSongs.length === 0) {
-    return <EmptyState>{t("home/HomePage.EmptyData")}</EmptyState>;
-  }
-
-  return (
-    <div className={SONG_GRID_CLASS}>
-      {randomSongs.map((song, index) => (
-        <SongCard key={song.id} song={song} index={index} />
-      ))}
-    </div>
-  );
-}

@@ -282,10 +282,11 @@ function NavigationContent() {
         aria-controls={`primary-navigation-${navigationId}`}
         data-navigation-toggle
       >
-        <span aria-hidden="true" className="relative h-4 w-5">
-          <span className={`absolute left-0 top-0.5 h-px w-5 rounded-full bg-white/85 transition-all duration-200 ${isMobileMenuOpen ? 'top-2 rotate-45' : ''}`} />
-          <span className={`absolute left-0 top-2 h-px w-5 rounded-full bg-white/85 transition-opacity duration-150 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
-          <span className={`absolute left-0 top-3.5 h-px w-5 rounded-full bg-white/85 transition-all duration-200 ${isMobileMenuOpen ? 'top-2 -rotate-45' : ''}`} />
+        {/* 三条线都放在正中间，关闭时上下平移成“三”，打开时原地旋转成端正的 X（不靠切换 top，避免类名冲突） */}
+        <span aria-hidden="true" className="relative h-[15px] w-5">
+          <span className={`absolute left-0 top-[7px] h-px w-5 rounded-full bg-white/85 transition-[translate,rotate] duration-200 ${isMobileMenuOpen ? 'rotate-45' : '-translate-y-1.5'}`} />
+          <span className={`absolute left-0 top-[7px] h-px w-5 rounded-full bg-white/85 transition-opacity duration-150 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
+          <span className={`absolute left-0 top-[7px] h-px w-5 rounded-full bg-white/85 transition-[translate,rotate] duration-200 ${isMobileMenuOpen ? '-rotate-45' : 'translate-y-1.5'}`} />
         </span>
       </button>
 

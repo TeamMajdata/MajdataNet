@@ -1,4 +1,3 @@
-import { makeLevelClickCallback } from '@/utils/scrollUtils';
 import type { LevelsProps } from '@/types';
 import { Link } from 'react-router-dom';
 import { LEVEL_BG_CLASS as levelColors } from './levelColors';
@@ -11,14 +10,12 @@ const levelNames = ['Easy', 'Basic', 'Advanced', 'Expert', 'Master', 'Re:Master'
  * 多难度等级列表组件
  * 标签宽度随文字变化；只有一个难度时显示“难度名 + 等级”。
  */
-export default function Levels({ levels, songid, isPlayer = false, linkToSong = false }: LevelsProps) {
+export default function Levels({ levels, songid, linkToSong = false }: LevelsProps) {
   // 难度顺序：0=Easy, 1=Basic, 2=Advanced, 3=Expert, 4=Master, 5=ReMaster, 6=Utage
   const available = levels
     .map((level, index) => ({ level, index }))
     .filter((item): item is { level: string; index: number } => item.level != null && item.level !== '');
   const single = available.length === 1;
-
-  const levelClickCallback = makeLevelClickCallback(songid, isPlayer);
 
   return (
     <div className="flex flex-wrap gap-1">
@@ -31,7 +28,7 @@ export default function Levels({ levels, songid, isPlayer = false, linkToSong = 
         return linkToSong ? (
           <Link key={index} to={`/song?id=${songid}&level=${index}`} className={className}>{content}</Link>
         ) : (
-          <button key={index} type="button" className={className} onClick={levelClickCallback}>{content}</button>
+          <span key={index} className={className}>{content}</span>
         );
       })}
     </div>

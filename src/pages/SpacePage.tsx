@@ -8,8 +8,9 @@ import { getLocale, useLanguage } from '@/i18n';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
-import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, CommentListView } from '@/components';
-import { apiPagesForView, SONG_GRID_CONTAINER_CLASS } from '@/components/song/songGrid';
+import { PageLayout, RecentPlayedWidget, ScoreCount, CommentListView } from '@/components';
+import { SONG_GRID_CONTAINER_CLASS } from '@/components/song/songGrid';
+import UploadedCharts from '@/components/user/UploadedCharts';
 import UserRating from '@/components/user/UserRating';
 import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
@@ -94,11 +95,7 @@ export default function SpacePage() {
           </section>
 
           <section id="space-panel-uploaded" role="tabpanel" aria-labelledby="space-tab-uploaded" hidden={activeTab !== 'uploaded'}>
-            <SongList
-              url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + username, '', apiPage))}
-              onDataLoaded={setHasUploadedCharts}
-              gridClassName={SONG_GRID_CONTAINER_CLASS}
-            />
+            <UploadedCharts key={username} username={username} onDataLoaded={setHasUploadedCharts} />
           </section>
 
           <section id="space-panel-comments" role="tabpanel" aria-labelledby="space-tab-comments" hidden={activeTab !== 'comments'}>

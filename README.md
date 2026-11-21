@@ -106,8 +106,8 @@ src/
 
 public/               # 公共资源
 ├── icons/           # 图标
-├── MiniGame/        # 小游戏资源
-└── WebGLBuild/      # WebGL构建资源
+├── majview/         # 网页预览播放器的皮肤和音效
+└── MiniGame/        # 小游戏资源
 ```
 
 ## 路由说明
