@@ -5,6 +5,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { SECTION_HEADING_CLASS } from '@/components/ui/surface';
 import { useSearchParams } from 'react-router-dom';
 import { PageLayout, SongList, EventBanner } from '@/components';
 import { apiPagesForView } from '@/components/song/songGrid';
@@ -42,29 +43,23 @@ export default function EventTagPage() {
     : null;
 
   return (
-    <PageLayout className="pt-4 sm:pt-6 md:pt-8 min-h-screen">
-      {/* 活动横幅 */}
-      {currentEvent && <EventBanner event={currentEvent} />}
+    <PageLayout>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
+        {/* 活动横幅：和页面同宽 */}
+        {currentEvent && <EventBanner event={currentEvent} containerClassName="mb-8 sm:mb-10" />}
 
-      {/* 活动相关谱面列表 */}
-      {searchKeyword && (
-        <div className="mx-auto mt-4 sm:mt-6 md:mt-8 px-2 sm:px-3 md:px-4 max-w-300">
-          <div>
-            <h2 className="m-0 mb-3 sm:mb-4 md:mb-6 font-bold text-white text-xl sm:text-2xl md:text-3xl text-center" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
-              {t("eventTag/EventTagPage.RelatedCharts")}
-            </h2>
-
-            {/* 渐变分割线 */}
-            <div className="relative mx-auto my-8 w-[70%] h-px" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 15%, rgba(255, 255, 255, 0.4) 30%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.4) 70%, rgba(255, 255, 255, 0.2) 85%, transparent 100%)' }}></div>
-
+        {/* 活动相关谱面：和其他页面一样的小标题 */}
+        {searchKeyword && (
+          <section aria-labelledby="event-tag-charts-title">
+            <h2 id="event-tag-charts-title" className={SECTION_HEADING_CLASS}>{t("eventTag/EventTagPage.RelatedCharts")}</h2>
             <SongList
               url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort(searchKeyword, '', apiPage))}
               page={0}
               setMax={() => { }}
             />
-          </div>
-        </div>
-      )}
+          </section>
+        )}
+      </div>
     </PageLayout>
   );
 }
