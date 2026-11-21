@@ -11,7 +11,7 @@ import './App.css';
 // 首页保持同步加载；其余页面按路由拆成独立 chunk，首次访问时再下载。
 const AuthModal = lazy(() => import('./components/auth/AuthModal'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
-const RankingPage = lazy(() => import('./pages/RankingPage'));
+const RecommendRankingPage = lazy(() => import('./pages/ranking/RecommendRankingPage'));
 const UserRankingPage = lazy(() => import('./pages/ranking/UserRankingPage'));
 const SongPage = lazy(() => import('./pages/SongPage'));
 const SpacePage = lazy(() => import('./pages/SpacePage'));
@@ -68,7 +68,7 @@ function AppRoutes() {
         <Route path="/edit" element={<ExternalRedirect to="https://docs.majdata.net/majdatax/" />} />
         <Route path="/play" element={<ExternalRedirect to="https://docs.majdata.net/majdataplay/" />} />
         <Route path="/chart-events" element={<EventsPage />} />
-        <Route path="/ranking" element={<RankingPage />} />
+        <Route path="/ranking" element={<RecommendRankingPage />} />
         <Route path="/ranking/user" element={<UserRankingPage />} />
         <Route path="/song" element={<SongPage />} />
         <Route path="/space" element={<SpacePage />} />

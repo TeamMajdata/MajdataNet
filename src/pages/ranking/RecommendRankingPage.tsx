@@ -8,7 +8,7 @@ import { PageLayout, SongList } from '@/components';
 import { endpoints } from '@/config/api';
 import type { RankingSectionProps } from '@/types';
 
-export default function RankingPage() {
+export default function RecommendRankingPage() {
   const { t } = useTranslation();
 
   return (
