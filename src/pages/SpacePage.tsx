@@ -171,7 +171,7 @@ function ProfileSidebar({ username, data, error, isLoading }: {
           {t("space/SpacePage.EditProfile")}
         </Link>
       )}
-      {/* 早期账号没有记录注册时间（接口给的是 1970 年），显示为“早期用户” */}
+      {/* 早期账号没有记录注册时间（接口给的是 1970 年），显示为“老资历” */}
       <p className="flex items-center gap-2 m-0 mt-4 text-white/55! text-sm">
         <LuCalendarDays aria-hidden="true" className="w-4 h-4 shrink-0" />
         {joinDate.getFullYear() > 2000
