@@ -4,6 +4,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 import { getLocale, useLanguage } from '@/i18n';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -685,7 +686,7 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
 function CommentSummary({ comment }: { comment: Comment }) {
   const { t } = useTranslation();
   return (
-    <article className="space-y-2 bg-white/6 p-4 border border-white/10 rounded-xl min-w-0">
+    <article className={`${CARD_SURFACE_CLASS} space-y-2 p-4 min-w-0`}>
       <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-white/50 text-xs">
         <Link to={`/space?id=${encodeURIComponent(comment.author)}`} className="inline-flex items-center gap-1.5 font-medium text-white/90 hover:underline">
           <Avatar username={comment.author} avatarId={comment.authorProfile?.avatarId} className="w-5 h-5" />

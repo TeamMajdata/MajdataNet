@@ -20,6 +20,7 @@ import { useUsername } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
 import type { IntroductionData } from '@/types';
 import UserSeasons from '@/components/user/UserSeasons';
+import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 
 import { apiFetcher as fetcher, apiRequest } from '@/utils/apiClient';
 import type { CommentList } from '@/types';
@@ -198,7 +199,7 @@ function ProfileSidebar({ username, data, error, isLoading }: {
 function IntroductionCard({ username, text }: { username: string; text: string }) {
   const { t } = useTranslation();
   return (
-    <article className="bg-white/[0.03] mb-6 border border-white/10 rounded-2xl min-w-0 overflow-hidden">
+    <article className={`${CARD_SURFACE_CLASS} mb-6 min-w-0 overflow-hidden`}>
       <p className="m-0 px-5 py-3 border-white/10 border-b font-medium text-white/55! text-xs">
         {username} / {t("space/SpacePage.Introduction")}
       </p>

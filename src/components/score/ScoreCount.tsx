@@ -5,6 +5,7 @@ import { LoadingSpinner } from '@/components';
 import UserAvatar from '@/components/user/UserAvatar';
 import type { ScoreCardProps, ScoreCountProps, ScoreSumResponse } from '@/types';
 import { Link } from 'react-router-dom';
+import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 
 
 import { apiFetcher as fetcher } from '@/utils/apiClient';
@@ -60,116 +61,43 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
 }
 
 /**
- * 单个分数卡片组件
+ * 单个分数卡片组件：和谱面卡片同样的底色和悬停描边，第一名用金色强调
  */
 export function ScoreCard({ rank, username, avatarId, scoresum, maxscore, footer }: ScoreCardProps) {
   const percentage = maxscore > 0 ? (scoresum / maxscore) * 100 : 0;
   const isFirst = rank === 1;
 
   return (
-    <div className="relative">
-      <Link
-        to={`/space?id=${encodeURIComponent(username)}`}
-        className="block text-inherit no-underline"
-      >
+    <Link
+      to={`/space?id=${encodeURIComponent(username)}`}
+      className={`${CARD_SURFACE_CLASS} relative block p-3 h-full text-inherit no-underline ring-1 transition-shadow duration-200 ${isFirst ? 'ring-amber-300/50 hover:ring-amber-300/80' : 'ring-transparent hover:ring-white/30'}`}
+    >
+      <span className={`top-2 left-2 absolute px-1.5 rounded-md font-semibold text-xs tabular-nums leading-5 ${isFirst ? 'bg-amber-400 text-black' : 'bg-white/10 text-white/70'}`}>
+        #{rank}
+      </span>
+
+      <div className="flex justify-center mb-2">
+        <UserAvatar
+          className={`border rounded-full w-14 h-14 object-cover aspect-square ${isFirst ? 'border-amber-300/60' : 'border-white/15'}`}
+          username={username}
+          avatarId={avatarId}
+        />
+      </div>
+
+      <div className="mb-1 px-1 font-medium text-white text-sm text-center truncate">{username}</div>
+
+      <div className={`font-semibold text-base text-center tabular-nums ${isFirst ? 'text-amber-300' : 'text-white'}`}>
+        {scoresum.toFixed(4)}%
+      </div>
+
+      {footer && <div className="mt-2 text-white/60 text-xs text-center">{footer}</div>}
+
+      <div className="bg-white/10 mt-2 rounded-full h-1 overflow-hidden">
         <div
-          className="relative p-3 h-full transition-all duration-300 ease-out"
-          style={{
-            background: 'var(--glassmorphism-bg-secondary)',
-            backdropFilter: 'var(--glassmorphism-backdrop)',
-            border: isFirst ? '2px solid rgba(255, 215, 0, 0.5)' : 'var(--glassmorphism-border)',
-            borderRadius: 'var(--glassmorphism-border-radius)',
-            boxShadow: isFirst
-              ? '0 4px 20px rgba(255, 215, 0, 0.3), var(--glassmorphism-shadow)'
-              : 'var(--glassmorphism-shadow)',
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLElement;
-            el.style.transform = 'translateY(-4px) scale(1.02)';
-            el.style.boxShadow = isFirst
-              ? '0 8px 30px rgba(255, 215, 0, 0.4), 0 4px 12px rgb(0 0 0 / 20%)'
-              : '0 8px 25px rgb(0 0 0 / 30%), 0 4px 12px rgb(0 0 0 / 20%)';
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLElement;
-            el.style.transform = 'translateY(0) scale(1)';
-            el.style.boxShadow = isFirst
-              ? '0 4px 20px rgba(255, 215, 0, 0.3), var(--glassmorphism-shadow)'
-              : 'var(--glassmorphism-shadow)';
-          }}
-        >
-          {/* 第一名标记 */}
-          {isFirst && (
-            <div
-              className="top-2 right-2 absolute px-2 py-1 rounded font-bold text-sm"
-              style={{
-                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-                color: '#000',
-                textShadow: '0 1px 2px rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 2px 8px rgba(255, 215, 0, 0.5)',
-              }}
-            >
-              1st
-            </div>
-          )}
-
-          {/* 玩家头像 */}
-          <div className="flex justify-center mb-2">
-            <UserAvatar
-              className="border-2 rounded-full w-16 h-16 object-cover transition-all duration-300"
-              style={{
-                borderColor: isFirst ? 'rgba(255, 215, 0, 0.6)' : 'rgb(255 255 255 / 20%)',
-                aspectRatio: '1',
-              }}
-              username={username}
-              avatarId={avatarId}
-            />
-          </div>
-
-          {/* 用户名 */}
-          <div
-            className="mb-2 px-1 font-semibold text-white text-sm text-center truncate"
-            style={{
-              textShadow: '0 1px 2px rgb(0 0 0 / 30%)',
-            }}
-          >
-            {username}
-          </div>
-
-          {/* 分数 */}
-          <div
-            className="font-bold text-white text-lg text-center"
-            style={{
-              textShadow: '0 1px 2px rgb(0 0 0 / 30%)',
-              color: isFirst ? '#FFD700' : 'white',
-            }}
-          >
-            {scoresum.toFixed(4)}%
-          </div>
-
-          {footer && <div className="mt-2 text-white/60 text-xs text-center">{footer}</div>}
-
-          {/* 进度条 */}
-          <div
-            className="mt-2 rounded-full overflow-hidden"
-            style={{
-              height: '4px',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            }}
-          >
-            <div
-              style={{
-                width: `${percentage}%`,
-                height: '100%',
-                background: isFirst
-                  ? 'linear-gradient(90deg, #FFD700 0%, #FFA500 100%)'
-                  : 'rgba(255, 255, 255, 0.5)',
-                transition: 'width 0.3s ease',
-              }}
-            />
-          </div>
-        </div>
-      </Link>
-    </div>
+          className={`rounded-full h-full ${isFirst ? 'bg-amber-300' : 'bg-white/45'}`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </Link>
   );
 }
