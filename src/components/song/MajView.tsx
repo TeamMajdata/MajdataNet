@@ -4,13 +4,14 @@
  *
  * 打开页面时只加载谱面并停在开头；第一次点播放才下载音乐，免得每次打开谱面页都下载整首歌。
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuMaximize, LuPause, LuPlay, LuRotateCcw, LuSettings2 } from 'react-icons/lu';
 import { Board } from '@/majview/renderer.js';
 import { Transport } from '@/majview/audio.js';
 import { compileChart, readMaidata } from '@/majview/simai.js';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
+import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, seekTarget } from '@/majview/gestures.js';
 import type { ChartMark } from './chartMarks';
 import { loadSettings, saveSettings, type ViewSettings } from '@/majview/settings';
 import SortMenu from '@/components/ui/SortMenu';
@@ -24,6 +25,20 @@ const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 type Chart = ReturnType<typeof compileChart>;
 /** loading：加载谱面；ready：可以播放；buffering：第一次播放，正在下载音乐；error：失败 */
 type Status = 'loading' | 'ready' | 'buffering' | 'error';
+
+/** 一根手指在判定盘上的手势状态：点按、长按 2 倍速、横向拖动进度都从 pointerdown 开始区分 */
+type BoardGesture = {
+  id: number;
+  x: number;
+  y: number;
+  moved: boolean;
+  longPressed: boolean;
+  scrubbing: boolean;
+  spedUp: boolean;
+  /** 拖动开始时的时间：目标时间相对它算，不跟着画面走 */
+  startTime: number;
+  target: number;
+};
 
 /** iOS 17+：让 Web Audio 按“媒体播放”处理，静音键打开时也能出声 */
 function preferPlaybackSession() {
@@ -61,6 +76,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
   const boardHostRef = useRef<HTMLDivElement>(null);
   const comboRef = useRef<HTMLDivElement>(null);
   const comboValueRef = useRef<HTMLElement>(null);
@@ -81,6 +97,15 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const [settingsOpen, setSettingsOpen] = useState(false);
   const rafRef = useRef(0);
 
+  // 判定盘手势：同一时间只跟踪一根手指，定时器保存长按
+  const gestureRef = useRef<BoardGesture | null>(null);
+  const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTapRef = useRef<{ at: number; x: number; y: number } | null>(null);
+  const seekHintRef = useRef<HTMLDivElement>(null);
+  const seekHintTimeRef = useRef<HTMLElement>(null);
+  const seekHintDeltaRef = useRef<HTMLSpanElement>(null);
+  const speedHintRef = useRef<HTMLDivElement>(null);
+
   const [boardReady, setBoardReady] = useState(false);
   const [chart, setChart] = useState<Chart | null>(null);
   const [status, setStatus] = useState<Status>('loading');
@@ -93,6 +118,11 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const beginRef = useRef(0);
   const [rate, setRate] = useState(1);
   const [videoVisible, setVideoVisible] = useState(false);
+  // 手势回调在两次渲染之间触发，读 ref 才能拿到当前总长和倍速
+  const durationRef = useRef(0);
+  const rateRef = useRef(1);
+  durationRef.current = duration;
+  rateRef.current = rate;
 
   const chartUrl = endpoints.maichart.prefix('') + songId;
 
@@ -206,6 +236,13 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     dropTransport();
     chartRef.current = null;
     previewTimeRef.current = 0;
+    // 上一条谱面的手势不要带到新谱面
+    if (longPressRef.current !== null) clearTimeout(longPressRef.current);
+    longPressRef.current = null;
+    gestureRef.current = null;
+    lastTapRef.current = null;
+    if (seekHintRef.current) seekHintRef.current.hidden = true;
+    if (speedHintRef.current) speedHintRef.current.hidden = true;
     setChart(null);
     setPlaying(false);
     setRate(1);
@@ -363,13 +400,151 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     if (transport && transport.rate !== rate) transport.move(transport.time, rate);
   }, [rate, status]);
 
+  // 手指离开判定盘时不一定会收到 pointerup（页面滚动、来电等），卸载时把定时器清掉
+  useEffect(() => () => {
+    if (longPressRef.current !== null) clearTimeout(longPressRef.current);
+  }, []);
+
+  // iOS 上长按偶尔还是会走进文本选择或上下文菜单，除了 CSS 再兜一层底
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+    const prevent = (e: Event) => e.preventDefault();
+    const events = ['selectstart', 'contextmenu', 'dragstart'];
+    for (const name of events) scene.addEventListener(name, prevent);
+    return () => {
+      for (const name of events) scene.removeEventListener(name, prevent);
+    };
+  }, []);
+
   const canControl = status === 'ready' || status === 'buffering';
+
+  const hideSeekHint = () => {
+    if (seekHintRef.current) seekHintRef.current.hidden = true;
+  };
+
+  const showSeekHint = (target: number, start: number) => {
+    const hint = seekHintRef.current;
+    if (!hint) return;
+    hint.hidden = false;
+    if (seekHintTimeRef.current) seekHintTimeRef.current.textContent = formatClock(target - beginRef.current);
+    if (seekHintDeltaRef.current) {
+      const delta = target - start;
+      seekHintDeltaRef.current.textContent = `${delta >= 0 ? '+' : '-'}${formatClock(Math.abs(delta))}`;
+    }
+  };
+
+  const setSpeedHint = (visible: boolean) => {
+    if (speedHintRef.current) speedHintRef.current.hidden = !visible;
+  };
+
+  const clearLongPress = () => {
+    if (longPressRef.current !== null) clearTimeout(longPressRef.current);
+    longPressRef.current = null;
+  };
+
+  // 长按的 2 倍速不写进设置，松手就恢复成原来选的倍速
+  const restoreSpeed = () => {
+    const transport = transportRef.current;
+    if (transport) transport.move(transport.time, rateRef.current);
+    setSpeedHint(false);
+  };
+
+  const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    // 只处理触摸：鼠标的双击 / 长按不应该意外控制播放
+    if (e.pointerType !== 'touch' || !canControl || gestureRef.current) return;
+    const gesture: BoardGesture = {
+      id: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+      moved: false,
+      longPressed: false,
+      scrubbing: false,
+      spedUp: false,
+      startTime: currentTime(),
+      target: 0,
+    };
+    gestureRef.current = gesture;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch { /* 指针已经抬起时部分浏览器会抛错 */ }
+    clearLongPress();
+    longPressRef.current = setTimeout(() => {
+      longPressRef.current = null;
+      if (gestureRef.current !== gesture || gesture.moved) return;
+      gesture.longPressed = true;
+      const transport = transportRef.current;
+      // 暂停时按住不加速，但这一下仍然算长按，松手不会被当成点按
+      if (!transport?.playing) return;
+      transport.move(transport.time, 2);
+      gesture.spedUp = true;
+      setSpeedHint(true);
+    }, LONG_PRESS_MS);
+  };
+
+  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const gesture = gestureRef.current;
+    if (!gesture || e.pointerId !== gesture.id) return;
+    const dx = e.clientX - gesture.x;
+    const dy = e.clientY - gesture.y;
+    // 已经在 2 倍速：手指挪动不改成拖动进度
+    if (gesture.longPressed) return;
+    if (!gesture.moved) {
+      if (Math.hypot(dx, dy) <= TAP_SLOP_PX) return;
+      gesture.moved = true;
+      clearLongPress();
+      // 竖向移动交给页面滚动；横向要超过阈值才算拖动
+      if (Math.abs(dx) < SCRUB_SLOP_PX || Math.abs(dx) <= Math.abs(dy)) return;
+      gesture.scrubbing = true;
+    }
+    if (!gesture.scrubbing) return;
+    gesture.target = seekTarget(gesture.startTime, dx, e.currentTarget.clientWidth, beginRef.current, durationRef.current);
+    showSeekHint(gesture.target, gesture.startTime);
+  };
+
+  const finishGesture = (e: ReactPointerEvent<HTMLDivElement>, cancelled: boolean) => {
+    const gesture = gestureRef.current;
+    if (!gesture || e.pointerId !== gesture.id) return;
+    gestureRef.current = null;
+    clearLongPress();
+    hideSeekHint();
+    if (gesture.spedUp) restoreSpeed();
+    if (cancelled) return;
+    if (gesture.scrubbing) {
+      // 拖动时只显示时间，松手才真的跳过去
+      seek(gesture.target);
+      return;
+    }
+    if (gesture.moved) return;
+    if (gesture.longPressed) return;
+    // 点按：300ms 内第二次点在同一片区域算双击
+    const now = performance.now();
+    const last = lastTapRef.current;
+    if (last && now - last.at <= DOUBLE_TAP_MS
+      && Math.hypot(gesture.x - last.x, gesture.y - last.y) <= DOUBLE_TAP_SLOP_PX) {
+      lastTapRef.current = null;
+      void togglePlay();
+    } else {
+      lastTapRef.current = { at: now, x: gesture.x, y: gesture.y };
+    }
+  };
+
+  const handlePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, false);
+  const handlePointerCancel = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, true);
+
   const controlClass = 'grid place-items-center hover:bg-white/10 rounded-lg w-9 h-9 text-white/85 hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default';
 
   return (
     <div ref={rootRef} className="majview">
       <img className="majview-backdrop" src={cover} alt="" crossOrigin="anonymous" />
-      <div className="majview-scene">
+      <div
+        ref={sceneRef}
+        className="majview-scene"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+      >
         <div className="majview-background">
           <img src={cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
           <video
@@ -396,6 +571,12 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
               : status === 'buffering' ? t('song/MajView.LoadingTrack') : t('song/MajView.Loading')}
           </div>
         )}
+        {/* 拖动进度时显示目标时间；长按 2 倍速时显示倍率。都用 ref 直接改文字，避免每一帧重新渲染 */}
+        <div ref={seekHintRef} className="majview-seek-hint" hidden aria-hidden="true">
+          <strong ref={seekHintTimeRef} />
+          <span ref={seekHintDeltaRef} />
+        </div>
+        <div ref={speedHintRef} className="majview-speed-hint" hidden aria-hidden="true">2×</div>
       </div>
 
       <div className="majview-controls">

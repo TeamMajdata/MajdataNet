@@ -47,6 +47,12 @@
   max-width: 100%;
   margin-inline: auto;
   container-type: size;
+  /* 判定盘上的触摸手势：竖向仍然滚动页面，横向留给脚本；同时去掉长按菜单和文字选中。
+     iOS 只认带前缀的 -webkit-user-select，漏掉它长按会进入文本选择状态 */
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .majview-board,
 .majview-board canvas,
@@ -61,7 +67,7 @@
 /* 和 Play 主屏幕的圆形遮罩一样：hanabi、打击特效超出判定盘圆形的部分裁掉 */
 .majview-board { clip-path: circle(50%); }
 .majview-background img,
-.majview-background video { object-fit: contain; }
+.majview-background video { object-fit: contain; -webkit-user-drag: none; }
 .majview-background video { opacity: 0; background: #000; }
 .majview-background video.visible { opacity: 1; }
 .majview-shade { background: #000; }
@@ -78,6 +84,31 @@
   font-size: .875rem;
   text-align: center;
 }
+
+/* 拖动进度时显示目标时间，长按 2 倍速时显示倍率：压在判定盘上方中间，深色胶囊在封面上也看得清 */
+.majview-seek-hint,
+.majview-speed-hint {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  z-index: 2;
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  transform: translate(-50%, -50%);
+  padding: .25rem .75rem;
+  border-radius: 999px;
+  background: rgb(8 10 14 / 78%);
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  pointer-events: none;
+}
+.majview-seek-hint[hidden],
+.majview-speed-hint[hidden] { display: none; }
+.majview-seek-hint strong { font-size: 1.5rem; font-weight: 500; }
+.majview-seek-hint span { font-size: .8125rem; color: rgb(255 255 255 / 65%); }
+.majview-speed-hint { font-size: 1.5rem; font-weight: 600; letter-spacing: .02em; }
 
 /* 连击数：位置和字号按 Play 的 CanvasCombo 换算到正方形判定盘 */
 .majview-combo {
