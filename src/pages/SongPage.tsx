@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import PageLoading from '@/components/ui/PageLoading';
 import { Activity, useEffect, useState, useRef, type KeyboardEvent } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -13,7 +14,6 @@ import {
   ChartVotePanel,
   ScoreRanking,
   CollectionModal,
-  LoadingSpinner,
 } from '@/components';
 import { downloadSong } from '@/utils/download';
 import { stripTmpTags } from '@/utils';
@@ -61,9 +61,7 @@ export default function SongPage() {
 
   if (!param || isChecking) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <LoadingSpinner size={50} />
-      </div>
+      <PageLoading />
     );
   }
 
