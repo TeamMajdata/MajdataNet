@@ -168,14 +168,12 @@
     "Likes_one": "{{formatted}} like",
     "Likes_other": "{{formatted}} likes",
     "Next": "Next",
-    "Pause": "Pause",
     "Plays_one": "{{formatted}} play",
     "Plays_other": "{{formatted}} plays",
     "Popular": "Popular this week",
     "Previous": "Previous",
     "RecentUploads": "Recent uploads",
     "RecentUploadsHint": "New from the community",
-    "Resume": "Resume",
     "SortBy": "Sort by"
   },
   "home/HomePage": {

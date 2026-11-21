@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { LuChevronLeft, LuChevronRight, LuPause, LuPlay } from 'react-icons/lu';
+import { LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 import { endpoints } from '@/config/api';
 import { parseTmpRichText } from '@/utils/richTextUtils';
 import { CARD_SURFACE_CLASS, SECTION_HEADING_CLASS } from '@/components/ui/surface';
@@ -14,7 +14,7 @@ const INTERVAL_MS = 7000;
 const CONTROL_CLASS = 'grid place-items-center bg-white/[0.04] hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg w-8 h-8 text-white/70 hover:text-white transition-colors cursor-pointer';
 
 /**
- * 首页的一段横向轮播：标题和说明在左，翻页、页码、暂停在右；一页三张谱面（窄屏竖着排）。
+ * 首页的一段横向轮播：标题和说明在左，翻页和页码在右；一页三张谱面（窄屏竖着排）。
  * 每隔几秒自动翻到下一页；鼠标停在上面、页面在后台、或用户开了“减少动态效果”时不自动翻。
  */
 export default function ChartCarousel({ id, title, hint, songs, renderMeta, ranked = false }: {
@@ -30,19 +30,18 @@ export default function ChartCarousel({ id, title, hint, songs, renderMeta, rank
 }) {
   const { t } = useTranslation();
   const [page, setPage] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
   const pages = Math.max(1, Math.ceil((songs?.length ?? 0) / PER_PAGE));
   const current = Math.min(page, pages - 1);
 
   useEffect(() => {
-    if (paused || hovered || pages <= 1) return;
+    if (hovered || pages <= 1) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const timer = window.setInterval(() => {
       if (!document.hidden) setPage(p => (p + 1) % pages);
     }, INTERVAL_MS);
     return () => window.clearInterval(timer);
-  }, [paused, hovered, pages]);
+  }, [hovered, pages]);
 
   if (songs && songs.length === 0) return null;
   const visible = songs?.slice(current * PER_PAGE, current * PER_PAGE + PER_PAGE);
@@ -62,10 +61,6 @@ export default function ChartCarousel({ id, title, hint, songs, renderMeta, rank
             <span className="min-w-10 text-white/55 text-xs text-center tabular-nums" aria-live="polite">{current + 1} / {pages}</span>
             <button type="button" className={CONTROL_CLASS} onClick={() => setPage((current + 1) % pages)} aria-label={t('home/HomeHighlights.Next')}>
               <LuChevronRight aria-hidden="true" className="w-4 h-4" />
-            </button>
-            <button type="button" className={CONTROL_CLASS} onClick={() => setPaused(p => !p)} aria-pressed={paused}
-              aria-label={paused ? t('home/HomeHighlights.Resume') : t('home/HomeHighlights.Pause')} title={paused ? t('home/HomeHighlights.Resume') : t('home/HomeHighlights.Pause')}>
-              {paused ? <LuPlay aria-hidden="true" className="w-3.5 h-3.5" /> : <LuPause aria-hidden="true" className="w-3.5 h-3.5" />}
             </button>
           </div>
         )}
