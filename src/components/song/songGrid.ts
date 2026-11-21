@@ -7,9 +7,6 @@ export const SONG_GRID_CLASS = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 x
  */
 export const SONG_GRID_CONTAINER_CLASS = 'grid grid-cols-1 @xl:grid-cols-2 @4xl:grid-cols-3 gap-3 w-full min-w-0';
 
-/** 排行榜固定 10 条：用两列排成 5 行，任何宽度下都不会剩半行 */
-export const RANKING_GRID_CLASS = 'grid grid-cols-1 sm:grid-cols-2 gap-3 mx-auto w-full max-w-320 min-w-0';
-
 /** 谱面列表/搜索接口每页固定返回的条数 */
 export const API_PAGE_SIZE = 30;
 
