@@ -64,4 +64,8 @@
   .song-header-actions { grid-column: 1 / -1; grid-row: 3; }
   .song-header-actions > button { flex: 1; }
   .song-sidebar { border-left: 0; border-top: 1px solid var(--rule); padding: .5rem 0 0; }
+  /* 手机上播放器不再是正方形：判定盘占满整个宽度，控制条接在下面，不然判定盘两边各空出半个控制条高 */
+  .song-stage:has(.majview) { aspect-ratio: auto; }
+  .song-stage .majview { height: auto; }
+  .song-stage .majview-scene { flex: none; width: 100%; }
 }
