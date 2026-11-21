@@ -6,26 +6,15 @@
 :root {
   --foreground-rgb: 255, 255, 255, 100;
   --background-start: 20, 20, 20;
-  --shadow: #181818;
-
-  /* 统一容器样式 */
-  --container-max-width: 1200px;
-  --container-padding: 0 1rem;
-  --container-margin: 0 auto;
 
   /* 统一毛玻璃效果 */
   --glassmorphism-bg-primary: rgb(15 15 20 / 85%);
-  --glassmorphism-bg-secondary: rgb(30 30 30 / 90%);
-  --glassmorphism-backdrop: blur(20px) saturate(180%);
   --glassmorphism-border: 1px solid rgb(255 255 255 / 12%);
-  --glassmorphism-border-radius: 16px;
   --glassmorphism-shadow: 0 8px 25px rgb(0 0 0 / 30%);
 
   /* 智能 Header 高度系统 */
   --header-height-desktop: 60px;
-  --header-height-tablet: 50px;
   --header-height-mobile: 56px;
-  --header-height-mobile-small: 50px;
 
   /* 当前生效的 Header 高度（默认桌面端） */
   --header-height: var(--header-height-desktop);
@@ -33,11 +22,6 @@
   /* 智能间距计算 */
   --content-top-spacing: calc(var(--header-height) + 0.5rem);
   --content-top-spacing-large: calc(var(--header-height) + 1rem);
-
-  /* 其他样式变量 */
-  --glassmorphism-bg: rgb(15 15 20 / 95%);
-  --glassmorphism-bg-scrolled: rgb(10 12 18 / 85%);
-  --glassmorphism-border-scrolled: rgb(255 255 255 / 15%);
 
   scrollbar-color: rgb(50 50 50) rgb(var(--background-start));
   scrollbar-width: thin;
@@ -279,7 +263,6 @@ input[type="number"]::-webkit-inner-spin-button {
 
 @media (width <= 767px) {
   :root {
-    --container-padding: 0 0.75rem;
     --header-height: var(--header-height-mobile);
     --content-top-spacing: 0.75rem;
     --content-top-spacing-large: calc(var(--header-height) + env(safe-area-inset-top) + 0.75rem);
