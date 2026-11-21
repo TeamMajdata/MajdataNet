@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { ToastContainer, cssTransition } from 'react-toastify';
 import { FaDiscord, FaGithub, FaQq } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
-import { motion } from 'framer-motion';
 import { UnifiedHeader } from '@/components';
 import AmbientBackground from './AmbientBackground';
 import FloatingButtons from './FloatingButtons';
@@ -34,7 +33,6 @@ const FOOTER_LINKS = [
 export default function PageLayout({
   children,
   showFooter = true,
-  title = null,
   className = '',
   useAmbientBackground = true,
 }: PageLayoutProps) {
@@ -53,27 +51,6 @@ export default function PageLayout({
 
       {/* Unified Header */}
       <UnifiedHeader />
-
-      {/* Page Title */}
-      {title && (
-        <section className="mx-auto mt-(--content-top-spacing) mb-0 px-3 sm:px-4 max-w-7xl">
-          <motion.div
-            className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-4 sm:p-6 md:p-8 border border-white/10 rounded-2xl text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-          >
-            <h1
-              className="m-0 font-bold text-[#e5e5e5] text-2xl sm:text-3xl md:text-[2.5rem] leading-tight"
-              style={{
-                textShadow: '0 0 2px #a78bfa, 0 0 4px #60a5fa'
-              }}
-            >
-              {title}
-            </h1>
-          </motion.div>
-        </section>
-      )}
 
       {/* Main Content */}
       <main className={`mx-auto mt-3 sm:mt-4 px-3 sm:px-4 w-full max-w-7xl min-w-0 ${className}`}>{children}</main>
