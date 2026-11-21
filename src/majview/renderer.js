@@ -23,6 +23,8 @@ async function loadSkin(skinBase) {
       }),
     ]),
   );
+  // 星星的引导线（Play 的 NoteGuideSkins/Slide.png）和普通引导线同尺寸同形状，共用一份裁切
+  if (skin.starline && !rings.starline) rings.starline = rings.normal;
   skin.rings = Object.fromEntries(Object.entries(rings).map(([key, rects]) => {
     const { width, height } = skin[key].orig;
     const positions = [], uvs = [], indices = [];
@@ -259,7 +261,8 @@ export class Board {
       p = lanePoint(n.lane, r),
       style = variant(n);
     if (scale > 0.3) {
-      const line = n.mine ? 'mine' : n.brk ? 'break' : n.each ? 'each' : 'normal';
+      // Play SkinManager：星星的引导线是蓝色的 Slide 线，each / break 和 tap 一样
+      const line = n.mine ? 'mine' : n.brk ? 'break' : n.each ? 'each' : n.kind === 'star' ? 'starline' : 'normal';
       this.lines.draw(line, 0, 0, angle, r / 480);
       if (n.link)
         this.lines.draw('eachline' + n.link.length, 0, 0, ((n.link.lane - 1) * Math.PI) / 4, r / 480);
