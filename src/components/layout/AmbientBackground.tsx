@@ -1,165 +1,127 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * 环境背景粒子动画（原生 canvas 实现）
+ * 全站背景：深色渐变 + 三团缓慢漂移的蓝 / 青 / 紫色光晕（纯 CSS，交给 GPU 合成）
+ * + 一层 canvas：细小的亮点缓慢上浮、轻轻闪烁，偶尔从某处扩散出一圈淡淡的圆环（判定圈的意象）。
  *
- * 之前依赖 CDN 上的 EaselJS + GSAP 2 并对每个粒子套 BlurFilter；
- * 这里把每类粒子预渲染成一张带柔边的小贴图，每帧只做 drawImage，
- * 不再加载任何第三方脚本。视觉参数（数量、大小、颜色、透明度、运动范围）与原版一致。
+ * 性能：粒子贴图预渲染，每帧只做 drawImage；限制 30fps；手机上粒子减半；
+ * 页面在后台时 requestAnimationFrame 自动暂停；“减少动态效果”时只留静态渐变和光晕。
  */
 
-interface ParticleKind {
-  count: number;
-  radius: number;
-  alphaMax: number;
-  /** 粒子集中分布的竖向区域占比（1 = 全屏，0.5 = 中间一半） */
-  areaHeight: number;
-  color: string;
-  fill: boolean;
+/** 和站点主色一致的几种亮色 */
+const COLORS = ['#7cc4ff', '#60a5fa', '#67e8f9', '#a5b4fc', '#e0f2fe'];
+
+interface Dot {
+  sprite: HTMLCanvasElement;
+  size: number;
+  x: number;
+  y: number;
+  /** 每秒上浮的像素数 */
+  speed: number;
+  /** 左右摆动的幅度和相位 */
+  sway: number;
+  phase: number;
+  /** 闪烁：基础亮度、幅度、频率 */
+  alpha: number;
+  twinkle: number;
+  rate: number;
 }
 
-const PARTICLE_KINDS: ParticleKind[] = [
-  { count: 100, radius: 3,  alphaMax: 0.4, areaHeight: 0.5, color: '#0cdbf3', fill: false },
-  { count: 50,  radius: 15, alphaMax: 0.3, areaHeight: 1,   color: '#6fd2f3', fill: true  },
-  { count: 30,  radius: 30, alphaMax: 0.2, areaHeight: 1,   color: '#93e9f3', fill: true  },
-];
-
-interface Particle {
-  sprite: HTMLCanvasElement;
-  spriteSize: number;
-  alphaMax: number;
-  areaHeight: number;
-  distance: number;
-  /** 锚点：粒子在其附近漂移 */
-  anchorX: number;
-  anchorY: number;
-  /** 位置/缩放的当前一段补间 */
-  fromX: number; fromY: number; fromScale: number;
-  toX: number;   toY: number;   toScale: number;
-  moveStart: number;
-  moveDuration: number;
-  /** 透明度补间：前半段升到 peak，后半段降到 0 */
-  alphaPeak: number;
-  alphaStart: number;
-  alphaDuration: number;
+interface Ring {
+  x: number;
+  y: number;
+  start: number;
+  duration: number;
+  maxRadius: number;
+  color: string;
 }
 
 const range = (min: number, max: number) => min + (max - min) * Math.random();
-const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const easeOutQuad = (t: number) => 1 - (1 - t) * (1 - t);
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const pick = <T,>(items: T[]) => items[Math.floor(Math.random() * items.length)];
 
-/** 大概率落在屏幕中间一带，小概率落在任意位置（与原版 weightedRange 等价） */
-function weightedPosition(total: number, areaHeight: number, strength: number) {
-  if (Math.random() <= strength) {
-    const lo = total * (2 - areaHeight / 2) / 4;
-    const hi = total * (2 + areaHeight / 2) / 4;
-    return range(lo, hi);
-  }
-  return range(0, total);
-}
-
-function makeSprite(kind: ParticleKind): { sprite: HTMLCanvasElement; size: number } {
-  const padding = kind.fill ? kind.radius : 2;
-  const size = Math.ceil((kind.radius + padding) * 2);
+/** 一个带柔光的小圆点贴图：中心实心，外圈渐隐 */
+function makeSprite(color: string, radius: number) {
+  const size = Math.ceil(radius * 6);
   const sprite = document.createElement('canvas');
   sprite.width = sprite.height = size;
   const ctx = sprite.getContext('2d')!;
   const c = size / 2;
-  if (kind.fill) {
-    // 径向渐变模拟原来的高斯模糊，比每帧 filter: blur 便宜得多
-    const gradient = ctx.createRadialGradient(c, c, 0, c, c, kind.radius + padding);
-    gradient.addColorStop(0, kind.color);
-    gradient.addColorStop(0.55, kind.color);
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, size, size);
-  } else {
-    ctx.strokeStyle = kind.color;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(c, c, kind.radius, 0, Math.PI * 2);
-    ctx.stroke();
+  const glow = ctx.createRadialGradient(c, c, 0, c, c, c);
+  glow.addColorStop(0, color);
+  glow.addColorStop(radius / c, color);
+  glow.addColorStop(Math.min(1, (radius * 1.6) / c), color + '40');
+  glow.addColorStop(1, color + '00');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, size, size);
+  return sprite;
+}
+
+function createDots(width: number, height: number): Dot[] {
+  const count = Math.round((width <= 768 ? 35 : 70) * Math.min(1.4, Math.max(0.6, (width * height) / (1440 * 900))));
+  const sprites = new Map<string, HTMLCanvasElement>();
+  const dots: Dot[] = [];
+  for (let i = 0; i < count; i++) {
+    const color = pick(COLORS);
+    // 大多数是很小的点，少数稍大
+    const radius = Math.random() < 0.85 ? range(0.6, 1.4) : range(1.6, 2.4);
+    const key = color + radius.toFixed(1);
+    if (!sprites.has(key)) sprites.set(key, makeSprite(color, radius));
+    const sprite = sprites.get(key)!;
+    dots.push({
+      sprite,
+      size: sprite.width,
+      x: range(0, width),
+      y: range(0, height),
+      speed: range(4, 14) * (radius > 1.5 ? 1.4 : 1),
+      sway: range(4, 18),
+      phase: range(0, Math.PI * 2),
+      alpha: range(0.25, 0.7),
+      twinkle: range(0.15, 0.35),
+      rate: range(0.4, 1.4),
+    });
   }
-  return { sprite, size };
+  return dots;
 }
 
-function scheduleMove(p: Particle, now: number, first: boolean) {
-  p.fromX = first ? p.anchorX : p.toX;
-  p.fromY = first ? p.anchorY : p.toY;
-  p.fromScale = first ? range(0.3, 1) : p.toScale;
-  p.toX = range(p.anchorX - p.distance, p.anchorX + p.distance);
-  p.toY = range(p.anchorY - p.distance, p.anchorY + p.distance);
-  p.toScale = range(0.3, 1);
-  p.moveStart = now;
-  p.moveDuration = (first ? range(1, 3) : range(2, 10)) * 1000;
-}
-
-function scheduleAlpha(p: Particle, now: number, duration: number) {
-  p.alphaPeak = range(0.1, p.alphaMax);
-  p.alphaStart = now;
-  p.alphaDuration = duration;
-}
-
-function createParticles(width: number, height: number): Particle[] {
-  // 小屏（手机）粒子减半：全屏 canvas 动画在移动端相当耗电
-  const density = width <= 768 ? 0.5 : 1;
-  const now = performance.now();
-  const particles: Particle[] = [];
-  for (const kind of PARTICLE_KINDS) {
-    const { sprite, size } = makeSprite(kind);
-    for (let i = 0; i < Math.round(kind.count * density); i++) {
-      const p: Particle = {
-        sprite,
-        spriteSize: size,
-        alphaMax: kind.alphaMax,
-        areaHeight: kind.areaHeight,
-        distance: kind.radius * 2,
-        anchorX: weightedPosition(width, 1, 0.6),
-        anchorY: weightedPosition(height, kind.areaHeight, 0.8),
-        fromX: 0, fromY: 0, fromScale: 1,
-        toX: 0, toY: 0, toScale: 1,
-        moveStart: now, moveDuration: 1,
-        alphaPeak: 0, alphaStart: now, alphaDuration: 1,
-      };
-      scheduleMove(p, now, true);
-      scheduleAlpha(p, now, p.moveDuration);
-      particles.push(p);
-    }
-  }
-  return particles;
-}
-
-function drawFrame(ctx: CanvasRenderingContext2D, particles: Particle[], width: number, height: number, now: number) {
+function drawFrame(ctx: CanvasRenderingContext2D, dots: Dot[], rings: Ring[], width: number, height: number, now: number, dt: number) {
   ctx.clearRect(0, 0, width, height);
   ctx.globalCompositeOperation = 'lighter';
-  for (const p of particles) {
-    let t = (now - p.moveStart) / p.moveDuration;
+  const seconds = now / 1000;
+
+  for (const dot of dots) {
+    dot.y -= dot.speed * dt;
+    if (dot.y < -dot.size) {
+      // 从底部重新出现
+      dot.y = height + dot.size;
+      dot.x = range(0, width);
+    }
+    const x = dot.x + Math.sin(seconds * 0.3 + dot.phase) * dot.sway;
+    // 越靠近顶部越淡，避免和页头抢
+    const fade = Math.min(1, dot.y / (height * 0.25));
+    const alpha = (dot.alpha + Math.sin(seconds * dot.rate + dot.phase) * dot.twinkle) * fade;
+    if (alpha <= 0.01) continue;
+    ctx.globalAlpha = Math.min(1, alpha);
+    ctx.drawImage(dot.sprite, x - dot.size / 2, dot.y - dot.size / 2);
+  }
+
+  ctx.globalCompositeOperation = 'source-over';
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const ring = rings[i];
+    const t = (now - ring.start) / ring.duration;
     if (t >= 1) {
-      scheduleMove(p, now, false);
-      t = 0;
+      rings.splice(i, 1);
+      continue;
     }
-    const e = easeInOutCubic(t);
-    const x = lerp(p.fromX, p.toX, e);
-    const y = lerp(p.fromY, p.toY, e);
-    const scale = lerp(p.fromScale, p.toScale, e);
-
-    let at = (now - p.alphaStart) / p.alphaDuration;
-    if (at >= 1) {
-      scheduleAlpha(p, now, p.moveDuration);
-      at = 0;
-    }
-    const alpha = at < 0.5
-      ? p.alphaPeak * easeOutQuad(at * 2)
-      : p.alphaPeak * (1 - easeOutQuad((at - 0.5) * 2));
-    if (alpha <= 0.002) continue;
-
-    const size = p.spriteSize * scale;
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(p.sprite, x - size / 2, y - size / 2, size, size);
+    // 先快后慢地扩散，同时淡出
+    const eased = 1 - Math.pow(1 - t, 3);
+    ctx.globalAlpha = 0.22 * (1 - t);
+    ctx.strokeStyle = ring.color;
+    ctx.lineWidth = 1.5 * (1 - t) + 0.5;
+    ctx.beginPath();
+    ctx.arc(ring.x, ring.y, ring.maxRadius * eased, 0, Math.PI * 2);
+    ctx.stroke();
   }
   ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = 'source-over';
 }
 
 export default function AmbientBackground() {
@@ -168,29 +130,47 @@ export default function AmbientBackground() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    // 用户开启了“减少动态效果”时只保留 CSS 渐变背景
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     let width = 0;
     let height = 0;
-    let particles: Particle[] = [];
+    let dots: Dot[] = [];
+    const rings: Ring[] = [];
     let frame = 0;
     let lastDraw = 0;
+    let nextRing = performance.now() + 1500;
 
     const resize = () => {
-      width = canvas.width = canvas.offsetWidth;
-      height = canvas.height = canvas.offsetHeight;
-      particles = createParticles(width, height);
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      width = canvas.offsetWidth;
+      height = canvas.offsetHeight;
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      dots = createDots(width, height);
     };
 
     const tick = (now: number) => {
       frame = requestAnimationFrame(tick);
-      // 粒子移动很慢，30fps 看不出区别，CPU 开销减半（所有屏幕都限制）
-      if (now - lastDraw < 30) return;
+      // 动得很慢，30fps 足够
+      if (now - lastDraw < 33) return;
+      // 切回前台时 dt 可能很大，截断，免得粒子一下跳很远
+      const dt = Math.min(0.1, (now - (lastDraw || now)) / 1000);
       lastDraw = now;
-      drawFrame(ctx, particles, width, height, now);
+      if (now >= nextRing) {
+        rings.push({
+          x: range(width * 0.1, width * 0.9),
+          y: range(height * 0.3, height * 0.95),
+          start: now,
+          duration: range(3500, 5500),
+          maxRadius: range(80, 220),
+          color: pick(COLORS),
+        });
+        nextRing = now + range(3500, 7000);
+      }
+      drawFrame(ctx, dots, rings, width, height, now, dt);
     };
 
     resize();
@@ -203,11 +183,12 @@ export default function AmbientBackground() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      id="ambient-canvas"
-      aria-hidden="true"
-      className="top-0 left-0 -z-99 fixed bg-[linear-gradient(0deg,#191d1e_50%,#283139_100%)] bg-fixed w-full h-full"
-    />
+    <div aria-hidden="true" className="-z-99 fixed inset-0 bg-[linear-gradient(180deg,#1b2330_0%,#161b22_55%,#121619_100%)] overflow-hidden pointer-events-none">
+      {/* 三团很淡的光晕，几十秒一个来回地漂移 */}
+      <div className="top-[-15%] left-[-10%] absolute bg-[radial-gradient(closest-side,rgb(59_130_246/0.22),transparent)] w-[60vmax] h-[60vmax] motion-safe:animate-[ambient-drift-a_48s_ease-in-out_infinite_alternate]" />
+      <div className="top-[20%] right-[-20%] absolute bg-[radial-gradient(closest-side,rgb(34_211_238/0.12),transparent)] w-[55vmax] h-[55vmax] motion-safe:animate-[ambient-drift-b_60s_ease-in-out_infinite_alternate]" />
+      <div className="bottom-[-25%] left-[20%] absolute bg-[radial-gradient(closest-side,rgb(139_92_246/0.14),transparent)] w-[65vmax] h-[65vmax] motion-safe:animate-[ambient-drift-c_72s_ease-in-out_infinite_alternate]" />
+      <canvas ref={canvasRef} id="ambient-canvas" className="absolute inset-0 w-full h-full" />
+    </div>
   );
 }

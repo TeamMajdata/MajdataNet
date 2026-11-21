@@ -301,3 +301,8 @@ input[type="number"]::-webkit-inner-spin-button {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 全站背景光晕的缓慢漂移（AmbientBackground）：只动 transform，交给 GPU 合成 */
+@keyframes ambient-drift-a { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(18vw, 10vh, 0) scale(1.15); } }
+@keyframes ambient-drift-b { from { transform: translate3d(0, 0, 0) scale(1.1); } to { transform: translate3d(-22vw, 14vh, 0) scale(0.9); } }
+@keyframes ambient-drift-c { from { transform: translate3d(0, 0, 0) scale(0.95); } to { transform: translate3d(-12vw, -16vh, 0) scale(1.1); } }
