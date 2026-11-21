@@ -13,9 +13,10 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
-import { LuMic, LuMusic, LuPencilLine, LuSearch, LuTag, LuUser, LuX } from 'react-icons/lu';
+import { LuSearch, LuX } from 'react-icons/lu';
 import { buildSuggestions, SEARCH_OPERATORS, type SuggestionKind, type SuggestionSource } from '@/utils/searchSuggestions';
 import SortMenu from '@/components/ui/SortMenu';
+import SuggestionListbox, { type SuggestionListboxItem } from '@/components/ui/SuggestionListbox';
 
 import { useUserContext } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
@@ -277,14 +278,6 @@ function MobileEventsSwiper() {
   );
 }
 
-const SUGGESTION_ICONS: Record<SuggestionKind, React.ComponentType<{ className?: string }>> = {
-  title: LuMusic,
-  artist: LuMic,
-  designer: LuPencilLine,
-  uploader: LuUser,
-  tag: LuTag,
-};
-
 /** 判断按键是否发生在可输入的元素里（这时 / 不应抢焦点） */
 function isTypingTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
@@ -339,7 +332,7 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
     [trimmedValue, suggestSource],
   );
   // 空输入时列出搜索操作符，点击补全前缀
-  const items: { key: string; value: string; label: string; hint: string; kind?: SuggestionKind; keepOpen?: boolean }[] = trimmedValue
+  const items: SuggestionListboxItem[] = trimmedValue
     ? suggestions.map((item) => ({ key: `${item.kind}:${item.value}`, value: item.value, label: item.label, hint: kindLabels[item.kind], kind: item.kind }))
     : SEARCH_OPERATORS.map((op) => ({ key: op, value: op, label: op, hint: operatorHints[op], keepOpen: true }));
   const isOpen = isFocused && items.length > 0;
@@ -448,35 +441,15 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
         </AnimatePresence>
 
         {isOpen && (
-          <ul
+          <SuggestionListbox
             id={listboxId}
-            role="listbox"
-            aria-label={t("home/HomePage.SearchSuggestions")}
-            className="top-[calc(100%+0.5rem)] z-1001 absolute inset-x-0 bg-[rgb(14_16_22)] shadow-[0_20px_60px_rgb(0_0_0/50%)] m-0 p-1.5 border border-white/15 rounded-xl max-h-[min(24rem,60dvh)] overflow-y-auto list-none"
-          >
-            {items.map((item, index) => {
-              const Icon = item.kind ? SUGGESTION_ICONS[item.kind] : LuSearch;
-              const active = index === activeIndex;
-              return (
-                <li
-                  key={item.key}
-                  id={`${listboxId}-${index}`}
-                  role="option"
-                  aria-selected={active}
-                  className={`flex items-center gap-3 px-3 rounded-lg h-10 text-sm cursor-pointer ${active ? 'bg-white/[0.08] text-white' : 'text-white/80 hover:bg-white/[0.05]'}`}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => pick(item)}
-                >
-                  <Icon aria-hidden="true" className="w-4 h-4 text-white/40 shrink-0" />
-                  <span className={`truncate ${item.kind ? '' : 'font-mono text-blue-200'}`}>
-                    {item.kind ? <HighlightMatch text={item.label} query={trimmedValue.replace(/^(uploader|tag):/i, '')} /> : item.label}
-                  </span>
-                  <span className="ml-auto pl-2 text-white/35 text-xs truncate shrink-0 max-w-[60%]">{item.hint}</span>
-                </li>
-              );
-            })}
-          </ul>
+            label={t("home/HomePage.SearchSuggestions")}
+            items={items}
+            activeIndex={activeIndex}
+            highlight={trimmedValue.replace(/^(uploader|tag):/i, '')}
+            onHover={setActiveIndex}
+            onPick={pick}
+          />
         )}
       </div>
 
@@ -487,20 +460,6 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
         label={t("home/HomePage.SortBy")}
       />
     </div>
-  );
-}
-
-/** 联想词里加粗匹配到的部分 */
-function HighlightMatch({ text, query }: { text: string; query: string }) {
-  const needle = query.trim().toLowerCase();
-  const index = needle ? text.toLowerCase().indexOf(needle) : -1;
-  if (index < 0) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, index)}
-      <span className="font-semibold text-white">{text.slice(index, index + needle.length)}</span>
-      {text.slice(index + needle.length)}
-    </>
   );
 }
 
