@@ -406,6 +406,15 @@
     "OperationFailed": "操作に失敗しました",
     "UnfavoriteSuccess": "お気に入りから削除しました"
   },
+  "song/ChartFile": {
+    "Copied": "クリップボードにコピーしました",
+    "Copy": "コピー",
+    "CopyFailed": "コピーに失敗しました",
+    "EmptyLevel": "この難易度には譜面がありません",
+    "LoadFailed": "譜面ファイルの読み込みに失敗しました",
+    "Retry": "再試行",
+    "Title": "譜面ファイル"
+  },
   "song/ChartRadar": {
     "AnalysisFailed": "この難易度を解析できませんでした",
     "AxisJack": "縦連",

@@ -414,6 +414,15 @@
     "OperationFailed": "Operation failed",
     "UnfavoriteSuccess": "Removed from favorites"
   },
+  "song/ChartFile": {
+    "Copied": "Copied to clipboard",
+    "Copy": "Copy",
+    "CopyFailed": "Copy failed",
+    "EmptyLevel": "This difficulty has no chart",
+    "LoadFailed": "Failed to load the chart file",
+    "Retry": "Retry",
+    "Title": "Chart file"
+  },
   "song/ChartRadar": {
     "AnalysisFailed": "This difficulty could not be analyzed",
     "AxisJack": "Jack",

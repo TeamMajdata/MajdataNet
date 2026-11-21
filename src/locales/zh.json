@@ -406,6 +406,15 @@
     "OperationFailed": "操作失败",
     "UnfavoriteSuccess": "已取消收藏"
   },
+  "song/ChartFile": {
+    "Copied": "已复制到剪贴板",
+    "Copy": "复制",
+    "CopyFailed": "复制失败",
+    "EmptyLevel": "该难度暂无谱面",
+    "LoadFailed": "谱面文件加载失败",
+    "Retry": "重试",
+    "Title": "谱面文件"
+  },
   "song/ChartRadar": {
     "AnalysisFailed": "该难度暂时无法分析",
     "AxisJack": "纵连",
