@@ -18,5 +18,6 @@ export const LANGUAGE_CONFIG: Record<Language, { name: string; nativeName: strin
 // 默认语言，同时作为缺失文案时的回退语言
 export const DEFAULT_LANGUAGE: Language = 'en';
 
-// 本地存储键（沿用旧 key，用户已保存的语言选择不会丢失）
-export const LANGUAGE_STORAGE_KEY = 'language';
+// 本地存储键：只在用户从语言菜单里选过语言时写入，没选过就每次按浏览器语言来。
+// 旧 key 'language' 不再读：以前第一次访问就把检测结果（或默认语言）写进去，之后再也不跟随浏览器
+export const LANGUAGE_STORAGE_KEY = 'languageChoice';

@@ -1,12 +1,12 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLanguage } from '@/i18n';
+import { setLanguage, useLanguage } from '@/i18n';
 import { LANGUAGE_CONFIG, SUPPORTED_LANGUAGES } from '@/config/i18n';
 import Dropdown from './Dropdown';
 
 /** 顶栏右上角的语言切换菜单 */
 export default function LanguageMenu() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const language = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -51,7 +51,7 @@ export default function LanguageMenu() {
                     selected ? 'bg-blue-400/10 text-blue-100' : 'text-white/75 hover:bg-white/[0.06] hover:text-white'
                   }`}
                   onClick={() => {
-                    void i18n.changeLanguage(code);
+                    setLanguage(code);
                     setIsOpen(false);
                   }}
                 >

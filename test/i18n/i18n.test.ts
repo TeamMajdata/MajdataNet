@@ -1,14 +1,22 @@
 import { afterAll, describe, expect, it } from 'vitest';
-import i18n, { getCurrentLanguage, getLocale } from '@/i18n';
+import i18n, { getCurrentLanguage, getLocale, setLanguage } from '@/i18n';
+import { LANGUAGE_STORAGE_KEY } from '@/config/i18n';
 
 describe('i18n', () => {
   afterAll(() => i18n.changeLanguage('zh'));
 
-  it('switches language, persists the choice and syncs <html lang>', async () => {
+  it('does not remember a language the user did not pick, so the browser language keeps applying', async () => {
+    localStorage.removeItem(LANGUAGE_STORAGE_KEY);
+    await i18n.changeLanguage('ko');
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBeNull();
+  });
+
+  it('switches language, persists the picked language and syncs <html lang>', async () => {
+    setLanguage('ja');
     await i18n.changeLanguage('ja');
     expect(getCurrentLanguage()).toBe('ja');
     expect(getLocale()).toBe('ja-JP');
-    expect(localStorage.getItem('language')).toBe('ja');
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('ja');
     expect(document.documentElement.lang).toBe('ja');
   });
 

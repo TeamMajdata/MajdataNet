@@ -152,7 +152,7 @@ async function monitorMascotContinuity(page: Page) {
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
-    if (!localStorage.getItem('language')) localStorage.setItem('language', 'zh');
+    if (!localStorage.getItem('languageChoice')) localStorage.setItem('languageChoice', 'zh');
   });
   await mockApi(page);
 });
