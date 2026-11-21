@@ -4,6 +4,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import EmptyState from '@/components/ui/EmptyState';
 import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 import { getLocale, useLanguage } from '@/i18n';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
@@ -749,7 +750,7 @@ export function CommentListView({ load, empty }: { load: (page: number, signal: 
       </div>
     );
   }
-  if (data.items.length === 0) return <p className="py-8 text-white/50 text-sm text-center">{empty}</p>;
+  if (data.items.length === 0) return <EmptyState>{empty}</EmptyState>;
   const pages = Math.max(1, Math.ceil(data.total / data.pageSize));
   return (
     <div className="space-y-3">

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import EmptyState from '@/components/ui/EmptyState';
 import { RatingRequestError, useUserRating } from '@/hooks/useUserRating';
 import RadarPlot from '@/components/chart/RadarPlot';
 import BestScores from '@/components/user/BestScores';
@@ -44,7 +45,7 @@ export default function UserRating({ username }: UserRatingProps) {
   }
 
   if (!data || data.chartCount === 0 || data.best.length === 0) {
-    return <p className="py-8 text-center text-white/50 text-sm">{t('space/SpacePage.RatingEmpty')}</p>;
+    return <EmptyState>{t('space/SpacePage.RatingEmpty')}</EmptyState>;
   }
 
   return (

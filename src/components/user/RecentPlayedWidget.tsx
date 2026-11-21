@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import EmptyState from '@/components/ui/EmptyState';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
@@ -99,7 +100,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded, gridClassNa
   }
 
   if (!data || data.length === 0) {
-    return <p>{t("user/RecentPlayedWidget.NoRecentRecords")}</p>;
+    return <EmptyState>{t("user/RecentPlayedWidget.NoRecentRecords")}</EmptyState>;
   }
 
   // ── Score cards ──────────────────────────────────────────────────────────

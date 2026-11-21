@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import EmptyState from '@/components/ui/EmptyState';
 import { endpoints } from '@/config/api';
 import useSWR from 'swr';
 import { LoadingSpinner } from '@/components';
@@ -36,7 +37,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   }
 
   if (!data || data.length === 0) {
-    return <div className="py-8 text-center">{t("shared/ScoreCount.EmptyData")}</div>;
+    return <EmptyState>{t("shared/ScoreCount.EmptyData")}</EmptyState>;
   }
 
   const maxScore = data[0].acc.dx;
