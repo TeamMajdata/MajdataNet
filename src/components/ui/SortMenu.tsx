@@ -1,15 +1,20 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import type { IconType } from 'react-icons';
 import { LuArrowDownUp, LuCheck, LuChevronDown } from 'react-icons/lu';
 import Dropdown from '@/components/header/Dropdown';
 
 /** 排序下拉菜单：样式与顶栏语言菜单一致，不用原生 select */
-export default function SortMenu({ options, value, onChange, label, compact = false }: {
+export default function SortMenu({ options, value, onChange, label, compact = false, icon: Icon = LuArrowDownUp, placement, disabled }: {
   options: string[];
   value: number;
   onChange: (value: number) => void;
   label: string;
   /** 紧凑版：没有边框和底色、矮一些，用在页签栏这类一行文字旁边 */
   compact?: boolean;
+  /** 按钮左边的图标，null 不显示（例如播放速度） */
+  icon?: IconType | null;
+  placement?: 'down' | 'up';
+  disabled?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -60,6 +65,7 @@ export default function SortMenu({ options, value, onChange, label, compact = fa
             isOpen ? 'bg-white/10 border-white/20' : 'bg-white/[0.04] border-white/10 hover:bg-white/[0.07]'
           }`}
         ref={triggerRef}
+        disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={event => {
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -72,7 +78,7 @@ export default function SortMenu({ options, value, onChange, label, compact = fa
         aria-expanded={isOpen}
         aria-label={label + ' ' + options[value]}
       >
-        <LuArrowDownUp aria-hidden="true" className="w-4 h-4 text-white/45" />
+        {Icon && <Icon aria-hidden="true" className="w-4 h-4 text-white/45" />}
         {/* 紧凑版在窄屏上只留排序图标（完整名称在 aria-label 里），给旁边的页签让位 */}
         <span className={compact ? 'max-sm:hidden' : ''}>{options[value]}</span>
         <LuChevronDown aria-hidden="true" className={`w-3.5 h-3.5 text-white/45 transition-transform ${isOpen ? 'rotate-180' : ''} ${compact ? 'max-sm:hidden' : ''}`} />
@@ -81,6 +87,7 @@ export default function SortMenu({ options, value, onChange, label, compact = fa
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         position="right"
+        placement={placement}
         containerRef={containerRef}
         className="p-1.5 min-w-40!"
       >

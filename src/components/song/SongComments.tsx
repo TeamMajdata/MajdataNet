@@ -34,6 +34,8 @@ import { apiFetcher, apiRequest, jsonRequest } from '@/utils/apiClient';
 import { VoteControl } from './VoteControl';
 import { loginPath } from '@/utils/interaction';
 import remarkMentions from '@/utils/remarkMentions';
+import remarkChartMarks from '@/utils/remarkChartMarks';
+import { ChartMarkContext, chartMarkInRange, parseChartMarkHref, type ChartMark } from './chartMarks';
 import { commentPermalink, countTree, mapTree, planReplies, purge, toPlaceholder, type FoldPolicy } from './commentTree';
 import { COMMENT_SORTS } from '@/types';
 import type {
@@ -96,8 +98,22 @@ export function RelativeTime({ value }: { value: string }) {
   );
 }
 
+/** 评论里的时间 / combo：在当前谱面范围内才显示成蓝字，点了跳到预览播放器；否则就是普通文字 */
+function ChartMarkLink({ mark, children }: { mark: ChartMark; children: ReactNode }) {
+  const target = useContext(ChartMarkContext);
+  if (!target || !chartMarkInRange(target, mark)) return <>{children}</>;
+  return (
+    <button type="button" onClick={() => target.jump(mark)}
+      className="inline p-0 border-0 bg-transparent font-[inherit] text-sky-400 hover:underline cursor-pointer">
+      {children}
+    </button>
+  );
+}
+
 const commentMarkdown: Components = {
   a({ href = '', title, className, children }) {
+    const mark = parseChartMarkHref(href);
+    if (mark) return <ChartMarkLink mark={mark}>{children}</ChartMarkLink>;
     const style = className === 'mention' ? 'font-medium text-sky-400 hover:underline' : 'text-sky-400 hover:underline';
     // 站内路径走路由；协议相对的 //host 仍当外链
     if (href.startsWith('/') && !href.startsWith('//')) {
@@ -121,7 +137,7 @@ const commentMarkdown: Components = {
 export function CommentBody({ text }: { text: string }) {
   return (
     <div className="max-w-[70ch] text-white/90 text-sm leading-6 wrap-anywhere comment-markdown">
-      <Markdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMentions]} components={commentMarkdown}>
+      <Markdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMentions, remarkChartMarks]} components={commentMarkdown}>
         {text}
       </Markdown>
     </div>

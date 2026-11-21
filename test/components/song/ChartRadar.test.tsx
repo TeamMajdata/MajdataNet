@@ -10,6 +10,9 @@ import { getDefaultChartLevel } from '@/utils/radar';
 vi.mock('react-helmet-async', () => ({ Helmet: () => null }));
 vi.mock('@/utils', () => ({ stripTmpTags: (value: string) => value }));
 vi.mock('framer-motion', async () => ({ ...await vi.importActual('framer-motion'), useReducedMotion: () => true }));
+vi.mock('@/components/song/MajView', () => ({
+  default: ({ level }: { level: number }) => <output data-player-level={level} />,
+}));
 vi.mock('@/components', async () => ({
   PageLayout: ({ children }: { children: ReactNode }) => children,
   Tooltip: ({ children }: { children: ReactNode }) => children,
@@ -131,12 +134,12 @@ describe('radar on the song page', () => {
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('6');
   });
 
-  it('opens the preview on the difficulty selected before loading Unity', async () => {
+  it('shows the preview player on the selected difficulty', async () => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
     await render();
     await act(async () => difficulty(3).click());
-    await act(async () => container.querySelector<HTMLButtonElement>('button.song-preview')!.click());
-    expect(container.querySelector('[data-player-level]')?.getAttribute('data-player-level')).toBe('lv3');
+    await act(async () => { await vi.dynamicImportSettled(); });
+    expect(container.querySelector('[data-player-level]')?.getAttribute('data-player-level')).toBe('3');
   });
 
   it('observes nested clicks while preserving exactly one original playback message per click', async () => {
