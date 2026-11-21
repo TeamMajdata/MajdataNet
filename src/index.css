@@ -302,9 +302,23 @@ input[type="number"]::-webkit-inner-spin-button {
   }
 }
 
-/* 全站背景极光带（AmbientBackground）：两条光带各自缓慢摆动、伸缩，只动 transform */
-@keyframes aurora-band-a { from { transform: rotate(-6deg); } to { transform: rotate(-2deg) translateX(6%) scaleY(1.25); } }
-@keyframes aurora-band-b { from { transform: rotate(4deg); } to { transform: rotate(8deg) translateX(-8%) scaleY(0.8); } }
+/* 全站背景极光带（AmbientBackground）：三条光带各自飘动、伸缩弯曲、明暗呼吸，只动 transform 和 opacity。
+   rotate 写在元素的 rotate 属性上（Tailwind 类），这里的 transform 叠加在它上面 */
+@keyframes aurora-band-a {
+  0% { transform: translateX(-6%) scaleY(0.9) skewX(-8deg); opacity: 0.45; }
+  50% { opacity: 0.75; }
+  100% { transform: translateX(10%) translateY(4vh) scaleY(1.35) skewX(10deg); opacity: 0.5; }
+}
+@keyframes aurora-band-b {
+  0% { transform: translateX(8%) scaleY(1.2) skewX(12deg); opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { transform: translateX(-12%) translateY(-3vh) scaleY(0.75) skewX(-10deg); opacity: 0.65; }
+}
+@keyframes aurora-band-c {
+  0% { transform: translateX(-10%) translateY(2vh) scaleY(0.8) skewX(6deg); opacity: 0.25; }
+  50% { opacity: 0.55; }
+  100% { transform: translateX(12%) translateY(-4vh) scaleY(1.3) skewX(-12deg); opacity: 0.3; }
+}
 
 /* 首页轮播翻页时新的一页淡入 */
 @keyframes carousel-in { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
