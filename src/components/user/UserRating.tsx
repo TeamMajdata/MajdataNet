@@ -4,7 +4,7 @@ import { RatingRequestError, useUserRating } from '@/hooks/useUserRating';
 import RadarPlot from '@/components/chart/RadarPlot';
 import BestScores from '@/components/user/BestScores';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
+import { CARD_SURFACE_CLASS, SECTION_HEADING_CLASS } from '@/components/ui/surface';
 
 interface UserRatingProps {
   username: string;
@@ -65,7 +65,7 @@ export default function UserRating({ username }: UserRatingProps) {
           </p>
         </section>
         <section aria-label={t('space/SpacePage.Best50')} className="min-w-0">
-          <h3 className="m-0 mb-3 font-bold text-white text-sm">{t('space/SpacePage.Best50')}</h3>
+          <h3 className={SECTION_HEADING_CLASS}>{t('space/SpacePage.Best50')}</h3>
           <BestScores scores={data.best} />
         </section>
       </div>

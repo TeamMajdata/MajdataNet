@@ -10,6 +10,7 @@ import { IoArrowForwardOutline, IoTrophyOutline } from 'react-icons/io5';
 import type { Event, RankedSeasonEntry } from '@/types/event';
 import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
 import '@/styles/components/user-season-achievements.css';
+import { SECTION_HEADING_CLASS } from '@/components/ui/surface';
 
 export default function UserSeasons({ username }: { username: string }) {
   const { t } = useTranslation();
@@ -27,8 +28,8 @@ export default function UserSeasons({ username }: { username: string }) {
   return (
     // Each season renders an item only while loading, on error, or if the user participated.
     // Hide the whole section when all queries return no participation.
-    <section className="mb-8 hidden has-[li]:block" aria-labelledby="user-seasons-title">
-      <h2 id="user-seasons-title" className="m-0 mb-3 font-semibold text-white! text-lg! text-left!">
+    <section className="mb-10 hidden has-[li]:block" aria-labelledby="user-seasons-title">
+      <h2 id="user-seasons-title" className={SECTION_HEADING_CLASS}>
         {t('user/UserSeasons.Title')}
       </h2>
       <ul className="user-season-list">

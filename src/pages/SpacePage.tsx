@@ -20,7 +20,7 @@ import { useUsername } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
 import type { IntroductionData } from '@/types';
 import UserSeasons from '@/components/user/UserSeasons';
-import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
+import { CARD_SURFACE_CLASS, SECTION_HEADING_CLASS } from '@/components/ui/surface';
 
 import { apiFetcher as fetcher, apiRequest } from '@/utils/apiClient';
 import type { CommentList } from '@/types';
@@ -97,7 +97,7 @@ export default function SpacePage() {
             <UserRating key={`rating-${username}`} username={username} />
             {/* 最近游玩接在概览最后；没有记录时整块不显示 */}
             <section className="mt-10" aria-labelledby="space-recent-title" hidden={hasRecentPlayed === false}>
-              <h2 id="space-recent-title" className="m-0 mb-3 font-semibold text-white! text-base! text-left!">
+              <h2 id="space-recent-title" className={SECTION_HEADING_CLASS}>
                 {t("space/SpacePage.RecentlyPlayedCharts")}
               </h2>
               <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} gridClassName={SONG_GRID_CONTAINER_CLASS} />
