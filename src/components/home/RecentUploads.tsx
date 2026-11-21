@@ -1,48 +1,68 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { FreeMode, Mousewheel } from 'swiper/modules';
+import type { Swiper as SwiperInstance } from 'swiper';
+import 'swiper/swiper-bundle.css';
 import { endpoints } from '@/config/api';
 import { apiFetcher } from '@/utils/apiClient';
 import { getLocale, useLanguage } from '@/i18n';
 import SongTile, { SongTileSectionSkeleton } from './SongTile';
 import { CarouselHeader } from './carousel';
-import { useCarousel, usePerPage } from './useCarousel';
 import type { Song } from '@/types';
 
-/** 最多取 15 张：宽屏 5 张一页正好 3 页 */
-const MAX_SONGS = 15;
+/** 最多取 30 张 */
+const MAX_SONGS = 30;
 
 /**
- * 首页“最近上传”：最新上传的谱面，大封面 + 难度标签叠在封面左下角，下面是标题和“上传者 · 日期”。
- * 和人气榜一样自动翻页；宽屏一页 5 张，平板 3 张，手机 2 张。
+ * 首页“最近上传”：最新上传的谱面，横向自由滑动（和活动轮播一样用手指 / 鼠标拖，触控板横向滚动也行），不自动滑。
+ * 每排露出下一张的一部分，提示还能往右滑；宽屏约 5 张，平板 3 张，手机 2 张。
  */
 export default function RecentUploads() {
   const { t } = useTranslation();
   const language = useLanguage();
   const { data } = useSWR<Song[]>(endpoints.maichart.listSearchAndSort('', 'timep', 0), apiFetcher, { revalidateOnFocus: false });
+  const [swiper, setSwiper] = useState<SwiperInstance | null>(null);
   const songs = data?.slice(0, MAX_SONGS) ?? [];
-  const perPage = usePerPage([[0, 2], [640, 3], [1024, 5]]);
-  const carousel = useCarousel(songs.length, perPage);
   if (!data) return <SongTileSectionSkeleton />;
   if (songs.length === 0) return null;
-  const visible = songs.slice(carousel.page * perPage, carousel.page * perPage + perPage);
+
+  // 按钮一次滑过当前能看到的张数
+  const step = (direction: -1 | 1) => {
+    if (!swiper) return;
+    const shown = Math.max(1, Math.floor(swiper.width / ((swiper.slides[0]?.offsetWidth ?? swiper.width) + 16)));
+    const index = Math.max(0, Math.min(songs.length - 1, swiper.activeIndex + direction * shown));
+    swiper.slideTo(index);
+  };
 
   return (
-    <section aria-labelledby="home-recent-uploads" className="mb-10" {...carousel.hoverProps}>
-      <CarouselHeader id="home-recent-uploads" title={t('home/HomeHighlights.RecentUploads')} hint={t('home/HomeHighlights.RecentUploadsHint')} carousel={carousel} />
-      <ul key={carousel.page} className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 m-0 p-0 list-none motion-safe:animate-[carousel-in_.35s_ease-out]">
-        {visible.map((song) => {
+    <section aria-labelledby="home-recent-uploads" className="mb-10">
+      <CarouselHeader id="home-recent-uploads" title={t('home/HomeHighlights.RecentUploads')} hint={t('home/HomeHighlights.RecentUploadsHint')} onStep={step} />
+      <Swiper
+        modules={[FreeMode, Mousewheel]}
+        onSwiper={setSwiper}
+        slidesPerView="auto"
+        spaceBetween={16}
+        freeMode={{ enabled: true, momentumRatio: 0.6 }}
+        mousewheel={{ forceToAxis: true }}
+        grabCursor
+        wrapperTag="ul"
+        className="m-0! p-0!"
+      >
+        {songs.map((song) => {
           const uploaded = new Date(song.timestamp ?? '');
           return (
-            <li key={song.id} className="min-w-0">
+            <SwiperSlide key={song.id} tag="li" className="w-[calc((100%-16px)/2.25)]! sm:w-[calc((100%-32px)/3.25)]! lg:w-[calc((100%-64px)/5.25)]! min-w-0 list-none">
               <SongTile song={song} meta={<>
                 <Link to={'/space?id=' + encodeURIComponent(song.uploader)} className="text-inherit hover:text-white no-underline">{song.uploader}</Link>
                 {Number.isFinite(uploaded.getTime()) && <> · {uploaded.toLocaleDateString(getLocale(language), { month: 'short', day: 'numeric' })}</>}
               </>} />
-            </li>
+            </SwiperSlide>
           );
         })}
-      </ul>
+      </Swiper>
     </section>
   );
 }
