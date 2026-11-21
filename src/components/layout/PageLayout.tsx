@@ -52,8 +52,9 @@ export default function PageLayout({
       {/* Unified Header */}
       <UnifiedHeader />
 
-      {/* Main Content */}
-      <main className={`mx-auto mt-3 sm:mt-4 px-3 sm:px-4 w-full max-w-7xl min-w-0 ${className}`}>{children}</main>
+      {/* 内容和页脚排成一列并撑满窗口：内容少时页脚贴在窗口底部，内容多时跟在内容后面 */}
+      <div className="flex flex-col min-h-[calc(100dvh-var(--content-top-spacing-large))]">
+      <main className={`flex-1 mx-auto mt-3 sm:mt-4 px-3 sm:px-4 w-full max-w-7xl min-w-0 ${className}`}>{children}</main>
 
       {/* Footer */}
       {showFooter && (
@@ -114,6 +115,7 @@ export default function PageLayout({
           </div>
         </footer>
       )}
+      </div>
 
       {/* Floating Buttons */}
       <FloatingButtons />
