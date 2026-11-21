@@ -70,6 +70,8 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.slice(CDN_PATH.length),
+        // CDN 有防盗链：不带页面的 Referer（vite preview 的页面没有开发时注入的 no-referrer）
+        configure: (proxy) => proxy.on('proxyReq', (req) => req.removeHeader('referer')),
       },
     },
   },
