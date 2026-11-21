@@ -334,6 +334,9 @@
     "MiniGame": "ミニゲーム",
     "ShowMascot": "小小蓝白を呼ぶ"
   },
+  "shared/PageLoading": {
+    "Loading": "読み込み中…"
+  },
   "shared/Pager": {
     "First": "最初のページへ",
     "Last": "最後のページ",

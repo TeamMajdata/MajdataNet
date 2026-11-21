@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import PageLoading from '@/components/ui/PageLoading';
 import { useTranslation } from 'react-i18next';
 import { LuUpload } from 'react-icons/lu';
-import { PageLayout, SongList, LoadingSpinner } from '@/components';
+import { PageLayout, SongList } from '@/components';
 import ChartUploadDialog from '@/components/user/ChartUploadDialog';
 import Pager from '@/components/ui/Pager';
 import { apiPagesForView } from '@/components/song/songGrid';
@@ -18,9 +19,7 @@ export default function UserChartsPage() {
   const [firstPageEmpty, setFirstPageEmpty] = useState(false);
   if (isLoading && !user) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <LoadingSpinner size="50px" />
-      </div>
+      <PageLoading />
     );
   }
 

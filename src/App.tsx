@@ -1,8 +1,9 @@
 import { Suspense, lazy, useState } from 'react';
+import PageLoading from '@/components/ui/PageLoading';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { UserProvider } from '@/contexts/UserContext';
-import { LoadingSpinner, TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
+import { TooltipProvider, ProtectedRoute, ScrollToTopListener } from '@/components';
 import HomePage from './pages/HomePage';
 import Live2DMascot from './components/mascot/Live2DMascot';
 import { isAuthPath, type AuthLocationState } from './utils/authPaths';
@@ -29,9 +30,7 @@ const CollectionPage = lazy(() => import('./pages/collection/CollectionPage'));
 
 function RouteFallback() {
   return (
-    <div className="flex justify-center items-center h-screen">
-      <LoadingSpinner size="50px" />
-    </div>
+    <PageLoading />
   );
 }
 

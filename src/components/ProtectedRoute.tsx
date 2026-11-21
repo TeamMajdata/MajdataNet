@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
+import PageLoading from '@/components/ui/PageLoading';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { isAuthPath, type AuthLocationState } from '@/utils/authPaths';
 import { useUserContext } from '@/hooks';
-import { LoadingSpinner } from '@/components';
 
 export default function ProtectedRoute() {
   const { user, isLoading } = useUserContext();
@@ -22,9 +22,7 @@ export default function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <LoadingSpinner size="50px" />
-      </div>
+      <PageLoading />
     );
   }
 

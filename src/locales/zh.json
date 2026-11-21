@@ -334,6 +334,9 @@
     "MiniGame": "小游戏",
     "ShowMascot": "召唤小小蓝白"
   },
+  "shared/PageLoading": {
+    "Loading": "加载中…"
+  },
   "shared/Pager": {
     "First": "回到第一页",
     "Last": "跳到最后一页",

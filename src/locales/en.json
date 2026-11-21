@@ -338,6 +338,9 @@
     "MiniGame": "Mini Game",
     "ShowMascot": "Show Xiaoxiao Lanbai"
   },
+  "shared/PageLoading": {
+    "Loading": "Loading…"
+  },
   "shared/Pager": {
     "First": "First page",
     "Last": "Last page",
