@@ -12,6 +12,3 @@ export interface UseUserContextResult {
   error: Error | null;
   refetch: () => void;
 }
-
-/** @deprecated Use UseUserContextResult instead */
-export type UseUserResult = UseUserContextResult;

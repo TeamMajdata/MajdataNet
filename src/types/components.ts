@@ -5,11 +5,6 @@
 import type { ReactNode } from 'react';
 import type { Event, EventCategory } from './event';
 
-// ======================== 歌曲详情组件 ========================
-export interface SongDetailsContainerProps {
-  id: string;
-}
-
 export interface CoverPicProps {
   /** 谱面ID */
   id: string | number;

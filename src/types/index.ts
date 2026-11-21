@@ -5,7 +5,6 @@
 // 导出所有类型模块
 export * from './enums';
 export * from './user';
-export * from './api';
 export * from './event';
 export * from './song';
 export * from './score';
