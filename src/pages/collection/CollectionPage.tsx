@@ -394,7 +394,7 @@ export default function CollectionPage() {
 
             {searchResults.length > 0 && (
               <>
-      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-320 min-w-0">
                   {searchResults.map((song, index) => {
                     const isAdded = allExistingIds.has(song.id);
                     return (
@@ -455,7 +455,7 @@ export default function CollectionPage() {
             {t("collection/CollectionPage.EmptyCollection")}
           </div>
         ) : (
-      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-320 min-w-0">
             {displaySongs.map((song, index) => (
               <div key={song.id} className="relative">
                 <SongCard song={song} index={index} disableLink={isManaging} />

@@ -69,7 +69,7 @@ export default function CollectionsHirobaPage() {
 
   return (
     <PageLayout showBackToHome={false}>
-      <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-h-screen min-w-0">
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-h-screen min-w-0">
         {/* Header：标题居左，搜索框在同一行右侧（移动端换行） */}
         <header className="flex sm:flex-row flex-col justify-between sm:items-center gap-4 mb-5 sm:mb-6">
           <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">

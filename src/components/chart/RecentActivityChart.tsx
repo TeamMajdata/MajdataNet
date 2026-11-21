@@ -28,7 +28,7 @@ export default function RecentActivityChart({ records }: { records: RecentPlayed
   });
 
   return (
-    <div className="mx-auto mb-6 w-full max-w-350">
+    <div className="mx-auto mb-6 w-full max-w-320">
       <div className={`${CARD_SURFACE_CLASS} relative overflow-hidden p-5`}>
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>

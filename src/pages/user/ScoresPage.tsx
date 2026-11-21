@@ -189,7 +189,7 @@ export default function PersonalScoresPage() {
   if (error || isLoading || !data || data.length === 0) {
     return (
       <PageLayout showBackToHome={false}>
-        <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-w-0">
+        <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
           {header}
           {isLoading ? (
             <div className="flex justify-center items-center py-24"><LoadingSpinner size="50px" /></div>
@@ -212,7 +212,7 @@ export default function PersonalScoresPage() {
 
   return (
     <PageLayout showBackToHome={false}>
-      <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-w-0">
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
         {header}
 
         {/* 统计：基于筛选后的成绩 */}

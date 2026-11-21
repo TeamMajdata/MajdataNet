@@ -68,7 +68,7 @@ export default function SpacePage() {
   return (
     <PageLayout showBackToHome={false}>
       {/* 和 GitHub 个人主页一样：资料在左边窄栏，页签和内容在右边 */}
-      <div className="lg:items-start lg:gap-10 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] mx-auto pt-5 sm:pt-8 w-full max-w-350 min-w-0">
+      <div className="lg:items-start lg:gap-10 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] mx-auto pt-5 sm:pt-8 w-full max-w-320 min-w-0">
         <ProfileSidebar username={username} {...profile} />
 
         {/* 右栏比整页窄，里面的网格按这一栏的宽度分列 */}

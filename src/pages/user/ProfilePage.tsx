@@ -36,7 +36,7 @@ export default function UserProfilePage() {
 
   return (
     <PageLayout showBackToHome={false}>
-      <div className="mx-auto py-5 sm:py-8 w-full max-w-350 min-w-0">
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
         <header className="mb-5 sm:mb-6">
           <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
             {t("user/profile/ProfilePage.AccountSetting")}

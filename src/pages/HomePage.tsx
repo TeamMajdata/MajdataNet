@@ -654,7 +654,7 @@ function MainComp() {
   return (
     <>
       {/* 工具栏：与卡片网格同宽，标签切换 + 搜索 + 排序在一行（移动端分两行） */}
-      <div className="z-30 relative flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-3 mx-auto mt-3 md:mt-1 mb-4 sm:mb-5 w-full max-w-350 min-w-0">
+      <div className="z-30 relative flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-3 mx-auto mt-3 md:mt-1 mb-4 sm:mb-5 w-full max-w-320 min-w-0">
         <div className="flex bg-white/[0.04] p-1 border border-white/10 rounded-xl h-11 shrink-0" role="tablist">
           {(['all', 'recommend'] as const).map((tab) => (
             <button
