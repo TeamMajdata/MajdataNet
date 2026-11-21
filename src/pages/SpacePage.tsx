@@ -111,13 +111,11 @@ export default function SpacePage() {
           </section>
 
           <section id="space-panel-comments" role="tabpanel" aria-labelledby="space-tab-comments" hidden={activeTab !== 'comments'}>
-            <div className="max-w-4xl">
-              <CommentListView
-                key={username}
-                load={(page, signal) => apiRequest<CommentList>(endpoints.account.comments(username, 'new', page), { signal })}
-                empty={t("space/SpacePage.NoComments")}
-              />
-            </div>
+            <CommentListView
+              key={username}
+              load={(page, signal) => apiRequest<CommentList>(endpoints.account.comments(username, 'new', page), { signal })}
+              empty={t("space/SpacePage.NoComments")}
+            />
           </section>
 
           {hasUploadedCharts === true && (
