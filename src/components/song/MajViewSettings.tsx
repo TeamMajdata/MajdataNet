@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronRight, LuX } from 'react-icons/lu';
 import { defaultSettings, EFFECT_VOLUMES, MAIN_VOLUMES, VIEW_FIELDS, VOLUME_RANGE, type SettingKey, type ViewSettings } from '@/majview/settings';
@@ -31,10 +31,25 @@ function formatValue(key: SettingKey, value: number) {
   return value.toFixed(1);
 }
 
+/** 滑块头（thumb）中心大概在哪：按值比例算，两端留出半个拇指的宽度 */
+function thumbCenterX(input: HTMLInputElement) {
+  const rect = input.getBoundingClientRect();
+  const min = Number(input.min || 0);
+  const max = Number(input.max || 100);
+  const ratio = (Number(input.value) - min) / (max - min || 1);
+  const inset = 8;
+  return rect.left + inset + ratio * Math.max(0, rect.width - 2 * inset);
+}
+
+/** 手指落点是否压在滑块头上（给一点容差，方便按住） */
+const THUMB_HIT_PX = 18;
+
 function Slider({ name, value, onChange }: { name: SettingKey; value: number; onChange: (value: number) => void }) {
   const { t } = useTranslation();
   const id = useId();
   const field: { min: number; max: number; step?: number } = VIEW_FIELDS.find((f) => f.key === name) ?? VOLUME_RANGE;
+  // 手机上点滑条身体会直接跳到那个值，翻页时很容易误触，所以只允许从滑块头开始拖
+  const blockedRef = useRef(false);
   return (
     <div className="gap-x-3 grid grid-cols-[1fr_auto] py-1.5">
       <label htmlFor={id} className="text-white/75 text-sm">{t(LABELS[name])}</label>
@@ -46,8 +61,22 @@ function Slider({ name, value, onChange }: { name: SettingKey; value: number; on
         max={field.max}
         step={field.step ?? 1}
         value={value}
-        onChange={(e) => onChange(Math.round(Number(e.target.value) * 10) / 10)}
-        className="col-span-2 mt-1 w-full accent-sky-300 cursor-pointer"
+        onPointerDown={(e) => {
+          // 只对触摸生效：鼠标点滑条照样可以跳
+          blockedRef.current = e.pointerType === 'touch'
+            && Math.abs(e.clientX - thumbCenterX(e.currentTarget)) > THUMB_HIT_PX;
+        }}
+        onPointerUp={() => { blockedRef.current = false; }}
+        onPointerCancel={() => { blockedRef.current = false; }}
+        onChange={(e) => {
+          if (blockedRef.current) {
+            // 没按住滑块头：把浏览器的“跳到点击位置”改回去，状态不变
+            e.currentTarget.value = String(value);
+            return;
+          }
+          onChange(Math.round(Number(e.target.value) * 10) / 10);
+        }}
+        className="col-span-2 mt-1 w-full accent-sky-300 cursor-pointer touch-pan-y"
       />
     </div>
   );
