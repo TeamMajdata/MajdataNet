@@ -16,6 +16,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LuDownload, LuTag, LuTrash2 } from 'react-icons/lu';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MarqueeText from '@/components/ui/MarqueeText';
+import { RANK_BADGE_CLASS } from '@/components/score/rankBadge';
 
 interface SongCardProps {
   song: Song;
@@ -25,13 +26,6 @@ interface SongCardProps {
   disableLink?: boolean;
   onClick?: (song: Song) => void;
 }
-
-/** 排行榜前三名的名次标签颜色 */
-const RANK_BADGE_CLASS: Record<number, string> = {
-  0: 'bg-linear-to-r from-yellow-300 to-amber-500 text-black',
-  1: 'bg-linear-to-r from-slate-100 to-slate-400 text-black',
-  2: 'bg-linear-to-r from-orange-300 to-amber-700 text-black',
-};
 
 const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disableLink, onClick }: SongCardProps) {
   // 只在 ImpressionScope 内生效，其他列表中为空操作
