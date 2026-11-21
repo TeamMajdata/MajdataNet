@@ -279,7 +279,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           </dl>
         </aside>
       </div>
-      <div hidden><TagManageWidget ref={tagWidget} songid={song.id} /></div>
+      <TagManageWidget ref={tagWidget} songid={song.id} />
       <CollectionModal isOpen={collecting} onClose={() => setCollecting(false)} chartId={song.id} songHash={song.hash} />
     </>
   );

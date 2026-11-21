@@ -1,8 +1,9 @@
-import { act } from 'react';
+import { act, createRef } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { SWRConfig } from 'swr';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import TagManageWidget from '@/components/ui/TagManageWidget';
+import type { TagManageWidgetRef } from '@/types';
 import i18n from '@/i18n';
 import { TooltipProvider } from '@/components/ui/Tooltip';
 
@@ -37,13 +38,15 @@ describe('TagManageWidget', () => {
     window.history.replaceState(null, '', '/');
   });
 
+  const widget = createRef<TagManageWidgetRef>();
   async function open(path: string, summary: { tags?: string[]; publicTags?: string[] }) {
     window.history.replaceState(null, '', path);
     fetchMock.mockResolvedValueOnce(Response.json(summary));
     await act(async () => root.render(
-      <SWRConfig value={{ provider: () => new Map() }}><TooltipProvider><TagManageWidget songid="c1" /></TooltipProvider></SWRConfig>,
+      <SWRConfig value={{ provider: () => new Map() }}><TooltipProvider><TagManageWidget ref={widget} songid="c1" /></TooltipProvider></SWRConfig>,
     ));
-    await act(async () => (container.querySelector('svg')!.parentElement as HTMLElement).click());
+    // 和谱面页一样，通过 ref 打开窗口
+    await act(async () => widget.current!.openWindow());
   }
   const shownTags = () => [...document.body.querySelectorAll<HTMLElement>('[data-testid="tag-current"] [data-tag]')].map((chip) => chip.dataset.tag);
   const clickText = async (text: string) => {

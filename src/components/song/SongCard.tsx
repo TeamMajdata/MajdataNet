@@ -172,7 +172,7 @@ const ManageActions = memo(function ManageActions({ songid, title }: { songid: s
         <LuTrash2 aria-hidden="true" className="w-3.5 h-3.5" />
       </button>
       {/* 标签弹窗由 ref 打开，自带的触发按钮不显示 */}
-      <div hidden><TagManageWidget ref={tagWidget} songid={songid} /></div>
+      <TagManageWidget ref={tagWidget} songid={songid} />
       <ConfirmDialog
         open={confirming}
         danger

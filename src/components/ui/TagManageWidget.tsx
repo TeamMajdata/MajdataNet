@@ -22,18 +22,19 @@ import sleep from '@/utils/sleep';
 import { MAX_CHART_TAGS, saveChartTags } from '@/utils/chartTags';
 import { ApiError, apiFetcher } from '@/utils/apiClient';
 import { CODE_TOO_MANY_ELEMENTS } from '@/config/apiRetCode';
-import { motion } from 'framer-motion';
 import type {
   TagManageWidgetProps,
   TagManageWidgetRef,
-  TagManageButtonProps,
   TagManageWindowProps
 } from '@/types';
 
+/**
+ * 标签编辑窗口；没有自己的触发按钮，由调用方通过 ref 的 openWindow() 打开
+ * （谱面页侧栏的“管理标签”、谱面卡片的菜单）。
+ */
 const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
-  function TagManageWidget({ songid, newClassName = '' }, ref) {
+  function TagManageWidget({ songid }, ref) {
     const [isWindowOpen, setIsWindowOpen] = useState(false);
-    const buttonRef = useRef<HTMLDivElement | null>(null);
     const windowRef = useRef<HTMLDivElement | null>(null);
 
     useImperativeHandle(ref, () => ({
@@ -43,52 +44,23 @@ const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
     }));
 
     return (
-      <motion.div
-        className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] mt-2 w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-gray-500 overflow-hidden cursor-pointer select-none ${newClassName}`}
-        whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
-        transition={{ duration: 0.125, ease: 'easeInOut' }}
+      <Modal
+        open={isWindowOpen}
+        onClose={() => setIsWindowOpen(false)}
+        labelledBy="tag-manage-title"
+        className="flex flex-col max-w-lg max-h-[85vh] overflow-hidden"
       >
-        <TagManageButton
-          ref={buttonRef}
-          onClick={() => setIsWindowOpen(!isWindowOpen)}
-        />
-        <Modal
-          open={isWindowOpen}
+        <TagManageWindow
+          ref={windowRef}
           onClose={() => setIsWindowOpen(false)}
-          labelledBy="tag-manage-title"
-          className="flex flex-col max-w-lg max-h-[85vh] overflow-hidden"
-        >
-          <TagManageWindow
-            ref={windowRef}
-            onClose={() => setIsWindowOpen(false)}
-            buttonRef={buttonRef}
-            songid={songid}
-          />
-        </Modal>
-      </motion.div>
+          songid={songid}
+        />
+      </Modal>
     );
   }
 );
 
 export default TagManageWidget;
-
-const TagManageButton = forwardRef<HTMLDivElement, TagManageButtonProps>(
-  function TagManageButton({ onClick, newClassName }, ref) {
-    return (
-      <div ref={ref} onClick={onClick} className={`fill-white stroke-white w-full h-full p-0.75 ${newClassName || ''}`}>
-        <svg
-          className="fill-white stroke-white w-full h-full"
-          xmlns="http://www.w3.org/2000/svg"
-          height="24"
-          viewBox="-20 -20 512 512"
-          width="24"
-        >
-          <path d="M345 39.1L472.8 168.4c52.4 53 52.4 138.2 0 191.2L360.8 472.9c-9.3 9.4-24.5 9.5-33.9 .2s-9.5-24.5-.2-33.9L438.6 325.9c33.9-34.3 33.9-89.4 0-123.7L310.9 72.9c-9.3-9.4-9.2-24.6 .2-33.9s24.6-9.2 33.9 .2zM0 229.5L0 80C0 53.5 21.5 32 48 32l149.5 0c17 0 33.3 6.7 45.3 18.7l168 168c25 25 25 65.5 0 90.5L277.3 442.7c-25 25-65.5 25-90.5 0l-168-168C6.7 262.7 0 246.5 0 229.5zM144 144a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" />
-        </svg>
-      </div>
-    );
-  }
-);
 
 interface SongSummary {
   tags?: string[];

@@ -146,7 +146,6 @@ export interface TimelineModalProps {
 // ======================== 标签管理组件 ========================
 export interface TagManageWidgetProps {
   songid: string;
-  newClassName?: string;
 }
 
 export interface TagManageWidgetRef {
@@ -155,13 +154,7 @@ export interface TagManageWidgetRef {
   closeWindow: () => void;
 }
 
-export interface TagManageButtonProps {
-  onClick: () => void;
-  newClassName?: string;
-}
-
 export interface TagManageWindowProps {
   onClose: () => void;
-  buttonRef: React.RefObject<HTMLDivElement | null>;
   songid: string;
 }
