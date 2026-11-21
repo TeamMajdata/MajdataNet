@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { PiArrowFatDownBold, PiArrowFatDownFill, PiArrowFatUpBold, PiArrowFatUpFill } from 'react-icons/pi';
+import { LuThumbsDown, LuThumbsUp } from 'react-icons/lu';
 import { useUserContext } from '@/hooks';
 import { compactNumber, loginPath } from '@/utils/interaction';
 import type { Vote, VoteResult } from '@/types';
@@ -64,15 +65,49 @@ export function VoteControl({
     }
   };
 
+  // md（谱面页侧栏）：和页头按钮同样风格的胶囊，左边“赞 + 分数”，右边“踩”
+  if (size === 'md') {
+    const half = 'inline-flex items-center gap-1.5 px-3 h-full text-white/75 hover:text-white hover:bg-white/10 transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/40';
+    return (
+      <div role="group" aria-label={label} className={`inline-flex shrink-0 items-stretch bg-white/[0.06] border border-white/10 rounded-xl h-9 overflow-hidden text-sm ${className}`}>
+        <button
+          type="button"
+          className={`${half} ${shown.myVote === 1 ? 'bg-blue-500/15 text-blue-300!' : ''}`}
+          aria-pressed={shown.myVote === 1}
+          aria-label={t("song/VoteControl.Upvote")}
+          title={t("song/VoteControl.Upvote")}
+          disabled={disabled}
+          onClick={() => void cast(1)}
+        >
+          <LuThumbsUp aria-hidden="true" className="w-4 h-4" />
+          <span className="font-semibold tabular-nums" aria-live="polite" title={`${t("song/VoteControl.Score")}: ${shown.score}`}>
+            {compactNumber(shown.score, language)}
+          </span>
+        </button>
+        <span aria-hidden="true" className="bg-white/10 my-2 w-px" />
+        <button
+          type="button"
+          className={`${half} ${shown.myVote === -1 ? 'bg-rose-500/15 text-rose-300!' : ''}`}
+          aria-pressed={shown.myVote === -1}
+          aria-label={t("song/VoteControl.Downvote")}
+          title={t("song/VoteControl.Downvote")}
+          disabled={disabled}
+          onClick={() => void cast(-1)}
+        >
+          <LuThumbsDown aria-hidden="true" className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
   const iconClass = 'w-4 h-4';
-  const arrow = `inline-flex items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-50 cursor-pointer ${size === 'md' ? 'w-8 h-8' : 'w-7 h-7'}`;
-  // md（谱面页侧栏）：和旁边的次要按钮一样的胶囊底；sm（评论里）保持没有底色
+  const arrow = 'inline-flex items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-50 cursor-pointer w-7 h-7';
 
   return (
     <div
       role="group"
       aria-label={label}
-      className={`inline-flex shrink-0 items-center gap-0.5 ${layout === 'vertical' ? 'flex-col' : ''} ${size === 'md' ? 'bg-white/[0.06] p-0.5 border border-white/10 rounded-full' : ''} ${className}`}
+      className={`inline-flex shrink-0 items-center gap-0.5 ${layout === 'vertical' ? 'flex-col' : ''} ${className}`}
     >
       <button
         type="button"
@@ -86,7 +121,7 @@ export function VoteControl({
         {shown.myVote === 1 ? <PiArrowFatUpFill className={iconClass} /> : <PiArrowFatUpBold className={iconClass} />}
       </button>
       <span
-        className={`min-w-6 text-center font-semibold tabular-nums text-sm ${size === 'md' ? 'px-1' : ''} ${shown.myVote === 1 ? 'text-orange-400' : shown.myVote === -1 ? 'text-sky-400' : 'text-white/90'}`}
+        className={`min-w-6 text-center font-semibold tabular-nums text-sm ${shown.myVote === 1 ? 'text-orange-400' : shown.myVote === -1 ? 'text-sky-400' : 'text-white/90'}`}
         aria-live="polite"
         title={`${t("song/VoteControl.Score")}: ${shown.score}`}
       >
