@@ -64,6 +64,7 @@ function AppRoutes() {
     <>
       <Routes location={backgroundLocation}>
         <Route path="/" element={<HomePage />} />
+        {/* 旧链接：顶栏已直接链到文档站，这两个地址只为兼容旧书签 */}
         <Route path="/edit" element={<ExternalRedirect to="https://docs.majdata.net/majdatax/" />} />
         <Route path="/play" element={<ExternalRedirect to="https://docs.majdata.net/majdataplay/" />} />
         <Route path="/chart-events" element={<EventsPage />} />

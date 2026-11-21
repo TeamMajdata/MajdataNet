@@ -56,8 +56,8 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     id: 'tools',
     labelKey: 'shared/Navigation.Tools',
     children: [
-      { kind: 'link', id: 'chart-editor', labelKey: 'shared/Navigation.ChartEditor', to: '/edit' },
-      { kind: 'link', id: 'chart-player', labelKey: 'shared/Navigation.ChartPlayer', to: '/play' },
+      { kind: 'link', id: 'chart-editor', labelKey: 'shared/Navigation.ChartEditor', to: 'https://docs.majdata.net/majdatax/', external: true },
+      { kind: 'link', id: 'chart-player', labelKey: 'shared/Navigation.ChartPlayer', to: 'https://docs.majdata.net/majdataplay/', external: true },
     ],
   },
   {
