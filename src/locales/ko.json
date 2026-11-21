@@ -494,7 +494,7 @@
   },
   "song/SongInteraction": {
     "FailedToLoad": "불러오지 못했습니다",
-    "Plays": "재생",
+    "Plays": "플레이 수",
     "VoteOnChart": "이 채보에 투표",
     "Votes": "평가"
   },

@@ -26,7 +26,10 @@ import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiPenNib, PiPlayFill, PiTagSimple } from 'react-icons/pi';
 import { getLocale, useLanguage } from '@/i18n';
 import '@/styles/components/song-detail.css';
-import type { SongSummary, TagManageWidgetRef } from '@/types';
+import type { ChartInteractSummary, SongSummary, TagManageWidgetRef } from '@/types';
+import useSWR from 'swr';
+import { apiFetcher } from '@/utils/apiClient';
+import { compactNumber } from '@/utils/interaction';
 
 export default function SongPage() {
   const { t } = useTranslation();
@@ -150,6 +153,8 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const searchLink = (text: string) => '/?search=' + encodeURIComponent(text);
   const uploadTime = new Date(song.timestamp);
   const cover = endpoints.maichart.image(song.id);
+  // 和侧栏投票面板同一个请求（SWR 会合并），这里只取播放次数
+  const { data: interact } = useSWR<ChartInteractSummary>(endpoints.maichart.interactsum(song.id), apiFetcher, { revalidateOnFocus: false });
 
   async function copy(value: string) {
     try {
@@ -226,6 +231,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             {Number.isFinite(uploadTime.getTime()) && <div><dt>{t('song/SongPage.UploadTime')}</dt><dd>
               <time dateTime={uploadTime.toISOString()} title={uploadTime.toLocaleString(getLocale(language))}>{uploadTime.toLocaleDateString(getLocale(language))}</time>
             </dd></div>}
+            {interact && <div><dt>{t('song/SongInteraction.Plays')}</dt><dd className="tabular-nums">{compactNumber(interact.plays, language)}</dd></div>}
           </dl>
           <div className="song-actions">
             <button type="button" onClick={() => void downloadSong({ id: song.id, title: song.title, toast })}><PiDownloadSimple />{t('song/SongPage.Download')}</button>

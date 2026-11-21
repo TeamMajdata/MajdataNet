@@ -494,7 +494,7 @@
   },
   "song/SongInteraction": {
     "FailedToLoad": "加载失败",
-    "Plays": "播放",
+    "Plays": "播放次数",
     "VoteOnChart": "给谱面投票",
     "Votes": "评价"
   },

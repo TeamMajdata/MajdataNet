@@ -494,7 +494,7 @@
   },
   "song/SongInteraction": {
     "FailedToLoad": "読み込みに失敗しました",
-    "Plays": "再生",
+    "Plays": "プレイ回数",
     "VoteOnChart": "この譜面に投票",
     "Votes": "評価"
   },
