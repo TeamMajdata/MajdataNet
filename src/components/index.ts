@@ -1,18 +1,14 @@
 // 布局组件
 export { default as PageLayout } from './layout/PageLayout';
 export { default as UnifiedHeader } from './header';
-export { default as FloatingButtons } from './layout/FloatingButtons';
-export { default as AmbientBackground } from './layout/AmbientBackground';
 
 // 用户相关组件
-export { default as UserInfo } from './user/UserInfo';
-export { default as Logout } from './user/Logout';
-export { default as ChartUploader } from './user/ChartUploader';
+
 export { default as AvatarUploader } from './user/AvatarUploader';
 export { default as IntroUploader } from './user/IntroUploader';
 
 // UI组件
-export { default as MajdataLogo } from './header/MajdataLogo';
+
 export { default as Level } from './score/Level';
 export { default as Levels } from './score/Levels';
 export { default as CoverPic } from './ui/CoverPic';
@@ -27,7 +23,6 @@ export { default as SongCard } from './song/SongCard';
 export { default as Majdata } from './song/Majdata';
 export { default as MiniGame } from './song/MiniGame';
 export { default as RecentPlayedWidget } from './user/RecentPlayedWidget';
-export { default as UserRating } from './user/UserRating';
 
 // 活动相关组件
 export { default as EventBanner } from './event/EventBanner';
@@ -37,14 +32,12 @@ export { default as TimelineModal } from './event/TimelineModal';
 
 // 歌曲详情页组件
 export { default as SongDifficultyLevels } from './song/SongDifficultyLevels';
-export { CommentSection, CommentListView, CommentBody, RelativeTime } from './song/SongComments';
+export { CommentSection, CommentListView, CommentBody } from './song/SongComments';
 export { ChartVotePanel } from './song/SongInteraction';
-export { VoteControl } from './song/VoteControl';
-export { default as InteractSummaryProvider } from './song/InteractSummaryProvider';
+
 export { ScoreRanking } from './song/ScoreRanking';
 
 // 图表组件
-export { default as RecentActivityChart } from './chart/RecentActivityChart';
 
 // 通用 UI
 export { default as Tooltip, TooltipProvider } from './ui/Tooltip';
