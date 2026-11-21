@@ -333,12 +333,11 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
                 {t("song/SongComments.Uploader")}
               </span>
             )}
-            <span aria-hidden="true">·</span>
             <Link to={permalink} className="hover:underline">
               <RelativeTime value={comment.createdAt} />
             </Link>
             {comment.editedAt && !gone && (
-              <span title={new Date(comment.editedAt).toLocaleString()}>· {t("song/SongComments.Edited")}</span>
+              <span title={new Date(comment.editedAt).toLocaleString()}>{t("song/SongComments.Edited")}</span>
             )}
             <button
               type="button"
