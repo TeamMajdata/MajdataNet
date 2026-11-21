@@ -112,11 +112,14 @@ describe('CommentSection', () => {
   it('refetches when the order changes', async () => {
     fetchMock.mockImplementation(async () => json(page([])));
     await render(<CommentSection chartId="chart" uploader="x" />);
-    await act(async () => {
-      const select = container.querySelector('select')!;
-      select.value = 'top';
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+    const trigger = container.querySelector<HTMLButtonElement>('button[aria-haspopup="menu"]')!;
+    await act(async () => trigger.click());
+    expect(container.querySelectorAll('[role="menuitemradio"]')).toHaveLength(5);
+    expect(document.activeElement?.textContent).toBe('最佳');
+    await act(async () => button('最高分').click());
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(trigger.textContent).toBe('最高分');
+    expect(document.activeElement).toBe(trigger);
     expect(requested()).toEqual([
       'GET /api3/api/maichart/chart/comments?sort=best&page=1',
       'GET /api3/api/maichart/chart/comments?sort=top&page=1',

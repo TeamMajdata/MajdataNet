@@ -11,6 +11,8 @@ import { useSeasonCharts, type SeasonChartsState, type SeasonChartSummary } from
 import { getEventById } from '@/utils/eventsData';
 import { getSeasonStatus, validateSeasonEvent } from '@/utils/season';
 import { type Event } from '@/types/event';
+import { CARD_SURFACE_CLASS, SECTION_HEADING_CLASS } from '@/components/ui/surface';
+import { SONG_GRID_CLASS } from '@/components/song/songGrid';
 
 export default function SeasonPage() {
   const { t } = useTranslation();
@@ -20,16 +22,19 @@ export default function SeasonPage() {
   const notFound = !event || event.type !== 'season';
   if (notFound || validateSeasonEvent(event).length > 0) {
     return (
-      <PageLayout className="py-16 text-center">
-        <h1 className="mb-4 text-2xl font-bold">
-          {notFound
-            ? t('season/SeasonPage.NotFound')
-            : t('season/SeasonPage.InvalidConfig')}
-        </h1>
-        {!notFound && <p className="mb-6 text-white/65">{t('season/SeasonPage.ConfigurationHint')}</p>}
-        <Link to="/chart-events" className="text-blue-400 underline underline-offset-4">
-          {t('season/SeasonPage.BackToEvents')}
-        </Link>
+      // 和其他提示页一样：在页头和页脚之间居中，按钮样式统一
+      <PageLayout centered>
+        <div className="mx-auto px-4 py-10 max-w-xl text-center">
+          <h1 className="m-0 font-semibold text-white! text-xl! text-center!">
+            {notFound
+              ? t('season/SeasonPage.NotFound')
+              : t('season/SeasonPage.InvalidConfig')}
+          </h1>
+          {!notFound && <p className="m-0 mt-2 text-white/55! text-sm">{t('season/SeasonPage.ConfigurationHint')}</p>}
+          <Link to="/chart-events" className="inline-flex items-center bg-blue-500 hover:bg-blue-400 mt-6 px-5 rounded-xl h-11 font-semibold text-white text-sm no-underline transition-colors">
+            {t('season/SeasonPage.BackToEvents')}
+          </Link>
+        </div>
       </PageLayout>
     );
   }
@@ -63,19 +68,15 @@ function SeasonDetails({ event }: { event: Event }) {
       : 'text-gray-400 bg-gray-400/20 border border-gray-400/40';
 
   return (
-    <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen">
-      <Helmet><title>{event.title} · Majdata Net</title></Helmet>
-      <EventBanner event={event} containerClassName="mx-auto my-4 md:my-6 lg:my-8 px-2 sm:px-4 max-w-5xl" />
+    <PageLayout>
+      <Helmet><title>{event.title} · Majdata.Net</title></Helmet>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
+      <EventBanner event={event} containerClassName="mb-6" />
 
-      <div className="mx-auto mt-4 mb-8 px-2 sm:mt-6 sm:px-4 max-w-5xl">
-        <div className="p-4 sm:p-6" style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '16px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-        }}>
-          <h3 className="mb-3 font-semibold text-white text-base">{t('season/SeasonPage.RulesTitle')}</h3>
+      {/* 规则和赛期：和其他页面一样的卡片底色 */}
+      <div className="mb-10">
+        <div className={`${CARD_SURFACE_CLASS} p-5 sm:p-6`}>
+          <h2 className="m-0 mb-3 font-semibold text-white! text-base! text-left!">{t('season/SeasonPage.RulesTitle')}</h2>
           <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-white/80">
             <li>{t('season/SeasonPage.RulesBest')}</li>
             <li>{t('season/SeasonPage.RulesTime')}</li>
@@ -112,9 +113,10 @@ function SeasonDetails({ event }: { event: Event }) {
       </div>
 
       <SeasonPool chartState={chartState} collectionId={event.asset} />
-      <section id="season-leaderboard" className="mx-auto max-w-5xl px-2 sm:px-4 scroll-mt-24">
+      <section id="season-leaderboard" className="mt-10 scroll-mt-24">
         <SeasonLeaderboard event={event} status={status} chartState={chartState} />
       </section>
+      </div>
     </PageLayout>
   );
 }
@@ -147,16 +149,15 @@ function PoolChart({ item, index, retry }: { item: SeasonChartSummary; index: nu
 function SeasonPool({ chartState, collectionId }: { chartState: SeasonChartsState; collectionId: string }) {
   const { t } = useTranslation();
   return (
-    <section aria-labelledby="season-pool-title" className="mx-auto mt-4 sm:mt-6 md:mt-8 px-2 sm:px-3 md:px-4 max-w-300">
-      <div className="mb-8">
-        <h2 id="season-pool-title" className="m-0 mb-3 sm:mb-4 md:mb-6 font-bold text-white text-xl sm:text-2xl md:text-3xl text-center" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+    <section aria-labelledby="season-pool-title">
+      {/* 小标题居左，订阅按钮在右 */}
+      <div className="flex justify-between items-center gap-3 mb-3">
+        <h2 id="season-pool-title" className={`${SECTION_HEADING_CLASS} mb-0!`}>
           {t('season/SeasonPool.Title')}
         </h2>
-        <div className="flex justify-center">
-          <CollectionSubscribeButton collectionId={collectionId} />
-        </div>
+        <CollectionSubscribeButton collectionId={collectionId} />
       </div>
-      <ol className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+      <ol className={`${SONG_GRID_CLASS} m-0 p-0 list-none`}>
         {chartState.items.map((item, index) => <PoolChart key={item.id} item={item} index={index} retry={chartState.retry} />)}
       </ol>
     </section>

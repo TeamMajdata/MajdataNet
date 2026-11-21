@@ -1,0 +1,418 @@
+import { useTranslation } from 'react-i18next';
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from 'react';
+import { md5 } from 'js-md5';
+import { toast } from 'react-toastify';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { endpoints } from '@/config/api';
+import { useUserContext } from '@/hooks';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import Modal from '@/components/ui/Modal';
+import { ApiError, apiRequest } from '@/utils/apiClient';
+import * as retCode from '@/config/apiRetCode';
+
+type TabType = 'login' | 'register' | 'forget';
+const INPUT_CLASSNAME = 'w-full min-w-0 bg-black/40 px-3.5 h-11 border border-white/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/25 rounded-lg outline-none text-white placeholder:text-white/30 transition-colors disabled:opacity-50';
+const BUTTON_CLASSNAME = 'flex justify-center items-center bg-blue-500 hover:bg-blue-400 disabled:hover:bg-blue-500 disabled:opacity-50 h-11 rounded-lg font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed';
+const SECONDARY_BUTTON_CLASSNAME = 'flex justify-center items-center bg-white/[0.06] hover:bg-white/10 disabled:hover:bg-white/[0.06] disabled:opacity-50 border border-white/10 h-11 rounded-lg font-medium text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed';
+const TURNSTILE_SITE_KEY = '0x4AAAAAACAEyA1EhHmEDS0o';
+const TURNSTILE_SCRIPT_ID = 'cloudflare-turnstile-script';
+
+type TurnstileApi = {
+  render: (container: HTMLElement, options: { sitekey: string; size?: 'normal' | 'compact' }) => string;
+  remove?: (widgetId: string) => void;
+};
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi;
+  }
+}
+
+let turnstileScriptPromise: Promise<void> | null = null;
+
+function loadTurnstileScript() {
+  if (window.turnstile) return Promise.resolve();
+  if (turnstileScriptPromise) return turnstileScriptPromise;
+
+  turnstileScriptPromise = new Promise<void>((resolve, reject) => {
+    const existingScript = document.getElementById(TURNSTILE_SCRIPT_ID) as HTMLScriptElement | null;
+    const script = existingScript ?? document.createElement('script');
+
+    const handleLoad = () => resolve();
+    const handleError = () => {
+      turnstileScriptPromise = null;
+      script.remove();
+      reject(new Error('Cloudflare Turnstile failed to load'));
+    };
+
+    script.addEventListener('load', handleLoad, { once: true });
+    script.addEventListener('error', handleError, { once: true });
+
+    if (!existingScript) {
+      script.id = TURNSTILE_SCRIPT_ID;
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  });
+
+  return turnstileScriptPromise;
+}
+
+/**
+ * 登录 / 注册 / 找回密码弹窗。不是独立页面：打开 /login、/register、/forget 时
+ * 叠在来源页面上显示（App.tsx），这些网址保留是为了邮件里的链接和旧书签。
+ */
+export default function AuthModal() {
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
+  const titleId = useId();
+  const activeTab: TabType = pathname === '/register' ? 'register' : pathname === '/forget' ? 'forget' : 'login';
+  const leave = useCloseAuth();
+  // 先播放关闭动画，播完再离开登录路由
+  const [open, setOpen] = useState(true);
+  const close = useCallback(() => setOpen(false), []);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  return (
+    <Modal
+      open={open}
+      onClose={close}
+      onExitComplete={leave}
+      scrollable
+      zIndexClass="z-1100"
+      labelledBy={titleId}
+      className={`p-5 sm:p-7 min-w-0 ${activeTab === 'register' ? 'max-w-md md:max-w-3xl' : 'max-w-md'}`}
+    >
+      <button type="button" onClick={close} aria-label={t("auth/AuthModal.Close")}
+        className="top-3 right-3 absolute place-items-center grid hover:bg-white/10 rounded-lg w-9 h-9 text-white/50 hover:text-white transition-colors cursor-pointer">
+        <svg aria-hidden="true" viewBox="0 0 16 16" className="w-4 h-4" fill="none">
+          <path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      </button>
+      {searchParams.has('otp') && <p role="status" className="mt-6 mb-4 pr-8 text-amber-200! text-sm">{t("auth/AuthModal.LegacyLink")}</p>}
+      {activeTab === 'login' ? <LoginTab titleId={titleId} /> : <ChallengeTab key={activeTab} mode={activeTab} titleId={titleId} />}
+    </Modal>
+  );
+}
+
+/** Leaves the modal: back to the page underneath, or home when the modal was opened directly. */
+function useCloseAuth() {
+  const navigate = useNavigate();
+  return useCallback(() => {
+    const historyIndex = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+    if (historyIndex > 0) navigate(-1);
+    else navigate('/', { replace: true });
+  }, [navigate]);
+}
+
+/** Switches between login / register / reset in place, keeping the redirect and the page underneath. */
+function AuthSwitch({ to, prompt, children }: { to: TabType; prompt?: string; children: ReactNode }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  return <p className="m-0 text-white/50! text-sm text-center">
+    {prompt}{' '}
+    <button type="button" className="bg-transparent p-0 border-0 font-medium text-blue-300 hover:text-blue-200 hover:underline underline-offset-4 cursor-pointer"
+      onClick={() => {
+        const params = new URLSearchParams(location.search);
+        params.delete('otp');
+        navigate({ pathname: `/${to}`, search: params.toString() }, { replace: true, state: location.state });
+      }}>
+      {children}
+    </button>
+  </p>;
+}
+
+function Field({ label, name, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; name: string }) {
+  return <label className="flex flex-col gap-1.5 text-white/70 text-sm">
+    <span>{label}</span>
+    <input className={INPUT_CLASSNAME} name={name} {...props} />
+  </label>;
+}
+
+function useAuthError() {
+  const { t } = useTranslation();
+  return (error: unknown) => {
+    if (!(error instanceof ApiError)) {
+      toast.error(t("auth/AuthModal.NetworkError"));
+      return;
+    }
+    if (error.status === 429) {
+      toast.error(t("auth/AuthModal.TooManyRequests"));
+      return;
+    }
+    switch (error.code) {
+      case retCode.CODE_INVALID_EMAIL_ADDRESS: toast.error(t("auth/AuthModal.InvalidEmail")); break;
+      case retCode.CODE_USERNAME_ALREADY_EXISTS: toast.error(t("auth/AuthModal.UsernameExists")); break;
+      case retCode.CODE_EMAIL_ALREADY_EXISTS: toast.error(t("auth/AuthModal.EmailExists")); break;
+      case retCode.CODE_LOGIN_FAILED_PENDING_VERIFCATION: toast.error(t("auth/AuthModal.LoginPendingVerification")); break;
+      case retCode.CODE_LOGIN_FAILED_USER_BANNED: toast.error(t("auth/AuthModal.LoginUserBanned")); break;
+      default: toast.error(error.message);
+    }
+  };
+}
+
+function LoginTab({ titleId }: { titleId: string }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const close = useCloseAuth();
+  const [params] = useSearchParams();
+  const { refetch } = useUserContext();
+  const [busy, setBusy] = useState(false);
+  const showError = useAuthError();
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (busy) return;
+    const form = new FormData(event.currentTarget);
+    form.set('password', md5(String(form.get('password'))));
+    form.set('rememberMe', String(form.has('rememberMe')));
+    setBusy(true);
+    try {
+      try {
+        await apiRequest(endpoints.account.login, { method: 'POST', body: form });
+      } catch (error) {
+        if (!(error instanceof ApiError && error.code === retCode.CODE_ALREADY_LOGGED_IN)) throw error;
+      }
+      await refetch();
+      const redirect = params.get('redirect');
+      if (redirect?.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('\\')) navigate(redirect, { replace: true });
+      else close();
+    } catch (error) {
+      if (error instanceof ApiError && error.code === retCode.CODE_INVALID_CREDENTIALS) toast.error(t("auth/AuthModal.WrongCredential"));
+      else showError(error);
+    } finally { setBusy(false); }
+  }
+
+  return <div>
+    <h2 id={titleId} className="mt-1 mb-1 pr-8 font-semibold! text-white! text-2xl! text-left!">{t("auth/AuthModal.WelcomeBack")}</h2>
+    <p className="mb-6 text-white/50! text-sm">{t("auth/AuthModal.LoginSubtitle")}</p>
+    <form onSubmit={onSubmit}>
+      <fieldset disabled={busy} className="flex flex-col gap-4">
+        <Field label={t("auth/AuthModal.UsernameOrEmail")} name="username" autoComplete="username" autoFocus required />
+        <Field label={t("auth/AuthModal.Password")} name="password" type="password" autoComplete="current-password" required />
+        <div className="flex justify-between items-center gap-3">
+          <label className="flex items-center gap-2 text-white/70 text-sm cursor-pointer"><input type="checkbox" name="rememberMe" className="accent-blue-500" />{t("auth/AuthModal.RememberMe")}</label>
+          <AuthSwitch to="forget">{t("auth/AuthModal.ForgotPasswordLink")}</AuthSwitch>
+        </div>
+        <button className={BUTTON_CLASSNAME} type="submit">{busy ? <LoadingSpinner size={20} /> : t("auth/AuthModal.Login")}</button>
+      </fieldset>
+    </form>
+    <div className="mt-5 pt-5 border-white/[0.07] border-t">
+      <AuthSwitch to="register" prompt={t("auth/AuthModal.NoAccount")}>{t("auth/AuthModal.GoRegister")}</AuthSwitch>
+    </div>
+  </div>;
+}
+
+/** A challenge key belongs to one email address and expires after five minutes. */
+function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId: string }) {
+  const registering = mode === 'register';
+  const { t } = useTranslation();
+  const { refetch } = useUserContext();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { search } = location;
+  const showError = useAuthError();
+  const [email, setEmail] = useState('');
+  const [challenge, setChallenge] = useState<{ key: string; expiresAt: number } | null>(null);
+  const [code, setCode] = useState('');
+  const [sending, setSending] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [captchaVersion, setCaptchaVersion] = useState(0);
+  const [retryAt, setRetryAt] = useState(0);
+  const [now, setNow] = useState(Date.now);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const emailId = useId();
+  const busy = sending || submitting;
+  const expired = !!challenge && now >= challenge.expiresAt;
+  const seconds = Math.max(0, Math.ceil((retryAt - now) / 1000));
+
+  useEffect(() => {
+    if (!challenge && !retryAt) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [challenge, retryAt]);
+
+  async function sendCode() {
+    if (busy || seconds > 0 || !emailRef.current?.reportValidity()) return;
+    setSending(true);
+    setChallenge(null);
+    setCode('');
+    try {
+      const form = new FormData();
+      form.set('email', email);
+      const key = await apiRequest<string>(registering ? endpoints.account.emailChallenge : endpoints.account.passwordResetRequest(email), {
+        method: 'POST', ...(registering ? { body: form } : {}),
+      });
+      if (typeof key !== 'string' || !key.trim()) throw new Error('Missing challenge key');
+      const timestamp = Date.now();
+      setNow(timestamp);
+      setChallenge({ key, expiresAt: timestamp + 5 * 60_000 });
+      setRetryAt(timestamp + 30_000);
+      toast.success(t("auth/AuthModal.CodeSent"));
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 429) {
+        setNow(Date.now());
+        setRetryAt(Date.now() + 60_000);
+      }
+      showError(error);
+    } finally { setSending(false); }
+  }
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (busy) return;
+    if (!challenge || Date.now() >= challenge.expiresAt) {
+      toast.error(t("auth/AuthModal.RequestCodeFirst"));
+      return;
+    }
+    const form = new FormData(event.currentTarget);
+    if (form.get('password') !== form.get('password2')) {
+      toast.error(t("auth/AuthModal.PasswdNoMatch"));
+      return;
+    }
+    if (registering && !String(form.get('cf-turnstile-response') ?? '').trim()) {
+      toast.error(t("auth/AuthModal.CloudflareVerificationNotReady"));
+      return;
+    }
+    const password = md5(String(form.get('password')));
+    form.delete('password2');
+    form.delete('password');
+    form.set(registering ? 'password' : 'newPassword', password);
+    form.set('email', email);
+    form.set('challengeKey', challenge.key);
+    form.set('challengeCode', code);
+    setSubmitting(true);
+    try {
+      await apiRequest(registering ? endpoints.account.register : endpoints.account.passwordResetConfirm, { method: 'POST', body: form });
+      toast.success(registering ? t("auth/AuthModal.RegisterSuccess") : t("auth/AuthModal.ResetPasswordSuccess"));
+      if (!registering) await refetch(); // Password reset revokes every existing session.
+      const params = new URLSearchParams(search);
+      params.delete('otp');
+      navigate({ pathname: '/login', search: params.toString() }, { replace: true, state: location.state });
+    } catch (error) {
+      showError(error);
+      // Registration consumes the challenge before checking captcha and uniqueness.
+      // A lost response may also have consumed it, so require a fresh code on retry.
+      setChallenge(null);
+      setCode('');
+      setCaptchaVersion(value => value + 1);
+      toast.info(t("auth/AuthModal.RequestNewCode"));
+    } finally { setSubmitting(false); }
+  }
+
+  return <div>
+    <h2 id={titleId} className="mt-1 mb-1 pr-8 font-semibold! text-white! text-2xl! text-left!">{registering ? t("auth/AuthModal.CreateAccount") : t("auth/AuthModal.ForgetPasswordTitle")}</h2>
+    <p className="mb-6 text-white/50! text-sm">{registering ? t("auth/AuthModal.RegisterSubtitle") : t("auth/AuthModal.ForgetPasswordSubtitle")}</p>
+    <form onSubmit={onSubmit}>
+      <fieldset disabled={busy} className={`grid gap-4 ${registering ? 'md:grid-cols-2 md:gap-x-6' : ''}`}>
+        {/* 移动端按填写顺序单列排列；桌面端注册时左列账户信息、右列邮箱验证 */}
+        {registering && <>
+          <div className="md:col-start-1 md:row-start-1">
+            <Field label={t("auth/AuthModal.Username")} name="username" autoComplete="username" autoFocus maxLength={24} pattern="[A-Za-z0-9]+"
+              placeholder={t("auth/AuthModal.UsernameHint")}
+              onInvalid={event => event.currentTarget.setCustomValidity(event.currentTarget.validity.patternMismatch ? t("auth/AuthModal.UsernameHint") : '')}
+              onInput={event => event.currentTarget.setCustomValidity('')} required />
+          </div>
+          <div className="md:col-start-1 md:row-start-2">
+            <Field label={t("auth/AuthModal.Nickname")} name="nickname" autoComplete="nickname" required />
+          </div>
+        </>}
+        <div className={`flex flex-col gap-1.5 ${registering ? 'md:col-start-2 md:row-start-1' : ''}`}>
+          <label htmlFor={emailId} className="text-white/70 text-sm">{t("auth/AuthModal.EmailLabel")}</label>
+          <div className="flex gap-2">
+            <input id={emailId} ref={emailRef} className={INPUT_CLASSNAME} name="email" type="email" autoComplete="email" autoFocus={!registering} required value={email} onChange={event => {
+              setEmail(event.target.value);
+              setChallenge(null);
+              setCode('');
+            }} />
+            <button className={`${SECONDARY_BUTTON_CLASSNAME} shrink-0 px-3.5 whitespace-nowrap`} type="button" disabled={busy || seconds > 0} onClick={sendCode}>
+              {sending ? t("auth/AuthModal.SendingCode") : seconds > 0 ? t("auth/AuthModal.ResendCode", { seconds }) : t("auth/AuthModal.SendCode")}
+            </button>
+          </div>
+          <p role="status" className="m-0 text-white/45! text-xs">{expired ? t("auth/AuthModal.CodeExpired") : challenge ? t("auth/AuthModal.CodeSent") : t("auth/AuthModal.RequestCodeFirst")}</p>
+        </div>
+        <div className={registering ? 'md:col-start-2 md:row-start-2' : ''}>
+          <Field label={t("auth/AuthModal.VerificationCode")} name="challengeCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" maxLength={8} minLength={8} placeholder={t("auth/AuthModal.EightDigitCode")} value={code} onChange={event => setCode(event.target.value)} required />
+        </div>
+        <div className={registering ? 'md:col-start-1 md:row-start-3' : ''}>
+          <Field label={t("auth/AuthModal.Password")} name="password" type="password" autoComplete="new-password" required />
+        </div>
+        <div className={registering ? 'md:col-start-1 md:row-start-4' : ''}>
+          <Field label={t("auth/AuthModal.ConfirmPassword")} name="password2" type="password" autoComplete="new-password" required />
+        </div>
+        {registering && <div className="flex md:items-end md:col-start-2 md:row-span-2 md:row-start-3">
+          <TurnstileWidget key={captchaVersion} />
+        </div>}
+        <button className={`${BUTTON_CLASSNAME} ${registering ? 'md:col-span-2 md:mt-1' : ''}`} type="submit" disabled={busy || !challenge || expired}>
+          {submitting ? <LoadingSpinner size={20} /> : registering ? t("auth/AuthModal.Register") : t("auth/AuthModal.ResetPasswordButton")}
+        </button>
+      </fieldset>
+    </form>
+    <div className="mt-5 pt-5 border-white/[0.07] border-t">
+      {registering
+        ? <AuthSwitch to="login" prompt={t("auth/AuthModal.HaveAccount")}>{t("auth/AuthModal.GoLogin")}</AuthSwitch>
+        : <AuthSwitch to="login">{t("auth/AuthModal.BackToLogin")}</AuthSwitch>}
+    </div>
+  </div>;
+}
+
+function TurnstileWidget() {
+  const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let cancelled = false;
+    let widgetId: string | undefined;
+    const hasRenderedWidget = () => container.childElementCount > 0;
+    const updateVisibility = () => setIsVisible(hasRenderedWidget());
+    const observer = new MutationObserver(updateVisibility);
+
+    observer.observe(container, { childList: true, subtree: true });
+    updateVisibility();
+
+    loadTurnstileScript()
+      .then(() => {
+        if (cancelled || !window.turnstile || hasRenderedWidget()) return;
+        widgetId = window.turnstile.render(container, {
+          sitekey: TURNSTILE_SITE_KEY,
+          size: window.innerWidth < 360 ? 'compact' : 'normal',
+        });
+        updateVisibility();
+      })
+      .catch(() => {
+        // The placeholder remains visible when Cloudflare cannot be reached.
+      });
+
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+      if (widgetId) window.turnstile?.remove?.(widgetId);
+    };
+  }, []);
+
+  return (
+    <div className="relative w-full max-w-[300px] min-h-[65px]" aria-live="polite">
+      <div ref={containerRef} />
+      {!isVisible && (
+        <div className="absolute inset-0 flex items-center gap-3 bg-black/35 px-4 border border-white/15 border-dashed rounded-lg text-[#b8c7db] text-sm">
+          <span className="inline-block border-2 border-blue-400/30 border-t-blue-400 rounded-full w-5 h-5 animate-spin" aria-hidden="true" />
+          <span>{t("auth/AuthModal.WaitingForCloudflareVerification")}</span>
+        </div>
+      )}
+    </div>
+  );
+}

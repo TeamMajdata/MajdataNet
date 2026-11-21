@@ -5,16 +5,17 @@
 import type { ReactNode } from 'react';
 import type { Event, EventCategory } from './event';
 
-// ======================== 歌曲详情组件 ========================
-export interface SongDetailsContainerProps {
-  id: string;
-}
-
 export interface CoverPicProps {
   /** 谱面ID */
   id: string | number;
   /** 可选的显示文本（通常是ID） */
   display?: string;
+  /** 点击封面跳转的地址；设置后不再放大查看 */
+  to?: string;
+  /** 点击放大查看原图，默认开启 */
+  zoomable?: boolean;
+  /** 封面圆角（Tailwind rounded-* 类），默认 rounded-[10px] */
+  radiusClassName?: string;
 }
 
 export interface EnhancedDescriptionProps {
@@ -42,6 +43,8 @@ export interface LevelsProps {
   songid: string;
   /** 是否为玩家页面 */
   isPlayer?: boolean;
+  /** 点击标签跳到谱面页并选中该难度（列表卡片里使用） */
+  linkToSong?: boolean;
 }
 
 export interface LevelProps {
@@ -59,6 +62,8 @@ export interface SongDifficultyLevelsProps {
   levels: (string | null)[];
   songid: string;
   isPlayer?: boolean;
+  selected?: number;
+  onSelect?: (level: number) => void;
 }
 
 // ======================== 交互计数组件 ========================
@@ -77,12 +82,11 @@ export interface MajdataProps {
 // ======================== 页面布局组件 ========================
 export interface PageLayoutProps {
   children: ReactNode;
-  showAds?: boolean;
   showFooter?: boolean;
-  showBackToHome?: boolean;
-  title?: string | null;
   className?: string;
   useAmbientBackground?: boolean;
+  /** 内容很少的页面（404、提示页）：在页头和页脚之间上下居中 */
+  centered?: boolean;
 }
 
 // ======================== 成绩组件 ========================
@@ -107,16 +111,20 @@ export interface ScoreCardProps {
 
 export interface ScoreListProps {
   songid: string;
+  chartLevel?: number;
 }
 
 // ======================== 歌曲列表组件 ========================
 export interface SongListProps {
-  url: string;
+  /** 一个或多个接口地址；多个时按顺序合并成一屏（见 apiPagesForView） */
+  url: string | string[];
   setMax?: (page: number) => void;
   page?: number;
   isRanking?: boolean;
   isManage?: boolean;
   onDataLoaded?: (hasData: boolean) => void;
+  /** 替换默认的谱面网格类名（例如 SONG_GRID_CONTAINER_CLASS） */
+  gridClassName?: string;
 }
 
 // ======================== 最近游玩组件 ========================
@@ -125,6 +133,8 @@ export interface RecentPlayedWidgetProps {
   username: string;
   /** 数据加载完成后的回调，参数表示是否有数据 */
   onDataLoaded?: (hasData: boolean) => void;
+  /** 替换默认的谱面网格类名（例如 SONG_GRID_CONTAINER_CLASS） */
+  gridClassName?: string;
 }
 
 // ======================== 时间轴组件 ========================
@@ -136,7 +146,6 @@ export interface TimelineModalProps {
 // ======================== 标签管理组件 ========================
 export interface TagManageWidgetProps {
   songid: string;
-  newClassName?: string;
 }
 
 export interface TagManageWidgetRef {
@@ -145,21 +154,7 @@ export interface TagManageWidgetRef {
   closeWindow: () => void;
 }
 
-export interface TagManageTagLauncherProps {
-  onClick: () => void;
-}
-
-export interface TagManageButtonProps {
-  onClick: () => void;
-  newClassName?: string;
-}
-
-export interface TagManageTagProps {
-  onClick: () => void;
-}
-
 export interface TagManageWindowProps {
   onClose: () => void;
-  buttonRef: React.RefObject<HTMLDivElement | null>;
   songid: string;
 }

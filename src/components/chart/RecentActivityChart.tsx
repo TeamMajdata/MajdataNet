@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 import { useMemo } from 'react';
 import type { RecentPlayedData } from '@/types';
 import {
@@ -27,8 +28,8 @@ export default function RecentActivityChart({ records }: { records: RecentPlayed
   });
 
   return (
-    <div className="mx-auto mb-8 w-full max-w-350">
-      <div className="relative overflow-hidden rounded-2xl border border-white/12 bg-[rgba(20,20,25,0.72)] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl">
+    <div className="mx-auto mb-6 w-full max-w-320">
+      <div className={`${CARD_SURFACE_CLASS} relative overflow-hidden p-5`}>
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="text-sm font-bold text-pink-300">

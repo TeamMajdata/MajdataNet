@@ -1,6 +1,5 @@
 /**
  * 增强的描述组件 - 自动识别并美化描述中的链接
- * 迁移自 legacy/src/app/widgets/EnhancedDescription.jsx
  */
 
 import type { EnhancedDescriptionProps } from '@/types';

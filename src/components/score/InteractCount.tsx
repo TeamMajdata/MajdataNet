@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/i18n';
-import { PiArrowFatUpBold, PiChatCircleBold, PiPlayBold } from 'react-icons/pi';
+import { LuArrowBigUp, LuMessageCircle, LuPlay } from 'react-icons/lu';
 import { useInteractSummary } from '@/hooks';
 import { compactNumber } from '@/utils/interaction';
 import type { InteractCountProps } from '@/types';
@@ -15,23 +15,24 @@ export default function InteractCount({ songid }: InteractCountProps) {
   const summary = useInteractSummary(songid);
 
   if (summary === null) return <div></div>;
-  if (summary === undefined) return <div className="mt-2 ml-0.5 h-[1.3rem] text-[0.8rem] text-white/50">..</div>;
+  if (summary === undefined) return <div className="h-5 text-white/40 text-xs">..</div>;
 
-  const highlight = (value: number) => (value >= 5 ? 'bg-amber-300 text-black' : 'text-white');
-  const cell = 'inline-flex items-center gap-0.5 rounded px-1 h-[1.3rem] text-[0.8rem] tabular-nums';
+  // 数值达到 5 时用琥珀色文字强调，不再用整块底色
+  const highlight = (value: number) => (value >= 5 ? 'text-amber-300' : 'text-white/60');
+  const cell = 'inline-flex items-center gap-1 h-5 text-xs tabular-nums whitespace-nowrap';
 
   return (
-    <div className="flex items-center gap-1 mt-2 ml-0.5">
-      <span className={`${cell} text-white`} title={t("score/InteractCount.Plays")}>
-        <PiPlayBold className="w-3.5 h-3.5" aria-hidden="true" />
+    <div className="flex items-center gap-2.5 min-w-0">
+      <span className={`${cell} text-white/60`} title={t("score/InteractCount.Plays")}>
+        <LuPlay className="w-3.5 h-3.5" aria-hidden="true" />
         {compactNumber(summary.plays, language)}
       </span>
       <span className={`${cell} ${highlight(summary.score)}`} title={t("score/InteractCount.Score")}>
-        <PiArrowFatUpBold className="w-3.5 h-3.5" aria-hidden="true" />
+        <LuArrowBigUp className="w-3.5 h-3.5" aria-hidden="true" />
         {compactNumber(summary.score, language)}
       </span>
       <span className={`${cell} ${highlight(summary.comments)}`} title={t("score/InteractCount.Comments")}>
-        <PiChatCircleBold className="w-3.5 h-3.5" aria-hidden="true" />
+        <LuMessageCircle className="w-3.5 h-3.5" aria-hidden="true" />
         {compactNumber(summary.comments, language)}
       </span>
     </div>

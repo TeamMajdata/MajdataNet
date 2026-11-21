@@ -8,7 +8,7 @@ import { useLanguage } from '@/i18n';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { PiArrowFatDownBold, PiArrowFatDownFill, PiArrowFatUpBold, PiArrowFatUpFill } from 'react-icons/pi';
+import { LuArrowBigDown, LuArrowBigUp } from 'react-icons/lu';
 import { useUserContext } from '@/hooks';
 import { compactNumber, loginPath } from '@/utils/interaction';
 import type { Vote, VoteResult } from '@/types';
@@ -64,43 +64,39 @@ export function VoteControl({
     }
   };
 
-  const iconClass = size === 'md' ? 'w-5 h-5' : 'w-4 h-4';
-  const arrow = `inline-flex items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-50 ${size === 'md' ? 'w-9 h-9' : 'w-7 h-7'}`;
-
+  // 左边“赞 + 分数”，右边“踩”；赞了是橙色、踩了是蓝色（分数也跟着变色），细线条的箭头图标。
+  // md（谱面页侧栏）：和页头按钮同样风格的带边框胶囊；sm（评论里）：没有底色，紧凑一些
+  const md = size === 'md';
+  const half = `inline-flex items-center gap-1.5 h-full text-white/65 hover:text-white hover:bg-white/10 transition-colors cursor-pointer disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/40 ${md ? 'px-3' : 'px-1.5 rounded-md'}`;
+  const icon = md ? 'w-4 h-4' : 'w-3.5 h-3.5';
   return (
-    <div
-      role="group"
-      aria-label={label}
-      className={`inline-flex shrink-0 items-center gap-0.5 ${layout === 'vertical' ? 'flex-col' : ''} ${className}`}
-    >
+    <div role="group" aria-label={label}
+      className={`inline-flex shrink-0 items-stretch ${layout === 'vertical' ? 'flex-col' : ''} ${md ? 'bg-white/[0.06] border border-white/10 rounded-xl h-9 overflow-hidden text-sm' : 'h-7 text-xs'} ${className}`}>
       <button
         type="button"
-        className={`${arrow} ${shown.myVote === 1 ? 'text-orange-400 hover:text-orange-300' : ''}`}
+        className={`${half} ${shown.myVote === 1 ? 'bg-orange-400/15 text-orange-300!' : ''}`}
         aria-pressed={shown.myVote === 1}
         aria-label={t("song/VoteControl.Upvote")}
         title={t("song/VoteControl.Upvote")}
         disabled={disabled}
         onClick={() => void cast(1)}
       >
-        {shown.myVote === 1 ? <PiArrowFatUpFill className={iconClass} /> : <PiArrowFatUpBold className={iconClass} />}
+        <LuArrowBigUp aria-hidden="true" className={icon} />
+        <span className={`font-semibold tabular-nums ${shown.myVote === 1 ? 'text-orange-400' : shown.myVote === -1 ? 'text-sky-400' : ''}`} aria-live="polite" title={`${t("song/VoteControl.Score")}: ${shown.score}`}>
+          {compactNumber(shown.score, language)}
+        </span>
       </button>
-      <span
-        className={`min-w-6 text-center font-semibold tabular-nums ${size === 'md' ? 'text-lg' : 'text-sm'} ${shown.myVote === 1 ? 'text-orange-400' : shown.myVote === -1 ? 'text-sky-400' : 'text-white/90'}`}
-        aria-live="polite"
-        title={`${t("song/VoteControl.Score")}: ${shown.score}`}
-      >
-        {compactNumber(shown.score, language)}
-      </span>
+      {md && <span aria-hidden="true" className="bg-white/10 my-2 w-px" />}
       <button
         type="button"
-        className={`${arrow} ${shown.myVote === -1 ? 'text-sky-400 hover:text-sky-300' : ''}`}
+        className={`${half} ${shown.myVote === -1 ? 'bg-sky-400/15 text-sky-300!' : ''}`}
         aria-pressed={shown.myVote === -1}
         aria-label={t("song/VoteControl.Downvote")}
         title={t("song/VoteControl.Downvote")}
         disabled={disabled}
         onClick={() => void cast(-1)}
       >
-        {shown.myVote === -1 ? <PiArrowFatDownFill className={iconClass} /> : <PiArrowFatDownBold className={iconClass} />}
+        <LuArrowBigDown aria-hidden="true" className={icon} />
       </button>
     </div>
   );

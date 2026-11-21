@@ -3,11 +3,11 @@ import { toast } from 'react-toastify';
 
 /**
  * Majdata.Net Logo 组件
- * 点击会显示彩蛋提示
+ * 点击头像会显示彩蛋提示
  */
 export default function MajdataLogo() {
   const { t } = useTranslation();
-  
+
   const handleClick = () => {
     toast.error(t("shared/MajdataLogo.FUCKYOU"), {
       position: 'top-center',
@@ -16,14 +16,16 @@ export default function MajdataLogo() {
   };
 
   return (
-    <h1 style={{ fontFamily: 'fantasy' }}>
+    <span className="flex items-center gap-2.5">
       <img
-        className='inline m-2.5 rounded h-12.5'
-        src="../../../salt.webp"
+        className="rounded-lg ring-1 ring-white/15 w-8 h-8 object-cover"
+        src="/salt.webp"
         onClick={handleClick}
         alt="xxlb"
       />
-      Majdata.Net
-    </h1>
+      <span className="font-semibold text-[1.05rem] text-white tracking-tight">
+        Majdata<span className="text-blue-300">.Net</span>
+      </span>
+    </span>
   );
 }

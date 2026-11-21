@@ -1,123 +1,72 @@
+import { useState } from 'react';
+import PageLoading from '@/components/ui/PageLoading';
 import { useTranslation } from 'react-i18next';
-import { PageLayout, ChartUploader, SongList, LoadingSpinner } from '@/components';
+import { LuUpload } from 'react-icons/lu';
+import { PageLayout, SongList } from '@/components';
+import ChartUploadDialog from '@/components/user/ChartUploadDialog';
+import Pager from '@/components/ui/Pager';
+import { apiPagesForView } from '@/components/song/songGrid';
 import { useUserContext } from '@/hooks';
 import { endpoints } from '@/config/api';
-import { motion, type Variants } from 'framer-motion';
-
-// slideInUp 动画变体
-const slideInUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.4, 0, 0.2, 1] as const,
-      delay,
-    },
-  }),
-};
 
 export default function UserChartsPage() {
   const { t } = useTranslation();
   const { user, isLoading } = useUserContext();
-  if (isLoading && !user ) {
-      return (
-        <div className="flex justify-center items-center h-screen">
-          <LoadingSpinner size="50px" />
-        </div>
-      );
+  const [uploading, setUploading] = useState(false);
+  const [page, setPage] = useState(0);
+  /** SongList 发现某页不足一屏时报告的最后一页 */
+  const [lastPage, setLastPage] = useState<number | null>(null);
+  const [firstPageEmpty, setFirstPageEmpty] = useState(false);
+  if (isLoading && !user) {
+    return (
+      <PageLoading />
+    );
   }
-  
+
   return (
-    <PageLayout title={t("user/charts/ChartsPage.ChartsManagement")} showBackToHome={false}>
-      {/* Upload Section */}
-      <section className="mb-16">
-        <motion.div
-          className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl"
-          initial="hidden"
-          animate="visible"
-          custom={0.3}
-          variants={slideInUp}
-        >
-          <div className="mb-8">
-            <h2 className="m-0 mb-6 font-semibold text-[#e5e5e5] text-[1.8rem] text-center">
-              {t("user/charts/ChartsPage.UploadChart")}
-            </h2>
-
-            {/* Notice Board */}
-            <div className="relative bg-linear-to-br from-[rgba(59,130,246,0.15)] via-[rgba(59,130,246,0.1)] to-[rgba(99,102,241,0.1)] shadow-[0_0_30px_rgba(59,130,246,0.2),inset_0_0_20px_rgba(59,130,246,0.05)] mb-8 p-8 border-[rgba(59,130,246,0.4)] border-2 rounded-2xl overflow-hidden">
-              {/* Decorative corner pins */}
-              <div className="top-3 left-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
-              <div className="top-3 right-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
-              <div className="bottom-3 left-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
-              <div className="right-3 bottom-3 absolute bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.6)] rounded-full w-3 h-3"></div>
-
-              {/* Header with icon */}
-              <div className="flex justify-center items-center gap-3 mb-6 pb-4 border-[rgba(59,130,246,0.3)] border-b-2">
-                <div className="drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] text-4xl"></div>
-                <h3 className="drop-shadow-[0_2px_8px_rgba(59,130,246,0.4)] m-0 font-bold text-[#60a5fa] text-3xl">
-                  {t("user/charts/ChartsPage.UploadNotice")}
-                </h3>
-              </div>
-
-              {/* Notice content */}
-              <ol className="space-y-3 m-0 pl-8 text-[#e5e5e5] list-decimal">
-                <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
-                  <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {t("user/charts/ChartsPage.UploadNoticeTerms1")}
-                  </span>
-                </li>
-                <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
-                  <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {t("user/charts/ChartsPage.UploadNoticeTerms2")}
-                  </span>
-                </li>
-                <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
-                  <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {t("user/charts/ChartsPage.UploadNoticeTerms3")}
-                  </span>
-                </li>
-                <li className="pl-2 marker:font-bold marker:text-[#60a5fa] text-base leading-relaxed">
-                  <span className="inline-block bg-[rgba(59,130,246,0.1)] px-2 py-1 rounded">
-                    {t("user/charts/ChartsPage.UploadNoticeTerms4")}
-                  </span>
-                </li>
-              </ol>
-
-              {/* Bottom accent line */}
-              <div className="mt-6 pt-4 border-[rgba(59,130,246,0.2)] border-t">
-                <div className="flex justify-center items-center gap-2 opacity-80 text-[#60a5fa] text-sm">
-                  <span className="font-semibold">请仔细阅读以上条款</span>
-                </div>
-              </div>
-            </div>
+    <PageLayout>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
+        {/* Header：标题和说明居左，上传按钮在右 */}
+        <header className="flex justify-between items-center gap-4 mb-5 sm:mb-6">
+          <div className="min-w-0">
+            <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+              {t("user/charts/ChartsPage.ChartsManagement")}
+            </h1>
+            <p className="m-0 mt-1.5 text-white/55! text-sm">{t("user/charts/ChartsPage.ManageAllYourCharts")}</p>
           </div>
-          <ChartUploader />
-        </motion.div>
-      </section>
+          <button
+            type="button"
+            onClick={() => setUploading(true)}
+            className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-400 px-4 border-none rounded-xl h-11 font-semibold text-white text-sm whitespace-nowrap transition-colors cursor-pointer shrink-0"
+          >
+            <LuUpload aria-hidden="true" className="w-4 h-4" />
+            {t("user/charts/ChartsPage.UploadChart")}
+          </button>
+        </header>
 
-      {/* Charts Management Section */}
-      <motion.section
-        className="bg-[rgba(255,255,255,0.05)] shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-md p-8 border border-white/10 rounded-2xl"
-        initial="hidden"
-        animate="visible"
-        custom={0.5}
-        variants={slideInUp}
-      >
-        <div className="mb-8 pb-4 border-white/10 border-b text-center">
-          <h2 className="m-0 mb-2 font-semibold text-[#e5e5e5] text-[1.8rem]">
-            {t("user/charts/ChartsPage.MyCharts")}
-          </h2>
-          <p className="m-0 text-[#a0a0a0] text-base">
-            {t("user/charts/ChartsPage.ManageAllYourCharts")}
-          </p>
-        </div>
         <SongList
-          url={endpoints.maichart.listSearch('uploader:' + user?.username)}
+          url={apiPagesForView(page).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + user?.username, '', apiPage))}
+          page={page}
+          setMax={setLastPage}
+          onDataLoaded={(hasData) => { if (page === 0) setFirstPageEmpty(!hasData); }}
           isManage={true}
         />
-      </motion.section>
+        {/* 第一页就不足一屏（或一张都没有）时不显示翻页 */}
+        {!(page === 0 && (lastPage === 0 || firstPageEmpty)) && (
+          <div className="flex justify-center mt-8 sm:mt-10">
+            <Pager
+              page={page}
+              hasNext={lastPage === null || page < lastPage}
+              onPageChange={(next) => {
+                setPage(next);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          </div>
+        )}
+      </div>
+
+      <ChartUploadDialog open={uploading} onClose={() => setUploading(false)} />
     </PageLayout>
   );
 }

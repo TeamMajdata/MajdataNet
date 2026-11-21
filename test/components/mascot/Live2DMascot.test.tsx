@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import type { Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Live2DMascot from '@/components/mascot/Live2DMascot';
-import { MASCOT_STORAGE_KEY } from '@/components/mascot/mascotState';
+import { MASCOT_STORAGE_KEY, updateMascotPreferences } from '@/components/mascot/mascotState';
 import i18n from '@/i18n';
 
 const runtime = vi.hoisted(() => ({
@@ -294,7 +294,7 @@ describe('Live2DMascot', () => {
     localStorage.setItem(MASCOT_STORAGE_KEY, JSON.stringify({ collapsed: false, position: { x: 9_000, y: -500 } }));
     render();
     expect(element('live2d-mascot').style.left).toBe('1208px');
-    expect(element('live2d-mascot').style.top).toBe('82px');
+    expect(element('live2d-mascot').style.top).toBe('14px');
     act(() => {
       window.innerWidth = 900;
       window.dispatchEvent(new Event('resize'));
@@ -390,5 +390,44 @@ describe('Live2DMascot', () => {
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new DOMException('Blocked', 'SecurityError'); });
     expect(render).not.toThrow();
     expect(element('mascot-poke')).not.toBeNull();
+  });
+  function contextMenu(x: number, y: number) {
+    act(() => element('mascot-poke').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: x, clientY: y })));
+  }
+
+  it('opens a size menu on right-click and resizes around the feet', () => {
+    render();
+    contextMenu(100, 700);
+    expect(element('mascot-menu')).not.toBeNull();
+    expect(element('mascot-size-1').getAttribute('aria-checked')).toBe('true');
+    const before = element('live2d-mascot');
+    const bottom = parseFloat(before.style.top) + parseFloat(before.style.height);
+    click('mascot-size-1.25');
+    expect(element('mascot-menu')).toBeNull();
+    expect(element('live2d-mascot').style.width).toBe('275px');
+    expect(element('live2d-mascot').style.height).toBe('375px');
+    expect(parseFloat(element('live2d-mascot').style.top) + 375).toBe(bottom);
+    expect(JSON.parse(localStorage.getItem(MASCOT_STORAGE_KEY)!).scale).toBe(1.25);
+  });
+
+  it('closes the menu with Escape and restores a saved size', () => {
+    localStorage.setItem(MASCOT_STORAGE_KEY, JSON.stringify({ scale: 0.75 }));
+    render();
+    expect(element('live2d-mascot').style.width).toBe('165px');
+    contextMenu(100, 700);
+    expect(element('mascot-size-0.75').getAttribute('aria-checked')).toBe('true');
+    act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
+    expect(element('mascot-menu')).toBeNull();
+  });
+  it('hides from the menu, remembers it, and comes back when the footer restores it', () => {
+    render();
+    contextMenu(100, 700);
+    click('mascot-hide');
+    expect(element('live2d-mascot')).toBeNull();
+    expect(runtime.deactivate).toHaveBeenCalled();
+    expect(JSON.parse(localStorage.getItem(MASCOT_STORAGE_KEY)!).hidden).toBe(true);
+    act(() => updateMascotPreferences({ hidden: false }));
+    expect(element('live2d-mascot')).not.toBeNull();
+    expect(JSON.parse(localStorage.getItem(MASCOT_STORAGE_KEY)!).hidden).toBeUndefined();
   });
 });

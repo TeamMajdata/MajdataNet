@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useMemo, useState, useCallback } from 'react';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { loginPath } from '@/utils/interaction';
 import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
 import type { Collection, CollectionDanInfo } from '@/types';
@@ -20,6 +22,8 @@ export async function fetchFavoriteCollections(url: string): Promise<Collection[
 export function useFavorites() {
   const { t } = useTranslation();
   const { user } = useUserContext();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
   const { data, isLoading, mutate } = useSWR<Collection[]>(
@@ -34,8 +38,9 @@ export function useFavorites() {
     collectionId: string,
     successMessages?: { added: string; removed: string }
   ) => {
+    // 游客也能浏览歌单，收藏时再打开登录弹窗，登录后回到当前页面
     if (!user) {
-      toast.info(t("shared/useFavorites.PleaseLogin"));
+      navigate(loginPath(location));
       return;
     }
     const isFavorited = favoriteIds.has(collectionId);
@@ -67,7 +72,7 @@ export function useFavorites() {
         return next;
       });
     }
-  }, [user, favoriteIds, mutate, t]);
+  }, [user, favoriteIds, mutate, t, navigate, location]);
 
   const isPending = useCallback((id: string) => pendingIds.has(id), [pendingIds]);
 

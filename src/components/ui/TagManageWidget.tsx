@@ -1,9 +1,9 @@
 /**
  * TagManageWidget 组件 - Tag管理小部件
- * 迁移自 legacy/src/app/widgets/TagManageWidget.jsx
  */
 
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import {
   forwardRef,
   useEffect,
@@ -13,30 +13,28 @@ import {
   useState,
 } from 'react';
 import React from 'react';
-import { createPortal } from 'react-dom';
-import { Tooltip } from '@/components';
+import Modal from './Modal';
+import { LuPlus, LuX } from 'react-icons/lu';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
-import LoadingSpinner from './LoadingSpinner';
 import sleep from '@/utils/sleep';
 import { MAX_CHART_TAGS, saveChartTags } from '@/utils/chartTags';
-import { ApiError } from '@/utils/apiClient';
+import { ApiError, apiFetcher } from '@/utils/apiClient';
 import { CODE_TOO_MANY_ELEMENTS } from '@/config/apiRetCode';
-import { motion } from 'framer-motion';
 import type {
   TagManageWidgetProps,
   TagManageWidgetRef,
-  TagManageTagLauncherProps,
-  TagManageButtonProps,
-  TagManageTagProps,
   TagManageWindowProps
 } from '@/types';
 
+/**
+ * 标签编辑窗口；没有自己的触发按钮，由调用方通过 ref 的 openWindow() 打开
+ * （谱面页侧栏的“管理标签”、谱面卡片的菜单）。
+ */
 const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
-  function TagManageWidget({ songid, newClassName = '' }, ref) {
+  function TagManageWidget({ songid }, ref) {
     const [isWindowOpen, setIsWindowOpen] = useState(false);
-    const buttonRef = useRef<HTMLDivElement | null>(null);
     const windowRef = useRef<HTMLDivElement | null>(null);
 
     useImperativeHandle(ref, () => ({
@@ -46,78 +44,23 @@ const TagManageWidget = forwardRef<TagManageWidgetRef, TagManageWidgetProps>(
     }));
 
     return (
-      <motion.div
-        className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] mt-2 w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-gray-500 overflow-hidden cursor-pointer select-none ${newClassName}`}
-        whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
-        transition={{ duration: 0.125, ease: 'easeInOut' }}
+      <Modal
+        open={isWindowOpen}
+        onClose={() => setIsWindowOpen(false)}
+        labelledBy="tag-manage-title"
+        className="flex flex-col max-w-lg max-h-[85vh] overflow-hidden"
       >
-        <TagManageButton
-          ref={buttonRef}
-          onClick={() => setIsWindowOpen(!isWindowOpen)}
+        <TagManageWindow
+          ref={windowRef}
+          onClose={() => setIsWindowOpen(false)}
+          songid={songid}
         />
-        {isWindowOpen &&
-          typeof window !== 'undefined' &&
-          createPortal(
-            <TagManageWindow
-              ref={windowRef}
-              onClose={() => setIsWindowOpen(false)}
-              buttonRef={buttonRef}
-              songid={songid}
-            />,
-            document.body
-          )}
-      </motion.div>
+      </Modal>
     );
   }
 );
 
 export default TagManageWidget;
-
-export function TagManageTagLauncher({ onClick }: TagManageTagLauncherProps) {
-  return <TagManageTag onClick={onClick} />;
-}
-
-const TagManageButton = forwardRef<HTMLDivElement, TagManageButtonProps>(
-  function TagManageButton({ onClick, newClassName }, ref) {
-    return (
-      <div ref={ref} onClick={onClick} className={`fill-white stroke-white w-full h-full p-0.75 ${newClassName || ''}`}>
-        <svg
-          className="fill-white stroke-white w-full h-full"
-          xmlns="http://www.w3.org/2000/svg"
-          height="24"
-          viewBox="-20 -20 512 512"
-          width="24"
-        >
-          <path d="M345 39.1L472.8 168.4c52.4 53 52.4 138.2 0 191.2L360.8 472.9c-9.3 9.4-24.5 9.5-33.9 .2s-9.5-24.5-.2-33.9L438.6 325.9c33.9-34.3 33.9-89.4 0-123.7L310.9 72.9c-9.3-9.4-9.2-24.6 .2-33.9s24.6-9.2 33.9 .2zM0 229.5L0 80C0 53.5 21.5 32 48 32l149.5 0c17 0 33.3 6.7 45.3 18.7l168 168c25 25 25 65.5 0 90.5L277.3 442.7c-25 25-65.5 25-90.5 0l-168-168C6.7 262.7 0 246.5 0 229.5zM144 144a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" />
-        </svg>
-      </div>
-    );
-  }
-);
-
-const TagManageTag = forwardRef<HTMLButtonElement, TagManageTagProps>(
-  function TagManageTag({ onClick }, ref) {
-    return (
-      <motion.button
-        ref={ref}
-        onMouseDown={onClick}
-        className="bg-green-600 hover:bg-green-500 px-2.5 py-0.75 rounded-xl text-white text-xs transition-colors duration-200 cursor-pointer"
-        whileHover={{ scale: 1.05 }}
-        transition={{ duration: 0.2 }}
-      >
-        <svg
-          className="fill-white stroke-white w-full h-full"
-          xmlns="http://www.w3.org/2000/svg"
-          height="16"
-          viewBox="0 -960 960 960"
-          width="16"
-        >
-          <path d="M480-160v-80h120l180-240-180-240H160v200H80v-200q0-33 23.5-56.5T160-800h440q19 0 36 8.5t28 23.5l216 288-216 288q-11 15-28 23.5t-36 8.5H480Zm-10-320ZM200-120v-120H80v-80h120v-120h80v120h120v80H280v120h-80Z" />
-        </svg>
-      </motion.button>
-    );
-  }
-);
 
 interface SongSummary {
   tags?: string[];
@@ -149,14 +92,8 @@ function tagsReducer(state: string[], action: TagsAction): string[] {
 }
 
 const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
-  function TagManageWindow({ onClose, buttonRef, songid }, ref) {
+  function TagManageWindow({ onClose, songid }, ref) {
     const { t } = useTranslation();
-    const [position, setPosition] = useState({
-      x: window.innerWidth / 2 - 200,
-      y: 100,
-    });
-    const [dragging, setDragging] = useState(false);
-    const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [newTag, setNewTag] = useState('');
     const [activeCategory, setActiveCategory] = useState('曲库来源');
     const [tags, dispatch] = useReducer(tagsReducer, []);
@@ -164,70 +101,12 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
     const initializedRef = useRef(false);
     /** Tags as last read from or saved to the server: the base of the public-tag PATCH diff. */
     const serverTagsRef = useRef<string[]>([]);
+    const [saving, setSaving] = useState(false);
 
-    useEffect(() => {
-      const handleClickOutside = (e: MouseEvent) => {
-        // 如果正在拖拽，不处理点击关闭
-        if (dragging) {
-          return;
-        }
-
-        // 检查点击是否在弹窗外部且不在触发按钮上
-        if (
-          ref &&
-          typeof ref !== 'function' &&
-          ref.current &&
-          !ref.current.contains(e.target as Node) &&
-          buttonRef.current &&
-          !buttonRef.current.contains(e.target as Node)
-        ) {
-          onClose();
-        }
-      };
-
-      // 使用捕获阶段来确保在事件冒泡之前处理
-      document.addEventListener('mousedown', handleClickOutside, true);
-      return () => document.removeEventListener('mousedown', handleClickOutside, true);
-    }, [onClose, ref, buttonRef, dragging]);
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      setDragging(true);
-      if (ref && typeof ref !== 'function' && ref.current) {
-        const rect = ref.current.getBoundingClientRect();
-        setOffset({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-        });
-      }
-    };
-
-    useEffect(() => {
-      const handleMouseMove = (e: MouseEvent) => {
-        if (dragging) {
-          setPosition({
-            x: e.clientX - offset.x,
-            y: e.clientY - offset.y,
-          });
-        }
-      };
-
-      const handleMouseUp = () => setDragging(false);
-
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }, [dragging, offset]);
-
-    const fetcher = (url: string) =>
-      fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
-
+    // 和谱面页同一个 SWR 键：保存后 mutate 会让谱面页上的标签一起更新
     const { data, error, isLoading, mutate } = useSWR<SongSummary>(
       endpoints.maichart.summary(songid),
-      fetcher
+      apiFetcher
     );
 
     useEffect(() => {
@@ -253,6 +132,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
     }, [data, isInPrivatePage]);
 
     const uploadTags = async () => {
+      setSaving(true);
       const uploading = toast.loading(t("shared/TagManageWidget.Uploading"), {
         hideProgressBar: true,
       });
@@ -270,15 +150,17 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
         return;
       } finally {
         toast.done(uploading);
+        setSaving(false);
       }
 
       // The server normalizes tags and PATCH merges other players' edits, so show what it now holds.
       serverTagsRef.current = saved;
       dispatch({ type: 'SET_TAGS', payload: saved });
       await mutate((summary) => summary && { ...summary, [isInPrivatePage ? 'tags' : 'publicTags']: saved }, { revalidate: false });
-      toast.success('上传成功了喵');
-      //TODO: 刷新页面，重载数据，应该可以热重载，之后研究
-      if (window.location.pathname !== '/user/charts') {
+      toast.success(t("shared/TagManageWidget.Saved"));
+      // 谱面页和谱面管理页读的就是上面这份缓存，已经更新了；
+      // 其他页面（列表里的谱面卡片）的标签来自列表接口，还得重载页面才能看到
+      if (window.location.pathname !== '/user/charts' && window.location.pathname !== '/song') {
         await sleep(1000);
         window.location.reload();
       }
@@ -294,16 +176,6 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       dispatch({ type: 'ADD_TAG', payload: tag });
       return true;
     };
-
-    if (error) {
-      return <div>failed to load</div>;
-    }
-    if (isLoading) {
-      return <div className="flex justify-center items-center h-20"><LoadingSpinner size="50px" /></div>;
-    }
-    if (data === undefined) {
-      return <div>failed to load</div>;
-    }
 
     const categories: Record<string, string[]> = {
       曲库来源: [
@@ -352,154 +224,138 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       ],
     };
 
-    return (
-      <div
-        ref={ref}
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          backgroundColor: 'rgba(var(--background-start), 0.8)',
-          backdropFilter: 'blur(10px)',
-          position: 'fixed',
-          left: position.x + 'px',
-          top: position.y + 'px',
-          width: '400px',
-          minHeight: '300px',
-          textShadow: '0 0',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          zIndex: 1001,
-          cursor: dragging ? 'grabbing' : 'default',
-          border: '1px solid whitesmoke',
-          fontSize: '1rem',
-        }}
-      >
-        <div
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            handleMouseDown(e);
-          }}
-          style={{
-            padding: '16px',
-            borderBottom: '1px solid #eee',
-            cursor: 'grab',
-            userSelect: 'none',
-          }}
-        >
-          {isInPrivatePage ? '作者Tags管理' : '玩家Tags管理'}
-        </div>
-        <div style={{ padding: '16px' }}>
-          <div className="flex flex-wrap items-center gap-1.5 my-1">
-            <div className="min-w-12 font-semibold text-white text-sm">Tags:</div>
-            <div className="flex flex-wrap flex-1 gap-1.5 mt-1 text-white/70 text-sm text-left wrap-break-word">
-              {tags && tags.length > 0 ? (
+    const changed = tags.length !== serverTagsRef.current.length || tags.some((tag, index) => tag !== serverTagsRef.current[index]);
+    const submitNewTag = () => {
+      const trimmed = newTag.trim();
+      if (trimmed !== '' && addTag(trimmed)) setNewTag('');
+    };
+    const sectionLabel = 'mb-2 font-medium text-white/50 text-xs';
+
+    let body: React.ReactNode;
+    if (isLoading) {
+      body = <SectionLoading />;
+    } else if (error || data === undefined) {
+      body = <p className="m-0 py-16 text-white/50! text-sm text-center">{t("shared/TagManageWidget.LoadFailed")}</p>;
+    } else {
+      body = (
+        <div className="flex flex-col gap-5 px-5 py-4 min-h-0 overflow-y-auto">
+          {/* 已有标签：点一下移除 */}
+          <section>
+            <div className={sectionLabel}>{t("shared/TagManageWidget.CurrentTags")}</div>
+            <div className="flex flex-wrap gap-1.5" data-testid="tag-current">
+              {tags.length > 0 ? (
                 tags.map((tag, index) => (
-                  <Tooltip content={t("shared/TagManageWidget.DeleteTag")} key={index}>
-                    <span
-                      className={isInPrivatePage ? 'bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs cursor-pointer transition-colors duration-200' : 'bg-blue-100 hover:bg-blue-200 px-2.5 py-0.75 rounded-xl text-blue-800 text-xs cursor-pointer transition-colors duration-200'}
-                      onClick={() => {
-                        dispatch({ type: 'REMOVE_TAG', payload: index });
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  </Tooltip>
+                  <button
+                    key={tag}
+                    type="button"
+                    data-tag={tag}
+                    title={t("shared/TagManageWidget.DeleteTag")}
+                    aria-label={t("shared/TagManageWidget.DeleteTag") + ' ' + tag}
+                    onClick={() => dispatch({ type: 'REMOVE_TAG', payload: index })}
+                    className={`group inline-flex items-center gap-1 pr-1.5 pl-2.5 border rounded-full h-7 text-xs transition-colors cursor-pointer ${isInPrivatePage ? 'bg-white/[0.08] border-white/15 text-white/85 hover:border-red-400/50 hover:text-red-200' : 'bg-blue-400/10 border-blue-400/30 text-blue-100 hover:border-red-400/50 hover:text-red-200'}`}
+                  >
+                    {tag}
+                    <LuX aria-hidden="true" className="opacity-60 group-hover:opacity-100 w-3.5 h-3.5" />
+                  </button>
                 ))
               ) : (
-                <span style={{ color: '#999', fontStyle: 'italic' }}>{t("shared/TagManageWidget.NoTags")}</span>
+                <span className="text-white/40 text-sm">{t("shared/TagManageWidget.NoTags")}</span>
               )}
             </div>
-          </div>
-          <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
+          </section>
+
+          {/* 自定义标签 */}
+          <form
+            className="flex gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitNewTag();
+            }}
+          >
             <input
               type="text"
               placeholder={t("shared/TagManageWidget.CustomTag")}
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
-              style={{
-                marginLeft: '4px',
-                flex: 1,
-                padding: '6px 8px',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-              }}
+              className="flex-1 bg-white/[0.04] focus:bg-white/[0.06] px-3 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 min-w-0 h-10 text-white placeholder:text-white/35 text-sm transition-colors"
             />
-            <button
-              onClick={() => {
-                const trimmed = newTag.trim();
-                if (trimmed !== '' && addTag(trimmed)) {
-                  setNewTag(''); // 清空输入框
-                }
-              }}
-              style={{ padding: '6px 12px' }}
-            >
+            <button type="submit" className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/90 text-sm transition-colors cursor-pointer shrink-0">
               {t("shared/TagManageWidget.AddTag")}
             </button>
-          </div>
-          <p>{t("shared/TagManageWidget.CommonTags")}</p>
-          {/* tab bar */}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '8px',
-              marginBottom: '12px',
-            }}
-          >
-            {Object.keys(categories).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: activeCategory === cat ? '1px solid #007bff' : '1px solid #ccc',
-                  backgroundColor: activeCategory === cat ? 'black' : 'black',
-                  cursor: 'pointer',
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          </form>
 
-          <div
-            className="flex flex-wrap gap-2 mt-1"
-            style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
-          >
-            {categories[activeCategory]
-              .filter((tag) => !tags.includes(tag))
-              .map((tag) => (
-                <span
-                  className="bg-gray-100 hover:bg-gray-300 px-2.5 py-0.75 rounded-xl text-[#333] text-xs transition-colors duration-200 cursor-pointer"
-                  key={tag}
-                  onClick={() => addTag(tag)}
+          {/* 常用标签：按类别切换，点一下加入 */}
+          <section>
+            <div className={sectionLabel}>{t("shared/TagManageWidget.CommonTags")}</div>
+            <div className="flex flex-wrap gap-1 mb-3" role="tablist">
+              {Object.keys(categories).map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeCategory === cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 rounded-lg h-8 text-xs font-medium transition-colors cursor-pointer ${activeCategory === cat ? 'bg-white/10 text-white' : 'text-white/55 hover:text-white hover:bg-white/[0.04]'}`}
                 >
-                  {tag}
-                </span>
+                  {cat}
+                </button>
               ))}
-          </div>
-          <br />
-          <div className="relative bg-[linear-gradient(90deg,transparent_0%,rgb(255_255_255/20%)*15%,rgb(255_255_255*/_40%)*30%,rgb(255_255_255*/_60%)*50%,rgb(255_255_255*/_40%)*70%,rgb(255_255_255*/_20%)_85%,transparent_100%)] mx-auto my-8 max-[480px]:my-5 max-[768px]:my-6 border-0 w-[70%] max-[480px]:w-[90%] max-[768px]:w-[80%] h-px" />
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginTop: '12px',
-            }}
-          >
-            <button
-              style={{
-                padding: '6px 12px',
-                border: '1px solid whitesmoke',
-                borderRadius: '5px',
-              }}
-              onClick={uploadTags}
-            >
-              更新Tags
-            </button>
-          </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {categories[activeCategory]
+                .filter((tag) => !tags.includes(tag))
+                .map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => addTag(tag)}
+                    className="inline-flex items-center gap-1 bg-white/[0.03] hover:bg-white/[0.08] pr-2.5 pl-1.5 border border-white/10 hover:border-white/25 border-dashed rounded-full h-7 text-white/70 hover:text-white text-xs transition-colors cursor-pointer"
+                  >
+                    <LuPlus aria-hidden="true" className="w-3.5 h-3.5 text-white/40" />
+                    {tag}
+                  </button>
+                ))}
+            </div>
+          </section>
         </div>
+      );
+    }
+
+    return (
+      // 外框（遮罩、动画、Esc）由 TagManageWidget 里的 Modal 提供
+      <div ref={ref} className="flex flex-col min-h-0" onMouseDown={(e) => e.stopPropagation()}>
+        <header className="flex justify-between items-center gap-3 px-5 pt-5 pb-3 border-white/[0.07] border-b">
+          <div className="flex items-baseline gap-2 min-w-0">
+            <h2 id="tag-manage-title" className="m-0 font-semibold text-white! text-lg! text-left!">
+              {isInPrivatePage ? t("shared/TagManageWidget.AuthorTags") : t("shared/TagManageWidget.PlayerTags")}
+            </h2>
+            {data !== undefined && <span className="text-white/40 text-xs tabular-nums">{tags.length}/{MAX_CHART_TAGS}</span>}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t("shared/TagManageWidget.Cancel")}
+            className="place-items-center grid hover:bg-white/10 rounded-full w-8 h-8 text-white/50 hover:text-white transition-colors cursor-pointer shrink-0"
+          >
+            <LuX aria-hidden="true" className="w-4 h-4" />
+          </button>
+        </header>
+
+        {body}
+
+        <footer className="flex justify-end gap-2 px-5 py-3 border-white/[0.07] border-t">
+          <button type="button" onClick={onClose} className="bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/85 text-sm transition-colors cursor-pointer">
+            {t("shared/TagManageWidget.Cancel")}
+          </button>
+          <button
+            type="button"
+            onClick={uploadTags}
+            disabled={!changed || saving || data === undefined}
+            className="bg-blue-500 hover:bg-blue-400 disabled:opacity-40 px-5 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+          >
+            {t("shared/TagManageWidget.Save")}
+          </button>
+        </footer>
       </div>
     );
   }

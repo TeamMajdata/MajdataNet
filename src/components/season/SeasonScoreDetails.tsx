@@ -5,7 +5,6 @@ import { IoStatsChartOutline } from 'react-icons/io5';
 import { useSeasonBreakdown } from '@/hooks/useSeasonBreakdown';
 import { endpoints } from '@/config/api';
 import { stripTmpTags } from '@/utils/richTextUtils';
-import { renderLevel } from '@/utils/renderLevel';
 import type { Event } from '@/types/event';
 import type { RankedSeasonEntry } from '@/types/event';
 import type { SeasonChartsState } from '@/hooks/useSeasonCharts';
@@ -20,7 +19,7 @@ interface SeasonScoreDetailsProps {
 }
 
 const levelNames = ['Easy', 'Basic', 'Advanced', 'Expert', 'Master', 'Re:Master', 'UTAGE'];
-const levelColors = ['#6fabfa', '#5dd45d', '#caca54', '#ff5b5b', '#dca5ef', '#e6a4e6', '#ff9100'];
+const levelColors = ['#7cc4ff', '#7ee06a', '#ffd24a', '#ff5b5b', '#dca5ef', '#e6a4e6', '#ff9100'];
 
 export default function SeasonScoreDetails({ event, chartState, player, status, children }: SeasonScoreDetailsProps) {
   const { t } = useTranslation();
@@ -79,7 +78,7 @@ export default function SeasonScoreDetails({ event, chartState, player, status, 
                   <div className="season-score-details__levels">
                     {item.song?.levels.map((level, index) => level.trim() && (
                       <span key={index} style={{ color: levelColors[index] }} title={`${levelNames[index]} ${level}`}>
-                        {levelNames[index]} {renderLevel(level)}
+                        {levelNames[index]} {level}
                       </span>
                     ))}
                   </div>

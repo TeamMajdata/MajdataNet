@@ -4,6 +4,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
+import EmptyState from '@/components/ui/EmptyState';
+import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 import { getLocale, useLanguage } from '@/i18n';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -15,7 +18,6 @@ import remarkBreaks from 'remark-breaks';
 import {
   PiArrowBendUpLeftBold,
   PiArrowRightBold,
-  PiChatCircleBold,
   PiLinkSimpleBold,
   PiMinusBold,
   PiPencilSimpleBold,
@@ -25,7 +27,7 @@ import {
   PiTrashBold,
 } from 'react-icons/pi';
 import { endpoints } from '@/config/api';
-import { LoadingSpinner } from '@/components';
+import SortMenu from '@/components/ui/SortMenu';
 import UserAvatar from '@/components/user/UserAvatar';
 import { useIsAdministrator, useUserContext } from '@/hooks';
 import { apiFetcher, apiRequest, jsonRequest } from '@/utils/apiClient';
@@ -63,10 +65,11 @@ const COLLAPSE_SCORE = -5;
 
 const glassButton =
   'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-50';
+/** 和全站一致：蓝色实底主按钮、半透明次要按钮 */
 const primaryButton =
-  'rounded-lg border border-blue-500/30 bg-linear-to-br from-blue-500/20 to-blue-600/30 px-4 py-1.5 text-sm font-medium text-white/90 transition-all hover:from-blue-500/30 hover:to-blue-600/40 disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center rounded-xl border-0 bg-blue-500 px-4 h-9 text-sm font-semibold text-white no-underline transition-colors hover:bg-blue-400 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40';
 const ghostButton =
-  'rounded-lg border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50';
+  'inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] px-4 h-9 text-sm font-medium text-white/85 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white cursor-pointer disabled:opacity-50';
 
 export function RelativeTime({ value }: { value: string }) {
   const language = useLanguage();
@@ -171,7 +174,7 @@ function Composer({
         aria-label={placeholder}
         maxLength={MAX_COMMENT_LENGTH + 200}
         disabled={busy}
-        className="bg-white/6 focus:bg-white/8 px-4 py-3 border border-white/15 focus:border-blue-400/40 rounded-xl focus:outline-none w-full min-h-24 text-white text-sm leading-relaxed resize-y"
+        className="block bg-white/[0.04] focus:bg-white/[0.06] px-4 py-3 border border-white/10 focus:border-white/25 rounded-xl focus:outline-none w-full min-h-24 text-white placeholder:text-white/35 text-sm leading-relaxed transition-colors resize-y"
         onChange={(e) => setBody(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -330,12 +333,11 @@ function CommentNode({ comment, level }: { comment: Comment; level: number }) {
                 {t("song/SongComments.Uploader")}
               </span>
             )}
-            <span aria-hidden="true">·</span>
             <Link to={permalink} className="hover:underline">
               <RelativeTime value={comment.createdAt} />
             </Link>
             {comment.editedAt && !gone && (
-              <span title={new Date(comment.editedAt).toLocaleString()}>· {t("song/SongComments.Edited")}</span>
+              <span title={new Date(comment.editedAt).toLocaleString()}>{t("song/SongComments.Edited")}</span>
             )}
             <button
               type="button"
@@ -494,13 +496,37 @@ export interface CommentSectionProps {
   uploader: string;
   /** 只看这一条评论及其回复（永久链接）。 */
   focusId?: string;
+  /** 由页面控制排序时传入（排序菜单由页面放到别处，比如页签栏右边）；不传则在评论区里显示排序菜单 */
+  sort?: CommentSort;
 }
 
-export function CommentSection({ chartId, uploader, focusId }: CommentSectionProps) {
+/** 评论排序菜单：最佳、最高分、最新、最早、争议 */
+export function CommentSortMenu({ value, onChange, compact }: { value: CommentSort; onChange: (sort: CommentSort) => void; compact?: boolean }) {
+  const { t } = useTranslation();
+  const labels: Record<CommentSort, string> = {
+    best: t("song/SongComments.SortBest"),
+    top: t("song/SongComments.SortTop"),
+    new: t("song/SongComments.SortNew"),
+    old: t("song/SongComments.SortOld"),
+    controversial: t("song/SongComments.SortControversial"),
+  };
+  return (
+    <SortMenu
+      label={t("song/SongComments.SortBy")}
+      options={COMMENT_SORTS.map(sort => labels[sort])}
+      value={COMMENT_SORTS.indexOf(value)}
+      onChange={index => onChange(COMMENT_SORTS[index])}
+      compact={compact}
+    />
+  );
+}
+
+export function CommentSection({ chartId, uploader, focusId, sort: controlledSort }: CommentSectionProps) {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const location = useLocation();
-  const [sort, setSort] = useState<CommentSort>('best');
+  const [ownSort, setSort] = useState<CommentSort>('best');
+  const sort = controlledSort ?? ownSort;
   // 只在加载时判断一次屏幕宽度，旋转屏幕不会让已显示的评论突然折叠
   const [narrow] = useState(() => !!window.matchMedia?.(NARROW_SCREEN).matches);
   const [attempt, setAttempt] = useState(0);
@@ -589,47 +615,20 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
     },
   };
 
-  const sortLabels: Record<CommentSort, string> = {
-    best: t("song/SongComments.SortBest"),
-    top: t("song/SongComments.SortTop"),
-    new: t("song/SongComments.SortNew"),
-    old: t("song/SongComments.SortOld"),
-    controversial: t("song/SongComments.SortControversial"),
-  };
+
 
   return (
     <section
       ref={section}
       id="comments"
       aria-labelledby="comments-heading"
-      className="space-y-6 mx-auto my-6 sm:my-8 p-4 sm:p-6 md:p-8 border border-white/10 rounded-2xl w-full md:w-[82%] lg:w-[70%] scroll-mt-24"
-      style={{
-        background: 'linear-gradient(135deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 5%))',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 8px 25px rgb(0 0 0 / 30%), 0 4px 12px rgb(0 0 0 / 20%)',
-      }}
+      className="space-y-5 min-w-0 scroll-mt-24"
     >
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <h2 id="comments-heading" className="flex items-center gap-2 m-0 font-semibold text-white text-xl whitespace-nowrap shrink-0" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>
-          <PiChatCircleBold aria-hidden="true" />
-          {t("song/SongComments.Comments")}
-          {summary && <span className="font-normal text-white/60 text-base tabular-nums">{summary.comments}</span>}
-        </h2>
-        <label className="flex items-center gap-2 text-white/60 text-sm shrink-0">
-          <span>{t("song/SongComments.SortBy")}</span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as CommentSort)}
-            className="bg-[rgba(20,20,25,0.8)] px-3 py-1 border border-white/20 rounded-full outline-none text-white text-sm cursor-pointer"
-          >
-            {COMMENT_SORTS.map((value) => (
-              <option key={value} value={value}>
-                {sortLabels[value]}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      {/* 标题和评论数已经在页签上，这里只留给读屏用 */}
+      <h2 id="comments-heading" className="sr-only">
+        {t("song/SongComments.Comments")}
+        {summary && <span>{summary.comments}</span>}
+      </h2>
       {focusId ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-white/6 px-4 py-3 rounded-xl text-sm">
           <span className="text-white/60">{t("song/SongComments.SingleThread")}</span>
@@ -660,6 +659,12 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
           </Link>
         </div>
       )}
+      {/* 排序放在输入框和列表之间，靠左，和右边的“发表”分开；页面自己放了排序菜单时这里不显示 */}
+      {!focusId && controlledSort === undefined && (
+        <div className="flex">
+          <CommentSortMenu value={sort} onChange={setSort} />
+        </div>
+      )}
       {error ? (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
           <p className="text-red-300 text-sm">{error}</p>
@@ -668,11 +673,9 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
           </button>
         </div>
       ) : !current ? (
-        <div className="flex justify-center py-8" role="status" aria-label={t("song/SongComments.Loading")}>
-          <LoadingSpinner size={32} />
-        </div>
+        <SectionLoading className="py-8" />
       ) : current.items.length === 0 ? (
-        <p className="py-8 text-white/50 text-sm text-center">{t("song/SongComments.NoComments")}</p>
+        <EmptyState>{t("song/SongComments.NoComments")}</EmptyState>
       ) : (
         <TreeContext.Provider value={tree}>
           <div className="space-y-6">
@@ -697,7 +700,7 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
 function CommentSummary({ comment }: { comment: Comment }) {
   const { t } = useTranslation();
   return (
-    <article className="space-y-2 bg-white/6 p-4 border border-white/10 rounded-xl min-w-0">
+    <article className={`${CARD_SURFACE_CLASS} space-y-2 p-4 min-w-0`}>
       <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-white/50 text-xs">
         <Link to={`/space?id=${encodeURIComponent(comment.author)}`} className="inline-flex items-center gap-1.5 font-medium text-white/90 hover:underline">
           <Avatar username={comment.author} avatarId={comment.authorProfile?.avatarId} className="w-5 h-5" />
@@ -755,12 +758,10 @@ export function CommentListView({ load, empty }: { load: (page: number, signal: 
   if (error) return <p className="py-6 text-red-300 text-sm text-center">{error}</p>;
   if (!data) {
     return (
-      <div className="flex justify-center py-8" role="status" aria-label={t("song/SongComments.Loading")}>
-        <LoadingSpinner size={32} />
-      </div>
+      <SectionLoading className="py-8" />
     );
   }
-  if (data.items.length === 0) return <p className="py-8 text-white/50 text-sm text-center">{empty}</p>;
+  if (data.items.length === 0) return <EmptyState>{empty}</EmptyState>;
   const pages = Math.max(1, Math.ceil(data.total / data.pageSize));
   return (
     <div className="space-y-3">

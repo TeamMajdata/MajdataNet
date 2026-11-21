@@ -6,9 +6,9 @@
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { Link } from 'react-router-dom';
-import { CoverPic, Level, LazyLoad } from '@/components';
-import { ChartVoteBadge } from '@/components/song/SongInteraction';
-import UserAvatar from '@/components/user/UserAvatar';
+import { CoverPic, Levels, LazyLoad } from '@/components';
+import MarqueeText from '@/components/ui/MarqueeText';
+import { parseTmpRichText } from '@/utils/richTextUtils';
 import { apiFetcher } from '@/utils/apiClient';
 import { endpoints } from '@/config/api';
 import { getComboState } from '@/utils';
@@ -61,7 +61,6 @@ function findUserRank(
 
 export interface ScoreCardProps {
   score: Score;
-  showLikeButton?: boolean;
   showComboEffects?: boolean;
   showRank?: boolean;
   rankUsername?: string;
@@ -72,7 +71,6 @@ export interface ScoreCardProps {
  */
 export function ScoreCard({
   score,
-  showLikeButton = true,
   showComboEffects = false,
   showRank = false,
   rankUsername,
@@ -131,76 +129,58 @@ export function ScoreCard({
       ? 'bg-gradient-to-r from-blue-500 to-sky-300 text-white shadow-[0_0_12px_rgb(56_189_248/0.42)]'
       : 'bg-white/15 text-white/85';
 
+  // 只保留这次成绩对应的难度，Levels 就会像首页那样显示“Master 14”
+  const playedLevel = score.chartInfo.levels.map((level, index) => (index === score.chartLevel ? level : ''));
+
   return (
-    <LazyLoad height={165} width={352} offset={300}>
+    <LazyLoad height={144} offset={300}>
       <div
-        className={`
-          relative bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass}
-          ${comboCardClass}
-          m-auto p-[0.8rem] border rounded-[10px] w-full max-w-[20rem] h-40 overflow-hidden
-          transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out
-        `}
+        className={`marquee-host relative flex gap-3 bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass} ${comboCardClass} p-2.5 border rounded-2xl w-full h-36 overflow-hidden ring-1 ring-transparent hover:ring-white/30 transition-shadow duration-200`}
       >
-        <CoverPic id={score.chartInfo.id} />
-        <div className="ml-[8.9rem]">
-          <div className="mb-1.25 font-bold text-base truncate">
-            <Link to={'/song?id=' + score.chartInfo.id}>
-              {score.chartInfo.title}
-            </Link>
-          </div>
-
-          <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
-            <Link to={'/song?id=' + score.chartInfo.id}>
-              {score.chartInfo.artist === '' || score.chartInfo.artist == null
-                ? '-'
-                : score.chartInfo.artist}
-            </Link>
-          </div>
-
-          <div className="mb-2 text-[0.8rem] truncate">
-            <Link to={'/space?id=' + score.chartInfo.uploader}>
-              <UserAvatar
-                className="inline-block mx-[0.1rem] rounded-[1.3rem] w-[1.3rem] h-[1.3rem] overflow-hidden cursor-pointer select-none"
-                username={score.chartInfo.uploader}
-              />
-              {score.chartInfo.designer}
-            </Link>
-          </div>
-
-          <Level
-            level={score.chartLevel.toString()}
-            difficulty={score.chartInfo.levels[score.chartLevel]}
-            songid={score.chartInfo.id}
-            isPlayer={false}
-          />
-
-          <div className="flex flex-wrap items-center gap-1 mt-1">
-            <div
-              className={`float-left m-[0.1rem] h-[1.3rem] overflow-hidden text-[0.8rem] text-center leading-[1.2rem] select-none ${scoreTextClass}`}
-              title={`DX: ${score.acc.dx.toFixed(4)}`}
+        <div className="relative h-full aspect-square shrink-0">
+          <CoverPic id={score.chartInfo.id} to={'/song?id=' + score.chartInfo.id} zoomable={false} radiusClassName="rounded-lg" />
+          {/* 榜单名次放在封面左上角，不和准确率挤在一行 */}
+          {resolvedRank && (
+            <span
+              className="top-1.5 left-1.5 absolute bg-linear-to-r from-yellow-300 to-amber-500 shadow-[0_2px_8px_rgb(0_0_0/0.4)] px-1.5 py-0.5 rounded font-bold text-[0.7rem] text-black leading-none pointer-events-none"
+              title={resolvedRankTotal ? `#${resolvedRank} / ${resolvedRankTotal}` : `#${resolvedRank}`}
             >
-              {score.acc.dx.toFixed(4)}
-            </div>
+              #{resolvedRank}
+            </span>
+          )}
+        </div>
+
+        {/* 文字部分与首页歌曲卡片一致：标题、曲师、上传者@谱师，悬停卡片时被截断的文字循环滚动 */}
+        <div className="flex flex-col flex-1 min-w-0">
+          <MarqueeText className="font-bold text-base leading-snug">
+            <Link to={'/song?id=' + score.chartInfo.id}>{parseTmpRichText(score.chartInfo.title)}</Link>
+          </MarqueeText>
+          <MarqueeText className="mt-0.5 text-[0.8rem] text-white/70">
+            <Link to={'/song?id=' + score.chartInfo.id}>
+              {score.chartInfo.artist === '' || score.chartInfo.artist == null ? '-' : score.chartInfo.artist}
+            </Link>
+          </MarqueeText>
+          <MarqueeText className="mt-0.5 text-[0.8rem] text-white/70">
+            <Link to={'/space?id=' + score.chartInfo.uploader} className="hover:underline underline-offset-2 decoration-white/60">
+              {score.chartInfo.uploader + '@' + score.chartInfo.designer}
+            </Link>
+          </MarqueeText>
+
+          {/* 难度标签和首页卡片一样（只有一个难度时显示难度名），Combo 标签跟在后面 */}
+          <div className="flex items-center gap-1.5 mt-1.5 min-w-0 overflow-hidden">
+            <Levels levels={playedLevel} songid={score.chartInfo.id} isPlayer={false} linkToSong />
             {comboStateText && (
-              <span className={`rounded px-1.5 py-0.5 text-[0.65rem] font-bold leading-none ${comboBadgeClass}`}>
+              <span className={`rounded px-1.5 py-0.5 text-[0.65rem] font-bold leading-none shrink-0 ${comboBadgeClass}`}>
                 {comboStateText}
               </span>
             )}
-            {resolvedRank && (
-              <span
-                className="bg-linear-to-r from-yellow-300 to-amber-500 shadow-[0_0_12px_rgb(251_191_36/0.35)] px-1.5 py-0.5 rounded font-bold text-[0.65rem] text-black leading-none"
-                title={resolvedRankTotal ? `#${resolvedRank} / ${resolvedRankTotal}` : `#${resolvedRank}`}
-              >
-                #{resolvedRank}
-              </span>
-            )}
           </div>
 
-          {showLikeButton && (
-            <div className="flex flex-wrap gap-1 mt-1">
-              <ChartVoteBadge songid={score.chartInfo.id} />
-            </div>
-          )}
+          {/* 达成率单独一行放在底部 */}
+          <span className={`mt-auto font-semibold text-lg tabular-nums leading-tight whitespace-nowrap ${scoreTextClass || 'text-white'}`} title={`DX: ${score.acc.dx.toFixed(4)}`}>
+            {score.acc.dx.toFixed(4)}%
+          </span>
+
         </div>
       </div>
     </LazyLoad>

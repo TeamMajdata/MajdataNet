@@ -1,10 +1,15 @@
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useLanguage } from '@/i18n';
 import { useState } from 'react';
 import { ScoreCard as TotalScoreCard } from '@/components/score/ScoreCount';
 import { useSeasonRanking } from '@/hooks/useSeasonRanking';
 import { useSeasonLastPlayed } from '@/hooks/useSeasonLastPlayed';
 import SeasonScoreDetails from './SeasonScoreDetails';
+import Pager from '@/components/ui/Pager';
+import LazyLoad from '@/components/ui/LazyLoad';
+import EmptyState from '@/components/ui/EmptyState';
+import { SECTION_HEADING_CLASS } from '@/components/ui/surface';
 import type { SeasonChartsState } from '@/hooks/useSeasonCharts';
 import type { Event } from '@/types/event';
 
@@ -33,37 +38,40 @@ export default function SeasonLeaderboard({ event, status, chartState }: SeasonL
   }
 
   return (
-    <section aria-labelledby="season-ranking-title" className="mx-auto mt-5 sm:mt-8 p-3 sm:p-6 md:p-8 max-w-5xl" style={{
-      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))',
-      backdropFilter: 'blur(10px)',
-      borderRadius: '16px',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-    }}>
-      <div className="mb-6 text-center">
-        <h2 id="season-ranking-title" className="mb-2 font-bold text-white text-3xl" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)' }}>{t('season/SeasonLeaderboard.Title')}</h2>
+    <section aria-labelledby="season-ranking-title" className="@container">
+      {/* 小标题居左，参赛人数在右 */}
+      <div className="flex justify-between items-baseline gap-3 mb-3">
+        <h2 id="season-ranking-title" className={`${SECTION_HEADING_CLASS} mb-0!`}>{t('season/SeasonLeaderboard.Title')}</h2>
+        {status !== 'upcoming' && entries && (
+          <span className="text-white/50 text-sm">{t('season/SeasonLeaderboard.Participants', { count: entries.length })}</span>
+        )}
       </div>
 
       <div aria-live="polite">
         {status === 'upcoming' ? (
-          <p className="py-8 text-white/70 text-center">{t('season/SeasonLeaderboard.Upcoming')}</p>
+          <EmptyState>{t('season/SeasonLeaderboard.Upcoming')}</EmptyState>
         ) : isLoading && !entries ? (
-          <p className="py-8 text-white/70 text-center">{t('season/SeasonLeaderboard.Loading')}</p>
+          <SectionLoading />
         ) : error && !entries ? (
           <p role="alert" className="py-8 text-red-300 text-center">{t('season/SeasonLeaderboard.LoadFailed')}</p>
         ) : (
           <>
             {error && <p role="alert" className="mb-4 text-amber-200 text-center">{t('season/SeasonLeaderboard.UpdateFailed')}</p>}
             {entries?.length === 0 ? (
-              <p className="py-8 text-white/70 text-center">{t('season/SeasonLeaderboard.Empty')}</p>
+              <EmptyState>{t('season/SeasonLeaderboard.Empty')}</EmptyState>
             ) : (
-                <ol className="gap-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" start={page * PAGE_SIZE + 1}>
+                // 名次已经印在卡片左上角，这里不再单独写一行
+                <ol className="gap-3 grid grid-cols-2 @xl:grid-cols-3 @3xl:grid-cols-4 @5xl:grid-cols-5 m-0 p-0 list-none" start={page * PAGE_SIZE + 1}>
                   {visibleEntries?.map(player => (
                     <li key={player.playerId} data-season-rank={player.rank} className="min-w-0">
-                      <p className="mb-2 text-white/70 text-sm text-center"><span className="sr-only">{t('season/SeasonLeaderboard.Rank')} </span>#{player.rank}</p>
                       <SeasonScoreDetails event={event} chartState={chartState} player={player} status={status}>
                         <TotalScoreCard rank={player.rank} username={player.username} avatarId={player.player?.avatarId} scoresum={player.score} maxscore={entries?.[0]?.score ?? 0}
-                          footer={<SeasonLastPlayed username={player.username} event={event} chartState={chartState} status={status} />} />
+                          footer={
+                            // 每位玩家的最近游玩要单独请求一次；滚动到附近再加载，避免一进页面就发 50 个请求
+                            <LazyLoad offset={200} height={36}>
+                              <SeasonLastPlayed username={player.username} event={event} chartState={chartState} status={status} />
+                            </LazyLoad>
+                          } />
                       </SeasonScoreDetails>
                     </li>
                   ))}
@@ -76,21 +84,21 @@ export default function SeasonLeaderboard({ event, status, chartState }: SeasonL
       {status !== 'upcoming' && error && (
         <div className="mt-4 text-center">
           <button type="button" onClick={() => void retry()} disabled={chartState.isLoading || ranking.isValidating}
-            className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">
+            className="bg-white/[0.06] hover:bg-white/10 disabled:opacity-50 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/85 text-sm transition-colors cursor-pointer disabled:cursor-not-allowed">
             {t('season/SeasonLeaderboard.Retry')}
           </button>
         </div>
       )}
 
-      {status !== 'upcoming' && entries && (
-        <p className="mt-6 text-white/70 text-sm text-center">{t('season/SeasonLeaderboard.Participants', { count: entries.length })}</p>
-      )}
       {status !== 'upcoming' && totalPages > 1 && (
-        <nav className="flex flex-wrap justify-center items-center gap-3 mt-6 text-sm" aria-label={t('season/SeasonLeaderboard.Title')}>
-          <button type="button" disabled={page === 0} onClick={() => setPagination({ eventId: event.id, page: page - 1 })} className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">{t('season/SeasonLeaderboard.Previous')}</button>
-          <span className="text-white/60">{t('season/SeasonLeaderboard.Page', { page: page + 1, total: totalPages })}</span>
-          <button type="button" disabled={page + 1 >= totalPages} onClick={() => setPagination({ eventId: event.id, page: page + 1 })} className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">{t('season/SeasonLeaderboard.Next')}</button>
-        </nav>
+        <div className="flex justify-center mt-8">
+          <Pager
+            page={page}
+            hasNext={page + 1 < totalPages}
+            totalPages={totalPages}
+            onPageChange={(next) => setPagination({ eventId: event.id, page: next })}
+          />
+        </div>
       )}
     </section>
   );

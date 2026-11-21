@@ -1,5 +1,7 @@
 {
-  "auth/ForginsterPage": {
+  "auth/AuthModal": {
+    "BackToLogin": "返回登录",
+    "Close": "关闭",
     "CloudflareVerificationNotReady": "Cloudflare 验证尚未完成，请检查网络后稍候重试",
     "CodeExpired": "验证码已过期，请重新获取",
     "CodeSent": "如果邮箱可用，验证码将发送到邮箱，请在 5 分钟内填写。",
@@ -8,9 +10,12 @@
     "EightDigitCode": "8 位数字验证码",
     "EmailExists": "该邮箱已被注册",
     "EmailLabel": "邮箱",
-    "ForgetPassword": "找回密码",
     "ForgetPasswordSubtitle": "输入注册邮箱，获取验证码后设置新密码",
     "ForgetPasswordTitle": "找回密码",
+    "ForgotPasswordLink": "忘记密码？",
+    "GoLogin": "去登录",
+    "GoRegister": "去注册",
+    "HaveAccount": "已有账号？",
     "InvalidEmail": "邮箱地址无效",
     "LegacyLink": "邮件链接验证已停用，请重新获取验证码；旧账户激活问题请联系管理员。",
     "Login": "登录",
@@ -19,6 +24,7 @@
     "LoginUserBanned": "该用户已被封禁",
     "NetworkError": "网络请求失败，请重试",
     "Nickname": "昵称",
+    "NoAccount": "还没有账号？",
     "PasswdNoMatch": "确认密码不一致",
     "Password": "密码",
     "Register": "注册",
@@ -119,6 +125,7 @@
     "LatestActivity": "最近互动",
     "LikeCount": "赞",
     "Manage": "管理",
+    "NameLabel": "歌单名称",
     "PlayCount": "播",
     "Private": "私有",
     "Public": "公开",
@@ -128,7 +135,8 @@
     "SearchToAdd": "搜索歌曲以添加...",
     "ServerError": "已闭店",
     "Songs": "首",
-    "Submit": "提交",
+    "SortBy": "排序",
+    "Submit": "保存",
     "Subscribe": "订阅",
     "SubscribeSuccess": "订阅成功",
     "Subscribed": "已订阅",
@@ -139,12 +147,7 @@
     "ClearSearch": "清空搜索",
     "CollectionsHiroba": "歌单广场",
     "EmptyData": "空的",
-    "FrontPage": "首页",
-    "NextPage": "下一页",
     "NoSearchResults": "未找到相关歌单",
-    "Page": "页码",
-    "PageInput": "第 <input/> 页",
-    "PreviousPage": "上一页",
     "SearchCollectionHint": "按歌单名称或描述搜索",
     "SearchCollectionsPlaceholder": "搜索歌单...",
     "ServerError": "已闭店"
@@ -154,21 +157,32 @@
     "OriginalSongsDesc": "来自maj合作团队的原创歌曲与谱面哟!",
     "RelatedCharts": "相关谱面"
   },
+  "home/HomeHighlights": {
+    "ByComments": "评论",
+    "ByDownloads": "下载",
+    "ByPlays": "游玩",
+    "ByRating": "评价",
+    "Likes_other": "{{formatted}} 个赞",
+    "Next": "下一页",
+    "Plays_other": "{{formatted}} 次游玩",
+    "Popular": "七日人气榜",
+    "Previous": "上一页",
+    "RecentUploads": "最近上传",
+    "RecentUploadsHint": "来自社区的新作品",
+    "SortBy": "排序方式"
+  },
   "home/HomePage": {
     "AllCharts": "全部谱面",
     "ClearSearch": "清空搜索",
-    "CommentCount": "评",
-    "DownloadFormat": "下载格式：",
+    "CommentCount": "评论",
     "EmptyData": "空的",
     "EventCreatedAt": "活动创建于 {{date}}",
     "EventsCount_other": "+{{count}} 个活动",
-    "FrontPage": "首页",
     "HotShort": "热门",
     "LatestActivityShort": "活跃",
     "LoginForRecommend": "登录后即可获得个人推荐",
-    "PageInput": "第 <input/> 页",
     "PersonalRecommend": "个人推荐",
-    "PlayCount": "播",
+    "PlayCount": "播放",
     "RandomRecommend": "随机推荐",
     "RecommendEnd": "没有更多推荐了",
     "RefreshBatch": "换一批",
@@ -178,12 +192,19 @@
     "SearchHintTag": "tag:xxxx 可以只看这个tag的谱面",
     "SearchHintUploader": "uploader:xxxx 可以只看他传的谱面",
     "SearchPlaceholder": "搜索曲目/作曲家/谱师...",
+    "SearchSuggestions": "搜索建议",
     "ServerError": "已闭店",
     "SortBy": "排序：",
-    "UploadDate": "时",
+    "SuggestKindArtist": "曲师",
+    "SuggestKindDesigner": "谱师",
+    "SuggestKindTag": "标签",
+    "SuggestKindTitle": "曲名",
+    "SuggestKindUploader": "上传者",
+    "UploadDate": "上传时间",
     "ViewAllEvents": "查看所有活动"
   },
   "minigame/MiniGamePage": {
+    "Loading": "正在加载小游戏 {{percent}}%",
     "MiniGame": "小游戏"
   },
   "not-found/NotFoundPage": {
@@ -193,16 +214,22 @@
     "Redirect": "{{countdown}} 秒后自动返回首页...",
     "Title": "页面未找到"
   },
-  "ranking/RankingPage": {
-    "Comment": "评论",
-    "CommentCountHint": "被评论的次数",
-    "Download": "下载",
-    "DownloadCountHint": "被下载的次数",
-    "Play": "游玩",
-    "PlayCountHint": "表示游玩次数多少",
-    "RecommendedChartsHint": "这里会选出七天内最有人气的谱面哟！",
-    "Score": "评价",
-    "ScoreHint": "赞减踩的分数"
+  "qrauth/QRAuthPage": {
+    "AlreadyApproved": "已批准过了",
+    "Confirm": "确认登录",
+    "InvalidCode": "二维码无效",
+    "InvalidCodeHint": "尝试刷新二维码",
+    "InvalidLink": "无效的链接",
+    "LoginFirst": "请先登录",
+    "Machine": "机台信息",
+    "MissingAuthId": "缺少 auth-id 参数",
+    "NoSuchCode": "没有这个二维码",
+    "PermissionDenied": "权限不足",
+    "Place": "登录地点",
+    "Subtitle": "请检查以下机台信息",
+    "Success": "登录成功",
+    "Title": "确认登录吗？",
+    "TryAgain": "请重试"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "总达成率榜之谁是自制谱鉴赏老资历？",
@@ -223,12 +250,7 @@
   "season/SeasonLeaderboard": {
     "Empty": "还没有参赛成绩，来提交本季的第一份成绩吧。",
     "LoadFailed": "排行榜加载失败，请稍后重试。",
-    "Loading": "正在加载排行榜…",
-    "Next": "下一页",
-    "Page": "{{page}} / {{total}} 页",
     "Participants": "参与者：{{count}}",
-    "Previous": "上一页",
-    "Rank": "名次",
     "Retry": "重试",
     "Title": "排行榜",
     "Upcoming": "开赛后将在这里展示排行榜。",
@@ -266,9 +288,24 @@
     "Login": "登录",
     "Register": "注册"
   },
-  "shared/FloatingButtons": {
-    "LanguageSettings": "语言设置",
-    "SelectLanguage": "选择语言"
+  "shared/ConfirmDialog": {
+    "Cancel": "取消"
+  },
+  "shared/Download": {
+    "Done": "下载完成",
+    "Downloading": "正在下载…",
+    "Failed": "下载失败，请重试",
+    "FileBg": "背景",
+    "FileChart": "谱面",
+    "FileTrack": "音频",
+    "FileVideo": "视频"
+  },
+  "shared/DownloadFormatDialog": {
+    "AdxDescription": "AstroDX 谱面包，可直接导入",
+    "Cancel": "取消",
+    "LastUsed": "上次使用",
+    "Title": "选择下载格式",
+    "ZipDescription": "通用压缩包，解压即可使用"
   },
   "shared/LanguageSelector": {
     "Language": "语言"
@@ -279,11 +316,17 @@
     "DismissDialogue": "关闭对白",
     "Encourage1": "今天也要玩得开心呀！",
     "Encourage2": "祝你下一把 AP！",
-    "MoveHint": "拖动可移动，方向键也可以",
+    "HiddenToast": "小小蓝白已隐藏，可以在页面底部重新召唤",
+    "Hide": "隐藏小小蓝白",
+    "MoveHint": "拖动可移动，方向键也可以；右键可调整大小或隐藏",
     "Name": "小小蓝白",
     "Poke": "戳一戳小小蓝白",
     "Shy1": "嘿，被你发现啦。",
-    "Shy2": "再戳就要害羞啦。"
+    "Shy2": "再戳就要害羞啦。",
+    "Size": "大小",
+    "SizeLarge": "大",
+    "SizeMedium": "中",
+    "SizeSmall": "小"
   },
   "shared/MajdataLogo": {
     "FUCKYOU": "不要点我 操你妈"
@@ -296,16 +339,26 @@
     "Documentation": "文档",
     "NavigationMenu": "主导航",
     "OriginalSongs": "原创曲",
-    "Rankings": "榜单",
-    "Recommend": "推荐",
     "Tools": "工具",
     "UserRankingTitle": "肝帝榜"
   },
   "shared/PageLayout": {
-    "BackToHome": "返回首页",
     "FooterCommunity": "感谢谱面创作者们的支持",
-    "FooterCopyright": "© Majdata Net - 开源自制谱分享平台",
-    "MiniGame": "小游戏"
+    "FooterCopyright": "© Majdata.Net - 开源自制谱分享平台",
+    "MiniGame": "小游戏",
+    "ShowMascot": "召唤小小蓝白"
+  },
+  "shared/PageLoading": {
+    "Loading": "加载中…"
+  },
+  "shared/Pager": {
+    "First": "回到第一页",
+    "Last": "跳到最后一页",
+    "Next": "下一页",
+    "PageInput": "第 <input/> 页",
+    "PageInputWithTotal": "第 <input/> 页 / 共 {{total}} 页",
+    "PageNumber": "页码",
+    "Previous": "上一页"
   },
   "shared/RecentActivityChart": {
     "LatestPlay": "最近 {{time}}",
@@ -319,20 +372,26 @@
   },
   "shared/TagManageWidget": {
     "AddTag": "添加",
-    "CommonTags": "常用Tags",
+    "AuthorTags": "作者标签",
+    "Cancel": "取消",
+    "CommonTags": "常用标签",
+    "CurrentTags": "当前标签（点击移除）",
     "CustomTag": "自定标签",
     "DeleteTag": "删除标签",
+    "LoadFailed": "加载失败",
     "NoTags": "暂无标签",
+    "PlayerTags": "玩家标签",
+    "Save": "保存",
+    "Saved": "保存成功",
     "TagsChanged": "标签刚被其他人同时修改了，请重试",
     "TooManyTags": "每张谱面的每类标签最多 {{max}} 个",
     "Uploading": "正在爆速上传..."
   },
   "shared/UserMenu": {
-    "AccountSetting": "个人设置",
     "ChartsManagement": "谱面管理",
     "Logout": "登出",
     "LogoutFailed": "登出失败",
-    "MyCollections": "我的收藏夹",
+    "MyCollections": "我的收藏",
     "PersonalHomePage": "个人主页",
     "PersonalScores": "我的成绩",
     "UserMenu": "用户菜单"
@@ -348,7 +407,6 @@
   "shared/useFavorites": {
     "FavoriteSuccess": "收藏成功",
     "OperationFailed": "操作失败",
-    "PleaseLogin": "请先登录",
     "UnfavoriteSuccess": "已取消收藏"
   },
   "song/ChartRadar": {
@@ -370,8 +428,15 @@
   "song/ScoreRanking": {
     "FailedToLoad": "加载失败",
     "NoRecords": "暂无成绩记录",
-    "RankingList": "排行榜",
-    "Records_other": "{{count}} 条记录"
+    "RankingList": "排行榜"
+  },
+  "song/SongCard": {
+    "Delete": "删除",
+    "DeleteFailed": "删除失败",
+    "DeleteMessage": "确定要删除「{{title}}」吗？删除后无法恢复。",
+    "DeleteSuccess": "已删除",
+    "DeleteTitle": "删除谱面",
+    "Tags": "标签"
   },
   "song/SongComments": {
     "Cancel": "取消",
@@ -388,7 +453,7 @@
     "DeletedChart": "谱面已删除",
     "Edit": "编辑",
     "EditPlaceholder": "编辑评论",
-    "Edited": "已编辑",
+    "Edited": "（已编辑）",
     "ExpandThread": "展开",
     "LinkCopied": "链接已复制",
     "LoadMore": "加载更多",
@@ -429,7 +494,7 @@
   },
   "song/SongInteraction": {
     "FailedToLoad": "加载失败",
-    "Plays": "播放",
+    "Plays": "播放次数",
     "VoteOnChart": "给谱面投票",
     "Votes": "评价"
   },
@@ -438,17 +503,28 @@
     "ServerError": "已闭店"
   },
   "song/SongPage": {
+    "BackToHome": "返回首页",
+    "ChartDetails": "谱面资料",
     "ClipboardSuccess": "已复制到剪贴板",
     "Collection": "收藏",
+    "CopyFailed": "复制失败",
+    "CopyValue": "复制 {{field}}",
+    "Designer": "谱师",
+    "Difficulty": "难度",
     "Download": "下载",
+    "Duration": "时长",
+    "ManageTags": "管理标签",
     "NoTags": "暂无标签",
+    "Preview": "谱面预览",
+    "PreviewChart": "播放预览",
     "SearchForArtist": "搜索该艺术家",
     "SearchForTag": "搜索标签",
     "SearchForTitle": "搜索该歌曲",
     "Share": "分享",
     "SongNotFound": "这是什么地方？没有这首歌哦",
     "Tags": "标签",
-    "UploadTime": "上传时间"
+    "UploadTime": "上传时间",
+    "ViewCover": "查看封面大图"
   },
   "song/VoteControl": {
     "Downvote": "踩",
@@ -456,23 +532,27 @@
     "Upvote": "赞"
   },
   "space/SpacePage": {
+    "AverageAcc": "平均达成率",
     "BackToHome": "返回首页",
     "Best50": "Best 50",
     "Best50Empty": "还没有成绩",
-    "Collapse": "收起",
+    "BestAcc": "最高达成率",
     "Comments": "发表的评论",
+    "EarlyMember": "老资历",
+    "EditProfile": "编辑资料",
     "Error": "错误",
-    "Expand": "展开",
+    "Introduction": "个人简介",
     "JoinAt": "注册于 {{date}}",
     "NoComments": "还没有发表过评论",
-    "Rating": "评分雷达",
+    "Overview": "概览",
+    "OverviewEmpty": "这里还什么都没有",
+    "Rating": "评分",
     "RatingCharts": "{{count}} 张谱面参与计算",
-    "RatingEmpty": "还没有可用于计算 rating 的成绩",
     "RatingFailed": "Rating 加载失败",
     "RatingFormula": "B50 按「定数 × 达成率/101」取前 50 个不重复难度（点赞 > 5、非宴谱、acc >=97），各雷达特征再按达成率/101 加权平均。算法仅供参考。",
-    "RecentlyPlayedCharts": "最近游玩的谱面",
+    "RecentlyPlayedCharts": "最近游玩",
     "Retry": "重试",
-    "SelfIntro": "自我介绍",
+    "Sections": "个人空间",
     "ServerError": "已闭店",
     "UploadedCharts": "上传的谱面",
     "UserNotFound": "未找到用户",
@@ -482,7 +562,6 @@
     "Cancel": "取消",
     "ChangeFile": "更换文件",
     "CurrentAvatar": "当前头像",
-    "FileSize": "文件大小",
     "FileTooLarge": "文件过大，请选择小于5MB的图片",
     "InvalidFileType": "文件类型无效，请选择图片文件",
     "NoSelectedFile": "你还没有选择文件哦！",
@@ -495,7 +574,7 @@
     "UploadingPlzWait": "上传中啦等一会啦"
   },
   "user/ChartUploader": {
-    "BGVideoHint": "bg.mp4/pv.mp4(可选,限20M内)",
+    "ChooseFile": "选择",
     "InvalidFileName": "文件名不正确（区分大小写），应为：",
     "MaidataAlreadyExists": "这个谱面已经存在于网站上",
     "MaidataAlreadyExistsWithTitle": "这个谱面已经存在于网站上：{{title}}",
@@ -503,36 +582,39 @@
     "MaidataHashLookupFailed": "查询 maidata.txt 哈希失败",
     "MaidataHashNotFound": "未找到已存在的谱面",
     "MaidataWillInheritHistory": "这次上传会继承之前的分数或互动",
+    "NoFileChosen": "未选择文件",
     "NoFileSelected": "没有选中 {{file}}",
     "NotLoggedIn": "未登录",
+    "ReplaceFile": "更换",
     "Upload": "上传",
     "UploadFailed": "上传失败",
     "UploadServerErrorHint": "上传失败, 请前往主站上传",
     "UploadSuccess": "上传成功",
     "Uploading": "正在爆速上传...",
     "UploadingPlzWait": "上传中啦等一会啦",
+    "VideoHint": "可选，20MB 以内",
     "View": "查看"
   },
   "user/IntroUploader": {
-    "MarkdownSupported": "（支持Markdown语法）",
     "NoIntroTypedIn": "你还没有填写自我介绍哦",
     "Preview": "预览",
+    "Save": "保存",
+    "Saving": "保存中…",
     "SelfIntro": "自我介绍",
-    "Upload": "上传",
     "UploadFailed": "上传失败",
     "UploadSuccess": "上传成功",
-    "Uploading": "正在爆速上传...",
-    "UploadingPlzWait": "上传中啦等一会啦"
+    "Uploading": "正在爆速上传..."
   },
   "user/Logout": {
     "Logout": "登出"
   },
+  "user/NicknameEditor": {
+    "Save": "保存",
+    "Saving": "保存中…"
+  },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "暂无最近游玩记录",
     "ServerError": "已闭店"
-  },
-  "user/UserInfo": {
-    "Login": "登录"
   },
   "user/UserSeasons": {
     "LoadFailed": "部分季赛战绩暂时无法加载。",
@@ -544,33 +626,39 @@
     "ViewSeason": "查看季赛"
   },
   "user/charts/ChartsPage": {
+    "AcceptNotice": "我已阅读并同意",
+    "Cancel": "取消",
     "ChartsManagement": "谱面管理",
     "ManageAllYourCharts": "管理您上传的所有谱面",
-    "MyCharts": "我的谱面",
-    "UploadChart": "谱面上传",
+    "NoticeIntro": "上传前请确认以下几点：",
+    "UploadChart": "上传谱面",
     "UploadNotice": "上传须知",
     "UploadNoticeTerms1": "上传的谱面是你自己写的或合作写的，又或是谱面原作者同意上传；",
     "UploadNoticeTerms2": "此谱面可以公开，自由下载；",
     "UploadNoticeTerms3": "公开这张谱面不会侵害第三方权益；",
-    "UploadNoticeTerms4": "这张谱面至少可以被一种编辑器读取（majdata / maipad / astrodx / simai 等）。"
+    "UploadNoticeTerms4": "这张谱面至少可以被一种编辑器读取（majdata / maipad / astrodx / simai 等）；",
+    "UploadNoticeTerms5": "严禁上传 AI 生成的谱面：无论是全部还是部分由 AI 生成，一律不允许上传；",
+    "UploadNoticeTerms6": "不得把本站当作网盘使用，无法被编辑器读取的谱面可能会被直接清理。"
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "空的",
-    "EmptyFavorites": "暂无收藏",
+    "EmptyData": "还没有收藏夹，点「新建收藏夹」创建一个",
+    "EmptyFavorites": "还没有订阅的歌单，去歌单广场挑一个吧",
     "ExitManage": "退出管理",
-    "FrontPage": "首页",
-    "Manage": "管理模式",
+    "GoToHiroba": "去歌单广场看看",
+    "Manage": "管理",
     "ManageHint": "管理模式：点击歌单右上角按钮可删除歌单",
     "MyCollections": "我的收藏夹",
     "MyFavCollections": "订阅的歌单",
     "NewCollection": "新建收藏夹",
-    "PageInput": "第 <input/> 页",
-    "ServerError": "已闭店"
+    "ServerError": "已闭店",
+    "Title": "我的收藏"
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "个人设置",
+    "Avatar": "头像",
     "AvatarHint": "5MB之内",
-    "AvatarSettings": "头像设置",
+    "BasicInfo": "基本资料",
+    "IntroHint": "支持 Markdown 语法",
     "PersonalIntro": "个人简介"
   },
   "user/scores/ScoresPage": {
@@ -579,15 +667,17 @@
     "NoFilterResults": "没有符合筛选条件的成绩",
     "NoFilterResultsHint": "请尝试调整上方的 Combo 筛选条件",
     "NoScores": "暂无成绩记录",
+    "NotFc": "未FC",
     "PersonalScores": "我的成绩",
     "ServerError": "已闭店",
-    "SortBy": "排序：",
+    "SortBy": "排序",
     "SortByClassicAcc": "Classic准确率",
     "SortByCombo": "Combo状态",
     "SortByDxAcc": "DX准确率",
     "SortByDxScore": "DX分数",
     "SortByTime": "游玩时间",
     "TotalClassicAcc": "Classic 准确率合计",
+    "TotalCount_other": "共 {{count}} 条成绩",
     "TotalDxAcc": "DX 准确率合计",
     "TotalDxScore": "DX 分数合计"
   }

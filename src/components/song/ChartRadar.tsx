@@ -21,8 +21,8 @@ export default function ChartRadar({ id, hash, chartLevel }: ChartRadarProps) {
   else if (isLoading) message = t('song/ChartRadar.Loading');
 
   return (
-    <section aria-labelledby={titleId} className="bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2)] backdrop-blur-[10px] p-3 sm:p-4 border border-white/10 rounded-2xl min-w-0">
-      <h3 id={titleId} className="m-0 mb-3 font-bold text-white text-sm">{t('song/ChartRadar.Title')}</h3>
+    <section aria-labelledby={titleId} className="song-radar">
+      <h3 id={titleId} className="song-label">{t('song/ChartRadar.Title')}</h3>
       {message ? (
         <div className="flex flex-col justify-center items-center gap-3 aspect-square text-center text-white/70 text-sm" aria-live="polite" aria-busy={isLoading || isValidating}>
           <p role={error ? 'alert' : 'status'}>{message}</p>

@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
 import { useFavorites } from '@/hooks';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
@@ -10,11 +9,10 @@ export default function CollectionSubscribeButton({ collectionId }: { collection
   const isSubscriptionPending = isPending(collectionId);
 
   return (
-    <motion.button
+    // 和站内其他按钮同一套样式：未订阅是描边按钮，已订阅是蓝色实心
+    <button
       type="button"
       aria-busy={isLoadingFavorites || isSubscriptionPending}
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
       onClick={() => toggleFavorite(collectionId, {
         added: t("collection/CollectionPage.SubscribeSuccess"),
         removed: t("collection/CollectionPage.UnsubscribeSuccess"),
@@ -22,10 +20,10 @@ export default function CollectionSubscribeButton({ collectionId }: { collection
       disabled={isLoadingFavorites || isSubscriptionPending}
       aria-label={isSubscribed ? t("collection/CollectionPage.Subscribed") : t("collection/CollectionPage.Subscribe")}
       aria-pressed={isSubscribed}
-      className={`flex items-center gap-2 shadow-lg backdrop-blur-md px-4 py-2 border rounded-xl font-bold transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${
+      className={`inline-flex items-center gap-2 px-4 border rounded-xl h-10 font-medium text-sm whitespace-nowrap transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${
         isSubscribed
-          ? 'bg-blue-500/80 hover:bg-blue-500 border-blue-300/30 text-white'
-          : 'bg-white/10 hover:bg-white/20 border-white/20 text-white'
+          ? 'bg-blue-500 hover:bg-blue-400 border-transparent text-white'
+          : 'bg-white/[0.06] hover:bg-white/10 border-white/10 hover:border-white/20 text-white/85'
       }`}
     >
       {isLoadingFavorites || isSubscriptionPending ? (
@@ -41,6 +39,6 @@ export default function CollectionSubscribeButton({ collectionId }: { collection
         </svg>
       )}
       <span>{isSubscribed ? t("collection/CollectionPage.Subscribed") : t("collection/CollectionPage.Subscribe")}</span>
-    </motion.button>
+    </button>
   );
 }

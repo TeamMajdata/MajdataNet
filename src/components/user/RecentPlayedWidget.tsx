@@ -1,11 +1,14 @@
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
+import EmptyState from '@/components/ui/EmptyState';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
-import { ScoreCard, LoadingSpinner } from '@/components';
+import { ScoreCard } from '@/components';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
 import { motion } from 'framer-motion';
 import RecentActivityChart from '@/components/chart/RecentActivityChart';
+import { SONG_GRID_CLASS } from '@/components/song/songGrid';
 import { parseRecentTime } from '@/utils/recentActivity';
 
 // ─── Fetcher ──────────────────────────────────────────────────────────────────
@@ -55,7 +58,7 @@ function convertToScore(data: RecentPlayedData): Score {
  * 最近游玩记录组件
  * 显示指定用户最近游玩的谱面、成绩与活跃度折线图
  */
-export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPlayedWidgetProps) {
+export default function RecentPlayedWidget({ username, onDataLoaded, gridClassName }: RecentPlayedWidgetProps) {
   const { t } = useTranslation();
 
   const { data, error, isLoading } = useSWR<RecentPlayedData[]>(
@@ -83,22 +86,18 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
 
   if (error) {
     return (
-      <div className="m-auto w-full text-[50px] text-center">
-        {t("user/RecentPlayedWidget.ServerError")}
-      </div>
+      <EmptyState>{t("user/RecentPlayedWidget.ServerError")}</EmptyState>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-10 w-full">
-        <LoadingSpinner size="50px" />
-      </div>
+      <SectionLoading />
     );
   }
 
   if (!data || data.length === 0) {
-    return <p>{t("user/RecentPlayedWidget.NoRecentRecords")}</p>;
+    return <EmptyState>{t("user/RecentPlayedWidget.NoRecentRecords")}</EmptyState>;
   }
 
   // ── Score cards ──────────────────────────────────────────────────────────
@@ -112,11 +111,10 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
-        className="flex max-[480px]:flex-[1_1_100%] max-[768px]:flex-[1_1_150px] justify-center w-full"
+        className="min-w-0"
       >
         <ScoreCard
           score={score}
-          showLikeButton={true}
           showComboEffects={true}
           showRank={true}
           rankUsername={username}
@@ -128,7 +126,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   return (
     <>
       <RecentActivityChart records={sortedData} />
-      <div className="justify-center gap-[0.6rem] grid grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-2 w-full max-w-350">
+      <div className={gridClassName ?? SONG_GRID_CLASS}>
         {scoreCards}
       </div>
     </>

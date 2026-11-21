@@ -1,5 +1,7 @@
 {
-  "auth/ForginsterPage": {
+  "auth/AuthModal": {
+    "BackToLogin": "ログインに戻る",
+    "Close": "閉じる",
     "CloudflareVerificationNotReady": "Cloudflare 認証が完了していません。ネットワークを確認して、しばらくしてから再試行してください。",
     "CodeExpired": "コードの有効期限が切れました。再取得してください。",
     "CodeSent": "利用可能なメールアドレスの場合、コードが届きます。5分以内に入力してください。",
@@ -8,9 +10,12 @@
     "EightDigitCode": "8桁の認証コード",
     "EmailExists": "このメールアドレスは既に登録されています",
     "EmailLabel": "メールアドレス",
-    "ForgetPassword": "パスワードを忘れた方",
     "ForgetPasswordSubtitle": "登録済みのメールでコードを取得し、新しいパスワードを設定してください。",
     "ForgetPasswordTitle": "パスワードを忘れた方",
+    "ForgotPasswordLink": "パスワードをお忘れですか？",
+    "GoLogin": "ログイン",
+    "GoRegister": "新規登録",
+    "HaveAccount": "すでにアカウントをお持ちですか？",
     "InvalidEmail": "無効なメールアドレスです",
     "LegacyLink": "メール内の認証リンクは利用できません。コードを再取得してください。旧アカウントの有効化は管理者にお問い合わせください。",
     "Login": "ログイン",
@@ -19,6 +24,7 @@
     "LoginUserBanned": "このユーザーはBANされています。",
     "NetworkError": "通信に失敗しました。もう一度お試しください。",
     "Nickname": "ニックネーム",
+    "NoAccount": "アカウントをお持ちでないですか？",
     "PasswdNoMatch": "パスワードが一致しません",
     "Password": "パスワード",
     "Register": "登録",
@@ -119,6 +125,7 @@
     "LatestActivity": "最近のアクティビティ",
     "LikeCount": "いいね数",
     "Manage": "管理",
+    "NameLabel": "コレクション名",
     "PlayCount": "再生数",
     "Private": "プライベート",
     "Public": "公開",
@@ -128,7 +135,8 @@
     "SearchToAdd": "追加する曲を検索...",
     "ServerError": "閉店中",
     "Songs": "曲",
-    "Submit": "送信",
+    "SortBy": "並び替え",
+    "Submit": "保存",
     "Subscribe": "購読",
     "SubscribeSuccess": "購読しました",
     "Subscribed": "購読済み",
@@ -139,12 +147,7 @@
     "ClearSearch": "検索をクリア",
     "CollectionsHiroba": "コレクション広場",
     "EmptyData": "空です",
-    "FrontPage": "ホームへ",
-    "NextPage": "次へ",
     "NoSearchResults": "該当するコレクションが見つかりません",
-    "Page": "ページ番号",
-    "PageInput": "<input/> ページ",
-    "PreviousPage": "前へ",
     "SearchCollectionHint": "コレクション名や説明で検索",
     "SearchCollectionsPlaceholder": "コレクションを検索...",
     "ServerError": "閉店中"
@@ -154,19 +157,30 @@
     "OriginalSongsDesc": "majコラボチームによるオリジナル楽曲と譜面です！",
     "RelatedCharts": "関連譜面"
   },
+  "home/HomeHighlights": {
+    "ByComments": "コメント",
+    "ByDownloads": "ダウンロード",
+    "ByPlays": "プレイ",
+    "ByRating": "評価",
+    "Likes_other": "いいね {{formatted}}",
+    "Next": "次へ",
+    "Plays_other": "{{formatted}} 回プレイ",
+    "Popular": "今週の人気譜面",
+    "Previous": "前へ",
+    "RecentUploads": "最近のアップロード",
+    "RecentUploadsHint": "コミュニティの新作",
+    "SortBy": "並び替え"
+  },
   "home/HomePage": {
     "AllCharts": "すべての譜面",
     "ClearSearch": "検索をクリア",
     "CommentCount": "コメント数",
-    "DownloadFormat": "ダウンロード形式：",
     "EmptyData": "空です",
     "EventCreatedAt": "イベント作成日：{{date}}",
     "EventsCount_other": "+{{count}} 個のイベント",
-    "FrontPage": "ホームへ",
     "HotShort": "人気",
     "LatestActivityShort": "最近",
     "LoginForRecommend": "ログインするとおすすめが表示されます",
-    "PageInput": "<input/> ページ",
     "PersonalRecommend": "おすすめ",
     "PlayCount": "再生数",
     "RandomRecommend": "ランダムおすすめ",
@@ -178,12 +192,19 @@
     "SearchHintTag": "tag:xxxx でタグで検索",
     "SearchHintUploader": "uploader:xxxx でアップローダーで検索",
     "SearchPlaceholder": "楽曲/作曲家/譜面師を検索...",
+    "SearchSuggestions": "検索候補",
     "ServerError": "閉店中",
     "SortBy": "並び順：",
+    "SuggestKindArtist": "アーティスト",
+    "SuggestKindDesigner": "譜面作者",
+    "SuggestKindTag": "タグ",
+    "SuggestKindTitle": "曲名",
+    "SuggestKindUploader": "投稿者",
     "UploadDate": "新しい順",
     "ViewAllEvents": "すべてのイベントを見る"
   },
   "minigame/MiniGamePage": {
+    "Loading": "ミニゲームを読み込み中 {{percent}}%",
     "MiniGame": "ミニゲーム"
   },
   "not-found/NotFoundPage": {
@@ -193,16 +214,22 @@
     "Redirect": "{{countdown}}秒後にホームページに戻ります...",
     "Title": "ページが見つかりません"
   },
-  "ranking/RankingPage": {
-    "Comment": "コメント",
-    "CommentCountHint": "コメントされた回数",
-    "Download": "ダウンロード",
-    "DownloadCountHint": "ダウンロードされた回数",
-    "Play": "プレイ",
-    "PlayCountHint": "プレイ回数を表示",
-    "RecommendedChartsHint": "ここでは、過去7日間で最も人気のある譜面が選ばれますよ！",
-    "Score": "評価",
-    "ScoreHint": "高評価から低評価を引いたスコア"
+  "qrauth/QRAuthPage": {
+    "AlreadyApproved": "すでに承認済みです",
+    "Confirm": "ログイン",
+    "InvalidCode": "QRコードが無効です",
+    "InvalidCodeHint": "QRコードを更新してみてください",
+    "InvalidLink": "無効なリンク",
+    "LoginFirst": "先にログインしてください",
+    "Machine": "筐体",
+    "MissingAuthId": "リンクに auth-id がありません",
+    "NoSuchCode": "このQRコードは存在しません",
+    "PermissionDenied": "権限がありません",
+    "Place": "場所",
+    "Subtitle": "下の筐体情報を確認してください",
+    "Success": "ログインしました",
+    "Title": "この筐体にログインしますか？",
+    "TryAgain": "もう一度お試しください"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "総達成率ランキング - 自作譜面鑑賞のベテランは誰？",
@@ -223,12 +250,7 @@
   "season/SeasonLeaderboard": {
     "Empty": "まだ参加スコアがありません。今シーズン最初のスコアを投稿しましょう。",
     "LoadFailed": "ランキングを読み込めませんでした。しばらくしてから再試行してください。",
-    "Loading": "ランキングを読み込み中…",
-    "Next": "次へ",
-    "Page": "{{page}} / {{total}} ページ",
     "Participants": "参加者：{{count}}",
-    "Previous": "前へ",
-    "Rank": "順位",
     "Retry": "再試行",
     "Title": "ランキング",
     "Upcoming": "大会開始後、ここにランキングが表示されます。",
@@ -266,9 +288,24 @@
     "Login": "ログイン",
     "Register": "登録"
   },
-  "shared/FloatingButtons": {
-    "LanguageSettings": "言語設定",
-    "SelectLanguage": "言語を選択"
+  "shared/ConfirmDialog": {
+    "Cancel": "キャンセル"
+  },
+  "shared/Download": {
+    "Done": "ダウンロード完了",
+    "Downloading": "ダウンロード中…",
+    "Failed": "ダウンロードに失敗しました。もう一度お試しください",
+    "FileBg": "背景",
+    "FileChart": "譜面",
+    "FileTrack": "音源",
+    "FileVideo": "動画"
+  },
+  "shared/DownloadFormatDialog": {
+    "AdxDescription": "AstroDX 用の譜面パッケージ。そのままインポートできます",
+    "Cancel": "キャンセル",
+    "LastUsed": "前回使用",
+    "Title": "ダウンロード形式を選択",
+    "ZipDescription": "通常の圧縮ファイル。解凍してそのまま使えます"
   },
   "shared/LanguageSelector": {
     "Language": "言語"
@@ -279,11 +316,17 @@
     "DismissDialogue": "セリフを閉じる",
     "Encourage1": "今日も楽しく遊んでね！",
     "Encourage2": "次のプレイで AP が出ますように！",
-    "MoveHint": "ドラッグか矢印キーで移動できます",
+    "HiddenToast": "非表示にしました。ページ下部から再表示できます。",
+    "Hide": "小小蓝白を隠す",
+    "MoveHint": "ドラッグまたは矢印キーで移動、右クリックでサイズ変更・非表示",
     "Name": "小小蓝白",
     "Poke": "小小蓝白をつつく",
     "Shy1": "あっ、見つかっちゃった。",
-    "Shy2": "そんなにつつくと照れちゃうよ。"
+    "Shy2": "そんなにつつくと照れちゃうよ。",
+    "Size": "サイズ",
+    "SizeLarge": "大",
+    "SizeMedium": "中",
+    "SizeSmall": "小"
   },
   "shared/MajdataLogo": {
     "FUCKYOU": "クリックするな、くそったれ"
@@ -296,16 +339,26 @@
     "Documentation": "ドキュメント",
     "NavigationMenu": "メインナビゲーション",
     "OriginalSongs": "オリジナル楽曲",
-    "Rankings": "ランキング",
-    "Recommend": "おすすめ",
     "Tools": "ツール",
     "UserRankingTitle": "ヘビープレイヤーランキング"
   },
   "shared/PageLayout": {
-    "BackToHome": "ホームに戻る",
     "FooterCommunity": "譜面作成者の皆様に感謝",
-    "FooterCopyright": "© Majdata Net - オープンソース譜面共有プラットフォーム",
-    "MiniGame": "ミニゲーム"
+    "FooterCopyright": "© Majdata.Net - オープンソース譜面共有プラットフォーム",
+    "MiniGame": "ミニゲーム",
+    "ShowMascot": "小小蓝白を呼ぶ"
+  },
+  "shared/PageLoading": {
+    "Loading": "読み込み中…"
+  },
+  "shared/Pager": {
+    "First": "最初のページへ",
+    "Last": "最後のページ",
+    "Next": "次へ",
+    "PageInput": "<input/> ページ",
+    "PageInputWithTotal": "<input/> / {{total}} ページ",
+    "PageNumber": "ページ番号",
+    "Previous": "前へ"
   },
   "shared/RecentActivityChart": {
     "LatestPlay": "最近：{{time}}",
@@ -319,21 +372,27 @@
   },
   "shared/TagManageWidget": {
     "AddTag": "追加",
-    "CommonTags": "よく使用されるタグ",
+    "AuthorTags": "作者タグ",
+    "Cancel": "キャンセル",
+    "CommonTags": "よく使うタグ",
+    "CurrentTags": "現在のタグ（クリックで削除）",
     "CustomTag": "カスタムタグ",
     "DeleteTag": "タグを削除",
+    "LoadFailed": "読み込みに失敗しました",
     "NoTags": "タグがありません",
+    "PlayerTags": "プレイヤータグ",
+    "Save": "保存",
+    "Saved": "保存しました",
     "TagsChanged": "タグが同時に他のユーザーに変更されました。もう一度お試しください",
     "TooManyTags": "譜面ごとに各種類のタグは最大 {{max}} 個までです",
     "Uploading": "爆速アップロード中..."
   },
   "shared/UserMenu": {
-    "AccountSetting": "個人設定",
     "ChartsManagement": "譜面管理",
     "Logout": "ログアウト",
     "LogoutFailed": "ログアウトに失敗しました",
     "MyCollections": "マイコレクション",
-    "PersonalHomePage": "個人ページ",
+    "PersonalHomePage": "マイスペース",
     "PersonalScores": "マイスコア",
     "UserMenu": "ユーザーメニュー"
   },
@@ -348,7 +407,6 @@
   "shared/useFavorites": {
     "FavoriteSuccess": "お気に入りに追加しました",
     "OperationFailed": "操作に失敗しました",
-    "PleaseLogin": "先にログインしてください",
     "UnfavoriteSuccess": "お気に入りから削除しました"
   },
   "song/ChartRadar": {
@@ -370,8 +428,15 @@
   "song/ScoreRanking": {
     "FailedToLoad": "読み込みに失敗しました",
     "NoRecords": "スコア記録はまだありません",
-    "RankingList": "ランキング",
-    "Records_other": "{{count}} 件の記録"
+    "RankingList": "ランキング"
+  },
+  "song/SongCard": {
+    "Delete": "削除",
+    "DeleteFailed": "削除に失敗しました",
+    "DeleteMessage": "「{{title}}」を削除しますか？元に戻せません。",
+    "DeleteSuccess": "削除しました",
+    "DeleteTitle": "譜面を削除",
+    "Tags": "タグ"
   },
   "song/SongComments": {
     "Cancel": "キャンセル",
@@ -388,7 +453,7 @@
     "DeletedChart": "譜面は削除されました",
     "Edit": "編集",
     "EditPlaceholder": "コメントを編集",
-    "Edited": "編集済み",
+    "Edited": "（編集済み）",
     "ExpandThread": "展開する",
     "LinkCopied": "リンクをコピーしました",
     "LoadMore": "もっと読み込む",
@@ -429,7 +494,7 @@
   },
   "song/SongInteraction": {
     "FailedToLoad": "読み込みに失敗しました",
-    "Plays": "再生",
+    "Plays": "プレイ回数",
     "VoteOnChart": "この譜面に投票",
     "Votes": "評価"
   },
@@ -438,17 +503,28 @@
     "ServerError": "閉店中"
   },
   "song/SongPage": {
+    "BackToHome": "ホームに戻る",
+    "ChartDetails": "譜面情報",
     "ClipboardSuccess": "クリップボードにコピーしました",
     "Collection": "コレクション",
+    "CopyFailed": "コピーできませんでした",
+    "CopyValue": "{{field}} をコピー",
+    "Designer": "譜面作者",
+    "Difficulty": "難易度",
     "Download": "ダウンロード",
+    "Duration": "長さ",
+    "ManageTags": "タグを管理",
     "NoTags": "タグがありません",
+    "Preview": "譜面プレビュー",
+    "PreviewChart": "プレビューを再生",
     "SearchForArtist": "アーティストを検索",
     "SearchForTag": "タグを検索",
     "SearchForTitle": "楽曲を検索",
     "Share": "共有",
     "SongNotFound": "曲が見つかりません",
     "Tags": "タグ",
-    "UploadTime": "アップロード日時"
+    "UploadTime": "アップロード日時",
+    "ViewCover": "ジャケットを拡大"
   },
   "song/VoteControl": {
     "Downvote": "低評価",
@@ -456,33 +532,36 @@
     "Upvote": "高評価"
   },
   "space/SpacePage": {
+    "AverageAcc": "平均達成率",
     "BackToHome": "ホームに戻る",
     "Best50": "Best 50",
     "Best50Empty": "まだスコアがありません",
-    "Collapse": "折りたたむ",
+    "BestAcc": "最高達成率",
     "Comments": "投稿したコメント",
+    "EarlyMember": "古参",
+    "EditProfile": "プロフィール編集",
     "Error": "エラー",
-    "Expand": "展開",
+    "Introduction": "自己紹介",
     "JoinAt": "登録日：{{date}}",
     "NoComments": "まだコメントを投稿していません",
-    "Rating": "レーティングレーダー",
+    "Overview": "概要",
+    "OverviewEmpty": "まだ何もありません",
+    "Rating": "レーティング",
     "RatingCharts": "{{count}} 譜面を平均",
-    "RatingEmpty": "レーティングに使えるスコアがまだありません",
     "RatingFailed": "レーティングの読み込みに失敗しました",
     "RatingFormula": "B50 は「定数 × 達成率/101」で上位 50 難度（いいね 5 超・宴譜面除外・達成率 97 以上）を選び、各レーダー値を達成率/101 で加重平均します。この値は参考値です。",
-    "RecentlyPlayedCharts": "最近プレイした譜面",
+    "RecentlyPlayedCharts": "最近のプレイ",
     "Retry": "再試行",
-    "SelfIntro": "自己紹介",
+    "Sections": "スペース",
     "ServerError": "閉店中",
-    "UploadedCharts": "アップロードされた譜面",
+    "UploadedCharts": "アップロードした譜面",
     "UserNotFound": "ユーザーが見つかりません",
-    "WhoLovesToPlay": "最もプレイしているユーザー"
+    "WhoLovesToPlay": "よく遊ぶプレイヤー"
   },
   "user/AvatarUploader": {
     "Cancel": "キャンセル",
     "ChangeFile": "ファイルを変更",
     "CurrentAvatar": "現在のアバター",
-    "FileSize": "ファイルサイズ",
     "FileTooLarge": "ファイルが大きすぎます。5MB以下の画像を選択してください",
     "InvalidFileType": "無効なファイル形式です。画像ファイルを選択してください",
     "NoSelectedFile": "ファイルが選択されていません！",
@@ -495,7 +574,7 @@
     "UploadingPlzWait": "アップロード中です。しばらくお待ちください"
   },
   "user/ChartUploader": {
-    "BGVideoHint": "bg.mp4/pv.mp4 (オプション、20MB以内)",
+    "ChooseFile": "選択",
     "InvalidFileName": "ファイル名が正しくありません（大文字と小文字を区別）。正しい名前：",
     "MaidataAlreadyExists": "この譜面はすでにサイト上に存在します",
     "MaidataAlreadyExistsWithTitle": "この譜面はすでにサイト上に存在します：{{title}}",
@@ -503,36 +582,39 @@
     "MaidataHashLookupFailed": "maidata.txt のハッシュ照会に失敗しました",
     "MaidataHashNotFound": "既存の譜面は見つかりませんでした",
     "MaidataWillInheritHistory": "今回のアップロードは以前のスコアまたはインタラクションを引き継ぎます",
+    "NoFileChosen": "ファイル未選択",
     "NoFileSelected": "ファイルが選択されていません: {{file}}",
     "NotLoggedIn": "未ログイン",
+    "ReplaceFile": "変更",
     "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
     "UploadServerErrorHint": "アップロードに失敗しました。主サイトに行ってアップロードしてください",
     "UploadSuccess": "アップロードしました",
     "Uploading": "爆速アップロード中...",
     "UploadingPlzWait": "アップロード中です。しばらくお待ちください",
+    "VideoHint": "任意、20MB 以内",
     "View": "表示"
   },
   "user/IntroUploader": {
-    "MarkdownSupported": "（Markdown記法対応）",
     "NoIntroTypedIn": "自己紹介がまだ書かれていません",
     "Preview": "プレビュー",
+    "Save": "保存",
+    "Saving": "保存中…",
     "SelfIntro": "自己紹介",
-    "Upload": "アップロード",
     "UploadFailed": "アップロードに失敗しました",
     "UploadSuccess": "アップロードしました",
-    "Uploading": "爆速アップロード中...",
-    "UploadingPlzWait": "アップロード中です。しばらくお待ちください"
+    "Uploading": "爆速アップロード中..."
   },
   "user/Logout": {
     "Logout": "ログアウト"
   },
+  "user/NicknameEditor": {
+    "Save": "保存",
+    "Saving": "保存中…"
+  },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "最近のプレイ記録はありません",
     "ServerError": "閉店中"
-  },
-  "user/UserInfo": {
-    "Login": "ログイン"
   },
   "user/UserSeasons": {
     "LoadFailed": "一部の大会成績を読み込めませんでした。",
@@ -544,33 +626,39 @@
     "ViewSeason": "大会を見る"
   },
   "user/charts/ChartsPage": {
+    "AcceptNotice": "読んで同意しました",
+    "Cancel": "キャンセル",
     "ChartsManagement": "譜面管理",
     "ManageAllYourCharts": "アップロードした全ての譜面を管理",
-    "MyCharts": "マイ譜面",
-    "UploadChart": "譜面アップロード",
+    "NoticeIntro": "アップロード前に以下を確認してください：",
+    "UploadChart": "譜面をアップロード",
     "UploadNotice": "アップロード注意事項",
     "UploadNoticeTerms1": "アップロードする譜面は、あなた自身が作成したもの、または共同制作したものであるか、原作者がアップロードに同意したものです；",
     "UploadNoticeTerms2": "この譜面は公開され、自由にダウンロードできます；",
     "UploadNoticeTerms3": "この譜面を公開しても、第三者の権利を侵害することはありません；",
-    "UploadNoticeTerms4": "この譜面は、少なくとも一種類のエディター（majdata / maipad / astrodx / simai 等）で読み込むことができます。"
+    "UploadNoticeTerms4": "この譜面は、少なくとも一種類のエディター（majdata / maipad / astrodx / simai 等）で読み込むことができます。",
+    "UploadNoticeTerms5": "AI で生成した譜面は、全部・一部を問わず一切アップロードできません。",
+    "UploadNoticeTerms6": "本サイトをファイル置き場として使わないでください。どのエディタでも読めない譜面は削除される場合があります。"
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "空です",
-    "EmptyFavorites": "お気に入りはまだありません",
+    "EmptyData": "まだコレクションがありません。「新しいコレクション」から作成できます。",
+    "EmptyFavorites": "購読中のコレクションはまだありません。コレクション広場から選んでみましょう。",
     "ExitManage": "管理を終了",
-    "FrontPage": "ホームへ",
-    "Manage": "管理モード",
+    "GoToHiroba": "コレクション広場を見る",
+    "Manage": "管理",
     "ManageHint": "管理モード：コレクション右上のボタンで削除できます",
     "MyCollections": "マイコレクション",
     "MyFavCollections": "購読中のコレクション",
     "NewCollection": "新しいコレクション",
-    "PageInput": "<input/> ページ",
-    "ServerError": "閉店中"
+    "ServerError": "閉店中",
+    "Title": "マイコレクション"
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "個人設定",
+    "Avatar": "アバター",
     "AvatarHint": "5MB以内",
-    "AvatarSettings": "アバター設定",
+    "BasicInfo": "基本情報",
+    "IntroHint": "Markdown 記法に対応",
     "PersonalIntro": "自己紹介"
   },
   "user/scores/ScoresPage": {
@@ -579,15 +667,17 @@
     "NoFilterResults": "条件に一致するスコアはありません",
     "NoFilterResultsHint": "上のコンボ条件を変更してみてください",
     "NoScores": "スコア記録がありません",
+    "NotFc": "未FC",
     "PersonalScores": "マイスコア",
     "ServerError": "閉店中",
-    "SortBy": "並び順：",
+    "SortBy": "並び替え",
     "SortByClassicAcc": "クラシック精度",
     "SortByCombo": "コンボ状態",
     "SortByDxAcc": "DX精度",
     "SortByDxScore": "DXスコア",
     "SortByTime": "プレイ時間",
     "TotalClassicAcc": "Classic精度合計",
+    "TotalCount_other": "全 {{count}} 件",
     "TotalDxAcc": "DX精度合計",
     "TotalDxScore": "DXスコア合計"
   }

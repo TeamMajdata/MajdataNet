@@ -13,14 +13,6 @@ export interface IntroductionData {
   introduction?: string | null;
 }
 
-// ======================== 排行榜页面 ========================
-export interface RankingSectionProps {
-  title: string;
-  subtitle: string;
-  sortType: string;
-  delay?: string;
-}
-
 // ======================== 主页 ========================
 export interface SearchBarProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;

@@ -8,8 +8,7 @@ import { useUserContext } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import { getFileKey, hashCandidatesFromBytes } from '@/utils/maidataHash';
 import { getExpectedChartUploadFileNames, isValidChartUploadFileName } from '@/utils/chartUploadValidation';
-import { motion } from 'framer-motion';
-import { MdOutlineAudioFile, MdOutlineDescription, MdOutlineImage, MdOutlineVideoFile, MdCloudUpload } from 'react-icons/md';
+import { LuFileAudio, LuFileText, LuFileVideo, LuImage, LuUpload } from 'react-icons/lu';
 import { LoadingSpinner } from '@/components';
 import type { Song } from '@/types';
 
@@ -37,6 +36,10 @@ export default function ChartUploader() {
   const [hashLookup, setHashLookup] = useState<HashLookupState>({ status: 'idle' });
   const hashLookupSeq = useRef(0);
   const hashLookupAbort = useRef<AbortController | null>(null);
+  /** 每个槽位当前选中的文件（只用于显示；提交时仍从表单里的 input 读取） */
+  const [picked, setPicked] = useState<(File | null)[]>([null, null, null, null]);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const setPickedAt = (index: number, file: File | null) => setPicked((prev) => prev.map((value, i) => (i === index ? file : value)));
 
   async function lookupMaidataHash(file: File) {
     const fileKey = getFileKey(file);
@@ -140,6 +143,7 @@ export default function ChartUploader() {
 
   function onFileChange(index: number, event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
+    setPickedAt(index, null);
     if (!file) {
       if (index === 0) {
         resetHashLookup();
@@ -159,6 +163,7 @@ export default function ChartUploader() {
       return;
     }
 
+    setPickedAt(index, file);
     if (index === 0) {
       void lookupMaidataHash(file);
     }
@@ -250,10 +255,10 @@ export default function ChartUploader() {
   }
 
   const uploadFields = [
-    { label: 'maidata.txt', icon: <MdOutlineDescription className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
-    { label: 'bg.png/bg.jpg', icon: <MdOutlineImage className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
-    { label: 'track.mp3', icon: <MdOutlineAudioFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
-    { label: t("user/ChartUploader.BGVideoHint"), icon: <MdOutlineVideoFile className="text-gray-400 group-hover:text-white text-2xl transition-colors" /> },
+    { label: 'maidata.txt', Icon: LuFileText, accept: '.txt' },
+    { label: 'bg.png / bg.jpg', Icon: LuImage, accept: 'image/png,image/jpeg' },
+    { label: 'track.mp3', Icon: LuFileAudio, accept: 'audio/mpeg,.mp3' },
+    { label: 'bg.mp4 / pv.mp4', Icon: LuFileVideo, accept: 'video/mp4', hint: t("user/ChartUploader.VideoHint") },
   ];
   const hashLookupStatusText: Record<HashLookupStatus, string> = {
     idle: '',
@@ -278,84 +283,86 @@ export default function ChartUploader() {
   const cannotUploadByHash = hashLookup.status === 'checking' || hashLookup.status === 'exists' || hashLookup.status === 'loginRequired';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="mx-auto px-4 py-8 w-full max-w-4xl"
-    >
-      <div className="bg-[rgba(20,20,20,0.8)] shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-md p-6 md:p-8 border border-white/10 rounded-xl">
-
-        <div className="flex items-center gap-3 mb-6 pb-4 border-white/10 border-b">
-          <div className="bg-white/5 p-2 rounded-lg">
-            <MdCloudUpload className="text-gray-200 text-2xl" />
-          </div>
-          <h2 className="font-bold text-gray-200 text-xl">
-            {t("user/ChartUploader.Upload") || 'Upload Chart'}
-          </h2>
-        </div>
-
-        <form className="flex flex-col gap-6" onSubmit={onSubmit}>
-          <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
-            {uploadFields.map((field, index) => (
-              <div key={index} className="group">
-                <label className="flex items-center gap-2 mb-2 font-medium text-gray-400 group-hover:text-gray-200 text-sm transition-colors duration-200">
-                  {field.icon}
-                  {field.label}
-                </label>
-                <div className="relative bg-[rgba(0,0,0,0.3)] border border-white/10 group-hover:border-white/30 rounded-lg overflow-hidden transition-all duration-200">
-                  <input
-                    className="bg-transparent hover:file:bg-white/20 file:bg-white/10 file:mr-4 px-4 file:px-3 py-3 file:py-1.5 file:border-0 file:rounded-md focus:outline-none w-full file:font-semibold text-gray-300 hover:file:text-white file:text-gray-300 file:text-xs text-sm transition-colors cursor-pointer"
-                    type="file"
-                    name="formfiles"
-                    disabled={isUploading}
-                    onChange={(event) => onFileChange(index, event)}
-                  />
+    <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+      <div className="flex flex-col gap-2">
+        {uploadFields.map(({ label, Icon, accept, hint }, index) => {
+          const file = picked[index];
+          return (
+            <div
+              key={label}
+              className={`flex items-center gap-3 p-2.5 border rounded-xl transition-colors ${file ? 'bg-emerald-400/[0.05] border-emerald-400/30' : 'bg-white/[0.02] border-white/10'}`}
+            >
+              <span className={`place-items-center grid rounded-lg w-9 h-9 shrink-0 ${file ? 'bg-emerald-400/10 text-emerald-300' : 'bg-white/[0.06] text-white/55'}`}>
+                <Icon aria-hidden="true" className="w-4.5 h-4.5" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-1.5 min-w-0 font-medium text-white/90 text-sm">
+                  <span className="whitespace-nowrap">{label}</span>
+                  {hint && <span className="font-normal text-white/40 text-xs truncate">{hint}</span>}
+                </div>
+                <div className={`text-xs truncate ${file ? 'text-emerald-200/80' : 'text-white/35'}`}>
+                  {file ? `${file.name} · ${formatSize(file.size)}` : t("user/ChartUploader.NoFileChosen")}
                 </div>
               </div>
-            ))}
-          </div>
-
-          {hashLookup.status !== 'idle' && (
-            <div className={`flex items-center gap-2 text-sm ${hashLookupStatusClass[hashLookup.status]}`}>
-              {hashLookup.status === 'checking' && <LoadingSpinner className="w-4 h-4" />}
-              <span>{hashLookupStatusText[hashLookup.status]}</span>
-              {hashLookup.status === 'exists' && hashLookup.chart && (
-                <Link
-                  className="text-blue-300 hover:text-blue-200 underline"
-                  to={`/song?id=${encodeURIComponent(hashLookup.chart.id)}`}
-                >
-                  {t("user/ChartUploader.View")}
-                </Link>
-              )}
+              <button
+                type="button"
+                disabled={isUploading}
+                onClick={() => inputRefs.current[index]?.click()}
+                className="bg-white/[0.06] hover:bg-white/10 disabled:opacity-50 px-3 border border-white/10 hover:border-white/20 rounded-lg h-8 font-medium text-white/85 text-xs whitespace-nowrap transition-colors cursor-pointer disabled:cursor-not-allowed shrink-0"
+              >
+                {file ? t("user/ChartUploader.ReplaceFile") : t("user/ChartUploader.ChooseFile")}
+              </button>
+              <input
+                ref={(element) => { inputRefs.current[index] = element; }}
+                className="hidden"
+                type="file"
+                name="formfiles"
+                accept={accept}
+                aria-label={label}
+                disabled={isUploading}
+                onChange={(event) => onFileChange(index, event)}
+              />
             </div>
-          )}
-
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            className={`mt-4 w-full py-3 rounded-xl font-bold text-gray-200 shadow-lg transition-all duration-200 flex items-center justify-center gap-2 border border-white/5
-              ${isUploading || cannotUploadByHash
-                ? 'bg-red-900/50 cursor-not-allowed opacity-70'
-                : 'bg-[#2e2e2e] hover:bg-[#3a3a3a] hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]'
-              }`}
-            type="submit"
-            disabled={isUploading || cannotUploadByHash}
-          >
-            {isUploading ? (
-              <>
-                <LoadingSpinner className="w-5 h-5 text-gray-400" />
-                {t("user/ChartUploader.UploadingPlzWait")}
-              </>
-            ) : (
-              <>
-                <MdCloudUpload className="text-xl" />
-                {t("user/ChartUploader.Upload")}
-              </>
-            )}
-          </motion.button>
-        </form>
+          );
+        })}
       </div>
-    </motion.div>
+
+      {hashLookup.status !== 'idle' && (
+        <div className={`flex items-center gap-2 bg-white/[0.03] px-3 py-2 rounded-lg text-xs ${hashLookupStatusClass[hashLookup.status]}`}>
+          {hashLookup.status === 'checking' && <LoadingSpinner className="w-4 h-4" />}
+          <span className="min-w-0">{hashLookupStatusText[hashLookup.status]}</span>
+          {hashLookup.status === 'exists' && hashLookup.chart && (
+            <Link
+              className="text-blue-300 hover:text-blue-200 underline shrink-0"
+              to={`/song?id=${encodeURIComponent(hashLookup.chart.id)}`}
+            >
+              {t("user/ChartUploader.View")}
+            </Link>
+          )}
+        </div>
+      )}
+
+      <button
+        className="flex justify-center items-center gap-2 bg-blue-500 hover:bg-blue-400 disabled:opacity-40 border-none rounded-xl w-full h-11 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+        type="submit"
+        disabled={isUploading || cannotUploadByHash}
+      >
+        {isUploading ? (
+          <>
+            <LoadingSpinner className="w-4 h-4" />
+            {t("user/ChartUploader.UploadingPlzWait")}
+          </>
+        ) : (
+          <>
+            <LuUpload aria-hidden="true" className="w-4 h-4" />
+            {t("user/ChartUploader.Upload")}
+          </>
+        )}
+      </button>
+    </form>
   );
+}
+
+function formatSize(bytes: number): string {
+  return bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }

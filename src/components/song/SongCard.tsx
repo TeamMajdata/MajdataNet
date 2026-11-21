@@ -3,16 +3,21 @@
  * 从 SongList 中提取，用于展示单首歌曲信息
  */
 
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { motion } from 'framer-motion';
-import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad, Tooltip } from '@/components';
+import { CoverPic, InteractCount, Levels, TagManageWidget, LazyLoad } from '@/components';
 import { endpoints } from '@/config/api';
 import { useImpressionRef } from '@/hooks/useImpressionRef';
 import { downloadSong } from '@/utils/download';
 import { stripTmpTags, parseTmpRichText } from '@/utils/richTextUtils';
-import type { Song } from '@/types';
-import { Link } from 'react-router-dom';
+import type { Song, TagManageWidgetRef } from '@/types';
+import { Link, useNavigate } from 'react-router-dom';
+import { LuDownload, LuTag, LuTrash2 } from 'react-icons/lu';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import MarqueeText from '@/components/ui/MarqueeText';
+import { RANK_BADGE_CLASS } from '@/components/score/rankBadge';
+import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 
 interface SongCardProps {
   song: Song;
@@ -28,9 +33,21 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
   const impressionRef = useImpressionRef(song.hash);
 
   // 列表位置（搜索词/排序/页码）已在首页 URL 中，浏览器回退即可还原，无需本地记录
-  const handleClick = useCallback(() => {
-    onClick?.(song);
-  }, [onClick, song]);
+  const navigate = useNavigate();
+  const songHref = '/song?id=' + song.id;
+  // 整张卡片可点进谱面页；难度标签、上传者、下载等自身可交互的元素各管各的
+  const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (onClick) {
+      onClick(song);
+      return;
+    }
+    if (disableLink) return;
+    if ((event.target as HTMLElement).closest('a, button, input, select, textarea, [role="button"]')) return;
+    // 选中文字时不跳转
+    if (window.getSelection()?.toString()) return;
+    if (event.metaKey || event.ctrlKey) window.open(songHref, '_blank', 'noopener');
+    else navigate(songHref);
+  }, [onClick, song, disableLink, navigate, songHref]);
 
   const handleDownload = useCallback(async (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -47,58 +64,64 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
       onClick={handleClick}
       className="flex justify-center w-full min-w-0"
     >
-      <LazyLoad height={165} width={352} offset={300}>
-        <div className="bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] m-auto p-[0.8rem] rounded-[10px] w-full max-w-[20rem] h-40 overflow-hidden transition-transform md:hover:-translate-y-1.25 duration-250 ease-in-out">
-          {isRanking ? (
-            <CoverPic id={song.id} display={'No.' + (index + 1)} />
-          ) : (
-            <CoverPic id={song.id} />
-          )}
-
-          <div className="ml-[8.9rem]">
-            <Tooltip content={stripTmpTags(song.title)}>
-              <div className="mb-1.25 font-bold text-base truncate" id={song.id}>
-                {link('/song?id=' + song.id, parseTmpRichText(song.title))}
-              </div>
-            </Tooltip>
-            <Tooltip content={song.artist}>
-              <div className="mb-[0.3rem] text-[0.8rem] truncate italic">
-                {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}
-              </div>
-            </Tooltip>
-            <Tooltip content={song.uploader + '@' + song.designer}>
-              <div className="mb-2 text-[0.8rem] truncate">
-                {link('/space?id=' + song.uploader, song.uploader + '@' + song.designer)}
-              </div>
-            </Tooltip>
-            {isManage ? (
-              <>
-                {' '}
-                <Delbutton songid={song.id} />
-                <TagManageWidget newClassName="mt-[0.1rem]" songid={song.id} />
-              </>
-            ) : (
-              <Levels levels={song.levels} songid={song.id} isPlayer={false} />
+      <LazyLoad height={144} offset={300}>
+        <div className={`marquee-host flex gap-3 ${disableLink && !onClick ? '' : 'cursor-pointer'} ${CARD_SURFACE_CLASS} p-2.5 w-full h-36 overflow-hidden ring-1 ring-transparent hover:ring-white/30 transition-shadow duration-200`}>
+          {/* 封面点击进入谱面详情；列表本身接管点击时（onClick/disableLink）只展示 */}
+          <div className="relative h-full aspect-square shrink-0">
+            <CoverPic
+              id={song.id}
+              to={disableLink || onClick ? undefined : '/song?id=' + song.id}
+              zoomable={false}
+              radiusClassName="rounded-lg"
+            />
+            {/* 排行榜名次：和成绩卡片的名次标签同一位置和形状，前三名金银铜 */}
+            {isRanking && (
+              <span className={`top-1.5 left-1.5 absolute shadow-[0_2px_8px_rgb(0_0_0/0.4)] px-1.5 py-0.5 rounded font-bold text-[0.7rem] tabular-nums leading-none pointer-events-none ${RANK_BADGE_CLASS[index] ?? 'bg-black/70 text-white/90'}`}>
+                #{index + 1}
+              </span>
             )}
+            {/* 管理页：标签、删除按钮叠在封面右上角 */}
+            {isManage && (
+              <div className="top-1.5 right-1.5 absolute flex gap-1">
+                <ManageActions songid={song.id} title={stripTmpTags(song.title) || song.title} />
+              </div>
+            )}
+          </div>
 
-            <br />
-            <motion.div
-              className="float-left flex justify-center items-center m-[0.1rem] mt-1.5 sm:mt-2 border border-gray-500 rounded-md w-7 sm:w-[1.3rem] h-7 sm:h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none touch-manipulation"
-              onClick={handleDownload}
-              whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
-              transition={{ duration: 0.125, ease: 'easeInOut' }}
-            >
-              <svg
-                className="fill-white stroke-white w-full h-full"
-                xmlns="http://www.w3.org/2000/svg"
-                height="24"
-                viewBox="0 -960 960 960"
-                width="24"
+          <div className="flex flex-col flex-1 min-w-0">
+            {/* 悬停卡片时，被截断的标题/曲师/上传者向左循环滚动显示全文 */}
+            <MarqueeText className="font-bold text-base leading-snug">
+              {link('/song?id=' + song.id, parseTmpRichText(song.title))}
+            </MarqueeText>
+            <MarqueeText className="mt-0.5 text-[0.8rem] text-white/70">
+              {link('/song?id=' + song.id, song.artist === '' || song.artist == null ? '-' : song.artist)}
+            </MarqueeText>
+            <MarqueeText className="mt-0.5 text-[0.8rem] text-white/70">
+              {disableLink || onClick ? (
+                song.uploader + '@' + song.designer
+              ) : (
+                <Link to={'/space?id=' + song.uploader} className="hover:underline underline-offset-2 decoration-white/60">
+                  {song.uploader + '@' + song.designer}
+                </Link>
+              )}
+            </MarqueeText>
+            <div className="flex items-start gap-1 mt-1.5">
+              <div className="flex-1 min-w-0">
+                <Levels levels={song.levels} songid={song.id} isPlayer={false} linkToSong={!(disableLink || onClick)} />
+              </div>
+              <button
+                type="button"
+                className={ICON_BUTTON}
+                onClick={handleDownload}
+                aria-label="Download"
               >
-                <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
-              </svg>
-            </motion.div>
-            <InteractCount songid={song.id} />
+                <LuDownload aria-hidden="true" className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="mt-auto">
+              <InteractCount songid={song.id} />
+            </div>
           </div>
         </div>
       </LazyLoad>
@@ -108,41 +131,59 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
 
 export default SongCard;
 
-const Delbutton = memo(function Delbutton({ songid }: { songid: string }) {
+/** 谱面管理页卡片上的操作：编辑标签、删除（删除前弹窗确认） */
+const ICON_BUTTON = 'flex justify-center items-center hover:bg-white/10 -my-1 rounded-md w-7 h-7 text-white/55 hover:text-white transition-colors cursor-pointer shrink-0 touch-manipulation';
+/** 叠在封面上的按钮：深色半透明底，保证在任何封面上都看得清 */
+const COVER_BUTTON = 'grid place-items-center bg-black/60 hover:bg-black/80 backdrop-blur-sm border border-white/15 rounded-lg w-7 h-7 text-white/85 hover:text-white transition-colors cursor-pointer';
+
+const ManageActions = memo(function ManageActions({ songid, title }: { songid: string; title: string }) {
+  const { t } = useTranslation();
+  const tagWidget = useRef<TagManageWidgetRef>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   const handleDelete = useCallback(async () => {
-    const ret = confirm('真的要删除吗(不可恢复)\n(没有任何机会)');
-    if (!ret) return;
-    const response = await fetch(endpoints.maichart.delete(songid), {
-      method: 'POST',
-      mode: 'cors',
-      credentials: 'include',
-    });
-    if (response.status !== 200) {
-      alert(await response.text());
-      return;
-    }
-    alert('删除成功');
-    if (typeof window !== 'undefined') {
+    setDeleting(true);
+    try {
+      const response = await fetch(endpoints.maichart.delete(songid), {
+        method: 'POST',
+        mode: 'cors',
+        credentials: 'include',
+      });
+      if (response.status !== 200) {
+        toast.error((await response.text()) || t("song/SongCard.DeleteFailed"));
+        return;
+      }
+      toast.success(t("song/SongCard.DeleteSuccess"));
+      setConfirming(false);
       location.reload();
+    } catch {
+      toast.error(t("song/SongCard.DeleteFailed"));
+    } finally {
+      setDeleting(false);
     }
-  }, [songid]);
+  }, [songid, t]);
 
   return (
-    <motion.div
-      className="float-left m-[0.1rem] border border-gray-500 rounded-[5px] w-[1.3rem] h-[1.3rem] overflow-hidden font-bold text-[0.65rem] text-center leading-[1.2rem] cursor-pointer select-none"
-      whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
-      transition={{ duration: 0.125, ease: 'easeInOut' }}
-      onClick={handleDelete}
-    >
-      <svg
-        className="fill-white stroke-white p-0.75 w-full h-full"
-        xmlns="http://www.w3.org/2000/svg"
-        height="24"
-        width="24"
-        viewBox="-30 -30 512 512"
-      >
-        <path d="M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z" />
-      </svg>
-    </motion.div>
+    <>
+      <button type="button" className={COVER_BUTTON} onClick={() => tagWidget.current?.openWindow()} aria-label={t("song/SongCard.Tags")} title={t("song/SongCard.Tags")}>
+        <LuTag aria-hidden="true" className="w-3.5 h-3.5" />
+      </button>
+      <button type="button" className={COVER_BUTTON + ' hover:bg-red-600/80! hover:border-red-400/50!'} onClick={() => setConfirming(true)} aria-label={t("song/SongCard.Delete")} title={t("song/SongCard.Delete")}>
+        <LuTrash2 aria-hidden="true" className="w-3.5 h-3.5" />
+      </button>
+      {/* 标签弹窗由 ref 打开，自带的触发按钮不显示 */}
+      <TagManageWidget ref={tagWidget} songid={songid} />
+      <ConfirmDialog
+        open={confirming}
+        danger
+        busy={deleting}
+        title={t("song/SongCard.DeleteTitle")}
+        message={t("song/SongCard.DeleteMessage", { title })}
+        confirmLabel={t("song/SongCard.Delete")}
+        onConfirm={() => void handleDelete()}
+        onCancel={() => setConfirming(false)}
+      />
+    </>
   );
 });

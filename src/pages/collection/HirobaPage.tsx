@@ -1,8 +1,11 @@
-import { Trans, useTranslation } from 'react-i18next';
-import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
+import { useState } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PageLayout, LoadingSpinner, CollectionCard, Tooltip } from '@/components';
+import { PageLayout, CollectionCard, Tooltip } from '@/components';
+import { LuInfo, LuSearch, LuX } from 'react-icons/lu';
+import Pager from '@/components/ui/Pager';
 import { endpoints } from '@/config/api';
 import { useDebouncedCallback } from 'use-debounce';
 import type { Collection } from '@/types';
@@ -28,7 +31,6 @@ export default function CollectionsHirobaPage() {
   });
   const isSearching = keyword !== currentValue;
   const pageSize = 30;
-  const pageInputRef = useRef<HTMLInputElement>(null);
 
   const debounced = useDebouncedCallback(
     (value: string) => {
@@ -67,19 +69,18 @@ export default function CollectionsHirobaPage() {
   };
 
   return (
-    <PageLayout showBackToHome={false}>
-      <div className="mx-auto px-0 sm:px-4 py-5 sm:py-8 w-full max-w-7xl min-h-screen min-w-0">
-        {/* Header */}
-        <div className="flex flex-col gap-2 mb-8">
-          <h1 className="text-left">{t("collection/hiroba/HirobaPage.CollectionsHiroba")}</h1>
-        </div>
-
-        {/* Search Bar */}
-        <div className="mb-8 w-full">
-          <div className="relative flex items-center mx-auto w-full max-w-lg">
+    <PageLayout>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
+        {/* Header：标题居左，搜索框在同一行右侧（移动端换行） */}
+        <header className="flex sm:flex-row flex-col justify-between sm:items-center gap-4 mb-5 sm:mb-6">
+          <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+            {t("collection/hiroba/HirobaPage.CollectionsHiroba")}
+          </h1>
+          <div className="relative flex items-center w-full sm:max-w-sm">
+            <LuSearch aria-hidden="true" className="left-3.5 absolute w-4 h-4 text-white/40 pointer-events-none" />
             <input
               type="text"
-              className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 py-3 pr-10 pl-11 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
+              className="bg-white/[0.04] focus:bg-white/[0.06] pr-17 pl-10 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
               placeholder={t("collection/hiroba/HirobaPage.SearchCollectionsPlaceholder")}
               value={currentValue}
               onChange={handleInputChange}
@@ -94,40 +95,27 @@ export default function CollectionsHirobaPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.15 }}
-                  className="top-1/2 right-10 z-10 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-5 h-5 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer"
+                  className="top-1/2 right-9 z-10 absolute flex justify-center items-center hover:bg-white/10 border-none rounded-md w-7 h-7 text-white/50 hover:text-white transition-colors -translate-y-1/2 cursor-pointer"
                   onClick={handleClearSearch}
                   aria-label={t("collection/hiroba/HirobaPage.ClearSearch")}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                  </svg>
+                  <LuX aria-hidden="true" className="w-3.5 h-3.5" />
                 </motion.button>
               )}
             </AnimatePresence>
 
             {/* Help tooltip */}
-            <Tooltip
-              content={
-                <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-5 py-4 border border-white/20 rounded-2xl w-70 md:w-[320px]">
-                  <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">
-                    {t("collection/hiroba/HirobaPage.SearchCollectionHint")}
-                  </p>
-                </div>
-              }
-              side="top"
-              sideOffset={20}
-              plain={true}
-            >
-              <div
-                className="top-1/2 right-3 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-5 h-5 font-bold text-[10px] text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer"
-                role="button"
+            <Tooltip content={t("collection/hiroba/HirobaPage.SearchCollectionHint")} side="top">
+              <span
+                className="top-1/2 right-2 z-10 absolute flex justify-center items-center hover:bg-white/10 rounded-md w-7 h-7 text-white/40 hover:text-white transition-colors -translate-y-1/2 cursor-help"
+                role="img"
                 aria-label={t("collection/hiroba/HirobaPage.SearchCollectionHint")}
               >
-                ?
-              </div>
+                <LuInfo aria-hidden="true" className="w-3.5 h-3.5" />
+              </span>
             </Tooltip>
           </div>
-        </div>
+        </header>
 
         {/* Content */}
         <AnimatePresence mode="wait">
@@ -139,7 +127,7 @@ export default function CollectionsHirobaPage() {
               exit={{ opacity: 0 }}
               className="flex justify-center items-center py-20 w-full"
             >
-              <LoadingSpinner size="50px" />
+              <SectionLoading />
             </motion.div>
           ) : error ? (
             <motion.div
@@ -178,7 +166,7 @@ export default function CollectionsHirobaPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              className="gap-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
             >
               {data.map((collection, i) => (
                 <motion.div
@@ -197,83 +185,8 @@ export default function CollectionsHirobaPage() {
 
         {/* Paginator */}
         {shouldShowPaginator && (
-          <div className="flex flex-col items-center gap-4 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
-            <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-3 sm:p-4 border border-white/10 rounded-xl w-full sm:w-auto">
-              {/* Prev */}
-              <button
-                className={`flex justify-center items-center px-4 py-2.5 bg-blue-500/80 border-none rounded-lg text-white cursor-pointer min-w-10 h-9 transition-colors ${page <= 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-50' : 'hover:bg-blue-500'}`}
-                disabled={page <= 0}
-                onClick={() => goToPage(page - 1)}
-                aria-label={t("collection/hiroba/HirobaPage.PreviousPage")}
-              >
-                <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m15 18-6-6 6-6" />
-                </svg>
-              </button>
-
-              {/* Page input */}
-              <div className="flex items-center gap-2 text-white/60 text-sm">
-                <Trans
-                  i18nKey="collection/hiroba/HirobaPage.PageInput"
-                  components={{
-                    input: (
-                      <input
-                        ref={pageInputRef}
-                        type="number"
-                        value={page}
-                        className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-1.5 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-14 h-9 font-medium text-white text-sm text-center"
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val !== '') {
-                            const num = parseInt(val);
-                            if (!isNaN(num) && num >= 0) {
-                              setPage(num);
-                              localStorage.setItem('lastCollectionPage', num.toString());
-                            }
-                          } else {
-                            setPage(0);
-                            localStorage.setItem('lastCollectionPage', '0');
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            pageInputRef.current?.blur();
-                            goToPage(page);
-                          }
-                        }}
-                        min="0"
-                        step="1"
-                        aria-label={t("collection/hiroba/HirobaPage.Page")}
-                      />
-                    ),
-                  }}
-                />
-              </div>
-
-              {/* Next */}
-              <button
-                className={`flex justify-center items-center px-4 py-2.5 bg-blue-500/80 border-none rounded-lg text-white cursor-pointer min-w-10 h-9 transition-colors ${isLastPage ? 'bg-gray-500/50 cursor-not-allowed opacity-50' : 'hover:bg-blue-500'}`}
-                disabled={!!isLastPage}
-                onClick={() => goToPage(page + 1)}
-                aria-label={t("collection/hiroba/HirobaPage.NextPage")}
-              >
-                <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m9 18 6-6-6-6" />
-                </svg>
-              </button>
-
-              {/* Divider */}
-              <div className="hidden sm:block bg-white/10 mx-1 w-px h-6" />
-
-              {/* Front page */}
-              <button
-                className="bg-white/10 hover:bg-white/20 px-4 py-2 border border-white/20 rounded-lg w-full sm:w-auto h-10 sm:h-9 text-white text-sm transition-colors cursor-pointer"
-                onClick={() => goToPage(0)}
-              >
-                {t("collection/hiroba/HirobaPage.FrontPage")}
-              </button>
-            </div>
+          <div className="flex justify-center mt-8 sm:mt-10">
+            <Pager page={page} hasNext={!isLastPage} onPageChange={goToPage} />
           </div>
         )}
       </div>

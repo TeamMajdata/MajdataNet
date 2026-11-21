@@ -4,7 +4,7 @@ import React from 'react';
 
 const TMP_TAG_RE = /<(\/?)([a-zA-Z]\w*)(?:=(?:"[^"]*"|'[^']*'|[^\s>]+))?(?:\s+\w+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*\s*\/?>/g;
 
-export function hasTmpTags(text: string): boolean {
+function hasTmpTags(text: string): boolean {
   if (!text) return false;
   TMP_TAG_RE.lastIndex = 0;
   return TMP_TAG_RE.test(text);

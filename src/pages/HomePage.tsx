@@ -1,21 +1,27 @@
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import EmptyState from '@/components/ui/EmptyState';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { getLocale, useLanguage } from '@/i18n';
 import { getEventHref } from '@/utils/eventLink';
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
+import React, { useEffect, useState, useMemo, useCallback, useRef, useId } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Tooltip } from '@/components';
 import { useDebouncedCallback } from 'use-debounce';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
+import { LuMic, LuMusic, LuPencilLine, LuSearch, LuShuffle, LuSparkles, LuTag, LuUser, LuX } from 'react-icons/lu';
+import { buildSuggestions, SEARCH_OPERATORS, type SuggestionKind, type SuggestionSource } from '@/utils/searchSuggestions';
+import SortMenu from '@/components/ui/SortMenu';
 
 import { useUserContext } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
-import { PageLayout, SongCard, SongList, LoadingSpinner } from '@/components';
+import { PageLayout, SongCard, SongList } from '@/components';
 import { endpoints } from '@/config/api';
+import Pager from '@/components/ui/Pager';
 import { ImpressionScope } from '@/contexts/ImpressionContext';
 import { ApiError, apiFetcher } from '@/utils/apiClient';
 import {
@@ -28,6 +34,9 @@ import {
   getCategoryTranslation,
 } from '@/utils/eventsData';
 import type { SearchBarProps, Song } from '@/types';
+import { API_PAGES_PER_VIEW, apiPagesForView, SONG_GRID_CLASS } from '@/components/song/songGrid';
+import RecentUploads from '@/components/home/RecentUploads';
+import PopularRanking from '@/components/home/PopularRanking';
 
 // 获取用户时区的次日午夜时间戳 (UTC)
 const getNextMidnightTimestamp = (): number => {
@@ -105,9 +114,15 @@ const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
 
 export default function HomePage() {
   return (
-    <PageLayout showBackToHome={false}>
+    <PageLayout>
       {/* Events Carousel */}
       <EventsCarousel />
+
+      {/* 活动下面：最近上传、大家最近都在玩、人气排行 */}
+      <div className="mx-auto mt-6 w-full max-w-320 min-w-0">
+        <RecentUploads />
+        <PopularRanking />
+      </div>
 
       {/* Main Content */}
       <MainComp />
@@ -152,7 +167,7 @@ function DesktopEventsSwiper() {
     }));
 
   return (
-    <section className="mx-auto mt-8 px-4 max-w-7xl">
+    <section className="mx-auto mt-8 max-w-7xl">
       <div className="w-full">
         <div className="relative w-full">
           <Swiper
@@ -164,10 +179,7 @@ function DesktopEventsSwiper() {
               delay: 5000,
               disableOnInteraction: false,
             }}
-            pagination={{
-              clickable: true,
-              dynamicBullets: true,
-            }}
+            pagination={{ clickable: true }}
             navigation={false}
             loop={ongoingEvents.length > 2}
             breakpoints={{
@@ -184,21 +196,24 @@ function DesktopEventsSwiper() {
                 spaceBetween: 24,
               },
             }}
-            className="pb-12 desktop-events-swiper"
+            // 上下留出空间给卡片阴影（Swiper 会裁掉超出容器的部分），负边距抵消，布局不变
+            className="-my-3 py-3 desktop-events-swiper"
           >
             {/* 活跃的活动（进行中 + 即将开始） */}
             {ongoingEvents.map((event) => (
               <SwiperSlide key={event.id} className="flex h-auto">
-                <div className="relative flex-1 bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
+                <div className="relative flex-1 bg-[rgba(20,20,25,0.9)] shadow-[0_4px_14px_rgb(0_0_0/0.3)] border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
                   <Link to={getEventHref(event)} className="block relative w-full h-full text-inherit no-underline">
                     <div className="relative w-full h-full overflow-hidden">
                       <img
                         className="block w-full h-full object-cover"
-                        src={event.src}
+                        src={eventThumbSrc(event.src)}
+                        onError={fallbackToOriginal(event.src)}
                         alt={event.alt}
                         loading="lazy"
                       />
-                      <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-black/50 via-30% via-black/30 to-black/90 opacity-0 hover:opacity-100 p-4">
+                      {/* 活动信息常驻显示：只在底部加渐变，不压暗整张图 */}
+                      <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-transparent via-45% via-black/20 to-black/85 p-4">
                         <div className="text-left">
                           <h3 className="m-0 mb-2 font-bold text-white text-xl leading-tight">{event.title}</h3>
                           <div className="flex flex-wrap items-center gap-2 text-white/90 text-sm">
@@ -228,7 +243,7 @@ function DesktopEventsSwiper() {
 
             {/* More 页面作为 Swiper 的最后一页 */}
             <SwiperSlide className="flex h-auto">
-              <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
+              <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_4px_14px_rgb(0_0_0/0.3)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
                 <Link to="/chart-events" className="block relative w-full h-full text-inherit no-underline">
                   <div className="flex flex-col justify-center items-center h-full text-white/70">
                     <div className="mb-2 text-[2rem]">→</div>
@@ -268,7 +283,7 @@ function MobileEventsSwiper() {
     }));
 
   return (
-    <section className="mx-auto mt-2 sm:mt-4 px-0 sm:px-4 max-w-7xl">
+    <section className="mx-auto mt-2 sm:mt-4 max-w-7xl">
       <div className="relative w-full">
         <div className="relative w-full">
           <Swiper
@@ -280,10 +295,7 @@ function MobileEventsSwiper() {
               delay: 5000,
               disableOnInteraction: false,
             }}
-            pagination={{
-              clickable: true,
-              dynamicBullets: true,
-            }}
+            pagination={{ clickable: true }}
             navigation={false}
             loop={ongoingEvents.length > 1}
             breakpoints={{
@@ -300,17 +312,18 @@ function MobileEventsSwiper() {
                 spaceBetween: 24,
               },
             }}
-            className="pb-9 sm:pb-12 overflow-visible mobile-events-swiper"
+            className="-my-3 py-3 overflow-visible mobile-events-swiper"
           >
             {/* 活跃的活动（进行中 + 即将开始） */}
             {ongoingEvents.map((event) => (
               <SwiperSlide key={event.id} className="flex h-auto">
                 <Link to={getEventHref(event)} className="block w-full h-full text-inherit no-underline">
-                  <div className="relative bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl border border-white/10 rounded-xl w-full aspect-1279/372 overflow-hidden">
+                  <div className="relative bg-[rgba(20,20,25,0.9)] shadow-[0_4px_14px_rgb(0_0_0/0.3)] backdrop-blur-xl border border-white/10 rounded-xl w-full aspect-1279/372 overflow-hidden">
                     <div className="relative w-full h-full overflow-hidden">
                       <img
                         className="w-full h-full object-cover"
-                        src={event.src}
+                        src={eventThumbSrc(event.src)}
+                        onError={fallbackToOriginal(event.src)}
                         alt={event.alt}
                         loading="lazy"
                       />
@@ -322,7 +335,7 @@ function MobileEventsSwiper() {
 
             {/* More 页面作为 Swiper 的最后一页 */}
             <SwiperSlide className="flex h-auto">
-              <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
+              <div className="flex flex-col flex-[0.5] justify-stretch self-stretch bg-linear-to-br from-[rgba(100,100,120,0.4)] to-[rgba(80,80,100,0.6)] shadow-[0_4px_14px_rgb(0_0_0/0.3)] backdrop-blur-lg border border-white/10 rounded-xl min-w-0 aspect-1279/372 overflow-hidden">
                 <Link to="/chart-events" className="block relative w-full h-full text-inherit no-underline">
                   <div className="flex flex-col justify-center items-center h-full text-white/70">
                     <div className="text-[2rem] leading-none">→</div>
@@ -338,11 +351,29 @@ function MobileEventsSwiper() {
   );
 }
 
+const SUGGESTION_ICONS: Record<SuggestionKind, React.ComponentType<{ className?: string }>> = {
+  title: LuMusic,
+  artist: LuMic,
+  designer: LuPencilLine,
+  uploader: LuUser,
+  tag: LuTag,
+};
+
+/** 判断按键是否发生在可输入的元素里（这时 / 不应抢焦点） */
+function isTypingTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+}
+
 function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) {
   const { t } = useTranslation();
-  const [isMobile, setIsMobile] = useState(false);
   const [currentValue, setCurrentValue] = useState(initS);
-
+  const [isFocused, setIsFocused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [suggestQuery, setSuggestQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listboxId = useId();
+  const updateSuggestQuery = useDebouncedCallback((value: string) => setSuggestQuery(value.trim()), 200);
 
   // 与 SORT_WORDS 一一对应
   const sortOptions = [
@@ -354,127 +385,205 @@ function SearchBar({ onChange, initS, sortType, onSortChange }: SearchBarProps) 
     t("home/HomePage.UploadDate"),
   ];
 
-  // 检测是否为移动端
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+  const kindLabels: Record<SuggestionKind, string> = {
+    title: t("home/HomePage.SuggestKindTitle"),
+    artist: t("home/HomePage.SuggestKindArtist"),
+    designer: t("home/HomePage.SuggestKindDesigner"),
+    uploader: t("home/HomePage.SuggestKindUploader"),
+    tag: t("home/HomePage.SuggestKindTag"),
+  };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const operatorHints: Record<(typeof SEARCH_OPERATORS)[number], string> = {
+    'id:': t("home/HomePage.SearchHintID"),
+    'hash:': t("home/HomePage.SearchHintHash"),
+    'tag:': t("home/HomePage.SearchHintTag"),
+    'uploader:': t("home/HomePage.SearchHintUploader"),
+  };
+
+  // 联想复用列表搜索接口：只在聚焦且有输入时请求
+  const { data: suggestSource } = useSWR(
+    isFocused && suggestQuery ? endpoints.maichart.listSearchAndSort(suggestQuery, '', 0) : null,
+    (url: string) => apiFetcher<SuggestionSource[]>(url),
+    { keepPreviousData: true, revalidateOnFocus: false },
+  );
+
+  const trimmedValue = currentValue.trim();
+  const suggestions = useMemo(
+    () => (trimmedValue && Array.isArray(suggestSource) ? buildSuggestions(trimmedValue, suggestSource) : []),
+    [trimmedValue, suggestSource],
+  );
+  // 空输入时列出搜索操作符，点击补全前缀
+  const items: { key: string; value: string; label: string; hint: string; kind?: SuggestionKind; keepOpen?: boolean }[] = trimmedValue
+    ? suggestions.map((item) => ({ key: `${item.kind}:${item.value}`, value: item.value, label: item.label, hint: kindLabels[item.kind], kind: item.kind }))
+    : SEARCH_OPERATORS.map((op) => ({ key: op, value: op, label: op, hint: operatorHints[op], keepOpen: true }));
+  const isOpen = isFocused && items.length > 0;
 
   // 更新当前值
   useEffect(() => {
     setCurrentValue(initS);
   }, [initS]);
 
+  // 在页面任意位置按 / 聚焦搜索框（正在输入时除外）
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey || isTypingTarget(event.target)) return;
+      event.preventDefault();
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
+  const setValue = (value: string) => {
+    setCurrentValue(value);
+    setActiveIndex(-1);
+    updateSuggestQuery(value);
+    onChange({ target: { value } } as React.ChangeEvent<HTMLInputElement>);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCurrentValue(value);
-    onChange(e);
+    setValue(e.target.value);
   };
 
   const handleClearSearch = () => {
-    setCurrentValue('');
-    const fakeEvent = { target: { value: '' } } as React.ChangeEvent<HTMLInputElement>;
-    onChange(fakeEvent);
+    setValue('');
+    inputRef.current?.focus();
   };
 
-  // 提示内容组件
-  const hintContent = (
-    <div className="bg-linear-to-br from-[rgba(30,30,40,0.98)] to-[rgba(20,20,30,0.98)] shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.3)] backdrop-blur-[20px] backdrop-saturate-150 px-4 sm:px-5 py-4 border border-white/20 rounded-2xl w-[min(17.5rem,calc(100vw-1.5rem))] md:w-[320px]">
-      <div className="space-y-2.5 text-left">
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintID")}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintHash")}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintTag")}</p>
-        <p className="m-0 text-[0.85rem] text-white/90 md:text-[0.9rem] leading-normal">{t("home/HomePage.SearchHintUploader")}</p>
-      </div>
-    </div>
-  );
+  const pick = (item: (typeof items)[number]) => {
+    setValue(item.value);
+    if (item.keepOpen) {
+      inputRef.current?.focus();
+    } else {
+      inputRef.current?.blur();
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      if (isOpen) setIsFocused(false);
+      else inputRef.current?.blur();
+      return;
+    }
+    if (!isOpen) return;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      // 循环移动高亮项
+      setActiveIndex((index) => (index < 0 && step < 0 ? items.length - 1 : (index + step + items.length) % items.length));
+    } else if (event.key === 'Enter' && activeIndex >= 0 && activeIndex < items.length) {
+      event.preventDefault();
+      pick(items[activeIndex]);
+    }
+  };
 
   return (
-    <div className="mt-3 md:mt-0 mb-4 px-0 sm:px-4 w-full min-w-0">
-      <div className="relative border border-white/10 rounded-[20px] overflow-visible">
-        <div className="flex flex-row justify-center items-center gap-2 md:gap-6 p-2 sm:p-3 md:p-4 w-full min-w-0">
-          <div className="flex-1 min-w-0">
-            <div className="relative flex items-center w-full">
-              <input
-                type="text"
-                className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-4 md:px-7 py-3 md:py-4 pr-18 md:pr-14 border-2 border-white/15 focus:border-blue-500/50 rounded-[30px] outline-none w-full h-11 text-white placeholder:text-white/40 text-base transition-colors"
-                placeholder={initS === '' ? t("home/HomePage.SearchPlaceholder") : initS}
-                value={currentValue}
-                onChange={handleInputChange}
-                aria-label={t("home/HomePage.SearchPlaceholder")}
-              />
-              <AnimatePresence>
-                {currentValue && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.15 }}
-                    className="top-1/2 right-10 z-2 absolute flex justify-center items-center bg-white/10 hover:bg-white/20 border-none rounded-full w-7 h-7 text-white/60 hover:text-white text-xs leading-none transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
-                    onClick={handleClearSearch}
-                    aria-label={t("home/HomePage.ClearSearch")}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                    </svg>
-                  </motion.button>
-                )}
-              </AnimatePresence>
-              <Tooltip
-                content={hintContent}
-                side="top"
-                sideOffset={20}
-                plain={true}
-              >
-                <div
-                  className="top-1/2 right-2 z-10 absolute flex justify-center items-center bg-white/5 hover:bg-white/15 active:bg-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/25 hover:border-white/40 rounded-full w-7 h-7 font-bold text-xs text-white/60 hover:text-white leading-none transition-all -translate-y-1/2 duration-200 cursor-pointer touch-manipulation"
-                  role="button"
-                  aria-label='Search Hint Button'
-                >
-                  ?
-                </div>
-              </Tooltip>
-            </div>
-          </div>
-
-          <div className="shrink-0">
-            <select
-              value={isMobile ? (sortType === undefined ? 'placeholder' : sortType) : sortType}
-              onChange={(e) => {
-                if (e.target.value === 'placeholder') return;
-                const val = parseInt(e.target.value);
-                onSortChange(val);
-              }}
-              className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 md:px-3 py-1 border border-white/20 rounded-full outline-none w-28 sm:w-auto min-w-0 md:min-w-20 h-11 md:h-11.25 overflow-hidden text-white text-center whitespace-nowrap appearance-none cursor-pointer"
-              data-mobile-label={t("home/HomePage.SortBy")}
+    <div className="flex flex-1 gap-2 min-w-0">
+      <div className="relative flex flex-1 items-center min-w-0">
+        <LuSearch aria-hidden="true" className="left-3.5 absolute w-4 h-4 text-white/40 pointer-events-none" />
+        <input
+          ref={inputRef}
+          type="text"
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={isOpen && activeIndex >= 0 ? `${listboxId}-${activeIndex}` : undefined}
+          className="bg-white/[0.04] focus:bg-white/[0.06] pr-18 pl-10 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
+          placeholder={initS === '' ? t("home/HomePage.SearchPlaceholder") : initS}
+          value={currentValue}
+          onChange={handleInputChange}
+          onFocus={() => { setIsFocused(true); updateSuggestQuery(currentValue); }}
+          onBlur={() => { setIsFocused(false); setActiveIndex(-1); }}
+          onKeyDown={handleKeyDown}
+          aria-label={t("home/HomePage.SearchPlaceholder")}
+        />
+        {!currentValue && !isFocused && (
+          <kbd aria-hidden="true" className="top-1/2 right-3 absolute place-items-center grid bg-white/[0.06] border border-white/15 rounded-md w-6 h-6 font-mono text-white/50 text-xs -translate-y-1/2 pointer-events-none">
+            /
+          </kbd>
+        )}
+        <AnimatePresence>
+          {currentValue && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.15 }}
+              className="top-1/2 right-2 z-2 absolute flex justify-center items-center hover:bg-white/10 border-none rounded-md w-7 h-7 text-white/50 hover:text-white transition-colors -translate-y-1/2 cursor-pointer touch-manipulation"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={handleClearSearch}
+              aria-label={t("home/HomePage.ClearSearch")}
             >
-              {isMobile && (
-                <option value="placeholder" disabled>
-                  {t("home/HomePage.SortBy")}
-                </option>
-              )}
-              {sortOptions.map((label, i) => (
-                <option key={i} value={i}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+              <LuX aria-hidden="true" className="w-3.5 h-3.5" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        {isOpen && (
+          <ul
+            id={listboxId}
+            role="listbox"
+            aria-label={t("home/HomePage.SearchSuggestions")}
+            className="top-[calc(100%+0.5rem)] z-1001 absolute inset-x-0 bg-[rgb(14_16_22)] shadow-[0_20px_60px_rgb(0_0_0/50%)] m-0 p-1.5 border border-white/15 rounded-xl max-h-[min(24rem,60dvh)] overflow-y-auto list-none"
+          >
+            {items.map((item, index) => {
+              const Icon = item.kind ? SUGGESTION_ICONS[item.kind] : LuSearch;
+              const active = index === activeIndex;
+              return (
+                <li
+                  key={item.key}
+                  id={`${listboxId}-${index}`}
+                  role="option"
+                  aria-selected={active}
+                  className={`flex items-center gap-3 px-3 rounded-lg h-10 text-sm cursor-pointer ${active ? 'bg-white/[0.08] text-white' : 'text-white/80 hover:bg-white/[0.05]'}`}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => pick(item)}
+                >
+                  <Icon aria-hidden="true" className="w-4 h-4 text-white/40 shrink-0" />
+                  <span className={`truncate ${item.kind ? '' : 'font-mono text-blue-200'}`}>
+                    {item.kind ? <HighlightMatch text={item.label} query={trimmedValue.replace(/^(uploader|tag):/i, '')} /> : item.label}
+                  </span>
+                  <span className="ml-auto pl-2 text-white/35 text-xs truncate shrink-0 max-w-[60%]">{item.hint}</span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
+
+      <SortMenu
+        options={sortOptions}
+        value={sortType}
+        onChange={onSortChange}
+        label={t("home/HomePage.SortBy")}
+      />
     </div>
   );
 }
 
+/** 联想词里加粗匹配到的部分 */
+function HighlightMatch({ text, query }: { text: string; query: string }) {
+  const needle = query.trim().toLowerCase();
+  const index = needle ? text.toLowerCase().indexOf(needle) : -1;
+  if (index < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, index)}
+      <span className="font-semibold text-white">{text.slice(index, index + needle.length)}</span>
+      {text.slice(index + needle.length)}
+    </>
+  );
+}
+
 const RECOMMEND_PAGE_SIZE = 30;
-const RECOMMEND_MAX_PAGE = 100; // 与后端 feed 的 page 上限一致
+const RECOMMEND_API_MAX_PAGE = 100; // 与后端 feed 的 page 上限一致
+// 每屏合并两页（60 条，4 列不缺卡），最后一屏用到接口第 98、99 页
+const RECOMMEND_MAX_PAGE = Math.floor((RECOMMEND_API_MAX_PAGE + 1) / API_PAGES_PER_VIEW) - 1;
+// 随机推荐从全量列表里抽：36 条能被 1/2/3/4 列整除
+const RANDOM_RECOMMEND_COUNT = 36;
 
 const clampRecommendPage = (page: number) =>
   Number.isInteger(page) ? Math.min(Math.max(page, 0), RECOMMEND_MAX_PAGE) : 0;
@@ -492,7 +601,7 @@ type HomeTab = 'all' | 'recommend';
 
 function MainComp() {
   const { t } = useTranslation();
-  const { user } = useUserContext();
+  const { user, isLoading: isUserLoading } = useUserContext();
   const [searchParams, setSearchParams] = useSearchParams();
   // tab、推荐页码、搜索词、排序、页码全部放在 URL 里：链接可分享，浏览器回退即可还原
   const activeTab: HomeTab = searchParams.get('tab') === 'recommend' ? 'recommend' : 'all';
@@ -539,8 +648,14 @@ function MainComp() {
     updateListParams({ sort: val > 0 ? String(val) : null, page: null }, false);
   };
 
-  const setPage = (target: number) => {
-    updateListParams({ page: target > 0 ? String(target) : null }, false);
+  const goToPage = (target: number) => {
+    if (activeTab === 'recommend') {
+      navigateHome('recommend', clampRecommendPage(target));
+    } else {
+      updateListParams({ page: target > 0 ? String(target) : null }, false);
+    }
+    // 翻页后回到列表上方的工具栏（上面还有活动和展柜，不能用固定的高度）
+    document.getElementById('home-list-toolbar')?.scrollIntoView({ block: 'start' });
   };
 
   const refreshRandomBatch = useCallback(() => {
@@ -550,140 +665,90 @@ function MainComp() {
   // 渲染数据
   return (
     <>
-      <div className="flex justify-center px-4 pt-2 pb-3">
-        <div className="inline-flex bg-[rgba(20,20,25,0.7)] p-1 border border-white/10 rounded-full">
-          <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'all' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
-              }`}
-            onClick={() => navigateHome('all')}
-          >
-            {t("home/HomePage.AllCharts")}
-          </button>
-          <button
-            className={`px-4 md:px-5 py-2 rounded-full text-sm md:text-base transition-colors cursor-pointer ${activeTab === 'recommend' ? 'bg-blue-500/80 text-white' : 'text-white/80 hover:text-white'
-              }`}
-            onClick={() => navigateHome('recommend', recommendPage)}
-          >
-            {user
-              ? t("home/HomePage.PersonalRecommend")
-              : t("home/HomePage.RandomRecommend")}
-          </button>
+      {/* 工具栏：与卡片网格同宽，标签切换 + 搜索 + 排序在一行（移动端分两行） */}
+      <div id="home-list-toolbar" className="z-30 relative flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-3 mx-auto mt-3 md:mt-1 mb-4 sm:mb-5 w-full max-w-320 min-w-0 scroll-mt-24">
+        <div className="flex bg-white/[0.04] p-1 border border-white/10 rounded-xl h-11 shrink-0" role="tablist">
+          {(['all', 'recommend'] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab}
+              className={`flex-1 sm:flex-none px-4 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === tab ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
+              onClick={() => (tab === 'all' ? navigateHome('all') : navigateHome('recommend', recommendPage))}
+            >
+              {tab === 'all'
+                ? t("home/HomePage.AllCharts")
+                : user ? t("home/HomePage.PersonalRecommend") : t("home/HomePage.RandomRecommend")}
+            </button>
+          ))}
         </div>
-      </div>
-
-      {activeTab === 'all' ? (
-        <>
+        {activeTab === 'all' && (
           <SearchBar
             onChange={(e) => debounced(e.target.value)}
             initS={search}
             sortType={sortType}
             onSortChange={onSortChange}
           />
+        )}
+        {/* 随机推荐（未登录）：登录提示和换一批放在搜索框原来的位置 */}
+        {activeTab === 'recommend' && !user && !isUserLoading && (
+          <div className="flex flex-1 justify-between items-center gap-2 min-w-0">
+            <Link
+              to="/login"
+              className="flex items-center gap-2 px-1 min-w-0 text-white/60 hover:text-white text-sm no-underline transition-colors"
+            >
+              <LuSparkles aria-hidden="true" className="w-4 h-4 text-blue-300 shrink-0" />
+              <span className="truncate">{t("home/HomePage.LoginForRecommend")}</span>
+            </Link>
+            <button
+              type="button"
+              className="flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] px-3.5 border border-white/10 hover:border-white/20 rounded-xl h-11 font-medium text-white text-sm whitespace-nowrap transition-colors cursor-pointer shrink-0"
+              onClick={refreshRandomBatch}
+            >
+              <LuShuffle aria-hidden="true" className="w-4 h-4 text-white/60" />
+              {t("home/HomePage.RefreshBatch")}
+            </button>
+          </div>
+        )}
+      </div>
 
+      {activeTab === 'all' ? (
+        <>
           <SongList
-            url={endpoints.maichart.listSearchAndSort(search, SORT_WORDS[sortType], page)}
+            url={apiPagesForView(page).map((apiPage) => endpoints.maichart.listSearchAndSort(search, SORT_WORDS[sortType], apiPage))}
             page={page}
             setMax={(last) => setLastPage((prev) => (
               prev && prev.key === listKey && prev.page === last ? prev : { key: listKey, page: last }
             ))}
           />
 
-          <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
-            <Pager page={page} hasNext={hasNext} onPageChange={setPage} />
-            <IntegratedDownloadTypeSelector isMobile={true} />
+          <div className="flex justify-center mt-8 sm:mt-10">
+            <Pager page={page} hasNext={hasNext} onPageChange={goToPage} />
           </div>
         </>
       ) : (
         <RecommendTab
           page={recommendPage}
-          onPageChange={(target) => navigateHome('recommend', clampRecommendPage(target))}
+          onPageChange={goToPage}
           randomSeed={randomSeed}
-          onRefreshRandom={refreshRandomBatch}
         />
       )}
     </>
   );
 }
 
-function Pager({ page, hasNext, onPageChange }: {
-  page: number;
-  hasNext: boolean;
-  onPageChange: (page: number) => void;
-}) {
-  const { t } = useTranslation();
-
-  const goTo = (target: number) => {
-    onPageChange(target);
-    window.scrollTo(0, 200);
-  };
-
-  return (
-    <>
-      <div className="gap-2 sm:gap-4 grid grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] sm:flex items-center bg-[rgba(20,20,25,0.9)] shadow-[0_8px_32px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] backdrop-blur-xl p-2.5 sm:p-6 border border-white/10 rounded-xl w-full sm:w-auto max-w-md">
-        <button
-          className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${page - 1 < 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-          disabled={page - 1 < 0}
-          onClick={() => goTo(page - 1)}
-        >
-          ←
-        </button>
-
-        <div className="flex justify-center items-center gap-1.5 sm:gap-2 min-w-0 text-[#ccc] text-sm">
-          <Trans
-            i18nKey="home/HomePage.PageInput"
-            components={{
-              input: (
-                <input
-                  type="number"
-                  value={page}
-                  className="bg-black/70 focus:shadow-[0_0_8px_rgba(59,130,246,0.3)] p-2 border border-white/20 focus:border-blue-500 rounded-md focus:outline-none w-15 font-medium text-white text-center"
-                  onChange={(event) => {
-                    if (event.target.value !== '') {
-                      onPageChange(parseInt(event.target.value));
-                    } else onPageChange(0);
-                  }}
-                  min="0"
-                  step="1"
-                />
-              ),
-            }}
-          />
-        </div>
-
-        <button
-          className={`flex justify-center items-center bg-blue-500/80 px-0 sm:px-6 py-3 border-none rounded-lg min-w-11 sm:min-w-20 min-h-11 font-medium text-white cursor-pointer ${!hasNext ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-          disabled={!hasNext}
-          onClick={() => goTo(page + 1)}
-        >
-          →
-        </button>
-      </div>
-
-      <button
-        className="bg-white/10 px-6 py-2 border border-white/20 rounded-lg text-white cursor-pointer"
-        onClick={() => goTo(0)}
-      >
-        {t("home/HomePage.FrontPage")}
-      </button>
-    </>
-  );
-}
-
 // 登录用户看个人推荐；未登录或会话失效时回落到随机推荐
-function RecommendTab({ page, onPageChange, randomSeed, onRefreshRandom }: {
+function RecommendTab({ page, onPageChange, randomSeed }: {
   page: number;
   onPageChange: (page: number) => void;
   randomSeed: number;
-  onRefreshRandom: () => void;
 }) {
-  const { t } = useTranslation();
   const { user, isLoading } = useUserContext();
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-20 w-full">
-        <LoadingSpinner size="50px" />
-      </div>
+      <SectionLoading />
     );
   }
 
@@ -691,27 +756,7 @@ function RecommendTab({ page, onPageChange, randomSeed, onRefreshRandom }: {
     return <RecommendFeed userKey={user.id ?? user.username} page={page} onPageChange={onPageChange} />;
   }
 
-  return (
-    <>
-      <div className="flex flex-col items-center gap-4 mx-auto mb-6 px-4 max-w-7xl">
-        <Link to="/login" className="text-white/70 hover:text-white text-sm hover:underline underline-offset-4">
-          {t("home/HomePage.LoginForRecommend")}
-        </Link>
-        <button
-          className="bg-blue-500/80 hover:bg-blue-500 px-6 py-2 border-none rounded-lg font-medium text-white cursor-pointer"
-          onClick={onRefreshRandom}
-        >
-          {t("home/HomePage.RefreshBatch")}
-        </button>
-      </div>
-
-      <RandomRecommendList refreshKey={randomSeed} />
-
-      <div className="flex justify-center mt-12 px-4">
-        <IntegratedDownloadTypeSelector isMobile={true} />
-      </div>
-    </>
-  );
+  return <RandomRecommendList refreshKey={randomSeed} />;
 }
 
 // 后端按用户快照分页，有效期内翻页顺序稳定；返回不足一页即为最后一页
@@ -725,8 +770,8 @@ function RecommendFeed({ userKey, page, onPageChange }: {
 
   // key 带上用户，切换账号时不会复用上一个人的推荐
   const { data, error, isLoading } = useSWR<Song[], Error, [string, string]>(
-    [endpoints.recommend.feed(page, RECOMMEND_PAGE_SIZE), userKey],
-    ([url]) => apiFetcher<Song[]>(url),
+    [apiPagesForView(page).map((apiPage) => endpoints.recommend.feed(apiPage, RECOMMEND_PAGE_SIZE)).join('\n'), userKey],
+    async ([urls]) => (await Promise.all(urls.split('\n').map((url) => apiFetcher<Song[]>(url)))).flat(),
     {
       revalidateOnFocus: false,
       onError: (err) => {
@@ -736,28 +781,26 @@ function RecommendFeed({ userKey, page, onPageChange }: {
     }
   );
 
-  const hasNext = page < RECOMMEND_MAX_PAGE && data?.length === RECOMMEND_PAGE_SIZE;
+  const hasNext = page < RECOMMEND_MAX_PAGE && data?.length === RECOMMEND_PAGE_SIZE * API_PAGES_PER_VIEW;
 
   let content: React.ReactNode;
   if (error) {
-    content = <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.ServerError")}</div>;
+    content = <EmptyState>{t("home/HomePage.ServerError")}</EmptyState>;
   } else if (isLoading || !data) {
     content = (
-      <div className="flex justify-center items-center py-20 w-full">
-        <LoadingSpinner size="50px" />
-      </div>
+      <SectionLoading />
     );
   } else if (data.length === 0) {
     content = (
-      <div className="m-auto w-full text-2xl sm:text-[50px] text-center">
+      <EmptyState>
         {page > 0
           ? t("home/HomePage.RecommendEnd")
           : t("home/HomePage.EmptyData")}
-      </div>
+      </EmptyState>
     );
   } else {
     content = (
-      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+      <div className={SONG_GRID_CLASS}>
         {data.map((song, index) => (
           <SongCard key={song.id} song={song} index={index} />
         ))}
@@ -770,9 +813,8 @@ function RecommendFeed({ userKey, page, onPageChange }: {
       {/* 作用域跨翻页保留，同一会话内已上报的谱面不再重复计时 */}
       <ImpressionScope source="feed">{content}</ImpressionScope>
 
-      <div className="flex flex-col items-center gap-5 sm:gap-6 mx-auto mt-8 sm:mt-12 px-0 sm:px-4 max-w-7xl">
+      <div className="flex justify-center mt-8 sm:mt-10">
         <Pager page={page} hasNext={hasNext} onPageChange={onPageChange} />
-        <IntegratedDownloadTypeSelector isMobile={true} />
       </div>
     </>
   );
@@ -806,74 +848,28 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
 
     return [...data]
       .sort((a, b) => hashWithSeed(a, refreshKey) - hashWithSeed(b, refreshKey))
-      .slice(0, 30);
+      .slice(0, RANDOM_RECOMMEND_COUNT);
   }, [data, refreshKey]);
 
   if (error) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.ServerError")}</div>;
+    return <EmptyState>{t("home/HomePage.ServerError")}</EmptyState>;
   }
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-20 w-full">
-        <LoadingSpinner size="50px" />
-      </div>
+      <SectionLoading />
     );
   }
 
   if (randomSongs.length === 0) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.EmptyData")}</div>;
+    return <EmptyState>{t("home/HomePage.EmptyData")}</EmptyState>;
   }
 
   return (
-    <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+    <div className={SONG_GRID_CLASS}>
       {randomSongs.map((song, index) => (
         <SongCard key={song.id} song={song} index={index} />
       ))}
-    </div>
-  );
-}
-
-function IntegratedDownloadTypeSelector({ isMobile }: { isMobile: boolean }) {
-  const { t } = useTranslation();
-  const [currentType, setCurrentType] = useState(() => {
-    return localStorage.getItem('DownloadType') || 'zip';
-  });
-  const [justChanged, setJustChanged] = useState(false);
-
-  const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newtype = e.target.value;
-    if (newtype === 'placeholder') return;
-    localStorage.setItem('DownloadType', newtype);
-    setCurrentType(newtype);
-
-    setJustChanged(true);
-    setTimeout(() => setJustChanged(false), 2000);
-  };
-
-  return (
-    <div className="flex items-center gap-3">
-      {!isMobile && (
-        <label className={`${justChanged ? 'text-[#22c55e]' : ''}`}>
-          {t("home/HomePage.DownloadFormat")}
-          {justChanged && <span className="ml-2 font-semibold text-[#22c55e] text-sm">✓</span>}
-        </label>
-      )}
-      <select
-        value={isMobile ? currentType || 'placeholder' : currentType}
-        onChange={handleChange}
-        className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-3 py-1 border border-white/20 rounded-full outline-none w-full md:w-auto min-w-0 md:min-w-20 h-10 md:h-11.25 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer"
-        data-mobile-label={t("home/HomePage.DownloadFormat")}
-      >
-        {isMobile && (
-          <option value="placeholder" disabled>
-            {t("home/HomePage.DownloadFormat")}
-            {justChanged && ' ✓'}
-          </option>
-        )}
-        <option value="zip">ZIP</option>
-        <option value="adx">ADX</option>
-      </select>
     </div>
   );
 }

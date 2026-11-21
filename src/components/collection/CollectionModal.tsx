@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { LoadingSpinner } from '@/components';
+import Modal from '@/components/ui/Modal';
 import { endpoints } from '@/config/api';
 import { useCollections } from '@/hooks';
 
@@ -14,28 +15,9 @@ interface CollectionModalProps {
   /** 谱面当前的 maidata hash，用于判断是否已在谱单中 */
   songHash?: string;
   onCreate?: () => void;
+  /** 只显示新建表单（我的收藏页的“新建收藏夹”按钮用），创建或取消后直接关闭 */
+  createOnly?: boolean;
 }
-
-const backdropVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
-
-const modalVariants = {
-  hidden: { opacity: 0, scale: 0.95, y: 8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { type: 'spring' as const, stiffness: 400, damping: 30 },
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.95,
-    y: 8,
-    transition: { duration: 0.15 },
-  },
-};
 
 const listItemVariants = {
   hidden: { opacity: 0, y: 6 },
@@ -46,7 +28,7 @@ const listItemVariants = {
   }),
 };
 
-export default function CollectionModal({ isOpen, onClose, chartId, songHash, onCreate }: CollectionModalProps) {
+export default function CollectionModal({ isOpen, onClose, chartId, songHash, onCreate, createOnly = false }: CollectionModalProps) {
   const { t } = useTranslation();
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState('');
@@ -55,6 +37,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
   const [searchQuery, setSearchQuery] = useState('');
   const [creatingLoading, setCreatingLoading] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const creating = createOnly || isCreating;
 
   const {
     collections,
@@ -80,16 +63,9 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
 
   // Auto-focus name input when create form opens
   useEffect(() => {
-    if (isCreating) nameInputRef.current?.focus();
-  }, [isCreating]);
+    if (isOpen && creating) nameInputRef.current?.focus();
+  }, [isOpen, creating]);
 
-  // Close on Escape
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [isOpen, onClose]);
 
   const filteredCollections = (collections || []).filter((c) => {
     const q = searchQuery.toLowerCase();
@@ -125,6 +101,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
         mutateCollections();
         mutateHashLists();
         onCreate?.();
+        if (createOnly) onClose();
       } else {
         toast.error(t("collection/CollectionModal.CreateFailed"));
       }
@@ -133,9 +110,13 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
     } finally {
       setCreatingLoading(false);
     }
-  }, [newName, newDescription, newVisibility, creatingLoading, mutateCollections, mutateHashLists, onCreate, t]);
+  }, [newName, newDescription, newVisibility, creatingLoading, mutateCollections, mutateHashLists, onCreate, createOnly, onClose, t]);
 
   const resetCreateForm = () => {
+    if (createOnly) {
+      onClose();
+      return;
+    }
     setIsCreating(false);
     setNewName('');
     setNewDescription('');
@@ -145,251 +126,243 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
   const hasCollections = collections && collections.length > 0;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="z-9999 fixed inset-0">
-          <motion.div
-            variants={backdropVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
-          />
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      zIndexClass="z-[9999]"
+      labelledBy="collection-modal-title"
+      className={`flex flex-col max-w-md ${createOnly ? '' : 'min-h-80 sm:min-h-95'} max-h-[85vh] overflow-hidden`}
+    >
+      {/* Header */}
+      <div className="flex justify-between items-center px-5 pt-5 pb-3 shrink-0">
+        <h2 id="collection-modal-title" className="m-0 font-bold text-white! text-xl! text-left!">{createOnly ? t("collection/CollectionModal.NewCollection") : t("collection/CollectionModal.MyCollections")}</h2>
+        <button
+          onClick={onClose}
+          className="flex justify-center items-center hover:bg-white/10 rounded-full w-8 h-8 text-white/60 hover:text-white transition-colors cursor-pointer"
+          aria-label={t("collection/CollectionModal.Close")}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
 
-          <motion.div
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="top-1/2 left-1/2 absolute flex flex-col bg-[rgba(20,20,25,0.95)] shadow-2xl border border-white/10 rounded-2xl w-[90%] max-w-md min-h-80 sm:min-h-95 max-h-[85vh] overflow-hidden -translate-x-1/2 -translate-y-1/2"
-          >
-            {/* Header */}
-            <div className="flex justify-between items-center px-5 pt-5 pb-3 shrink-0">
-              <h2 className="font-bold text-white text-xl">{t("collection/CollectionModal.MyCollections")}</h2>
-              <button
-                onClick={onClose}
-                className="flex justify-center items-center hover:bg-white/10 rounded-full w-8 h-8 text-white/60 hover:text-white transition-colors cursor-pointer"
-                aria-label={t("collection/CollectionModal.Close")}
+      {/* Scrollable body */}
+      <div className="relative flex-1 px-5 pb-2 min-h-0 overflow-y-auto">
+        {!createOnly && !isLoading && error && (
+          <div className="flex justify-center items-center py-12 w-full">
+            <p className="text-white/40 text-sm">{t("collection/CollectionModal.LoadFailed")}</p>
+          </div>
+        )}
+
+        {!creating && !isLoading && !error && !hasCollections && (
+          <div className="flex flex-col justify-center items-center gap-3 py-12 w-full">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/15">
+              <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+            </svg>
+            <p className="text-white/40 text-sm">{t("collection/CollectionModal.NoCollections")}</p>
+          </div>
+        )}
+
+        {!createOnly && hasCollections && (
+          <>
+            {/* Search */}
+            <div className="relative mb-3">
+              <svg
+                className="top-1/2 left-3 absolute text-white/30 -translate-y-1/2 pointer-events-none"
+                width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                </svg>
-              </button>
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t("collection/CollectionModal.SearchCollections")}
+                className="bg-white/5 py-2.5 pr-3 pl-9 border border-white/10 focus:border-white/25 rounded-xl outline-none w-full text-white text-sm transition-colors placeholder-white/30"
+              />
             </div>
 
-            {/* Scrollable body */}
-            <div className="relative flex-1 px-5 pb-2 min-h-0 overflow-y-auto">
-              {!isLoading && error && (
-                <div className="flex justify-center items-center py-12 w-full">
-                  <p className="text-white/40 text-sm">{t("collection/CollectionModal.LoadFailed")}</p>
-                </div>
-              )}
-
-              {!isLoading && !error && !hasCollections && !isCreating && (
-                <div className="flex flex-col justify-center items-center gap-3 py-12 w-full">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/15">
-                    <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
-                  </svg>
-                  <p className="text-white/40 text-sm">{t("collection/CollectionModal.NoCollections")}</p>
-                </div>
-              )}
-
-              {hasCollections && (
-                <>
-                  {/* Search */}
-                  <div className="relative mb-3">
-                    <svg
-                      className="top-1/2 left-3 absolute text-white/30 -translate-y-1/2 pointer-events-none"
-                      width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                    >
-                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-                    </svg>
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={t("collection/CollectionModal.SearchCollections")}
-                      className="bg-white/5 py-2.5 pr-3 pl-9 border border-white/10 focus:border-white/25 rounded-xl outline-none w-full text-white text-sm transition-colors placeholder-white/30"
-                    />
-                  </div>
-
-                  {filteredCollections.length === 0 && (
-                    <div className="flex justify-center items-center py-12 w-full">
-                      <p className="text-white/30 text-sm">{t("collection/CollectionModal.NoResults")}</p>
-                    </div>
-                  )}
-
-                  <div className="flex flex-col gap-1.5">
-                    {filteredCollections.map((collection, index) => {
-                      const isAdding = isPending(collection.id);
-                      const isInCollection = isSongInCollection(collection.id, songHash);
-                      return (
-                        <motion.button
-                          key={collection.id}
-                          custom={index}
-                          variants={listItemVariants}
-                          initial="hidden"
-                          animate="visible"
-                          whileHover={canToggle ? { scale: 1.01 } : undefined}
-                          whileTap={canToggle ? { scale: 0.98 } : undefined}
-                          disabled={!!isAdding}
-                          onClick={canToggle ? () => handleToggle(collection.id) : undefined}
-                          className={`group flex items-start gap-3 rounded-xl p-3 text-left transition-colors ${canToggle ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'
-                            } ${isInCollection ? 'bg-blue-500/10' : ''} ${isAdding ? 'bg-blue-500/10' : ''}`}
-                        >
-                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${isAdding ? 'bg-blue-500/15' : isInCollection ? 'bg-blue-500/15' : 'bg-white/5 group-hover:bg-white/10'
-                            }`}>
-                            {isAdding ? (
-                              <LoadingSpinner size="18px" />
-                            ) : isInCollection ? (
-                              <svg
-                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                className="text-blue-400"
-                              >
-                                <path d="M20 6 9 17l-5-5" />
-                              </svg>
-                            ) : (
-                              <svg
-                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                className="text-white/40 group-hover:text-white/60 transition-colors"
-                              >
-                                <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
-                              </svg>
-                            )}
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className={`font-medium text-sm truncate ${isInCollection ? 'text-blue-300' : 'text-white/90'}`}>
-                              {collection.name || t("collection/CollectionModal.UnnamedCollection")}
-                            </div>
-                            {collection.description && (
-                              <div className="mt-0.5 text-white/40 text-xs truncate">{collection.description}</div>
-                            )}
-                          </div>
-
-                          <div className="flex justify-center items-center bg-white/5 px-2.5 rounded-full h-6 shrink-0">
-                            <span className="text-white/40 text-xs">{collection.count}</span>
-                          </div>
-                        </motion.button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-
-              {isLoading && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="z-20 absolute inset-0 flex justify-center items-center bg-black/35 backdrop-blur-[2px]"
-                >
-                  <div className="flex items-center gap-3 bg-[rgba(15,15,20,0.72)] shadow-[0_16px_40px_rgba(0,0,0,0.35)] px-5 py-4 border border-white/10 rounded-2xl">
-                    <LoadingSpinner size="36px" />
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-medium text-white text-sm">{t("collection/CollectionModal.Loading")}</span>
-                      <span className="text-white/45 text-xs">{t("collection/CollectionModal.PleaseWait")}</span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Create form (collapsible) */}
-              <AnimatePresence>
-                {isCreating && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="space-y-3 bg-white/5 mt-3 p-4 border border-white/10 rounded-xl">
-                      <div>
-                        <label className="block mb-1.5 font-medium text-white/70 text-xs">
-                          {t("collection/CollectionModal.CollectionName")} <span className="text-red-400">*</span>
-                        </label>
-                        <input
-                          ref={nameInputRef}
-                          type="text"
-                          value={newName}
-                          onChange={(e) => setNewName(e.target.value)}
-                          onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); }}
-                          placeholder={t("collection/CollectionModal.CollectionNamePlaceholder")}
-                          className="bg-white/5 px-3 py-2 border border-white/10 focus:border-blue-500/50 rounded-lg outline-none w-full text-white text-sm transition-colors placeholder-white/25"
-                        />
-                      </div>
-                      <div>
-                        <label className="block mb-1.5 font-medium text-white/70 text-xs">
-                          {t("collection/CollectionModal.Description")}
-                        </label>
-                        <input
-                          type="text"
-                          value={newDescription}
-                          onChange={(e) => setNewDescription(e.target.value)}
-                          placeholder={t("collection/CollectionModal.DescriptionPlaceholder")}
-                          className="bg-white/5 px-3 py-2 border border-white/10 focus:border-blue-500/50 rounded-lg outline-none w-full text-white text-sm transition-colors placeholder-white/25"
-                        />
-                      </div>
-                      <div>
-                        <label className="block mb-1.5 font-medium text-white/70 text-xs">
-                          {t("collection/CollectionModal.Visibility")}
-                        </label>
-                        <select
-                          value={newVisibility}
-                          onChange={(e) => setNewVisibility(Number(e.target.value) as 0 | 1)}
-                          className="bg-white/5 px-3 py-2 border border-white/10 focus:border-blue-500/50 rounded-lg outline-none w-full text-white text-sm transition-colors"
-                        >
-                          <option value={0}>{t("collection/CollectionModal.Private")}</option>
-                          <option value={1}>{t("collection/CollectionModal.Public")}</option>
-                        </select>
-                      </div>
-                      <div className="flex gap-2 pt-1">
-                        <button
-                          onClick={handleCreate}
-                          disabled={!newName.trim() || creatingLoading}
-                          className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-white/10 py-2 rounded-lg font-medium text-white disabled:text-white/30 text-sm transition-colors disabled:cursor-not-allowed"
-                        >
-                          {creatingLoading ? (
-                            <span className="flex justify-center items-center gap-2"><LoadingSpinner size="14px" /></span>
-                          ) : (
-                            t("collection/CollectionModal.Create")
-                          )}
-                        </button>
-                        <button
-                          onClick={resetCreateForm}
-                          disabled={creatingLoading}
-                          className="flex-1 bg-white/5 hover:bg-white/10 disabled:opacity-50 py-2 rounded-lg text-white/70 text-sm transition-colors disabled:cursor-not-allowed"
-                        >
-                          {t("collection/CollectionModal.Cancel")}
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Footer: create button */}
-            {(!isLoading || hasCollections) && !isCreating && (
-              <div className="px-5 py-3 border-white/5 border-t shrink-0">
-                <button
-                  onClick={() => setIsCreating(true)}
-                  className="flex justify-center items-center gap-2 hover:bg-white/5 py-2.5 rounded-xl w-full text-white/50 hover:text-white/80 text-sm transition-colors cursor-pointer"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 5v14" /><path d="M5 12h14" />
-                  </svg>
-                  {t("collection/CollectionModal.NewCollection")}
-                </button>
+            {filteredCollections.length === 0 && (
+              <div className="flex justify-center items-center py-12 w-full">
+                <p className="text-white/30 text-sm">{t("collection/CollectionModal.NoResults")}</p>
               </div>
             )}
+
+            <div className="flex flex-col gap-1.5">
+              {filteredCollections.map((collection, index) => {
+                const isAdding = isPending(collection.id);
+                const isInCollection = isSongInCollection(collection.id, songHash);
+                return (
+                  <motion.button
+                    key={collection.id}
+                    custom={index}
+                    variants={listItemVariants}
+                    initial="hidden"
+                    animate="visible"
+                    whileHover={canToggle ? { scale: 1.01 } : undefined}
+                    whileTap={canToggle ? { scale: 0.98 } : undefined}
+                    disabled={!!isAdding}
+                    onClick={canToggle ? () => handleToggle(collection.id) : undefined}
+                    className={`group flex items-start gap-3 rounded-xl p-3 text-left transition-colors ${canToggle ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'
+                      } ${isInCollection ? 'bg-blue-500/10' : ''} ${isAdding ? 'bg-blue-500/10' : ''}`}
+                  >
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${isAdding ? 'bg-blue-500/15' : isInCollection ? 'bg-blue-500/15' : 'bg-white/5 group-hover:bg-white/10'
+                      }`}>
+                      {isAdding ? (
+                        <LoadingSpinner size="18px" />
+                      ) : isInCollection ? (
+                        <svg
+                          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          className="text-blue-400"
+                        >
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          className="text-white/40 group-hover:text-white/60 transition-colors"
+                        >
+                          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+                        </svg>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className={`font-medium text-sm truncate ${isInCollection ? 'text-blue-300' : 'text-white/90'}`}>
+                        {collection.name || t("collection/CollectionModal.UnnamedCollection")}
+                      </div>
+                      {collection.description && (
+                        <div className="mt-0.5 text-white/40 text-xs truncate">{collection.description}</div>
+                      )}
+                    </div>
+
+                    <div className="flex justify-center items-center bg-white/5 px-2.5 rounded-full h-6 shrink-0">
+                      <span className="text-white/40 text-xs">{collection.count}</span>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {!createOnly && isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="z-20 absolute inset-0 flex justify-center items-center bg-black/35 backdrop-blur-[2px]"
+          >
+            <div className="flex items-center gap-3 bg-[rgba(15,15,20,0.72)] shadow-[0_16px_40px_rgba(0,0,0,0.35)] px-5 py-4 border border-white/10 rounded-2xl">
+              <LoadingSpinner size="36px" />
+              <div className="flex flex-col gap-0.5">
+                <span className="font-medium text-white text-sm">{t("collection/CollectionModal.Loading")}</span>
+                <span className="text-white/45 text-xs">{t("collection/CollectionModal.PleaseWait")}</span>
+              </div>
+            </div>
           </motion.div>
+        )}
+
+        {/* Create form (collapsible) */}
+        <AnimatePresence>
+          {creating && (
+            <motion.div
+              // 只新建模式下表单就是全部内容，不再单独展开，否则弹窗会边弹出边被撑高
+              initial={createOnly ? false : { height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className={`space-y-3 ${createOnly ? "mb-3" : "bg-white/5 mt-3 p-4 border border-white/10 rounded-xl"}`}>
+                <div>
+                  <label className="block mb-1.5 font-medium text-white/70 text-xs">
+                    {t("collection/CollectionModal.CollectionName")} <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); }}
+                    placeholder={t("collection/CollectionModal.CollectionNamePlaceholder")}
+                    className="bg-white/5 px-3 py-2 border border-white/10 focus:border-blue-500/50 rounded-lg outline-none w-full text-white text-sm transition-colors placeholder-white/25"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1.5 font-medium text-white/70 text-xs">
+                    {t("collection/CollectionModal.Description")}
+                  </label>
+                  <input
+                    type="text"
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    placeholder={t("collection/CollectionModal.DescriptionPlaceholder")}
+                    className="bg-white/5 px-3 py-2 border border-white/10 focus:border-blue-500/50 rounded-lg outline-none w-full text-white text-sm transition-colors placeholder-white/25"
+                  />
+                </div>
+                <div>
+                  <span className="block mb-1.5 font-medium text-white/70 text-xs">
+                    {t("collection/CollectionModal.Visibility")}
+                  </span>
+                  {/* 两个选项，用分段按钮代替原生下拉框 */}
+                  <div className="flex bg-white/5 p-1 border border-white/10 rounded-lg" role="radiogroup" aria-label={t("collection/CollectionModal.Visibility")}>
+                    {([0, 1] as const).map((value) => (
+                      <button
+                        key={value}
+                        type="button"
+                        role="radio"
+                        aria-checked={newVisibility === value}
+                        onClick={() => setNewVisibility(value)}
+                        className={`flex-1 py-1.5 rounded-md text-sm transition-colors cursor-pointer ${newVisibility === value ? 'bg-white/10 text-white' : 'text-white/55 hover:text-white'}`}
+                      >
+                        {value === 0 ? t("collection/CollectionModal.Private") : t("collection/CollectionModal.Public")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={handleCreate}
+                    disabled={!newName.trim() || creatingLoading}
+                    className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-white/10 py-2 rounded-lg font-medium text-white disabled:text-white/30 text-sm transition-colors disabled:cursor-not-allowed"
+                  >
+                    {creatingLoading ? (
+                      <span className="flex justify-center items-center gap-2"><LoadingSpinner size="14px" /></span>
+                    ) : (
+                      t("collection/CollectionModal.Create")
+                    )}
+                  </button>
+                  <button
+                    onClick={resetCreateForm}
+                    disabled={creatingLoading}
+                    className="flex-1 bg-white/5 hover:bg-white/10 disabled:opacity-50 py-2 rounded-lg text-white/70 text-sm transition-colors disabled:cursor-not-allowed"
+                  >
+                    {t("collection/CollectionModal.Cancel")}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Footer: create button */}
+      {(!isLoading || hasCollections) && !creating && (
+        <div className="px-5 py-3 border-white/5 border-t shrink-0">
+          <button
+            onClick={() => setIsCreating(true)}
+            className="flex justify-center items-center gap-2 hover:bg-white/5 py-2.5 rounded-xl w-full text-white/50 hover:text-white/80 text-sm transition-colors cursor-pointer"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14" /><path d="M5 12h14" />
+            </svg>
+            {t("collection/CollectionModal.NewCollection")}
+          </button>
         </div>
       )}
-    </AnimatePresence>
+    </Modal>
   );
 }

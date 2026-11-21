@@ -1,16 +1,24 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import useSWR from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
-import { motion } from 'framer-motion';
 import { PageLayout, SongCard, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
 import type { CollectionSongList, Song } from '@/types';
 import { fetchChartInfos } from '@/utils/chartInfo';
 import CollectionSubscribeButton from '@/components/collection/CollectionSubscribeButton';
+import { LuPlus, LuSearch, LuSettings2, LuX } from 'react-icons/lu';
+import EmptyState from '@/components/ui/EmptyState';
+import PageLoading from '@/components/ui/PageLoading';
+import Pager from '@/components/ui/Pager';
+import SegmentedTabs from '@/components/ui/SegmentedTabs';
+import SortMenu from '@/components/ui/SortMenu';
+import { SONG_GRID_CLASS } from '@/components/song/songGrid';
+
+const GHOST_BUTTON = 'inline-flex items-center gap-2 bg-white/[0.06] hover:bg-white/10 px-4 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/85 text-sm whitespace-nowrap transition-colors cursor-pointer';
 
 const fetcher = (url: string) =>
   fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
@@ -231,159 +239,132 @@ export default function CollectionPage() {
     setSearchSortType(0);
   };
 
-  if (!id) {
-    return (
-      <PageLayout>
-        <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{t("collection/CollectionPage.InvalidParams")}</div>
-        </div>
-      </PageLayout>
-    );
-  }
+  // 无效参数、加载失败、歌单不存在：居中的一句提示
+  const notice = (text: string) => (
+    <PageLayout centered>
+      <div className="mx-auto px-4 py-10 max-w-xl text-center">
+        <p className="m-0 text-white/60! text-base">{text}</p>
+      </div>
+    </PageLayout>
+  );
 
-  if (error || songsError) {
-    return (
-      <PageLayout>
-        <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{t("collection/CollectionPage.ServerError")}</div>
-        </div>
-      </PageLayout>
-    );
-  }
-
+  if (!id) return notice(t("collection/CollectionPage.InvalidParams"));
+  if (error || songsError) return notice(t("collection/CollectionPage.ServerError"));
   if (isLoading || (isSongsLoading && !originalSongs)) {
-    return (
-      <PageLayout>
-        <div className="flex justify-center items-center min-h-[60vh]">
-          <LoadingSpinner size={50} />
-        </div>
-      </PageLayout>
-    );
+    return <PageLoading />;
   }
+  if (!collectionData) return notice(t("collection/CollectionPage.CollectionNotFound"));
 
-  if (!collectionData) {
-    return (
-      <PageLayout>
-        <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{t("collection/CollectionPage.CollectionNotFound")}</div>
-        </div>
-      </PageLayout>
-    );
-  }
+  /** 封面左上角的添加 / 移出按钮（右上角会盖住标题） */
+  const cardAction = (added: boolean, onClick: () => void) => (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      className={`top-4 left-4 z-10 absolute place-items-center grid shadow-[0_2px_8px_rgb(0_0_0/0.4)] border-none rounded-lg w-7 h-7 text-white transition-colors cursor-pointer ${added ? 'bg-red-500/85 hover:bg-red-500' : 'bg-blue-500/85 hover:bg-blue-500'}`}
+      title={added ? t("collection/CollectionPage.RemoveFromCollection") : t("collection/CollectionPage.Add")}
+      aria-label={added ? t("collection/CollectionPage.RemoveFromCollection") : t("collection/CollectionPage.Add")}
+    >
+      {added ? <LuX aria-hidden="true" className="w-4 h-4" /> : <LuPlus aria-hidden="true" className="w-4 h-4" />}
+    </button>
+  );
 
   return (
     <PageLayout>
-      <div className="mx-auto px-4 py-8 w-full max-w-7xl">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-            <div className="flex-1 min-w-0">
-              {isManaging ? (
-                <input
-                  type="text"
-                  value={currentName}
-                  onChange={(e) => setNameDraft(e.target.value)}
-                  className="bg-transparent py-1 border-white/20 focus:border-blue-500 border-b-2 outline-none w-full font-bold text-white text-3xl"
-                />
-              ) : (
-                <h1 className="font-bold text-white text-3xl">{collectionData.name}</h1>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
+        {/* Header：标题和简介居左，订阅 / 管理在右；管理时标题和简介变成输入框 */}
+        <header className="flex sm:flex-row flex-col justify-between sm:items-start gap-4 mb-6">
+          <div className="flex-1 min-w-0">
+            {isManaging ? (
+              <input
+                type="text"
+                value={currentName}
+                onChange={(e) => setNameDraft(e.target.value)}
+                aria-label={t("collection/CollectionPage.NameLabel")}
+                className="bg-white/[0.04] focus:bg-white/[0.06] px-3 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full h-12 font-semibold text-white text-xl sm:text-2xl transition-colors"
+              />
+            ) : (
+              <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! break-words tracking-tight">{collectionData.name}</h1>
+            )}
+            {isManaging ? (
+              <input
+                type="text"
+                value={currentDescription}
+                onChange={(e) => setDescriptionDraft(e.target.value)}
+                placeholder={t("collection/CollectionPage.DescriptionPlaceholder")}
+                aria-label={t("collection/CollectionPage.DescriptionPlaceholder")}
+                className="bg-white/[0.04] focus:bg-white/[0.06] mt-2 px-3 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full h-10 text-white/85 placeholder:text-white/35 text-sm transition-colors"
+              />
+            ) : (
+              collectionData.description && (
+                <p className="m-0 mt-1.5 text-white/60! text-sm break-words">{collectionData.description}</p>
+              )
+            )}
+            <p className="m-0 mt-2 text-white/40! text-xs">
+              {t("collection/CollectionPage.Creator")}:{' '}
+              <Link to={`/space?id=${encodeURIComponent(collectionData.createdBy)}`} className="text-white/60 hover:text-white no-underline">{collectionData.createdBy}</Link>
+              <span className="mx-1.5">·</span>{displaySongs.length} {t("collection/CollectionPage.Songs")}
+              <span className="mx-1.5">·</span>{currentVisibility === 1 ? t("collection/CollectionPage.Public") : t("collection/CollectionPage.Private")}
+            </p>
+          </div>
+          {!isManaging && (
+            <div className="flex items-center gap-2 shrink-0">
+              <CollectionSubscribeButton collectionId={collectionData.id} />
+              {isCreator && (
+                <button type="button" onClick={() => setIsManaging(true)} className={GHOST_BUTTON}>
+                  <LuSettings2 aria-hidden="true" className="w-4 h-4" />
+                  {t("collection/CollectionPage.Manage")}
+                </button>
               )}
-              {isManaging ? (
-                <input
-                  type="text"
-                  value={currentDescription}
-                  onChange={(e) => setDescriptionDraft(e.target.value)}
-                  placeholder={t("collection/CollectionPage.DescriptionPlaceholder")}
-                  className="bg-transparent mt-2 py-1 border-white/10 focus:border-white/30 border-b outline-none w-full text-white/60 placeholder:text-white/30 text-sm"
-                />
-              ) : (
-                collectionData.description && (
-                  <p className="mt-2 text-white/60">{collectionData.description}</p>
-                )
-              )}
-              <div className="mt-2 text-white/40 text-sm">
-                {t("collection/CollectionPage.Creator")}: {collectionData.createdBy} · {displaySongs.length}{' '}
-                {t("collection/CollectionPage.Songs")} · {currentVisibility === 1 ? t("collection/CollectionPage.Public") : t("collection/CollectionPage.Private")}
-              </div>
             </div>
-            {!isManaging && (
-              <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                <CollectionSubscribeButton collectionId={collectionData.id} />
-                {isCreator && (
+          )}
+        </header>
+
+        {/* 管理模式：可见性、搜索添加谱面 */}
+        {isManaging && (
+          <section className="mb-8">
+            <SegmentedTabs
+              className="mb-4"
+              tabs={[
+                { key: 'private', label: t("collection/CollectionPage.Private") },
+                { key: 'public', label: t("collection/CollectionPage.Public") },
+              ]}
+              active={currentVisibility === 1 ? 'public' : 'private'}
+              onSelect={(key) => setVisibilityDraft(key === 'public' ? 1 : 0)}
+            />
+
+            <div className="flex items-center gap-2 mb-4">
+              <div className="relative flex flex-1 items-center min-w-0">
+                <LuSearch aria-hidden="true" className="left-3.5 absolute w-4 h-4 text-white/40 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    debouncedSearch();
+                  }}
+                  placeholder={t("collection/CollectionPage.SearchToAdd")}
+                  aria-label={t("collection/CollectionPage.SearchToAdd")}
+                  className="bg-white/[0.04] focus:bg-white/[0.06] pr-10 pl-10 border border-white/10 focus:border-blue-400/60 rounded-xl outline-none focus:ring-2 focus:ring-blue-400/20 w-full h-11 text-white placeholder:text-white/40 text-sm transition-colors"
+                />
+                {searchQuery && (
                   <button
-                    onClick={() => setIsManaging(true)}
-                    className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md px-4 py-2 border border-white/20 rounded-xl font-bold text-white transition-all cursor-pointer"
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSearchPage(0);
+                      setSearchMaxPage(999999);
+                    }}
+                    aria-label={t("collection/CollectionPage.Cancel")}
+                    className="top-1/2 right-2 absolute place-items-center grid hover:bg-white/10 border-none rounded-md w-7 h-7 text-white/50 hover:text-white transition-colors -translate-y-1/2 cursor-pointer"
                   >
-                    {t("collection/CollectionPage.Manage")}
+                    <LuX aria-hidden="true" className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* 管理模式: 可见性切换 + 搜索栏 */}
-        {isManaging && (
-          <>
-            <div className="flex justify-center mb-4">
-              <div className="inline-flex bg-[rgba(20,20,25,0.7)] p-1 border border-white/10 rounded-full">
-                <button
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${currentVisibility === 0
-                    ? 'bg-blue-500/80 text-white'
-                    : 'text-white/80 hover:text-white'
-                    }`}
-                  onClick={() => setVisibilityDraft(0)}
-                >
-                  {t("collection/CollectionPage.Private")}
-                </button>
-                <button
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${currentVisibility === 1
-                    ? 'bg-blue-500/80 text-white'
-                    : 'text-white/80 hover:text-white'
-                    }`}
-                  onClick={() => setVisibilityDraft(1)}
-                >
-                  {t("collection/CollectionPage.Public")}
-                </button>
-              </div>
-            </div>
-
-            <div className="relative mb-4">
-              <div className="flex flex-row items-center gap-2">
-                <div className="relative flex-1 min-w-0">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      debouncedSearch();
-                    }}
-                    placeholder={t("collection/CollectionPage.SearchToAdd")}
-                    className="bg-[rgba(20,20,25,0.8)] backdrop-blur-[15px] backdrop-saturate-150 px-6 py-3 pr-10 border-2 border-white/15 rounded-[30px] outline-none w-full text-white placeholder:text-white/60 text-sm"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => {
-                        setSearchQuery('');
-                        setSearchPage(0);
-                        setSearchMaxPage(999999);
-                      }}
-                      className="top-1/2 right-3 absolute bg-transparent border-none text-white/60 hover:text-white/90 text-xl -translate-y-1/2 cursor-pointer"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-                <select
-                  value={searchSortType}
-                  onChange={(e) => setSearchSortType(parseInt(e.target.value))}
-                  className="bg-[rgba(20,20,25,0.8)] backdrop-blur-xl backdrop-saturate-150 px-2 py-1 border border-white/20 rounded-full outline-none h-10 overflow-hidden text-white text-xs sm:text-sm text-center whitespace-nowrap appearance-none cursor-pointer shrink-0"
-                >
-                  {searchSortOptions.map((label, i) => (
-                    <option key={i} value={i}>{label}</option>
-                  ))}
-                </select>
-              </div>
+              <SortMenu options={searchSortOptions} value={searchSortType} onChange={setSearchSortType} label={t("collection/CollectionPage.SortBy")} />
             </div>
 
             {isSearchLoading && (
@@ -394,105 +375,53 @@ export default function CollectionPage() {
 
             {searchResults.length > 0 && (
               <>
-      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+                <div className={SONG_GRID_CLASS}>
                   {searchResults.map((song, index) => {
                     const isAdded = allExistingIds.has(song.id);
                     return (
-                      <div key={song.id} className="relative">
+                      <div key={song.id} className="relative min-w-0">
                         <SongCard song={song} index={index} disableLink />
-                        <motion.button
-                          whileHover={{ scale: 1.15 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (isAdded) handleRemoveSong(song.id)
-                            else handleAddSong(song);
-                          }}
-                          className={`top-2 right-2 z-10 absolute flex justify-center items-center shadow-lg border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer transition-colors ${isAdded
-                            ? 'bg-red-500/80 hover:bg-red-500'
-                            : 'bg-blue-500/80 hover:bg-blue-500'
-                            }`}
-                          title={isAdded ? t("collection/CollectionPage.RemoveFromCollection") : t("collection/CollectionPage.Add")}
-                        >
-                          {isAdded ? '×' : '+'}
-                        </motion.button>
+                        {cardAction(isAdded, () => (isAdded ? handleRemoveSong(song.id) : handleAddSong(song)))}
                       </div>
                     );
                   })}
                 </div>
-
-                {/* 搜索结果分页 */}
-                <div className="flex justify-center items-center gap-3 mt-4 mb-4">
-                  <button
-                    className={`px-4 py-1.5 bg-blue-500/80 border-none rounded-lg text-white text-sm cursor-pointer ${searchPage <= 0 ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-                    disabled={searchPage <= 0}
-                    onClick={() => setSearchPage((p) => p - 1)}
-                  >
-                    ←
-                  </button>
-                  <span className="text-white/60 text-sm">
-                    {searchPage + 1}
-                  </span>
-                  <button
-                    className={`px-4 py-1.5 bg-blue-500/80 border-none rounded-lg text-white text-sm cursor-pointer ${searchPage >= searchMaxPage ? 'bg-gray-500/50 cursor-not-allowed opacity-60' : ''}`}
-                    disabled={searchPage >= searchMaxPage}
-                    onClick={() => setSearchPage((p) => p + 1)}
-                  >
-                    →
-                  </button>
+                <div className="flex justify-center mt-5">
+                  <Pager page={searchPage} hasNext={searchPage < searchMaxPage} onPageChange={setSearchPage} />
                 </div>
               </>
             )}
-          </>
+          </section>
         )}
 
-        {/* 分割线 */}
-        <div className="bg-linear-to-r from-transparent via-white/20 to-transparent mb-6 h-px" />
-
-        {/* 歌曲网格 */}
+        {/* 歌单里的谱面 */}
         {displaySongs.length === 0 ? (
-          <div className="py-20 text-white/60 text-xl text-center">
-            {t("collection/CollectionPage.EmptyCollection")}
-          </div>
+          <EmptyState>{t("collection/CollectionPage.EmptyCollection")}</EmptyState>
         ) : (
-      <div className="justify-center gap-3 sm:gap-[0.6rem] grid grid-cols-[minmax(0,20.6rem)] sm:grid-cols-[repeat(auto-fit,minmax(20rem,20.6rem))] mx-auto p-0 sm:p-2 w-full max-w-350 min-w-0">
+          <div className={SONG_GRID_CLASS}>
             {displaySongs.map((song, index) => (
-              <div key={song.id} className="relative">
+              <div key={song.id} className="relative min-w-0">
                 <SongCard song={song} index={index} disableLink={isManaging} />
-                {isManaging && (
-                  <motion.button
-                    whileHover={{ scale: 1.15 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveSong(song.id);
-                    }}
-                    className="top-2 right-2 z-10 absolute flex justify-center items-center bg-red-500/80 hover:bg-red-500 shadow-lg border-none rounded-full w-6 h-6 font-bold text-white text-base leading-none cursor-pointer"
-                    title={t("collection/CollectionPage.RemoveFromCollection")}
-                  >
-                    ×
-                  </motion.button>
-                )}
+                {isManaging && cardAction(true, () => handleRemoveSong(song.id))}
               </div>
             ))}
           </div>
         )}
 
-        {/* 管理模式: 操作按钮 */}
+        {/* 管理模式：取消 / 保存 */}
         {isManaging && (
-          <div className="flex justify-center items-center gap-4 mt-10">
-            <button
-              onClick={handleCancel}
-              className="bg-white/10 hover:bg-white/20 shadow-lg backdrop-blur-md px-6 py-2.5 border border-white/20 rounded-xl font-bold text-white transition-all cursor-pointer"
-            >
+          <div className="flex justify-end items-center gap-2 mt-8">
+            <button type="button" onClick={handleCancel} className={GHOST_BUTTON}>
               {t("collection/CollectionPage.Cancel")}
             </button>
             <button
+              type="button"
               onClick={handleSubmit}
               disabled={!hasChanges || isSubmitting}
-              className="bg-blue-500/80 hover:bg-blue-500 disabled:bg-white/10 px-6 py-2.5 border-none rounded-xl font-bold text-white disabled:text-white/30 transition-all cursor-pointer disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-400 disabled:opacity-50 px-4 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
             >
-              {isSubmitting ? '...' : t("collection/CollectionPage.Submit")}
+              {isSubmitting && <LoadingSpinner size={16} />}
+              {t("collection/CollectionPage.Submit")}
             </button>
           </div>
         )}

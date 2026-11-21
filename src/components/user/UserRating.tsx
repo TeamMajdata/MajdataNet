@@ -1,8 +1,11 @@
+import type { ReactNode } from 'react';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useTranslation } from 'react-i18next';
 import { RatingRequestError, useUserRating } from '@/hooks/useUserRating';
 import RadarPlot from '@/components/chart/RadarPlot';
 import BestScores from '@/components/user/BestScores';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { ComboState } from '@/types';
+import { CARD_SURFACE_CLASS, SECTION_HEADING_CLASS } from '@/components/ui/surface';
 
 interface UserRatingProps {
   username: string;
@@ -20,50 +23,87 @@ export default function UserRating({ username }: UserRatingProps) {
       ? t('space/SpacePage.UserNotFound')
       : t('space/SpacePage.RatingFailed');
     return (
-      <div className="flex flex-col justify-center items-center gap-3 py-10 text-center" aria-live="polite">
-        <p role="alert" className="text-white/70">{message}</p>
-        <button
-          type="button"
-          disabled={isValidating}
-          onClick={() => { void mutate().catch(() => {}); }}
-          className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg disabled:opacity-50"
-        >
-          {t('space/SpacePage.Retry')}
-        </button>
-      </div>
+      <RatingSection>
+        <div className="flex flex-col justify-center items-center gap-3 py-10 text-center" aria-live="polite">
+          <p role="alert" className="text-white/70">{message}</p>
+          <button
+            type="button"
+            disabled={isValidating}
+            onClick={() => { void mutate().catch(() => {}); }}
+            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg disabled:opacity-50"
+          >
+            {t('space/SpacePage.Retry')}
+          </button>
+        </div>
+      </RatingSection>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <LoadingSpinner size={40} />
-      </div>
+      <RatingSection>
+        <SectionLoading />
+      </RatingSection>
     );
   }
 
   if (!data || data.chartCount === 0 || data.best.length === 0) {
-    return <p className="py-8 text-center text-white/50 text-sm">{t('space/SpacePage.RatingEmpty')}</p>;
+    // 没有可用于计算的成绩时整块不显示，和概览里其他没数据的区块一样
+    return null;
   }
 
+  const apCount = data.best.filter(score => Number(score.comboState) >= ComboState.AP).length;
+  const fcCount = data.best.filter(score => Number(score.comboState) === ComboState.FC || Number(score.comboState) === ComboState.FCPlus).length;
+  const accs = data.best.map(score => score.acc.dx);
+  const stats = [
+    { label: t('space/SpacePage.AverageAcc'), value: `${(accs.reduce((sum, acc) => sum + acc, 0) / accs.length).toFixed(4)}%`, color: 'text-white' },
+    { label: t('space/SpacePage.BestAcc'), value: `${Math.max(...accs).toFixed(4)}%`, color: 'text-white' },
+    { label: 'AP / AP+', value: apCount, color: 'text-amber-300' },
+    { label: 'FC / FC+', value: fcCount, color: 'text-sky-300' },
+  ];
+
   return (
-    <div className="justify-center items-start gap-5 grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] mx-auto w-full md:w-[92%] lg:w-[86%]">
-      <section
-        aria-label={t('space/SpacePage.Rating')}
-        className="mx-auto w-full max-w-[17rem] sm:max-w-[20rem] lg:max-w-none bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2)] backdrop-blur-[10px] p-3 sm:p-4 border border-white/10 rounded-2xl min-w-0"
-      >
-        <RadarPlot feature={data.feature} />
-        <p className="m-0 text-center text-white/50 text-xs">
-          {t('space/SpacePage.RatingCharts', { count: data.chartCount })}
-        </p>
-        <p className="m-0 mt-2 text-center text-white/40 text-[0.7rem] leading-relaxed">
-          {t('space/SpacePage.RatingFormula')}
-        </p>
-      </section>
-      <section aria-label={t('space/SpacePage.Best50')} className="min-w-0">
-        <h3 className="m-0 mb-3 font-bold text-white text-sm">{t('space/SpacePage.Best50')}</h3>
+    // 按所在区域的宽度排版：上面是雷达图和统计，下面是 Best 50 网格
+    <div className="@container w-full">
+      <RatingSection>
+        <div className={`${CARD_SURFACE_CLASS} flex flex-col @3xl:flex-row items-center gap-6 p-5`}>
+          <div className="w-full max-w-64 shrink-0">
+            <RadarPlot feature={data.feature} />
+            <p className="m-0 text-white/50 text-xs text-center">
+              {t('space/SpacePage.RatingCharts', { count: data.chartCount })}
+            </p>
+          </div>
+          <div className="flex-1 w-full min-w-0">
+            <dl className="gap-3 grid grid-cols-2 m-0">
+              {stats.map(({ label, value, color }) => (
+                <div key={label} className="bg-white/[0.03] px-4 py-3 border border-white/10 rounded-2xl min-w-0">
+                  <dt className="text-white/50 text-xs">{label}</dt>
+                  <dd className={`m-0 mt-1 font-semibold text-xl tabular-nums truncate ${color}`}>{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="m-0 mt-4 text-white/40 text-xs text-left leading-relaxed">
+              {t('space/SpacePage.RatingFormula')}
+            </p>
+          </div>
+        </div>
+      </RatingSection>
+      <section aria-labelledby="user-best50-title" className="mt-10">
+        <h3 id="user-best50-title" className={SECTION_HEADING_CLASS}>{t('space/SpacePage.Best50')}</h3>
         <BestScores scores={data.best} />
       </section>
     </div>
+  );
+}
+
+/** “评分”区块：加载中、失败和有数据时都带着同一个小标题，和概览里其他区块一致 */
+function RatingSection({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    // data-filled：告诉个人空间的概览这里有内容
+    <section aria-labelledby="user-rating-title" data-filled="">
+      <h2 id="user-rating-title" className={SECTION_HEADING_CLASS}>{t('space/SpacePage.Rating')}</h2>
+      {children}
+    </section>
   );
 }

@@ -1,11 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { getEventHref } from '@/utils/eventLink';
+import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
 /**
- * 活动页面 - 从 legacy/src/app/events/page.jsx 迁移
+ * 活动页面
  * 使用 TailwindCSS 重现原样式
  */
 
 import { useState, useMemo } from 'react';
+import { LuCalendarRange } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 import { useEventClock } from '@/hooks/useEventClock';
 import { PageLayout, EnhancedDescription, EventsFilter, TimelineModal } from '@/components';
@@ -61,19 +63,26 @@ export default function EventsPage() {
   };
 
   return (
-    <PageLayout className="py-4 sm:py-8 min-h-screen mt-(--content-top-spacing)">
-      <div className="mx-auto my-0 px-0 sm:px-4 max-w-(--container-max-width) min-w-0">
-        <header className="mb-6 sm:mb-12 text-center">
-          <p className="m-0 mx-auto max-w-150 text-white/80 text-base sm:text-lg leading-relaxed">
-            {t("chart-events/EventsPage.EventsPageSubtitle")}
-            <span
-              className="inline-block ml-2 font-medium text-blue-400 hover:text-blue-300 decoration-blue-400/50 hover:decoration-blue-300/80 underline underline-offset-2 transition-all hover:-translate-y-px duration-200 cursor-pointer"
-              onClick={handleTimelineClick}
-              title={t("chart-events/EventsPage.ViewTimeline")}
-            >
-              {t("chart-events/EventsPage.Timeline")}
-            </span>
-          </p>
+    <PageLayout className="pt-4 sm:pt-8 mt-(--content-top-spacing)">
+      <div className="mx-auto my-0 w-full max-w-320 min-w-0">
+        <header className="flex sm:flex-row flex-col justify-between sm:items-end gap-4 mb-5 sm:mb-6">
+          <div className="min-w-0">
+            <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+              {t("shared/Navigation.Contest")}
+            </h1>
+            <p className="m-0 mt-1.5 text-white/55! text-sm sm:text-base">
+              {t("chart-events/EventsPage.EventsPageSubtitle")}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="flex items-center gap-2 bg-white/[0.04] hover:bg-white/[0.08] px-3.5 border border-white/10 hover:border-white/20 rounded-xl h-10 font-medium text-white/85 hover:text-white text-sm transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+            onClick={handleTimelineClick}
+            title={t("chart-events/EventsPage.ViewTimeline")}
+          >
+            <LuCalendarRange aria-hidden="true" className="w-4 h-4 text-blue-300" />
+            {t("chart-events/EventsPage.Timeline")}
+          </button>
         </header>
 
         <EventsFilter
@@ -82,7 +91,7 @@ export default function EventsPage() {
           categories={categories as EventCategory[]}
         />
 
-        <div className="gap-4 sm:gap-6 lg:gap-8 grid grid-cols-1 lg:grid-cols-2 mt-6 sm:mt-8">
+        <div className="gap-4 sm:gap-6 grid grid-cols-1 lg:grid-cols-2 mt-5 sm:mt-6">
           {filteredEvents.map((event) => (
             <div
               key={event.id}
@@ -96,17 +105,19 @@ export default function EventsPage() {
                   openEvent(getEventHref(event));
                 }
               }}
-              className="relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 rounded-xl sm:rounded-2xl h-auto aspect-video sm:aspect-1279/372 overflow-hidden md:hover:scale-[1.03] transition-all md:hover:-translate-y-2 duration-[0.4s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] cursor-pointer will-change-transform"
+              className="group relative bg-[rgb(20,20,25)]/90 shadow-[0_8px_24px_rgba(0,0,0,0.4)] border border-white/10 hover:border-white/30 rounded-xl sm:rounded-2xl h-auto aspect-video sm:aspect-1279/372 overflow-hidden transition-colors duration-300 cursor-pointer [content-visibility:auto] [contain-intrinsic-size:auto_240px]"
             >
               <div className="relative w-full h-full overflow-hidden">
                 <img
-                  className="block w-full h-full object-cover hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform"
-                  src={event.src}
+                  className="block w-full h-full object-cover"
+                  src={eventThumbSrc(event.src)}
+                  onError={fallbackToOriginal(event.src)}
                   alt={event.alt}
                   loading="lazy"
                   decoding="async"
                 />
-                <div className="absolute inset-0 flex flex-col justify-end sm:justify-center bg-linear-to-b from-black/10 via-black/20 to-black/90 sm:from-black/40 sm:to-black/80 opacity-100 sm:opacity-0 sm:hover:opacity-100 px-4 sm:px-6 py-3 sm:py-2 transition-all translate-y-0 sm:translate-y-2.5 sm:hover:translate-y-0 duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-[opacity,transform]">
+                {/* 渐变和文字常驻显示，悬停时没有动画；文字在左下，所以左侧和底部压暗得更多，花哨的横幅上也读得清 */}
+                <div className="absolute inset-0 flex flex-col justify-end bg-[linear-gradient(90deg,rgb(0_0_0/0.85),rgb(0_0_0/0.55)_45%,rgb(0_0_0/0.1)),linear-gradient(0deg,rgb(0_0_0/0.55),transparent_60%)] px-4 sm:px-6 py-3 sm:py-5">
                   <div className="text-left">
                     <h3 className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] m-0 mb-1.5 sm:mb-3 font-bold text-white text-base sm:text-xl md:text-2xl leading-tight line-clamp-2">
                       {event.title}

@@ -1,0 +1,76 @@
+.song-detail {
+  --ink: #f0f3f6;
+  --muted: #9ea9b7;
+  /* 半透明白：深色、浅色封面背景上都看得见 */
+  --rule: rgb(255 255 255 / 14%);
+  --link: #94c5ff;
+  color: var(--ink);
+}
+.song-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background: #14181e top left / cover no-repeat;
+  filter: blur(20px) brightness(.3);
+}
+.song-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
+  grid-template-areas: 'heading heading' 'workspace sidebar';
+  gap: 1.25rem clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+}
+.song-header {
+  grid-area: heading; display: grid; align-items: center;
+  grid-template-columns: clamp(3.5rem, 7vw, 5rem) minmax(0, 1fr) auto;
+  gap: .4rem 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--rule);
+}
+.song-header-actions { display: flex; gap: .5rem; align-self: center; }
+.song-workspace { grid-area: workspace; min-width: 0; }
+.song-sidebar { grid-area: sidebar; display: grid; gap: .85rem; min-width: 0; padding-left: 1.4rem; border-left: 1px solid var(--rule); }
+.song-sidebar > .song-label { padding-top: .65rem; }
+/* 侧栏里“谱面资料”之后的每一块：上面一条分隔线，块内标题和内容间距一致 */
+.song-side-section, .song-sidebar .song-radar { border-top: 1px solid var(--rule); padding-top: .9rem; }
+.song-sidebar .song-radar { display: grid; gap: .6rem; }
+.song-radar > :last-child { margin-inline: auto; max-width: 15rem; }
+.song-credits dd, .song-credits a {
+  display: flex; align-items: center;
+}
+.song-workspace [role="tabpanel"] { min-width: 0; }
+.song-levels { grid-column: 1 / -1; margin-top: .35rem; }
+.song-detail .song-label { margin: 0; font-size: .875rem; font-weight: 600; text-align: start; line-height: 1.4; }
+.song-stage { position: relative; width: min(100%, 84svh); aspect-ratio: 1; margin-inline: auto; }
+.song-preview, .song-cover { overflow: hidden; border-radius: var(--radius-xl); }
+.song-preview { position: relative; display: block; width: 100%; height: 100%; cursor: pointer; background: #14181e; }
+.song-preview img { width: 100%; height: 100%; object-fit: cover; }
+.song-play-action {
+  position: absolute; inset: 0;
+  display: flex; align-items: flex-end; justify-content: flex-start; gap: .65rem;
+  padding: 1rem; background: linear-gradient(0deg, rgb(7 10 16 / 82%), transparent 40%);
+  line-height: 2.6rem; color: white; font-size: 1rem; font-weight: 600;
+}
+.song-play-action > span { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: white; color: #18212d; }
+.song-preview:hover .song-play-action > span { background: #cce2ff; }
+.song-play-action svg { width: 1.1rem; height: 1.1rem; margin-left: 2px; }
+.song-identity { min-width: 0; }
+.song-cover { aspect-ratio: 1; width: 100%; cursor: zoom-in; }
+.song-cover img { width: 100%; height: 100%; object-fit: cover; }
+.song-identity h1 { margin: 0; font-size: clamp(1.65rem, 3vw, 2.8rem); line-height: 1.16; text-align: start; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.song-identity a, .song-credits a { color: inherit; text-decoration: none; }
+.song-identity a:hover, .song-credits a:hover { text-decoration: underline; text-underline-offset: .18em; }
+.song-identity .song-artist { display: inline-block; margin-top: .3rem; font-size: .95rem; color: #bac4d1; overflow-wrap: anywhere; }
+.song-credits { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .4rem .85rem; margin: 0; font-size: .875rem; }
+.song-credits > div { display: contents; }
+.song-credits dt { color: var(--muted); }
+.song-credits dd, .song-credits a { gap: .4rem; overflow-wrap: anywhere; min-width: 0; }
+.song-credits svg { flex: none; width: 1rem; height: 1rem; }
+.song-detail :is(button, a, summary):focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+
+@media (max-width: 48rem) {
+  .song-page { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'heading' 'workspace' 'sidebar'; gap: 1rem; }
+  .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
+  .song-header-actions { grid-column: 1 / -1; grid-row: 3; }
+  .song-header-actions > button { flex: 1; }
+  .song-sidebar { border-left: 0; border-top: 1px solid var(--rule); padding: .5rem 0 0; }
+}

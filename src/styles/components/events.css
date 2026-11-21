@@ -1,62 +1,30 @@
-.mobile-events-swiper .swiper-pagination {
-  bottom: 0.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  position: relative;
-  width: auto;
-  margin-top: 1rem;
+/* 活动轮播的分页点：普通圆点，当前页拉成短条，整排居中放在轮播下方 */
+:is(.desktop-events-swiper, .mobile-events-swiper) .swiper-pagination {
+  position: static;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 0.875rem 0 0.5rem;
+  line-height: 0;
 }
 
-.mobile-events-swiper .swiper-pagination-bullet {
-  background: rgb(255 255 255 / 40%);
-  border: 1px solid rgb(255 255 255 / 20%);
+:is(.desktop-events-swiper, .mobile-events-swiper) .swiper-pagination-bullet {
+  margin: 0 !important;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 25%);
   opacity: 1;
-  width: 8px;
-  height: 8px;
-  margin: 0 4px;
-  transition: all 0.3s ease;
+  transition: width 0.3s ease, background-color 0.2s ease;
 }
 
-.mobile-events-swiper .swiper-pagination-bullet-active {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  width: 20px;
-  border-radius: 10px;
+:is(.desktop-events-swiper, .mobile-events-swiper) .swiper-pagination-bullet:hover {
+  background: rgb(255 255 255 / 50%);
 }
 
-/* PC端 Swiper 分页器样式 */
-.desktop-events-swiper .swiper-pagination {
-  bottom: 0;
-  position: relative;
-  margin-top: 1.5rem;
-}
-
-.desktop-events-swiper .swiper-pagination-bullet {
-  background: rgb(255 255 255 / 30%);
-  border: 1px solid rgb(255 255 255 / 20%);
-  opacity: 1;
-  width: 12px;
-  height: 12px;
-  margin: 0 4px;
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.desktop-events-swiper .swiper-pagination-bullet:hover {
-  background: rgb(255 255 255 / 60%);
-  border-color: rgb(255 255 255 / 40%);
-  transform: scale(1.2);
-}
-
-.desktop-events-swiper .swiper-pagination-bullet-active {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  width: 24px;
-  border-radius: 6px;
-  transform: scale(1);
-}
-
-.desktop-events-swiper .swiper-pagination-bullet-active:hover {
-  background: #2563eb;
-  border-color: #2563eb;
-  transform: scale(1);
+:is(.desktop-events-swiper, .mobile-events-swiper) .swiper-pagination-bullet-active,
+:is(.desktop-events-swiper, .mobile-events-swiper) .swiper-pagination-bullet-active:hover {
+  width: 18px;
+  background: #60a5fa;
 }

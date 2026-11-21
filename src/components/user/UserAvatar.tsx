@@ -25,5 +25,6 @@ export default function UserAvatar({ username, avatarId, alt, className, style, 
       />
     );
   }
-  return <img className={className} style={style} src={src} alt={alt ?? username ?? ''} {...rest} />;
+  // 列表里常有上百个头像，默认懒加载；需要立即显示时可以传 loading="eager" 覆盖
+  return <img className={className} style={style} src={src} alt={alt ?? username ?? ''} loading="lazy" decoding="async" {...rest} />;
 }

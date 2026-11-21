@@ -1,11 +1,21 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
+// cdn.majdata.net 开了防盗链，Referer 为 localhost / 局域网 IP 时封面返回 403。
+// 仅开发服务器（apply: 'serve'）注入 no-referrer；vite build 不会执行此插件，线上 index.html 不受影响。
+const devNoReferrer: Plugin = {
+  name: 'dev-no-referrer',
+  apply: 'serve',
+  transformIndexHtml: () => [
+    { tag: 'meta', attrs: { name: 'referrer', content: 'no-referrer' }, injectTo: 'head-prepend' },
+  ],
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), devNoReferrer],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

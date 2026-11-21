@@ -14,12 +14,12 @@ describe('i18n', () => {
 
   it('interpolates values and picks the plural form for the language', async () => {
     await i18n.changeLanguage('en');
-    expect(i18n.t('song/ScoreRanking.Records', { count: 1 })).toBe('1 record');
-    expect(i18n.t('song/ScoreRanking.Records', { count: 3 })).toBe('3 records');
+    expect(i18n.t('song/SongComments.Replies', { count: 1 })).toBe('1 reply');
+    expect(i18n.t('song/SongComments.Replies', { count: 3 })).toBe('3 replies');
     expect(i18n.t('not-found/NotFoundPage.Redirect', { countdown: 5 })).toContain('5 seconds');
 
     await i18n.changeLanguage('zh');
-    expect(i18n.t('song/ScoreRanking.Records', { count: 1 })).toBe('1 条记录');
+    expect(i18n.t('song/SongComments.Replies', { count: 1 })).toBe('1 条回复');
   });
 
   it('normalizes regional and unsupported languages', async () => {

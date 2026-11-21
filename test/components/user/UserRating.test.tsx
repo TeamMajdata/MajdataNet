@@ -77,11 +77,11 @@ describe('rating on the profile page', () => {
     expect(container.textContent).toContain('100.5123');
   });
 
-  it('shows an empty notice when no chart could be averaged', async () => {
+  it('renders nothing when no chart could be averaged', async () => {
     fetchMock.mockResolvedValue(jsonResponse({ ...rating(), feature: {}, charts: [], best: [], scoreCount: 0, chartCount: 0 }));
     await render();
 
-    expect(container.textContent).toContain('还没有可用于计算 rating 的成绩');
+    expect(container.textContent).toBe('');
   });
 
   it('reports a failed rating and retries on demand', async () => {

@@ -1,8 +1,9 @@
-import { act } from 'react';
+import { act, createRef } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { SWRConfig } from 'swr';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import TagManageWidget from '@/components/ui/TagManageWidget';
+import type { TagManageWidgetRef } from '@/types';
 import i18n from '@/i18n';
 import { TooltipProvider } from '@/components/ui/Tooltip';
 
@@ -11,7 +12,8 @@ import { TooltipProvider } from '@/components/ui/Tooltip';
 const toastMock = vi.hoisted(() => ({
   loading: vi.fn(() => 'toast-id'), done: vi.fn(), error: vi.fn(), success: vi.fn(),
 }));
-vi.mock('react-toastify', () => ({ toast: toastMock }));
+// 保留库的其他导出（PageLayout 在模块加载时调用 cssTransition），只替换 toast
+vi.mock('react-toastify', async (importOriginal) => ({ ...(await importOriginal<typeof import('react-toastify')>()), toast: toastMock }));
 // The song page reloads a second after saving; never let that reach jsdom.
 vi.mock('@/utils/sleep', () => ({ default: () => new Promise<void>(() => {}) }));
 
@@ -36,18 +38,17 @@ describe('TagManageWidget', () => {
     window.history.replaceState(null, '', '/');
   });
 
+  const widget = createRef<TagManageWidgetRef>();
   async function open(path: string, summary: { tags?: string[]; publicTags?: string[] }) {
     window.history.replaceState(null, '', path);
     fetchMock.mockResolvedValueOnce(Response.json(summary));
     await act(async () => root.render(
-      <SWRConfig value={{ provider: () => new Map() }}><TooltipProvider><TagManageWidget songid="c1" /></TooltipProvider></SWRConfig>,
+      <SWRConfig value={{ provider: () => new Map() }}><TooltipProvider><TagManageWidget ref={widget} songid="c1" /></TooltipProvider></SWRConfig>,
     ));
-    await act(async () => (container.querySelector('svg')!.parentElement as HTMLElement).click());
+    // 和谱面页一样，通过 ref 打开窗口
+    await act(async () => widget.current!.openWindow());
   }
-  const shownTags = () => {
-    const label = [...document.body.querySelectorAll('div')].find((div) => div.textContent === 'Tags:')!;
-    return [...label.nextElementSibling!.querySelectorAll('span')].map((span) => span.textContent);
-  };
+  const shownTags = () => [...document.body.querySelectorAll<HTMLElement>('[data-testid="tag-current"] [data-tag]')].map((chip) => chip.dataset.tag);
   const clickText = async (text: string) => {
     const element = [...document.body.querySelectorAll<HTMLElement>('span, button')].find((el) => el.textContent === text)!;
     await act(async () => element.click());
@@ -63,7 +64,7 @@ describe('TagManageWidget', () => {
     await clickText('POPS');
     expect(shownTags()).toEqual(['B', 'POPS']);
     fetchMock.mockResolvedValueOnce(Response.json(['B', 'Other', 'POPS']));
-    await clickText('更新Tags');
+    await clickText(i18n.t('shared/TagManageWidget.Save'));
 
     expect(saveRequest()).toEqual({ url: '/api3/api/maichart/c1/publictags', method: 'PATCH', body: { add: ['POPS'], remove: ['A'] } });
     expect(shownTags()).toEqual(['B', 'Other', 'POPS']);
@@ -80,7 +81,7 @@ describe('TagManageWidget', () => {
     });
     await clickText(i18n.t('shared/TagManageWidget.AddTag'));
     fetchMock.mockResolvedValueOnce(Response.json(['x', 'y']));
-    await clickText('更新Tags');
+    await clickText(i18n.t('shared/TagManageWidget.Save'));
 
     expect(saveRequest()).toEqual({ url: '/api3/api/maichart/c1/tags', method: 'PUT', body: ['x', 'y'] });
     expect(shownTags()).toEqual(['x', 'y']);
@@ -90,7 +91,7 @@ describe('TagManageWidget', () => {
     await open('/song', { publicTags: ['A'] });
     await clickText('POPS');
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 401 }));
-    await clickText('更新Tags');
+    await clickText(i18n.t('shared/TagManageWidget.Save'));
 
     expect(toastMock.error).toHaveBeenCalledOnce();
     expect(toastMock.done).toHaveBeenCalledWith('toast-id');
@@ -114,7 +115,7 @@ describe('TagManageWidget', () => {
     await open('/song', { publicTags: ['A'] });
     await clickText('POPS');
     fetchMock.mockResolvedValueOnce(Response.json({ code: 40002, message: 'A chart can have at most 32 tags of each kind' }, { status: 400 }));
-    await clickText('更新Tags');
+    await clickText(i18n.t('shared/TagManageWidget.Save'));
 
     expect(toastMock.error).toHaveBeenCalledWith(tooManyTags());
     expect(toastMock.success).not.toHaveBeenCalled();
@@ -126,7 +127,7 @@ describe('TagManageWidget', () => {
     await clickText('POPS');
     const conflict = () => Response.json({ code: -114514, message: 'The tags were changed by other requests, try again' }, { status: 409 });
     fetchMock.mockResolvedValueOnce(conflict()).mockResolvedValueOnce(conflict());
-    await clickText('更新Tags');
+    await clickText(i18n.t('shared/TagManageWidget.Save'));
 
     expect(fetchMock).toHaveBeenCalledTimes(3); // summary, PATCH, retried PATCH
     expect(toastMock.error).toHaveBeenCalledWith(i18n.t('shared/TagManageWidget.TagsChanged'));

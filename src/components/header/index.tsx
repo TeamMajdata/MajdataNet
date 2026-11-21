@@ -6,6 +6,7 @@ import MajdataLogo from './MajdataLogo';
 import Navigation from './Navigation';
 import UserMenu from './UserMenu';
 import AuthSection from './AuthSection';
+import LanguageMenu from './LanguageMenu';
 
 /**
  * 统一顶部导航栏组件
@@ -18,13 +19,13 @@ export default function UnifiedHeader() {
   const isLoggedIn = !!username && !error;
 
   return (
-    <header className="top-0 before:top-0 right-0 before:right-0 left-0 before:left-0 z-1000 fixed before:absolute bg-[rgb(8_10_15/52%)] before:bg-linear-to-r before:from-transparent before:via-[rgb(96_165_250/45%)] before:to-transparent before:opacity-70 shadow-[0_10px_32px_rgb(0_0_0/22%),0_1px_0_rgb(255_255_255/6%)_inset] backdrop-blur-[22px] backdrop-saturate-150 pt-[env(safe-area-inset-top)] border-white/10 border-b before:h-px before:content-['']">
-      <div className="flex justify-between items-center mx-auto my-2 md:my-3 px-3 sm:px-6 lg:px-8 max-w-350 h-12 md:h-14">
+    <header className="top-0 right-0 left-0 z-1000 fixed bg-[rgb(9_11_17/72%)] backdrop-blur-xl backdrop-saturate-150 pt-[env(safe-area-inset-top)] border-white/[0.07] border-b">
+      <div className="flex justify-between items-center gap-4 mx-auto px-3 sm:px-4 max-w-320 h-(--header-height)">
         {/* 左侧区域：Logo + 导航 */}
-        <div className="flex flex-1 items-center gap-5 2xl:gap-7">
+        <div className="flex flex-1 items-center gap-6 2xl:gap-8 min-w-0">
           {/* Logo Section */}
           <div className="hidden md:flex items-center shrink-0">
-            <Link to="/" className="flex items-center no-underline">
+            <Link to="/" className="flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 no-underline">
               <MajdataLogo />
             </Link>
           </div>
@@ -36,22 +37,25 @@ export default function UnifiedHeader() {
         {/* 移动端中间Logo */}
         <div className="md:hidden left-1/2 absolute flex items-center h-8 -translate-x-1/2">
           <Link to="/" className="flex items-center">
-            <img className="rounded-[7px] w-8 h-8" src="/salt.webp" alt="Majdata Net" />
+            <img className="rounded-lg ring-1 ring-white/15 w-8 h-8" src="/salt.webp" alt="Majdata.Net" />
           </Link>
         </div>
 
-        {/* User Section */}
-        <div className="relative flex items-center rounded-[10px] shrink-0">
-          {isLoading ? (
-            <div className="flex items-center gap-2 opacity-70 px-3 md:px-4 py-2 md:py-3 border border-white/10 rounded-[10px] h-10 md:min-h-10 font-medium text-white/85 text-sm no-underline transition-all duration-200 cursor-default pointer-events-none">
-              <LoadingSpinner className="animate-pulse" size={25} />
-              <span className="hidden md:inline text-sm">{t("shared/header.Loading")}</span>
-            </div>
-          ) : isLoggedIn ? (
-            <UserMenu username={username} />
-          ) : (
-            <AuthSection />
-          )}
+        {/* Language + User Section */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <LanguageMenu />
+          <div className="relative flex items-center">
+            {isLoading ? (
+              <div className="flex items-center gap-2 opacity-70 px-3 h-9 font-medium text-white/70 text-sm pointer-events-none">
+                <LoadingSpinner className="animate-pulse" size={20} />
+                <span className="hidden md:inline text-sm">{t("shared/header.Loading")}</span>
+              </div>
+            ) : isLoggedIn ? (
+              <UserMenu username={username} />
+            ) : (
+              <AuthSection />
+            )}
+          </div>
         </div>
       </div>
     </header>

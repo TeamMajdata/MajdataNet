@@ -14,9 +14,9 @@ vi.mock('@/components', async () => ({
   PageLayout: ({ children }: { children: ReactNode }) => children,
   Tooltip: ({ children }: { children: ReactNode }) => children,
   SongDifficultyLevels: (await import('@/components/song/SongDifficultyLevels')).default,
-  Majdata: () => null,
-  CoverPic: () => null, TagManageWidget: () => null, TagManageTagLauncher: () => null,
-  CommentSection: () => null, ChartVotePanel: () => null,
+  Majdata: ({ level }: { level: string }) => <output data-player-level={level} />,
+  CoverPic: () => null, TagManageWidget: () => null,
+  CommentSection: () => null, CommentSortMenu: () => null, ChartVotePanel: () => null,
   ScoreRanking: () => null, CollectionModal: () => null, LoadingSpinner: () => null,
 }));
 
@@ -62,10 +62,10 @@ describe('radar on the song page', () => {
     delete window.unitySendMessage;
     vi.unstubAllGlobals();
   });
-  async function render(children: ReactNode = <SongPage />) {
+  async function render(children: ReactNode = <SongPage />, entry = '/song?id=song') {
     await act(async () => root.render(
       <SWRConfig value={{ provider: () => cache }}>
-        <MemoryRouter initialEntries={['/song?id=song']}>{children}</MemoryRouter>
+        <MemoryRouter initialEntries={[entry]}>{children}</MemoryRouter>
       </SWRConfig>,
     ));
   }
@@ -76,14 +76,42 @@ describe('radar on the song page', () => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar(String(url).endsWith('=5') ? 14.83 : 14.2)));
     await render();
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('6');
-    expect(container.querySelector('aside section svg')?.textContent).toContain('错位');
-    expect(container.querySelector('aside section svg')?.textContent).toContain('拟合定数');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('错位');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('拟合定数');
     expect(container.querySelector('aside')?.textContent).not.toMatch(/主要特征|刻度|SLIDE/);
     expect(radarRequests()[0][0]).toBe('/api3/api/maichart/song/radar?chartLevel=6');
 
-    await act(async () => difficulty(5).querySelector('sup')!.click());
-    expect(container.querySelector('aside section svg')?.textContent).toContain('14.83');
+    await act(async () => difficulty(5).querySelector('span')!.click());
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('14.83');
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('5');
+  });
+
+  it('keeps the cover, title, artist and difficulty in the header and both identifiers in the sidebar across tabs', async () => {
+    fetchMock.mockImplementation(async url => String(url).endsWith('/summary')
+      ? response({ ...summary, artist: 'Track artist' }) : response(radar()));
+    await render();
+    const heading = container.querySelector('header')!;
+    expect(heading.querySelector('h1')?.textContent).toBe('Song');
+    expect(heading.textContent).toContain('Track artist');
+    expect(heading.contains(difficulty(3))).toBe(true);
+    expect(heading.querySelector('.song-cover img')?.getAttribute('src')).toContain('/song/image');
+    expect(heading.querySelector('.song-credits, code')).toBeNull();
+    const sidebar = container.querySelector('aside')!;
+    expect(Array.from(sidebar.querySelectorAll('code'), item => item.textContent)).toEqual(['song', 'hash']);
+    expect(sidebar.querySelector('details')).toBeNull();
+    const scores = container.querySelector<HTMLButtonElement>('#song-tab-scores')!;
+    await act(async () => scores.click());
+    expect(scores.getAttribute('aria-selected')).toBe('true');
+    expect(container.querySelector('[role="tabpanel"]:not([hidden])')?.id).toBe('song-panel-scores');
+    expect(heading.contains(difficulty(3))).toBe(true);
+  });
+
+  it.each(['/song?id=song#comments', '/song?id=song&comment=specific'])('opens the discussion for %s', async entry => {
+    fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
+    await render(<SongPage />, entry);
+    expect(container.querySelector('#song-tab-comments')?.getAttribute('aria-selected')).toBe('true');
+    await act(async () => difficulty(3).click());
+    expect(container.querySelector('#song-panel-comments')?.hasAttribute('hidden')).toBe(false);
   });
 
   it('uses the default difficulty when navigating to another song', async () => {
@@ -103,16 +131,24 @@ describe('radar on the song page', () => {
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('6');
   });
 
+  it('opens the preview on the difficulty selected before loading Unity', async () => {
+    fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
+    await render();
+    await act(async () => difficulty(3).click());
+    await act(async () => container.querySelector<HTMLButtonElement>('button.song-preview')!.click());
+    expect(container.querySelector('[data-player-level]')?.getAttribute('data-player-level')).toBe('lv3');
+  });
+
   it('observes nested clicks while preserving exactly one original playback message per click', async () => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
     const sendMessage = vi.fn();
     window.unitySendMessage = sendMessage;
     await render();
-    await act(async () => difficulty(5).querySelector('sup')!.click());
+    await act(async () => difficulty(5).querySelector('span')!.click());
     expect(sendMessage).toHaveBeenCalledTimes(1);
     expect(sendMessage.mock.calls[0][2]).toMatch(/\nlv5$/);
     expect(radarRequests().at(-1)?.[0]).toBe('/api3/api/maichart/song/radar?chartLevel=5');
-    await act(async () => difficulty(5).querySelector('span')!.click());
+    await act(async () => difficulty(5).querySelector('span:last-child')!.click());
     expect(sendMessage).toHaveBeenCalledTimes(2);
     expect(radarRequests()).toHaveLength(2);
     await act(async () => container.querySelector<HTMLElement>('[data-radar-level]')!.click());
@@ -130,8 +166,8 @@ describe('radar on the song page', () => {
     await render();
     await act(async () => difficulty(5).click());
     await act(async () => finishDefault(response(radar(14.2))));
-    expect(container.querySelector('aside section svg')?.textContent).toContain('14.83');
-    expect(container.querySelector('aside section svg')?.textContent).not.toContain('14.20');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('14.83');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).not.toContain('14.20');
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('5');
   });
 
@@ -142,9 +178,9 @@ describe('radar on the song page', () => {
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('6');
     expect(radarRequests()).toHaveLength(1);
     fetchMock.mockResolvedValue(response(radar()));
-    await act(async () => container.querySelector<HTMLButtonElement>('aside section button')!.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('aside .song-radar button')!.click());
     expect(container.querySelector('aside [role="alert"]')).toBeNull();
-    expect(container.querySelector('aside section svg')?.textContent).toContain('14.20');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('14.20');
     expect(radarRequests()).toHaveLength(2);
   });
 

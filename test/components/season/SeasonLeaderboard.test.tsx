@@ -55,6 +55,12 @@ describe('season leaderboard recovery', () => {
     charts = { items: [], songIds: [chartId], isLoading: false, retry: vi.fn().mockResolvedValue(undefined) };
     fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', fetchMock);
+    // 最近游玩时间按需加载；测试里让所有卡片立即“可见”
+    vi.stubGlobal('IntersectionObserver', class {
+      constructor(private readonly callback: IntersectionObserverCallback) {}
+      observe(target: Element) { this.callback([{ isIntersecting: true, target } as IntersectionObserverEntry], this as unknown as IntersectionObserver); }
+      disconnect() {}
+    });
   });
 
   afterEach(() => {

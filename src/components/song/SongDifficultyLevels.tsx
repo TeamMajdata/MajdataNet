@@ -1,100 +1,50 @@
-/**
- * SongDifficultyLevels 组件 - 显示歌曲所有难度等级
- * 迁移自 legacy/src/app/song/SongDifficultyLevels.jsx
- */
-
-import React from 'react';
-import { renderLevel } from '@/utils/renderLevel';
+import { getLevelName } from '@/utils/levelUtils';
+import { endpoints } from '@/config/api';
+import { LEVEL_BG_CLASS } from '@/components/score/levelColors';
 import type { SongDifficultyLevelsProps } from '@/types';
 
 export default function SongDifficultyLevels({
   levels,
   songid,
+  selected,
+  onSelect,
   isPlayer = false
 }: SongDifficultyLevelsProps) {
-  // 处理空值
-  if (!levels || !Array.isArray(levels)) {
-    return <div>No difficulty levels available</div>;
+  function choose(index: number) {
+    onSelect?.(index);
+    if (isPlayer && window.unitySendMessage) {
+      const chart = new URL(endpoints.maichart.prefix(songid), location.origin);
+      window.unitySendMessage('HandleJSMessages', 'ReceiveMessage', [
+        chart + '/chart', chart + '/track', chart + '/image?fullImage=true', chart + '/video', 'lv' + index,
+      ].join('\n'));
+    }
   }
-  const processedLevels = levels.map((level) => {
-    if (level == null || level === '') {
-      return '-';
-    }
-    return level;
-  });
 
-  const levelClickCallback = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isPlayer) return;
-    const target = e.currentTarget;
-    const id = target.id;
-    if (!id) return;
-
-    // 使用全局的 window.unitySendMessage (Majdata组件会设置)
-    if (window.unitySendMessage) {
-      const httpprefix = location.protocol + '//' + location.host;
-      let root = '/api3/api';
-      if (!root.startsWith('http')) {
-        root = httpprefix + root;
-      }
-      const maichart = root + '/maichart/' + songid;
-      const maidata = maichart + '/chart';
-      const track = maichart + '/track';
-      const bg = maichart + '/image?fullImage=true';
-      const mv = maichart + '/video';
-      window.unitySendMessage(
-        'HandleJSMessages',
-        'ReceiveMessage',
-        `${maidata}\n${track}\n${bg}\n${mv}\n${id}`
-      );
-    }
-  };
-
-  // 难度名称映射
-  const levelNames = [
-    'Easy',
-    'Basic',
-    'Advanced',
-    'Expert',
-    'Master',
-    'Re:Master',
-    'UTAGE',
-  ];
-
-  // 难度渐变背景映射
-  const levelGradients = [
-    'linear-gradient(90deg, rgb(59 130 246 / 60%), rgb(59 130 246 / 40%))',
-    'linear-gradient(90deg, rgb(34 197 94 / 60%), rgb(34 197 94 / 40%))',
-    'linear-gradient(90deg, rgb(234 179 8 / 60%), rgb(234 179 8 / 40%))',
-    'linear-gradient(90deg, rgb(239 68 68 / 60%), rgb(239 68 68 / 40%))',
-    'linear-gradient(90deg, rgb(168 85 247 / 60%), rgb(168 85 247 / 40%))',
-    'linear-gradient(90deg, rgb(192 38 211 / 60%), rgb(192 38 211 / 40%))',
-    'linear-gradient(90deg, rgb(139 92 246 / 60%), rgb(139 92 246 / 40%))',
-  ];
-
+  // 选中的难度是首页谱面卡片上那种难度色实底标签；其余是中性的深色标签，只有定数带难度色，
+  // 这样一排里只有一个色块，不会一片发灰的颜色
   return (
-    <div className="flex flex-row flex-wrap gap-2 w-auto">
-      {processedLevels.map((level, index) => {
-        if (level === '-') return null;
-
+    <div className="flex flex-wrap gap-1.5">
+      {levels.map((value, index) => {
+        const level = value?.replace(/\s/g, '');
+        if (!level) return null;
+        const label = index === 6 ? 'UTAGE' : getLevelName(index);
+        const active = selected === index;
         return (
-          <div
-            key={index}
-            className={`flex flex-row items-center justify-between gap-3 px-4 py-2 rounded w-40 shrink-0 transition-all duration-200 ease-out min-h-10 ${isPlayer ? 'cursor-pointer hover:translate-x-1 hover:shadow-lg' : ''
-              }`}
-            style={{ background: levelGradients[index] }}
-            id={`lv${index}`}
-            onClick={levelClickCallback}
-            title={`${levelNames[index]} ${level}`}
-          >
-            <span className="flex-1 font-semibold text-white text-xs uppercase tracking-wide">
-              {levelNames[index]}
-            </span>
-            <span className="min-w-8 font-black text-white text-2xl text-right" style={{ textShadow: '0 2px 8px rgb(0 0 0 / 0.4)' }}>
-              {renderLevel(level)}
-            </span>
-          </div>
+          <button key={index} type="button" id={'lv' + index} data-level={index}
+            aria-pressed={active} onClick={() => choose(index)} disabled={!isPlayer && !onSelect}
+            className={`inline-flex items-center gap-1.5 px-2.5 border rounded-lg h-8 text-xs leading-none whitespace-nowrap transition-colors cursor-pointer disabled:cursor-default select-none ${active
+              ? `${LEVEL_BG_CLASS[index] ?? 'bg-white/15'} border-white/25 text-white shadow-[0_4px_14px_rgb(0_0_0/0.35)]`
+              : 'bg-white/[0.05] hover:bg-white/10 border-white/10 hover:border-white/20 text-white/65 hover:text-white'}`}>
+            <span className="font-medium">{label}</span>
+            <span className="font-bold text-sm tabular-nums" style={active ? undefined : { color: LEVEL_TEXT_COLORS[index] }}>{level}</span>
+          </button>
         );
       })}
     </div>
   );
 }
+
+/** 没选中时定数的颜色：难度色的浅色版本，在深色底上看得清 */
+const LEVEL_TEXT_COLORS: Record<number, string> = {
+  0: '#7cc4ff', 1: '#7ee06a', 2: '#ffd24a', 3: '#ff8f8f', 4: '#d79bff', 5: '#f0a8f0', 6: '#ffb45c',
+};

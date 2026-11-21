@@ -1,5 +1,7 @@
 {
-  "auth/ForginsterPage": {
+  "auth/AuthModal": {
+    "BackToLogin": "로그인으로 돌아가기",
+    "Close": "닫기",
     "CloudflareVerificationNotReady": "Cloudflare 인증이 완료되지 않았습니다. 네트워크를 확인한 후 잠시 뒤 다시 시도해 주세요.",
     "CodeExpired": "코드가 만료되었습니다. 새 코드를 요청하세요.",
     "CodeSent": "사용 가능한 이메일이면 코드가 전송됩니다. 5분 이내에 입력하세요.",
@@ -8,9 +10,12 @@
     "EightDigitCode": "8자리 인증 코드",
     "EmailExists": "이미 등록된 이메일입니다",
     "EmailLabel": "이메일",
-    "ForgetPassword": "비밀번호 찾기",
     "ForgetPasswordSubtitle": "가입한 이메일로 코드를 받은 후 새 비밀번호를 설정하세요.",
     "ForgetPasswordTitle": "비밀번호 찾기",
+    "ForgotPasswordLink": "비밀번호를 잊으셨나요?",
+    "GoLogin": "로그인",
+    "GoRegister": "회원가입",
+    "HaveAccount": "이미 계정이 있으신가요?",
     "InvalidEmail": "유효하지 않은 이메일 주소입니다",
     "LegacyLink": "이메일 인증 링크는 더 이상 지원되지 않습니다. 코드를 다시 요청하세요. 기존 계정 활성화는 관리자에게 문의하세요.",
     "Login": "로그인",
@@ -19,6 +24,7 @@
     "LoginUserBanned": "이 계정은 정지되었습니다.",
     "NetworkError": "네트워크 요청에 실패했습니다. 다시 시도하세요.",
     "Nickname": "닉네임",
+    "NoAccount": "계정이 없으신가요?",
     "PasswdNoMatch": "비밀번호가 일치하지 않습니다",
     "Password": "비밀번호",
     "Register": "회원가입",
@@ -119,6 +125,7 @@
     "LatestActivity": "최근 활동",
     "LikeCount": "좋아요 수",
     "Manage": "관리",
+    "NameLabel": "컬렉션 이름",
     "PlayCount": "재생 수",
     "Private": "비공개",
     "Public": "공개",
@@ -128,7 +135,8 @@
     "SearchToAdd": "추가할 곡 검색...",
     "ServerError": "서버 오류",
     "Songs": "곡",
-    "Submit": "제출",
+    "SortBy": "정렬",
+    "Submit": "저장",
     "Subscribe": "구독",
     "SubscribeSuccess": "구독했습니다",
     "Subscribed": "구독 중",
@@ -137,16 +145,11 @@
   },
   "collection/hiroba/HirobaPage": {
     "ClearSearch": "검색 지우기",
-    "CollectionsHiroba": "콜렉션 광장",
+    "CollectionsHiroba": "컬렉션 광장",
     "EmptyData": "비어있음",
-    "FrontPage": "첫 페이지로 돌아가기",
-    "NextPage": "다음",
-    "NoSearchResults": "일치하는 콜렉션이 없습니다",
-    "Page": "페이지 번호",
-    "PageInput": "<input/> 페이지",
-    "PreviousPage": "이전",
-    "SearchCollectionHint": "콜렉션 이름 또는 설명으로 검색",
-    "SearchCollectionsPlaceholder": "콜렉션 검색...",
+    "NoSearchResults": "일치하는 컬렉션이 없습니다",
+    "SearchCollectionHint": "컬렉션 이름 또는 설명으로 검색",
+    "SearchCollectionsPlaceholder": "컬렉션 검색...",
     "ServerError": "서버 오류"
   },
   "eventTag/EventTagPage": {
@@ -154,19 +157,30 @@
     "OriginalSongsDesc": "Maj 협업 팀이 만든 오리지널 곡과 채보!",
     "RelatedCharts": "관련 채보"
   },
+  "home/HomeHighlights": {
+    "ByComments": "댓글",
+    "ByDownloads": "다운로드",
+    "ByPlays": "플레이",
+    "ByRating": "평가",
+    "Likes_other": "좋아요 {{formatted}}",
+    "Next": "다음",
+    "Plays_other": "{{formatted}}회 플레이",
+    "Popular": "이번 주 인기 채보",
+    "Previous": "이전",
+    "RecentUploads": "최근 업로드",
+    "RecentUploadsHint": "커뮤니티의 새 작품",
+    "SortBy": "정렬 기준"
+  },
   "home/HomePage": {
     "AllCharts": "모든 채보",
     "ClearSearch": "검색 지우기",
     "CommentCount": "댓글",
-    "DownloadFormat": "다운로드 형식:",
     "EmptyData": "비어있음",
     "EventCreatedAt": "이벤트 생성일: {{date}}",
     "EventsCount_other": "+{{count}}개의 이벤트",
-    "FrontPage": "첫 페이지로 돌아가기",
     "HotShort": "인기",
     "LatestActivityShort": "최근",
     "LoginForRecommend": "로그인하면 맞춤 추천을 받을 수 있습니다",
-    "PageInput": "<input/> 페이지",
     "PersonalRecommend": "맞춤 추천",
     "PlayCount": "재생 수",
     "RandomRecommend": "랜덤 추천",
@@ -178,12 +192,19 @@
     "SearchHintTag": "tag:xxxx - 태그로 검색",
     "SearchHintUploader": "uploader:xxxx - 업로더로 검색",
     "SearchPlaceholder": "곡/작곡가/채보자를 검색하세요...",
+    "SearchSuggestions": "검색 추천",
     "ServerError": "서버 오류",
     "SortBy": "정렬 기준:",
+    "SuggestKindArtist": "아티스트",
+    "SuggestKindDesigner": "채보자",
+    "SuggestKindTag": "태그",
+    "SuggestKindTitle": "곡명",
+    "SuggestKindUploader": "업로더",
     "UploadDate": "날짜",
     "ViewAllEvents": "전체 이벤트 보기"
   },
   "minigame/MiniGamePage": {
+    "Loading": "미니게임 불러오는 중 {{percent}}%",
     "MiniGame": "미니 게임"
   },
   "not-found/NotFoundPage": {
@@ -193,16 +214,22 @@
     "Redirect": "{{countdown}}초 후 홈페이지로 돌아갑니다...",
     "Title": "페이지를 찾을 수 없습니다"
   },
-  "ranking/RankingPage": {
-    "Comment": "댓글",
-    "CommentCountHint": "받은 댓글 수",
-    "Download": "다운로드",
-    "DownloadCountHint": "다운로드 수",
-    "Play": "재생",
-    "PlayCountHint": "재생 횟수",
-    "RecommendedChartsHint": "최근 7일 동안 가장 사랑받은 채보입니다!",
-    "Score": "평가",
-    "ScoreHint": "추천에서 비추천을 뺀 점수"
+  "qrauth/QRAuthPage": {
+    "AlreadyApproved": "이미 승인했습니다",
+    "Confirm": "로그인",
+    "InvalidCode": "QR 코드가 유효하지 않습니다",
+    "InvalidCodeHint": "QR 코드를 새로 고쳐 보세요",
+    "InvalidLink": "잘못된 링크",
+    "LoginFirst": "먼저 로그인하세요",
+    "Machine": "기기",
+    "MissingAuthId": "링크에 auth-id가 없습니다",
+    "NoSuchCode": "존재하지 않는 QR 코드입니다",
+    "PermissionDenied": "권한이 없습니다",
+    "Place": "위치",
+    "Subtitle": "아래 기기 정보를 확인하세요",
+    "Success": "로그인했습니다",
+    "Title": "이 기기에 로그인할까요?",
+    "TryAgain": "다시 시도하세요"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "총 달성률 랭킹 - 커스텀 채보 감상의 베테랑은 누구?",
@@ -223,12 +250,7 @@
   "season/SeasonLeaderboard": {
     "Empty": "아직 참가 기록이 없습니다. 이번 시즌의 첫 기록을 제출해 보세요.",
     "LoadFailed": "순위표를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
-    "Loading": "순위표를 불러오는 중…",
-    "Next": "다음",
-    "Page": "{{page}} / {{total}} 페이지",
     "Participants": "참가자: {{count}}",
-    "Previous": "이전",
-    "Rank": "순위",
     "Retry": "다시 시도",
     "Title": "순위표",
     "Upcoming": "대회가 시작되면 여기에 순위표가 표시됩니다.",
@@ -266,9 +288,24 @@
     "Login": "로그인",
     "Register": "회원가입"
   },
-  "shared/FloatingButtons": {
-    "LanguageSettings": "언어 설정",
-    "SelectLanguage": "언어 선택"
+  "shared/ConfirmDialog": {
+    "Cancel": "취소"
+  },
+  "shared/Download": {
+    "Done": "다운로드 완료",
+    "Downloading": "다운로드 중…",
+    "Failed": "다운로드에 실패했습니다. 다시 시도해 주세요",
+    "FileBg": "배경",
+    "FileChart": "채보",
+    "FileTrack": "음원",
+    "FileVideo": "영상"
+  },
+  "shared/DownloadFormatDialog": {
+    "AdxDescription": "AstroDX 채보 패키지, 바로 가져오기 가능",
+    "Cancel": "취소",
+    "LastUsed": "지난번 선택",
+    "Title": "다운로드 형식 선택",
+    "ZipDescription": "일반 압축 파일, 압축을 풀어 바로 사용"
   },
   "shared/LanguageSelector": {
     "Language": "언어"
@@ -279,11 +316,17 @@
     "DismissDialogue": "대사 닫기",
     "Encourage1": "오늘도 즐겁게 플레이해!",
     "Encourage2": "다음 판은 AP 하길!",
-    "MoveHint": "드래그하거나 방향키로 움직일 수 있어요",
+    "HiddenToast": "숨겼습니다. 페이지 하단에서 다시 불러올 수 있어요.",
+    "Hide": "샤오샤오란바이 숨기기",
+    "MoveHint": "드래그나 방향키로 이동, 우클릭으로 크기 조절·숨기기",
     "Name": "샤오샤오란바이",
     "Poke": "샤오샤오란바이 콕 찌르기",
     "Shy1": "앗, 들켰네.",
-    "Shy2": "자꾸 찌르면 부끄러워져."
+    "Shy2": "자꾸 찌르면 부끄러워져.",
+    "Size": "크기",
+    "SizeLarge": "크게",
+    "SizeMedium": "보통",
+    "SizeSmall": "작게"
   },
   "shared/MajdataLogo": {
     "FUCKYOU": "건들지 마, 꺼져 버려 이 개자식아"
@@ -291,21 +334,31 @@
   "shared/Navigation": {
     "ChartEditor": "채보 편집기",
     "ChartPlayer": "채보 플레이어",
-    "CollectionHiroba": "콜렉션 광장",
+    "CollectionHiroba": "컬렉션 광장",
     "Contest": "이벤트",
     "Documentation": "문서",
     "NavigationMenu": "메인 내비게이션",
     "OriginalSongs": "오리지널 곡",
-    "Rankings": "랭킹",
-    "Recommend": "추천 채보",
     "Tools": "도구",
     "UserRankingTitle": "헤비 플레이어 랭킹"
   },
   "shared/PageLayout": {
-    "BackToHome": "홈으로 돌아가기",
     "FooterCommunity": "채보 제작자 여러분의 응원에 감사드립니다",
-    "FooterCopyright": "© Majdata Net - 오픈 소스 채보 공유 플랫폼",
-    "MiniGame": "미니 게임"
+    "FooterCopyright": "© Majdata.Net - 오픈 소스 채보 공유 플랫폼",
+    "MiniGame": "미니 게임",
+    "ShowMascot": "샤오샤오란바이 부르기"
+  },
+  "shared/PageLoading": {
+    "Loading": "불러오는 중…"
+  },
+  "shared/Pager": {
+    "First": "첫 페이지",
+    "Last": "마지막 페이지",
+    "Next": "다음",
+    "PageInput": "<input/> 페이지",
+    "PageInputWithTotal": "<input/> / {{total}} 페이지",
+    "PageNumber": "페이지 번호",
+    "Previous": "이전"
   },
   "shared/RecentActivityChart": {
     "LatestPlay": "최근: {{time}}",
@@ -319,21 +372,27 @@
   },
   "shared/TagManageWidget": {
     "AddTag": "추가",
+    "AuthorTags": "작성자 태그",
+    "Cancel": "취소",
     "CommonTags": "자주 쓰는 태그",
+    "CurrentTags": "현재 태그 (클릭하여 삭제)",
     "CustomTag": "사용자 지정 태그",
     "DeleteTag": "태그 삭제",
+    "LoadFailed": "불러오지 못했습니다",
     "NoTags": "태그 없음",
+    "PlayerTags": "플레이어 태그",
+    "Save": "저장",
+    "Saved": "저장했습니다",
     "TagsChanged": "다른 사용자가 동시에 태그를 변경했습니다. 다시 시도해 주세요",
     "TooManyTags": "채보마다 종류별로 태그는 최대 {{max}}개까지입니다",
     "Uploading": "업로드 중..."
   },
   "shared/UserMenu": {
-    "AccountSetting": "설정",
-    "ChartsManagement": "채보",
+    "ChartsManagement": "내 채보",
     "Logout": "로그아웃",
     "LogoutFailed": "로그아웃에 실패했습니다",
     "MyCollections": "내 컬렉션",
-    "PersonalHomePage": "홈페이지",
+    "PersonalHomePage": "내 스페이스",
     "PersonalScores": "내 점수",
     "UserMenu": "사용자 메뉴"
   },
@@ -341,14 +400,13 @@
     "Loading": "불러오는 중..."
   },
   "shared/useCollections": {
-    "AddToCollectionSuccess": "콜렉션에 추가했습니다",
+    "AddToCollectionSuccess": "컬렉션에 추가했습니다",
     "OperationFailed": "작업에 실패했습니다",
     "RemoveFromCollection": "컬렉션에서 제거"
   },
   "shared/useFavorites": {
     "FavoriteSuccess": "즐겨찾기에 추가했습니다",
     "OperationFailed": "작업에 실패했습니다",
-    "PleaseLogin": "먼저 로그인해 주세요",
     "UnfavoriteSuccess": "즐겨찾기에서 삭제했습니다"
   },
   "song/ChartRadar": {
@@ -370,8 +428,15 @@
   "song/ScoreRanking": {
     "FailedToLoad": "불러오기에 실패했습니다",
     "NoRecords": "아직 성적 기록이 없습니다",
-    "RankingList": "랭킹",
-    "Records_other": "{{count}}개 기록"
+    "RankingList": "랭킹"
+  },
+  "song/SongCard": {
+    "Delete": "삭제",
+    "DeleteFailed": "삭제하지 못했습니다",
+    "DeleteMessage": "「{{title}}」을(를) 삭제할까요? 되돌릴 수 없습니다.",
+    "DeleteSuccess": "삭제했습니다",
+    "DeleteTitle": "채보 삭제",
+    "Tags": "태그"
   },
   "song/SongComments": {
     "Cancel": "취소",
@@ -388,7 +453,7 @@
     "DeletedChart": "채보가 삭제되었습니다",
     "Edit": "수정",
     "EditPlaceholder": "댓글 수정",
-    "Edited": "수정됨",
+    "Edited": "(수정됨)",
     "ExpandThread": "펼치기",
     "LinkCopied": "링크가 복사되었습니다",
     "LoadMore": "댓글 더 보기",
@@ -429,7 +494,7 @@
   },
   "song/SongInteraction": {
     "FailedToLoad": "불러오지 못했습니다",
-    "Plays": "재생",
+    "Plays": "플레이 수",
     "VoteOnChart": "이 채보에 투표",
     "Votes": "평가"
   },
@@ -438,17 +503,28 @@
     "ServerError": "서버 오류"
   },
   "song/SongPage": {
+    "BackToHome": "홈으로 돌아가기",
+    "ChartDetails": "채보 정보",
     "ClipboardSuccess": "복사되었습니다",
-    "Collection": "콜렉션",
+    "Collection": "컬렉션",
+    "CopyFailed": "복사하지 못했습니다",
+    "CopyValue": "{{field}} 복사",
+    "Designer": "채보 제작자",
+    "Difficulty": "난이도",
     "Download": "다운로드",
+    "Duration": "길이",
+    "ManageTags": "태그 관리",
     "NoTags": "태그 없음",
+    "Preview": "채보 미리보기",
+    "PreviewChart": "미리보기 재생",
     "SearchForArtist": "작곡가 검색",
     "SearchForTag": "태그 검색",
     "SearchForTitle": "제목 검색",
     "Share": "공유",
     "SongNotFound": "곡을 찾을 수 없습니다",
     "Tags": "태그",
-    "UploadTime": "업로드 시간"
+    "UploadTime": "업로드 시간",
+    "ViewCover": "재킷 확대"
   },
   "song/VoteControl": {
     "Downvote": "비추천",
@@ -456,33 +532,36 @@
     "Upvote": "추천"
   },
   "space/SpacePage": {
+    "AverageAcc": "평균 달성률",
     "BackToHome": "홈으로 돌아가기",
     "Best50": "Best 50",
     "Best50Empty": "아직 기록이 없습니다",
-    "Collapse": "접기",
+    "BestAcc": "최고 달성률",
     "Comments": "작성한 댓글",
+    "EarlyMember": "고인물",
+    "EditProfile": "프로필 편집",
     "Error": "오류",
-    "Expand": "펼치기",
+    "Introduction": "자기소개",
     "JoinAt": "가입일: {{date}}",
     "NoComments": "아직 작성한 댓글이 없습니다",
-    "Rating": "레이팅 레이더",
+    "Overview": "개요",
+    "OverviewEmpty": "아직 아무것도 없습니다",
+    "Rating": "레이팅",
     "RatingCharts": "{{count}}개 채보 평균",
-    "RatingEmpty": "레이팅에 사용할 기록이 아직 없습니다",
     "RatingFailed": "레이팅을 불러오지 못했습니다",
     "RatingFormula": "B50은 \"상수 × 달성률/101\"로 상위 50개 난이도(좋아요 5 초과, 연주 악보 제외, 달성률 97 이상)를 뽑고, 각 레이더 값을 달성률/101로 가중 평균합니다. 결과는 참고용입니다.",
-    "RecentlyPlayedCharts": "최근 플레이한 채보",
+    "RecentlyPlayedCharts": "최근 플레이",
     "Retry": "다시 시도",
-    "SelfIntro": "자기소개",
+    "Sections": "스페이스",
     "ServerError": "서버 오류",
     "UploadedCharts": "업로드한 채보",
     "UserNotFound": "사용자를 찾을 수 없습니다",
-    "WhoLovesToPlay": "최고 플레이어"
+    "WhoLovesToPlay": "가장 많이 플레이한 유저"
   },
   "user/AvatarUploader": {
     "Cancel": "취소",
     "ChangeFile": "파일 변경",
     "CurrentAvatar": "현재 아바타",
-    "FileSize": "파일 크기",
     "FileTooLarge": "파일이 너무 큽니다. 5MB 이하 이미지를 선택하세요",
     "InvalidFileType": "잘못된 파일 형식입니다. 이미지 파일을 선택하세요",
     "NoSelectedFile": "파일을 선택하지 않았습니다.",
@@ -495,7 +574,7 @@
     "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!"
   },
   "user/ChartUploader": {
-    "BGVideoHint": "bg.mp4/pv.mp4 (선택 사항, 최대 20MB)",
+    "ChooseFile": "선택",
     "InvalidFileName": "파일 이름이 올바르지 않습니다(대소문자 구분). 올바른 이름: ",
     "MaidataAlreadyExists": "이 채보는 이미 사이트에 존재합니다",
     "MaidataAlreadyExistsWithTitle": "이 채보는 이미 사이트에 존재합니다: {{title}}",
@@ -503,36 +582,39 @@
     "MaidataHashLookupFailed": "maidata.txt 해시 조회에 실패했습니다",
     "MaidataHashNotFound": "기존 채보를 찾지 못했습니다",
     "MaidataWillInheritHistory": "이번 업로드는 이전 점수 또는 상호작용을 이어받습니다",
+    "NoFileChosen": "선택된 파일 없음",
     "NoFileSelected": "파일이 선택되지 않았습니다: {{file}}",
     "NotLoggedIn": "로그인하지 않음",
+    "ReplaceFile": "변경",
     "Upload": "업로드",
     "UploadFailed": "업로드에 실패했습니다",
     "UploadServerErrorHint": "업로드 실패, 주 사이트로 가서 업로드하세요",
     "UploadSuccess": "업로드했습니다",
     "Uploading": "업로드 중...",
     "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!",
+    "VideoHint": "선택, 20MB 이하",
     "View": "보기"
   },
   "user/IntroUploader": {
-    "MarkdownSupported": " (마크다운 지원)",
     "NoIntroTypedIn": "아직 자기소개를 작성하지 않았어요.",
     "Preview": "미리보기",
+    "Save": "저장",
+    "Saving": "저장 중…",
     "SelfIntro": "자기소개",
-    "Upload": "업로드",
     "UploadFailed": "업로드에 실패했습니다",
     "UploadSuccess": "업로드했습니다",
-    "Uploading": "업로드 중...",
-    "UploadingPlzWait": "업로드 중입니다. 잠시만 기다려 주세요!"
+    "Uploading": "업로드 중..."
   },
   "user/Logout": {
     "Logout": "로그아웃"
   },
+  "user/NicknameEditor": {
+    "Save": "저장",
+    "Saving": "저장 중…"
+  },
   "user/RecentPlayedWidget": {
     "NoRecentRecords": "최근 기록이 없습니다",
     "ServerError": "서버 오류"
-  },
-  "user/UserInfo": {
-    "Login": "로그인"
   },
   "user/UserSeasons": {
     "LoadFailed": "일부 대회 기록을 불러오지 못했습니다.",
@@ -544,33 +626,39 @@
     "ViewSeason": "대회 보기"
   },
   "user/charts/ChartsPage": {
+    "AcceptNotice": "읽고 동의합니다",
+    "Cancel": "취소",
     "ChartsManagement": "채보",
     "ManageAllYourCharts": "업로드한 모든 채보를 관리하세요",
-    "MyCharts": "내 채보",
+    "NoticeIntro": "업로드 전에 다음을 확인해 주세요:",
     "UploadChart": "채보 업로드",
     "UploadNotice": "업로드 안내",
     "UploadNoticeTerms1": "채보는 본인이 제작했거나 공동으로 제작했으며, 원 저자의 동의를 받고 업로드합니다;",
     "UploadNoticeTerms2": "채보는 공개되어 누구나 자유롭게 다운로드할 수 있습니다;",
     "UploadNoticeTerms3": "이 채보를 게시해도 어떠한 제3자의 권리도 침해하지 않습니다;",
-    "UploadNoticeTerms4": "이 채보는 최소 하나의 편집기(majdata / maipad / astrodx / simai 등)에서 열 수 있어야 합니다."
+    "UploadNoticeTerms4": "이 채보는 최소 하나의 편집기(majdata / maipad / astrodx / simai 등)에서 열 수 있어야 합니다.",
+    "UploadNoticeTerms5": "AI로 만든 채보는 전부든 일부든 업로드가 엄격히 금지됩니다.",
+    "UploadNoticeTerms6": "이 사이트를 파일 저장소로 사용하지 마세요. 어떤 에디터로도 읽을 수 없는 채보는 삭제될 수 있습니다."
   },
   "user/collections/CollectionPage": {
-    "EmptyData": "비어있음",
-    "EmptyFavorites": "아직 즐겨찾기가 없습니다",
+    "EmptyData": "아직 컬렉션이 없습니다. 새 컬렉션을 만들어 보세요.",
+    "EmptyFavorites": "구독한 컬렉션이 없습니다. 컬렉션 광장에서 골라 보세요.",
     "ExitManage": "관리 종료",
-    "FrontPage": "첫 페이지로 돌아가기",
-    "Manage": "관리 모드",
-    "ManageHint": "관리 모드: 콜렉션 오른쪽 위 버튼으로 삭제할 수 있습니다",
+    "GoToHiroba": "컬렉션 광장 둘러보기",
+    "Manage": "관리",
+    "ManageHint": "관리 모드: 컬렉션 오른쪽 위 버튼으로 삭제할 수 있습니다",
     "MyCollections": "내 컬렉션",
-    "MyFavCollections": "구독한 콜렉션",
+    "MyFavCollections": "구독한 컬렉션",
     "NewCollection": "새 컬렉션",
-    "PageInput": "<input/> 페이지",
-    "ServerError": "서버 오류"
+    "ServerError": "서버 오류",
+    "Title": "내 컬렉션"
   },
   "user/profile/ProfilePage": {
     "AccountSetting": "설정",
+    "Avatar": "아바타",
     "AvatarHint": "5MB 이하",
-    "AvatarSettings": "아바타 설정",
+    "BasicInfo": "기본 정보",
+    "IntroHint": "Markdown 문법 지원",
     "PersonalIntro": "자기소개"
   },
   "user/scores/ScoresPage": {
@@ -579,15 +667,17 @@
     "NoFilterResults": "필터 조건에 맞는 성적이 없습니다",
     "NoFilterResultsHint": "위의 콤보 필터 조건을 조정해 보세요",
     "NoScores": "점수 기록이 없습니다",
+    "NotFc": "FC 아님",
     "PersonalScores": "내 점수",
     "ServerError": "서버 오류",
-    "SortBy": "정렬 기준:",
+    "SortBy": "정렬",
     "SortByClassicAcc": "클래식 정확도",
     "SortByCombo": "콤보 상태",
     "SortByDxAcc": "DX 정확도",
     "SortByDxScore": "DX 점수",
     "SortByTime": "플레이 시간",
     "TotalClassicAcc": "Classic 정확도 합계",
+    "TotalCount_other": "총 {{count}}개",
     "TotalDxAcc": "DX 정확도 합계",
     "TotalDxScore": "DX 점수 합계"
   }

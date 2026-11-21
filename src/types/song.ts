@@ -25,4 +25,6 @@ export interface Song {
   designer: string;
   levels: string[];
   hash: string;
+  /** 上传时间（ISO 字符串）；列表接口会返回 */
+  timestamp?: string;
 }

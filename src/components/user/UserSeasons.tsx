@@ -8,7 +8,9 @@ import { getSeasonStatus, validateSeasonEvent } from '@/utils/season';
 import { Link } from 'react-router-dom';
 import { IoArrowForwardOutline, IoTrophyOutline } from 'react-icons/io5';
 import type { Event, RankedSeasonEntry } from '@/types/event';
+import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
 import '@/styles/components/user-season-achievements.css';
+import { SECTION_HEADING_CLASS } from '@/components/ui/surface';
 
 export default function UserSeasons({ username }: { username: string }) {
   const { t } = useTranslation();
@@ -26,8 +28,8 @@ export default function UserSeasons({ username }: { username: string }) {
   return (
     // Each season renders an item only while loading, on error, or if the user participated.
     // Hide the whole section when all queries return no participation.
-    <section className="mb-12 hidden has-[li]:block" aria-labelledby="user-seasons-title">
-      <h2 id="user-seasons-title" className="my-6 sm:my-8 font-semibold text-white text-2xl sm:text-3xl text-center [text-shadow:0_2px_4px_rgb(0_0_0/30%)]">
+    <section className="mb-10 hidden has-[li]:block" aria-labelledby="user-seasons-title">
+      <h2 id="user-seasons-title" className={SECTION_HEADING_CLASS}>
         {t('user/UserSeasons.Title')}
       </h2>
       <ul className="user-season-list">
@@ -53,7 +55,8 @@ function UserSeasonResult({ event, status, username }: Omit<UserSeasonCardProps,
   }
 
   return (
-    <li className={error ? '[&>.user-season-card]:h-auto' : undefined}>
+    // data-filled：告诉个人空间的概览这里有内容
+    <li data-filled="" className={error ? '[&>.user-season-card]:h-auto' : undefined}>
       {entry && <UserSeasonCard event={event} status={status} entry={entry} />}
       {isLoading && !entry && <p role="status" className="py-5 text-center text-sm text-white/60">{t('user/UserSeasons.Loading')}</p>}
       {error && <div role="status" className="mt-4 flex flex-wrap items-center justify-center gap-3 text-sm text-white/65">
@@ -85,17 +88,23 @@ function UserSeasonCard({ event, status, entry }: UserSeasonCardProps) {
 
   return (
     <Link to={`/season?id=${encodeURIComponent(event.id)}`} className={`user-season-card${entry.rank === 1 ? ' user-season-card--first' : ''}`}>
-      <img className="user-season-card__background" src={event.src} alt="" aria-hidden="true" loading="lazy"
-        onError={e => { e.currentTarget.style.visibility = 'hidden'; }} />
-      <div className="user-season-card__header">
-        <span className={`user-season-card__status user-season-card__status--${status}`}>• {statusText}</span>
-        <span className="user-season-card__dates" title={t('season/SeasonPage.TimeZone')}>
-          <time dateTime={event.createDate}>{formatter.format(new Date(event.createDate))}</time>
-          <span aria-hidden="true"> — </span>
-          <time dateTime={event.endDate}>{formatter.format(new Date(event.endDate))}</time>
-        </span>
+      <img className="user-season-card__background" src={eventThumbSrc(event.src)} alt="" aria-hidden="true" loading="lazy"
+        onError={e => {
+          // 缩略图缺失先退回原图，原图也失败才隐藏
+          if (e.currentTarget.dataset.fallback) e.currentTarget.style.visibility = 'hidden';
+          else fallbackToOriginal(event.src)(e);
+        }} />
+      <div className="user-season-card__main">
+        <div className="user-season-card__meta">
+          <span className={`user-season-card__status user-season-card__status--${status}`}>• {statusText}</span>
+          <span className="user-season-card__dates" title={t('season/SeasonPage.TimeZone')}>
+            <time dateTime={event.createDate}>{formatter.format(new Date(event.createDate))}</time>
+            <span aria-hidden="true"> — </span>
+            <time dateTime={event.endDate}>{formatter.format(new Date(event.endDate))}</time>
+          </span>
+        </div>
+        <h3 className="user-season-card__title" title={event.title}>{event.title}</h3>
       </div>
-      <h3 className="user-season-card__title">{event.title}</h3>
       <dl className="user-season-card__scores">
         <div>
           <dt><IoTrophyOutline aria-hidden="true" />{t('user/UserSeasons.Rank')}</dt>
@@ -106,7 +115,8 @@ function UserSeasonCard({ event, status, entry }: UserSeasonCardProps) {
           <dd className="user-season-card__total">{entry.score.toFixed(4)}<span>%</span></dd>
         </div>
       </dl>
-      <span className="user-season-card__link">{t('user/UserSeasons.ViewSeason')}<IoArrowForwardOutline aria-hidden="true" /></span>
+      <span className="sr-only">{t('user/UserSeasons.ViewSeason')}</span>
+      <IoArrowForwardOutline aria-hidden="true" className="user-season-card__arrow" />
     </Link>
   );
 }

@@ -1,38 +1,28 @@
 /**
  * 个人空间页面
- * 迁移自 legacy/src/app/space/page.jsx
  */
 
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { getLocale, useLanguage } from '@/i18n';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
-import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner, CommentListView } from '@/components';
-import CollapsibleSection from '@/components/ui/CollapsibleSection';
+import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, CommentListView } from '@/components';
+import { apiPagesForView, SONG_GRID_CONTAINER_CLASS } from '@/components/song/songGrid';
 import UserRating from '@/components/user/UserRating';
 import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkCenter from '@/utils/remarkCenter';
-import { motion, type Variants } from 'framer-motion';
+import { LuCalendarDays, LuPencil } from 'react-icons/lu';
+import { useUsername } from '@/hooks';
 import 'github-markdown-css/github-markdown-dark.css';
 import type { IntroductionData } from '@/types';
 import UserSeasons from '@/components/user/UserSeasons';
-
-// slideInUp 动画变体
-const slideInUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.4, 0, 0.2, 1] as const,
-      delay,
-    },
-  }),
-};
+import EmptyState from '@/components/ui/EmptyState';
+import UnderlineTabs from '@/components/ui/UnderlineTabs';
+import { CARD_SURFACE_CLASS, SECTION_HEADING_CLASS } from '@/components/ui/surface';
 
 import { apiFetcher as fetcher, apiRequest } from '@/utils/apiClient';
 import type { CommentList } from '@/types';
@@ -41,163 +31,179 @@ export default function SpacePage() {
   const { t } = useTranslation();
   const [hasUploadedCharts, setHasUploadedCharts] = useState<boolean | null>(null);
   const [hasRecentPlayed, setHasRecentPlayed] = useState<boolean | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const username = searchParams.get('id');
+  const profile = useSWR<IntroductionData>(username ? endpoints.account.profile(username) : null, fetcher);
+
+  const tabs = ([
+    { key: 'overview', label: t("space/SpacePage.Overview"), show: true },
+    { key: 'uploaded', label: t("space/SpacePage.UploadedCharts"), show: hasUploadedCharts !== false },
+    { key: 'comments', label: t("space/SpacePage.Comments"), show: true },
+    { key: 'fans', label: t("space/SpacePage.WhoLovesToPlay"), show: hasUploadedCharts === true },
+  ] as const).filter((tab) => tab.show);
+  type SpaceTab = typeof tabs[number]['key'];
+  // 网址里记着当前页签；不存在或被隐藏的页签回到“概览”
+  const requestedTab = searchParams.get('tab');
+  const activeTab: SpaceTab = tabs.find((tab) => tab.key === requestedTab)?.key ?? 'overview';
+  const selectTab = (tab: SpaceTab) => {
+    const next = new URLSearchParams(searchParams);
+    if (tab === 'overview') next.delete('tab'); else next.set('tab', tab);
+    setSearchParams(next, { replace: true, preventScrollReset: true });
+  };
 
   if (!username) {
     return (
-      <PageLayout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="text-center">
-            <h1 className="mb-4 font-bold text-2xl">{t("space/SpacePage.Error")}</h1>
-            <p className="mb-4">{t("space/SpacePage.UserNotFound")}</p>
-            <Link to="/" className="text-blue-400 hover:text-blue-300 underline">
-              {t("space/SpacePage.BackToHome")}
-            </Link>
-          </div>
+      <PageLayout centered>
+        <div className="mx-auto px-4 py-10 max-w-xl text-center">
+          <h1 className="m-0 font-semibold text-white! text-xl! text-center!">{t("space/SpacePage.Error")}</h1>
+          <p className="m-0 mt-2 text-white/55! text-sm">{t("space/SpacePage.UserNotFound")}</p>
+          <Link to="/" className="inline-flex items-center bg-blue-500 hover:bg-blue-400 mt-6 px-5 rounded-xl h-11 font-semibold text-white text-sm no-underline transition-colors">
+            {t("space/SpacePage.BackToHome")}
+          </Link>
         </div>
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout className="pb-8">
-      {/* User Introduction */}
-      <motion.section
-        className="mt-(--content-top-spacing) mb-12"
-        initial="hidden"
-        animate="visible"
-        custom={0.3}
-        variants={slideInUp}
-      >
-        <Introduction username={username} />
-      </motion.section>
+    <PageLayout>
+      {/* 和 GitHub 个人主页一样：资料在左边窄栏，页签和内容在右边 */}
+      <div className="lg:items-start lg:gap-10 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] mx-auto pt-5 sm:pt-8 w-full max-w-320 min-w-0">
+        <ProfileSidebar username={username} {...profile} />
 
-      <UserSeasons key={username} username={username} />
+        {/* 右栏比整页窄，里面的网格按这一栏的宽度分列 */}
+        <div className="@container min-w-0">
+          {/* 一次只看一块；没有内容的页签自动隐藏（内容一直挂载着，好知道有没有数据） */}
+          <UnderlineTabs tabs={tabs} active={activeTab} onSelect={selectTab} idPrefix="space" label={t("space/SpacePage.Sections")} />
 
-      {/* Rating radar and its best 50 */}
-      <CollapsibleSection key={`rating-${username}`} title={t("space/SpacePage.Rating")}>
-        <UserRating username={username} />
-      </CollapsibleSection>
+          <section id="space-panel-overview" role="tabpanel" aria-labelledby="space-tab-overview" hidden={activeTab !== 'overview'} className="group/overview">
+            {profile.data?.introduction && <IntroductionCard text={profile.data.introduction} />}
+            <UserSeasons key={username} username={username} />
+            <UserRating key={`rating-${username}`} username={username} />
+            {/* 最近游玩接在概览最后；没有记录时整块不显示 */}
+            <section className="mt-10" aria-labelledby="space-recent-title" hidden={hasRecentPlayed === false} data-filled={hasRecentPlayed === false ? undefined : ''}>
+              <h2 id="space-recent-title" className={SECTION_HEADING_CLASS}>
+                {t("space/SpacePage.RecentlyPlayedCharts")}
+              </h2>
+              <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} gridClassName={SONG_GRID_CONTAINER_CLASS} />
+            </section>
+            {/* 每个有内容的区块都带着 data-filled；一个都没有（新用户）时显示这条提示 */}
+            <div className="hidden group-[:not(:has([data-filled]))]/overview:block">
+              <EmptyState>{t("space/SpacePage.OverviewEmpty")}</EmptyState>
+            </div>
+          </section>
 
-      {/* Recent Activity */}
-      {hasRecentPlayed !== false && (
-        <CollapsibleSection title={t("space/SpacePage.RecentlyPlayedCharts")}>
-          <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} />
-        </CollapsibleSection>
-      )}
+          <section id="space-panel-uploaded" role="tabpanel" aria-labelledby="space-tab-uploaded" hidden={activeTab !== 'uploaded'}>
+            <SongList
+              url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + username, '', apiPage))}
+              onDataLoaded={setHasUploadedCharts}
+              gridClassName={SONG_GRID_CONTAINER_CLASS}
+            />
+          </section>
 
-      {/* Uploaded Charts */}
-      {hasUploadedCharts !== false && (
-        <CollapsibleSection title={t("space/SpacePage.UploadedCharts")}>
-          <SongList
-            url={endpoints.maichart.listSearch('uploader:' + username)}
-            onDataLoaded={setHasUploadedCharts}
-          />
-        </CollapsibleSection>
-      )}
+          <section id="space-panel-comments" role="tabpanel" aria-labelledby="space-tab-comments" hidden={activeTab !== 'comments'}>
+            <CommentListView
+              key={username}
+              load={(page, signal) => apiRequest<CommentList>(endpoints.account.comments(username, 'new', page), { signal })}
+              empty={t("space/SpacePage.NoComments")}
+            />
+          </section>
 
-      {/* Comments */}
-      <CollapsibleSection title={t("space/SpacePage.Comments")}>
-        <div className="mx-auto w-full md:w-[82%] lg:w-[70%]">
-          <CommentListView
-            key={username}
-            load={(page, signal) => apiRequest<CommentList>(endpoints.account.comments(username, 'new', page), { signal })}
-            empty={t("space/SpacePage.NoComments")}
-          />
+          {hasUploadedCharts === true && (
+            <section id="space-panel-fans" role="tabpanel" aria-labelledby="space-tab-fans" hidden={activeTab !== 'fans'}>
+              <ScoreCount uploader={username} page={0} pageSize={30} />
+            </section>
+          )}
         </div>
-      </CollapsibleSection>
-
-      {/* Who Loves To Play */}
-      {hasUploadedCharts === true && (
-        <CollapsibleSection title={t("space/SpacePage.WhoLovesToPlay")}>
-          <ScoreCount uploader={username} page={0} pageSize={30} />
-        </CollapsibleSection>
-      )}
+      </div>
     </PageLayout>
   );
 }
 
-function Introduction({ username }: { username: string }) {
+/** 左侧资料栏：大头像、昵称、用户名、编辑资料和注册时间；窄屏时头像缩小、和名字排成一行 */
+function ProfileSidebar({ username, data, error, isLoading }: {
+  username: string;
+  data?: IntroductionData;
+  error?: unknown;
+  isLoading: boolean;
+}) {
   const { t } = useTranslation();
   const language = useLanguage();
-  const { data, error, isLoading } = useSWR<IntroductionData>(
-    endpoints.account.profile(username),
-    fetcher
-  );
+  const currentUsername = useUsername();
 
   if (error) {
-    return (
-      <div className="mx-auto w-full text-5xl text-center">
-        {t("space/SpacePage.ServerError")}
-      </div>
-    );
+    return <p className="m-0 mb-6 py-16 text-white/50! text-base text-center">{t("space/SpacePage.ServerError")}</p>;
   }
-
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <LoadingSpinner size={50} />
-      </div>
+      <SectionLoading className="mb-6 py-20" />
     );
+  }
+  if (!data) {
+    return <p className="m-0 mb-6 py-16 text-white/50! text-base text-center">{t("space/SpacePage.UserNotFound")}</p>;
   }
 
-  if (!data) {
-    return (
-      <div className="mx-auto w-full text-5xl text-center">
-        {t("space/SpacePage.UserNotFound")}
-      </div>
-    );
-  }
+  const joinDate = new Date(data.joinDate);
+  const isSelf = currentUsername !== '' && currentUsername.toLowerCase() === data.username.toLowerCase();
 
   return (
-    <div className="bg-[rgb(30_30_30/90%)] shadow-[0_8px_25px_rgb(0_0_0/30%)] backdrop-blur-xl backdrop-saturate-180 p-4 sm:p-6 md:p-8 border border-white/12 rounded-2xl min-w-0">
-      {/* Profile Header */}
-      <div className="flex md:flex-row flex-col items-center gap-6 md:gap-8 mb-6 sm:mb-8 pb-6 sm:pb-8 border-white/10 border-b md:text-left text-center">
-        {/* Avatar */}
-        <div className="shrink-0">
-          <img
-            className="border-[3px] border-blue-500/50 rounded-full w-30 max-md:w-25 min-w-30 max-md:min-w-25 h-30 max-md:h-25 min-h-30 max-md:min-h-25 object-cover aspect-square"
-            src={endpoints.account.avatar(data.avatarId)}
-            alt={username}
-          />
-        </div>
-
-        {/* User Info */}
-        <div className="flex-1">
-          <h1 className="mb-2 font-bold text-[2rem] text-gray-200 max-md:text-2xl">{data.nickname || data.username}</h1>
-          <p className="text-gray-400 text-sm">@{data.username}</p>
-          <p className="m-0 text-gray-400 text-sm sm:text-base md:text-right text-center break-words">
-            {t("space/SpacePage.JoinAt", { date: new Date(data.joinDate).toLocaleString(getLocale(language)) })}
-          </p>
+    <aside className="lg:top-24 lg:sticky mb-6 lg:mb-0 min-w-0">
+      <div className="flex lg:flex-col lg:items-stretch items-center gap-4">
+        <img
+          className="border border-white/15 rounded-full w-16 sm:w-20 lg:w-full h-auto object-cover aspect-square shrink-0"
+          src={endpoints.account.avatar(data.avatarId)}
+          alt={username}
+        />
+        <div className="min-w-0">
+          <h1 className="m-0 font-semibold text-white! text-xl! lg:text-2xl! text-left! truncate tracking-tight">{data.nickname || data.username}</h1>
+          <p className="m-0 mt-0.5 text-white/50! text-base lg:text-lg truncate">@{data.username}</p>
         </div>
       </div>
-
-      {/* Introduction */}
-      {data.introduction && (
-        <div className="mt-4">
-          <h3 className="mb-4 font-semibold text-gray-200 text-xl text-center">
-            {t("space/SpacePage.SelfIntro")}
-          </h3>
-          <article className="bg-black/30 p-0 sm:p-2 rounded-xl min-w-0 select-text **:select-text markdown-body">
-            <Markdown
-              remarkPlugins={[remarkGfm, remarkCenter]}
-              components={{
-                ol(props) {
-                  const { ...rest } = props;
-                  return <ol type="1" {...rest} />;
-                },
-                img(props) {
-                  const { ...rest } = props;
-                  return <img style={{ margin: 'auto' }} {...rest} />;
-                },
-              }}
-            >
-              {data.introduction}
-            </Markdown>
-          </article>
-        </div>
+      {isSelf && (
+        <Link
+          to="/user/profile"
+          className="flex justify-center items-center gap-2 bg-white/[0.06] hover:bg-white/10 mt-4 border border-white/10 hover:border-white/20 rounded-xl w-full h-9 font-medium text-white/85 text-sm no-underline transition-colors"
+        >
+          <LuPencil aria-hidden="true" className="w-4 h-4" />
+          {t("space/SpacePage.EditProfile")}
+        </Link>
       )}
-    </div>
+      {/* 早期账号没有记录注册时间（接口给的是 1970 年），显示为“老资历” */}
+      <p className="flex items-center gap-2 m-0 mt-4 text-white/55! text-sm">
+        <LuCalendarDays aria-hidden="true" className="w-4 h-4 shrink-0" />
+        {joinDate.getFullYear() > 2000
+          ? t("space/SpacePage.JoinAt", { date: joinDate.toLocaleDateString(getLocale(language)) })
+          : t("space/SpacePage.EarlyMember")}
+      </p>
+    </aside>
+  );
+}
+
+/** 个人简介：和概览里其他区块一样，小标题在卡片外面，正文用正常字号 */
+function IntroductionCard({ text }: { text: string }) {
+  const { t } = useTranslation();
+  return (
+    <section className="mb-10 min-w-0" aria-labelledby="space-intro-title" data-filled="">
+      <h2 id="space-intro-title" className={SECTION_HEADING_CLASS}>{t("space/SpacePage.Introduction")}</h2>
+      <div className={`${CARD_SURFACE_CLASS} px-5 sm:px-6 py-5 min-w-0`}>
+        <div className="bg-transparent! p-0! min-w-0 text-[14px]! select-text **:select-text markdown-body">
+          <Markdown
+            remarkPlugins={[remarkGfm, remarkCenter]}
+            components={{
+              ol(props) {
+                const { ...rest } = props;
+                return <ol type="1" {...rest} />;
+              },
+              img(props) {
+                const { ...rest } = props;
+                return <img style={{ margin: 'auto' }} {...rest} />;
+              },
+            }}
+          >
+            {text}
+          </Markdown>
+        </div>
+      </div>
+    </section>
   );
 }

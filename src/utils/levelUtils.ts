@@ -28,21 +28,3 @@ export function getLevelName(level: number): string {
       return 'Unknown';
   }
 }
-
-/**
- * 渲染难度等级（带加号上标）
- * @param level 难度字符串，如 "13+", "14"
- * @returns 处理后的等级显示
- */
-export function formatLevel(level: string): { base: string; plus: boolean } {
-  if (level.endsWith('+')) {
-    return {
-      base: level.substring(0, level.length - 1),
-      plus: true,
-    };
-  }
-  return {
-    base: level,
-    plus: false,
-  };
-}

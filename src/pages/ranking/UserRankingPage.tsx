@@ -1,3 +1,7 @@
+/**
+ * 肝帝榜：按所有成绩的总达成率给玩家排名
+ */
+
 import { useTranslation } from 'react-i18next';
 import { PageLayout, ScoreCount } from '@/components';
 
@@ -5,38 +9,15 @@ export default function UserRankingPage() {
   const { t } = useTranslation();
 
   return (
-    <PageLayout className="pb-8">
-      {/* 页面标题和说明 */}
-      <div className="mt-4 sm:mt-8 mb-6 sm:mb-8 text-center">
-        <h1
-          className="mb-3 sm:mb-4 font-bold text-white text-3xl sm:text-4xl"
-          style={{
-            textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-          }}
-        >
-          {t("ranking/user/UserRankingPage.UserRankingTitle")}
-        </h1>
-        <p
-          className="mx-auto mt-3 sm:mt-4 max-w-2xl text-white/80 text-base sm:text-xl leading-relaxed"
-          style={{
-            textShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
-          }}
-        >
-          {t("ranking/user/UserRankingPage.UserRankingDescription")}
-        </p>
-      </div>
+    <PageLayout>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
+        <header className="mb-5 sm:mb-6">
+          <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+            {t("ranking/user/UserRankingPage.UserRankingTitle")}
+          </h1>
+          <p className="m-0 mt-1.5 text-white/55! text-sm">{t("ranking/user/UserRankingPage.UserRankingDescription")}</p>
+        </header>
 
-      {/* 排名列表 */}
-      <div
-        className="mx-auto p-3 sm:p-6 md:p-8 max-w-7xl"
-        style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '16px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-        }}
-      >
         <ScoreCount uploader="" page={0} pageSize={100} />
       </div>
     </PageLayout>
