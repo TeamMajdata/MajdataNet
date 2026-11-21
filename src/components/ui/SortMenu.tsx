@@ -19,6 +19,9 @@ export default function SortMenu({ options, value, onChange, label, compact = fa
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  // iOS Safari 点按钮不会把焦点给按钮：菜单项先失焦（relatedTarget 为空），会被当成点到外面先关掉，
+  // 紧接着这次点击又把菜单打开。按下触发按钮时记一下，这次失焦不关，交给点击来切换
+  const pressingTrigger = useRef(false);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const menuId = useId();
 
@@ -53,7 +56,10 @@ export default function SortMenu({ options, value, onChange, label, compact = fa
     <div
       className="relative shrink-0"
       ref={containerRef}
-      onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false); }}
+      onBlur={event => {
+        if (pressingTrigger.current || event.currentTarget.contains(event.relatedTarget)) return;
+        setIsOpen(false);
+      }}
     >
       <button
         type="button"
@@ -66,7 +72,12 @@ export default function SortMenu({ options, value, onChange, label, compact = fa
           }`}
         ref={triggerRef}
         disabled={disabled}
-        onClick={() => setIsOpen(!isOpen)}
+        onPointerDown={() => { pressingTrigger.current = true; }}
+        onPointerCancel={() => { pressingTrigger.current = false; }}
+        onClick={() => {
+          pressingTrigger.current = false;
+          setIsOpen(!isOpen);
+        }}
         onKeyDown={event => {
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
