@@ -9,7 +9,7 @@ import { isAuthPath, type AuthLocationState } from './utils/authPaths';
 import './App.css';
 
 // 首页保持同步加载；其余页面按路由拆成独立 chunk，首次访问时再下载。
-const ForginsterPage = lazy(() => import('./pages/ForginsterPage'));
+const AuthModal = lazy(() => import('./components/auth/AuthModal'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
 const RankingPage = lazy(() => import('./pages/RankingPage'));
 const UserRankingPage = lazy(() => import('./pages/ranking/UserRankingPage'));
@@ -87,7 +87,7 @@ function AppRoutes() {
       </Routes>
       {showAuth && (
         <Suspense fallback={null}>
-          <ForginsterPage />
+          <AuthModal />
         </Suspense>
       )}
     </>

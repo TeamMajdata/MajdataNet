@@ -1,5 +1,5 @@
 {
-  "auth/ForginsterPage": {
+  "auth/AuthModal": {
     "BackToLogin": "로그인으로 돌아가기",
     "Close": "닫기",
     "CloudflareVerificationNotReady": "Cloudflare 인증이 완료되지 않았습니다. 네트워크를 확인한 후 잠시 뒤 다시 시도해 주세요.",

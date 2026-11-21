@@ -53,7 +53,7 @@ export default function UserProfilePage() {
             <SettingRow label={t("user/profile/ProfilePage.Avatar")} hint={t("user/profile/ProfilePage.AvatarHint")}>
               <AvatarUploader />
             </SettingRow>
-            <SettingRow label={t("auth/ForginsterPage.Nickname")}>
+            <SettingRow label={t("auth/AuthModal.Nickname")}>
               <NicknameEditor />
             </SettingRow>
           </SettingsCard>

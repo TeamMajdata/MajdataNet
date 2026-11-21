@@ -4,7 +4,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MotionGlobalConfig } from 'framer-motion';
 import { md5 } from 'js-md5';
-import ForginsterPage from '@/pages/ForginsterPage';
+import AuthModal from '@/components/auth/AuthModal';
 import { endpoints } from '@/config/api';
 import i18n from '@/i18n';
 import { isAuthPath } from '@/utils/authPaths';
@@ -17,7 +17,7 @@ vi.mock('@/components', () => ({ PageLayout: ({ children }: { children: ReactNod
 vi.mock('react-toastify', () => ({ toast: mocks }));
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
-function AuthModalRoute() { return isAuthPath(useLocation().pathname) ? <ForginsterPage /> : null; }
+function AuthModalRoute() { return isAuthPath(useLocation().pathname) ? <AuthModal /> : null; }
 function Location() { return <output>{useLocation().pathname + useLocation().search}</output>; }
 let root: Root;
 let container: HTMLDivElement;
@@ -110,32 +110,32 @@ describe('email challenge authentication', () => {
     fetchMock.mockResolvedValueOnce(new Response('old-key')).mockResolvedValueOnce(new Response('new-key'));
     await render('/forget'); fill('email', 'one@example.com'); await sendCode();
     await act(async () => { vi.advanceTimersByTime(5 * 60_000); });
-    expect(submitButton().disabled).toBe(true); expect(document.body.textContent).toContain(i18n.t('auth/ForginsterPage.CodeExpired'));
+    expect(submitButton().disabled).toBe(true); expect(document.body.textContent).toContain(i18n.t('auth/AuthModal.CodeExpired'));
     await sendCode(); expect(submitButton().disabled).toBe(false);
     fill('password', 'x'); fill('password2', 'y'); await submit();
-    expect(fetchMock).toHaveBeenCalledTimes(2); expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.PasswdNoMatch'));
+    expect(fetchMock).toHaveBeenCalledTimes(2); expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/AuthModal.PasswdNoMatch'));
   });
 
   it('requires a fresh challenge after registration validation consumes it', async () => {
     fetchMock.mockResolvedValueOnce(new Response('key')).mockResolvedValueOnce(Response.json({ code: 60103, message: 'Username exists' }, { status: 400 }));
     await render('/register'); fill('email', 'one@example.com'); await sendCode();
     fill('username', 'player'); fill('nickname', 'player'); fill('password', 'x'); fill('password2', 'x'); fill('challengeCode', '12345678'); await submit();
-    expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.UsernameExists')); expect(submitButton().disabled).toBe(true);
+    expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/AuthModal.UsernameExists')); expect(submitButton().disabled).toBe(true);
     expect(field('challengeCode').value).toBe('');
   });
 
   it('handles throttling and network errors without getting stuck', async () => {
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch')).mockResolvedValueOnce(new Response('', { status: 429 }));
     await render('/forget'); fill('email', 'one@example.com'); await sendCode();
-    expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.NetworkError'));
+    expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/AuthModal.NetworkError'));
     expect(document.body.querySelector<HTMLFieldSetElement>('fieldset')!.disabled).toBe(false);
-    await sendCode(); expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/ForginsterPage.TooManyRequests'));
+    await sendCode(); expect(mocks.error).toHaveBeenCalledWith(i18n.t('auth/AuthModal.TooManyRequests'));
     expect(document.body.querySelector<HTMLButtonElement>('form button[type="button"]')!.disabled).toBe(true);
   });
 
   it('does not submit an old activation link to a removed endpoint', async () => {
     await render('/login?otp=old-key');
-    expect(document.body.textContent).toContain(i18n.t('auth/ForginsterPage.LegacyLink')); expect(fetchMock).not.toHaveBeenCalled();
+    expect(document.body.textContent).toContain(i18n.t('auth/AuthModal.LegacyLink')); expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('logs in with an email and retains rememberMe and the internal redirect', async () => {
@@ -165,7 +165,7 @@ describe('email challenge authentication', () => {
     expect(document.body.querySelector('[role="dialog"]')!.getAttribute('aria-modal')).toBe('true');
     expect(document.body.style.overflow).toBe('hidden');
     expect(document.body.querySelector('button[aria-pressed]')).toBeNull();
-    const goRegister = [...document.body.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === i18n.t('auth/ForginsterPage.GoRegister'))!;
+    const goRegister = [...document.body.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === i18n.t('auth/AuthModal.GoRegister'))!;
     await act(async () => goRegister.click());
     expect(document.body.querySelector('output')!.textContent).toBe('/register');
     await act(async () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));

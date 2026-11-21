@@ -1,5 +1,5 @@
 {
-  "auth/ForginsterPage": {
+  "auth/AuthModal": {
     "BackToLogin": "Back to login",
     "Close": "Close",
     "CloudflareVerificationNotReady": "Cloudflare verification is not ready. Check your network and try again shortly.",

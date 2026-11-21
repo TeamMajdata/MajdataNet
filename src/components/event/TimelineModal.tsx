@@ -417,7 +417,7 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ isOpen, onClose }) => {
           type="button"
           className="place-items-center grid hover:bg-white/10 -mr-1.5 rounded-lg w-9 h-9 text-white/50 hover:text-white transition-colors cursor-pointer shrink-0"
           onClick={onClose}
-          aria-label={t("auth/ForginsterPage.Close")}
+          aria-label={t("auth/AuthModal.Close")}
         >
           <LuX aria-hidden="true" className="w-4 h-4" />
         </button>

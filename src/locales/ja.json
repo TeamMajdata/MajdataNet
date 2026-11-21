@@ -1,5 +1,5 @@
 {
-  "auth/ForginsterPage": {
+  "auth/AuthModal": {
     "BackToLogin": "ログインに戻る",
     "Close": "閉じる",
     "CloudflareVerificationNotReady": "Cloudflare 認証が完了していません。ネットワークを確認して、しばらくしてから再試行してください。",

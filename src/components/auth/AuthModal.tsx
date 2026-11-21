@@ -60,8 +60,11 @@ function loadTurnstileScript() {
   return turnstileScriptPromise;
 }
 
-
-export default function ForginsterPage() {
+/**
+ * 登录 / 注册 / 找回密码弹窗。不是独立页面：打开 /login、/register、/forget 时
+ * 叠在来源页面上显示（App.tsx），这些网址保留是为了邮件里的链接和旧书签。
+ */
+export default function AuthModal() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
@@ -90,13 +93,13 @@ export default function ForginsterPage() {
       labelledBy={titleId}
       className={`p-5 sm:p-7 min-w-0 ${activeTab === 'register' ? 'max-w-md md:max-w-3xl' : 'max-w-md'}`}
     >
-      <button type="button" onClick={close} aria-label={t("auth/ForginsterPage.Close")}
+      <button type="button" onClick={close} aria-label={t("auth/AuthModal.Close")}
         className="top-3 right-3 absolute place-items-center grid hover:bg-white/10 rounded-lg w-9 h-9 text-white/50 hover:text-white transition-colors cursor-pointer">
         <svg aria-hidden="true" viewBox="0 0 16 16" className="w-4 h-4" fill="none">
           <path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
       </button>
-      {searchParams.has('otp') && <p role="status" className="mt-6 mb-4 pr-8 text-amber-200! text-sm">{t("auth/ForginsterPage.LegacyLink")}</p>}
+      {searchParams.has('otp') && <p role="status" className="mt-6 mb-4 pr-8 text-amber-200! text-sm">{t("auth/AuthModal.LegacyLink")}</p>}
       {activeTab === 'login' ? <LoginTab titleId={titleId} /> : <ChallengeTab key={activeTab} mode={activeTab} titleId={titleId} />}
     </Modal>
   );
@@ -140,19 +143,19 @@ function useAuthError() {
   const { t } = useTranslation();
   return (error: unknown) => {
     if (!(error instanceof ApiError)) {
-      toast.error(t("auth/ForginsterPage.NetworkError"));
+      toast.error(t("auth/AuthModal.NetworkError"));
       return;
     }
     if (error.status === 429) {
-      toast.error(t("auth/ForginsterPage.TooManyRequests"));
+      toast.error(t("auth/AuthModal.TooManyRequests"));
       return;
     }
     switch (error.code) {
-      case retCode.CODE_INVALID_EMAIL_ADDRESS: toast.error(t("auth/ForginsterPage.InvalidEmail")); break;
-      case retCode.CODE_USERNAME_ALREADY_EXISTS: toast.error(t("auth/ForginsterPage.UsernameExists")); break;
-      case retCode.CODE_EMAIL_ALREADY_EXISTS: toast.error(t("auth/ForginsterPage.EmailExists")); break;
-      case retCode.CODE_LOGIN_FAILED_PENDING_VERIFCATION: toast.error(t("auth/ForginsterPage.LoginPendingVerification")); break;
-      case retCode.CODE_LOGIN_FAILED_USER_BANNED: toast.error(t("auth/ForginsterPage.LoginUserBanned")); break;
+      case retCode.CODE_INVALID_EMAIL_ADDRESS: toast.error(t("auth/AuthModal.InvalidEmail")); break;
+      case retCode.CODE_USERNAME_ALREADY_EXISTS: toast.error(t("auth/AuthModal.UsernameExists")); break;
+      case retCode.CODE_EMAIL_ALREADY_EXISTS: toast.error(t("auth/AuthModal.EmailExists")); break;
+      case retCode.CODE_LOGIN_FAILED_PENDING_VERIFCATION: toast.error(t("auth/AuthModal.LoginPendingVerification")); break;
+      case retCode.CODE_LOGIN_FAILED_USER_BANNED: toast.error(t("auth/AuthModal.LoginUserBanned")); break;
       default: toast.error(error.message);
     }
   };
@@ -185,27 +188,27 @@ function LoginTab({ titleId }: { titleId: string }) {
       if (redirect?.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('\\')) navigate(redirect, { replace: true });
       else close();
     } catch (error) {
-      if (error instanceof ApiError && error.code === retCode.CODE_INVALID_CREDENTIALS) toast.error(t("auth/ForginsterPage.WrongCredential"));
+      if (error instanceof ApiError && error.code === retCode.CODE_INVALID_CREDENTIALS) toast.error(t("auth/AuthModal.WrongCredential"));
       else showError(error);
     } finally { setBusy(false); }
   }
 
   return <div>
-    <h2 id={titleId} className="mt-1 mb-1 pr-8 font-semibold! text-white! text-2xl! text-left!">{t("auth/ForginsterPage.WelcomeBack")}</h2>
-    <p className="mb-6 text-white/50! text-sm">{t("auth/ForginsterPage.LoginSubtitle")}</p>
+    <h2 id={titleId} className="mt-1 mb-1 pr-8 font-semibold! text-white! text-2xl! text-left!">{t("auth/AuthModal.WelcomeBack")}</h2>
+    <p className="mb-6 text-white/50! text-sm">{t("auth/AuthModal.LoginSubtitle")}</p>
     <form onSubmit={onSubmit}>
       <fieldset disabled={busy} className="flex flex-col gap-4">
-        <Field label={t("auth/ForginsterPage.UsernameOrEmail")} name="username" autoComplete="username" autoFocus required />
-        <Field label={t("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="current-password" required />
+        <Field label={t("auth/AuthModal.UsernameOrEmail")} name="username" autoComplete="username" autoFocus required />
+        <Field label={t("auth/AuthModal.Password")} name="password" type="password" autoComplete="current-password" required />
         <div className="flex justify-between items-center gap-3">
-          <label className="flex items-center gap-2 text-white/70 text-sm cursor-pointer"><input type="checkbox" name="rememberMe" className="accent-blue-500" />{t("auth/ForginsterPage.RememberMe")}</label>
-          <AuthSwitch to="forget">{t("auth/ForginsterPage.ForgotPasswordLink")}</AuthSwitch>
+          <label className="flex items-center gap-2 text-white/70 text-sm cursor-pointer"><input type="checkbox" name="rememberMe" className="accent-blue-500" />{t("auth/AuthModal.RememberMe")}</label>
+          <AuthSwitch to="forget">{t("auth/AuthModal.ForgotPasswordLink")}</AuthSwitch>
         </div>
-        <button className={BUTTON_CLASSNAME} type="submit">{busy ? <LoadingSpinner size={20} /> : t("auth/ForginsterPage.Login")}</button>
+        <button className={BUTTON_CLASSNAME} type="submit">{busy ? <LoadingSpinner size={20} /> : t("auth/AuthModal.Login")}</button>
       </fieldset>
     </form>
     <div className="mt-5 pt-5 border-white/[0.07] border-t">
-      <AuthSwitch to="register" prompt={t("auth/ForginsterPage.NoAccount")}>{t("auth/ForginsterPage.GoRegister")}</AuthSwitch>
+      <AuthSwitch to="register" prompt={t("auth/AuthModal.NoAccount")}>{t("auth/AuthModal.GoRegister")}</AuthSwitch>
     </div>
   </div>;
 }
@@ -255,7 +258,7 @@ function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId:
       setNow(timestamp);
       setChallenge({ key, expiresAt: timestamp + 5 * 60_000 });
       setRetryAt(timestamp + 30_000);
-      toast.success(t("auth/ForginsterPage.CodeSent"));
+      toast.success(t("auth/AuthModal.CodeSent"));
     } catch (error) {
       if (error instanceof ApiError && error.status === 429) {
         setNow(Date.now());
@@ -269,16 +272,16 @@ function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId:
     event.preventDefault();
     if (busy) return;
     if (!challenge || Date.now() >= challenge.expiresAt) {
-      toast.error(t("auth/ForginsterPage.RequestCodeFirst"));
+      toast.error(t("auth/AuthModal.RequestCodeFirst"));
       return;
     }
     const form = new FormData(event.currentTarget);
     if (form.get('password') !== form.get('password2')) {
-      toast.error(t("auth/ForginsterPage.PasswdNoMatch"));
+      toast.error(t("auth/AuthModal.PasswdNoMatch"));
       return;
     }
     if (registering && !String(form.get('cf-turnstile-response') ?? '').trim()) {
-      toast.error(t("auth/ForginsterPage.CloudflareVerificationNotReady"));
+      toast.error(t("auth/AuthModal.CloudflareVerificationNotReady"));
       return;
     }
     const password = md5(String(form.get('password')));
@@ -291,7 +294,7 @@ function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId:
     setSubmitting(true);
     try {
       await apiRequest(registering ? endpoints.account.register : endpoints.account.passwordResetConfirm, { method: 'POST', body: form });
-      toast.success(registering ? t("auth/ForginsterPage.RegisterSuccess") : t("auth/ForginsterPage.ResetPasswordSuccess"));
+      toast.success(registering ? t("auth/AuthModal.RegisterSuccess") : t("auth/AuthModal.ResetPasswordSuccess"));
       if (!registering) await refetch(); // Password reset revokes every existing session.
       const params = new URLSearchParams(search);
       params.delete('otp');
@@ -303,29 +306,29 @@ function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId:
       setChallenge(null);
       setCode('');
       setCaptchaVersion(value => value + 1);
-      toast.info(t("auth/ForginsterPage.RequestNewCode"));
+      toast.info(t("auth/AuthModal.RequestNewCode"));
     } finally { setSubmitting(false); }
   }
 
   return <div>
-    <h2 id={titleId} className="mt-1 mb-1 pr-8 font-semibold! text-white! text-2xl! text-left!">{registering ? t("auth/ForginsterPage.CreateAccount") : t("auth/ForginsterPage.ForgetPasswordTitle")}</h2>
-    <p className="mb-6 text-white/50! text-sm">{registering ? t("auth/ForginsterPage.RegisterSubtitle") : t("auth/ForginsterPage.ForgetPasswordSubtitle")}</p>
+    <h2 id={titleId} className="mt-1 mb-1 pr-8 font-semibold! text-white! text-2xl! text-left!">{registering ? t("auth/AuthModal.CreateAccount") : t("auth/AuthModal.ForgetPasswordTitle")}</h2>
+    <p className="mb-6 text-white/50! text-sm">{registering ? t("auth/AuthModal.RegisterSubtitle") : t("auth/AuthModal.ForgetPasswordSubtitle")}</p>
     <form onSubmit={onSubmit}>
       <fieldset disabled={busy} className={`grid gap-4 ${registering ? 'md:grid-cols-2 md:gap-x-6' : ''}`}>
         {/* 移动端按填写顺序单列排列；桌面端注册时左列账户信息、右列邮箱验证 */}
         {registering && <>
           <div className="md:col-start-1 md:row-start-1">
-            <Field label={t("auth/ForginsterPage.Username")} name="username" autoComplete="username" autoFocus maxLength={24} pattern="[A-Za-z0-9]+"
-              placeholder={t("auth/ForginsterPage.UsernameHint")}
-              onInvalid={event => event.currentTarget.setCustomValidity(event.currentTarget.validity.patternMismatch ? t("auth/ForginsterPage.UsernameHint") : '')}
+            <Field label={t("auth/AuthModal.Username")} name="username" autoComplete="username" autoFocus maxLength={24} pattern="[A-Za-z0-9]+"
+              placeholder={t("auth/AuthModal.UsernameHint")}
+              onInvalid={event => event.currentTarget.setCustomValidity(event.currentTarget.validity.patternMismatch ? t("auth/AuthModal.UsernameHint") : '')}
               onInput={event => event.currentTarget.setCustomValidity('')} required />
           </div>
           <div className="md:col-start-1 md:row-start-2">
-            <Field label={t("auth/ForginsterPage.Nickname")} name="nickname" autoComplete="nickname" required />
+            <Field label={t("auth/AuthModal.Nickname")} name="nickname" autoComplete="nickname" required />
           </div>
         </>}
         <div className={`flex flex-col gap-1.5 ${registering ? 'md:col-start-2 md:row-start-1' : ''}`}>
-          <label htmlFor={emailId} className="text-white/70 text-sm">{t("auth/ForginsterPage.EmailLabel")}</label>
+          <label htmlFor={emailId} className="text-white/70 text-sm">{t("auth/AuthModal.EmailLabel")}</label>
           <div className="flex gap-2">
             <input id={emailId} ref={emailRef} className={INPUT_CLASSNAME} name="email" type="email" autoComplete="email" autoFocus={!registering} required value={email} onChange={event => {
               setEmail(event.target.value);
@@ -333,32 +336,32 @@ function ChallengeTab({ mode, titleId }: { mode: 'register' | 'forget'; titleId:
               setCode('');
             }} />
             <button className={`${SECONDARY_BUTTON_CLASSNAME} shrink-0 px-3.5 whitespace-nowrap`} type="button" disabled={busy || seconds > 0} onClick={sendCode}>
-              {sending ? t("auth/ForginsterPage.SendingCode") : seconds > 0 ? t("auth/ForginsterPage.ResendCode", { seconds }) : t("auth/ForginsterPage.SendCode")}
+              {sending ? t("auth/AuthModal.SendingCode") : seconds > 0 ? t("auth/AuthModal.ResendCode", { seconds }) : t("auth/AuthModal.SendCode")}
             </button>
           </div>
-          <p role="status" className="m-0 text-white/45! text-xs">{expired ? t("auth/ForginsterPage.CodeExpired") : challenge ? t("auth/ForginsterPage.CodeSent") : t("auth/ForginsterPage.RequestCodeFirst")}</p>
+          <p role="status" className="m-0 text-white/45! text-xs">{expired ? t("auth/AuthModal.CodeExpired") : challenge ? t("auth/AuthModal.CodeSent") : t("auth/AuthModal.RequestCodeFirst")}</p>
         </div>
         <div className={registering ? 'md:col-start-2 md:row-start-2' : ''}>
-          <Field label={t("auth/ForginsterPage.VerificationCode")} name="challengeCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" maxLength={8} minLength={8} placeholder={t("auth/ForginsterPage.EightDigitCode")} value={code} onChange={event => setCode(event.target.value)} required />
+          <Field label={t("auth/AuthModal.VerificationCode")} name="challengeCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" maxLength={8} minLength={8} placeholder={t("auth/AuthModal.EightDigitCode")} value={code} onChange={event => setCode(event.target.value)} required />
         </div>
         <div className={registering ? 'md:col-start-1 md:row-start-3' : ''}>
-          <Field label={t("auth/ForginsterPage.Password")} name="password" type="password" autoComplete="new-password" required />
+          <Field label={t("auth/AuthModal.Password")} name="password" type="password" autoComplete="new-password" required />
         </div>
         <div className={registering ? 'md:col-start-1 md:row-start-4' : ''}>
-          <Field label={t("auth/ForginsterPage.ConfirmPassword")} name="password2" type="password" autoComplete="new-password" required />
+          <Field label={t("auth/AuthModal.ConfirmPassword")} name="password2" type="password" autoComplete="new-password" required />
         </div>
         {registering && <div className="flex md:items-end md:col-start-2 md:row-span-2 md:row-start-3">
           <TurnstileWidget key={captchaVersion} />
         </div>}
         <button className={`${BUTTON_CLASSNAME} ${registering ? 'md:col-span-2 md:mt-1' : ''}`} type="submit" disabled={busy || !challenge || expired}>
-          {submitting ? <LoadingSpinner size={20} /> : registering ? t("auth/ForginsterPage.Register") : t("auth/ForginsterPage.ResetPasswordButton")}
+          {submitting ? <LoadingSpinner size={20} /> : registering ? t("auth/AuthModal.Register") : t("auth/AuthModal.ResetPasswordButton")}
         </button>
       </fieldset>
     </form>
     <div className="mt-5 pt-5 border-white/[0.07] border-t">
       {registering
-        ? <AuthSwitch to="login" prompt={t("auth/ForginsterPage.HaveAccount")}>{t("auth/ForginsterPage.GoLogin")}</AuthSwitch>
-        : <AuthSwitch to="login">{t("auth/ForginsterPage.BackToLogin")}</AuthSwitch>}
+        ? <AuthSwitch to="login" prompt={t("auth/AuthModal.HaveAccount")}>{t("auth/AuthModal.GoLogin")}</AuthSwitch>
+        : <AuthSwitch to="login">{t("auth/AuthModal.BackToLogin")}</AuthSwitch>}
     </div>
   </div>;
 }
@@ -407,7 +410,7 @@ function TurnstileWidget() {
       {!isVisible && (
         <div className="absolute inset-0 flex items-center gap-3 bg-black/35 px-4 border border-white/15 border-dashed rounded-lg text-[#b8c7db] text-sm">
           <span className="inline-block border-2 border-blue-400/30 border-t-blue-400 rounded-full w-5 h-5 animate-spin" aria-hidden="true" />
-          <span>{t("auth/ForginsterPage.WaitingForCloudflareVerification")}</span>
+          <span>{t("auth/AuthModal.WaitingForCloudflareVerification")}</span>
         </div>
       )}
     </div>
