@@ -25,7 +25,7 @@ export function ChartVotePanel({ songid }: { songid: string }) {
 
   // 赞、踩的明细不再单独列出：箭头中间的分数已经说明了；播放次数放在谱面资料里
   return (
-    <div className="flex flex-wrap justify-between items-center gap-3">
+    <div className="flex flex-wrap justify-between items-center gap-3 song-side-section">
       <h3 className="song-label">{t("song/SongInteraction.Votes")}</h3>
       <VoteControl
         size="md"

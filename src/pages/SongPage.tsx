@@ -118,6 +118,8 @@ export default function SongPage() {
 
 const ACTION_BUTTON_CLASS = 'flex justify-center items-center gap-1.5 bg-white/[0.06] hover:bg-white/10 px-3.5 border border-white/10 hover:border-white/20 rounded-xl h-9 font-medium text-white/85 hover:text-white text-sm whitespace-nowrap transition-colors cursor-pointer';
 
+const TAG_CLASS = 'inline-flex items-center bg-white/[0.06] hover:bg-white/10 px-2.5 border border-white/10 hover:border-white/20 rounded-full h-7 text-white/80 hover:text-white text-xs no-underline transition-colors';
+
 const songTabs = [
   { id: 'preview', label: 'song/SongPage.Preview' },
   { id: 'scores', label: 'song/ScoreRanking.RankingList' },
@@ -252,19 +254,30 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             {duration !== undefined && <div><dt>{t('song/SongPage.Duration')}</dt><dd className="tabular-nums">{formatDuration(duration)}</dd></div>}
             {interact && <div><dt>{t('song/SongInteraction.Plays')}</dt><dd className="tabular-nums">{compactNumber(interact.plays, language)}</dd></div>}
           </dl>
-          <div className="song-tags" role="group" aria-label={t('song/SongPage.Tags')}>
-            {song.tags?.map(tag => <Link key={tag} to={searchLink(tag)} title={t('song/SongPage.SearchForTag')}>{tag}</Link>)}
-            {song.publicTags?.map(tag => <Link key={tag} to={searchLink('tag:' + tag)} className="song-public-tag" title={t('song/SongPage.SearchForTag')}>{tag}</Link>)}
-            {!song.tags?.length && !song.publicTags?.length && <span>{t('song/SongPage.NoTags')}</span>}
-            <button type="button" onClick={() => tagWidget.current?.openWindow()} aria-label={t('song/SongPage.ManageTags')} title={t('song/SongPage.ManageTags')}><PiTagSimple />+</button>
-          </div>
-          <dl className="song-file">
+          <ChartVotePanel songid={song.id} />
+          {/* 标签：作者标签和玩家标签都是可点的小标签，右边“管理”打开编辑窗口 */}
+          <section className="gap-2.5 grid song-side-section" aria-labelledby="song-tags-title">
+            <div className="flex justify-between items-center gap-3">
+              <h3 id="song-tags-title" className="song-label">{t('song/SongPage.Tags')}</h3>
+              <button type="button" onClick={() => tagWidget.current?.openWindow()} className="inline-flex items-center gap-1 text-white/55 hover:text-white text-xs transition-colors cursor-pointer">
+                <PiTagSimple aria-hidden="true" className="w-3.5 h-3.5" />{t('song/SongPage.ManageTags')}
+              </button>
+            </div>
+            {song.tags?.length || song.publicTags?.length ? (
+              <div className="flex flex-wrap gap-1.5">
+                {song.tags?.map(tag => <Link key={tag} to={searchLink(tag)} title={t('song/SongPage.SearchForTag')} className={TAG_CLASS}>{tag}</Link>)}
+                {song.publicTags?.map(tag => <Link key={tag} to={searchLink('tag:' + tag)} title={t('song/SongPage.SearchForTag')} className={`${TAG_CLASS} text-teal-200/90!`}>{tag}</Link>)}
+              </div>
+            ) : (
+              <p className="m-0 text-white/40! text-xs">{t('song/SongPage.NoTags')}</p>
+            )}
+          </section>
+          <ChartRadar id={song.id} hash={song.hash} chartLevel={chartLevel} />
+          <dl className="song-file song-side-section">
             {([['ID', song.id], ['HASH', song.hash]] as const).map(([key, value]) => (
               <div key={key}><dt>{key}</dt><dd><button type="button" aria-label={t('song/SongPage.CopyValue', { field: key })} onClick={() => void copy(value)}><code>{value}</code><PiCopySimple /></button></dd></div>
             ))}
           </dl>
-          <ChartVotePanel songid={song.id} />
-          <ChartRadar id={song.id} hash={song.hash} chartLevel={chartLevel} />
         </aside>
       </div>
       <div hidden><TagManageWidget ref={tagWidget} songid={song.id} /></div>

@@ -76,13 +76,13 @@ describe('radar on the song page', () => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar(String(url).endsWith('=5') ? 14.83 : 14.2)));
     await render();
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('6');
-    expect(container.querySelector('aside section svg')?.textContent).toContain('错位');
-    expect(container.querySelector('aside section svg')?.textContent).toContain('拟合定数');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('错位');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('拟合定数');
     expect(container.querySelector('aside')?.textContent).not.toMatch(/主要特征|刻度|SLIDE/);
     expect(radarRequests()[0][0]).toBe('/api3/api/maichart/song/radar?chartLevel=6');
 
     await act(async () => difficulty(5).querySelector('strong')!.click());
-    expect(container.querySelector('aside section svg')?.textContent).toContain('14.83');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('14.83');
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('5');
   });
 
@@ -166,8 +166,8 @@ describe('radar on the song page', () => {
     await render();
     await act(async () => difficulty(5).click());
     await act(async () => finishDefault(response(radar(14.2))));
-    expect(container.querySelector('aside section svg')?.textContent).toContain('14.83');
-    expect(container.querySelector('aside section svg')?.textContent).not.toContain('14.20');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('14.83');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).not.toContain('14.20');
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('5');
   });
 
@@ -178,9 +178,9 @@ describe('radar on the song page', () => {
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('6');
     expect(radarRequests()).toHaveLength(1);
     fetchMock.mockResolvedValue(response(radar()));
-    await act(async () => container.querySelector<HTMLButtonElement>('aside section button')!.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('aside .song-radar button')!.click());
     expect(container.querySelector('aside [role="alert"]')).toBeNull();
-    expect(container.querySelector('aside section svg')?.textContent).toContain('14.20');
+    expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('14.20');
     expect(radarRequests()).toHaveLength(2);
   });
 
