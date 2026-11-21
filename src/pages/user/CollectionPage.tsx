@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import SegmentedTabs from '@/components/ui/SegmentedTabs';
 import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
@@ -86,23 +87,15 @@ export default function UserCollectionPage() {
         </header>
 
         {/* 收藏夹 / 订阅 切换 */}
-        <div className="flex bg-white/[0.04] mb-4 p-1 border border-white/10 rounded-xl w-fit h-11" role="tablist">
-          {tabItems.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab.key}
-              className={`px-4 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === tab.key ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
-              onClick={() => {
-                setActiveTab(tab.key);
-                setIsManaging(false);
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <SegmentedTabs
+          className="mb-4"
+          tabs={tabItems}
+          active={activeTab}
+          onSelect={(tab) => {
+            setActiveTab(tab);
+            setIsManaging(false);
+          }}
+        />
 
         {activeTab === 'mine' ? (
           <>
