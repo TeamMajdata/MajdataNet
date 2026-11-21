@@ -136,7 +136,8 @@
   inset: .75rem .75rem auto auto;
   z-index: 2;
   width: min(20rem, calc(100% - 1.5rem));
-  max-height: calc(100% - 1.5rem);
+  /* 停在控制条上面（控制条高 4.375rem），不然在手机上会盖住设置按钮，没法再点一次收起 */
+  max-height: calc(100% - 4.375rem - 1.5rem);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: .75rem 1rem 1rem;
