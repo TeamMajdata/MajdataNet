@@ -22,16 +22,19 @@ export default function SeasonPage() {
   const notFound = !event || event.type !== 'season';
   if (notFound || validateSeasonEvent(event).length > 0) {
     return (
-      <PageLayout className="py-16 text-center">
-        <h1 className="mb-4 text-2xl font-bold">
-          {notFound
-            ? t('season/SeasonPage.NotFound')
-            : t('season/SeasonPage.InvalidConfig')}
-        </h1>
-        {!notFound && <p className="mb-6 text-white/65">{t('season/SeasonPage.ConfigurationHint')}</p>}
-        <Link to="/chart-events" className="text-blue-400 underline underline-offset-4">
-          {t('season/SeasonPage.BackToEvents')}
-        </Link>
+      // 和其他提示页一样：在页头和页脚之间居中，按钮样式统一
+      <PageLayout centered>
+        <div className="mx-auto px-4 py-10 max-w-xl text-center">
+          <h1 className="m-0 font-semibold text-white! text-xl! text-center!">
+            {notFound
+              ? t('season/SeasonPage.NotFound')
+              : t('season/SeasonPage.InvalidConfig')}
+          </h1>
+          {!notFound && <p className="m-0 mt-2 text-white/55! text-sm">{t('season/SeasonPage.ConfigurationHint')}</p>}
+          <Link to="/chart-events" className="inline-flex items-center bg-blue-500 hover:bg-blue-400 mt-6 px-5 rounded-xl h-11 font-semibold text-white text-sm no-underline transition-colors">
+            {t('season/SeasonPage.BackToEvents')}
+          </Link>
+        </div>
       </PageLayout>
     );
   }
