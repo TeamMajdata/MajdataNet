@@ -64,14 +64,15 @@ export function VoteControl({
     }
   };
 
-  const iconClass = size === 'md' ? 'w-5 h-5' : 'w-4 h-4';
-  const arrow = `inline-flex items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-50 ${size === 'md' ? 'w-9 h-9' : 'w-7 h-7'}`;
+  const iconClass = 'w-4 h-4';
+  const arrow = `inline-flex items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:bg-white/10 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:pointer-events-none disabled:opacity-50 cursor-pointer ${size === 'md' ? 'w-8 h-8' : 'w-7 h-7'}`;
+  // md（谱面页侧栏）：和旁边的次要按钮一样的胶囊底；sm（评论里）保持没有底色
 
   return (
     <div
       role="group"
       aria-label={label}
-      className={`inline-flex shrink-0 items-center gap-0.5 ${layout === 'vertical' ? 'flex-col' : ''} ${className}`}
+      className={`inline-flex shrink-0 items-center gap-0.5 ${layout === 'vertical' ? 'flex-col' : ''} ${size === 'md' ? 'bg-white/[0.06] p-0.5 border border-white/10 rounded-full' : ''} ${className}`}
     >
       <button
         type="button"
@@ -85,7 +86,7 @@ export function VoteControl({
         {shown.myVote === 1 ? <PiArrowFatUpFill className={iconClass} /> : <PiArrowFatUpBold className={iconClass} />}
       </button>
       <span
-        className={`min-w-6 text-center font-semibold tabular-nums ${size === 'md' ? 'text-lg' : 'text-sm'} ${shown.myVote === 1 ? 'text-orange-400' : shown.myVote === -1 ? 'text-sky-400' : 'text-white/90'}`}
+        className={`min-w-6 text-center font-semibold tabular-nums text-sm ${size === 'md' ? 'px-1' : ''} ${shown.myVote === 1 ? 'text-orange-400' : shown.myVote === -1 ? 'text-sky-400' : 'text-white/90'}`}
         aria-live="polite"
         title={`${t("song/VoteControl.Score")}: ${shown.score}`}
       >
