@@ -82,7 +82,6 @@ export interface MajdataProps {
 // ======================== 页面布局组件 ========================
 export interface PageLayoutProps {
   children: ReactNode;
-  showAds?: boolean;
   showFooter?: boolean;
   className?: string;
   useAmbientBackground?: boolean;
