@@ -116,6 +116,8 @@ export default function SongPage() {
   );
 }
 
+const ACTION_BUTTON_CLASS = 'flex justify-center items-center gap-1.5 bg-white/[0.06] hover:bg-white/10 px-2 border border-white/10 hover:border-white/20 rounded-xl h-9 font-medium text-white/85 hover:text-white text-sm whitespace-nowrap transition-colors cursor-pointer';
+
 const songTabs = [
   { id: 'preview', label: 'song/SongPage.Preview' },
   { id: 'scores', label: 'song/ScoreRanking.RankingList' },
@@ -238,10 +240,17 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             {duration !== undefined && <div><dt>{t('song/SongPage.Duration')}</dt><dd className="tabular-nums">{formatDuration(duration)}</dd></div>}
             {interact && <div><dt>{t('song/SongInteraction.Plays')}</dt><dd className="tabular-nums">{compactNumber(interact.plays, language)}</dd></div>}
           </dl>
-          <div className="song-actions">
-            <button type="button" onClick={() => void downloadSong({ id: song.id, title: song.title, toast })}><PiDownloadSimple />{t('song/SongPage.Download')}</button>
-            <button type="button" onClick={() => setCollecting(true)}><PiBookmarkSimple />{t('song/SongPage.Collection')}</button>
-            <button type="button" onClick={() => void copy(window.location.href)}><PiLinkSimple />{t('song/SongPage.Share')}</button>
+          {/* 和个人空间“编辑资料”一样的次要按钮，三个等宽排成一行 */}
+          <div className="gap-2 grid grid-cols-3">
+            {([
+              [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
+              [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
+              [PiLinkSimple, t('song/SongPage.Share'), () => void copy(window.location.href)],
+            ] as const).map(([Icon, label, onClick]) => (
+              <button key={label} type="button" onClick={onClick} className={ACTION_BUTTON_CLASS}>
+                <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
+              </button>
+            ))}
           </div>
           <div className="song-tags" role="group" aria-label={t('song/SongPage.Tags')}>
             {song.tags?.map(tag => <Link key={tag} to={searchLink(tag)} title={t('song/SongPage.SearchForTag')}>{tag}</Link>)}

@@ -31,7 +31,7 @@
 .song-sidebar .song-radar, .song-sidebar .song-file { border-top: 1px solid var(--rule); padding-top: .8rem; }
 .song-radar > :last-child { margin-inline: auto; max-width: 15rem; }
 .song-difficulty-list, .song-credits dd, .song-credits a,
-.song-actions, .song-actions button, .song-tags, .song-tags button, .song-file dd button {
+.song-tags, .song-tags button, .song-file dd button {
   display: flex; align-items: center;
 }
 .song-workspace [role="tabpanel"] { min-width: 0; }
@@ -72,15 +72,14 @@
 .song-cover img { width: 100%; height: 100%; object-fit: cover; }
 .song-identity h1 { margin: 0; font-size: clamp(1.65rem, 3vw, 2.8rem); line-height: 1.16; text-align: start; letter-spacing: -.025em; overflow-wrap: anywhere; }
 .song-identity a, .song-credits a { color: inherit; text-decoration: none; }
-.song-identity a:hover, .song-credits a:hover, .song-actions button:hover, .song-tags a:hover { text-decoration: underline; text-underline-offset: .18em; }
+.song-identity a:hover, .song-credits a:hover, .song-tags a:hover { text-decoration: underline; text-underline-offset: .18em; }
 .song-identity .song-artist { display: inline-block; margin-top: .3rem; font-size: .95rem; color: #bac4d1; overflow-wrap: anywhere; }
 .song-credits { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .4rem .85rem; margin: 0; font-size: .875rem; }
 .song-credits > div { display: contents; }
 .song-credits dt, .song-file dt { color: var(--muted); }
 .song-credits dd, .song-credits a { gap: .4rem; overflow-wrap: anywhere; min-width: 0; }
-.song-credits svg, .song-actions svg, .song-tags svg, .song-file svg { flex: none; width: 1rem; height: 1rem; }
-.song-actions { gap: .3rem 1rem; flex-wrap: wrap; justify-content: flex-start; }
-.song-actions button, .song-tags button { color: var(--link); gap: .35rem; min-height: 2.25rem; font-size: .875rem; cursor: pointer; }
+.song-credits svg, .song-tags svg, .song-file svg { flex: none; width: 1rem; height: 1rem; }
+.song-tags button { color: var(--link); gap: .35rem; min-height: 2.25rem; font-size: .875rem; cursor: pointer; }
 .song-tags { flex-wrap: wrap; gap: .2rem .65rem; color: var(--muted); font-size: .875rem; }
 .song-tags a { color: var(--link); overflow-wrap: anywhere; text-decoration: none; }
 .song-tags a::before { content: '#'; color: #718ca8; }
