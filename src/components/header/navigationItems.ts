@@ -22,6 +22,7 @@ export type NavigationGroup = {
 export type NavigationItem = NavigationLink | NavigationGroup;
 
 export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
+  // 站内页面在前，跳到外部网站的（工具、文档）放在最后
   {
     kind: 'group',
     id: 'rankings',
@@ -30,22 +31,6 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
       { kind: 'link', id: 'recommend-ranking', labelKey: 'shared/Navigation.Recommend', to: '/ranking', match: 'exact' },
       { kind: 'link', id: 'user-ranking', labelKey: 'shared/Navigation.UserRankingTitle', to: '/ranking/user' },
     ],
-  },
-  {
-    kind: 'group',
-    id: 'tools',
-    labelKey: 'shared/Navigation.Tools',
-    children: [
-      { kind: 'link', id: 'chart-editor', labelKey: 'shared/Navigation.ChartEditor', to: '/edit' },
-      { kind: 'link', id: 'chart-player', labelKey: 'shared/Navigation.ChartPlayer', to: '/play' },
-    ],
-  },
-  {
-    kind: 'link',
-    id: 'documentation',
-    labelKey: 'shared/Navigation.Documentation',
-    to: 'https://docs.majdata.net',
-    external: true,
   },
   {
     kind: 'link',
@@ -65,6 +50,22 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     labelKey: 'shared/Navigation.OriginalSongs',
     to: '/eventTag?id=Original',
     query: { id: 'Original' },
+  },
+  {
+    kind: 'group',
+    id: 'tools',
+    labelKey: 'shared/Navigation.Tools',
+    children: [
+      { kind: 'link', id: 'chart-editor', labelKey: 'shared/Navigation.ChartEditor', to: '/edit' },
+      { kind: 'link', id: 'chart-player', labelKey: 'shared/Navigation.ChartPlayer', to: '/play' },
+    ],
+  },
+  {
+    kind: 'link',
+    id: 'documentation',
+    labelKey: 'shared/Navigation.Documentation',
+    to: 'https://docs.majdata.net',
+    external: true,
   },
 ];
 
