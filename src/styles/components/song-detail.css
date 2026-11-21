@@ -34,7 +34,7 @@
 .song-side-section, .song-sidebar .song-radar { border-top: 1px solid var(--rule); padding-top: .9rem; }
 .song-sidebar .song-radar { display: grid; gap: .6rem; }
 .song-radar > :last-child { margin-inline: auto; max-width: 15rem; }
-.song-credits dd, .song-credits a, .song-file dd button {
+.song-credits dd, .song-credits a {
   display: flex; align-items: center;
 }
 .song-workspace [role="tabpanel"] { min-width: 0; }
@@ -62,17 +62,9 @@
 .song-identity .song-artist { display: inline-block; margin-top: .3rem; font-size: .95rem; color: #bac4d1; overflow-wrap: anywhere; }
 .song-credits { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .4rem .85rem; margin: 0; font-size: .875rem; }
 .song-credits > div { display: contents; }
-.song-credits dt, .song-file dt { color: var(--muted); }
+.song-credits dt { color: var(--muted); }
 .song-credits dd, .song-credits a { gap: .4rem; overflow-wrap: anywhere; min-width: 0; }
-.song-credits svg, .song-file svg { flex: none; width: 1rem; height: 1rem; }
-.song-file { display: grid; gap: .4rem; min-width: 0; margin: 0; font-size: .8rem; }
-.song-file > div { min-width: 0; display: flex; gap: .45rem; align-items: baseline; }
-.song-file dt { color: var(--muted); font-size: .75rem; }
-.song-file dd { min-width: 0; }
-.song-file dd button { gap: .35rem; max-width: 100%; color: #b9c5d4; cursor: copy; text-align: start; }
-.song-file dd button:hover { color: var(--ink); }
-.song-file code { font-size: .8rem; min-width: 0; overflow-wrap: anywhere; }
-.song-file svg { width: .8rem; height: .8rem; }
+.song-credits svg { flex: none; width: 1rem; height: 1rem; }
 .song-detail :is(button, a, summary):focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
 
 @media (max-width: 48rem) {
@@ -81,7 +73,4 @@
   .song-header-actions { grid-column: 1 / -1; grid-row: 3; }
   .song-header-actions > button { flex: 1; }
   .song-sidebar { border-left: 0; border-top: 1px solid var(--rule); padding: .5rem 0 0; }
-}
-@media (max-width: 23rem) {
-  .song-file code { font-size: .75rem; }
 }

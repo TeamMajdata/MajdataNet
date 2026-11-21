@@ -279,9 +279,20 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             )}
           </section>
           <ChartRadar id={song.id} hash={song.hash} chartLevel={chartLevel} />
-          <dl className="song-file song-side-section">
+          {/* ID / HASH：一行一个，值过长时省略，整行点击复制，复制图标对齐在右边 */}
+          <dl className="gap-1 grid m-0 song-side-section">
             {([['ID', song.id], ['HASH', song.hash]] as const).map(([key, value]) => (
-              <div key={key}><dt>{key}</dt><dd><button type="button" aria-label={t('song/SongPage.CopyValue', { field: key })} onClick={() => void copy(value)}><code>{value}</code><PiCopySimple /></button></dd></div>
+              <div key={key} className="min-w-0">
+                <dt className="sr-only">{key}</dt>
+                <dd className="m-0 min-w-0">
+                  <button type="button" title={value} aria-label={t('song/SongPage.CopyValue', { field: key })} onClick={() => void copy(value)}
+                    className="group flex items-center gap-3 hover:bg-white/[0.06] -mx-2 px-2 rounded-lg w-[calc(100%+1rem)] h-8 text-left cursor-copy">
+                    <span aria-hidden="true" className="w-9 font-medium text-[0.7rem] text-white/45 shrink-0">{key}</span>
+                    <code className="flex-1 min-w-0 font-mono text-white/75 group-hover:text-white text-xs truncate">{value}</code>
+                    <PiCopySimple aria-hidden="true" className="w-3.5 h-3.5 text-white/40 group-hover:text-white shrink-0" />
+                  </button>
+                </dd>
+              </div>
             ))}
           </dl>
         </aside>
