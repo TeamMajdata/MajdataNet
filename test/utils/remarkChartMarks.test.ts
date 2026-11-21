@@ -34,6 +34,15 @@ describe('chart marks in comments', () => {
     expect(marks('a200cb 200cbx')).toEqual([]);
   });
 
+  it('recognizes combo counts written with cb or combo in front', () => {
+    expect(marks('cb200 开始，Combo 300 和combo400')).toEqual([
+      ['cb200', { kind: 'combo', value: 200 }],
+      ['Combo 300', { kind: 'combo', value: 300 }],
+      ['combo400', { kind: 'combo', value: 400 }],
+    ]);
+    expect(marks('abcb200 cb200x5 bcombo3')).toEqual([]);
+  });
+
   it('leaves existing links alone', () => {
     const tree: Node = { type: 'root', children: [{ type: 'link', url: 'https://x', children: [{ type: 'text', value: '1:25' }] }] };
     remarkChartMarks()(tree);
