@@ -533,7 +533,7 @@
     "EditProfile": "Edit profile",
     "Error": "Error",
     "Expand": "Expand",
-    "Introduction": "About",
+    "Introduction": "Bio",
     "JoinAt": "Joined {{date}}",
     "NoComments": "No comments yet",
     "Overview": "Overview",
@@ -544,11 +544,11 @@
     "RatingFormula": "B50 takes the top 50 unique levels by \"constant × acc/101\" (over 5 likes, no Utage, acc >= 97) and averages each radar feature weighted by acc/101. The result is for reference only.",
     "RecentlyPlayedCharts": "Recently played",
     "Retry": "Retry",
-    "Sections": "Profile sections",
-    "ServerError": "Server Error",
-    "UploadedCharts": "Uploaded Charts",
+    "Sections": "Space",
+    "ServerError": "Server error",
+    "UploadedCharts": "Uploaded charts",
     "UserNotFound": "User not found",
-    "WhoLovesToPlay": "Top Players"
+    "WhoLovesToPlay": "Top players"
   },
   "user/AvatarUploader": {
     "Cancel": "Cancel",
