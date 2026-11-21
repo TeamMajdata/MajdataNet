@@ -72,8 +72,8 @@ export default function SpacePage() {
         <ProfileSidebar username={username} {...profile} />
 
         <div className="min-w-0">
-          {/* 页签：一次只看一块；没有内容的页签自动隐藏（内容一直挂载着，好知道有没有数据） */}
-          <div className="flex flex-wrap bg-white/[0.04] mb-5 p-1 border border-white/10 rounded-xl w-fit max-w-full" role="tablist" aria-label={t("space/SpacePage.Sections")}>
+          {/* 页签：和谱面页一样的下划线样式；一次只看一块；没有内容的页签自动隐藏（内容一直挂载着，好知道有没有数据） */}
+          <div className="flex gap-6 mb-6 border-white/10 border-b overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={t("space/SpacePage.Sections")}>
             {tabs.map(({ key, label }) => (
               <button
                 key={key}
@@ -83,7 +83,7 @@ export default function SpacePage() {
                 aria-controls={'space-panel-' + key}
                 aria-selected={activeTab === key}
                 onClick={() => selectTab(key)}
-                className={`px-4 rounded-lg h-9 font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === key ? 'bg-white/10 text-white shadow-[0_1px_0_rgb(255_255_255/8%)_inset]' : 'text-white/55 hover:text-white'}`}
+                className={`-mb-px bg-transparent px-0.5 py-3 border-0 border-b-2 border-solid font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === key ? 'border-blue-400 text-white' : 'border-transparent text-white/55 hover:text-white'}`}
               >
                 {label}
               </button>
