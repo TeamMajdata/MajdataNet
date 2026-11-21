@@ -51,7 +51,6 @@ export { default as Tooltip, TooltipProvider } from './ui/Tooltip';
 export { default as LazyLoad } from './ui/LazyLoad';
 export { default as LoadingSpinner } from './ui/LoadingSpinner';
 export { default as TmpRichText } from './ui/TmpRichText';
-export { default as CollapsibleSection } from './ui/CollapsibleSection';
 
 export { default as CollectionCard } from './collection/CollectionCard';
 export { default as CollectionModal } from './collection/CollectionModal';
