@@ -187,8 +187,8 @@ export default function AmbientBackground() {
 
     const tick = (now: number) => {
       frame = requestAnimationFrame(tick);
-      // 手机端限制到约 30fps
-      if (width <= 768 && now - lastDraw < 30) return;
+      // 粒子移动很慢，30fps 看不出区别，CPU 开销减半（所有屏幕都限制）
+      if (now - lastDraw < 30) return;
       lastDraw = now;
       drawFrame(ctx, particles, width, height, now);
     };
