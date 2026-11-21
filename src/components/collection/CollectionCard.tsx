@@ -9,6 +9,7 @@ import { endpoints } from '@/config/api';
 import type { Collection, CollectionSongList } from '@/types';
 import { useFavorites } from '@/hooks';
 import { LuListMusic, LuUser } from 'react-icons/lu';
+import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
@@ -70,7 +71,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
     // 悬停上浮放在外层，收藏/删除按钮跟着整张卡片一起动
     <div className={`relative transition-transform duration-250 ease-in-out ${isManaging ? '' : 'md:hover:-translate-y-1.25'}`}>
       <div
-        className={`flex gap-3 bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-2xl w-full h-36 overflow-hidden ${isManaging ? 'cursor-default ring-1 ring-red-500/30' : 'cursor-pointer'}`}
+        className={`flex gap-3 ${CARD_SURFACE_CLASS} p-2.5 w-full h-36 overflow-hidden ${isManaging ? 'cursor-default ring-1 ring-red-500/30' : 'cursor-pointer'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => { setIsHovered(false); setCurrentCoverIndex(0); }}
         onClick={() => {

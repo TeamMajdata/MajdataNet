@@ -17,6 +17,7 @@ import { LuDownload, LuTag, LuTrash2 } from 'react-icons/lu';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MarqueeText from '@/components/ui/MarqueeText';
 import { RANK_BADGE_CLASS } from '@/components/score/rankBadge';
+import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 
 interface SongCardProps {
   song: Song;
@@ -64,7 +65,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
       className="flex justify-center w-full min-w-0"
     >
       <LazyLoad height={144} offset={300}>
-        <div className={`marquee-host flex gap-3 ${disableLink && !onClick ? '' : 'cursor-pointer'} bg-[rgb(var(--background-start)/0.8)] shadow-[0_20px_60px_rgb(0_0_0/40%),0_8px_32px_rgb(0_0_0/20%),0_2px_0_rgb(255_255_255/8%)_inset] p-2.5 rounded-2xl w-full h-36 overflow-hidden ring-1 ring-transparent hover:ring-white/30 transition-shadow duration-200`}>
+        <div className={`marquee-host flex gap-3 ${disableLink && !onClick ? '' : 'cursor-pointer'} ${CARD_SURFACE_CLASS} p-2.5 w-full h-36 overflow-hidden ring-1 ring-transparent hover:ring-white/30 transition-shadow duration-200`}>
           {/* 封面点击进入谱面详情；列表本身接管点击时（onClick/disableLink）只展示 */}
           <div className="relative h-full aspect-square shrink-0">
             <CoverPic
