@@ -22,7 +22,7 @@ const UserChartsPage = lazy(() => import('./pages/user/ChartsPage'));
 const UserProfilePage = lazy(() => import('./pages/user/ProfilePage'));
 const MiniGamePage = lazy(() => import('./pages/MiniGamePage'));
 const PersonalScoresPage = lazy(() => import('./pages/user/ScoresPage'));
-const UserCollectionPage = lazy(() => import('./pages/user/CollectionPage'));
+const UserCollectionsPage = lazy(() => import('./pages/user/CollectionsPage'));
 const QRAuthPage = lazy(() => import('./pages/QRAuthPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const CollectionsHirobaPage = lazy(() => import('./pages/collection/HirobaPage'));
@@ -72,7 +72,7 @@ function AppRoutes() {
           <Route path="/user/charts" element={<UserChartsPage />} />
           <Route path="/user/profile" element={<UserProfilePage />} />
           <Route path="/user/scores" element={<PersonalScoresPage />} />
-          <Route path="/user/collections" element={<UserCollectionPage />} />
+          <Route path="/user/collections" element={<UserCollectionsPage />} />
           <Route path="/qrauth" element={<QRAuthPage />} />
         </Route>
       </Routes>

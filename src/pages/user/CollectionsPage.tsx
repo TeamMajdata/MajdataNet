@@ -28,7 +28,7 @@ function Placeholder({ icon, text, action }: { icon: ReactNode; text: string; ac
   );
 }
 
-export default function UserCollectionPage() {
+export default function UserCollectionsPage() {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const [activeTab, setActiveTab] = useState<CollectionTab>('mine');
