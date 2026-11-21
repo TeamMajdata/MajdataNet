@@ -171,13 +171,13 @@ function ProfileSidebar({ username, data, error, isLoading }: {
           {t("space/SpacePage.EditProfile")}
         </Link>
       )}
-      {/* 早期账号没有注册时间，接口给的是 1970 年，这种就不显示 */}
-      {joinDate.getFullYear() > 2000 && (
-        <p className="flex items-center gap-2 m-0 mt-4 text-white/55! text-sm">
-          <LuCalendarDays aria-hidden="true" className="w-4 h-4 shrink-0" />
-          {t("space/SpacePage.JoinAt", { date: joinDate.toLocaleDateString(getLocale(language)) })}
-        </p>
-      )}
+      {/* 早期账号没有记录注册时间（接口给的是 1970 年），显示为“早期用户” */}
+      <p className="flex items-center gap-2 m-0 mt-4 text-white/55! text-sm">
+        <LuCalendarDays aria-hidden="true" className="w-4 h-4 shrink-0" />
+        {joinDate.getFullYear() > 2000
+          ? t("space/SpacePage.JoinAt", { date: joinDate.toLocaleDateString(getLocale(language)) })
+          : t("space/SpacePage.EarlyMember")}
+      </p>
     </aside>
   );
 }
