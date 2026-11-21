@@ -251,7 +251,7 @@ export default function CollectionPage() {
   if (!id) return notice(t("collection/CollectionPage.InvalidParams"));
   if (error || songsError) return notice(t("collection/CollectionPage.ServerError"));
   if (isLoading || (isSongsLoading && !originalSongs)) {
-    return <PageLayout><PageLoading /></PageLayout>;
+    return <PageLoading />;
   }
   if (!collectionData) return notice(t("collection/CollectionPage.CollectionNotFound"));
 
