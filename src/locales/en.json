@@ -388,6 +388,7 @@
     "NoTags": "No tags",
     "PlayerTags": "Player tags",
     "Save": "Save",
+    "Saved": "Saved",
     "TagsChanged": "Someone else changed these tags at the same time. Please try again.",
     "TooManyTags": "A chart can have at most {{max}} tags of each kind",
     "Uploading": "Uploading…"

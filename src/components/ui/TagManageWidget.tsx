@@ -185,7 +185,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       serverTagsRef.current = saved;
       dispatch({ type: 'SET_TAGS', payload: saved });
       await mutate((summary) => summary && { ...summary, [isInPrivatePage ? 'tags' : 'publicTags']: saved }, { revalidate: false });
-      toast.success('上传成功了喵');
+      toast.success(t("shared/TagManageWidget.Saved"));
       // 谱面页和谱面管理页读的就是上面这份缓存，已经更新了；
       // 其他页面（列表里的谱面卡片）的标签来自列表接口，还得重载页面才能看到
       if (window.location.pathname !== '/user/charts' && window.location.pathname !== '/song') {

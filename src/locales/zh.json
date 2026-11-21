@@ -382,6 +382,7 @@
     "NoTags": "暂无标签",
     "PlayerTags": "玩家标签",
     "Save": "保存",
+    "Saved": "保存成功",
     "TagsChanged": "标签刚被其他人同时修改了，请重试",
     "TooManyTags": "每张谱面的每类标签最多 {{max}} 个",
     "Uploading": "正在爆速上传..."
