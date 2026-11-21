@@ -17,8 +17,8 @@ export default function UnderlineTabs<K extends string>({ tabs, active, onSelect
 }) {
   return (
     // trailing 放在 tablist 外面：它不是页签，而且下拉菜单不能被页签栏的横向滚动裁掉
-    <div className="flex items-center gap-4 mb-6 border-white/10 border-b">
-      <div className="flex flex-1 gap-6 -mb-px min-w-0 overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={label}>
+    <div className="flex items-center gap-2 sm:gap-4 mb-6 border-white/10 border-b">
+      <div className="flex flex-1 gap-4 sm:gap-6 -mb-px min-w-0 overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={label}>
         {tabs.map(({ key, label: tabLabel, icon: Icon, count }) => (
           <button
             key={key}

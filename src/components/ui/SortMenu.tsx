@@ -73,8 +73,9 @@ export default function SortMenu({ options, value, onChange, label, compact = fa
         aria-label={label + ' ' + options[value]}
       >
         <LuArrowDownUp aria-hidden="true" className="w-4 h-4 text-white/45" />
-        <span>{options[value]}</span>
-        <LuChevronDown aria-hidden="true" className={`w-3.5 h-3.5 text-white/45 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        {/* 紧凑版在窄屏上只留排序图标（完整名称在 aria-label 里），给旁边的页签让位 */}
+        <span className={compact ? 'max-sm:hidden' : ''}>{options[value]}</span>
+        <LuChevronDown aria-hidden="true" className={`w-3.5 h-3.5 text-white/45 transition-transform ${isOpen ? 'rotate-180' : ''} ${compact ? 'max-sm:hidden' : ''}`} />
       </button>
       <Dropdown
         isOpen={isOpen}
