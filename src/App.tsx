@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { UserProvider } from '@/contexts/UserContext';
@@ -35,13 +35,6 @@ function RouteFallback() {
   );
 }
 
-function ExternalRedirect({ to }: { to: string }) {
-  useEffect(() => {
-    window.location.replace(to);
-  }, [to]);
-  return null;
-}
-
 /**
  * Auth routes (/login, /register, /forget) open as a modal over the page the visitor came from,
  * so existing links and email deep links keep working.
@@ -64,9 +57,6 @@ function AppRoutes() {
     <>
       <Routes location={backgroundLocation}>
         <Route path="/" element={<HomePage />} />
-        {/* 旧链接：顶栏已直接链到文档站，这两个地址只为兼容旧书签 */}
-        <Route path="/edit" element={<ExternalRedirect to="https://docs.majdata.net/majdatax/" />} />
-        <Route path="/play" element={<ExternalRedirect to="https://docs.majdata.net/majdataplay/" />} />
         <Route path="/chart-events" element={<EventsPage />} />
         <Route path="/ranking" element={<RecommendRankingPage />} />
         <Route path="/ranking/user" element={<UserRankingPage />} />
