@@ -22,11 +22,12 @@ import { getDefaultChartLevel, parseRequestedLevel } from '@/utils/radar';
 import ChartRadar from '@/components/song/ChartRadar';
 import UserAvatar from '@/components/user/UserAvatar';
 import UnderlineTabs from '@/components/ui/UnderlineTabs';
+import { LuMessageCircle, LuPlay, LuTrophy } from 'react-icons/lu';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiPlayFill, PiTagSimple } from 'react-icons/pi';
 import { getLocale, useLanguage } from '@/i18n';
 import '@/styles/components/song-detail.css';
-import type { ChartInteractSummary, SongSummary, TagManageWidgetRef } from '@/types';
+import type { ChartInteractSummary, ChartLeaderboardResponse, SongSummary, TagManageWidgetRef } from '@/types';
 import useSWR from 'swr';
 import { apiFetcher } from '@/utils/apiClient';
 import { compactNumber } from '@/utils/interaction';
@@ -121,9 +122,9 @@ const ACTION_BUTTON_CLASS = 'flex justify-center items-center gap-1.5 bg-white/[
 const TAG_CLASS = 'inline-flex items-center bg-white/[0.06] hover:bg-white/10 px-2.5 border border-white/10 hover:border-white/20 rounded-full h-7 text-white/80 hover:text-white text-xs no-underline transition-colors';
 
 const songTabs = [
-  { id: 'preview', label: 'song/SongPage.Preview' },
-  { id: 'scores', label: 'song/ScoreRanking.RankingList' },
-  { id: 'comments', label: 'song/SongComments.Comments' },
+  { id: 'preview', label: 'song/SongPage.Preview', icon: LuPlay },
+  { id: 'scores', label: 'song/ScoreRanking.RankingList', icon: LuTrophy },
+  { id: 'comments', label: 'song/SongComments.Comments', icon: LuMessageCircle },
 ] as const;
 type SongTab = typeof songTabs[number]['id'];
 
@@ -161,7 +162,13 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const cover = endpoints.maichart.image(song.id);
   // 和侧栏投票面板同一个请求（SWR 会合并），这里只取播放次数
   const { bpm, duration } = useChartMeta(song.id, chartLevel);
+  // 页签上的数字：当前难度的上榜人数、评论数（都和面板里的请求共用 SWR 缓存）
+  const { data: leaderboard } = useSWR<ChartLeaderboardResponse>(endpoints.maiscore.chartLeaderboard(song.id), apiFetcher);
   const { data: interact } = useSWR<ChartInteractSummary>(endpoints.maichart.interactsum(song.id), apiFetcher, { revalidateOnFocus: false });
+  const tabCounts: Partial<Record<SongTab, number>> = {
+    scores: leaderboard && chartLevel !== undefined ? leaderboard.scores?.[chartLevel]?.length ?? 0 : undefined,
+    comments: interact?.comments,
+  };
 
   async function copy(value: string) {
     try {
@@ -221,7 +228,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
 
         <div className="song-workspace">
           <UnderlineTabs
-            tabs={songTabs.map(({ id, label }) => ({ key: id, label: t(label) }))}
+            tabs={songTabs.map(({ id, label, icon }) => ({ key: id, label: t(label), icon, count: tabCounts[id] }))}
             active={activeTab}
             onSelect={selectTab}
             idPrefix="song"
