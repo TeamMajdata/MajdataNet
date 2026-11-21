@@ -502,6 +502,7 @@
     "ServerError": "서버 오류"
   },
   "song/SongPage": {
+    "BackToHome": "홈으로 돌아가기",
     "ChartDetails": "채보 정보",
     "ClipboardSuccess": "복사되었습니다",
     "Collection": "컬렉션",

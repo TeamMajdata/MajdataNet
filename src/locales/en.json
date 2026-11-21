@@ -511,6 +511,7 @@
     "ServerError": "Server error"
   },
   "song/SongPage": {
+    "BackToHome": "Back to home",
     "ChartDetails": "Chart details",
     "ClipboardSuccess": "Copied",
     "Collection": "Collection",

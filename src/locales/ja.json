@@ -502,6 +502,7 @@
     "ServerError": "閉店中"
   },
   "song/SongPage": {
+    "BackToHome": "ホームに戻る",
     "ChartDetails": "譜面情報",
     "ClipboardSuccess": "クリップボードにコピーしました",
     "Collection": "コレクション",

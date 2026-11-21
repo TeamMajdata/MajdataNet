@@ -74,9 +74,12 @@ export default function SongPage() {
 
   if (!songData) {
     return (
-      <PageLayout>
-        <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-white text-2xl">{t("song/SongPage.SongNotFound")}</div>
+      <PageLayout centered>
+        <div className="mx-auto px-4 py-10 max-w-xl text-center">
+          <h1 className="m-0 font-semibold text-white! text-xl! text-center!">{t("song/SongPage.SongNotFound")}</h1>
+          <Link to="/" className="inline-flex items-center bg-blue-500 hover:bg-blue-400 mt-6 px-5 rounded-xl h-11 font-semibold text-white text-sm no-underline transition-colors">
+            {t("song/SongPage.BackToHome")}
+          </Link>
         </div>
       </PageLayout>
     );

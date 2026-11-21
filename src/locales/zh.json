@@ -502,6 +502,7 @@
     "ServerError": "已闭店"
   },
   "song/SongPage": {
+    "BackToHome": "返回首页",
     "ChartDetails": "谱面资料",
     "ClipboardSuccess": "已复制到剪贴板",
     "Collection": "收藏",
