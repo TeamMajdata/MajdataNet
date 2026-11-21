@@ -24,7 +24,7 @@ export default function UserChartsPage() {
   }
 
   return (
-    <PageLayout showBackToHome={false}>
+    <PageLayout>
       <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
         {/* Header：标题和说明居左，上传按钮在右 */}
         <header className="flex justify-between items-center gap-4 mb-5 sm:mb-6">

@@ -84,7 +84,6 @@ export interface PageLayoutProps {
   children: ReactNode;
   showAds?: boolean;
   showFooter?: boolean;
-  showBackToHome?: boolean;
   title?: string | null;
   className?: string;
   useAmbientBackground?: boolean;

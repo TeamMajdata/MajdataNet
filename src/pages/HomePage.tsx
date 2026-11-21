@@ -110,7 +110,7 @@ const cachedSongListFetcher = async (url: string): Promise<Song[]> => {
 
 export default function HomePage() {
   return (
-    <PageLayout showBackToHome={false}>
+    <PageLayout>
       {/* Events Carousel */}
       <EventsCarousel />
 

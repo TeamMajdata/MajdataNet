@@ -63,7 +63,7 @@ export default function EventsPage() {
   };
 
   return (
-    <PageLayout className="pt-4 sm:pt-8 min-h-screen mt-(--content-top-spacing)" showBackToHome={false}>
+    <PageLayout className="pt-4 sm:pt-8 min-h-screen mt-(--content-top-spacing)">
       <div className="mx-auto my-0 w-full max-w-320 min-w-0">
         <header className="flex sm:flex-row flex-col justify-between sm:items-end gap-4 mb-5 sm:mb-6">
           <div className="min-w-0">

@@ -42,7 +42,7 @@ export default function EventTagPage() {
     : null;
 
   return (
-    <PageLayout className="pt-4 sm:pt-6 md:pt-8 min-h-screen" showBackToHome={eventId !== 'Original'}>
+    <PageLayout className="pt-4 sm:pt-6 md:pt-8 min-h-screen">
       {/* 活动横幅 */}
       {currentEvent && <EventBanner event={currentEvent} />}
 

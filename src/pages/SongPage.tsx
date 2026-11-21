@@ -69,7 +69,7 @@ export default function SongPage() {
 
   if (!songData) {
     return (
-      <PageLayout showBackToHome={false}>
+      <PageLayout>
         <div className="flex justify-center items-center min-h-[60vh]">
           <div className="text-white text-2xl">{t("song/SongPage.SongNotFound")}</div>
         </div>
@@ -105,7 +105,7 @@ export default function SongPage() {
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content={metaImage} />
       </Helmet>
-      <PageLayout showBackToHome={false} useAmbientBackground={false} className="song-detail">
+      <PageLayout useAmbientBackground={false} className="song-detail">
         <SongInfo key={param} data={songData} focusId={focusedComment} />
       </PageLayout>
     </>

@@ -73,7 +73,7 @@ export default function UserCollectionPage() {
   const loading = <div className="flex justify-center items-center py-20 w-full"><LoadingSpinner size="50px" /></div>;
 
   return (
-    <PageLayout showBackToHome={false}>
+    <PageLayout>
       <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-h-screen min-w-0">
         {/* Header：标题居左，新建按钮在右，两个分页都显示 */}
         <header className="flex justify-between items-center gap-4 mb-5 sm:mb-6">

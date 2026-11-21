@@ -188,7 +188,7 @@ export default function PersonalScoresPage() {
 
   if (error || isLoading || !data || data.length === 0) {
     return (
-      <PageLayout showBackToHome={false}>
+      <PageLayout>
         <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
           {header}
           {isLoading ? (
@@ -211,7 +211,7 @@ export default function PersonalScoresPage() {
   ];
 
   return (
-    <PageLayout showBackToHome={false}>
+    <PageLayout>
       <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
         {header}
 

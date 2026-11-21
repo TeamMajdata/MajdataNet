@@ -34,7 +34,6 @@ const FOOTER_LINKS = [
 export default function PageLayout({
   children,
   showFooter = true,
-  showBackToHome = true,
   title = null,
   className = '',
   useAmbientBackground = true,
@@ -78,19 +77,6 @@ export default function PageLayout({
 
       {/* Main Content */}
       <main className={`mx-auto mt-3 sm:mt-4 px-3 sm:px-4 w-full max-w-7xl min-w-0 ${className}`}>{children}</main>
-
-      {/* Back to Home Section */}
-      {showBackToHome && (
-        <section className="my-10 sm:my-16 pt-6 sm:pt-8 border-white/10 border-t text-center">
-          <div className="mx-auto px-4 max-w-7xl">
-            <Link to="/" className="no-underline">
-              <div className="inline-flex justify-center items-center bg-[rgba(25,25,30,0.9)] hover:bg-[rgba(35,35,40,0.95)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.3),0_2px_8px_rgba(0,0,0,0.2)] px-6 sm:px-8 py-3 sm:py-4 border border-white/10 hover:border-white/20 rounded-xl min-h-11 font-semibold text-[#e5e5e5] transition-all hover:-translate-y-0.5 duration-300">
-                {t("shared/PageLayout.BackToHome")}
-              </div>
-            </Link>
-          </div>
-        </section>
-      )}
 
       {/* Footer */}
       {showFooter && (
