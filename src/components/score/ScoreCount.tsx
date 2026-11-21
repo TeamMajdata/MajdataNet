@@ -21,7 +21,8 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   const { data: response, error, isLoading } = useSWR<ScoreSumResponse>(
     endpoints.maiscore.scoreSums(uploader, page, pageSize),
     fetcher,
-    { refreshInterval: 30000 } // 每30秒刷新一次
+    // 总达成率变化很慢，不再每 30 秒轮询；切回页面时 SWR 会自动刷新
+    { revalidateOnFocus: true }
   );
 
   const data = response?.players;
