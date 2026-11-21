@@ -429,6 +429,7 @@
     "LoadFailed": "채보를 불러오지 못했습니다:",
     "Loading": "채보 불러오는 중…",
     "LoadingTrack": "음악 불러오는 중…",
+    "NoteCount": "노트 수",
     "Pause": "일시정지",
     "Play": "재생",
     "Position": "재생 위치",

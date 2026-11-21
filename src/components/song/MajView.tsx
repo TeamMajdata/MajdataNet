@@ -693,6 +693,11 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
               : status === 'buffering' ? t('song/MajView.LoadingTrack') : t('song/MajView.Loading')}
           </div>
         )}
+        {chart && (
+          <div className="majview-note-count">
+            {t('song/MajView.NoteCount')} <strong>{scores.length}</strong>
+          </div>
+        )}
         {/* 拖动进度时显示目标时间；长按 2 倍速时显示倍率。都用 ref 直接改文字，避免每一帧重新渲染 */}
         <div ref={seekHintRef} className="majview-seek-hint" hidden aria-hidden="true">
           <strong ref={seekHintTimeRef} />
