@@ -369,7 +369,6 @@
     "Uploading": "업로드 중..."
   },
   "shared/UserMenu": {
-    "AccountSetting": "설정",
     "ChartsManagement": "채보",
     "Logout": "로그아웃",
     "LogoutFailed": "로그아웃에 실패했습니다",

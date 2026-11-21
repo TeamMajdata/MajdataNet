@@ -369,7 +369,6 @@
     "Uploading": "爆速アップロード中..."
   },
   "shared/UserMenu": {
-    "AccountSetting": "個人設定",
     "ChartsManagement": "譜面管理",
     "Logout": "ログアウト",
     "LogoutFailed": "ログアウトに失敗しました",

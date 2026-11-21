@@ -375,7 +375,6 @@
     "Uploading": "Uploading..."
   },
   "shared/UserMenu": {
-    "AccountSetting": "Setting",
     "ChartsManagement": "Charts",
     "Logout": "Logout",
     "LogoutFailed": "Logout failed",

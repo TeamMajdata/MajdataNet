@@ -369,7 +369,6 @@
     "Uploading": "正在爆速上传..."
   },
   "shared/UserMenu": {
-    "AccountSetting": "个人设置",
     "ChartsManagement": "谱面管理",
     "Logout": "登出",
     "LogoutFailed": "登出失败",

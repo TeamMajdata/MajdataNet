@@ -5,7 +5,7 @@ import { useUserContext } from '@/hooks';
 import UserAvatar from '@/components/user/UserAvatar';
 import { handleLogout as logoutUtil } from '@/utils';
 import Dropdown from './Dropdown';
-import { LuFileMusic, LuHouse, LuListMusic, LuLogOut, LuSettings, LuTrophy } from 'react-icons/lu';
+import { LuFileMusic, LuHouse, LuListMusic, LuLogOut, LuTrophy } from 'react-icons/lu';
 
 const MENU_ITEM = 'flex items-center gap-3 bg-transparent px-3 border-none rounded-lg w-full h-10 text-white/80 hover:text-white text-sm no-underline hover:bg-white/[0.06] transition-colors cursor-pointer';
 
@@ -41,7 +41,6 @@ export default function UserMenu({ username }: UserMenuProps) {
     { to: '/user/scores', label: t("shared/UserMenu.PersonalScores"), Icon: LuTrophy },
     { to: '/user/charts', label: t("shared/UserMenu.ChartsManagement"), Icon: LuFileMusic },
     { to: '/user/collections', label: t("shared/UserMenu.MyCollections"), Icon: LuListMusic },
-    { to: '/user/profile', label: t("shared/UserMenu.AccountSetting"), Icon: LuSettings },
   ];
 
   // 桌面端（能悬停的设备）悬停展开，和顶栏的“榜单”“工具”一致；手机仍点击展开
