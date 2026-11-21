@@ -63,15 +63,16 @@ function AppRoutes() {
         <Route path="/space" element={<SpacePage />} />
         <Route path="/eventTag" element={<EventTagPage />} />
         <Route path="/minigame" element={<MiniGamePage />} />
+        {/* 游客也能看；收藏、订阅等操作时再要求登录 */}
+        <Route path="/season" element={<SeasonPage />} />
+        <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
+        <Route path="/collection" element={<CollectionPage />} />
         <Route path="*" element={<NotFoundPage />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/season" element={<SeasonPage />} />
           <Route path="/user/charts" element={<UserChartsPage />} />
           <Route path="/user/profile" element={<UserProfilePage />} />
           <Route path="/user/scores" element={<PersonalScoresPage />} />
           <Route path="/user/collections" element={<UserCollectionPage />} />
-          <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
-          <Route path="/collection" element={<CollectionPage />} />
           <Route path="/qrauth" element={<QRAuthPage />} />
         </Route>
       </Routes>
