@@ -190,18 +190,16 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
       <div className="song-backdrop" aria-hidden="true" style={{ backgroundImage: 'url(' + cover + ')' }} />
       <div className="song-page">
         <header className="song-header" aria-labelledby="song-title">
+          <PhotoProvider bannerVisible={false}>
+            <PhotoView src={endpoints.maichart.fullImage(song.id)}>
+              <button type="button" className="song-cover" title={t('song/SongPage.ViewCover')} aria-label={t('song/SongPage.ViewCover')}>
+                <img src={cover} alt="" />
+              </button>
+            </PhotoView>
+          </PhotoProvider>
           <div className="song-identity">
-            <PhotoProvider bannerVisible={false}>
-              <PhotoView src={endpoints.maichart.fullImage(song.id)}>
-                <button type="button" className="song-cover" title={t('song/SongPage.ViewCover')} aria-label={t('song/SongPage.ViewCover')}>
-                  <img src={cover} alt="" />
-                </button>
-              </PhotoView>
-            </PhotoProvider>
-            <div>
-              <h1 id="song-title"><Link to={searchLink(song.title)} title={t('song/SongPage.SearchForTitle')}>{parseTmpRichText(song.title) || song.id}</Link></h1>
-              {song.artist && <Link className="song-artist" to={searchLink(song.artist)} title={t('song/SongPage.SearchForArtist')}>{song.artist}</Link>}
-            </div>
+            <h1 id="song-title"><Link to={searchLink(song.title)} title={t('song/SongPage.SearchForTitle')}>{parseTmpRichText(song.title) || song.id}</Link></h1>
+            {song.artist && <Link className="song-artist" to={searchLink(song.artist)} title={t('song/SongPage.SearchForArtist')}>{song.artist}</Link>}
           </div>
           <div className="song-levels" data-radar-level={chartLevel}>
             <h2 className="song-label">{t('song/SongPage.Difficulty')}</h2>
