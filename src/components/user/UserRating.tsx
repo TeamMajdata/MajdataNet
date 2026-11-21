@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import EmptyState from '@/components/ui/EmptyState';
 import { RatingRequestError, useUserRating } from '@/hooks/useUserRating';
@@ -23,30 +24,34 @@ export default function UserRating({ username }: UserRatingProps) {
       ? t('space/SpacePage.UserNotFound')
       : t('space/SpacePage.RatingFailed');
     return (
-      <div className="flex flex-col justify-center items-center gap-3 py-10 text-center" aria-live="polite">
-        <p role="alert" className="text-white/70">{message}</p>
-        <button
-          type="button"
-          disabled={isValidating}
-          onClick={() => { void mutate().catch(() => {}); }}
-          className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg disabled:opacity-50"
-        >
-          {t('space/SpacePage.Retry')}
-        </button>
-      </div>
+      <RatingSection>
+        <div className="flex flex-col justify-center items-center gap-3 py-10 text-center" aria-live="polite">
+          <p role="alert" className="text-white/70">{message}</p>
+          <button
+            type="button"
+            disabled={isValidating}
+            onClick={() => { void mutate().catch(() => {}); }}
+            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg disabled:opacity-50"
+          >
+            {t('space/SpacePage.Retry')}
+          </button>
+        </div>
+      </RatingSection>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <LoadingSpinner size={40} />
-      </div>
+      <RatingSection>
+        <div className="flex justify-center items-center py-12">
+          <LoadingSpinner size={40} />
+        </div>
+      </RatingSection>
     );
   }
 
   if (!data || data.chartCount === 0 || data.best.length === 0) {
-    return <EmptyState>{t('space/SpacePage.RatingEmpty')}</EmptyState>;
+    return <RatingSection><EmptyState>{t('space/SpacePage.RatingEmpty')}</EmptyState></RatingSection>;
   }
 
   const apCount = data.best.filter(score => Number(score.comboState) >= ComboState.AP).length;
@@ -62,8 +67,7 @@ export default function UserRating({ username }: UserRatingProps) {
   return (
     // 按所在区域的宽度排版：上面是雷达图和统计，下面是 Best 50 网格
     <div className="@container w-full">
-      <section aria-labelledby="user-rating-title">
-        <h2 id="user-rating-title" className={SECTION_HEADING_CLASS}>{t('space/SpacePage.Rating')}</h2>
+      <RatingSection>
         <div className={`${CARD_SURFACE_CLASS} flex flex-col @3xl:flex-row items-center gap-6 p-5`}>
           <div className="w-full max-w-64 shrink-0">
             <RadarPlot feature={data.feature} />
@@ -85,11 +89,22 @@ export default function UserRating({ username }: UserRatingProps) {
             </p>
           </div>
         </div>
-      </section>
+      </RatingSection>
       <section aria-labelledby="user-best50-title" className="mt-10">
         <h3 id="user-best50-title" className={SECTION_HEADING_CLASS}>{t('space/SpacePage.Best50')}</h3>
         <BestScores scores={data.best} />
       </section>
     </div>
+  );
+}
+
+/** “评分”区块：加载中、失败、没有数据和有数据时都带着同一个小标题，和概览里其他区块一致 */
+function RatingSection({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    <section aria-labelledby="user-rating-title">
+      <h2 id="user-rating-title" className={SECTION_HEADING_CLASS}>{t('space/SpacePage.Rating')}</h2>
+      {children}
+    </section>
   );
 }
