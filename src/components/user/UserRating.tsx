@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import EmptyState from '@/components/ui/EmptyState';
 import { RatingRequestError, useUserRating } from '@/hooks/useUserRating';
 import RadarPlot from '@/components/chart/RadarPlot';
 import BestScores from '@/components/user/BestScores';
@@ -51,7 +50,8 @@ export default function UserRating({ username }: UserRatingProps) {
   }
 
   if (!data || data.chartCount === 0 || data.best.length === 0) {
-    return <RatingSection><EmptyState>{t('space/SpacePage.RatingEmpty')}</EmptyState></RatingSection>;
+    // 没有可用于计算的成绩时整块不显示，和概览里其他没数据的区块一样
+    return null;
   }
 
   const apCount = data.best.filter(score => Number(score.comboState) >= ComboState.AP).length;
@@ -98,7 +98,7 @@ export default function UserRating({ username }: UserRatingProps) {
   );
 }
 
-/** “评分”区块：加载中、失败、没有数据和有数据时都带着同一个小标题，和概览里其他区块一致 */
+/** “评分”区块：加载中、失败和有数据时都带着同一个小标题，和概览里其他区块一致 */
 function RatingSection({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   return (

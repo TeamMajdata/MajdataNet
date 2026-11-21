@@ -529,7 +529,6 @@
     "Overview": "개요",
     "Rating": "레이팅",
     "RatingCharts": "{{count}}개 채보 평균",
-    "RatingEmpty": "레이팅에 사용할 기록이 아직 없습니다",
     "RatingFailed": "레이팅을 불러오지 못했습니다",
     "RatingFormula": "B50은 \"상수 × 달성률/101\"로 상위 50개 난이도(좋아요 5 초과, 연주 악보 제외, 달성률 97 이상)를 뽑고, 각 레이더 값을 달성률/101로 가중 평균합니다. 결과는 참고용입니다.",
     "RecentlyPlayedCharts": "최근 플레이",
