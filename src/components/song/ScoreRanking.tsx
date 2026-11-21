@@ -1,27 +1,25 @@
 import { useTranslation } from 'react-i18next';
-import { PiChartBar, PiFileText } from 'react-icons/pi';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { apiFetcher } from '@/utils/apiClient';
 import { getComboState } from '@/utils/comboUtils';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import SectionLoading from '@/components/ui/SectionLoading';
+import EmptyState from '@/components/ui/EmptyState';
+import { getLevelName } from '@/utils/levelUtils';
 import UserAvatar from '@/components/user/UserAvatar';
 import type { ChartLeaderboardResponse, ChartScore, ScoreListProps } from '@/types';
 
 const podium = [
   {
-    label: '1st Place',
     badge: 'bg-linear-to-br from-yellow-400 to-amber-500 text-black',
     avatar: 'border-amber-400 shadow-[0_0_0_1px_rgb(251_191_36/0.35),0_0_12px_rgb(251_191_36/0.45),0_0_22px_rgb(251_191_36/0.2)]',
   },
   {
-    label: '2nd Place',
     badge: 'bg-linear-to-br from-gray-300 to-gray-400 text-black',
     avatar: 'border-gray-300 shadow-[0_0_0_1px_rgb(209_213_219/0.35),0_0_12px_rgb(209_213_219/0.4),0_0_22px_rgb(209_213_219/0.18)]',
   },
   {
-    label: '3rd Place',
     badge: 'bg-linear-to-br from-amber-600 to-amber-700 text-white',
     avatar: 'border-amber-600 shadow-[0_0_0_1px_rgb(217_119_6/0.35),0_0_12px_rgb(217_119_6/0.4),0_0_22px_rgb(217_119_6/0.2)]',
   },
@@ -63,10 +61,7 @@ function RankingCard({ score, rank }: { score: ChartScore; rank: number }) {
           alt=""
           className={`size-8 shrink-0 rounded-full border-2 object-cover transition-transform motion-safe:group-hover:scale-105 ${medal?.avatar ?? 'border-white/20 group-hover:border-white/40'}`}
         />
-        <span className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-semibold text-white/90 group-hover:text-white">{score.player.nickname || score.player.username}</span>
-          {medal && <span className="text-[10px] font-medium text-white/50">{medal.label}</span>}
-        </span>
+        <span className="truncate text-sm font-semibold text-white/90 group-hover:text-white">{score.player.nickname || score.player.username}</span>
       </Link>
       <span className="flex shrink-0 flex-col items-end gap-0.5">
         <strong className={`text-base tabular-nums ${styles.accuracy}`}>{score.acc.toFixed(4)}%</strong>
@@ -78,7 +73,7 @@ function RankingCard({ score, rank }: { score: ChartScore; rank: number }) {
   );
 }
 
-export function ScoreRanking({ songid, chartLevel }: ScoreListProps) {
+export function ScoreRanking({ songid, chartLevel, levels }: ScoreListProps) {
   const { t } = useTranslation();
   const { data, error, isLoading } = useSWR<ChartLeaderboardResponse>(
     endpoints.maiscore.chartLeaderboard(songid),
@@ -86,29 +81,23 @@ export function ScoreRanking({ songid, chartLevel }: ScoreListProps) {
   );
 
   if (error) return <p role="alert" className="py-6 text-sm">{t('song/ScoreRanking.FailedToLoad')}</p>;
-  if (isLoading) return <div role="status" className="flex justify-center py-12"><LoadingSpinner size={28} /></div>;
+  if (isLoading) return <SectionLoading />;
 
   const scores = chartLevel === undefined ? [] : data?.scores?.[chartLevel] ?? [];
+  // 排行榜跟着页头选中的难度走，这里注明是哪个难度
+  const levelLabel = chartLevel === undefined ? '' : `${chartLevel === 6 ? 'UTAGE' : getLevelName(chartLevel)} ${levels?.[chartLevel]?.trim() ?? ''}`.trim();
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="m-0 flex items-center gap-2 text-left! text-lg! font-semibold text-white!">
-          <PiChartBar aria-hidden="true" className="size-5 text-white/70" />
-          {t('song/ScoreRanking.RankingList')}
-        </h2>
-        <span className="text-xs font-medium text-white/40">{t('song/ScoreRanking.Records', { count: scores.length })}</span>
+    <div className="space-y-3">
+      <div className="flex justify-between items-center gap-3 text-white/50 text-xs">
+        <span className="font-medium text-white/70">{levelLabel}</span>
+        <span>{t('song/ScoreRanking.Records', { count: scores.length })}</span>
       </div>
       {scores.length ? (
-        <ol className="flex flex-col gap-2">
+        <ol className="flex flex-col gap-2 m-0 p-0 list-none">
           {scores.map((score, index) => <RankingCard key={score.player.username} score={score} rank={index + 1} />)}
         </ol>
       ) : (
-        <div className="flex flex-col items-center px-4 py-16">
-          <span className="mb-4 grid size-16 place-items-center rounded-full bg-white/5">
-            <PiFileText aria-hidden="true" className="size-8 text-white/30" />
-          </span>
-          <p className="text-center text-sm font-medium text-white/50">{t('song/ScoreRanking.NoRecords')}</p>
-        </div>
+        <EmptyState>{t('song/ScoreRanking.NoRecords')}</EmptyState>
       )}
     </div>
   );

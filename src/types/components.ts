@@ -112,6 +112,8 @@ export interface ScoreCardProps {
 export interface ScoreListProps {
   songid: string;
   chartLevel?: number;
+  /** 各难度的定数文本，用来在榜单上方注明当前难度 */
+  levels?: (string | null)[];
 }
 
 // ======================== 歌曲列表组件 ========================
