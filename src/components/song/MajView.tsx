@@ -33,6 +33,10 @@ function preferPlaybackSession() {
   }
 }
 
+// iPhone 的 Safari 只允许视频全屏，不支持时不显示全屏按钮
+const CAN_FULLSCREEN = typeof document !== 'undefined' && document.fullscreenEnabled === true
+  && typeof HTMLElement.prototype.requestFullscreen === 'function';
+
 function formatClock(seconds: number) {
   const s = Math.max(0, Math.floor(seconds));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -430,9 +434,11 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
           <button type="button" className={controlClass} onClick={() => setSettingsOpen((open) => !open)} aria-expanded={settingsOpen} aria-label={t('song/MajView.Settings')}>
             <LuSettings2 aria-hidden="true" className="w-4 h-4" />
           </button>
-          <button type="button" className={controlClass} onClick={toggleFullscreen} aria-label={t('song/MajView.Fullscreen')}>
-            <LuMaximize aria-hidden="true" className="w-4 h-4" />
-          </button>
+          {CAN_FULLSCREEN && (
+            <button type="button" className={controlClass} onClick={toggleFullscreen} aria-label={t('song/MajView.Fullscreen')}>
+              <LuMaximize aria-hidden="true" className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
