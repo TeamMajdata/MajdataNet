@@ -81,7 +81,7 @@ describe('radar on the song page', () => {
     expect(container.querySelector('aside')?.textContent).not.toMatch(/主要特征|刻度|SLIDE/);
     expect(radarRequests()[0][0]).toBe('/api3/api/maichart/song/radar?chartLevel=6');
 
-    await act(async () => difficulty(5).querySelector('strong')!.click());
+    await act(async () => difficulty(5).querySelector('span')!.click());
     expect(container.querySelector('aside .song-radar svg')?.textContent).toContain('14.83');
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('5');
   });
@@ -144,11 +144,11 @@ describe('radar on the song page', () => {
     const sendMessage = vi.fn();
     window.unitySendMessage = sendMessage;
     await render();
-    await act(async () => difficulty(5).querySelector('strong')!.click());
+    await act(async () => difficulty(5).querySelector('span')!.click());
     expect(sendMessage).toHaveBeenCalledTimes(1);
     expect(sendMessage.mock.calls[0][2]).toMatch(/\nlv5$/);
     expect(radarRequests().at(-1)?.[0]).toBe('/api3/api/maichart/song/radar?chartLevel=5');
-    await act(async () => difficulty(5).querySelector('span')!.click());
+    await act(async () => difficulty(5).querySelector('span:last-child')!.click());
     expect(sendMessage).toHaveBeenCalledTimes(2);
     expect(radarRequests()).toHaveLength(2);
     await act(async () => container.querySelector<HTMLElement>('[data-radar-level]')!.click());

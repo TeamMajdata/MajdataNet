@@ -33,29 +33,12 @@
 .song-side-section, .song-sidebar .song-radar { border-top: 1px solid var(--rule); padding-top: .9rem; }
 .song-sidebar .song-radar { display: grid; gap: .6rem; }
 .song-radar > :last-child { margin-inline: auto; max-width: 15rem; }
-.song-difficulty-list, .song-credits dd, .song-credits a, .song-file dd button {
+.song-credits dd, .song-credits a, .song-file dd button {
   display: flex; align-items: center;
 }
 .song-workspace [role="tabpanel"] { min-width: 0; }
-.song-levels { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: .85rem; }
+.song-levels { grid-column: 1 / -1; margin-top: .35rem; }
 .song-detail .song-label { margin: 0; font-size: .875rem; font-weight: 600; text-align: start; line-height: 1.4; }
-.song-levels .song-label { color: var(--muted); }
-.song-difficulty-list { gap: .25rem .75rem; flex-wrap: wrap; }
-.song-difficulty-list button {
-  --level-color: #99bcff;
-  display: inline-flex; align-items: baseline; gap: .4rem;
-  min-height: 2.1rem; padding: .25rem .2rem; border-bottom: 2px solid transparent;
-  font-size: .875rem; color: var(--muted); cursor: pointer;
-}
-.song-difficulty-list button[data-level="1"] { --level-color: #8ed6a8; }
-.song-difficulty-list button[data-level="2"] { --level-color: #efd08b; }
-.song-difficulty-list button[data-level="3"] { --level-color: #f4a1aa; }
-.song-difficulty-list button[data-level="4"] { --level-color: #d2b2ff; }
-.song-difficulty-list button[data-level="5"] { --level-color: #e9c2ff; }
-.song-difficulty-list button[data-level="6"] { --level-color: #f4afd9; }
-.song-difficulty-list button:hover, .song-difficulty-list button[aria-pressed="true"] { color: var(--level-color); }
-.song-difficulty-list button[aria-pressed="true"] { border-color: currentColor; }
-.song-difficulty-list strong { font-size: 1.125rem; font-variant-numeric: tabular-nums; }
 .song-stage { position: relative; width: min(100%, 84svh); aspect-ratio: 1; margin-inline: auto; }
 .song-preview, .song-cover { overflow: hidden; border-radius: var(--radius-xl); }
 .song-preview { position: relative; display: block; width: 100%; height: 100%; cursor: pointer; background: #14181e; }

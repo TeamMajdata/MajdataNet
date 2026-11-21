@@ -214,8 +214,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
               </button>
             ))}
           </div>
-          <div className="song-levels" data-radar-level={chartLevel}>
-            <h2 className="song-label">{t('song/SongPage.Difficulty')}</h2>
+          <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
             <SongDifficultyLevels levels={song.levels} songid={song.id} isPlayer={activeTab === 'preview'} selected={chartLevel} onSelect={selectLevel} />
           </div>
         </header>
