@@ -3,6 +3,9 @@
  * 引擎在 src/majview/，皮肤和音效在 public/majview/skin/。这个组件只负责加载、播放控制和界面。
  *
  * 打开页面时只加载谱面并停在开头；第一次点播放才下载音乐，免得每次打开谱面页都下载整首歌。
+ *
+ * 设置里的“显示性能信息”会在判定盘左上角叠一层诊断信息（FPS、渲染耗时、谱面时间与
+ * DSP / 视频时间的差），默认关闭。
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +15,8 @@ import { Transport } from '@/majview/audio.js';
 import { compileChart, readMaidata } from '@/majview/simai.js';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
 import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, seekTarget } from '@/majview/gestures.js';
+import { createPerf, perfForced } from '@/majview/perf.js';
+import { loadChartText } from '@/majview/chartCache';
 import type { ChartMark } from './chartMarks';
 import { loadSettings, saveSettings, type ViewSettings } from '@/majview/settings';
 import SortMenu from '@/components/ui/SortMenu';
@@ -21,6 +26,15 @@ import '@/styles/components/majview.css';
 
 const SKIN_BASE = '/majview/skin/';
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
+/** 加载各阶段的 performance 标记，便于在控制台/Performance 面板里核对耗时 */
+function mark(name: string) {
+  try {
+    performance.mark(name);
+  } catch {
+    /* 老浏览器忽略 */
+  }
+}
 
 type Chart = ReturnType<typeof compileChart>;
 /** loading：加载谱面；ready：可以播放；buffering：第一次播放，正在下载音乐；error：失败 */
@@ -94,8 +108,18 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const previewTimeRef = useRef(0);
   const [settings, setSettings] = useState(loadSettings);
   const settingsRef = useRef(settings);
+  // First 偏移（秒）：谱面整体平移，渲染时把媒体时间往回挪这么多
+  const firstOffsetRef = useRef(settings.FirstOffset / 1000);
+  firstOffsetRef.current = settings.FirstOffset / 1000;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const rafRef = useRef(0);
+
+  // 性能信息：设置里的开关（默认关闭），?perf=1 可以强制打开
+  const perfOn = settings.Perf || perfForced();
+  const perf = useMemo(() => (perfOn ? createPerf(`majview ${songId}#${level}`) : null), [perfOn, songId, level]);
+  const perfRef = useRef<HTMLDivElement>(null);
+  const perfPaintRef = useRef(0);
+  const perfFirstFrameRef = useRef(false);
 
   // 判定盘手势：同一时间只跟踪一根手指，定时器保存长按
   const gestureRef = useRef<BoardGesture | null>(null);
@@ -118,6 +142,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const beginRef = useRef(0);
   const [rate, setRate] = useState(1);
   const [videoVisible, setVideoVisible] = useState(false);
+  // 背景 PV 在第一次点播放前不挂 src：否则打开页面就把整段视频下下来了
+  const [videoArmed, setVideoArmed] = useState(false);
   // 手势回调在两次渲染之间触发，读 ref 才能拿到当前总长和倍速
   const durationRef = useRef(0);
   const rateRef = useRef(1);
@@ -128,16 +154,29 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
 
   const currentTime = () => transportRef.current?.time ?? previewTimeRef.current;
 
-  // 视频跟着音频时钟走，差太多才校正（视频差几十毫秒看不出来）
+  /**
+   * 视频跟着谱面时间走。
+   * 差得多（seek、掉帧）直接改 currentTime；差几十毫秒时用播放速率慢慢追，
+   * 不然会一直挂在阈值边缘（拖动后实测会残留 ~90ms）。
+   */
   const syncVideo = useCallback((force = false) => {
     const video = videoRef.current;
     if (!video || video.readyState < 1 || !Number.isFinite(video.duration)) return;
     const transport = transportRef.current;
     const time = transport?.time ?? previewTimeRef.current;
+    const rate = transport?.rate ?? 1;
     const target = Math.max(0, Math.min(time, video.duration));
-    const drift = Math.abs(video.currentTime - target);
-    if ((force || drift > 0.15) && drift > 0.015) video.currentTime = target;
-    if (transport && video.playbackRate !== transport.rate) video.playbackRate = transport.rate;
+    const drift = video.currentTime - target; // 正数：视频跑在谱面之前
+    const abs = Math.abs(drift);
+    if ((force && abs > 0.015) || abs > 0.15) {
+      video.currentTime = target;
+      video.playbackRate = rate;
+    } else if (abs > 0.02) {
+      // 每帧 ±3%，90ms 的偏差大约三秒内追平，看不出来
+      video.playbackRate = drift > 0 ? rate * 0.97 : rate * 1.03;
+    } else if (video.playbackRate !== rate) {
+      video.playbackRate = rate;
+    }
     if (transport?.playing && time >= 0 && time < video.duration) {
       if (video.paused) video.play().catch(() => {});
     } else if (!video.paused) video.pause();
@@ -147,20 +186,48 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     cancelAnimationFrame(rafRef.current);
     const board = boardRef.current;
     if (!board || !chartRef.current) return;
+    if (!perfFirstFrameRef.current) {
+      perfFirstFrameRef.current = true;
+      mark('majview:first-frame');
+    }
     const transport = transportRef.current;
     const time = transport?.time ?? previewTimeRef.current;
+    if (perf) perf.markFrame();
     if (transport?.playing && time >= transport.duration) {
       transport.pause();
       setPlaying(false);
     }
-    board.render(time);
+    const renderStart = perf ? performance.now() : 0;
+    // 谱面整体平移：媒体时间往回挪，音符和打击音一起晚/早 First 偏移那么多
+    board.render(time - firstOffsetRef.current);
+    if (perf) {
+      const video = videoRef.current;
+      perf.markRender(performance.now() - renderStart, {
+        notes: board.stats?.notes,
+        sprites: board.stats?.sprites,
+        time,
+        dsp: transport?.dspTime,
+        video: video?.classList.contains('visible') ? video.currentTime : undefined,
+        audio: transport?.stats,
+        playing: Boolean(transport?.playing),
+        rate: rateRef.current,
+      });
+    }
     if (timelineRef.current) timelineRef.current.value = String(time);
     // 时间文字一秒才变一次，没变就不碰 DOM
     const clock = formatClock(time - beginRef.current);
     if (clockRef.current && clockRef.current.textContent !== clock) clockRef.current.textContent = clock;
+    // 诊断覆盖层：5Hz 刷新，不跟着每帧写 DOM
+    if (perf && perfRef.current && performance.now() - perfPaintRef.current > 200) {
+      perfPaintRef.current = performance.now();
+      perfRef.current.textContent = perf.overlay();
+      // 背景视频是否在掉帧：和 rAF 掉帧是两回事，分开看
+      const quality = videoRef.current?.getVideoPlaybackQuality?.();
+      if (quality) perf.setScene({ video: `${quality.droppedVideoFrames}/${quality.totalVideoFrames} dropped` });
+    }
     syncVideo();
     if (transport?.playing) rafRef.current = requestAnimationFrame(frame);
-  }, [syncVideo]);
+  }, [syncVideo, perf]);
 
   const dropTransport = useCallback(() => {
     trackRef.current?.controller.abort();
@@ -184,6 +251,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
         created = board;
         boardRef.current = board;
         setBoardReady(true);
+        mark('majview:board-ready');
       })
       .catch((err: Error) => {
         if (disposed) return;
@@ -215,9 +283,11 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
           transport.dispose();
           return null;
         }
+        transport.setFirstOffset(firstOffsetRef.current);
         transport.move(previewTimeRef.current);
         transportRef.current = transport;
         setDuration(transport.duration);
+        mark('majview:track-ready');
         return transport;
       })
       .catch(() => {
@@ -227,6 +297,15 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     trackRef.current = { chart: target, controller, promise };
     return promise;
   }, [chartUrl]);
+
+  /** 谱面出来后再等浏览器空闲才准备音乐：先保证画面，别让 2MB 音频和皮肤/谱面抢带宽 */
+  const scheduleTrack = useCallback((target: Chart) => {
+    const run = () => {
+      if (chartRef.current === target) void prepareTrack(target);
+    };
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run, { timeout: 2500 });
+    else setTimeout(run, 400);
+  }, [prepareTrack]);
 
   // 换谱面或难度时重新加载：谱面不等渲染器，拿到就开始在后台准备音乐
   useEffect(() => {
@@ -251,17 +330,21 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
 
     async function load() {
       try {
-        const response = await fetch(chartUrl + '/chart', { signal });
-        if (!response.ok) throw Error(`Chart request failed (${response.status})`);
-        const compiled = compileChart(readMaidata(await response.text()), level);
+        mark('majview:chart-request');
+        const text = await loadChartText(chartUrl + '/chart', signal);
         if (signal.aborted) return;
+        mark('majview:chart-response');
+        const compiled = compileChart(readMaidata(text), level);
+        if (signal.aborted) return;
+        mark('majview:chart-compiled');
         chartRef.current = compiled;
         previewTimeRef.current = chartStart(compiled);
         beginRef.current = previewTimeRef.current;
         setBegin(previewTimeRef.current);
         setChart(compiled);
         setDuration(chartDuration(compiled));
-        void prepareTrack(compiled);
+        // 音乐晚一点再准备：先让画面出来，别和谱面、皮肤抢带宽（点播放时会立刻准备）
+        scheduleTrack(compiled);
       } catch (err) {
         if (signal.aborted) return;
         setError({ detail: (err as Error).message });
@@ -270,7 +353,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     }
     void load();
     return () => controller.abort();
-  }, [chartUrl, level, dropTransport, prepareTrack]);
+  }, [chartUrl, level, dropTransport, prepareTrack, scheduleTrack]);
 
   // 和渲染器里的 combo 计数用同一份时间表：第 n 个元素结束时 combo 变成 n
   const scores = useMemo(() => chart ? scoreTimeline(chart.notes) as { time: number }[] : [], [chart]);
@@ -288,8 +371,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     else {
       const entry = scores[jump.value - 1];
       if (!entry) return;
-      // 稍微过一点，画面上 combo 正好显示成这个数
-      time = entry.time + 0.001;
+      // 稍微过一点，画面上 combo 正好显示成这个数；谱面时间要换回媒体时间
+      time = entry.time + firstOffsetRef.current + 0.001;
     }
     handledJump.current = jump.key;
     previewTimeRef.current = time;
@@ -306,6 +389,16 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     syncVideo(true);
   }, [active, syncVideo]);
 
+  // preload="none" 不会自己开始下载：挂上 src 后必须主动 load() 一次，
+  // 否则 readyState 一直是 0，syncVideo() 永远等不到可播放的视频
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !videoArmed) return;
+    video.load();
+    const started = video.play();
+    if (started) started.catch(() => { /* 还没解码完也没关系，syncVideo 会接着播 */ });
+  }, [videoArmed, chartUrl]);
+
   // 谱面和渲染器都好了才画出来
   useEffect(() => {
     if (!boardReady || !chart) return;
@@ -313,6 +406,59 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     setStatus('ready');
     frame();
   }, [boardReady, chart, frame]);
+
+  // 诊断：渲染器建好后打开逐帧计时，并把采集器挂到 window 方便外部读取
+  useEffect(() => {
+    if (!perf) return;
+    boardRef.current?.setProfiling(boardReady);
+  }, [perf, boardReady]);
+  // 诊断：记录渲染后端 / GPU / 画布尺寸，用来区分“代码问题”和“机器/浏览器问题”
+  useEffect(() => {
+    if (!perf || !boardReady) return;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const board = boardRef.current as any;
+    const canvas = board?.app?.canvas as HTMLCanvasElement | undefined;
+    const gl = (canvas?.getContext('webgl2') ?? canvas?.getContext('webgl')) as WebGLRenderingContext | null;
+    const debug = gl?.getExtension('WEBGL_debug_renderer_info');
+    perf.setScene({
+      renderer: board?.app?.renderer?.name ?? null,
+      gpu: debug && gl ? String(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)) : null,
+      dpr: window.devicePixelRatio,
+      canvas: canvas ? `${canvas.width}x${canvas.height}` : null,
+      cores: navigator.hardwareConcurrency,
+      memory: (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? null,
+    });
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+  }, [perf, boardReady]);
+  useEffect(() => {
+    if (!perf) return;
+    const target = globalThis as { __majviewPerf?: unknown };
+    target.__majviewPerf = perf;
+    return () => {
+      delete target.__majviewPerf;
+    };
+  }, [perf]);
+  // 诊断：暴露 transport / board，便于在控制台里核对“画面时间”和音频 DSP 时间的关系
+  useEffect(() => {
+    if (!perf) return;
+    const target = globalThis as {
+      __majviewDebug?: {
+        transport: Transport | null;
+        board: Board | null;
+        chart: Chart | null;
+        firstOffset: number;
+      };
+    };
+    target.__majviewDebug = {
+      get transport() { return transportRef.current; },
+      get board() { return boardRef.current; },
+      get chart() { return chartRef.current; },
+      get firstOffset() { return firstOffsetRef.current; },
+    };
+    return () => {
+      delete target.__majviewDebug;
+    };
+  }, [perf]);
 
   const togglePlay = async () => {
     const current = transportRef.current;
@@ -329,6 +475,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     preferPlaybackSession();
     contextRef.current ??= new AudioContext({ latencyHint: 'interactive' });
     const resumed = contextRef.current.resume();
+    // 真正要点播放了，才去拉背景 PV
+    setVideoArmed(true);
     const video = videoRef.current;
     if (video?.getAttribute('src') && !video.error) video.play().then(() => video.pause()).catch(() => {});
     let transport = transportRef.current;
@@ -377,6 +525,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     setSettings(next);
     saveSettings(next);
     transportRef.current?.setSettings(next);
+    transportRef.current?.setFirstOffset(next.FirstOffset / 1000);
     const board = boardRef.current;
     const chart = chartRef.current;
     if (board && chart) {
@@ -537,6 +686,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   return (
     <div ref={rootRef} className="majview">
       <img className="majview-backdrop" src={cover} alt="" crossOrigin="anonymous" />
+      {/* 性能信息覆盖层：设置里打开（或 ?perf=1）后出现 */}
+      {perf && <div ref={perfRef} className="majview-perf" aria-hidden="true">…</div>}
       <div
         ref={sceneRef}
         className="majview-scene"
@@ -549,10 +700,10 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
           <img src={cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
           <video
             ref={videoRef}
-            src={chartUrl + '/video'}
+            src={videoArmed ? chartUrl + '/video' : undefined}
             muted
             playsInline
-            preload="auto"
+            preload="none"
             className={videoVisible ? 'visible' : undefined}
             onLoadedData={() => { setVideoVisible(true); syncVideo(true); }}
             onError={() => setVideoVisible(false)}

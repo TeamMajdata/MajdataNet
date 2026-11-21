@@ -8,6 +8,7 @@ const LABELS = {
   NoteSpeed: 'song/MajView.SettingNoteSpeed',
   TouchSpeed: 'song/MajView.SettingTouchSpeed',
   Offset: 'song/MajView.SettingOffset',
+  FirstOffset: 'song/MajView.SettingFirstOffset',
   BGCover: 'song/MajView.SettingBGCover',
   BGM: 'song/MajView.SettingBGM',
   Answer: 'song/MajView.SettingAnswer',
@@ -20,10 +21,10 @@ const LABELS = {
   Hanabi: 'song/MajView.SettingHanabi',
 } as const satisfies Record<SettingKey, string>;
 
-const VIEW_KEYS: SettingKey[] = ['NoteSpeed', 'TouchSpeed', 'Offset', 'BGCover'];
+const VIEW_KEYS: SettingKey[] = ['NoteSpeed', 'TouchSpeed', 'Offset', 'FirstOffset', 'BGCover'];
 
 function formatValue(key: SettingKey, value: number) {
-  if (key === 'Offset') return `${value} ms`;
+  if (key === 'Offset' || key === 'FirstOffset') return `${value} ms`;
   if (key === 'NoteSpeed' || key === 'TouchSpeed') return (value / 10).toFixed(1);
   if (key === 'BGCover') return `${value * 10}%`;
   return value.toFixed(1);
@@ -81,6 +82,10 @@ export default function MajViewSettings({ settings, onChange, onClose }: {
         <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
           {t('song/MajView.SettingCombo')}
           <input type="checkbox" checked={settings.Combo} onChange={(e) => onChange({ Combo: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
+        </label>
+        <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
+          {t('song/MajView.SettingPerf')}
+          <input type="checkbox" checked={settings.Perf} onChange={(e) => onChange({ Perf: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
         </label>
       </section>
 

@@ -85,6 +85,24 @@
   text-align: center;
 }
 
+/* 帧率诊断覆盖层（开发期 / ?perf=1）：压在判定盘左上角，等宽字体，不抢焦点 */
+.majview-perf {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  z-index: 3;
+  padding: .25rem .5rem;
+  border-radius: .375rem;
+  background: rgb(0 0 0 / 65%);
+  color: #7dd3fc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .6875rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  white-space: pre;
+  pointer-events: none;
+}
+
 /* 拖动进度时显示目标时间，长按 2 倍速时显示倍率：压在判定盘上方中间，深色胶囊在封面上也看得清 */
 .majview-seek-hint,
 .majview-speed-hint {

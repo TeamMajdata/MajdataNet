@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import PageLoading from '@/components/ui/PageLoading';
-import { Activity, Suspense, lazy, useCallback, useMemo, useState, useRef } from 'react';
+import { Activity, Suspense, lazy, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { endpoints } from '@/config/api';
@@ -35,6 +35,7 @@ import { compactNumber } from '@/utils/interaction';
 import { formatDuration } from '@/utils/simai';
 import { useChartMeta } from '@/hooks/useChartMeta';
 import { useChartMediaUrl } from '@/hooks/useChartMediaUrl';
+import { preloadMajView } from '@/majview/preload';
 
 // 网页版谱面预览带着 PixiJS，只在点开预览时加载
 const MajView = lazy(() => import('@/components/song/MajView'));
@@ -49,6 +50,11 @@ export default function SongPage() {
     revalidateOnFocus: false,
     shouldRetryOnError: false,
   });
+
+  // 谱面预览的代码块、谱面文本和皮肤：拿到 id 就开始取，和 summary 并行，不等页面渲染完
+  useEffect(() => {
+    if (param) preloadMajView(param);
+  }, [param]);
 
   if (!param || isLoading) {
     return (

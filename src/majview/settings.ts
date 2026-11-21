@@ -7,6 +7,8 @@
  */
 export const VIEW_FIELDS = [
   { key: 'Offset', min: -500, max: 500, value: 0 },
+  // 在谱面自带的 &first 上再加的偏移：正值让整张谱面（音符和打击音）整体晚一点
+  { key: 'FirstOffset', min: -500, max: 500, value: 0 },
   // 默认值和 Play 一致：流速 7.5，背景暗度 80%
   { key: 'NoteSpeed', min: 1, max: 200, value: 75 },
   { key: 'TouchSpeed', min: 1, max: 200, value: 75 },
@@ -23,7 +25,7 @@ const DEFAULT_VOLUME: Record<VolumeKey, number> = {
 
 export type VolumeKey = typeof MAIN_VOLUMES[number] | typeof EFFECT_VOLUMES[number];
 export type SettingKey = typeof VIEW_FIELDS[number]['key'] | VolumeKey;
-export type ViewSettings = Record<SettingKey, number> & { Combo: boolean };
+export type ViewSettings = Record<SettingKey, number> & { Combo: boolean; Perf: boolean };
 export type Channel = Exclude<VolumeKey, 'Effects'> | 'Clock';
 
 // 开发中用过百分比格式的 MajViewSettings，换个名字不读它
@@ -53,7 +55,8 @@ export function loadSettings(): ViewSettings {
 }
 
 function parseSettings(saved: Record<string, unknown>): ViewSettings {
-  const settings = { Combo: saved.Combo !== false } as ViewSettings;
+  // 性能信息（默认关闭）和连击数都是开关，数值项走 VIEW_FIELDS
+  const settings = { Combo: saved.Combo !== false, Perf: saved.Perf === true } as ViewSettings;
   for (const { key, min, max, value } of VIEW_FIELDS) settings[key] = clamp(saved[key], min, max, value);
   for (const key of [...MAIN_VOLUMES, ...EFFECT_VOLUMES]) {
     settings[key] = Math.round(clamp(saved[key], VOLUME_RANGE.min, VOLUME_RANGE.max, DEFAULT_VOLUME[key]) * 10) / 10;
