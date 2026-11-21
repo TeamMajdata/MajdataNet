@@ -513,9 +513,11 @@
     "Upvote": "高評価"
   },
   "space/SpacePage": {
+    "AverageAcc": "平均達成率",
     "BackToHome": "ホームに戻る",
     "Best50": "Best 50",
     "Best50Empty": "まだスコアがありません",
+    "BestAcc": "最高達成率",
     "Collapse": "折りたたむ",
     "Comments": "投稿したコメント",
     "EditProfile": "プロフィール編集",
