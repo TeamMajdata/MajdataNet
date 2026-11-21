@@ -1,6 +1,4 @@
 import { endpoints } from '@/config/api';
-import JSZip from 'jszip';
-import axios from 'axios';
 import { chooseDownloadFormat } from './downloadFormat';
 import { stripTmpTags } from './richTextUtils';
 import DownloadToast, { type DownloadFileKey, type DownloadFileState, type DownloadStatus } from '@/components/ui/DownloadToast';
@@ -38,6 +36,8 @@ export async function downloadSong(props: DownloadSongParams): Promise<void> {
   // 先问要哪种格式，取消就什么都不下载
   const downloadExtension = await chooseDownloadFormat(stripTmpTags(title) || title);
   if (!downloadExtension) return;
+  // 打包和下载用的库只在真正下载时才加载，不占首屏体积
+  const [{ default: JSZip }, { default: axios }] = await Promise.all([import('jszip'), import('axios')]);
   const zip = new JSZip();
   const abortController = new AbortController();
   const prefix = endpoints.maichart.prefix(props.id);
