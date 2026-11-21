@@ -203,14 +203,14 @@
   },
   "ranking/RecommendRankingPage": {
     "Comment": "Comment",
-    "CommentCountHint": "Number of comments received",
+    "CommentCountHint": "Sorted by comment count",
     "Download": "Download",
-    "DownloadCountHint": "Number of downloads",
+    "DownloadCountHint": "Sorted by download count",
     "Play": "Play",
-    "PlayCountHint": "Number of times played",
-    "RecommendedChartsHint": "Here choose the most favorable charts in 7 days!",
+    "PlayCountHint": "Sorted by play count",
+    "RecommendedChartsHint": "The most popular charts of the past 7 days.",
     "Score": "Score",
-    "ScoreHint": "Upvotes minus downvotes",
+    "ScoreHint": "Sorted by upvotes minus downvotes",
     "Title": "Recommended"
   },
   "ranking/user/UserRankingPage": {

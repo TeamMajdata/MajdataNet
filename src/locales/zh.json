@@ -199,14 +199,14 @@
   },
   "ranking/RecommendRankingPage": {
     "Comment": "评论",
-    "CommentCountHint": "被评论的次数",
+    "CommentCountHint": "按评论数排序",
     "Download": "下载",
-    "DownloadCountHint": "被下载的次数",
+    "DownloadCountHint": "按下载次数排序",
     "Play": "游玩",
-    "PlayCountHint": "表示游玩次数多少",
+    "PlayCountHint": "按游玩次数排序",
     "RecommendedChartsHint": "这里会选出七天内最有人气的谱面哟！",
     "Score": "评价",
-    "ScoreHint": "赞减踩的分数",
+    "ScoreHint": "按点赞数减点踩数排序",
     "Title": "推荐榜"
   },
   "ranking/user/UserRankingPage": {

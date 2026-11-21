@@ -199,14 +199,14 @@
   },
   "ranking/RecommendRankingPage": {
     "Comment": "コメント",
-    "CommentCountHint": "コメントされた回数",
+    "CommentCountHint": "コメント数順",
     "Download": "ダウンロード",
-    "DownloadCountHint": "ダウンロードされた回数",
+    "DownloadCountHint": "ダウンロード数順",
     "Play": "プレイ",
-    "PlayCountHint": "プレイ回数を表示",
+    "PlayCountHint": "プレイ回数順",
     "RecommendedChartsHint": "ここでは、過去7日間で最も人気のある譜面が選ばれますよ！",
     "Score": "評価",
-    "ScoreHint": "高評価から低評価を引いたスコア",
+    "ScoreHint": "高評価数 − 低評価数の順",
     "Title": "おすすめ"
   },
   "ranking/user/UserRankingPage": {

@@ -199,14 +199,14 @@
   },
   "ranking/RecommendRankingPage": {
     "Comment": "댓글",
-    "CommentCountHint": "받은 댓글 수",
+    "CommentCountHint": "댓글 수순",
     "Download": "다운로드",
-    "DownloadCountHint": "다운로드 수",
+    "DownloadCountHint": "다운로드 수순",
     "Play": "재생",
-    "PlayCountHint": "재생 횟수",
+    "PlayCountHint": "플레이 횟수순",
     "RecommendedChartsHint": "최근 7일 동안 가장 사랑받은 채보입니다!",
     "Score": "평가",
-    "ScoreHint": "추천에서 비추천을 뺀 점수",
+    "ScoreHint": "추천 수 − 비추천 수 순",
     "Title": "추천"
   },
   "ranking/user/UserRankingPage": {
