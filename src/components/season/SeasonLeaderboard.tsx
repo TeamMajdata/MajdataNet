@@ -6,6 +6,7 @@ import { useSeasonRanking } from '@/hooks/useSeasonRanking';
 import { useSeasonLastPlayed } from '@/hooks/useSeasonLastPlayed';
 import SeasonScoreDetails from './SeasonScoreDetails';
 import Pager from '@/components/ui/Pager';
+import LazyLoad from '@/components/ui/LazyLoad';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { SECTION_HEADING_CLASS } from '@/components/ui/surface';
@@ -65,7 +66,12 @@ export default function SeasonLeaderboard({ event, status, chartState }: SeasonL
                     <li key={player.playerId} data-season-rank={player.rank} className="min-w-0">
                       <SeasonScoreDetails event={event} chartState={chartState} player={player} status={status}>
                         <TotalScoreCard rank={player.rank} username={player.username} avatarId={player.player?.avatarId} scoresum={player.score} maxscore={entries?.[0]?.score ?? 0}
-                          footer={<SeasonLastPlayed username={player.username} event={event} chartState={chartState} status={status} />} />
+                          footer={
+                            // 每位玩家的最近游玩要单独请求一次；滚动到附近再加载，避免一进页面就发 50 个请求
+                            <LazyLoad offset={200} height={36}>
+                              <SeasonLastPlayed username={player.username} event={event} chartState={chartState} status={status} />
+                            </LazyLoad>
+                          } />
                       </SeasonScoreDetails>
                     </li>
                   ))}
