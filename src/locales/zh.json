@@ -596,9 +596,6 @@
     "NoRecentRecords": "暂无最近游玩记录",
     "ServerError": "已闭店"
   },
-  "user/UserInfo": {
-    "Login": "登录"
-  },
   "user/UserSeasons": {
     "LoadFailed": "部分季赛战绩暂时无法加载。",
     "Loading": "正在加载季赛战绩…",

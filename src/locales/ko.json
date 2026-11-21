@@ -596,9 +596,6 @@
     "NoRecentRecords": "최근 기록이 없습니다",
     "ServerError": "서버 오류"
   },
-  "user/UserInfo": {
-    "Login": "로그인"
-  },
   "user/UserSeasons": {
     "LoadFailed": "일부 대회 기록을 불러오지 못했습니다.",
     "Loading": "시즌 대회 기록을 불러오는 중…",

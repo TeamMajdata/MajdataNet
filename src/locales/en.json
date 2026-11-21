@@ -606,9 +606,6 @@
     "NoRecentRecords": "No Recent Records",
     "ServerError": "Server Error"
   },
-  "user/UserInfo": {
-    "Login": "Login"
-  },
   "user/UserSeasons": {
     "LoadFailed": "Some season results could not be loaded.",
     "Loading": "Loading season results…",

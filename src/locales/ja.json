@@ -596,9 +596,6 @@
     "NoRecentRecords": "最近のプレイ記録はありません",
     "ServerError": "閉店中"
   },
-  "user/UserInfo": {
-    "Login": "ログイン"
-  },
   "user/UserSeasons": {
     "LoadFailed": "一部の大会成績を読み込めませんでした。",
     "Loading": "大会成績を読み込み中…",
