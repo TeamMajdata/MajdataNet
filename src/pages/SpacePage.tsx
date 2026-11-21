@@ -167,10 +167,7 @@ function ProfileSidebar({ username, data, error, isLoading }: {
         />
         <div className="min-w-0">
           <h1 className="m-0 font-semibold text-white! text-xl! lg:text-2xl! text-left! truncate tracking-tight">{data.nickname || data.username}</h1>
-          {/* 没设昵称时昵称就是用户名，不再重复一遍 */}
-          {data.nickname && data.nickname !== data.username && (
-            <p className="m-0 mt-0.5 text-white/50! text-base lg:text-lg truncate">{data.username}</p>
-          )}
+          <p className="m-0 mt-0.5 text-white/50! text-base lg:text-lg truncate">@{data.username}</p>
         </div>
       </div>
       {isSelf && (
