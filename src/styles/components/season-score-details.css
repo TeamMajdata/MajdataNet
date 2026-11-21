@@ -2,8 +2,9 @@
 .season-score-details-button {
   position: absolute;
   z-index: 1;
+  /* 右上角：左上角是卡片的名次标签 */
   top: 7px;
-  left: 7px;
+  right: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
