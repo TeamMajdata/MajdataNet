@@ -268,7 +268,6 @@ export default function PersonalScoresPage() {
                 <ScoreCard
                   key={score.levelHash || `${score.hash}-${score.timestamp}`}
                   score={score}
-                  showLikeButton={true}
                   showComboEffects={true}
                   showRank={true}
                 />

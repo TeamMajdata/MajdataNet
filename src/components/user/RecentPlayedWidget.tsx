@@ -118,7 +118,6 @@ export default function RecentPlayedWidget({ username, onDataLoaded, gridClassNa
       >
         <ScoreCard
           score={score}
-          showLikeButton={true}
           showComboEffects={true}
           showRank={true}
           rankUsername={username}

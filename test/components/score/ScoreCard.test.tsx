@@ -11,7 +11,6 @@ vi.mock('@/components', () => ({
   Level: () => null,
   LazyLoad: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
-vi.mock('@/components/song/SongInteraction', () => ({ ChartVoteBadge: () => null }));
 vi.mock('@/components/user/UserAvatar', () => ({ default: () => null }));
 vi.mock('@/hooks', () => ({ useUsername: () => 'Alice' }));
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -53,7 +52,7 @@ const rankBadge = () => container.querySelector('span[title^="#"]');
 describe('ScoreCard rank', () => {
   it('reads the rank from the level leaderboard when the score has a level hash', async () => {
     fetchMock.mockResolvedValue(Response.json({ levelHash: LEVEL_HASH, scores: [entry('bob', 101), entry(' alice ', 100.5), entry('carol', 99)] }));
-    await render(<ScoreCard score={makeScore(LEVEL_HASH)} showLikeButton={false} showRank />);
+    await render(<ScoreCard score={makeScore(LEVEL_HASH)} showRank />);
     expect(requestedUrls()).toEqual([`/api3/api/maiscore/leaderboard/chart/by-level/${LEVEL_HASH}`]);
     expect(rankBadge()?.textContent).toBe('#2');
     expect(rankBadge()?.getAttribute('title')).toBe('#2 / 3');
@@ -61,7 +60,7 @@ describe('ScoreCard rank', () => {
 
   it('shows no rank when the player is not on the level leaderboard', async () => {
     fetchMock.mockResolvedValue(Response.json({ levelHash: LEVEL_HASH, scores: [entry('bob', 101)] }));
-    await render(<ScoreCard score={makeScore(LEVEL_HASH)} showLikeButton={false} showRank />);
+    await render(<ScoreCard score={makeScore(LEVEL_HASH)} showRank />);
     expect(requestedUrls()).toEqual([`/api3/api/maiscore/leaderboard/chart/by-level/${LEVEL_HASH}`]);
     expect(rankBadge()).toBeNull();
   });
@@ -77,7 +76,7 @@ describe('ScoreCard rank', () => {
     const scores: unknown[][] = Array.from({ length: 8 }, () => []);
     scores[3] = [entry('alice', 100.5), entry('bob', 99)];
     fetchMock.mockResolvedValue(Response.json({ hash: 'u/+9gjE3eW1Xv+7aHzaQ0w==', levelHashes: [null, null, null, LEVEL_HASH, null, null, null], scores }));
-    await render(<ScoreCard score={makeScore(levelHash)} showLikeButton={false} showRank />);
+    await render(<ScoreCard score={makeScore(levelHash)} showRank />);
     expect(requestedUrls()).toEqual([`/api3/api/maiscore/leaderboard/chart/by-id/${CHART_ID}`]);
     expect(rankBadge()?.getAttribute('title')).toBe('#1 / 2');
   });
@@ -86,18 +85,18 @@ describe('ScoreCard rank', () => {
     const scores: unknown[][] = Array.from({ length: 8 }, () => []);
     scores[1] = [entry('bob', 101), entry('carol', 100), entry('alice', 99)];
     fetchMock.mockResolvedValue(Response.json({ hash: 'h', levelHashes: Array(7).fill(null), scores }));
-    await render(<ScoreCard score={makeScore()} showLikeButton={false} showRank />);
+    await render(<ScoreCard score={makeScore()} showRank />);
     expect(rankBadge()?.getAttribute('title')).toBe('#3 / 3');
   });
 
   it('ranks the given player instead of the signed-in one', async () => {
     fetchMock.mockResolvedValue(Response.json({ levelHash: LEVEL_HASH, scores: [entry('alice', 101), entry('dave', 100)] }));
-    await render(<ScoreCard score={makeScore(LEVEL_HASH)} showLikeButton={false} showRank rankUsername="Dave" />);
+    await render(<ScoreCard score={makeScore(LEVEL_HASH)} showRank rankUsername="Dave" />);
     expect(rankBadge()?.getAttribute('title')).toBe('#2 / 2');
   });
 
   it('does not request any leaderboard without showRank', async () => {
-    await render(<ScoreCard score={makeScore(LEVEL_HASH)} showLikeButton={false} />);
+    await render(<ScoreCard score={makeScore(LEVEL_HASH)} />);
     expect(fetchMock).not.toHaveBeenCalled();
     expect(rankBadge()).toBeNull();
   });

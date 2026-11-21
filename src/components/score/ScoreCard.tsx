@@ -7,7 +7,6 @@ import { useMemo } from 'react';
 import useSWR from 'swr';
 import { Link } from 'react-router-dom';
 import { CoverPic, Level, LazyLoad } from '@/components';
-import { ChartVoteBadge } from '@/components/song/SongInteraction';
 import MarqueeText from '@/components/ui/MarqueeText';
 import { parseTmpRichText } from '@/utils/richTextUtils';
 import { apiFetcher } from '@/utils/apiClient';
@@ -62,7 +61,6 @@ function findUserRank(
 
 export interface ScoreCardProps {
   score: Score;
-  showLikeButton?: boolean;
   showComboEffects?: boolean;
   showRank?: boolean;
   rankUsername?: string;
@@ -73,7 +71,6 @@ export interface ScoreCardProps {
  */
 export function ScoreCard({
   score,
-  showLikeButton = true,
   showComboEffects = false,
   showRank = false,
   rankUsername,
@@ -183,11 +180,6 @@ export function ScoreCard({
             )}
           </div>
 
-          {showLikeButton && (
-            <div className="mt-auto">
-              <ChartVoteBadge songid={score.chartInfo.id} />
-            </div>
-          )}
         </div>
       </div>
     </LazyLoad>
