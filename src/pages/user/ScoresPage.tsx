@@ -71,7 +71,7 @@ const toFilterKey = (comboState: number): ComboStateFilter | null => {
 /**
  * 个人成绩页面组件
  */
-export default function PersonalScoresPage() {
+export default function UserScoresPage() {
   const { t } = useTranslation();
   const [sortBy, setSortBy] = useState<SortOption>('timestamp');
   const [currentPage, setCurrentPage] = useState(1);
