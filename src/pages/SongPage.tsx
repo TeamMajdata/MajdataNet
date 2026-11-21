@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import PageLoading from '@/components/ui/PageLoading';
-import { Activity, useEffect, useState, useRef } from 'react';
+import { Activity, useState, useRef } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { endpoints } from '@/config/api';
@@ -36,43 +36,22 @@ import { useChartMeta } from '@/hooks/useChartMeta';
 
 export default function SongPage() {
   const { t } = useTranslation();
-  const [checkedParam, setCheckedParam] = useState<string | null>(null);
-  const [songData, setSongData] = useState<SongSummary | null>(null);
   const [searchParams] = useSearchParams();
   const param = searchParams.get('id');
   const focusedComment = searchParams.get('comment') ?? undefined;
+  // 和标签编辑窗口用同一个 SWR 键：保存标签后窗口更新缓存，这里跟着刷新，不用重载页面
+  const { data: songData, error, isLoading } = useSWR<SongSummary>(param ? endpoints.maichart.summary(param) : null, apiFetcher, {
+    revalidateOnFocus: false,
+    shouldRetryOnError: false,
+  });
 
-  useEffect(() => {
-    if (!param) return;
-
-    fetch(endpoints.maichart.summary(param!), {
-      mode: 'cors',
-      credentials: 'include'
-    })
-      .then(async (res) => {
-        setCheckedParam(param);
-        if (res.ok) {
-          const data = await res.json();
-          setSongData(data);
-        } else {
-          setSongData(null);
-        }
-      })
-      .catch(() => {
-        setCheckedParam(param);
-        setSongData(null);
-      });
-  }, [param]);
-
-  const isChecking = param !== checkedParam;
-
-  if (!param || isChecking) {
+  if (!param || isLoading) {
     return (
       <PageLoading />
     );
   }
 
-  if (!songData) {
+  if (error || !songData) {
     return (
       <PageLayout centered>
         <div className="mx-auto px-4 py-10 max-w-xl text-center">

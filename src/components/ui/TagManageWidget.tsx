@@ -20,7 +20,7 @@ import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
 import sleep from '@/utils/sleep';
 import { MAX_CHART_TAGS, saveChartTags } from '@/utils/chartTags';
-import { ApiError } from '@/utils/apiClient';
+import { ApiError, apiFetcher } from '@/utils/apiClient';
 import { CODE_TOO_MANY_ELEMENTS } from '@/config/apiRetCode';
 import { motion } from 'framer-motion';
 import type {
@@ -131,12 +131,10 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
     const serverTagsRef = useRef<string[]>([]);
     const [saving, setSaving] = useState(false);
 
-    const fetcher = (url: string) =>
-      fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
-
+    // 和谱面页同一个 SWR 键：保存后 mutate 会让谱面页上的标签一起更新
     const { data, error, isLoading, mutate } = useSWR<SongSummary>(
       endpoints.maichart.summary(songid),
-      fetcher
+      apiFetcher
     );
 
     useEffect(() => {
@@ -188,8 +186,9 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
       dispatch({ type: 'SET_TAGS', payload: saved });
       await mutate((summary) => summary && { ...summary, [isInPrivatePage ? 'tags' : 'publicTags']: saved }, { revalidate: false });
       toast.success('上传成功了喵');
-      //TODO: 刷新页面，重载数据，应该可以热重载，之后研究
-      if (window.location.pathname !== '/user/charts') {
+      // 谱面页和谱面管理页读的就是上面这份缓存，已经更新了；
+      // 其他页面（列表里的谱面卡片）的标签来自列表接口，还得重载页面才能看到
+      if (window.location.pathname !== '/user/charts' && window.location.pathname !== '/song') {
         await sleep(1000);
         window.location.reload();
       }
