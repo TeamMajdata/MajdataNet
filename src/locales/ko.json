@@ -198,6 +198,23 @@
     "Redirect": "{{countdown}}초 후 홈페이지로 돌아갑니다...",
     "Title": "페이지를 찾을 수 없습니다"
   },
+  "qrauth/QRAuthPage": {
+    "AlreadyApproved": "이미 승인했습니다",
+    "Confirm": "로그인",
+    "InvalidCode": "QR 코드가 유효하지 않습니다",
+    "InvalidCodeHint": "QR 코드를 새로 고쳐 보세요",
+    "InvalidLink": "잘못된 링크",
+    "LoginFirst": "먼저 로그인하세요",
+    "Machine": "기기",
+    "MissingAuthId": "링크에 auth-id가 없습니다",
+    "NoSuchCode": "존재하지 않는 QR 코드입니다",
+    "PermissionDenied": "권한이 없습니다",
+    "Place": "위치",
+    "Subtitle": "아래 기기 정보를 확인하세요",
+    "Success": "로그인했습니다",
+    "Title": "이 기기에 로그인할까요?",
+    "TryAgain": "다시 시도하세요"
+  },
   "ranking/RecommendRankingPage": {
     "Comment": "댓글",
     "CommentCountHint": "댓글 수순",

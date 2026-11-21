@@ -202,6 +202,23 @@
     "Redirect": "Redirecting to home page in {{countdown}} seconds...",
     "Title": "Page Not Found"
   },
+  "qrauth/QRAuthPage": {
+    "AlreadyApproved": "Already approved",
+    "Confirm": "Sign in",
+    "InvalidCode": "This QR code is invalid",
+    "InvalidCodeHint": "Try refreshing the QR code.",
+    "InvalidLink": "Invalid link",
+    "LoginFirst": "Please sign in first",
+    "Machine": "Machine",
+    "MissingAuthId": "The link is missing its auth-id.",
+    "NoSuchCode": "This QR code does not exist",
+    "PermissionDenied": "Permission denied",
+    "Place": "Location",
+    "Subtitle": "Check the machine details below.",
+    "Success": "Signed in",
+    "Title": "Sign in on this machine?",
+    "TryAgain": "Please try again"
+  },
   "ranking/RecommendRankingPage": {
     "Comment": "Comment",
     "CommentCountHint": "Sorted by comment count",

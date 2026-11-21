@@ -198,6 +198,23 @@
     "Redirect": "{{countdown}} 秒后自动返回首页...",
     "Title": "页面未找到"
   },
+  "qrauth/QRAuthPage": {
+    "AlreadyApproved": "已批准过了",
+    "Confirm": "确认登录",
+    "InvalidCode": "二维码无效",
+    "InvalidCodeHint": "尝试刷新二维码",
+    "InvalidLink": "无效的链接",
+    "LoginFirst": "请先登录",
+    "Machine": "机台信息",
+    "MissingAuthId": "缺少 auth-id 参数",
+    "NoSuchCode": "没有这个二维码",
+    "PermissionDenied": "权限不足",
+    "Place": "登录地点",
+    "Subtitle": "请检查以下机台信息",
+    "Success": "登录成功",
+    "Title": "确认登录吗？",
+    "TryAgain": "请重试"
+  },
   "ranking/RecommendRankingPage": {
     "Comment": "评论",
     "CommentCountHint": "按评论数排序",

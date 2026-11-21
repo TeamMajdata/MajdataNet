@@ -198,6 +198,23 @@
     "Redirect": "{{countdown}}秒後にホームページに戻ります...",
     "Title": "ページが見つかりません"
   },
+  "qrauth/QRAuthPage": {
+    "AlreadyApproved": "すでに承認済みです",
+    "Confirm": "ログイン",
+    "InvalidCode": "QRコードが無効です",
+    "InvalidCodeHint": "QRコードを更新してみてください",
+    "InvalidLink": "無効なリンク",
+    "LoginFirst": "先にログインしてください",
+    "Machine": "筐体",
+    "MissingAuthId": "リンクに auth-id がありません",
+    "NoSuchCode": "このQRコードは存在しません",
+    "PermissionDenied": "権限がありません",
+    "Place": "場所",
+    "Subtitle": "下の筐体情報を確認してください",
+    "Success": "ログインしました",
+    "Title": "この筐体にログインしますか？",
+    "TryAgain": "もう一度お試しください"
+  },
   "ranking/RecommendRankingPage": {
     "Comment": "コメント",
     "CommentCountHint": "コメント数順",

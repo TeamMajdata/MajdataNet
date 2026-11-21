@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -42,6 +43,7 @@ export default function QRAuthPage() {
 }
 
 function PermitLogin({ authId }: { authId: string | null }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data, error, isLoading } = useSWR<MachineAuthInfo>(
     authId ? endpoints.machine.authInfo(authId) : null,
@@ -53,8 +55,8 @@ function PermitLogin({ authId }: { authId: string | null }) {
     return (
       <div className="auth-container">
         <div className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-8 border border-white/10 rounded-2xl text-center">
-          <h2 className="mb-2 font-bold text-[#e5e5e5] text-2xl">❌ 无效的链接</h2>
-          <p className="text-gray-400">缺少 auth-id 参数</p>
+          <h2 className="mb-2 font-bold text-[#e5e5e5] text-2xl">{t('qrauth/QRAuthPage.InvalidLink')}</h2>
+          <p className="text-gray-400">{t('qrauth/QRAuthPage.MissingAuthId')}</p>
         </div>
       </div>
     );
@@ -64,7 +66,7 @@ function PermitLogin({ authId }: { authId: string | null }) {
     return (
       <div className="flex justify-center items-center min-h-[40vh]">
         <div className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-8 border border-white/10 rounded-2xl text-center">
-          <h2 className="mb-2 font-bold text-[#e5e5e5] text-2xl">✅ 登录成功</h2>
+          <h2 className="mb-2 font-bold text-[#e5e5e5] text-2xl">{t('qrauth/QRAuthPage.Success')}</h2>
         </div>
       </div>
     );
@@ -82,8 +84,8 @@ function PermitLogin({ authId }: { authId: string | null }) {
     return (
       <div className="flex justify-center items-center min-h-[40vh]">
         <div className="bg-[rgba(255,255,255,0.05)] shadow-2xl backdrop-blur-md p-8 border border-white/10 rounded-2xl text-center">
-          <h2 className="mb-2 font-bold text-[#e5e5e5] text-2xl">❌ 二维码无效 ❌</h2>
-          <p className="text-gray-400">尝试刷新二维码</p>
+          <h2 className="mb-2 font-bold text-[#e5e5e5] text-2xl">{t('qrauth/QRAuthPage.InvalidCode')}</h2>
+          <p className="text-gray-400">{t('qrauth/QRAuthPage.InvalidCodeHint')}</p>
         </div>
       </div>
     );
@@ -99,23 +101,23 @@ function PermitLogin({ authId }: { authId: string | null }) {
 
     if (response.status !== 200) {
       if (response.status === 204) {
-        toast.error('已批准过了');
+        toast.error(t('qrauth/QRAuthPage.AlreadyApproved'));
         return;
       }
       const rsp = await response.json();
       switch (rsp.code) {
         case retCode.CODE_NOT_LOGGED_IN:
-          toast.error('请先登录');
+          toast.error(t('qrauth/QRAuthPage.LoginFirst'));
           navigate('/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
           break;
         case retCode.CODE_PERMISSION_DENIED:
-          toast.error('权限不足');
+          toast.error(t('qrauth/QRAuthPage.PermissionDenied'));
           break;
         case retCode.CODE_ERROR:
-          toast.error('没有这个二维码');
+          toast.error(t('qrauth/QRAuthPage.NoSuchCode'));
           break;
         default:
-          toast.error('请重试');
+          toast.error(t('qrauth/QRAuthPage.TryAgain'));
           break;
       }
       return;
@@ -131,14 +133,14 @@ function PermitLogin({ authId }: { authId: string | null }) {
         style={{ animation: 'slideInUp 0.6s ease-out 0.2s both' }}
       >
         <div className="mb-6 text-center">
-          <h2 className="mb-1 font-bold text-[#e5e5e5] text-2xl">确认登录吗？</h2>
-          <p className="text-gray-400 text-sm">请检查以下机台信息</p>
+          <h2 className="mb-1 font-bold text-[#e5e5e5] text-2xl">{t('qrauth/QRAuthPage.Title')}</h2>
+          <p className="text-gray-400 text-sm">{t('qrauth/QRAuthPage.Subtitle')}</p>
         </div>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="bg-white/5 p-4 border border-white/10 rounded-xl">
             <label className="block mb-1 font-semibold text-gray-300 text-xs uppercase tracking-wider">
-              机台信息
+              {t('qrauth/QRAuthPage.Machine')}
             </label>
             <p className="text-[#e5e5e5]">{data?.granteeInfo.name}</p>
             <p className="text-gray-400 text-sm">{data?.granteeInfo.description}</p>
@@ -146,7 +148,7 @@ function PermitLogin({ authId }: { authId: string | null }) {
 
           <div className="bg-white/5 p-4 border border-white/10 rounded-xl">
             <label className="block mb-1 font-semibold text-gray-300 text-xs uppercase tracking-wider">
-              登录地点
+              {t('qrauth/QRAuthPage.Place')}
             </label>
             <p className="text-[#e5e5e5]">{data?.granteeInfo.place}</p>
             <p className="text-gray-400 text-sm">{data?.granteeInfo.remoteIP}</p>
@@ -156,7 +158,7 @@ function PermitLogin({ authId }: { authId: string | null }) {
             type="submit"
             className="bg-purple-600 hover:bg-purple-500 mt-2 py-3 rounded-xl font-semibold text-white transition-colors cursor-pointer"
           >
-            确认登录
+            {t('qrauth/QRAuthPage.Confirm')}
           </button>
         </form>
       </div>
