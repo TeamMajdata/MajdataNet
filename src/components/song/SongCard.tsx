@@ -26,6 +26,13 @@ interface SongCardProps {
   onClick?: (song: Song) => void;
 }
 
+/** 排行榜前三名的名次标签颜色 */
+const RANK_BADGE_CLASS: Record<number, string> = {
+  0: 'bg-linear-to-r from-yellow-300 to-amber-500 text-black',
+  1: 'bg-linear-to-r from-slate-100 to-slate-400 text-black',
+  2: 'bg-linear-to-r from-orange-300 to-amber-700 text-black',
+};
+
 const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disableLink, onClick }: SongCardProps) {
   // 只在 ImpressionScope 内生效，其他列表中为空操作
   const impressionRef = useImpressionRef(song.hash);
@@ -68,11 +75,16 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
           <div className="relative h-full aspect-square shrink-0">
             <CoverPic
               id={song.id}
-              display={isRanking ? 'No.' + (index + 1) : undefined}
               to={disableLink || onClick ? undefined : '/song?id=' + song.id}
               zoomable={false}
               radiusClassName="rounded-lg"
             />
+            {/* 排行榜名次：和成绩卡片的名次标签同一位置和形状，前三名金银铜 */}
+            {isRanking && (
+              <span className={`top-1.5 left-1.5 absolute shadow-[0_2px_8px_rgb(0_0_0/0.4)] px-1.5 py-0.5 rounded font-bold text-[0.7rem] tabular-nums leading-none pointer-events-none ${RANK_BADGE_CLASS[index] ?? 'bg-black/70 text-white/90'}`}>
+                #{index + 1}
+              </span>
+            )}
             {/* 管理页：标签、删除按钮叠在封面右上角 */}
             {isManage && (
               <div className="top-1.5 right-1.5 absolute flex gap-1">
