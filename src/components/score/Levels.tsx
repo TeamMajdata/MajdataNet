@@ -1,17 +1,8 @@
 import { makeLevelClickCallback } from '@/utils/scrollUtils';
 import type { LevelsProps } from '@/types';
 import { Link } from 'react-router-dom';
+import { LEVEL_BG_CLASS as levelColors } from './levelColors';
 
-// 难度等级背景色映射
-const levelColors: Record<number, string> = {
-  0: 'bg-[rgb(111_171_250)]', // Easy
-  1: 'bg-[rgb(93_212_93)]',   // Basic
-  2: 'bg-[rgb(202_202_84)]',  // Advanced
-  3: 'bg-[rgb(255_91_91)]',   // Expert
-  4: 'bg-[rgb(134_23_134)]',  // Master
-  5: 'bg-[rgb(189_63_189)]',  // ReMaster
-  6: 'bg-[rgb(255_145_0)]',   // Utage
-};
 
 // 只有一个难度时显示的完整名称
 const levelNames = ['Easy', 'Basic', 'Advanced', 'Expert', 'Master', 'Re:Master', 'Utage'];
