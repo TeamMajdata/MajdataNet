@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 
 /**
  * Majdata.Net Logo 组件
- * 点击头像会显示彩蛋提示；`compact` 只显示头像（手机端顶栏中间）
+ * 点击头像会显示彩蛋提示；`compact` 用在手机端顶栏中间：屏幕太窄放不下时只显示头像
  */
 export default function MajdataLogo({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation();
@@ -23,11 +23,9 @@ export default function MajdataLogo({ compact = false }: { compact?: boolean }) 
         onClick={handleClick}
         alt={compact ? 'Majdata.Net' : 'xxlb'}
       />
-      {!compact && (
-        <span className="font-semibold text-[1.05rem] text-white tracking-tight">
-          Majdata<span className="text-blue-300">.Net</span>
-        </span>
-      )}
+      <span className={`font-semibold text-[1.05rem] text-white tracking-tight ${compact ? 'hidden min-[22.5rem]:inline' : ''}`}>
+        Majdata<span className="text-blue-300">.Net</span>
+      </span>
     </span>
   );
 }
