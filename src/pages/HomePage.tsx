@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { getLocale, useLanguage } from '@/i18n';
 import { getEventHref } from '@/utils/eventLink';
 import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
@@ -17,7 +18,7 @@ import SortMenu from '@/components/ui/SortMenu';
 
 import { useUserContext } from '@/hooks';
 import { useEventClock } from '@/hooks/useEventClock';
-import { PageLayout, SongCard, SongList, LoadingSpinner } from '@/components';
+import { PageLayout, SongCard, SongList } from '@/components';
 import { endpoints } from '@/config/api';
 import Pager from '@/components/ui/Pager';
 import { ImpressionScope } from '@/contexts/ImpressionContext';
@@ -736,9 +737,7 @@ function RecommendTab({ page, onPageChange, randomSeed }: {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-20 w-full">
-        <LoadingSpinner size="50px" />
-      </div>
+      <SectionLoading />
     );
   }
 
@@ -778,9 +777,7 @@ function RecommendFeed({ userKey, page, onPageChange }: {
     content = <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.ServerError")}</div>;
   } else if (isLoading || !data) {
     content = (
-      <div className="flex justify-center items-center py-20 w-full">
-        <LoadingSpinner size="50px" />
-      </div>
+      <SectionLoading />
     );
   } else if (data.length === 0) {
     content = (
@@ -849,9 +846,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-20 w-full">
-        <LoadingSpinner size="50px" />
-      </div>
+      <SectionLoading />
     );
   }
 

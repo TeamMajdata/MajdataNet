@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useLanguage } from '@/i18n';
 import { useState } from 'react';
 import { ScoreCard as TotalScoreCard } from '@/components/score/ScoreCount';
@@ -8,7 +9,6 @@ import SeasonScoreDetails from './SeasonScoreDetails';
 import Pager from '@/components/ui/Pager';
 import LazyLoad from '@/components/ui/LazyLoad';
 import EmptyState from '@/components/ui/EmptyState';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { SECTION_HEADING_CLASS } from '@/components/ui/surface';
 import type { SeasonChartsState } from '@/hooks/useSeasonCharts';
 import type { Event } from '@/types/event';
@@ -51,7 +51,7 @@ export default function SeasonLeaderboard({ event, status, chartState }: SeasonL
         {status === 'upcoming' ? (
           <EmptyState>{t('season/SeasonLeaderboard.Upcoming')}</EmptyState>
         ) : isLoading && !entries ? (
-          <div className="flex justify-center py-10" role="status" aria-label={t('season/SeasonLeaderboard.Loading')}><LoadingSpinner size={32} /></div>
+          <SectionLoading />
         ) : error && !entries ? (
           <p role="alert" className="py-8 text-red-300 text-center">{t('season/SeasonLeaderboard.LoadFailed')}</p>
         ) : (

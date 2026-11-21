@@ -3,6 +3,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useCallback, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -10,7 +11,6 @@ import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
 import { useAvatarUrl } from '@/hooks/useAvatarUrl';
 import { getDisplayMessage } from '@/utils';
-import { LoadingSpinner } from '@/components';
 import { LuCamera, LuUpload } from 'react-icons/lu';
 
 const PRIMARY_BUTTON = 'inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-400 disabled:opacity-50 px-4 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed';
@@ -131,7 +131,7 @@ export default function AvatarUploader() {
 
   // 如果用户还在加载中，返回加载状态
   if (userLoading || !user) {
-    return <div className="flex justify-center items-center py-12"><LoadingSpinner size="50px" /></div>;
+    return <SectionLoading />;
   }
 
   const previewAvatarUrl = previewUrl || currentAvatarUrl;

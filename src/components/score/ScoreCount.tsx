@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import EmptyState from '@/components/ui/EmptyState';
 import { endpoints } from '@/config/api';
 import useSWR from 'swr';
-import { LoadingSpinner } from '@/components';
 import UserAvatar from '@/components/user/UserAvatar';
 import type { ScoreCardProps, ScoreCountProps, ScoreSumResponse } from '@/types';
 import { Link } from 'react-router-dom';
@@ -32,9 +32,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   }
 
   if (isLoading) {
-    return <div className="flex justify-center items-center min-h-20">
-      <LoadingSpinner className="border-white border-b-2 rounded-full w-8 h-8" />
-    </div>;
+    return <SectionLoading />;
   }
 
   if (!data || data.length === 0) {

@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import EmptyState from '@/components/ui/EmptyState';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
-import { ScoreCard, LoadingSpinner } from '@/components';
+import { ScoreCard } from '@/components';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
 import { motion } from 'framer-motion';
 import RecentActivityChart from '@/components/chart/RecentActivityChart';
@@ -93,9 +94,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded, gridClassNa
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-10 w-full">
-        <LoadingSpinner size="50px" />
-      </div>
+      <SectionLoading />
     );
   }
 

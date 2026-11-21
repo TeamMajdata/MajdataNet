@@ -4,6 +4,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import EmptyState from '@/components/ui/EmptyState';
 import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 import { getLocale, useLanguage } from '@/i18n';
@@ -27,7 +28,6 @@ import {
   PiTrashBold,
 } from 'react-icons/pi';
 import { endpoints } from '@/config/api';
-import { LoadingSpinner } from '@/components';
 import SortMenu from '@/components/ui/SortMenu';
 import UserAvatar from '@/components/user/UserAvatar';
 import { useIsAdministrator, useUserContext } from '@/hooks';
@@ -658,9 +658,7 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
           </button>
         </div>
       ) : !current ? (
-        <div className="flex justify-center py-8" role="status" aria-label={t("song/SongComments.Loading")}>
-          <LoadingSpinner size={32} />
-        </div>
+        <SectionLoading className="py-8" />
       ) : current.items.length === 0 ? (
         <p className="py-8 text-white/50 text-sm text-center">{t("song/SongComments.NoComments")}</p>
       ) : (
@@ -745,9 +743,7 @@ export function CommentListView({ load, empty }: { load: (page: number, signal: 
   if (error) return <p className="py-6 text-red-300 text-sm text-center">{error}</p>;
   if (!data) {
     return (
-      <div className="flex justify-center py-8" role="status" aria-label={t("song/SongComments.Loading")}>
-        <LoadingSpinner size={32} />
-      </div>
+      <SectionLoading className="py-8" />
     );
   }
   if (data.items.length === 0) return <EmptyState>{empty}</EmptyState>;

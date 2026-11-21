@@ -252,7 +252,6 @@
   "season/SeasonLeaderboard": {
     "Empty": "No scores yet. Submit the first score of the season!",
     "LoadFailed": "Could not load the leaderboard. Please try again later.",
-    "Loading": "Loading leaderboard…",
     "Participants": "Participants: {{count}}",
     "Retry": "Retry",
     "Title": "Leaderboard",

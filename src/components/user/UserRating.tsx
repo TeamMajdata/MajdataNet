@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useTranslation } from 'react-i18next';
 import { RatingRequestError, useUserRating } from '@/hooks/useUserRating';
 import RadarPlot from '@/components/chart/RadarPlot';
 import BestScores from '@/components/user/BestScores';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { ComboState } from '@/types';
 import { CARD_SURFACE_CLASS, SECTION_HEADING_CLASS } from '@/components/ui/surface';
 
@@ -42,9 +42,7 @@ export default function UserRating({ username }: UserRatingProps) {
   if (isLoading) {
     return (
       <RatingSection>
-        <div className="flex justify-center items-center py-12">
-          <LoadingSpinner size={40} />
-        </div>
+        <SectionLoading />
       </RatingSection>
     );
   }

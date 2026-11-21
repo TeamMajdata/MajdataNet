@@ -248,7 +248,6 @@
   "season/SeasonLeaderboard": {
     "Empty": "还没有参赛成绩，来提交本季的第一份成绩吧。",
     "LoadFailed": "排行榜加载失败，请稍后重试。",
-    "Loading": "正在加载排行榜…",
     "Participants": "参与者：{{count}}",
     "Retry": "重试",
     "Title": "排行榜",

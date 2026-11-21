@@ -3,6 +3,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import {
   forwardRef,
   useEffect,
@@ -17,7 +18,6 @@ import { LuPlus, LuX } from 'react-icons/lu';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
-import LoadingSpinner from './LoadingSpinner';
 import sleep from '@/utils/sleep';
 import { MAX_CHART_TAGS, saveChartTags } from '@/utils/chartTags';
 import { ApiError } from '@/utils/apiClient';
@@ -262,7 +262,7 @@ const TagManageWindow = forwardRef<HTMLDivElement, TagManageWindowProps>(
 
     let body: React.ReactNode;
     if (isLoading) {
-      body = <div className="flex justify-center items-center py-16"><LoadingSpinner size="40px" /></div>;
+      body = <SectionLoading />;
     } else if (error || data === undefined) {
       body = <p className="m-0 py-16 text-white/50! text-sm text-center">{t("shared/TagManageWidget.LoadFailed")}</p>;
     } else {

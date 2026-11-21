@@ -3,11 +3,12 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { getLocale, useLanguage } from '@/i18n';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
-import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner, CommentListView } from '@/components';
+import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, CommentListView } from '@/components';
 import { apiPagesForView, SONG_GRID_CONTAINER_CLASS } from '@/components/song/songGrid';
 import UserRating from '@/components/user/UserRating';
 import { endpoints } from '@/config/api';
@@ -135,9 +136,7 @@ function ProfileSidebar({ username, data, error, isLoading }: {
   }
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center mb-6 py-20">
-        <LoadingSpinner size={50} />
-      </div>
+      <SectionLoading className="mb-6 py-20" />
     );
   }
   if (!data) {

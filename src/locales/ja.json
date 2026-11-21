@@ -248,7 +248,6 @@
   "season/SeasonLeaderboard": {
     "Empty": "まだ参加スコアがありません。今シーズン最初のスコアを投稿しましょう。",
     "LoadFailed": "ランキングを読み込めませんでした。しばらくしてから再試行してください。",
-    "Loading": "ランキングを読み込み中…",
     "Participants": "参加者：{{count}}",
     "Retry": "再試行",
     "Title": "ランキング",

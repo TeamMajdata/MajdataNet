@@ -248,7 +248,6 @@
   "season/SeasonLeaderboard": {
     "Empty": "아직 참가 기록이 없습니다. 이번 시즌의 첫 기록을 제출해 보세요.",
     "LoadFailed": "순위표를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
-    "Loading": "순위표를 불러오는 중…",
     "Participants": "참가자: {{count}}",
     "Retry": "다시 시도",
     "Title": "순위표",

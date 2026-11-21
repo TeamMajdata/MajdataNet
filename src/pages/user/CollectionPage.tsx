@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import SegmentedTabs from '@/components/ui/SegmentedTabs';
 import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
-import { PageLayout, LoadingSpinner, CollectionCard, CollectionModal } from '@/components';
+import { PageLayout, CollectionCard, CollectionModal } from '@/components';
 import { endpoints } from '@/config/api';
 import { useUserContext, useFavorites } from '@/hooks';
 import { LuArrowRight, LuCheck, LuCircleX, LuFolderOpen, LuPlus, LuSettings2, LuTriangleAlert } from 'react-icons/lu';
@@ -70,7 +71,7 @@ export default function UserCollectionPage() {
     </Link>
   );
   const emptyIcon = <LuFolderOpen aria-hidden="true" className="w-12 h-12 text-white/20" />;
-  const loading = <div className="flex justify-center items-center py-20 w-full"><LoadingSpinner size="50px" /></div>;
+  const loading = <SectionLoading />;
 
   return (
     <PageLayout>

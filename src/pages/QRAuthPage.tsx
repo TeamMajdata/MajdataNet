@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { toast } from 'react-toastify';
@@ -83,7 +84,7 @@ function PermitLogin({ authId }: { authId: string | null }) {
   }
 
   if (isLoading) {
-    return <LoadingSpinner size={40} />;
+    return <SectionLoading />;
   }
 
   if (error) {

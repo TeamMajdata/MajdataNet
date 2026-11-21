@@ -3,6 +3,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -14,7 +15,6 @@ import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
 import { getDisplayMessage } from '@/utils';
 import remarkCenter from '@/utils/remarkCenter';
-import { LoadingSpinner } from '@/components';
 import type { UserInfo } from '@/types';
 
 import { apiFetcher as fetcher } from '@/utils/apiClient';
@@ -41,7 +41,7 @@ export default function IntroUploader() {
   }
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-50"><LoadingSpinner size="50px" /></div>;
+    return <SectionLoading />;
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {

@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useState } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PageLayout, LoadingSpinner, CollectionCard, Tooltip } from '@/components';
+import { PageLayout, CollectionCard, Tooltip } from '@/components';
 import { LuInfo, LuSearch, LuX } from 'react-icons/lu';
 import Pager from '@/components/ui/Pager';
 import { endpoints } from '@/config/api';
@@ -126,7 +127,7 @@ export default function CollectionsHirobaPage() {
               exit={{ opacity: 0 }}
               className="flex justify-center items-center py-20 w-full"
             >
-              <LoadingSpinner size="50px" />
+              <SectionLoading />
             </motion.div>
           ) : error ? (
             <motion.div

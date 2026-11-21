@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useState, useMemo, useEffect } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
-import { ScoreCard, PageLayout, LoadingSpinner } from '@/components';
+import { ScoreCard, PageLayout } from '@/components';
 import SortMenu from '@/components/ui/SortMenu';
 import Pager from '@/components/ui/Pager';
 import { SONG_GRID_CLASS } from '@/components/song/songGrid';
@@ -192,7 +193,7 @@ export default function PersonalScoresPage() {
         <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
           {header}
           {isLoading ? (
-            <div className="flex justify-center items-center py-24"><LoadingSpinner size="50px" /></div>
+            <SectionLoading className="py-24" />
           ) : (
             <p className="m-0 py-24 text-white/45! text-base text-center">
               {error ? t("user/scores/ScoresPage.ServerError") : t("user/scores/ScoresPage.NoScores")}

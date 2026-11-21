@@ -3,10 +3,10 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import SectionLoading from '@/components/ui/SectionLoading';
 import { useEffect } from 'react';
 import useSWR from 'swr';
 import SongCard from './SongCard';
-import { LoadingSpinner } from '@/components';
 import InteractSummaryProvider from './InteractSummaryProvider';
 import type { Song, SongListProps } from '@/types';
 import { API_PAGE_SIZE, SONG_GRID_CLASS } from './songGrid';
@@ -44,7 +44,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
   if (error) return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("song/SongList.ServerError")}</div>;
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-20 w-full"><LoadingSpinner size="50px" /></div>
+      <SectionLoading />
     );
   }
 
