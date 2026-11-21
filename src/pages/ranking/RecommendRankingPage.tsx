@@ -1,87 +1,56 @@
 /**
- * 排行榜页面
+ * 推荐榜：七天内最受欢迎的谱面，按游玩、评价、评论、下载分页签查看
  */
 
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
 import { PageLayout, SongList } from '@/components';
+import UnderlineTabs from '@/components/ui/UnderlineTabs';
 import { endpoints } from '@/config/api';
-import type { RankingSectionProps } from '@/types';
+
+/** 页签和后端排序参数的对应关系 */
+const RANKINGS = [
+  { key: 'play', sortType: 'scorep', label: 'ranking/RecommendRankingPage.Play', hint: 'ranking/RecommendRankingPage.PlayCountHint' },
+  { key: 'score', sortType: 'topp', label: 'ranking/RecommendRankingPage.Score', hint: 'ranking/RecommendRankingPage.ScoreHint' },
+  { key: 'comment', sortType: 'commp', label: 'ranking/RecommendRankingPage.Comment', hint: 'ranking/RecommendRankingPage.CommentCountHint' },
+  { key: 'download', sortType: 'playp', label: 'ranking/RecommendRankingPage.Download', hint: 'ranking/RecommendRankingPage.DownloadCountHint' },
+] as const;
+type RankingKey = typeof RANKINGS[number]['key'];
 
 export default function RecommendRankingPage() {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // 网址里记着当前页签，默认“游玩”
+  const active = RANKINGS.find((ranking) => ranking.key === searchParams.get('tab')) ?? RANKINGS[0];
+  const select = (key: RankingKey) => {
+    const next = new URLSearchParams(searchParams);
+    if (key === RANKINGS[0].key) next.delete('tab'); else next.set('tab', key);
+    setSearchParams(next, { replace: true, preventScrollReset: true });
+  };
 
   return (
-    <PageLayout className="pb-8">
-      <div className="mt-(--content-top-spacing) text-center mb-8 sm:mb-12">
-        <p className="mx-auto max-w-150 text-[#f7f7f7] text-lg sm:text-2xl leading-relaxed">
-          {t("ranking/RecommendRankingPage.RecommendedChartsHint")}
-        </p>
-      </div>
+    <PageLayout showBackToHome={false}>
+      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
+        <header className="mb-5 sm:mb-6">
+          <h1 className="m-0 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
+            {t("ranking/RecommendRankingPage.Title")}
+          </h1>
+          <p className="m-0 mt-1.5 text-white/55! text-sm">{t("ranking/RecommendRankingPage.RecommendedChartsHint")}</p>
+        </header>
 
-      <div className="flex flex-col gap-6 sm:gap-12">
-        <RankingSection
-          title={t("ranking/RecommendRankingPage.Play")}
-          subtitle={t("ranking/RecommendRankingPage.PlayCountHint")}
-          sortType="scorep"
-          delay="delay-[100ms]"
+        <UnderlineTabs
+          tabs={RANKINGS.map(({ key, label }) => ({ key, label: t(label) }))}
+          active={active.key}
+          onSelect={select}
+          idPrefix="ranking"
+          label={t("ranking/RecommendRankingPage.Title")}
         />
 
-        <RankingSection
-          title={t("ranking/RecommendRankingPage.Score")}
-          subtitle={t("ranking/RecommendRankingPage.ScoreHint")}
-          sortType="topp"
-          delay="delay-[200ms]"
-        />
-
-        <RankingSection
-          title={t("ranking/RecommendRankingPage.Comment")}
-          subtitle={t("ranking/RecommendRankingPage.CommentCountHint")}
-          sortType="commp"
-          delay="delay-[300ms]"
-        />
-
-        <RankingSection
-          title={t("ranking/RecommendRankingPage.Download")}
-          subtitle={t("ranking/RecommendRankingPage.DownloadCountHint")}
-          sortType="playp"
-          delay="delay-[400ms]"
-        />
+        <section id={`ranking-panel-${active.key}`} role="tabpanel" aria-labelledby={`ranking-tab-${active.key}`}>
+          <p className="m-0 mb-4 text-white/45! text-xs">{t(active.hint)}</p>
+          <SongList key={active.key} url={endpoints.maichart.listRanking(active.sortType)} isRanking />
+        </section>
       </div>
     </PageLayout>
-  );
-}
-
-function RankingSection({ title, subtitle, sortType, delay = '' }: RankingSectionProps) {
-  // Extract delay number if possible, or mapping it. It seems delay is a class string like "delay-[100ms]".
-  // Since we are moving to framer-motion, we should parse this or pass a number.
-  // The delay prop is "delay-[100ms]", "delay-[200ms]" etc.
-  const delayMs = delay ? parseInt(delay.replace(/[^0-9]/g, '')) / 1000 : 0;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut", delay: delayMs }}
-      className={`
-        bg-[rgba(30,30,30,0.6)] 
-        backdrop-blur-md 
-        rounded-2xl 
-        p-4 sm:p-6 md:p-8
-        border border-white/10 
-        shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
-      `}
-    >
-      <div className="flex items-center gap-4 mb-6 pb-4 border-white/10 border-b">
-        <div>
-          <h2 className="m-0 font-semibold text-[#e5e5e5] text-2xl">{title}</h2>
-          <p className="m-0 mt-1 text-[#a0a0a0] text-sm">{subtitle}</p>
-        </div>
-      </div>
-      <SongList
-        url={endpoints.maichart.listRanking(sortType)}
-        isRanking={true}
-      />
-    </motion.div>
   );
 }

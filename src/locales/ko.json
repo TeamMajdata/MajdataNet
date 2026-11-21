@@ -206,7 +206,8 @@
     "PlayCountHint": "재생 횟수",
     "RecommendedChartsHint": "최근 7일 동안 가장 사랑받은 채보입니다!",
     "Score": "평가",
-    "ScoreHint": "추천에서 비추천을 뺀 점수"
+    "ScoreHint": "추천에서 비추천을 뺀 점수",
+    "Title": "추천"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "총 달성률 랭킹 - 커스텀 채보 감상의 베테랑은 누구?",

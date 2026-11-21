@@ -206,7 +206,8 @@
     "PlayCountHint": "プレイ回数を表示",
     "RecommendedChartsHint": "ここでは、過去7日間で最も人気のある譜面が選ばれますよ！",
     "Score": "評価",
-    "ScoreHint": "高評価から低評価を引いたスコア"
+    "ScoreHint": "高評価から低評価を引いたスコア",
+    "Title": "おすすめ"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "総達成率ランキング - 自作譜面鑑賞のベテランは誰？",

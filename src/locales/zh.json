@@ -206,7 +206,8 @@
     "PlayCountHint": "表示游玩次数多少",
     "RecommendedChartsHint": "这里会选出七天内最有人气的谱面哟！",
     "Score": "评价",
-    "ScoreHint": "赞减踩的分数"
+    "ScoreHint": "赞减踩的分数",
+    "Title": "推荐榜"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "总达成率榜之谁是自制谱鉴赏老资历？",

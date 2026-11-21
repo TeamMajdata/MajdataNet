@@ -210,7 +210,8 @@
     "PlayCountHint": "Number of times played",
     "RecommendedChartsHint": "Here choose the most favorable charts in 7 days!",
     "Score": "Score",
-    "ScoreHint": "Upvotes minus downvotes"
+    "ScoreHint": "Upvotes minus downvotes",
+    "Title": "Recommended"
   },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "Total Achievement Rate Ranking - Who is the top of chart appreciation?",
