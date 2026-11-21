@@ -57,12 +57,10 @@ describe('radar on the song page', () => {
     cache = new Map();
     fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', fetchMock);
-    delete window.unitySendMessage;
   });
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
-    delete window.unitySendMessage;
     vi.unstubAllGlobals();
   });
   async function render(children: ReactNode = <SongPage />, entry = '/song?id=song') {
@@ -142,20 +140,14 @@ describe('radar on the song page', () => {
     expect(container.querySelector('[data-player-level]')?.getAttribute('data-player-level')).toBe('3');
   });
 
-  it('observes nested clicks while preserving exactly one original playback message per click', async () => {
+  it('selects a difficulty from clicks on its nested labels, loading the radar once', async () => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
-    const sendMessage = vi.fn();
-    window.unitySendMessage = sendMessage;
     await render();
     await act(async () => difficulty(5).querySelector('span')!.click());
-    expect(sendMessage).toHaveBeenCalledTimes(1);
-    expect(sendMessage.mock.calls[0][2]).toMatch(/\nlv5$/);
     expect(radarRequests().at(-1)?.[0]).toBe('/api3/api/maichart/song/radar?chartLevel=5');
     await act(async () => difficulty(5).querySelector('span:last-child')!.click());
-    expect(sendMessage).toHaveBeenCalledTimes(2);
     expect(radarRequests()).toHaveLength(2);
     await act(async () => container.querySelector<HTMLElement>('[data-radar-level]')!.click());
-    expect(sendMessage).toHaveBeenCalledTimes(2);
     expect(radarRequests()).toHaveLength(2);
   });
 

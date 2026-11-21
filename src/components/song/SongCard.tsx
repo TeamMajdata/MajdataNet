@@ -107,7 +107,7 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
             </MarqueeText>
             <div className="flex items-start gap-1 mt-1.5">
               <div className="flex-1 min-w-0">
-                <Levels levels={song.levels} songid={song.id} isPlayer={false} linkToSong={!(disableLink || onClick)} />
+                <Levels levels={song.levels} songid={song.id} linkToSong={!(disableLink || onClick)} />
               </div>
               <button
                 type="button"

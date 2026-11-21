@@ -168,7 +168,7 @@ export function ScoreCard({
 
           {/* 难度标签和首页卡片一样（只有一个难度时显示难度名），Combo 标签跟在后面 */}
           <div className="flex items-center gap-1.5 mt-1.5 min-w-0 overflow-hidden">
-            <Levels levels={playedLevel} songid={score.chartInfo.id} isPlayer={false} linkToSong />
+            <Levels levels={playedLevel} songid={score.chartInfo.id} linkToSong />
             {comboStateText && (
               <span className={`rounded px-1.5 py-0.5 text-[0.65rem] font-bold leading-none shrink-0 ${comboBadgeClass}`}>
                 {comboStateText}

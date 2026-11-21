@@ -1,5 +1,4 @@
 import type { LevelProps } from '@/types';
-import { makeLevelClickCallback } from '@/utils/scrollUtils';
 import { motion } from 'framer-motion';
 
 // 难度等级背景色映射
@@ -16,14 +15,12 @@ const levelColors: Record<string, string> = {
 /**
  * 单个难度等级显示组件
  */
-export default function Level({ level, difficulty, songid, isPlayer = false }: LevelProps) {
-  const levelClickCallback = makeLevelClickCallback(songid, isPlayer);
+export default function Level({ level, difficulty }: LevelProps) {
 
   return (
     <motion.div
       className={`float-left text-center rounded-[5px] font-bold m-[0.1rem] w-[1.3rem] h-[1.3rem] text-[0.65rem] leading-[1.2rem] border border-gray-500 overflow-hidden cursor-pointer select-none ${levelColors[level] || ''}`}
       style={{ display: 'unset' }}
-      onClick={levelClickCallback}
       whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
       transition={{ duration: 0.125, ease: 'easeInOut' }}
     >

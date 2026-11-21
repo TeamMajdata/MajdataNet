@@ -41,8 +41,6 @@ export interface LevelsProps {
   levels: (string | null | undefined)[];
   /** 歌曲ID */
   songid: string;
-  /** 是否为玩家页面 */
-  isPlayer?: boolean;
   /** 点击标签跳到谱面页并选中该难度（列表卡片里使用） */
   linkToSong?: boolean;
 }
@@ -54,14 +52,10 @@ export interface LevelProps {
   difficulty: string;
   /** 歌曲ID */
   songid: string;
-  /** 是否为玩家页面 */
-  isPlayer?: boolean;
 }
 
 export interface SongDifficultyLevelsProps {
   levels: (string | null)[];
-  songid: string;
-  isPlayer?: boolean;
   selected?: number;
   onSelect?: (level: number) => void;
 }
