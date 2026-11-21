@@ -28,7 +28,7 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   const data = response?.players;
 
   if (error) {
-    return <div>{t("shared/ScoreCount.FailedToLoad")}</div>;
+    return <EmptyState>{t("shared/ScoreCount.FailedToLoad")}</EmptyState>;
   }
 
   if (isLoading) {

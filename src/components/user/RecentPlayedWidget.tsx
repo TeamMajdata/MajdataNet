@@ -86,9 +86,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded, gridClassNa
 
   if (error) {
     return (
-      <div className="m-auto w-full text-[50px] text-center">
-        {t("user/RecentPlayedWidget.ServerError")}
-      </div>
+      <EmptyState>{t("user/RecentPlayedWidget.ServerError")}</EmptyState>
     );
   }
 

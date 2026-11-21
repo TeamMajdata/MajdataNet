@@ -3,6 +3,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import EmptyState from '@/components/ui/EmptyState';
 import SectionLoading from '@/components/ui/SectionLoading';
 import { useEffect } from 'react';
 import useSWR from 'swr';
@@ -41,7 +42,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
     if (isLastPage && page != null) setMax?.(page);
   }, [isLastPage, page, setMax]);
 
-  if (error) return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("song/SongList.ServerError")}</div>;
+  if (error) return <EmptyState>{t("song/SongList.ServerError")}</EmptyState>;
   if (isLoading) {
     return (
       <SectionLoading />
@@ -49,7 +50,7 @@ export default function SongList({ url, setMax, page, isRanking, isManage, onDat
   }
 
   if (!data || !Array.isArray(data) || data.length === 0) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("song/SongList.EmptyData")}</div>;
+    return <EmptyState>{t("song/SongList.EmptyData")}</EmptyState>;
   }
 
   // 整页卡片的计数由一次批量请求提供，卡片不再各自请求

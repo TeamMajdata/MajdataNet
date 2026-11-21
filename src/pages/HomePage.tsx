@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import EmptyState from '@/components/ui/EmptyState';
 import SectionLoading from '@/components/ui/SectionLoading';
 import { getLocale, useLanguage } from '@/i18n';
 import { getEventHref } from '@/utils/eventLink';
@@ -774,18 +775,18 @@ function RecommendFeed({ userKey, page, onPageChange }: {
 
   let content: React.ReactNode;
   if (error) {
-    content = <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.ServerError")}</div>;
+    content = <EmptyState>{t("home/HomePage.ServerError")}</EmptyState>;
   } else if (isLoading || !data) {
     content = (
       <SectionLoading />
     );
   } else if (data.length === 0) {
     content = (
-      <div className="m-auto w-full text-2xl sm:text-[50px] text-center">
+      <EmptyState>
         {page > 0
           ? t("home/HomePage.RecommendEnd")
           : t("home/HomePage.EmptyData")}
-      </div>
+      </EmptyState>
     );
   } else {
     content = (
@@ -841,7 +842,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }, [data, refreshKey]);
 
   if (error) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.ServerError")}</div>;
+    return <EmptyState>{t("home/HomePage.ServerError")}</EmptyState>;
   }
 
   if (isLoading) {
@@ -851,7 +852,7 @@ function RandomRecommendList({ refreshKey }: { refreshKey: number }) {
   }
 
   if (randomSongs.length === 0) {
-    return <div className="m-auto w-full text-2xl sm:text-[50px] text-center">{t("home/HomePage.EmptyData")}</div>;
+    return <EmptyState>{t("home/HomePage.EmptyData")}</EmptyState>;
   }
 
   return (
