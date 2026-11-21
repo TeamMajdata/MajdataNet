@@ -89,7 +89,7 @@ async function mockApi(page: Page, { items, username = 'viewer' }: MockOptions) 
   return requests;
 }
 
-const songTitles = (page: Page) => page.locator('main').getByText(/^(Alpha|Bravo|Charlie) fixture$/);
+const songTitles = (page: Page) => page.locator('main').getByRole('link', { name: /^(Alpha|Bravo|Charlie) fixture$/ });
 
 test('desktop: collection page loads chart metadata in one batch, in collection order', async ({ page }) => {
   const requests = await mockApi(page, { items: [chartB, chartA] });
@@ -121,7 +121,7 @@ test('desktop: the owner saves edits with PUT modify and the full item list', as
   await page.getByRole('button', { name: 'Manage', exact: true }).click();
   await page.getByTitle('Remove from Collection').nth(1).click();
   const modify = page.waitForRequest((r) => r.url().endsWith(`/collection/${collectionId}/modify`));
-  await page.getByRole('button', { name: 'Submit', exact: true }).click();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
 
   const request = await modify;
   expect(request.method()).toBe('PUT');

@@ -5,4 +5,3 @@ export const HAMBURGER_BUTTON_BASE = 'flex items-center justify-center gap-1.5 p
 export const HAMBURGER_BUTTON_ACTIVE = 'bg-white/10 border-white/20';
 
 export const HAMBURGER_BUTTON_HOVER = 'hover:bg-white/[0.08] hover:border-white/20';
-

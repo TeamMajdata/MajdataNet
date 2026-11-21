@@ -36,7 +36,6 @@ export default function AuthSection() {
           aria-label={t("shared/AuthSection.AccountActions")}
         >
           <AiOutlineUser className="font-medium text-white/85 text-base" />
-          
         </button>
 
         <Dropdown isOpen={isMobileAuthMenuOpen} onClose={() => setIsMobileAuthMenuOpen(false)} position="right" className="p-1.5 w-[min(13rem,calc(100vw-1.5rem))]">

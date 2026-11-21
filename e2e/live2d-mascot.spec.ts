@@ -192,11 +192,11 @@ test('desktop: real model, poke, route persistence and language overlay', async 
   await expect(page).toHaveURL(/chart-events/);
   await expect(mascot.locator('canvas')).toHaveAttribute('data-identity', 'original');
   expect(modelLoads).toBe(initialModelLoads);
-  await page.getByRole('button', { name: '语言设置' }).click();
-  await expect(page.locator('#language-select')).toBeVisible();
-  const aboveMascot = await page.locator('#language-select').evaluate((select) => {
+  await page.getByRole('button', { name: '语言', exact: true }).click();
+  await expect(page.getByRole('menu')).toBeVisible();
+  const aboveMascot = await page.getByRole('menuitemradio', { name: 'English' }).evaluate((select) => {
     const box = select.getBoundingClientRect();
-    return document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2) === select;
+    return select.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2));
   });
   expect(aboveMascot).toBe(true);
   await page.screenshot({ path: info.outputPath('desktop-language-overlay.png') });
@@ -373,12 +373,11 @@ for (const language of ['zh', 'en', 'ja', 'ko']) {
     const locale = JSON.parse(readFileSync(new URL(`../src/locales/${language}.json`, import.meta.url), 'utf8'));
     const phrases = locale['shared/Live2DMascot'];
     // The global language control updates the same mounted mascot instance.
-    await page.locator('button').filter({ hasText: '🌐' }).click();
-    await page.locator('#language-select').selectOption(language);
+    await page.getByRole('button', { name: '语言', exact: true }).click();
+    await page.locator(`[role=menuitemradio][lang|='${language}']`).click();
     await expect(mascot).toHaveAttribute('aria-label', phrases.Name);
     await expect(page.getByTestId('mascot-poke')).toHaveAttribute('aria-label', phrases.Poke);
-    await page.locator('button').filter({ hasText: '×' }).last().click();
-    await expect(page.locator('#language-select')).toHaveCount(0);
+    await expect(page.getByRole('menu')).toHaveCount(0);
     await page.getByTestId('mascot-poke').focus();
     await page.keyboard.press('Space');
     await expect(page.getByTestId('mascot-dialogue')).toBeVisible();
