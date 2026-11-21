@@ -38,6 +38,7 @@ import type { SearchBarProps, Song } from '@/types';
 import { API_PAGES_PER_VIEW, apiPagesForView, SONG_GRID_CLASS } from '@/components/song/songGrid';
 import RecentUploads from '@/components/home/RecentUploads';
 import PopularRanking from '@/components/home/PopularRanking';
+import CollectionsRow from '@/components/home/CollectionsRow';
 
 export default function HomePage() {
   return (
@@ -45,10 +46,11 @@ export default function HomePage() {
       {/* Events Carousel */}
       <EventsCarousel />
 
-      {/* 活动下面：最近上传、大家最近都在玩、人气排行 */}
+      {/* 活动下面：最近上传、人气排行、歌单广场 */}
       <div className="mx-auto mt-6 w-full max-w-320 min-w-0">
         <RecentUploads />
         <PopularRanking />
+        <CollectionsRow />
       </div>
 
       {/* Main Content */}

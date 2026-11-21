@@ -165,6 +165,8 @@
     "ByDownloads": "Downloads",
     "ByPlays": "Plays",
     "ByRating": "Rating",
+    "Collections": "Collections",
+    "CollectionsHint": "Chart collections curated by players",
     "Likes_one": "{{formatted}} like",
     "Likes_other": "{{formatted}} likes",
     "Next": "Next",
@@ -174,7 +176,8 @@
     "Previous": "Previous",
     "RecentUploads": "Recent uploads",
     "RecentUploadsHint": "New from the community",
-    "SortBy": "Sort by"
+    "SortBy": "Sort by",
+    "ViewAll": "View all"
   },
   "home/HomePage": {
     "AllCharts": "All Charts",

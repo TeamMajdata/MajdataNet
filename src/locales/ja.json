@@ -162,6 +162,8 @@
     "ByDownloads": "ダウンロード",
     "ByPlays": "プレイ",
     "ByRating": "評価",
+    "Collections": "コレクション広場",
+    "CollectionsHint": "プレイヤーがまとめた譜面コレクション",
     "Likes_other": "いいね {{formatted}}",
     "Next": "次へ",
     "Plays_other": "{{formatted}} 回プレイ",
@@ -169,7 +171,8 @@
     "Previous": "前へ",
     "RecentUploads": "最近のアップロード",
     "RecentUploadsHint": "コミュニティの新作",
-    "SortBy": "並び替え"
+    "SortBy": "並び替え",
+    "ViewAll": "すべて見る"
   },
   "home/HomePage": {
     "AllCharts": "すべての譜面",

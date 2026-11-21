@@ -162,6 +162,8 @@
     "ByDownloads": "下载",
     "ByPlays": "游玩",
     "ByRating": "评价",
+    "Collections": "歌单广场",
+    "CollectionsHint": "大家整理的谱面合集",
     "Likes_other": "{{formatted}} 个赞",
     "Next": "下一页",
     "Plays_other": "{{formatted}} 次游玩",
@@ -169,7 +171,8 @@
     "Previous": "上一页",
     "RecentUploads": "最近上传",
     "RecentUploadsHint": "来自社区的新作品",
-    "SortBy": "排序方式"
+    "SortBy": "排序方式",
+    "ViewAll": "查看全部"
   },
   "home/HomePage": {
     "AllCharts": "全部谱面",
