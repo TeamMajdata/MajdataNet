@@ -32,11 +32,7 @@ const EventBanner: React.FC<EventBannerProps> = memo(({ event, containerClassNam
         {/* 底部信息遮罩层 - 从50%高度开始 */}
         <div className="top-[50%] right-0 bottom-0 left-0 absolute flex flex-col justify-end p-5 md:p-6" style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.05) 10%, rgba(0,0,0,0.15) 20%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.7) 55%, rgba(0,0,0,0.85) 75%, rgba(0,0,0,0.95) 100%)' }}>
           <div className="text-left">
-            <div className="mb-2 md:mb-3">
-              <h2 className="m-0 font-bold text-white text-xl md:text-2xl leading-tight" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>
-                {event.title}
-              </h2>
-            </div>
+            {/* 不再重复标题：横幅图片里本身就写着活动名 */}
             <EnhancedDescription
               text={event.description}
               className="m-0 mb-3 md:mb-4 text-white/90 text-sm md:text-base wrap-break-word leading-relaxed"
