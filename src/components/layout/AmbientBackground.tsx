@@ -1,180 +1,211 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * 全站背景：深色渐变 + 三团缓慢漂移的蓝 / 青 / 紫色光晕（纯 CSS，交给 GPU 合成）
- * + 一层 canvas：细小的亮点缓慢上浮、轻轻闪烁，偶尔从某处扩散出一圈淡淡的圆环（判定圈的意象）。
+ * 全站背景：星空。
+ * - 底色：深蓝到深灰的渐变，加一条很淡的斜向银河光带（纯 CSS，静态）
+ * - 静态星星：几百颗大小、亮度、色温不同的小星星，窗口大小变化时画一次，之后不再重绘
+ * - 动态层：几十颗较亮的星星缓慢闪烁（最亮的几颗带十字星芒），每隔一段时间划过一颗流星
  *
- * 性能：粒子贴图预渲染，每帧只做 drawImage；限制 30fps；手机上粒子减半；
- * 页面在后台时 requestAnimationFrame 自动暂停；“减少动态效果”时只留静态渐变和光晕。
+ * 性能：静态星星不占每帧开销；动态层只画几十个点，限制 30fps，页面在后台时自动暂停；
+ * “减少动态效果”时只画静态星空。
  */
 
-/** 和站点主色一致的几种亮色 */
-const COLORS = ['#7cc4ff', '#60a5fa', '#67e8f9', '#a5b4fc', '#e0f2fe'];
+/** 星星的颜色：多数偏白，少数偏蓝或偏暖 */
+const STAR_COLORS = ['255 255 255', '255 255 255', '220 232 255', '200 220 255', '255 240 220'];
 
-interface Dot {
-  sprite: HTMLCanvasElement;
-  size: number;
+interface TwinkleStar {
   x: number;
   y: number;
-  /** 每秒上浮的像素数 */
-  speed: number;
-  /** 左右摆动的幅度和相位 */
-  sway: number;
-  phase: number;
-  /** 闪烁：基础亮度、幅度、频率 */
-  alpha: number;
-  twinkle: number;
+  radius: number;
+  color: string;
+  base: number;
+  amplitude: number;
   rate: number;
+  phase: number;
+  /** 最亮的几颗画十字星芒 */
+  glint: boolean;
 }
 
-interface Ring {
+interface Meteor {
   x: number;
   y: number;
+  /** 每毫秒移动的距离（向量） */
+  vx: number;
+  vy: number;
+  length: number;
   start: number;
   duration: number;
-  maxRadius: number;
-  color: string;
 }
 
 const range = (min: number, max: number) => min + (max - min) * Math.random();
 const pick = <T,>(items: T[]) => items[Math.floor(Math.random() * items.length)];
 
-/** 一个带柔光的小圆点贴图：中心实心，外圈渐隐 */
-function makeSprite(color: string, radius: number) {
-  const size = Math.ceil(radius * 6);
-  const sprite = document.createElement('canvas');
-  sprite.width = sprite.height = size;
-  const ctx = sprite.getContext('2d')!;
-  const c = size / 2;
-  const glow = ctx.createRadialGradient(c, c, 0, c, c, c);
-  glow.addColorStop(0, color);
-  glow.addColorStop(radius / c, color);
-  glow.addColorStop(Math.min(1, (radius * 1.6) / c), color + '40');
-  glow.addColorStop(1, color + '00');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, size, size);
-  return sprite;
-}
-
-function createDots(width: number, height: number): Dot[] {
-  const count = Math.round((width <= 768 ? 35 : 70) * Math.min(1.4, Math.max(0.6, (width * height) / (1440 * 900))));
-  const sprites = new Map<string, HTMLCanvasElement>();
-  const dots: Dot[] = [];
-  for (let i = 0; i < count; i++) {
-    const color = pick(COLORS);
-    // 大多数是很小的点，少数稍大
-    const radius = Math.random() < 0.85 ? range(0.6, 1.4) : range(1.6, 2.4);
-    const key = color + radius.toFixed(1);
-    if (!sprites.has(key)) sprites.set(key, makeSprite(color, radius));
-    const sprite = sprites.get(key)!;
-    dots.push({
-      sprite,
-      size: sprite.width,
-      x: range(0, width),
-      y: range(0, height),
-      speed: range(4, 14) * (radius > 1.5 ? 1.4 : 1),
-      sway: range(4, 18),
-      phase: range(0, Math.PI * 2),
-      alpha: range(0.25, 0.7),
-      twinkle: range(0.15, 0.35),
-      rate: range(0.4, 1.4),
-    });
+/** 星星在画面里的分布：沿银河光带（左下到右上的对角线）略密一些 */
+function starPosition(width: number, height: number) {
+  const x = range(0, width);
+  if (Math.random() < 0.35) {
+    // 光带中心线：从左下 (0, 0.85h) 到右上 (w, 0.1h)
+    const centerY = height * (0.85 - 0.75 * (x / width));
+    return { x, y: centerY + range(-1, 1) * height * 0.12 };
   }
-  return dots;
+  return { x, y: range(0, height) };
 }
 
-function drawFrame(ctx: CanvasRenderingContext2D, dots: Dot[], rings: Ring[], width: number, height: number, now: number, dt: number) {
+function drawStaticStars(ctx: CanvasRenderingContext2D, width: number, height: number) {
   ctx.clearRect(0, 0, width, height);
-  ctx.globalCompositeOperation = 'lighter';
+  const count = Math.round((width * height) / 2600);
+  for (let i = 0; i < count; i++) {
+    const { x, y } = starPosition(width, height);
+    // 绝大多数是很暗很小的星，少数稍亮
+    const bright = Math.random() < 0.08;
+    const radius = bright ? range(0.7, 1.1) : range(0.25, 0.65);
+    const alpha = bright ? range(0.55, 0.85) : range(0.15, 0.5);
+    ctx.fillStyle = `rgb(${pick(STAR_COLORS)} / ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function createTwinkleStars(width: number, height: number): TwinkleStar[] {
+  const count = Math.round(Math.min(60, Math.max(20, (width * height) / 30000)));
+  return Array.from({ length: count }, (_, i) => {
+    const { x, y } = starPosition(width, height);
+    return {
+      x,
+      y,
+      radius: range(0.8, 1.5),
+      color: pick(STAR_COLORS),
+      base: range(0.35, 0.65),
+      amplitude: range(0.2, 0.35),
+      rate: range(0.3, 1.1),
+      phase: range(0, Math.PI * 2),
+      glint: i < Math.max(3, count / 12),
+    };
+  });
+}
+
+function drawFrame(ctx: CanvasRenderingContext2D, stars: TwinkleStar[], meteors: Meteor[], width: number, height: number, now: number) {
+  ctx.clearRect(0, 0, width, height);
   const seconds = now / 1000;
 
-  for (const dot of dots) {
-    dot.y -= dot.speed * dt;
-    if (dot.y < -dot.size) {
-      // 从底部重新出现
-      dot.y = height + dot.size;
-      dot.x = range(0, width);
+  for (const star of stars) {
+    const alpha = Math.max(0, Math.min(1, star.base + Math.sin(seconds * star.rate + star.phase) * star.amplitude));
+    if (alpha < 0.02) continue;
+    // 柔和的光晕 + 实心的核
+    const halo = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.radius * 4);
+    halo.addColorStop(0, `rgb(${star.color} / ${alpha * 0.5})`);
+    halo.addColorStop(1, `rgb(${star.color} / 0)`);
+    ctx.fillStyle = halo;
+    ctx.fillRect(star.x - star.radius * 4, star.y - star.radius * 4, star.radius * 8, star.radius * 8);
+    ctx.fillStyle = `rgb(${star.color} / ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+    ctx.fill();
+    if (star.glint) {
+      const reach = star.radius * 7 * alpha;
+      ctx.strokeStyle = `rgb(${star.color} / ${alpha * 0.45})`;
+      ctx.lineWidth = 0.6;
+      ctx.beginPath();
+      ctx.moveTo(star.x - reach, star.y);
+      ctx.lineTo(star.x + reach, star.y);
+      ctx.moveTo(star.x, star.y - reach);
+      ctx.lineTo(star.x, star.y + reach);
+      ctx.stroke();
     }
-    const x = dot.x + Math.sin(seconds * 0.3 + dot.phase) * dot.sway;
-    // 越靠近顶部越淡，避免和页头抢
-    const fade = Math.min(1, dot.y / (height * 0.25));
-    const alpha = (dot.alpha + Math.sin(seconds * dot.rate + dot.phase) * dot.twinkle) * fade;
-    if (alpha <= 0.01) continue;
-    ctx.globalAlpha = Math.min(1, alpha);
-    ctx.drawImage(dot.sprite, x - dot.size / 2, dot.y - dot.size / 2);
   }
 
-  ctx.globalCompositeOperation = 'source-over';
-  for (let i = rings.length - 1; i >= 0; i--) {
-    const ring = rings[i];
-    const t = (now - ring.start) / ring.duration;
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    const meteor = meteors[i];
+    const elapsed = now - meteor.start;
+    const t = elapsed / meteor.duration;
     if (t >= 1) {
-      rings.splice(i, 1);
+      meteors.splice(i, 1);
       continue;
     }
-    // 先快后慢地扩散，同时淡出
-    const eased = 1 - Math.pow(1 - t, 3);
-    ctx.globalAlpha = 0.22 * (1 - t);
-    ctx.strokeStyle = ring.color;
-    ctx.lineWidth = 1.5 * (1 - t) + 0.5;
+    const headX = meteor.x + meteor.vx * elapsed;
+    const headY = meteor.y + meteor.vy * elapsed;
+    const speed = Math.hypot(meteor.vx, meteor.vy);
+    const tailX = headX - (meteor.vx / speed) * meteor.length;
+    const tailY = headY - (meteor.vy / speed) * meteor.length;
+    // 出现和消失时都淡入淡出
+    const fade = Math.sin(Math.PI * t);
+    const tail = ctx.createLinearGradient(headX, headY, tailX, tailY);
+    tail.addColorStop(0, `rgb(255 255 255 / ${0.85 * fade})`);
+    tail.addColorStop(0.3, `rgb(200 220 255 / ${0.35 * fade})`);
+    tail.addColorStop(1, 'rgb(200 220 255 / 0)');
+    ctx.strokeStyle = tail;
+    ctx.lineWidth = 1.4;
+    ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.arc(ring.x, ring.y, ring.maxRadius * eased, 0, Math.PI * 2);
+    ctx.moveTo(headX, headY);
+    ctx.lineTo(tailX, tailY);
     ctx.stroke();
   }
-  ctx.globalAlpha = 1;
 }
 
 export default function AmbientBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const staticRef = useRef<HTMLCanvasElement>(null);
+  const liveRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const staticCanvas = staticRef.current;
+    const liveCanvas = liveRef.current;
+    if (!staticCanvas || !liveCanvas) return;
+    const staticCtx = staticCanvas.getContext('2d');
+    const ctx = liveCanvas.getContext('2d');
+    if (!staticCtx || !ctx) return;
+    const animate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let width = 0;
     let height = 0;
-    let dots: Dot[] = [];
-    const rings: Ring[] = [];
+    let stars: TwinkleStar[] = [];
+    const meteors: Meteor[] = [];
     let frame = 0;
     let lastDraw = 0;
-    let nextRing = performance.now() + 1500;
+    let nextMeteor = performance.now() + range(3000, 8000);
+
+    const fit = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, ratio: number) => {
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    };
 
     const resize = () => {
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      width = canvas.offsetWidth;
-      height = canvas.offsetHeight;
-      canvas.width = Math.round(width * ratio);
-      canvas.height = Math.round(height * ratio);
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      dots = createDots(width, height);
+      width = staticCanvas.offsetWidth;
+      height = staticCanvas.offsetHeight;
+      fit(staticCanvas, staticCtx, ratio);
+      fit(liveCanvas, ctx, ratio);
+      drawStaticStars(staticCtx, width, height);
+      stars = createTwinkleStars(width, height);
+      if (!animate) drawFrame(ctx, stars, meteors, width, height, 0);
     };
 
     const tick = (now: number) => {
       frame = requestAnimationFrame(tick);
-      // 动得很慢，30fps 足够
       if (now - lastDraw < 33) return;
-      // 切回前台时 dt 可能很大，截断，免得粒子一下跳很远
-      const dt = Math.min(0.1, (now - (lastDraw || now)) / 1000);
       lastDraw = now;
-      if (now >= nextRing) {
-        rings.push({
-          x: range(width * 0.1, width * 0.9),
-          y: range(height * 0.3, height * 0.95),
+      if (now >= nextMeteor) {
+        // 从画面上半部分的某处出发，向左下或右下斜着划过
+        const angle = range(0.35, 0.6) * (Math.random() < 0.5 ? 1 : -1);
+        const speed = range(0.6, 1);
+        meteors.push({
+          x: range(width * 0.15, width * 0.85),
+          y: range(0, height * 0.4),
+          vx: Math.sin(angle) * speed,
+          vy: Math.cos(angle) * speed,
+          length: range(90, 170),
           start: now,
-          duration: range(3500, 5500),
-          maxRadius: range(80, 220),
-          color: pick(COLORS),
+          duration: range(700, 1100),
         });
-        nextRing = now + range(3500, 7000);
+        nextMeteor = now + range(8000, 15000);
       }
-      drawFrame(ctx, dots, rings, width, height, now, dt);
+      drawFrame(ctx, stars, meteors, width, height, now);
     };
 
     resize();
-    frame = requestAnimationFrame(tick);
+    if (animate) frame = requestAnimationFrame(tick);
     window.addEventListener('resize', resize);
     return () => {
       cancelAnimationFrame(frame);
@@ -183,12 +214,12 @@ export default function AmbientBackground() {
   }, []);
 
   return (
-    <div aria-hidden="true" className="-z-99 fixed inset-0 bg-[linear-gradient(180deg,#1b2330_0%,#161b22_55%,#121619_100%)] overflow-hidden pointer-events-none">
-      {/* 三团很淡的光晕，几十秒一个来回地漂移 */}
-      <div className="top-[-15%] left-[-10%] absolute bg-[radial-gradient(closest-side,rgb(59_130_246/0.22),transparent)] w-[60vmax] h-[60vmax] motion-safe:animate-[ambient-drift-a_48s_ease-in-out_infinite_alternate]" />
-      <div className="top-[20%] right-[-20%] absolute bg-[radial-gradient(closest-side,rgb(34_211_238/0.12),transparent)] w-[55vmax] h-[55vmax] motion-safe:animate-[ambient-drift-b_60s_ease-in-out_infinite_alternate]" />
-      <div className="bottom-[-25%] left-[20%] absolute bg-[radial-gradient(closest-side,rgb(139_92_246/0.14),transparent)] w-[65vmax] h-[65vmax] motion-safe:animate-[ambient-drift-c_72s_ease-in-out_infinite_alternate]" />
-      <canvas ref={canvasRef} id="ambient-canvas" className="absolute inset-0 w-full h-full" />
+    <div aria-hidden="true" className="-z-99 fixed inset-0 bg-[linear-gradient(180deg,#0c1220_0%,#111827_45%,#141a22_100%)] overflow-hidden pointer-events-none">
+      {/* 银河：一条很淡的斜向光带，左下到右上 */}
+      <div className="top-1/2 left-1/2 absolute bg-[radial-gradient(closest-side,rgb(150_170_255/0.10),rgb(120_110_220/0.05)_55%,transparent)] w-[160vmax] h-[38vmax] -translate-x-1/2 -translate-y-1/2 -rotate-[28deg]" />
+      <div className="top-[45%] left-[58%] absolute bg-[radial-gradient(closest-side,rgb(180_200_255/0.07),transparent)] w-[70vmax] h-[14vmax] -translate-x-1/2 -translate-y-1/2 -rotate-[28deg]" />
+      <canvas ref={staticRef} className="absolute inset-0 w-full h-full" />
+      <canvas ref={liveRef} id="ambient-canvas" className="absolute inset-0 w-full h-full" />
     </div>
   );
 }
