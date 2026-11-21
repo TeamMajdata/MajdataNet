@@ -52,15 +52,13 @@ export default function SpacePage() {
 
   if (!username) {
     return (
-      <PageLayout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="text-center">
-            <h1 className="mb-4 font-bold text-2xl">{t("space/SpacePage.Error")}</h1>
-            <p className="mb-4">{t("space/SpacePage.UserNotFound")}</p>
-            <Link to="/" className="text-blue-400 hover:text-blue-300 underline">
-              {t("space/SpacePage.BackToHome")}
-            </Link>
-          </div>
+      <PageLayout centered>
+        <div className="mx-auto px-4 py-10 max-w-xl text-center">
+          <h1 className="m-0 font-semibold text-white! text-xl! text-center!">{t("space/SpacePage.Error")}</h1>
+          <p className="m-0 mt-2 text-white/55! text-sm">{t("space/SpacePage.UserNotFound")}</p>
+          <Link to="/" className="inline-flex items-center bg-blue-500 hover:bg-blue-400 mt-6 px-5 rounded-xl h-11 font-semibold text-white text-sm no-underline transition-colors">
+            {t("space/SpacePage.BackToHome")}
+          </Link>
         </div>
       </PageLayout>
     );

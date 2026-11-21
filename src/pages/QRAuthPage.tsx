@@ -39,8 +39,8 @@ export default function QRAuthPage() {
   const authId = searchParams.get('auth-id');
 
   return (
-    <PageLayout>
-      <div className="flex justify-center items-center mx-auto px-1 py-10 sm:py-16 w-full max-w-md min-h-[60vh]">
+    <PageLayout centered>
+      <div className="flex justify-center items-center mx-auto px-1 py-10 w-full max-w-md">
         <PermitLogin authId={authId} />
       </div>
     </PageLayout>

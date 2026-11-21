@@ -85,6 +85,8 @@ export interface PageLayoutProps {
   showFooter?: boolean;
   className?: string;
   useAmbientBackground?: boolean;
+  /** 内容很少的页面（404、提示页）：在页头和页脚之间上下居中 */
+  centered?: boolean;
 }
 
 // ======================== 成绩组件 ========================

@@ -241,8 +241,8 @@ export default function CollectionPage() {
 
   // 无效参数、加载失败、歌单不存在：居中的一句提示
   const notice = (text: string) => (
-    <PageLayout>
-      <div className="mx-auto px-4 py-24 max-w-xl text-center">
+    <PageLayout centered>
+      <div className="mx-auto px-4 py-10 max-w-xl text-center">
         <p className="m-0 text-white/60! text-base">{text}</p>
       </div>
     </PageLayout>

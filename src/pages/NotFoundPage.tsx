@@ -24,9 +24,9 @@ export default function NotFoundPage() {
   }, [navigate]);
 
   return (
-    <PageLayout>
+    <PageLayout centered>
       {/* 居中的简单提示：大号 404、说明、倒计时和两个按钮，按钮样式和其他页面一致 */}
-      <div className="flex flex-col justify-center items-center mx-auto px-4 py-16 sm:py-24 max-w-xl min-h-[60vh] text-center">
+      <div className="flex flex-col justify-center items-center mx-auto px-4 py-10 max-w-xl text-center">
         <p className="bg-clip-text bg-linear-to-b from-white/80 to-white/15 m-0 font-bold text-transparent! text-7xl sm:text-8xl tabular-nums leading-none tracking-tight">
           404
         </p>
