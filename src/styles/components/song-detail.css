@@ -7,7 +7,14 @@
   max-width: 77rem;
   margin-top: clamp(.75rem, 2.8vw, 2.5rem);
 }
-.song-backdrop { position: fixed; inset: 0; z-index: -1; background: #14181e; pointer-events: none; }
+.song-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background: #14181e top left / cover no-repeat;
+  filter: blur(20px) brightness(.3);
+}
 .song-page {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);

@@ -187,7 +187,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
 
   return (
     <>
-      <div className="song-backdrop" aria-hidden="true" />
+      <div className="song-backdrop" aria-hidden="true" style={{ backgroundImage: 'url(' + cover + ')' }} />
       <div className="song-page">
         <header className="song-header" aria-labelledby="song-title">
           <div className="song-identity">
