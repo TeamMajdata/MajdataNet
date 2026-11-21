@@ -92,7 +92,7 @@ export default function SpacePage() {
           </div>
 
           <section id="space-panel-overview" role="tabpanel" aria-labelledby="space-tab-overview" hidden={activeTab !== 'overview'}>
-            {profile.data?.introduction && <IntroductionCard username={profile.data.username} text={profile.data.introduction} />}
+            {profile.data?.introduction && <IntroductionCard text={profile.data.introduction} />}
             <UserSeasons key={username} username={username} />
             <UserRating key={`rating-${username}`} username={username} />
             {/* 最近游玩接在概览最后；没有记录时整块不显示 */}
@@ -192,31 +192,31 @@ function ProfileSidebar({ username, data, error, isLoading }: {
   );
 }
 
-/** 自我介绍：像 GitHub 的 README 一样放在带标题栏的卡片里，正文用正常字号 */
-function IntroductionCard({ username, text }: { username: string; text: string }) {
+/** 个人简介：和概览里其他区块一样，小标题在卡片外面，正文用正常字号 */
+function IntroductionCard({ text }: { text: string }) {
   const { t } = useTranslation();
   return (
-    <article className={`${CARD_SURFACE_CLASS} mb-6 min-w-0 overflow-hidden`}>
-      <p className="m-0 px-5 py-3 border-white/10 border-b font-medium text-white/55! text-xs">
-        {username} / {t("space/SpacePage.Introduction")}
-      </p>
-      <div className="bg-transparent! px-5! sm:px-6! py-5! min-w-0 text-[14px]! select-text **:select-text markdown-body">
-        <Markdown
-          remarkPlugins={[remarkGfm, remarkCenter]}
-          components={{
-            ol(props) {
-              const { ...rest } = props;
-              return <ol type="1" {...rest} />;
-            },
-            img(props) {
-              const { ...rest } = props;
-              return <img style={{ margin: 'auto' }} {...rest} />;
-            },
-          }}
-        >
-          {text}
-        </Markdown>
+    <section className="mb-10 min-w-0" aria-labelledby="space-intro-title">
+      <h2 id="space-intro-title" className={SECTION_HEADING_CLASS}>{t("space/SpacePage.Introduction")}</h2>
+      <div className={`${CARD_SURFACE_CLASS} px-5 sm:px-6 py-5 min-w-0`}>
+        <div className="bg-transparent! p-0! min-w-0 text-[14px]! select-text **:select-text markdown-body">
+          <Markdown
+            remarkPlugins={[remarkGfm, remarkCenter]}
+            components={{
+              ol(props) {
+                const { ...rest } = props;
+                return <ol type="1" {...rest} />;
+              },
+              img(props) {
+                const { ...rest } = props;
+                return <img style={{ margin: 'auto' }} {...rest} />;
+              },
+            }}
+          >
+            {text}
+          </Markdown>
+        </div>
       </div>
-    </article>
+    </section>
   );
 }
