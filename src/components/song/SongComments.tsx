@@ -18,7 +18,6 @@ import remarkBreaks from 'remark-breaks';
 import {
   PiArrowBendUpLeftBold,
   PiArrowRightBold,
-  PiChatCircleBold,
   PiLinkSimpleBold,
   PiMinusBold,
   PiPencilSimpleBold,
@@ -66,10 +65,11 @@ const COLLAPSE_SCORE = -5;
 
 const glassButton =
   'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-50';
+/** 和全站一致：蓝色实底主按钮、半透明次要按钮 */
 const primaryButton =
-  'rounded-lg border border-blue-500/30 bg-linear-to-br from-blue-500/20 to-blue-600/30 px-4 py-1.5 text-sm font-medium text-white/90 transition-all hover:from-blue-500/30 hover:to-blue-600/40 disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center rounded-xl border-0 bg-blue-500 px-4 h-9 text-sm font-semibold text-white no-underline transition-colors hover:bg-blue-400 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40';
 const ghostButton =
-  'rounded-lg border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50';
+  'inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] px-4 h-9 text-sm font-medium text-white/85 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white cursor-pointer disabled:opacity-50';
 
 export function RelativeTime({ value }: { value: string }) {
   const language = useLanguage();
@@ -174,7 +174,7 @@ function Composer({
         aria-label={placeholder}
         maxLength={MAX_COMMENT_LENGTH + 200}
         disabled={busy}
-        className="bg-white/6 focus:bg-white/8 px-4 py-3 border border-white/15 focus:border-blue-400/40 rounded-xl focus:outline-none w-full min-h-24 text-white text-sm leading-relaxed resize-y"
+        className="block bg-white/[0.04] focus:bg-white/[0.06] px-4 py-3 border border-white/10 focus:border-white/25 rounded-xl focus:outline-none w-full min-h-24 text-white placeholder:text-white/35 text-sm leading-relaxed transition-colors resize-y"
         onChange={(e) => setBody(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -607,19 +607,11 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
       aria-labelledby="comments-heading"
       className="space-y-5 min-w-0 scroll-mt-24"
     >
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <h2 id="comments-heading" className="flex items-center gap-2 m-0 font-semibold text-white! text-lg! text-left! whitespace-nowrap shrink-0" style={{ textShadow: '0 2px 4px rgb(0 0 0 / 30%)' }}>
-          <PiChatCircleBold aria-hidden="true" />
-          {t("song/SongComments.Comments")}
-          {summary && <span className="font-normal text-white/60 text-base tabular-nums">{summary.comments}</span>}
-        </h2>
-        <SortMenu
-          label={t("song/SongComments.SortBy")}
-          options={COMMENT_SORTS.map(value => sortLabels[value])}
-          value={COMMENT_SORTS.indexOf(sort)}
-          onChange={index => setSort(COMMENT_SORTS[index])}
-        />
-      </div>
+      {/* 标题和评论数已经在页签上，这里只留给读屏用 */}
+      <h2 id="comments-heading" className="sr-only">
+        {t("song/SongComments.Comments")}
+        {summary && <span>{summary.comments}</span>}
+      </h2>
       {focusId ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-white/6 px-4 py-3 rounded-xl text-sm">
           <span className="text-white/60">{t("song/SongComments.SingleThread")}</span>
@@ -650,6 +642,17 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
           </Link>
         </div>
       )}
+      {/* 排序放在输入框和列表之间，靠左，和右边的“发表”分开 */}
+      {!focusId && (
+        <div className="flex">
+          <SortMenu
+            label={t("song/SongComments.SortBy")}
+            options={COMMENT_SORTS.map(value => sortLabels[value])}
+            value={COMMENT_SORTS.indexOf(sort)}
+            onChange={index => setSort(COMMENT_SORTS[index])}
+          />
+        </div>
+      )}
       {error ? (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
           <p className="text-red-300 text-sm">{error}</p>
@@ -660,7 +663,7 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
       ) : !current ? (
         <SectionLoading className="py-8" />
       ) : current.items.length === 0 ? (
-        <p className="py-8 text-white/50 text-sm text-center">{t("song/SongComments.NoComments")}</p>
+        <EmptyState>{t("song/SongComments.NoComments")}</EmptyState>
       ) : (
         <TreeContext.Provider value={tree}>
           <div className="space-y-6">
