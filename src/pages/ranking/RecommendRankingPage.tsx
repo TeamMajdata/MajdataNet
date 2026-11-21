@@ -5,7 +5,7 @@
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { PageLayout, SongList } from '@/components';
-import UnderlineTabs from '@/components/ui/UnderlineTabs';
+import SegmentedTabs from '@/components/ui/SegmentedTabs';
 import { endpoints } from '@/config/api';
 
 /** 页签和后端排序参数的对应关系 */
@@ -38,7 +38,9 @@ export default function RecommendRankingPage() {
           <p className="m-0 mt-1.5 text-white/55! text-sm">{t("ranking/RecommendRankingPage.RecommendedChartsHint")}</p>
         </header>
 
-        <UnderlineTabs
+        {/* 和“我的收藏”一样的分段页签 */}
+        <SegmentedTabs
+          className="mb-3"
           tabs={RANKINGS.map(({ key, label }) => ({ key, label: t(label) }))}
           active={active.key}
           onSelect={select}
