@@ -193,9 +193,17 @@ export class Board {
     this.profile = false;
     this.stats = null;
     this.resize = new ResizeObserver(() => {
-      const size = Math.max(1, Math.round(host.clientWidth));
+      const width = Math.max(1, Math.round(host.clientWidth));
+      const height = Math.max(1, Math.round(host.clientHeight));
+      // 判定盘永远是正方形：取短边，居中放进宿主。
+      // 全屏时宿主是整块屏幕（不是正方形），画布要自己定位。
+      const size = Math.min(width, height);
       // 画布实际像素不超过 MAX_PIXELS：大屏 + 高分屏时贴图（最大 1080）再放大也没有更多细节
       app.renderer.resize(size, size, Math.min(devicePixelRatio, 2, Math.max(1, MAX_PIXELS / size)));
+      app.canvas.style.width = size + 'px';
+      app.canvas.style.height = size + 'px';
+      app.canvas.style.left = Math.round((width - size) / 2) + 'px';
+      app.canvas.style.top = Math.round((height - size) / 2) + 'px';
       this.root.position.set(size / 2);
       this.root.scale.set(size / 1080);
       this.render(this.lastTime);

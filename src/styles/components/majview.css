@@ -16,7 +16,38 @@
   border-radius: var(--radius-xl);
   background: #0b0e13;
 }
-.majview:fullscreen { justify-content: center; border-radius: 0; }
+.majview:fullscreen { border-radius: 0; }
+/* 全屏：判定盘铺满整块屏幕（背景也不再是圆形），控制条变成自动隐藏的浮层 */
+.majview:fullscreen .majview-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: auto;
+}
+.majview:fullscreen .majview-background { border-radius: 0; }
+.majview:fullscreen .majview-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  padding-bottom: calc(.375rem + env(safe-area-inset-bottom, 0px));
+  transition: opacity .25s ease;
+}
+.majview:fullscreen .majview-controls[data-hidden='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+/* 连击数用 cqw 定位：全屏时按判定盘（短边）算，别按屏幕宽度 */
+.majview:fullscreen .majview-combo {
+  inset: 50% auto auto 50%;
+  width: min(100vw, 100vh);
+  height: min(100vw, 100vh);
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
 
 /* 判定盘圆形以外的地方：铺一层放大、模糊、压暗的封面 */
 .majview-backdrop {
@@ -56,7 +87,6 @@
   user-select: none;
 }
 .majview-board,
-.majview-board canvas,
 .majview-background,
 .majview-background > * {
   position: absolute;
@@ -64,9 +94,13 @@
   width: 100%;
   height: 100%;
 }
+/* 画布是正方形（渲染器按宿主短边算好并居中），和 Play 一样裁成圆形遮罩 */
+.majview-board canvas {
+  position: absolute;
+  clip-path: circle(50%);
+}
 .majview-background { overflow: hidden; border-radius: 50%; background: #262626; }
-/* 和 Play 主屏幕的圆形遮罩一样：hanabi、打击特效超出判定盘圆形的部分裁掉 */
-.majview-board { clip-path: circle(50%); }
+.majview-board { clip-path: none; }
 .majview-background img,
 .majview-background video { object-fit: contain; -webkit-user-drag: none; }
 .majview-background video { opacity: 0; background: #000; }
@@ -139,6 +173,7 @@
 .majview-combo {
   position: absolute;
   inset: 0;
+  container-type: size;
   pointer-events: none;
   color: #ca3e7c;
   font-family: Minimoon, sans-serif;

@@ -146,8 +146,17 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const valueHintRef = useRef<HTMLDivElement>(null);
   const valueHintLabelRef = useRef<HTMLSpanElement>(null);
   const valueHintValueRef = useRef<HTMLElement>(null);
+  const valueHintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // 长按快放：倍速显示在控制条的倍速按钮上
   const [fastForward, setFastForward] = useState(false);
+  // 全屏时控制条自动隐藏：动一下鼠标 / 点一下画面才出来
+  const [controlsShown, setControlsShown] = useState(true);
+  const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 诊断用：控制条当前是否显示
+  const controlsShownRef = useRef(true);
+  controlsShownRef.current = controlsShown;
+  // 鼠标单击播放/暂停要等一小会儿，确认不是双击（双击是切全屏）
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const arrowHoldRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const arrowFastRef = useRef(false);
 
@@ -469,6 +478,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
         board: Board | null;
         chart: Chart | null;
         firstOffset: number;
+        controlsShown: boolean;
       };
     };
     target.__majviewDebug = {
@@ -476,6 +486,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       get board() { return boardRef.current; },
       get chart() { return chartRef.current; },
       get firstOffset() { return firstOffsetRef.current; },
+      get controlsShown() { return controlsShownRef.current; },
     };
     return () => {
       delete target.__majviewDebug;
@@ -574,6 +585,10 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   // 手指离开判定盘时不一定会收到 pointerup（页面滚动、来电等），卸载时把定时器清掉
   useEffect(() => () => {
     if (longPressRef.current !== null) clearTimeout(longPressRef.current);
+    if (controlsTimerRef.current !== null) clearTimeout(controlsTimerRef.current);
+    if (clickTimerRef.current !== null) clearTimeout(clickTimerRef.current);
+    if (valueHintTimerRef.current !== null) clearTimeout(valueHintTimerRef.current);
+    if (seekHintTimerRef.current !== null) clearTimeout(seekHintTimerRef.current);
   }, []);
 
   // iOS 上长按偶尔还是会走进文本选择或上下文菜单，除了 CSS 再兜一层底
@@ -610,10 +625,15 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   };
 
   /** 拖动音量 / 亮度时显示的胶囊 */
-  const showValueHint = (label: string, percent: number) => {
+  const showValueHint = (label: string, percent: number, autoHide = false) => {
     const hint = valueHintRef.current;
     if (!hint) return;
     hint.hidden = false;
+    if (valueHintTimerRef.current !== null) clearTimeout(valueHintTimerRef.current);
+    // 键盘调音量没有“松手”这一刻，用定时器自己收起来
+    valueHintTimerRef.current = autoHide
+      ? setTimeout(() => { valueHintTimerRef.current = null; hideValueHint(); }, 900)
+      : null;
     if (valueHintLabelRef.current) valueHintLabelRef.current.textContent = label;
     if (valueHintValueRef.current) valueHintValueRef.current.textContent = `${Math.round(percent)}%`;
   };
@@ -662,9 +682,41 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     seek(target);
   };
 
+  /** 全屏时控制条自动隐藏：动一下鼠标 / 点一下画面就重新出现，2.5 秒后收起 */
+  const pokeControls = useCallback(() => {
+    if (!document.fullscreenElement) return;
+    setControlsShown(true);
+    if (controlsTimerRef.current !== null) clearTimeout(controlsTimerRef.current);
+    controlsTimerRef.current = setTimeout(() => {
+      controlsTimerRef.current = null;
+      setControlsShown(false);
+    }, 2500);
+  }, []);
+
+  /** 键盘上下键：总音量 ±0.1 */
+  const volumeStep = (delta: number) => {
+    const next = Math.round(clamp(settingsRef.current.Master + delta, 0, 2) * 10) / 10;
+    changeSettings({ Master: next });
+    showValueHint(t('song/MajView.SettingMaster'), next * 100, true);
+  };
+
   // 键盘和定时器里用到的操作放到 ref，避免事件监听器每次渲染都重新绑定
-  const actionsRef = useRef({ togglePlay, seekBy, restoreSpeed, startFastForward });
-  actionsRef.current = { togglePlay, seekBy, restoreSpeed, startFastForward };
+  const actionsRef = useRef({ togglePlay, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls });
+  actionsRef.current = { togglePlay, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls };
+
+  // 全屏时控制条自动隐藏：动一下鼠标 / 点一下画面就重新出现
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (controlsTimerRef.current !== null) {
+        clearTimeout(controlsTimerRef.current);
+        controlsTimerRef.current = null;
+      }
+      setControlsShown(true);
+      if (document.fullscreenElement) pokeControls();
+    };
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, [pokeControls]);
 
   const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!gesturesEnabled || !canControl || gestureRef.current) return;
@@ -768,8 +820,21 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     }
     if (cancelled) return;
     if (gesture.moved || gesture.longPressed) return;
-    // 双击播放/暂停只给触摸；鼠标双击是切全屏（走 onDoubleClick）
-    if (gesture.pointerType !== 'touch') return;
+    if (gesture.pointerType !== 'touch') {
+      // 鼠标：单击播放/暂停，双击切全屏。单击要等一小会儿，确认不是双击再执行
+      if (clickTimerRef.current !== null) {
+        clearTimeout(clickTimerRef.current);
+        clickTimerRef.current = null;
+        void toggleFullscreen();
+        return;
+      }
+      clickTimerRef.current = setTimeout(() => {
+        clickTimerRef.current = null;
+        void togglePlay();
+      }, DOUBLE_TAP_MS);
+      return;
+    }
+    // 触摸：双击播放/暂停（单击留给页面滚动/点按）
     const now = performance.now();
     const last = lastTapRef.current;
     if (last && now - last.at <= DOUBLE_TAP_MS
@@ -794,9 +859,16 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || isTyping(event.target)) return;
       const actions = actionsRef.current;
+      actions.pokeControls();
       if (event.code === 'Space') {
         event.preventDefault();
         void actions.togglePlay();
+        return;
+      }
+      // 上下键调总音量（0.1 一格）
+      if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
+        event.preventDefault();
+        actions.volumeStep(event.code === 'ArrowUp' ? 0.1 : -0.1);
         return;
       }
       if (event.code !== 'ArrowLeft' && event.code !== 'ArrowRight') return;
@@ -853,7 +925,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const controlClass = 'grid place-items-center hover:bg-white/10 rounded-lg w-9 h-9 text-white/85 hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default';
 
   return (
-    <div ref={rootRef} className="majview">
+    <div ref={rootRef} className="majview" onPointerMove={pokeControls} onPointerDown={pokeControls}>
       <img className="majview-backdrop" src={cover} alt="" crossOrigin="anonymous" />
       {/* 性能信息覆盖层：设置里打开（或 ?perf=1）后出现 */}
       {perf && <div ref={perfRef} className="majview-perf" aria-hidden="true">…</div>}
@@ -866,7 +938,6 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
-        onDoubleClick={() => { if (gesturesEnabled) void toggleFullscreen(); }}
       >
         <div className="majview-background">
           <img src={cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
@@ -901,7 +972,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
         </div>
       </div>
 
-      <div className="majview-controls">
+      <div className="majview-controls" data-hidden={!controlsShown}>
         <input
           ref={timelineRef}
           type="range"
