@@ -15,18 +15,18 @@ export const VIEW_FIELDS = [
   { key: 'BGCover', min: 0, max: 10, value: 8 },
 ] as const;
 
-export const MAIN_VOLUMES = ['BGM', 'Answer', 'Effects'] as const;
+export const MAIN_VOLUMES = ['Master', 'BGM', 'Answer', 'Effects'] as const;
 export const EFFECT_VOLUMES = ['Judge', 'EX', 'Break', 'Slide', 'Touch', 'Hanabi'] as const;
 export const VOLUME_RANGE = { min: 0, max: 2, step: 0.1 } as const;
 
 const DEFAULT_VOLUME: Record<VolumeKey, number> = {
-  BGM: 1, Answer: 1, Effects: 1, Judge: 0.7, EX: 1, Break: 1, Slide: 0, Touch: 1, Hanabi: 1,
+  Master: 1, BGM: 1, Answer: 1, Effects: 1, Judge: 0.7, EX: 1, Break: 1, Slide: 0, Touch: 1, Hanabi: 1,
 };
 
 export type VolumeKey = typeof MAIN_VOLUMES[number] | typeof EFFECT_VOLUMES[number];
 export type SettingKey = typeof VIEW_FIELDS[number]['key'] | VolumeKey;
-export type ViewSettings = Record<SettingKey, number> & { Combo: boolean; Perf: boolean };
-export type Channel = Exclude<VolumeKey, 'Effects'> | 'Clock';
+export type ViewSettings = Record<SettingKey, number> & { Combo: boolean; Perf: boolean; Gestures: boolean };
+export type Channel = Exclude<VolumeKey, 'Effects' | 'Master'> | 'Clock';
 
 // 开发中用过百分比格式的 MajViewSettings，换个名字不读它
 const STORAGE_KEY = 'MajViewSettingsV2';
@@ -55,8 +55,12 @@ export function loadSettings(): ViewSettings {
 }
 
 function parseSettings(saved: Record<string, unknown>): ViewSettings {
-  // 性能信息（默认关闭）和连击数都是开关，数值项走 VIEW_FIELDS
-  const settings = { Combo: saved.Combo !== false, Perf: saved.Perf === true } as ViewSettings;
+  // 开关项：连击数、性能信息、手势（默认都开，性能信息默认关）
+  const settings = {
+    Combo: saved.Combo !== false,
+    Perf: saved.Perf === true,
+    Gestures: saved.Gestures !== false,
+  } as ViewSettings;
   for (const { key, min, max, value } of VIEW_FIELDS) settings[key] = clamp(saved[key], min, max, value);
   for (const key of [...MAIN_VOLUMES, ...EFFECT_VOLUMES]) {
     settings[key] = Math.round(clamp(saved[key], VOLUME_RANGE.min, VOLUME_RANGE.max, DEFAULT_VOLUME[key]) * 10) / 10;
@@ -70,9 +74,10 @@ export function saveSettings(settings: ViewSettings) {
   } catch { /* 存不了就只在本次生效 */ }
 }
 
-/** 每个声道最终的线性增益 */
+/** 每个声道最终的线性增益；Master 乘在全部声道上（clock 也一起） */
 export function channelGains(settings: ViewSettings): Record<Channel, number> {
-  const gains = { BGM: settings.BGM, Answer: settings.Answer, Clock: 1 } as Record<Channel, number>;
-  for (const key of EFFECT_VOLUMES) gains[key] = settings[key] * settings.Effects;
+  const master = settings.Master;
+  const gains = { BGM: settings.BGM * master, Answer: settings.Answer * master, Clock: master } as Record<Channel, number>;
+  for (const key of EFFECT_VOLUMES) gains[key] = settings[key] * settings.Effects * master;
   return gains;
 }

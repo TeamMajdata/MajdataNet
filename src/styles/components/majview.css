@@ -47,9 +47,10 @@
   max-width: 100%;
   margin-inline: auto;
   container-type: size;
-  /* 判定盘上的触摸手势：竖向仍然滚动页面，横向留给脚本；同时去掉长按菜单和文字选中。
-     iOS 只认带前缀的 -webkit-user-select，漏掉它长按会进入文本选择状态 */
-  touch-action: pan-y;
+  /* 判定盘手势：横向调进度、竖向调音量/亮度，所以默认不让浏览器接管触摸方向；
+     手势关掉时组件会把 touch-action 改回 pan-y，恢复页面滚动。
+     同时去掉长按菜单和文字选中，iOS 只认带前缀的 -webkit-user-select */
+  touch-action: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
@@ -103,13 +104,13 @@
   pointer-events: none;
 }
 
-/* 拖动进度时显示目标时间，长按 2 倍速时显示倍率：压在判定盘上方中间，深色胶囊在封面上也看得清 */
-.majview-seek-hint,
-.majview-speed-hint {
+/* 只给音量 / 亮度用：拖动时压在判定盘正中间。
+   进度看时间读数右边的 ±，倍速看控制条上的倍速按钮，都不需要额外浮层 */
+.majview-value-hint {
   position: absolute;
   left: 50%;
-  top: 10%;
-  z-index: 2;
+  top: 50%;
+  z-index: 3;
   display: flex;
   align-items: baseline;
   gap: .5rem;
@@ -122,11 +123,17 @@
   line-height: 1.2;
   pointer-events: none;
 }
-.majview-seek-hint[hidden],
-.majview-speed-hint[hidden] { display: none; }
-.majview-seek-hint strong { font-size: 1.5rem; font-weight: 500; }
-.majview-seek-hint span { font-size: .8125rem; color: rgb(255 255 255 / 65%); }
-.majview-speed-hint { font-size: 1.5rem; font-weight: 600; letter-spacing: .02em; }
+
+.majview-value-hint[hidden] { display: none; }
+.majview-value-hint span { font-size: .8125rem; color: rgb(255 255 255 / 65%); }
+.majview-value-hint strong { font-size: 1.5rem; font-weight: 500; }
+
+/* 拖动进度时跟在时间读数右边的 ±，和时间读数是同一套字号 */
+.majview-seek-delta {
+  margin-left: .4rem;
+  color: #7dd3fc;
+}
+.majview-seek-delta[hidden] { display: none; }
 
 /* 连击数：位置和字号按 Play 的 CanvasCombo 换算到正方形判定盘 */
 .majview-combo {

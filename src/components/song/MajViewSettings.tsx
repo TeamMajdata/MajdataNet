@@ -10,6 +10,7 @@ const LABELS = {
   Offset: 'song/MajView.SettingOffset',
   FirstOffset: 'song/MajView.SettingFirstOffset',
   BGCover: 'song/MajView.SettingBGCover',
+  Master: 'song/MajView.SettingMaster',
   BGM: 'song/MajView.SettingBGM',
   Answer: 'song/MajView.SettingAnswer',
   Effects: 'song/MajView.SettingEffects',
@@ -86,6 +87,11 @@ export default function MajViewSettings({ settings, onChange, onClose }: {
         <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
           {t('song/MajView.SettingPerf')}
           <input type="checkbox" checked={settings.Perf} onChange={(e) => onChange({ Perf: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
+        </label>
+        {/* 开关本身叫“禁用手势”，存的是“启用手势”，勾上才是关 */}
+        <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
+          {t('song/MajView.SettingDisableGestures')}
+          <input type="checkbox" checked={!settings.Gestures} onChange={(e) => onChange({ Gestures: !e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
         </label>
       </section>
 

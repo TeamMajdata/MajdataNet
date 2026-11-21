@@ -14,9 +14,10 @@ import { Board } from '@/majview/renderer.js';
 import { Transport } from '@/majview/audio.js';
 import { compileChart, readMaidata } from '@/majview/simai.js';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
-import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, seekTarget } from '@/majview/gestures.js';
+import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, ARROW_SEEK_SEC, ARROW_STEP_SEC, BRIGHT_DRAG_PX, KEY_FAST_RATE, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, VERTICAL_SLOP_PX, VOLUME_DRAG_PX, seekTarget } from '@/majview/gestures.js';
 import { createPerf, perfForced } from '@/majview/perf.js';
 import { loadChartText } from '@/majview/chartCache';
+import { clamp } from '@/majview/geometry.js';
 import type { ChartMark } from './chartMarks';
 import { loadSettings, saveSettings, type ViewSettings } from '@/majview/settings';
 import SortMenu from '@/components/ui/SortMenu';
@@ -40,18 +41,29 @@ type Chart = ReturnType<typeof compileChart>;
 /** loading：加载谱面；ready：可以播放；buffering：第一次播放，正在下载音乐；error：失败 */
 type Status = 'loading' | 'ready' | 'buffering' | 'error';
 
-/** 一根手指在判定盘上的手势状态：点按、长按 2 倍速、横向拖动进度都从 pointerdown 开始区分 */
+/** 一根手指/鼠标在判定盘上的手势状态：点按、长按 2 倍速、拖动（进度 / 音量 / 亮度）都从 pointerdown 开始区分 */
+type GestureMode = 'seek' | 'volume' | 'brightness';
 type BoardGesture = {
   id: number;
+  pointerType: string;
+  /** 起点（视口坐标） */
   x: number;
   y: number;
+  /** 判定盘的位置和尺寸，竖屏手势按它算左右半边 */
+  left: number;
+  width: number;
   moved: boolean;
+  mode: GestureMode | null;
   longPressed: boolean;
-  scrubbing: boolean;
   spedUp: boolean;
   /** 拖动开始时的时间：目标时间相对它算，不跟着画面走 */
   startTime: number;
   target: number;
+  /** 拖动进度前是否在播放：拖动期间先暂停，松手后接着放 */
+  wasPlaying: boolean;
+  /** 音量 / 亮度拖动的起点值 */
+  startVolume: number;
+  startCover: number;
 };
 
 /** iOS 17+：让 Web Audio 按“媒体播放”处理，静音键打开时也能出声 */
@@ -95,6 +107,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const comboRef = useRef<HTMLDivElement>(null);
   const comboValueRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  // 背景压暗层：拖动调亮度时直接写样式，不等 React 重渲染
+  const shadeRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLInputElement>(null);
   const clockRef = useRef<HTMLSpanElement>(null);
 
@@ -125,10 +139,17 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const gestureRef = useRef<BoardGesture | null>(null);
   const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTapRef = useRef<{ at: number; x: number; y: number } | null>(null);
-  const seekHintRef = useRef<HTMLDivElement>(null);
-  const seekHintTimeRef = useRef<HTMLElement>(null);
-  const seekHintDeltaRef = useRef<HTMLSpanElement>(null);
-  const speedHintRef = useRef<HTMLDivElement>(null);
+  // 拖动进度时，时间读数右边多显示一个 ±
+  const seekDeltaRef = useRef<HTMLSpanElement>(null);
+  const seekHintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 音量 / 亮度拖动时显示当前值（屏幕中心胶囊）
+  const valueHintRef = useRef<HTMLDivElement>(null);
+  const valueHintLabelRef = useRef<HTMLSpanElement>(null);
+  const valueHintValueRef = useRef<HTMLElement>(null);
+  // 长按快放：倍速显示在控制条的倍速按钮上
+  const [fastForward, setFastForward] = useState(false);
+  const arrowHoldRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const arrowFastRef = useRef(false);
 
   const [boardReady, setBoardReady] = useState(false);
   const [chart, setChart] = useState<Chart | null>(null);
@@ -320,8 +341,9 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     longPressRef.current = null;
     gestureRef.current = null;
     lastTapRef.current = null;
-    if (seekHintRef.current) seekHintRef.current.hidden = true;
-    if (speedHintRef.current) speedHintRef.current.hidden = true;
+    if (seekDeltaRef.current) seekDeltaRef.current.hidden = true;
+    if (valueHintRef.current) valueHintRef.current.hidden = true;
+    setFastForward(false);
     setChart(null);
     setPlaying(false);
     setRate(1);
@@ -566,25 +588,38 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     };
   }, []);
 
+  const gesturesEnabled = settings.Gestures;
   const canControl = status === 'ready' || status === 'buffering';
 
   const hideSeekHint = () => {
-    if (seekHintRef.current) seekHintRef.current.hidden = true;
+    if (seekDeltaRef.current) seekDeltaRef.current.hidden = true;
   };
 
-  const showSeekHint = (target: number, start: number) => {
-    const hint = seekHintRef.current;
+  /** 时间类操作：时间本身在控制条上跟着走，这里只在它右边补一个 ± 偏移 */
+  const showSeekHint = (target: number, start: number, autoHide = false) => {
+    const el = seekDeltaRef.current;
+    if (!el) return;
+    el.hidden = false;
+    if (seekHintTimerRef.current !== null) clearTimeout(seekHintTimerRef.current);
+    // 键盘点按没有“松手”这一刻，用定时器自己收起来
+    seekHintTimerRef.current = autoHide
+      ? setTimeout(() => { seekHintTimerRef.current = null; hideSeekHint(); }, 900)
+      : null;
+    const delta = target - start;
+    el.textContent = `${delta >= 0 ? '+' : '-'}${formatClock(Math.abs(delta))}`;
+  };
+
+  /** 拖动音量 / 亮度时显示的胶囊 */
+  const showValueHint = (label: string, percent: number) => {
+    const hint = valueHintRef.current;
     if (!hint) return;
     hint.hidden = false;
-    if (seekHintTimeRef.current) seekHintTimeRef.current.textContent = formatClock(target - beginRef.current);
-    if (seekHintDeltaRef.current) {
-      const delta = target - start;
-      seekHintDeltaRef.current.textContent = `${delta >= 0 ? '+' : '-'}${formatClock(Math.abs(delta))}`;
-    }
+    if (valueHintLabelRef.current) valueHintLabelRef.current.textContent = label;
+    if (valueHintValueRef.current) valueHintValueRef.current.textContent = `${Math.round(percent)}%`;
   };
 
-  const setSpeedHint = (visible: boolean) => {
-    if (speedHintRef.current) speedHintRef.current.hidden = !visible;
+  const hideValueHint = () => {
+    if (valueHintRef.current) valueHintRef.current.hidden = true;
   };
 
   const clearLongPress = () => {
@@ -596,38 +631,74 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const restoreSpeed = () => {
     const transport = transportRef.current;
     if (transport) transport.move(transport.time, rateRef.current);
-    setSpeedHint(false);
+    setFastForward(false);
   };
 
+  /** 开始快放；暂停时没什么可加速的，返回 false */
+  const startFastForward = () => {
+    const transport = transportRef.current;
+    if (!transport?.playing) return false;
+    transport.move(transport.time, KEY_FAST_RATE);
+    setFastForward(true);
+    return true;
+  };
+
+  /** 拖动过程中只改内存里的设置：不写 localStorage、不触发 React 重渲染，松手时才落盘 */
+  const applyLive = (patch: Partial<ViewSettings>) => {
+    const next = { ...settingsRef.current, ...patch };
+    settingsRef.current = next;
+    // 音量当场生效（改增益），亮度当场改压暗层的透明度
+    transportRef.current?.setSettings(next);
+    if (patch.BGCover != null && shadeRef.current) shadeRef.current.style.opacity = String(next.BGCover / 10);
+    if (boardRef.current) boardRef.current.settings = next;
+    frame();
+  };
+
+  /** 键盘跳转：先弹一下提示再动，暂停步进时能看清走到哪了 */
+  const seekBy = (delta: number) => {
+    const from = currentTime();
+    const target = Math.max(beginRef.current, Math.min(durationRef.current || from, from + delta));
+    showSeekHint(target, from, true);
+    seek(target);
+  };
+
+  // 键盘和定时器里用到的操作放到 ref，避免事件监听器每次渲染都重新绑定
+  const actionsRef = useRef({ togglePlay, seekBy, restoreSpeed, startFastForward });
+  actionsRef.current = { togglePlay, seekBy, restoreSpeed, startFastForward };
+
   const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    // 只处理触摸：鼠标的双击 / 长按不应该意外控制播放
-    if (e.pointerType !== 'touch' || !canControl || gestureRef.current) return;
+    if (!gesturesEnabled || !canControl || gestureRef.current) return;
+    const rect = e.currentTarget.getBoundingClientRect();
     const gesture: BoardGesture = {
       id: e.pointerId,
+      pointerType: e.pointerType,
       x: e.clientX,
       y: e.clientY,
+      left: rect.left,
+      width: rect.width,
       moved: false,
+      mode: null,
       longPressed: false,
-      scrubbing: false,
       spedUp: false,
       startTime: currentTime(),
       target: 0,
+      wasPlaying: false,
+      startVolume: settingsRef.current.Master,
+      startCover: settingsRef.current.BGCover,
     };
     gestureRef.current = gesture;
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch { /* 指针已经抬起时部分浏览器会抛错 */ }
+    // 长按快放只给触摸：鼠标长按要留给系统的选择 / 右键行为
+    if (e.pointerType !== 'touch') return;
     clearLongPress();
     longPressRef.current = setTimeout(() => {
       longPressRef.current = null;
       if (gestureRef.current !== gesture || gesture.moved) return;
       gesture.longPressed = true;
-      const transport = transportRef.current;
       // 暂停时按住不加速，但这一下仍然算长按，松手不会被当成点按
-      if (!transport?.playing) return;
-      transport.move(transport.time, 2);
-      gesture.spedUp = true;
-      setSpeedHint(true);
+      if (startFastForward()) gesture.spedUp = true;
     }, LONG_PRESS_MS);
   };
 
@@ -636,19 +707,46 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     if (!gesture || e.pointerId !== gesture.id) return;
     const dx = e.clientX - gesture.x;
     const dy = e.clientY - gesture.y;
-    // 已经在 2 倍速：手指挪动不改成拖动进度
+    // 已经在快放：手指挪动不再切换成拖动
     if (gesture.longPressed) return;
-    if (!gesture.moved) {
+    if (!gesture.mode) {
       if (Math.hypot(dx, dy) <= TAP_SLOP_PX) return;
       gesture.moved = true;
       clearLongPress();
-      // 竖向移动交给页面滚动；横向要超过阈值才算拖动
-      if (Math.abs(dx) < SCRUB_SLOP_PX || Math.abs(dx) <= Math.abs(dy)) return;
-      gesture.scrubbing = true;
+      if (Math.abs(dx) >= SCRUB_SLOP_PX && Math.abs(dx) > Math.abs(dy)) {
+        gesture.mode = 'seek';
+        // 拖动时先暂停：音频一边播一边被反复 seek 会一直卡
+        gesture.wasPlaying = Boolean(transportRef.current?.playing);
+        if (gesture.wasPlaying) {
+          transportRef.current?.pause();
+          setPlaying(false);
+        }
+      } else if (Math.abs(dy) >= VERTICAL_SLOP_PX) {
+        // 竖向：判定盘右半边调音量，左半边调亮度
+        gesture.mode = gesture.x - gesture.left < gesture.width / 2 ? 'brightness' : 'volume';
+      } else return;
     }
-    if (!gesture.scrubbing) return;
-    gesture.target = seekTarget(gesture.startTime, dx, e.currentTarget.clientWidth, beginRef.current, durationRef.current);
-    showSeekHint(gesture.target, gesture.startTime);
+    if (gesture.mode === 'seek') {
+      gesture.target = seekTarget(gesture.startTime, dx, gesture.width, beginRef.current, durationRef.current);
+      // 立刻跟手：画面、进度条、背景 PV 都跟着手指走
+      previewTimeRef.current = gesture.target;
+      transportRef.current?.move(gesture.target);
+      syncVideo();
+      frame();
+      showSeekHint(gesture.target, gesture.startTime);
+      return;
+    }
+    if (gesture.mode === 'volume') {
+      // 往上拖变大；1.0 是原始音量，所以百分比按 value×100 显示（最大 200%）
+      const value = clamp(gesture.startVolume - dy / VOLUME_DRAG_PX, 0, 2);
+      applyLive({ Master: Math.round(value * 10) / 10 });
+      showValueHint(t('song/MajView.SettingMaster'), value * 100);
+      return;
+    }
+    // 往上拖变亮：BGCover 是“暗度”，所以要加 dy（向上是负数）
+    const cover = clamp(gesture.startCover + (dy / BRIGHT_DRAG_PX) * 10, 0, 10);
+    applyLive({ BGCover: Math.round(cover) });
+    showValueHint(t('song/MajView.SettingBGCover'), cover * 10);
   };
 
   const finishGesture = (e: ReactPointerEvent<HTMLDivElement>, cancelled: boolean) => {
@@ -657,16 +755,21 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     gestureRef.current = null;
     clearLongPress();
     hideSeekHint();
+    hideValueHint();
     if (gesture.spedUp) restoreSpeed();
-    if (cancelled) return;
-    if (gesture.scrubbing) {
-      // 拖动时只显示时间，松手才真的跳过去
+    // 音量和亮度拖动时只改了内存值，松手才写进设置
+    if (gesture.mode === 'volume') changeSettings({ Master: settingsRef.current.Master });
+    else if (gesture.mode === 'brightness') changeSettings({ BGCover: settingsRef.current.BGCover });
+    if (gesture.mode === 'seek') {
+      // 画面在拖动时就跟着手指走了，这里只要落定位置，并按原来的状态决定要不要接着播
       seek(gesture.target);
+      if (gesture.wasPlaying) void togglePlay();
       return;
     }
-    if (gesture.moved) return;
-    if (gesture.longPressed) return;
-    // 点按：300ms 内第二次点在同一片区域算双击
+    if (cancelled) return;
+    if (gesture.moved || gesture.longPressed) return;
+    // 双击播放/暂停只给触摸；鼠标双击是切全屏（走 onDoubleClick）
+    if (gesture.pointerType !== 'touch') return;
     const now = performance.now();
     const last = lastTapRef.current;
     if (last && now - last.at <= DOUBLE_TAP_MS
@@ -681,6 +784,72 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const handlePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, false);
   const handlePointerCancel = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, true);
 
+  // 桌面快捷键：空格播放/暂停；左右键快进快退（暂停时按 0.01 秒步进）；长按右箭头 2 倍速
+  useEffect(() => {
+    if (!gesturesEnabled) return;
+    const isTyping = (target: EventTarget | null) => {
+      const node = target as HTMLElement | null;
+      return !!node && (node.tagName === 'INPUT' || node.tagName === 'TEXTAREA' || node.tagName === 'SELECT' || node.isContentEditable === true);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || isTyping(event.target)) return;
+      const actions = actionsRef.current;
+      if (event.code === 'Space') {
+        event.preventDefault();
+        void actions.togglePlay();
+        return;
+      }
+      if (event.code !== 'ArrowLeft' && event.code !== 'ArrowRight') return;
+      const transport = transportRef.current;
+      if (!transport) return;
+      event.preventDefault();
+      const dir = event.code === 'ArrowRight' ? 1 : -1;
+      // 暂停时按 0.01 秒步进，方便逐帧对位；按住可以连续步进
+      if (!transport.playing) {
+        actions.seekBy(dir * ARROW_STEP_SEC);
+        return;
+      }
+      if (event.repeat) return;
+      // 播放中：先不跳，按住右箭头会走快放；真的快进放在 keyup，
+      // 这样长按快放就不会先触发一次 5 秒跳转
+      if (event.code !== 'ArrowRight') return;
+      if (arrowHoldRef.current !== null) clearTimeout(arrowHoldRef.current);
+      arrowHoldRef.current = setTimeout(() => {
+        arrowHoldRef.current = null;
+        if (actions.startFastForward()) arrowFastRef.current = true;
+      }, LONG_PRESS_MS);
+    };
+    const onKeyUp = (event: KeyboardEvent) => {
+      if (event.code !== 'ArrowLeft' && event.code !== 'ArrowRight') return;
+      if (event.code === 'ArrowRight' && arrowHoldRef.current !== null) {
+        clearTimeout(arrowHoldRef.current);
+        arrowHoldRef.current = null;
+      }
+      // 长按快放已经生效过：这次松手不再快进
+      if (arrowFastRef.current) {
+        arrowFastRef.current = false;
+        actionsRef.current.restoreSpeed();
+        return;
+      }
+      const transport = transportRef.current;
+      // 暂停时是 keydown 的 0.01 秒步进，这里不重复处理
+      if (!transport?.playing) return;
+      actionsRef.current.seekBy((event.code === 'ArrowRight' ? 1 : -1) * ARROW_SEEK_SEC);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      if (arrowHoldRef.current !== null) clearTimeout(arrowHoldRef.current);
+      arrowHoldRef.current = null;
+      if (arrowFastRef.current) {
+        arrowFastRef.current = false;
+        actionsRef.current.restoreSpeed();
+      }
+    };
+  }, [gesturesEnabled]);
+
   const controlClass = 'grid place-items-center hover:bg-white/10 rounded-lg w-9 h-9 text-white/85 hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default';
 
   return (
@@ -691,10 +860,13 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       <div
         ref={sceneRef}
         className="majview-scene"
+        // 开着手势时竖向留给音量/亮度，关掉后才把竖直滚动还给页面
+        style={{ touchAction: gesturesEnabled ? 'none' : 'pan-y' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
+        onDoubleClick={() => { if (gesturesEnabled) void toggleFullscreen(); }}
       >
         <div className="majview-background">
           <img src={cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
@@ -708,7 +880,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
             onLoadedData={() => { setVideoVisible(true); syncVideo(true); }}
             onError={() => setVideoVisible(false)}
           />
-          <div className="majview-shade" style={{ opacity: settings.BGCover / 10 }} />
+          <div ref={shadeRef} className="majview-shade" style={{ opacity: settings.BGCover / 10 }} />
         </div>
         <div ref={comboRef} className="majview-combo" hidden>
           <span>COMBO</span>
@@ -722,12 +894,11 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
               : status === 'buffering' ? t('song/MajView.LoadingTrack') : t('song/MajView.Loading')}
           </div>
         )}
-        {/* 拖动进度时显示目标时间；长按 2 倍速时显示倍率。都用 ref 直接改文字，避免每一帧重新渲染 */}
-        <div ref={seekHintRef} className="majview-seek-hint" hidden aria-hidden="true">
-          <strong ref={seekHintTimeRef} />
-          <span ref={seekHintDeltaRef} />
+        {/* 音量 / 亮度拖动时压在判定盘正中间；进度看时间读数右边的 ±，倍速看控制条 */}
+        <div ref={valueHintRef} className="majview-value-hint" hidden aria-hidden="true">
+          <span ref={valueHintLabelRef} />
+          <strong ref={valueHintValueRef} />
         </div>
-        <div ref={speedHintRef} className="majview-speed-hint" hidden aria-hidden="true">2×</div>
       </div>
 
       <div className="majview-controls">
@@ -752,13 +923,14 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
           </button>
           <span className="flex-1 px-1 text-white/70 text-xs tabular-nums">
             <span ref={clockRef}>{formatClock(currentTime() - begin)}</span> / {formatClock(duration - begin)}
+            <span ref={seekDeltaRef} className="majview-seek-delta" hidden />
           </span>
           <SortMenu
             compact
             icon={null}
             placement="up"
             options={RATES.map((value) => `${value}×`)}
-            value={RATES.indexOf(rate)}
+            value={RATES.indexOf(fastForward ? KEY_FAST_RATE : rate)}
             onChange={(index) => changeRate(RATES[index])}
             label={t('song/MajView.Speed')}
             disabled={!canControl}
