@@ -15,7 +15,7 @@ vi.mock('@/components', async () => ({
   Tooltip: ({ children }: { children: ReactNode }) => children,
   SongDifficultyLevels: (await import('@/components/song/SongDifficultyLevels')).default,
   Majdata: ({ level }: { level: string }) => <output data-player-level={level} />,
-  CoverPic: () => null, TagManageWidget: () => null, TagManageTagLauncher: () => null,
+  CoverPic: () => null, TagManageWidget: () => null,
   CommentSection: () => null, ChartVotePanel: () => null,
   ScoreRanking: () => null, CollectionModal: () => null, LoadingSpinner: () => null,
 }));

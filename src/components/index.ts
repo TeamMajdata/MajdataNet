@@ -18,7 +18,7 @@ export { default as Levels } from './score/Levels';
 export { default as CoverPic } from './ui/CoverPic';
 export { default as InteractCount } from './score/InteractCount';
 export { default as ScoreCount } from './score/ScoreCount';
-export { default as TagManageWidget, TagManageTagLauncher } from './ui/TagManageWidget';
+export { default as TagManageWidget } from './ui/TagManageWidget';
 export { ScoreCard } from './score/ScoreCard';
 
 // 列表和展示组件

@@ -156,17 +156,9 @@ export interface TagManageWidgetRef {
   closeWindow: () => void;
 }
 
-export interface TagManageTagLauncherProps {
-  onClick: () => void;
-}
-
 export interface TagManageButtonProps {
   onClick: () => void;
   newClassName?: string;
-}
-
-export interface TagManageTagProps {
-  onClick: () => void;
 }
 
 export interface TagManageWindowProps {
