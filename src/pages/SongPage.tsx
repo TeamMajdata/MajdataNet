@@ -34,6 +34,7 @@ import { apiFetcher } from '@/utils/apiClient';
 import { compactNumber } from '@/utils/interaction';
 import { formatDuration } from '@/utils/simai';
 import { useChartMeta } from '@/hooks/useChartMeta';
+import { useChartMediaUrl } from '@/hooks/useChartMediaUrl';
 
 export default function SongPage() {
   const { t } = useTranslation();
@@ -111,20 +112,20 @@ const songTabs = [
 ] as const;
 type SongTab = typeof songTabs[number]['id'];
 
-function ChartPreview({ song, chartLevel }: { song: SongSummary; chartLevel?: number }) {
+function ChartPreview({ song, chartLevel, trackRecovering }: { song: SongSummary; chartLevel?: number; trackRecovering: boolean }) {
   const { t } = useTranslation();
   const [playing, setPlaying] = useState(false);
+  const cover = useChartMediaUrl(endpoints.maichart.fullImage(song.id));
+  const showPlayer = playing && !cover.recovering && !trackRecovering;
 
   return (
     <div className="song-stage">
-      {playing ? (
-        <Majdata songid={song.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + chartLevel} />
-      ) : (
-        <button type="button" className="song-preview" onClick={() => setPlaying(true)} disabled={chartLevel === undefined}>
-          <img src={endpoints.maichart.fullImage(song.id)} alt="" fetchPriority="high" />
-          <span className="song-play-action"><span><PiPlayFill /></span>{t('song/SongPage.PreviewChart')}</span>
-        </button>
-      )}
+      <button type="button" className="song-preview" hidden={showPlayer} onClick={() => setPlaying(true)} disabled={chartLevel === undefined}>
+        <img src={cover.src ?? endpoints.maichart.image(song.id)} onError={cover.onError}
+          alt="" crossOrigin={cover.src ? 'anonymous' : undefined} fetchPriority="high" />
+        <span className="song-play-action"><span><PiPlayFill /></span>{t('song/SongPage.PreviewChart')}</span>
+      </button>
+      {showPlayer && <Majdata songid={song.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + chartLevel} />}
     </div>
   );
 }
@@ -146,7 +147,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const uploadTime = new Date(song.timestamp);
   const cover = endpoints.maichart.image(song.id);
   // 和侧栏投票面板同一个请求（SWR 会合并），这里只取播放次数
-  const { bpm, duration } = useChartMeta(song.id, chartLevel);
+  const { bpm, duration, trackRecovering } = useChartMeta(song.id, chartLevel);
   // 页签上的数字：当前难度的上榜人数、评论数（都和面板里的请求共用 SWR 缓存）
   const { data: leaderboard } = useSWR<ChartLeaderboardResponse>(endpoints.maiscore.chartLeaderboard(song.id), apiFetcher);
   const { data: interact } = useSWR<ChartInteractSummary>(endpoints.maichart.interactsum(song.id), apiFetcher, { revalidateOnFocus: false });
@@ -221,7 +222,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             trailing={activeTab === 'comments' && !focusId && <CommentSortMenu compact value={commentSort} onChange={setCommentSort} />}
           />
           <section id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
-            {activeTab === 'preview' && <ChartPreview song={song} chartLevel={chartLevel} />}
+            {activeTab === 'preview' && <ChartPreview song={song} chartLevel={chartLevel} trackRecovering={trackRecovering} />}
           </section>
           <section id="song-panel-scores" role="tabpanel" aria-labelledby="song-tab-scores" hidden={activeTab !== 'scores'}>
             <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} chartLevel={chartLevel} /></Activity>

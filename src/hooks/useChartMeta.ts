@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { endpoints } from '@/config/api';
+import { useChartMediaUrl } from './useChartMediaUrl';
 import { parseChartBpm } from '@/utils/simai';
 
 /** maidata.txt 只有几 KB；它和音频都重定向到 CDN，不需要带登录信息 */
@@ -19,20 +20,25 @@ export function useChartMeta(songId: string, level: number | undefined) {
   const bpm = maidata === undefined ? undefined : parseChartBpm(maidata, level);
 
   const [duration, setDuration] = useState<{ songId: string; seconds: number }>();
+  const { src: track, onError, recovering: trackRecovering } = useChartMediaUrl(endpoints.maichart.prefix(songId) + '/track');
   useEffect(() => {
+    if (!track) return;
     const audio = new Audio();
     audio.preload = 'metadata';
+    audio.crossOrigin = 'anonymous';
+    audio.addEventListener('error', onError);
     const onLoaded = () => {
       if (Number.isFinite(audio.duration) && audio.duration > 0) setDuration({ songId, seconds: audio.duration });
     };
     audio.addEventListener('loadedmetadata', onLoaded);
-    audio.src = endpoints.maichart.prefix(songId) + '/track';
+    audio.src = track;
     return () => {
       audio.removeEventListener('loadedmetadata', onLoaded);
+      audio.removeEventListener('error', onError);
       audio.removeAttribute('src');
       audio.load();
     };
-  }, [songId]);
+  }, [songId, track, onError]);
 
-  return { bpm, duration: duration?.songId === songId ? duration.seconds : undefined };
+  return { bpm, trackRecovering, duration: duration?.songId === songId ? duration.seconds : undefined };
 }
