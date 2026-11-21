@@ -116,7 +116,7 @@ export default function SongPage() {
   );
 }
 
-const ACTION_BUTTON_CLASS = 'flex justify-center items-center gap-1.5 bg-white/[0.06] hover:bg-white/10 px-2 border border-white/10 hover:border-white/20 rounded-xl h-9 font-medium text-white/85 hover:text-white text-sm whitespace-nowrap transition-colors cursor-pointer';
+const ACTION_BUTTON_CLASS = 'flex justify-center items-center gap-1.5 bg-white/[0.06] hover:bg-white/10 px-3.5 border border-white/10 hover:border-white/20 rounded-xl h-9 font-medium text-white/85 hover:text-white text-sm whitespace-nowrap transition-colors cursor-pointer';
 
 const songTabs = [
   { id: 'preview', label: 'song/SongPage.Preview' },
@@ -200,6 +200,18 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             <h1 id="song-title"><Link to={searchLink(song.title)} title={t('song/SongPage.SearchForTitle')}>{parseTmpRichText(song.title) || song.id}</Link></h1>
             {song.artist && <Link className="song-artist" to={searchLink(song.artist)} title={t('song/SongPage.SearchForArtist')}>{song.artist}</Link>}
           </div>
+          {/* 和个人空间“编辑资料”一样的次要按钮，放在页头标题右边；窄屏时排到标题下面 */}
+          <div className="song-header-actions">
+            {([
+              [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
+              [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
+              [PiLinkSimple, t('song/SongPage.Share'), () => void copy(window.location.href)],
+            ] as const).map(([Icon, label, onClick]) => (
+              <button key={label} type="button" onClick={onClick} className={ACTION_BUTTON_CLASS}>
+                <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
+              </button>
+            ))}
+          </div>
           <div className="song-levels" data-radar-level={chartLevel}>
             <h2 className="song-label">{t('song/SongPage.Difficulty')}</h2>
             <SongDifficultyLevels levels={song.levels} songid={song.id} isPlayer={activeTab === 'preview'} selected={chartLevel} onSelect={selectLevel} />
@@ -225,18 +237,6 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           </section>
         </div>
         <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}>
-          {/* 和个人空间“编辑资料”一样的次要按钮，三个等宽排成一行，放在侧栏最上面 */}
-          <div className="gap-2 grid grid-cols-3">
-            {([
-              [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
-              [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
-              [PiLinkSimple, t('song/SongPage.Share'), () => void copy(window.location.href)],
-            ] as const).map(([Icon, label, onClick]) => (
-              <button key={label} type="button" onClick={onClick} className={ACTION_BUTTON_CLASS}>
-                <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
-              </button>
-            ))}
-          </div>
           <h2 className="song-label">{t('song/SongPage.ChartDetails')}</h2>
           <dl className="song-credits">
             {song.designer && <div><dt>{t('song/SongPage.Designer')}</dt><dd>{song.designer}</dd></div>}
