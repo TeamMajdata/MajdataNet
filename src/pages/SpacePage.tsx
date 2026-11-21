@@ -35,7 +35,6 @@ export default function SpacePage() {
 
   const tabs = ([
     { key: 'overview', label: t("space/SpacePage.Overview"), show: true },
-    { key: 'recent', label: t("space/SpacePage.RecentlyPlayedCharts"), show: hasRecentPlayed !== false },
     { key: 'uploaded', label: t("space/SpacePage.UploadedCharts"), show: hasUploadedCharts !== false },
     { key: 'comments', label: t("space/SpacePage.Comments"), show: true },
     { key: 'fans', label: t("space/SpacePage.WhoLovesToPlay"), show: hasUploadedCharts === true },
@@ -96,10 +95,13 @@ export default function SpacePage() {
             {profile.data?.introduction && <IntroductionCard username={profile.data.username} text={profile.data.introduction} />}
             <UserSeasons key={username} username={username} />
             <UserRating key={`rating-${username}`} username={username} />
-          </section>
-
-          <section id="space-panel-recent" role="tabpanel" aria-labelledby="space-tab-recent" hidden={activeTab !== 'recent'}>
-            <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} gridClassName={SONG_GRID_CONTAINER_CLASS} />
+            {/* 最近游玩接在概览最后；没有记录时整块不显示 */}
+            <section className="mt-10" aria-labelledby="space-recent-title" hidden={hasRecentPlayed === false}>
+              <h2 id="space-recent-title" className="m-0 mb-3 font-semibold text-white! text-base! text-left!">
+                {t("space/SpacePage.RecentlyPlayedCharts")}
+              </h2>
+              <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} gridClassName={SONG_GRID_CONTAINER_CLASS} />
+            </section>
           </section>
 
           <section id="space-panel-uploaded" role="tabpanel" aria-labelledby="space-tab-uploaded" hidden={activeTab !== 'uploaded'}>
