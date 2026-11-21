@@ -5,7 +5,6 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { SECTION_HEADING_CLASS } from '@/components/ui/surface';
 import { useSearchParams } from 'react-router-dom';
 import { PageLayout, SongList, EventBanner } from '@/components';
 import { apiPagesForView } from '@/components/song/songGrid';
@@ -48,10 +47,9 @@ export default function EventTagPage() {
         {/* 活动横幅：和页面同宽 */}
         {currentEvent && <EventBanner event={currentEvent} containerClassName="mb-8 sm:mb-10" />}
 
-        {/* 活动相关谱面：和其他页面一样的小标题 */}
+        {/* 活动相关谱面：横幅下面直接接谱面列表 */}
         {searchKeyword && (
-          <section aria-labelledby="event-tag-charts-title">
-            <h2 id="event-tag-charts-title" className={SECTION_HEADING_CLASS}>{t("eventTag/EventTagPage.RelatedCharts")}</h2>
+          <section aria-label={t("eventTag/EventTagPage.RelatedCharts")}>
             <SongList
               url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort(searchKeyword, '', apiPage))}
               page={0}
