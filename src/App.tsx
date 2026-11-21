@@ -25,6 +25,7 @@ const UserCollectionsPage = lazy(() => import('./pages/user/CollectionsPage'));
 const QRAuthPage = lazy(() => import('./pages/QRAuthPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const CollectionsHirobaPage = lazy(() => import('./pages/collection/HirobaPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
 const CollectionPage = lazy(() => import('./pages/collection/CollectionPage'));
 
 function RouteFallback() {
@@ -58,6 +59,7 @@ function AppRoutes() {
         <Route path="/chart-events" element={<EventsPage />} />
         <Route path="/ranking/user" element={<UserRankingPage />} />
         <Route path="/song" element={<SongPage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/space" element={<SpacePage />} />
         <Route path="/eventTag" element={<EventTagPage />} />
         <Route path="/minigame" element={<MiniGamePage />} />

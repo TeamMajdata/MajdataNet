@@ -246,6 +246,10 @@
     "Plays": "Plays",
     "Score": "Score"
   },
+  "search/SearchPage": {
+    "Title": "Search charts",
+    "ResultsFor": "Results for “{{search}}”"
+  },
   "season/SeasonLastPlayed": {
     "Empty": "No records in the last 30 days",
     "Loading": "Loading…",

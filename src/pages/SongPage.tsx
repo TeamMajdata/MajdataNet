@@ -162,7 +162,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const [markRange, setMarkRange] = useState<MarkRange>(null);
   const [jump, setJump] = useState<(ChartMark & { key: number }) | null>(null);
   const previewRef = useRef<HTMLElement>(null);
-  const searchLink = (text: string) => '/?search=' + encodeURIComponent(text);
+  const searchLink = (text: string) => '/search?search=' + encodeURIComponent(text);
   const uploadTime = new Date(song.timestamp);
   const cover = endpoints.maichart.image(song.id);
   // 和侧栏投票面板同一个请求（SWR 会合并），这里只取播放次数

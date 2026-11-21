@@ -240,6 +240,10 @@
     "Plays": "재생",
     "Score": "점수"
   },
+  "search/SearchPage": {
+    "Title": "채보 검색",
+    "ResultsFor": "“{{search}}” 검색 결과"
+  },
   "season/SeasonLastPlayed": {
     "Empty": "최근 30일 내 기록 없음",
     "Loading": "불러오는 중…",
