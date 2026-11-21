@@ -201,7 +201,7 @@
     "Redirect": "Redirecting to home page in {{countdown}} seconds...",
     "Title": "Page Not Found"
   },
-  "ranking/RankingPage": {
+  "ranking/RecommendRankingPage": {
     "Comment": "Comment",
     "CommentCountHint": "Number of comments received",
     "Download": "Download",

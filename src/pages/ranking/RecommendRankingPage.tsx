@@ -15,35 +15,35 @@ export default function RecommendRankingPage() {
     <PageLayout className="pb-8">
       <div className="mt-(--content-top-spacing) text-center mb-8 sm:mb-12">
         <p className="mx-auto max-w-150 text-[#f7f7f7] text-lg sm:text-2xl leading-relaxed">
-          {t("ranking/RankingPage.RecommendedChartsHint")}
+          {t("ranking/RecommendRankingPage.RecommendedChartsHint")}
         </p>
       </div>
 
       <div className="flex flex-col gap-6 sm:gap-12">
         <RankingSection
-          title={t("ranking/RankingPage.Play")}
-          subtitle={t("ranking/RankingPage.PlayCountHint")}
+          title={t("ranking/RecommendRankingPage.Play")}
+          subtitle={t("ranking/RecommendRankingPage.PlayCountHint")}
           sortType="scorep"
           delay="delay-[100ms]"
         />
 
         <RankingSection
-          title={t("ranking/RankingPage.Score")}
-          subtitle={t("ranking/RankingPage.ScoreHint")}
+          title={t("ranking/RecommendRankingPage.Score")}
+          subtitle={t("ranking/RecommendRankingPage.ScoreHint")}
           sortType="topp"
           delay="delay-[200ms]"
         />
 
         <RankingSection
-          title={t("ranking/RankingPage.Comment")}
-          subtitle={t("ranking/RankingPage.CommentCountHint")}
+          title={t("ranking/RecommendRankingPage.Comment")}
+          subtitle={t("ranking/RecommendRankingPage.CommentCountHint")}
           sortType="commp"
           delay="delay-[300ms]"
         />
 
         <RankingSection
-          title={t("ranking/RankingPage.Download")}
-          subtitle={t("ranking/RankingPage.DownloadCountHint")}
+          title={t("ranking/RecommendRankingPage.Download")}
+          subtitle={t("ranking/RecommendRankingPage.DownloadCountHint")}
           sortType="playp"
           delay="delay-[400ms]"
         />

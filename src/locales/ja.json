@@ -197,7 +197,7 @@
     "Redirect": "{{countdown}}秒後にホームページに戻ります...",
     "Title": "ページが見つかりません"
   },
-  "ranking/RankingPage": {
+  "ranking/RecommendRankingPage": {
     "Comment": "コメント",
     "CommentCountHint": "コメントされた回数",
     "Download": "ダウンロード",

@@ -197,7 +197,7 @@
     "Redirect": "{{countdown}} 秒后自动返回首页...",
     "Title": "页面未找到"
   },
-  "ranking/RankingPage": {
+  "ranking/RecommendRankingPage": {
     "Comment": "评论",
     "CommentCountHint": "被评论的次数",
     "Download": "下载",
