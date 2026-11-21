@@ -8,7 +8,7 @@ import type { Score } from '@/types';
 
 vi.mock('@/components', () => ({
   CoverPic: () => null,
-  Level: () => null,
+  Levels: () => null,
   LazyLoad: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 vi.mock('@/components/user/UserAvatar', () => ({ default: () => null }));

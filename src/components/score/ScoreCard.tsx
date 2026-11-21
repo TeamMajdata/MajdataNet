@@ -6,7 +6,7 @@
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { Link } from 'react-router-dom';
-import { CoverPic, Level, LazyLoad } from '@/components';
+import { CoverPic, Levels, LazyLoad } from '@/components';
 import MarqueeText from '@/components/ui/MarqueeText';
 import { parseTmpRichText } from '@/utils/richTextUtils';
 import { apiFetcher } from '@/utils/apiClient';
@@ -129,6 +129,9 @@ export function ScoreCard({
       ? 'bg-gradient-to-r from-blue-500 to-sky-300 text-white shadow-[0_0_12px_rgb(56_189_248/0.42)]'
       : 'bg-white/15 text-white/85';
 
+  // 只保留这次成绩对应的难度，Levels 就会像首页那样显示“Master 14”
+  const playedLevel = score.chartInfo.levels.map((level, index) => (index === score.chartLevel ? level : ''));
+
   return (
     <LazyLoad height={144} offset={300}>
       <div
@@ -163,22 +166,20 @@ export function ScoreCard({
             </Link>
           </MarqueeText>
 
+          {/* 难度标签和首页卡片一样（只有一个难度时显示难度名），Combo 标签跟在后面 */}
           <div className="flex items-center gap-1.5 mt-1.5 min-w-0 overflow-hidden">
-            <Level
-              level={score.chartLevel.toString()}
-              difficulty={score.chartInfo.levels[score.chartLevel]}
-              songid={score.chartInfo.id}
-              isPlayer={false}
-            />
-            <span className={`font-semibold text-[13px] tabular-nums whitespace-nowrap ${scoreTextClass || 'text-white/90'}`} title={`DX: ${score.acc.dx.toFixed(4)}`}>
-              {score.acc.dx.toFixed(4)}%
-            </span>
+            <Levels levels={playedLevel} songid={score.chartInfo.id} isPlayer={false} linkToSong />
             {comboStateText && (
               <span className={`rounded px-1.5 py-0.5 text-[0.65rem] font-bold leading-none shrink-0 ${comboBadgeClass}`}>
                 {comboStateText}
               </span>
             )}
           </div>
+
+          {/* 达成率单独一行放在底部 */}
+          <span className={`mt-auto font-semibold text-lg tabular-nums leading-tight whitespace-nowrap ${scoreTextClass || 'text-white'}`} title={`DX: ${score.acc.dx.toFixed(4)}`}>
+            {score.acc.dx.toFixed(4)}%
+          </span>
 
         </div>
       </div>
