@@ -23,15 +23,8 @@ export type NavigationItem = NavigationLink | NavigationGroup;
 
 export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   // 站内页面在前，跳到外部网站的（工具、文档）放在最后
-  {
-    kind: 'group',
-    id: 'rankings',
-    labelKey: 'shared/Navigation.Rankings',
-    children: [
-      { kind: 'link', id: 'recommend-ranking', labelKey: 'shared/Navigation.Recommend', to: '/ranking', match: 'exact' },
-      { kind: 'link', id: 'user-ranking', labelKey: 'shared/Navigation.UserRankingTitle', to: '/ranking/user' },
-    ],
-  },
+  // 推荐榜已经做成首页的“七日人气榜”，榜单只剩肝帝榜，直接放一个链接
+  { kind: 'link', id: 'user-ranking', labelKey: 'shared/Navigation.UserRankingTitle', to: '/ranking/user' },
   {
     kind: 'link',
     id: 'collection-hiroba',

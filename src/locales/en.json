@@ -239,18 +239,6 @@
     "Title": "Sign in on this machine?",
     "TryAgain": "Please try again"
   },
-  "ranking/RecommendRankingPage": {
-    "Comment": "Comments",
-    "CommentCountHint": "Sorted by comment count",
-    "Download": "Downloads",
-    "DownloadCountHint": "Sorted by download count",
-    "Play": "Plays",
-    "PlayCountHint": "Sorted by play count",
-    "RecommendedChartsHint": "The most popular charts of the past 7 days.",
-    "Score": "Votes",
-    "ScoreHint": "Sorted by upvotes minus downvotes",
-    "Title": "Recommended"
-  },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "Total accuracy across every chart. Who has played the most?",
     "UserRankingTitle": "Top grinders"
@@ -359,8 +347,6 @@
     "Documentation": "Documentation",
     "NavigationMenu": "Main navigation",
     "OriginalSongs": "Original Songs",
-    "Rankings": "Rankings",
-    "Recommend": "Recommended",
     "Tools": "Tools",
     "UserRankingTitle": "Top grinders"
   },

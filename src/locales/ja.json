@@ -233,18 +233,6 @@
     "Title": "この筐体にログインしますか？",
     "TryAgain": "もう一度お試しください"
   },
-  "ranking/RecommendRankingPage": {
-    "Comment": "コメント",
-    "CommentCountHint": "コメント数順",
-    "Download": "ダウンロード",
-    "DownloadCountHint": "ダウンロード数順",
-    "Play": "プレイ",
-    "PlayCountHint": "プレイ回数順",
-    "RecommendedChartsHint": "ここでは、過去7日間で最も人気のある譜面が選ばれますよ！",
-    "Score": "評価",
-    "ScoreHint": "高評価数 − 低評価数の順",
-    "Title": "おすすめ"
-  },
   "ranking/user/UserRankingPage": {
     "UserRankingDescription": "総達成率ランキング - 自作譜面鑑賞のベテランは誰？",
     "UserRankingTitle": "ヘビープレイヤーランキング"
@@ -353,8 +341,6 @@
     "Documentation": "ドキュメント",
     "NavigationMenu": "メインナビゲーション",
     "OriginalSongs": "オリジナル楽曲",
-    "Rankings": "ランキング",
-    "Recommend": "おすすめ",
     "Tools": "ツール",
     "UserRankingTitle": "ヘビープレイヤーランキング"
   },

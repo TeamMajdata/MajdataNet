@@ -29,7 +29,13 @@ function createMediaQueryList(query: string): MediaQueryList {
 }
 
 describe('navigation item matching', () => {
-  const rankings = NAVIGATION_ITEMS.find((item) => item.id === 'rankings') as NavigationGroup;
+  // 只有外部链接的“工具”组不会被当前路由点亮，这里用一个站内的组来测
+  const rankings: NavigationGroup = {
+    kind: 'group',
+    id: 'rankings',
+    labelKey: 'shared/Navigation.Rankings',
+    children: [{ kind: 'link', id: 'user-ranking', labelKey: 'shared/Navigation.UserRankingTitle', to: '/ranking/user' }],
+  };
   const originalSongs = NAVIGATION_ITEMS.find((item) => item.id === 'original-songs') as NavigationLink;
   const documentation = NAVIGATION_ITEMS.find((item) => item.id === 'documentation') as NavigationLink;
 
@@ -98,31 +104,17 @@ describe('Navigation', () => {
     expect(navigationTree?.classList.contains('flex')).toBe(true);
   });
 
-  it('keeps disclosure groups mutually exclusive', () => {
-    renderNavigation();
-
-    const rankings = container.querySelector('[data-navigation-group="rankings"]') as HTMLButtonElement;
-    const tools = container.querySelector('[data-navigation-group="tools"]') as HTMLButtonElement;
-
-    click(rankings);
-    expect(rankings.getAttribute('aria-expanded')).toBe('true');
-
-    click(tools);
-    expect(rankings.getAttribute('aria-expanded')).toBe('false');
-    expect(tools.getAttribute('aria-expanded')).toBe('true');
-  });
-
   it('closes the active layer with Escape and restores focus', () => {
     renderNavigation();
 
     const toggle = container.querySelector('[data-navigation-toggle]') as HTMLButtonElement;
-    const rankings = container.querySelector('[data-navigation-group="rankings"]') as HTMLButtonElement;
+    const tools = container.querySelector('[data-navigation-group="tools"]') as HTMLButtonElement;
     click(toggle);
-    click(rankings);
+    click(tools);
 
     act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
-    expect(rankings.getAttribute('aria-expanded')).toBe('false');
-    expect(document.activeElement).toBe(rankings);
+    expect(tools.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(tools);
 
     act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
@@ -133,7 +125,7 @@ describe('Navigation', () => {
     renderNavigation();
 
     click(container.querySelector('[data-navigation-toggle]') as HTMLButtonElement);
-    click(container.querySelector('[data-navigation-group="rankings"]') as HTMLButtonElement);
+    click(container.querySelector('[data-navigation-group="tools"]') as HTMLButtonElement);
     const userRankingLink = container.querySelector('a[href="/ranking/user"]') as HTMLAnchorElement;
     click(userRankingLink);
 
