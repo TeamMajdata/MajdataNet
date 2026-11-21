@@ -427,8 +427,7 @@
   "song/ScoreRanking": {
     "FailedToLoad": "読み込みに失敗しました",
     "NoRecords": "スコア記録はまだありません",
-    "RankingList": "ランキング",
-    "Records_other": "{{count}} 件の記録"
+    "RankingList": "ランキング"
   },
   "song/SongCard": {
     "Delete": "削除",

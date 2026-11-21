@@ -433,9 +433,7 @@
   "song/ScoreRanking": {
     "FailedToLoad": "Failed to load",
     "NoRecords": "No score records yet",
-    "RankingList": "Ranking List",
-    "Records_one": "{{count}} record",
-    "Records_other": "{{count}} records"
+    "RankingList": "Ranking List"
   },
   "song/SongCard": {
     "Delete": "Delete",

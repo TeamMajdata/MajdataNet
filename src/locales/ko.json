@@ -427,8 +427,7 @@
   "song/ScoreRanking": {
     "FailedToLoad": "불러오기에 실패했습니다",
     "NoRecords": "아직 성적 기록이 없습니다",
-    "RankingList": "랭킹",
-    "Records_other": "{{count}}개 기록"
+    "RankingList": "랭킹"
   },
   "song/SongCard": {
     "Delete": "삭제",

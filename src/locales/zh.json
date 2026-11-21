@@ -427,8 +427,7 @@
   "song/ScoreRanking": {
     "FailedToLoad": "加载失败",
     "NoRecords": "暂无成绩记录",
-    "RankingList": "排行榜",
-    "Records_other": "{{count}} 条记录"
+    "RankingList": "排行榜"
   },
   "song/SongCard": {
     "Delete": "删除",

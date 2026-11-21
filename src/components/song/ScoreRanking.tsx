@@ -6,68 +6,37 @@ import { apiFetcher } from '@/utils/apiClient';
 import { getComboState } from '@/utils/comboUtils';
 import SectionLoading from '@/components/ui/SectionLoading';
 import EmptyState from '@/components/ui/EmptyState';
+import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
+import { RANK_BADGE_CLASS } from '@/components/score/rankBadge';
 import { getLevelName } from '@/utils/levelUtils';
 import UserAvatar from '@/components/user/UserAvatar';
 import type { ChartLeaderboardResponse, ChartScore, ScoreListProps } from '@/types';
 
-const podium = [
-  {
-    badge: 'bg-linear-to-br from-yellow-400 to-amber-500 text-black',
-    avatar: 'border-amber-400 shadow-[0_0_0_1px_rgb(251_191_36/0.35),0_0_12px_rgb(251_191_36/0.45),0_0_22px_rgb(251_191_36/0.2)]',
-  },
-  {
-    badge: 'bg-linear-to-br from-gray-300 to-gray-400 text-black',
-    avatar: 'border-gray-300 shadow-[0_0_0_1px_rgb(209_213_219/0.35),0_0_12px_rgb(209_213_219/0.4),0_0_22px_rgb(209_213_219/0.18)]',
-  },
-  {
-    badge: 'bg-linear-to-br from-amber-600 to-amber-700 text-white',
-    avatar: 'border-amber-600 shadow-[0_0_0_1px_rgb(217_119_6/0.35),0_0_12px_rgb(217_119_6/0.4),0_0_22px_rgb(217_119_6/0.2)]',
-  },
-];
-
-function comboStyles(combo: string) {
-  if (combo === 'AP' || combo === 'AP+') {
-    return {
-      row: 'border-amber-500/50 shadow-[0_4px_16px_rgb(251_191_36/0.25),0_0_20px_rgb(251_191_36/0.15)]',
-      badge: 'bg-linear-to-r from-amber-500 to-amber-400 text-white/90',
-      accuracy: 'text-amber-400',
-    };
-  }
-  if (combo === 'FC' || combo === 'FC+') {
-    return {
-      row: 'border-blue-400/50 shadow-[0_4px_16px_rgb(59_130_246/0.25),0_0_20px_rgb(59_130_246/0.15)]',
-      badge: 'bg-linear-to-r from-blue-500 to-blue-400 text-white/90',
-      accuracy: 'text-blue-400',
-    };
-  }
-  return { row: 'border-white/10', badge: 'bg-white/20 text-white/90', accuracy: 'text-white/80' };
+/** 评级标签和达成率的颜色：AP 金色、FC 蓝色、其余中性，未通过（低于 80%）红色 */
+function resultStyle(score: ChartScore) {
+  const combo = getComboState(score.comboState);
+  if (score.acc < 80) return { text: 'Failed', badge: 'bg-red-500/20 text-red-300', acc: 'text-white/70' };
+  if (combo === 'AP' || combo === 'AP+') return { text: combo, badge: 'bg-amber-400/20 text-amber-300', acc: 'text-amber-300' };
+  if (combo === 'FC' || combo === 'FC+') return { text: combo, badge: 'bg-sky-400/20 text-sky-300', acc: 'text-sky-300' };
+  return { text: combo || 'Clear', badge: 'bg-white/10 text-white/70', acc: 'text-white' };
 }
 
-function RankingCard({ score, rank }: { score: ChartScore; rank: number }) {
-  const medal = podium[rank - 1];
-  const combo = getComboState(score.comboState);
-  const styles = comboStyles(combo);
-  const failed = score.acc < 80;
-
+function RankingRow({ score, rank }: { score: ChartScore; rank: number }) {
+  const result = resultStyle(score);
   return (
-    <li className={`group flex items-center gap-2.5 rounded-xl border bg-white/8 px-2.5 py-2 backdrop-blur-md transition duration-200 hover:bg-white/12 hover:shadow-[0_8px_25px_rgb(0_0_0/0.3)] motion-safe:hover:-translate-y-0.5 ${styles.row}`}>
-      <span className={`grid h-8 min-w-8 shrink-0 place-items-center rounded-lg text-xs font-bold ${medal?.badge ?? 'bg-white/15 text-white/70'}`}>
-        #{rank}
-      </span>
-      <Link to={'/space?id=' + encodeURIComponent(score.player.username)} className="flex min-w-0 flex-1 items-center gap-2.5 no-underline">
-        <UserAvatar
-          username={score.player.username}
-          avatarId={score.player.avatarId}
-          alt=""
-          className={`size-8 shrink-0 rounded-full border-2 object-cover transition-transform motion-safe:group-hover:scale-105 ${medal?.avatar ?? 'border-white/20 group-hover:border-white/40'}`}
-        />
-        <span className="truncate text-sm font-semibold text-white/90 group-hover:text-white">{score.player.nickname || score.player.username}</span>
+    <li className="items-center gap-3 grid grid-cols-[2rem_minmax(0,1fr)_auto] hover:bg-white/[0.04] px-4 py-2.5 transition-colors">
+      {RANK_BADGE_CLASS[rank - 1] ? (
+        <span className={`justify-self-start px-1.5 py-0.5 rounded font-bold text-[0.7rem] tabular-nums leading-none ${RANK_BADGE_CLASS[rank - 1]}`}>#{rank}</span>
+      ) : (
+        <span className="pl-0.5 font-semibold text-white/40 text-xs tabular-nums">#{rank}</span>
+      )}
+      <Link to={'/space?id=' + encodeURIComponent(score.player.username)} className="group flex items-center gap-2.5 min-w-0 no-underline">
+        <UserAvatar username={score.player.username} avatarId={score.player.avatarId} alt="" className="border border-white/15 rounded-full size-8 object-cover shrink-0" />
+        <span className="font-medium text-white/90 group-hover:text-white text-sm truncate group-hover:underline underline-offset-2">{score.player.nickname || score.player.username}</span>
       </Link>
-      <span className="flex shrink-0 flex-col items-end gap-0.5">
-        <strong className={`text-base tabular-nums ${styles.accuracy}`}>{score.acc.toFixed(4)}%</strong>
-        <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${failed ? 'bg-red-500/30 text-red-300' : styles.badge}`}>
-          {failed ? 'Failed' : combo || 'Clear'}
-        </span>
+      <span className="flex items-center gap-2.5">
+        <span className={`px-1.5 py-0.5 rounded font-semibold text-[0.7rem] leading-none ${result.badge}`}>{result.text}</span>
+        <strong className={`w-22 font-semibold text-sm text-right tabular-nums ${result.acc}`}>{score.acc.toFixed(4)}%</strong>
       </span>
     </li>
   );
@@ -84,17 +53,14 @@ export function ScoreRanking({ songid, chartLevel, levels }: ScoreListProps) {
   if (isLoading) return <SectionLoading />;
 
   const scores = chartLevel === undefined ? [] : data?.scores?.[chartLevel] ?? [];
-  // 排行榜跟着页头选中的难度走，这里注明是哪个难度
+  // 排行榜跟着页头选中的难度走，这里注明是哪个难度；人数在页签上
   const levelLabel = chartLevel === undefined ? '' : `${chartLevel === 6 ? 'UTAGE' : getLevelName(chartLevel)} ${levels?.[chartLevel]?.trim() ?? ''}`.trim();
   return (
     <div className="space-y-3">
-      <div className="flex justify-between items-center gap-3 text-white/50 text-xs">
-        <span className="font-medium text-white/70">{levelLabel}</span>
-        <span>{t('song/ScoreRanking.Records', { count: scores.length })}</span>
-      </div>
+      <p className="m-0 font-medium text-white/60! text-xs">{levelLabel}</p>
       {scores.length ? (
-        <ol className="flex flex-col gap-2 m-0 p-0 list-none">
-          {scores.map((score, index) => <RankingCard key={score.player.username} score={score} rank={index + 1} />)}
+        <ol className={`${CARD_SURFACE_CLASS} m-0 p-0 py-1 divide-y divide-white/[0.06] overflow-hidden list-none`}>
+          {scores.map((score, index) => <RankingRow key={score.player.username} score={score} rank={index + 1} />)}
         </ol>
       ) : (
         <EmptyState>{t('song/ScoreRanking.NoRecords')}</EmptyState>
