@@ -86,9 +86,9 @@ export default function SongPage() {
     artist ? `Artist: ${artist}` : '',
     designer ? `Chart by ${designer}` : '',
   ].filter(Boolean);
-  descParts.push('Majdata Net');
+  descParts.push('Majdata.Net');
 
-  const metaTitle = `${titleParts} | Majdata Net`;
+  const metaTitle = `${titleParts} | Majdata.Net`;
   const metaDescription = descParts.join(' · ');
   const metaImage = new URL(endpoints.maichart.image(param), window.location.origin).toString();
 

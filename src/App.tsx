@@ -98,19 +98,19 @@ function App() {
   return (
     <HelmetProvider>
       <Helmet>
-        <title>Majdata Net</title>
+        <title>Majdata.Net</title>
         <meta
           name="description"
-          content="Majdata Net - a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。"
+          content="Majdata.Net - a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。"
         />
-        <meta property="og:title" content="Majdata Net" />
+        <meta property="og:title" content="Majdata.Net" />
         <meta
           property="og:description"
           content="a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。"
         />
         <meta property="og:url" content="https://majdata.net" />
         <meta property="og:image" content="https://majdata.net/salt.webp" />
-        <meta name="twitter:title" content="Majdata Net" />
+        <meta name="twitter:title" content="Majdata.Net" />
         <meta
           name="twitter:description"
           content="a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。"

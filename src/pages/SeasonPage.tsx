@@ -64,7 +64,7 @@ function SeasonDetails({ event }: { event: Event }) {
 
   return (
     <PageLayout className="py-4 sm:py-6 md:py-8 min-h-screen">
-      <Helmet><title>{event.title} · Majdata Net</title></Helmet>
+      <Helmet><title>{event.title} · Majdata.Net</title></Helmet>
       <EventBanner event={event} containerClassName="mx-auto my-4 md:my-6 lg:my-8 px-2 sm:px-4 max-w-5xl" />
 
       <div className="mx-auto mt-4 mb-8 px-2 sm:mt-6 sm:px-4 max-w-5xl">
