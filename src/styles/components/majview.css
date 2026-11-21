@@ -97,10 +97,17 @@
   font-weight: normal;
   line-height: 1;
   white-space: nowrap;
+  /* 描边和投影都用 text-shadow 画：iOS Safari 会把带 filter 的元素按低分辨率栅格化，文字会糊。
+     投影是描边后整个字形的偏移，所以黑色这组也按描边的四个角各画一次 */
+  --sx-l: calc(var(--shadow-x) - var(--edge));
+  --sx-r: calc(var(--shadow-x) + var(--edge));
+  --sy-t: calc(var(--shadow-y) - var(--edge));
+  --sy-b: calc(var(--shadow-y) + var(--edge));
   text-shadow:
     var(--edge) var(--edge) #ddd, calc(-1 * var(--edge)) var(--edge) #ddd,
-    var(--edge) calc(-1 * var(--edge)) #ddd, calc(-1 * var(--edge)) calc(-1 * var(--edge)) #ddd;
-  filter: drop-shadow(var(--shadow-x) var(--shadow-y) 0 black) blur(0.075cqw);
+    var(--edge) calc(-1 * var(--edge)) #ddd, calc(-1 * var(--edge)) calc(-1 * var(--edge)) #ddd,
+    var(--sx-r) var(--sy-b) black, var(--sx-l) var(--sy-b) black,
+    var(--sx-r) var(--sy-t) black, var(--sx-l) var(--sy-t) black;
 }
 .majview-combo span {
   top: 43.41%;
