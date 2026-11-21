@@ -49,18 +49,17 @@ export default function Majdata({ songid, chartRoot: apiroot, level }: MajdataPr
   }, [sendMessage]);
 
   return (
-    <div className='top-0 z-100 box-border [@media(screen_and_(aspect-ratio>=2/3))]:static sticky bg-black p-2.5 rounded-[10px] w-full aspect-square min-[700px]:transform-none'>
+    <div className="relative z-100 size-full">
       <Unity
         unityProvider={unityProvider}
         className="rounded-[10px] w-full h-full"
-        style={{ display: isLoaded ? 'unset' : 'none' }}
+        style={{ display: isLoaded ? 'block' : 'none' }}
       />
-      <div
-        className="w-full h-full text-center leading-80"
-        style={{ display: isLoaded ? 'none' : 'block' }}
-      >
-        Loading Majdata {`${(loadingProgression * 100).toFixed(2)}% ..`}
-      </div>
+      {!isLoaded && (
+        <div className="grid h-full place-items-center text-center" role="status">
+          Loading Majdata {`${(loadingProgression * 100).toFixed(2)}% ..`}
+        </div>
+      )}
     </div>
   );
 }

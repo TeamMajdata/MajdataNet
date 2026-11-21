@@ -120,23 +120,17 @@ type SongTab = typeof songTabs[number]['id'];
 function ChartPreview({ song, chartLevel }: { song: SongSummary; chartLevel?: number }) {
   const { t } = useTranslation();
   const [playing, setPlaying] = useState(false);
-  const cover = endpoints.maichart.image(song.id);
 
   return (
-    <div className="song-player">
-      <div className="song-stage-glow" aria-hidden="true"><div style={{ backgroundImage: 'url(' + cover + ')' }} /></div>
-      <div className="song-stage">
-        {playing ? (
-          <div className="relative z-100 w-full">
-            <Majdata songid={song.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + chartLevel} />
-          </div>
-        ) : (
-          <button type="button" className="song-preview" onClick={() => setPlaying(true)} disabled={chartLevel === undefined}>
-            <img src={cover} srcSet={cover + ' 1x, ' + endpoints.maichart.fullImage(song.id) + ' 2x'} alt="" fetchPriority="high" />
-            <span className="song-play-action"><span><PiPlayFill /></span>{t('song/SongPage.PreviewChart')}</span>
-          </button>
-        )}
-      </div>
+    <div className="song-stage">
+      {playing ? (
+        <Majdata songid={song.id} chartRoot={endpoints.maichart.prefix('')} level={'lv' + chartLevel} />
+      ) : (
+        <button type="button" className="song-preview" onClick={() => setPlaying(true)} disabled={chartLevel === undefined}>
+          <img src={endpoints.maichart.fullImage(song.id)} alt="" fetchPriority="high" />
+          <span className="song-play-action"><span><PiPlayFill /></span>{t('song/SongPage.PreviewChart')}</span>
+        </button>
+      )}
     </div>
   );
 }
