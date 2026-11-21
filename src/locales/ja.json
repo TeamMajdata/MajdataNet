@@ -158,8 +158,20 @@
     "RelatedCharts": "関連譜面"
   },
   "home/HomeHighlights": {
+    "ByComments": "コメント",
+    "ByDownloads": "ダウンロード",
+    "ByPlays": "プレイ",
+    "ByRating": "評価",
+    "Likes_other": "いいね {{formatted}}",
+    "Next": "次へ",
+    "Pause": "自動切り替えを停止",
+    "Plays_other": "{{formatted}} 回プレイ",
+    "Popular": "今週の人気譜面",
+    "Previous": "前へ",
     "RecentUploads": "最近のアップロード",
-    "RecentUploadsHint": "コミュニティの新作"
+    "RecentUploadsHint": "コミュニティの新作",
+    "Resume": "自動切り替えを再開",
+    "SortBy": "並び替え"
   },
   "home/HomePage": {
     "AllCharts": "すべての譜面",

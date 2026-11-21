@@ -158,8 +158,20 @@
     "RelatedCharts": "관련 채보"
   },
   "home/HomeHighlights": {
+    "ByComments": "댓글",
+    "ByDownloads": "다운로드",
+    "ByPlays": "플레이",
+    "ByRating": "평가",
+    "Likes_other": "좋아요 {{formatted}}",
+    "Next": "다음",
+    "Pause": "자동 넘김 일시정지",
+    "Plays_other": "{{formatted}}회 플레이",
+    "Popular": "이번 주 인기 채보",
+    "Previous": "이전",
     "RecentUploads": "최근 업로드",
-    "RecentUploadsHint": "커뮤니티의 새 작품"
+    "RecentUploadsHint": "커뮤니티의 새 작품",
+    "Resume": "자동 넘김 재개",
+    "SortBy": "정렬 기준"
   },
   "home/HomePage": {
     "AllCharts": "모든 채보",

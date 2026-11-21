@@ -158,8 +158,20 @@
     "RelatedCharts": "相关谱面"
   },
   "home/HomeHighlights": {
+    "ByComments": "评论",
+    "ByDownloads": "下载",
+    "ByPlays": "游玩",
+    "ByRating": "评价",
+    "Likes_other": "{{formatted}} 个赞",
+    "Next": "下一页",
+    "Pause": "暂停自动翻页",
+    "Plays_other": "{{formatted}} 次游玩",
+    "Popular": "七日人气榜",
+    "Previous": "上一页",
     "RecentUploads": "最近上传",
-    "RecentUploadsHint": "来自社区的新作品"
+    "RecentUploadsHint": "来自社区的新作品",
+    "Resume": "继续自动翻页",
+    "SortBy": "排序方式"
   },
   "home/HomePage": {
     "AllCharts": "全部谱面",
