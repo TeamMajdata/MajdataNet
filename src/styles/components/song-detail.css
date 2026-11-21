@@ -1,7 +1,8 @@
 .song-detail {
   --ink: #f0f3f6;
   --muted: #9ea9b7;
-  --rule: #323943;
+  /* 半透明白：深色、浅色封面背景上都看得见 */
+  --rule: rgb(255 255 255 / 14%);
   --link: #94c5ff;
   color: var(--ink);
 }
