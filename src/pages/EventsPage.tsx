@@ -116,8 +116,8 @@ export default function EventsPage() {
                   loading="lazy"
                   decoding="async"
                 />
-                {/* 渐变和文字常驻显示，悬停时没有动画 */}
-                <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-b from-black/10 via-black/25 to-black/85 px-4 sm:px-6 py-3 sm:py-5">
+                {/* 渐变和文字常驻显示，悬停时没有动画；文字在左下，所以左侧和底部压暗得更多，花哨的横幅上也读得清 */}
+                <div className="absolute inset-0 flex flex-col justify-end bg-[linear-gradient(90deg,rgb(0_0_0/0.85),rgb(0_0_0/0.55)_45%,rgb(0_0_0/0.1)),linear-gradient(0deg,rgb(0_0_0/0.55),transparent_60%)] px-4 sm:px-6 py-3 sm:py-5">
                   <div className="text-left">
                     <h3 className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] m-0 mb-1.5 sm:mb-3 font-bold text-white text-base sm:text-xl md:text-2xl leading-tight line-clamp-2">
                       {event.title}
