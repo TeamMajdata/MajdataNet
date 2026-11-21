@@ -8,7 +8,6 @@ import SectionLoading from '@/components/ui/SectionLoading';
 import EmptyState from '@/components/ui/EmptyState';
 import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
 import { RANK_BADGE_CLASS } from '@/components/score/rankBadge';
-import { getLevelName } from '@/utils/levelUtils';
 import UserAvatar from '@/components/user/UserAvatar';
 import type { ChartLeaderboardResponse, ChartScore, ScoreListProps } from '@/types';
 
@@ -42,7 +41,7 @@ function RankingRow({ score, rank }: { score: ChartScore; rank: number }) {
   );
 }
 
-export function ScoreRanking({ songid, chartLevel, levels }: ScoreListProps) {
+export function ScoreRanking({ songid, chartLevel }: ScoreListProps) {
   const { t } = useTranslation();
   const { data, error, isLoading } = useSWR<ChartLeaderboardResponse>(
     endpoints.maiscore.chartLeaderboard(songid),
@@ -53,18 +52,12 @@ export function ScoreRanking({ songid, chartLevel, levels }: ScoreListProps) {
   if (isLoading) return <SectionLoading />;
 
   const scores = chartLevel === undefined ? [] : data?.scores?.[chartLevel] ?? [];
-  // 排行榜跟着页头选中的难度走，这里注明是哪个难度；人数在页签上
-  const levelLabel = chartLevel === undefined ? '' : `${chartLevel === 6 ? 'UTAGE' : getLevelName(chartLevel)} ${levels?.[chartLevel]?.trim() ?? ''}`.trim();
-  return (
-    <div className="space-y-3">
-      <p className="m-0 font-medium text-white/60! text-xs">{levelLabel}</p>
-      {scores.length ? (
-        <ol className={`${CARD_SURFACE_CLASS} m-0 p-0 py-1 divide-y divide-white/[0.06] overflow-hidden list-none`}>
-          {scores.map((score, index) => <RankingRow key={score.player.username} score={score} rank={index + 1} />)}
-        </ol>
-      ) : (
-        <EmptyState>{t('song/ScoreRanking.NoRecords')}</EmptyState>
-      )}
-    </div>
+  // 排行榜跟着页头选中的难度走（页头已经标出选中的难度），人数在页签上
+  return scores.length ? (
+    <ol className={`${CARD_SURFACE_CLASS} m-0 p-0 py-1 divide-y divide-white/[0.06] overflow-hidden list-none`}>
+      {scores.map((score, index) => <RankingRow key={score.player.username} score={score} rank={index + 1} />)}
+    </ol>
+  ) : (
+    <EmptyState>{t('song/ScoreRanking.NoRecords')}</EmptyState>
   );
 }

@@ -238,7 +238,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             {activeTab === 'preview' && <ChartPreview song={song} chartLevel={chartLevel} />}
           </section>
           <section id="song-panel-scores" role="tabpanel" aria-labelledby="song-tab-scores" hidden={activeTab !== 'scores'}>
-            <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} chartLevel={chartLevel} levels={song.levels} /></Activity>
+            <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} chartLevel={chartLevel} /></Activity>
           </section>
           <section id="song-panel-comments" role="tabpanel" aria-labelledby="song-tab-comments" hidden={activeTab !== 'comments'}>
             <Activity mode={activeTab === 'comments' ? 'visible' : 'hidden'}><CommentSection chartId={song.id} uploader={song.uploader} focusId={focusId} /></Activity>
