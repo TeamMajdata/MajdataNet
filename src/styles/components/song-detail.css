@@ -4,8 +4,6 @@
   --rule: #323943;
   --link: #94c5ff;
   color: var(--ink);
-  max-width: 77rem;
-  margin-top: clamp(.75rem, 2.8vw, 2.5rem);
 }
 .song-backdrop {
   position: fixed;
@@ -114,7 +112,6 @@
 .song-detail :is(button, a, summary):focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
 
 @media (max-width: 48rem) {
-  .song-detail { margin-top: .85rem; }
   .song-page { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'heading' 'workspace' 'sidebar'; gap: 1rem; }
   .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
   .song-sidebar { border-left: 0; border-top: 1px solid var(--rule); padding: .5rem 0 0; }

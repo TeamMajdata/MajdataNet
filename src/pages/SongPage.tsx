@@ -188,7 +188,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   return (
     <>
       <div className="song-backdrop" aria-hidden="true" style={{ backgroundImage: 'url(' + cover + ')' }} />
-      <div className="song-page">
+      <div className="song-page mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
         <header className="song-header" aria-labelledby="song-title">
           <PhotoProvider bannerVisible={false}>
             <PhotoView src={endpoints.maichart.fullImage(song.id)}>
