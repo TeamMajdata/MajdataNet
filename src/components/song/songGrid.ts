@@ -1,6 +1,12 @@
 /** 谱面卡片网格：手机 1 列，平板 2 列，桌面 3 列，宽屏 4 列；卡片撑满列宽 */
 export const SONG_GRID_CLASS = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mx-auto w-full max-w-350 min-w-0';
 
+/**
+ * 放在侧栏旁边等较窄区域里的谱面网格：按容器宽度（而不是屏幕宽度）分 1/2/3 列，
+ * 外层需要有 `@container`
+ */
+export const SONG_GRID_CONTAINER_CLASS = 'grid grid-cols-1 @xl:grid-cols-2 @4xl:grid-cols-3 gap-3 w-full min-w-0';
+
 /** 排行榜固定 10 条：用两列排成 5 行，任何宽度下都不会剩半行 */
 export const RANKING_GRID_CLASS = 'grid grid-cols-1 sm:grid-cols-2 gap-3 mx-auto w-full max-w-350 min-w-0';
 

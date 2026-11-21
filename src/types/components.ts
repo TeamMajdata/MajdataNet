@@ -129,6 +129,8 @@ export interface SongListProps {
   isRanking?: boolean;
   isManage?: boolean;
   onDataLoaded?: (hasData: boolean) => void;
+  /** 替换默认的谱面网格类名（例如 SONG_GRID_CONTAINER_CLASS） */
+  gridClassName?: string;
 }
 
 // ======================== 最近游玩组件 ========================
@@ -137,6 +139,8 @@ export interface RecentPlayedWidgetProps {
   username: string;
   /** 数据加载完成后的回调，参数表示是否有数据 */
   onDataLoaded?: (hasData: boolean) => void;
+  /** 替换默认的谱面网格类名（例如 SONG_GRID_CONTAINER_CLASS） */
+  gridClassName?: string;
 }
 
 // ======================== 时间轴组件 ========================

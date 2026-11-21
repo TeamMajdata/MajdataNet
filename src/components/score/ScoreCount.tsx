@@ -41,8 +41,9 @@ export default function ScoreCount({ uploader, page = 0, pageSize = 10 }: ScoreC
   const maxScore = data[0].acc.dx;
 
   return (
-    <div className="w-full">
-      <div className="gap-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    // 按所在区域的宽度分列，放在个人空间的右栏里也不会挤
+    <div className="@container w-full">
+      <div className="gap-3 grid grid-cols-2 @xl:grid-cols-3 @3xl:grid-cols-4 @5xl:grid-cols-5">
         {data.map((player, index) => (
           <ScoreCard
             key={player.username}

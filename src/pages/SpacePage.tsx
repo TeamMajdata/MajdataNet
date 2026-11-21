@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { PageLayout, RecentPlayedWidget, SongList, ScoreCount, LoadingSpinner, CommentListView } from '@/components';
-import { apiPagesForView } from '@/components/song/songGrid';
+import { apiPagesForView, SONG_GRID_CONTAINER_CLASS } from '@/components/song/songGrid';
 import UserRating from '@/components/user/UserRating';
 import { endpoints } from '@/config/api';
 import Markdown from 'react-markdown';
@@ -71,7 +71,8 @@ export default function SpacePage() {
       <div className="lg:items-start lg:gap-10 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] mx-auto pt-5 sm:pt-8 w-full max-w-350 min-w-0">
         <ProfileSidebar username={username} {...profile} />
 
-        <div className="min-w-0">
+        {/* 右栏比整页窄，里面的网格按这一栏的宽度分列 */}
+        <div className="@container min-w-0">
           {/* 页签：和谱面页一样的下划线样式；一次只看一块；没有内容的页签自动隐藏（内容一直挂载着，好知道有没有数据） */}
           <div className="flex gap-6 mb-6 border-white/10 border-b overflow-x-auto [scrollbar-width:none]" role="tablist" aria-label={t("space/SpacePage.Sections")}>
             {tabs.map(({ key, label }) => (
@@ -97,13 +98,14 @@ export default function SpacePage() {
           </section>
 
           <section id="space-panel-recent" role="tabpanel" aria-labelledby="space-tab-recent" hidden={activeTab !== 'recent'}>
-            <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} />
+            <RecentPlayedWidget username={username} onDataLoaded={setHasRecentPlayed} gridClassName={SONG_GRID_CONTAINER_CLASS} />
           </section>
 
           <section id="space-panel-uploaded" role="tabpanel" aria-labelledby="space-tab-uploaded" hidden={activeTab !== 'uploaded'}>
             <SongList
               url={apiPagesForView(0).map((apiPage) => endpoints.maichart.listSearchAndSort('uploader:' + username, '', apiPage))}
               onDataLoaded={setHasUploadedCharts}
+              gridClassName={SONG_GRID_CONTAINER_CLASS}
             />
           </section>
 

@@ -47,23 +47,26 @@ export default function UserRating({ username }: UserRatingProps) {
   }
 
   return (
-    <div className="items-start gap-5 grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] w-full">
-      <section
-        aria-label={t('space/SpacePage.Rating')}
-        className="mx-auto w-full max-w-[17rem] sm:max-w-[20rem] lg:max-w-none bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2)] backdrop-blur-[10px] p-3 sm:p-4 border border-white/10 rounded-2xl min-w-0"
-      >
-        <RadarPlot feature={data.feature} />
-        <p className="m-0 text-center text-white/50 text-xs">
-          {t('space/SpacePage.RatingCharts', { count: data.chartCount })}
-        </p>
-        <p className="m-0 mt-2 text-center text-white/40 text-[0.7rem] leading-relaxed">
-          {t('space/SpacePage.RatingFormula')}
-        </p>
-      </section>
-      <section aria-label={t('space/SpacePage.Best50')} className="min-w-0">
-        <h3 className="m-0 mb-3 font-bold text-white text-sm">{t('space/SpacePage.Best50')}</h3>
-        <BestScores scores={data.best} />
-      </section>
+    // 按所在区域的宽度排版：够宽时雷达图在左、B50 在右
+    <div className="@container w-full">
+      <div className="items-start gap-5 grid grid-cols-1 @4xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] w-full">
+        <section
+          aria-label={t('space/SpacePage.Rating')}
+          className="mx-auto w-full max-w-[17rem] sm:max-w-[20rem] @4xl:max-w-none bg-white/8 shadow-[0_4px_15px_rgb(0_0_0/0.2)] backdrop-blur-[10px] p-3 sm:p-4 border border-white/10 rounded-2xl min-w-0"
+        >
+          <RadarPlot feature={data.feature} />
+          <p className="m-0 text-center text-white/50 text-xs">
+            {t('space/SpacePage.RatingCharts', { count: data.chartCount })}
+          </p>
+          <p className="m-0 mt-2 text-center text-white/40 text-[0.7rem] leading-relaxed">
+            {t('space/SpacePage.RatingFormula')}
+          </p>
+        </section>
+        <section aria-label={t('space/SpacePage.Best50')} className="min-w-0">
+          <h3 className="m-0 mb-3 font-bold text-white text-sm">{t('space/SpacePage.Best50')}</h3>
+          <BestScores scores={data.best} />
+        </section>
+      </div>
     </div>
   );
 }

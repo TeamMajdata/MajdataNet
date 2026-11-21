@@ -56,7 +56,7 @@ function convertToScore(data: RecentPlayedData): Score {
  * 最近游玩记录组件
  * 显示指定用户最近游玩的谱面、成绩与活跃度折线图
  */
-export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPlayedWidgetProps) {
+export default function RecentPlayedWidget({ username, onDataLoaded, gridClassName }: RecentPlayedWidgetProps) {
   const { t } = useTranslation();
 
   const { data, error, isLoading } = useSWR<RecentPlayedData[]>(
@@ -129,7 +129,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded }: RecentPla
   return (
     <>
       <RecentActivityChart records={sortedData} />
-      <div className={SONG_GRID_CLASS}>
+      <div className={gridClassName ?? SONG_GRID_CLASS}>
         {scoreCards}
       </div>
     </>
