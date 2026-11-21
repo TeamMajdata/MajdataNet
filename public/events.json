@@ -13,8 +13,8 @@
   },
   {
     "id": "mifc",
-    "type": "outerLink",
-    "asset": "https://mmfc.top/contests/mifc",
+    "type": "space",
+    "asset": "mmfc_bot",
     "src": "/events/mifc.jpg",
     "alt": "MIFC",
     "title": "MIFC第一届：The Grand Convergence",
