@@ -1,19 +1,11 @@
-import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
+import { useLogoEasterEgg } from './useLogoEasterEgg';
 
 /**
  * Majdata.Net Logo 组件
  * 点击头像会显示彩蛋提示；`compact` 用在手机端顶栏中间：屏幕太窄放不下时只显示头像
  */
 export default function MajdataLogo({ compact = false }: { compact?: boolean }) {
-  const { t } = useTranslation();
-
-  const handleClick = () => {
-    toast.error(t("shared/MajdataLogo.FUCKYOU"), {
-      position: 'top-center',
-      autoClose: 500,
-    });
-  };
+  const handleClick = useLogoEasterEgg();
 
   return (
     <span className="flex items-center gap-2.5">

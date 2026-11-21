@@ -5,6 +5,7 @@ import { FaDiscord, FaGithub, FaQq } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
 import { UnifiedHeader } from '@/components';
 import AmbientBackground from './AmbientBackground';
+import { useLogoEasterEgg } from '@/components/header/useLogoEasterEgg';
 import FloatingButtons from './FloatingButtons';
 import ToastIcon from '@/components/ui/ToastIcon';
 import { updateMascotPreferences, useMascotPreferences } from '@/components/mascot/mascotState';
@@ -38,6 +39,7 @@ export default function PageLayout({
   centered = false,
 }: PageLayoutProps) {
   const { t } = useTranslation();
+  const logoEasterEgg = useLogoEasterEgg();
   const mascotHidden = useMascotPreferences().hidden === true;
   const desktop = useSyncExternalStore(subscribeDesktop, () => window.matchMedia(DESKTOP_QUERY).matches, () => false);
 
@@ -64,7 +66,8 @@ export default function PageLayout({
           <div className="mx-auto max-w-320">
             <div className="flex flex-col items-center gap-5">
               <div className="flex md:flex-row flex-col items-center gap-3 md:text-left text-center">
-                <img className="rounded-lg ring-1 ring-white/15 w-9 h-9" src="/salt.webp" alt="" aria-hidden="true" loading="lazy" />
+                {/* 和顶栏 Logo 一样，点 xxlb 头像出“不要点我”彩蛋 */}
+                <img className="rounded-lg ring-1 ring-white/15 w-9 h-9 cursor-pointer" src="/salt.webp" alt="" aria-hidden="true" loading="lazy" onClick={logoEasterEgg} />
                 <div>
                   <div className="font-semibold text-white text-base tracking-tight">
                     Majdata<span className="text-blue-300">.Net</span>
