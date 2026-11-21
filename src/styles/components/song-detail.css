@@ -30,26 +30,11 @@
 .song-sidebar > .song-label { padding-top: .65rem; }
 .song-sidebar .song-radar, .song-sidebar .song-file { border-top: 1px solid var(--rule); padding-top: .8rem; }
 .song-radar > :last-child { margin-inline: auto; max-width: 15rem; }
-.song-tabs, .song-tabs button, .song-difficulty-list, .song-credits dd, .song-credits a,
+.song-difficulty-list, .song-credits dd, .song-credits a,
 .song-actions, .song-actions button, .song-tags, .song-tags button, .song-file dd button {
   display: flex; align-items: center;
 }
-.song-tabs { column-gap: clamp(.6rem, 2vw, 1.65rem); border-bottom: 1px solid var(--rule); }
-.song-tabs button {
-  position: relative;
-  gap: .45rem;
-  padding: .7rem .2rem .85rem;
-  color: var(--muted);
-  font-size: 1rem;
-  font-weight: 550;
-  cursor: pointer;
-}
-.song-tabs button[aria-selected="true"], .song-tabs button:hover { color: var(--ink); }
-.song-tabs button[aria-selected="true"]::after {
-  content: ''; position: absolute; inset: auto 0 -1px; height: 3px; background: var(--link);
-}
-.song-tabs svg { width: 1.15rem; height: 1.15rem; }
-.song-workspace [role="tabpanel"] { padding-top: 1.25rem; min-width: 0; }
+.song-workspace [role="tabpanel"] { min-width: 0; }
 .song-levels { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: .85rem; }
 .song-detail .song-label { margin: 0; font-size: .875rem; font-weight: 600; text-align: start; line-height: 1.4; }
 .song-levels .song-label { color: var(--muted); }
@@ -115,11 +100,7 @@
   .song-page { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'heading' 'workspace' 'sidebar'; gap: 1rem; }
   .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
   .song-sidebar { border-left: 0; border-top: 1px solid var(--rule); padding: .5rem 0 0; }
-  .song-tabs { gap: clamp(.3rem, 4vw, 1.5rem); }
-  .song-tabs button { font-size: .925rem; min-height: 2.75rem; gap: .32rem; }
-  .song-workspace [role="tabpanel"] { padding-top: .75rem; }
 }
 @media (max-width: 23rem) {
-  .song-tabs svg { display: none; }
   .song-file code { font-size: .75rem; }
 }

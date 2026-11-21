@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import PageLoading from '@/components/ui/PageLoading';
-import { Activity, useEffect, useState, useRef, type KeyboardEvent } from 'react';
+import { Activity, useEffect, useState, useRef } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { endpoints } from '@/config/api';
@@ -21,8 +21,9 @@ import { parseTmpRichText } from '@/utils/richTextUtils';
 import { getDefaultChartLevel, parseRequestedLevel } from '@/utils/radar';
 import ChartRadar from '@/components/song/ChartRadar';
 import UserAvatar from '@/components/user/UserAvatar';
+import UnderlineTabs from '@/components/ui/UnderlineTabs';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
-import { PiChartBar, PiChatCircle, PiMonitorPlay, PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiPenNib, PiPlayFill, PiTagSimple } from 'react-icons/pi';
+import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiPenNib, PiPlayFill, PiTagSimple } from 'react-icons/pi';
 import { getLocale, useLanguage } from '@/i18n';
 import '@/styles/components/song-detail.css';
 import type { SongSummary, TagManageWidgetRef } from '@/types';
@@ -111,9 +112,9 @@ export default function SongPage() {
 }
 
 const songTabs = [
-  { id: 'preview', label: 'song/SongPage.Preview', Icon: PiMonitorPlay },
-  { id: 'scores', label: 'song/ScoreRanking.RankingList', Icon: PiChartBar },
-  { id: 'comments', label: 'song/SongComments.Comments', Icon: PiChatCircle },
+  { id: 'preview', label: 'song/SongPage.Preview' },
+  { id: 'scores', label: 'song/ScoreRanking.RankingList' },
+  { id: 'comments', label: 'song/SongComments.Comments' },
 ] as const;
 type SongTab = typeof songTabs[number]['id'];
 
@@ -173,18 +174,6 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
     setParams(next, { preventScrollReset: true });
   }
 
-  function moveTab(event: KeyboardEvent<HTMLButtonElement>, index: number) {
-    const last = songTabs.length - 1;
-    const next = event.key === 'Home' ? 0 : event.key === 'End' ? last
-      : event.key === 'ArrowRight' ? (index + 1) % songTabs.length
-      : event.key === 'ArrowLeft' ? (index + last) % songTabs.length : undefined;
-    if (next === undefined) return;
-    event.preventDefault();
-    const tab = songTabs[next].id;
-    document.getElementById('song-tab-' + tab)?.focus();
-    selectTab(tab);
-  }
-
   return (
     <>
       <div className="song-backdrop" aria-hidden="true" style={{ backgroundImage: 'url(' + cover + ')' }} />
@@ -208,14 +197,13 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
         </header>
 
         <div className="song-workspace">
-          <div role="tablist" aria-label={t('song/SongPage.ChartDetails')} className="song-tabs">
-            {songTabs.map(({ id, label, Icon }, index) => (
-              <button key={id} type="button" role="tab" id={'song-tab-' + id} aria-controls={'song-panel-' + id}
-                aria-selected={activeTab === id} tabIndex={activeTab === id ? 0 : -1} onClick={() => selectTab(id)} onKeyDown={event => moveTab(event, index)}>
-                <Icon aria-hidden="true" />{t(label)}
-              </button>
-            ))}
-          </div>
+          <UnderlineTabs
+            tabs={songTabs.map(({ id, label }) => ({ key: id, label: t(label) }))}
+            active={activeTab}
+            onSelect={selectTab}
+            idPrefix="song"
+            label={t('song/SongPage.ChartDetails')}
+          />
           <section id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
             {activeTab === 'preview' && <ChartPreview song={song} chartLevel={chartLevel} />}
           </section>
