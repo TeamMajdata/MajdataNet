@@ -136,7 +136,7 @@
     "ServerError": "서버 오류",
     "Songs": "곡",
     "SortBy": "정렬",
-    "Submit": "제출",
+    "Submit": "저장",
     "Subscribe": "구독",
     "SubscribeSuccess": "구독했습니다",
     "Subscribed": "구독 중",
@@ -145,11 +145,11 @@
   },
   "collection/hiroba/HirobaPage": {
     "ClearSearch": "검색 지우기",
-    "CollectionsHiroba": "콜렉션 광장",
+    "CollectionsHiroba": "컬렉션 광장",
     "EmptyData": "비어있음",
-    "NoSearchResults": "일치하는 콜렉션이 없습니다",
-    "SearchCollectionHint": "콜렉션 이름 또는 설명으로 검색",
-    "SearchCollectionsPlaceholder": "콜렉션 검색...",
+    "NoSearchResults": "일치하는 컬렉션이 없습니다",
+    "SearchCollectionHint": "컬렉션 이름 또는 설명으로 검색",
+    "SearchCollectionsPlaceholder": "컬렉션 검색...",
     "ServerError": "서버 오류"
   },
   "eventTag/EventTagPage": {
@@ -333,7 +333,7 @@
   "shared/Navigation": {
     "ChartEditor": "채보 편집기",
     "ChartPlayer": "채보 플레이어",
-    "CollectionHiroba": "콜렉션 광장",
+    "CollectionHiroba": "컬렉션 광장",
     "Contest": "이벤트",
     "Documentation": "문서",
     "NavigationMenu": "메인 내비게이션",
@@ -388,11 +388,11 @@
     "Uploading": "업로드 중..."
   },
   "shared/UserMenu": {
-    "ChartsManagement": "채보",
+    "ChartsManagement": "내 채보",
     "Logout": "로그아웃",
     "LogoutFailed": "로그아웃에 실패했습니다",
     "MyCollections": "내 컬렉션",
-    "PersonalHomePage": "홈페이지",
+    "PersonalHomePage": "내 스페이스",
     "PersonalScores": "내 점수",
     "UserMenu": "사용자 메뉴"
   },
@@ -400,7 +400,7 @@
     "Loading": "불러오는 중..."
   },
   "shared/useCollections": {
-    "AddToCollectionSuccess": "콜렉션에 추가했습니다",
+    "AddToCollectionSuccess": "컬렉션에 추가했습니다",
     "OperationFailed": "작업에 실패했습니다",
     "RemoveFromCollection": "컬렉션에서 제거"
   },
@@ -506,7 +506,7 @@
   "song/SongPage": {
     "ChartDetails": "채보 정보",
     "ClipboardSuccess": "복사되었습니다",
-    "Collection": "콜렉션",
+    "Collection": "컬렉션",
     "CopyFailed": "복사하지 못했습니다",
     "CopyValue": "{{field}} 복사",
     "Designer": "채보 제작자",
@@ -641,13 +641,13 @@
   },
   "user/collections/CollectionPage": {
     "EmptyData": "아직 컬렉션이 없습니다. 새 컬렉션을 만들어 보세요.",
-    "EmptyFavorites": "구독한 콜렉션이 없습니다. 콜렉션 광장에서 골라 보세요.",
+    "EmptyFavorites": "구독한 컬렉션이 없습니다. 컬렉션 광장에서 골라 보세요.",
     "ExitManage": "관리 종료",
-    "GoToHiroba": "콜렉션 광장 둘러보기",
+    "GoToHiroba": "컬렉션 광장 둘러보기",
     "Manage": "관리",
-    "ManageHint": "관리 모드: 콜렉션 오른쪽 위 버튼으로 삭제할 수 있습니다",
+    "ManageHint": "관리 모드: 컬렉션 오른쪽 위 버튼으로 삭제할 수 있습니다",
     "MyCollections": "내 컬렉션",
-    "MyFavCollections": "구독한 콜렉션",
+    "MyFavCollections": "구독한 컬렉션",
     "NewCollection": "새 컬렉션",
     "ServerError": "서버 오류",
     "Title": "내 컬렉션"

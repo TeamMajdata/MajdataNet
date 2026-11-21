@@ -136,7 +136,7 @@
     "ServerError": "閉店中",
     "Songs": "曲",
     "SortBy": "並び替え",
-    "Submit": "送信",
+    "Submit": "保存",
     "Subscribe": "購読",
     "SubscribeSuccess": "購読しました",
     "Subscribed": "購読済み",
@@ -392,7 +392,7 @@
     "Logout": "ログアウト",
     "LogoutFailed": "ログアウトに失敗しました",
     "MyCollections": "マイコレクション",
-    "PersonalHomePage": "個人ページ",
+    "PersonalHomePage": "マイスペース",
     "PersonalScores": "マイスコア",
     "UserMenu": "ユーザーメニュー"
   },
