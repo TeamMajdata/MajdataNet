@@ -93,15 +93,17 @@ function UserSeasonCard({ event, status, entry }: UserSeasonCardProps) {
           if (e.currentTarget.dataset.fallback) e.currentTarget.style.visibility = 'hidden';
           else fallbackToOriginal(event.src)(e);
         }} />
-      <div className="user-season-card__header">
-        <span className={`user-season-card__status user-season-card__status--${status}`}>• {statusText}</span>
-        <span className="user-season-card__dates" title={t('season/SeasonPage.TimeZone')}>
-          <time dateTime={event.createDate}>{formatter.format(new Date(event.createDate))}</time>
-          <span aria-hidden="true"> — </span>
-          <time dateTime={event.endDate}>{formatter.format(new Date(event.endDate))}</time>
-        </span>
+      <div className="user-season-card__main">
+        <div className="user-season-card__meta">
+          <span className={`user-season-card__status user-season-card__status--${status}`}>• {statusText}</span>
+          <span className="user-season-card__dates" title={t('season/SeasonPage.TimeZone')}>
+            <time dateTime={event.createDate}>{formatter.format(new Date(event.createDate))}</time>
+            <span aria-hidden="true"> — </span>
+            <time dateTime={event.endDate}>{formatter.format(new Date(event.endDate))}</time>
+          </span>
+        </div>
+        <h3 className="user-season-card__title" title={event.title}>{event.title}</h3>
       </div>
-      <h3 className="user-season-card__title">{event.title}</h3>
       <dl className="user-season-card__scores">
         <div>
           <dt><IoTrophyOutline aria-hidden="true" />{t('user/UserSeasons.Rank')}</dt>
@@ -112,7 +114,8 @@ function UserSeasonCard({ event, status, entry }: UserSeasonCardProps) {
           <dd className="user-season-card__total">{entry.score.toFixed(4)}<span>%</span></dd>
         </div>
       </dl>
-      <span className="user-season-card__link">{t('user/UserSeasons.ViewSeason')}<IoArrowForwardOutline aria-hidden="true" /></span>
+      <span className="sr-only">{t('user/UserSeasons.ViewSeason')}</span>
+      <IoArrowForwardOutline aria-hidden="true" className="user-season-card__arrow" />
     </Link>
   );
 }
