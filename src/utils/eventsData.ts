@@ -3,7 +3,7 @@
  */
 
 import i18n, { getLocale } from '@/i18n';
-import type { Event, EventWithTimeInfo, CarouselEventsResult, EventCategory } from '@/types';
+import type { Event, EventWithTimeInfo, EventCategory } from '@/types';
 import { EVENT_CATEGORY_I18N_KEYS } from '@/types/event';
 
 import eventsJson from '../../public/events.json';
@@ -18,13 +18,6 @@ const eventsData: Event[] = eventsJson as Event[];
  */
 export function getAllEvents(): Event[] {
   return eventsData;
-}
-
-/**
- * 获取活动总数
- */
-export function getEventsCount(): number {
-  return eventsData.length;
 }
 
 /**
@@ -97,179 +90,10 @@ export function isEventOngoing(event: Event): boolean {
 }
 
 /**
- * 获取所有进行中的活动（已经开始且未结束的活动）
- */
-export function getOngoingEvents(): Event[] {
-  return eventsData.filter((event) => isEventOngoing(event));
-}
-
-/**
  * 获取所有活跃的活动（进行中 + 即将开始的活动）
  */
 export function getActiveEvents(): Event[] {
   return eventsData.filter((event) => isEventOngoing(event) || isEventUpcoming(event));
-}
-
-/**
- * 获取所有即将开始的活动
- */
-export function getUpcomingEvents(): Event[] {
-  return eventsData.filter((event) => isEventUpcoming(event));
-}
-
-/**
- * 获取所有已结束的活动
- */
-export function getEndedEvents(): Event[] {
-  return eventsData.filter((event) => !isEventOngoing(event) && !isEventUpcoming(event));
-}
-
-/**
- * 智能轮播管理器 - 用于主页活动展示
- */
-class EventCarouselManager {
-  private currentIndex = 0;
-  private eventPool: EventWithTimeInfo[] = [];
-  private displayedEvents: EventWithTimeInfo[] = [];
-  private isInitialized = false;
-
-  /**
-   * 初始化事件池
-   */
-  initialize(): CarouselEventsResult {
-    const activeEvents = getActiveEvents();
-
-    if (activeEvents.length === 0) {
-      // 没有活跃的活动，使用最新的活动
-      const recentEvents = getEventsWithTimeAgo()
-        .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
-        .slice(0, 2);
-      this.eventPool = recentEvents;
-      this.displayedEvents = [...this.eventPool];
-      this.isInitialized = true;
-      return { events: this.displayedEvents, shouldRotate: false };
-    }
-
-    // 为每个活动添加时间信息，并按优先级排序（进行中的活动优先，然后是即将开始的）
-    this.eventPool = activeEvents
-      .sort((a, b) => {
-        const aOngoing = isEventOngoing(a);
-        const bOngoing = isEventOngoing(b);
-
-        // 进行中的活动优先级更高
-        if (aOngoing && !bOngoing) return -1;
-        if (!aOngoing && bOngoing) return 1;
-
-        // 同类型活动按创建时间排序（最新的在前）
-        return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
-      })
-      .map((event) => ({
-        ...event,
-        timeAgo: getTimeAgo(event.createDate),
-        createDateFormatted: new Date(event.createDate).toLocaleDateString(
-          getLocale(),
-          {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }
-        ),
-      }));
-
-    // 初始显示前两个
-    this.displayedEvents = this.eventPool.slice(0, 2);
-    this.isInitialized = true;
-
-    return {
-      events: this.displayedEvents,
-      shouldRotate: this.eventPool.length > 2,
-    };
-  }
-
-  /**
-   * 获取下一组活动（智能轮播）
-   */
-  getNextEvents(): CarouselEventsResult {
-    if (!this.isInitialized) {
-      return this.initialize();
-    }
-
-    // 如果活动数量 <= 2，不进行轮播
-    if (this.eventPool.length <= 2) {
-      return {
-        events: this.displayedEvents,
-        shouldRotate: false,
-      };
-    }
-
-    // 滚动式轮播：每次只换一个活动
-    this.currentIndex = (this.currentIndex + 1) % this.eventPool.length;
-
-    // 计算新的两个活动位置
-    const firstIndex = this.currentIndex;
-    const secondIndex = (this.currentIndex + 1) % this.eventPool.length;
-
-    this.displayedEvents = [
-      this.eventPool[firstIndex],
-      this.eventPool[secondIndex],
-    ];
-
-    return {
-      events: this.displayedEvents,
-      shouldRotate: true,
-    };
-  }
-
-  /**
-   * 重置管理器（当活动数据更新时调用）
-   */
-  reset(): void {
-    this.currentIndex = 0;
-    this.eventPool = [];
-    this.displayedEvents = [];
-    this.isInitialized = false;
-  }
-}
-
-// 创建全局轮播管理器实例
-const carouselManager = new EventCarouselManager();
-
-/**
- * 获取轮播活动数据（供组件使用）
- */
-export function getCarouselEvents(): CarouselEventsResult {
-  return carouselManager.initialize();
-}
-
-/**
- * 获取下一组轮播活动
- */
-export function getNextCarouselEvents(): CarouselEventsResult {
-  return carouselManager.getNextEvents();
-}
-
-/**
- * 重置轮播状态（当活动数据变化时使用）
- */
-export function resetCarousel(): void {
-  carouselManager.reset();
-}
-
-/**
- * 检查是否应该进行轮播
- */
-export function shouldEnableCarousel(): boolean {
-  const activeEvents = getActiveEvents();
-  return activeEvents.length > 2;
-}
-
-/**
- * 保留原有函数作为兼容（已废弃，建议使用新的轮播管理器）
- * @deprecated 使用 getCarouselEvents() 替代
- */
-export function getRandomOngoingEvents(): EventWithTimeInfo[] {
-  const result = carouselManager.initialize();
-  return result.events;
 }
 
 /**

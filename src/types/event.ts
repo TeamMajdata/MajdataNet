@@ -50,12 +50,6 @@ export interface EventWithTimeInfo extends Event {
   createDateFormatted: string;
 }
 
-// 轮播活动返回结果
-export interface CarouselEventsResult {
-  events: EventWithTimeInfo[];
-  shouldRotate: boolean;
-}
-
 /** Song link resolved from the season collection. */
 export type SeasonChart = string;
 
