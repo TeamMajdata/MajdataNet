@@ -32,7 +32,7 @@ export { default as TimelineModal } from './event/TimelineModal';
 
 // 歌曲详情页组件
 export { default as SongDifficultyLevels } from './song/SongDifficultyLevels';
-export { CommentSection, CommentListView, CommentBody } from './song/SongComments';
+export { CommentSection, CommentSortMenu, CommentListView, CommentBody } from './song/SongComments';
 export { ChartVotePanel } from './song/SongInteraction';
 
 export { ScoreRanking } from './song/ScoreRanking';

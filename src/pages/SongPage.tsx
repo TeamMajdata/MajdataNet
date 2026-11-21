@@ -11,6 +11,7 @@ import {
   TagManageWidget,
   SongDifficultyLevels,
   CommentSection,
+  CommentSortMenu,
   ChartVotePanel,
   ScoreRanking,
   CollectionModal,
@@ -27,7 +28,7 @@ import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiPlayFill, PiTagSimple } from 'react-icons/pi';
 import { getLocale, useLanguage } from '@/i18n';
 import '@/styles/components/song-detail.css';
-import type { ChartInteractSummary, ChartLeaderboardResponse, SongSummary, TagManageWidgetRef } from '@/types';
+import type { CommentSort, ChartInteractSummary, ChartLeaderboardResponse, SongSummary, TagManageWidgetRef } from '@/types';
 import useSWR from 'swr';
 import { apiFetcher } from '@/utils/apiClient';
 import { compactNumber } from '@/utils/interaction';
@@ -139,6 +140,8 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const activeTab: SongTab = songTabs.find(tab => tab.id === requestedTab)?.id
     ?? (focusId || location.hash === '#comments' ? 'comments' : 'preview');
   const [collecting, setCollecting] = useState(false);
+  // 评论排序：菜单放在页签栏右边，评论区按它加载
+  const [commentSort, setCommentSort] = useState<CommentSort>('best');
   const searchLink = (text: string) => '/?search=' + encodeURIComponent(text);
   const uploadTime = new Date(song.timestamp);
   const cover = endpoints.maichart.image(song.id);
@@ -215,6 +218,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             onSelect={selectTab}
             idPrefix="song"
             label={t('song/SongPage.ChartDetails')}
+            trailing={activeTab === 'comments' && !focusId && <CommentSortMenu value={commentSort} onChange={setCommentSort} />}
           />
           <section id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
             {activeTab === 'preview' && <ChartPreview song={song} chartLevel={chartLevel} />}
@@ -223,7 +227,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} chartLevel={chartLevel} /></Activity>
           </section>
           <section id="song-panel-comments" role="tabpanel" aria-labelledby="song-tab-comments" hidden={activeTab !== 'comments'}>
-            <Activity mode={activeTab === 'comments' ? 'visible' : 'hidden'}><CommentSection chartId={song.id} uploader={song.uploader} focusId={focusId} /></Activity>
+            <Activity mode={activeTab === 'comments' ? 'visible' : 'hidden'}><CommentSection chartId={song.id} uploader={song.uploader} focusId={focusId} sort={commentSort} /></Activity>
           </section>
         </div>
         <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}>

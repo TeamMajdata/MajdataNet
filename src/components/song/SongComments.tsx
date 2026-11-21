@@ -496,13 +496,36 @@ export interface CommentSectionProps {
   uploader: string;
   /** 只看这一条评论及其回复（永久链接）。 */
   focusId?: string;
+  /** 由页面控制排序时传入（排序菜单由页面放到别处，比如页签栏右边）；不传则在评论区里显示排序菜单 */
+  sort?: CommentSort;
 }
 
-export function CommentSection({ chartId, uploader, focusId }: CommentSectionProps) {
+/** 评论排序菜单：最佳、最高分、最新、最早、争议 */
+export function CommentSortMenu({ value, onChange }: { value: CommentSort; onChange: (sort: CommentSort) => void }) {
+  const { t } = useTranslation();
+  const labels: Record<CommentSort, string> = {
+    best: t("song/SongComments.SortBest"),
+    top: t("song/SongComments.SortTop"),
+    new: t("song/SongComments.SortNew"),
+    old: t("song/SongComments.SortOld"),
+    controversial: t("song/SongComments.SortControversial"),
+  };
+  return (
+    <SortMenu
+      label={t("song/SongComments.SortBy")}
+      options={COMMENT_SORTS.map(sort => labels[sort])}
+      value={COMMENT_SORTS.indexOf(value)}
+      onChange={index => onChange(COMMENT_SORTS[index])}
+    />
+  );
+}
+
+export function CommentSection({ chartId, uploader, focusId, sort: controlledSort }: CommentSectionProps) {
   const { t } = useTranslation();
   const { user } = useUserContext();
   const location = useLocation();
-  const [sort, setSort] = useState<CommentSort>('best');
+  const [ownSort, setSort] = useState<CommentSort>('best');
+  const sort = controlledSort ?? ownSort;
   // 只在加载时判断一次屏幕宽度，旋转屏幕不会让已显示的评论突然折叠
   const [narrow] = useState(() => !!window.matchMedia?.(NARROW_SCREEN).matches);
   const [attempt, setAttempt] = useState(0);
@@ -591,13 +614,7 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
     },
   };
 
-  const sortLabels: Record<CommentSort, string> = {
-    best: t("song/SongComments.SortBest"),
-    top: t("song/SongComments.SortTop"),
-    new: t("song/SongComments.SortNew"),
-    old: t("song/SongComments.SortOld"),
-    controversial: t("song/SongComments.SortControversial"),
-  };
+
 
   return (
     <section
@@ -641,15 +658,10 @@ export function CommentSection({ chartId, uploader, focusId }: CommentSectionPro
           </Link>
         </div>
       )}
-      {/* 排序放在输入框和列表之间，靠左，和右边的“发表”分开 */}
-      {!focusId && (
+      {/* 排序放在输入框和列表之间，靠左，和右边的“发表”分开；页面自己放了排序菜单时这里不显示 */}
+      {!focusId && controlledSort === undefined && (
         <div className="flex">
-          <SortMenu
-            label={t("song/SongComments.SortBy")}
-            options={COMMENT_SORTS.map(value => sortLabels[value])}
-            value={COMMENT_SORTS.indexOf(sort)}
-            onChange={index => setSort(COMMENT_SORTS[index])}
-          />
+          <CommentSortMenu value={sort} onChange={setSort} />
         </div>
       )}
       {error ? (
