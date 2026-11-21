@@ -225,6 +225,18 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           </section>
         </div>
         <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}>
+          {/* 和个人空间“编辑资料”一样的次要按钮，三个等宽排成一行，放在侧栏最上面 */}
+          <div className="gap-2 grid grid-cols-3">
+            {([
+              [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
+              [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
+              [PiLinkSimple, t('song/SongPage.Share'), () => void copy(window.location.href)],
+            ] as const).map(([Icon, label, onClick]) => (
+              <button key={label} type="button" onClick={onClick} className={ACTION_BUTTON_CLASS}>
+                <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
+              </button>
+            ))}
+          </div>
           <h2 className="song-label">{t('song/SongPage.ChartDetails')}</h2>
           <dl className="song-credits">
             {song.designer && <div><dt>{t('song/SongPage.Designer')}</dt><dd>{song.designer}</dd></div>}
@@ -240,18 +252,6 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             {duration !== undefined && <div><dt>{t('song/SongPage.Duration')}</dt><dd className="tabular-nums">{formatDuration(duration)}</dd></div>}
             {interact && <div><dt>{t('song/SongInteraction.Plays')}</dt><dd className="tabular-nums">{compactNumber(interact.plays, language)}</dd></div>}
           </dl>
-          {/* 和个人空间“编辑资料”一样的次要按钮，三个等宽排成一行 */}
-          <div className="gap-2 grid grid-cols-3">
-            {([
-              [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
-              [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
-              [PiLinkSimple, t('song/SongPage.Share'), () => void copy(window.location.href)],
-            ] as const).map(([Icon, label, onClick]) => (
-              <button key={label} type="button" onClick={onClick} className={ACTION_BUTTON_CLASS}>
-                <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
-              </button>
-            ))}
-          </div>
           <div className="song-tags" role="group" aria-label={t('song/SongPage.Tags')}>
             {song.tags?.map(tag => <Link key={tag} to={searchLink(tag)} title={t('song/SongPage.SearchForTag')}>{tag}</Link>)}
             {song.publicTags?.map(tag => <Link key={tag} to={searchLink('tag:' + tag)} className="song-public-tag" title={t('song/SongPage.SearchForTag')}>{tag}</Link>)}

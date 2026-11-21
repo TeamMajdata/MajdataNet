@@ -27,7 +27,8 @@
 }
 .song-workspace { grid-area: workspace; min-width: 0; }
 .song-sidebar { grid-area: sidebar; display: grid; gap: .85rem; min-width: 0; padding-left: 1.4rem; border-left: 1px solid var(--rule); }
-.song-sidebar > .song-label { padding-top: .65rem; }
+.song-sidebar > :first-child { margin-top: .65rem; }
+.song-sidebar > .song-label { padding-top: .35rem; }
 .song-sidebar .song-radar, .song-sidebar .song-file { border-top: 1px solid var(--rule); padding-top: .8rem; }
 .song-radar > :last-child { margin-inline: auto; max-width: 15rem; }
 .song-difficulty-list, .song-credits dd, .song-credits a,
