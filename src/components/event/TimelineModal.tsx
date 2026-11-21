@@ -2,7 +2,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { getLocale, useLanguage } from '@/i18n';
 import { getEventHref } from '@/utils/eventLink';
 /**
- * 时间轴弹窗组件 - 从 legacy/src/app/widgets/TimelineModal.jsx 迁移
+ * 时间轴弹窗组件
  * 使用 TailwindCSS 重现原样式
  */
 

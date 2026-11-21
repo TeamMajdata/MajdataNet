@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { getEventHref } from '@/utils/eventLink';
 import { eventThumbSrc, fallbackToOriginal } from '@/utils/eventImage';
 /**
- * 活动页面 - 从 legacy/src/app/events/page.jsx 迁移
+ * 活动页面
  * 使用 TailwindCSS 重现原样式
  */
 

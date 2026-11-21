@@ -1,6 +1,5 @@
 /**
  * EventTagPage - 活动标签页面
- * 迁移自 legacy/src/app/eventTag/page.jsx
  * 
  * 根据URL参数id显示特定活动的相关谱面
  */

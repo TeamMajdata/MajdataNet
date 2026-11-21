@@ -1,5 +1,5 @@
 /**
- * 活动筛选器组件 - 从 legacy/src/app/widgets/EventsFilter.jsx 迁移
+ * 活动筛选器组件
  * 使用 TailwindCSS 重现原样式
  */
 

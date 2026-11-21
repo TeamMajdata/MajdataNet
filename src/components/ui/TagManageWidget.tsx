@@ -1,6 +1,5 @@
 /**
  * TagManageWidget 组件 - Tag管理小部件
- * 迁移自 legacy/src/app/widgets/TagManageWidget.jsx
  */
 
 import { useTranslation } from 'react-i18next';

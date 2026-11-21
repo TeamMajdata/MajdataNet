@@ -1,6 +1,5 @@
 /**
  * SongList 组件 - 歌曲列表
- * 迁移自 legacy/src/app/widgets/SongList.jsx
  */
 
 import { useTranslation } from 'react-i18next';

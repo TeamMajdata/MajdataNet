@@ -1,6 +1,5 @@
 /**
  * IntroUploader 组件 - 个人简介上传器
- * 迁移自 legacy/src/app/widgets/IntroUploader.jsx
  */
 
 import { useTranslation } from 'react-i18next';

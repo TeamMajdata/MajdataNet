@@ -1,6 +1,5 @@
 /**
  * AvatarUploader 组件 - 头像上传器
- * 迁移自 legacy/src/app/widgets/AvatarUploader.jsx
  */
 
 import { useTranslation } from 'react-i18next';

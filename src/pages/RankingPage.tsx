@@ -1,6 +1,5 @@
 /**
  * 排行榜页面
- * 迁移自 legacy/src/app/ranking/page.jsx
  */
 
 import { useTranslation } from 'react-i18next';

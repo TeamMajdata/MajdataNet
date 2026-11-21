@@ -1,6 +1,5 @@
 /**
  * EventBanner 组件 - 活动横幅展示
- * 迁移自 legacy/src/app/widgets/EventBanner.jsx
  */
 
 import { useTranslation } from 'react-i18next';

@@ -1,6 +1,5 @@
 /**
  * 小游戏页面
- * 迁移自 legacy/src/app/minigame/page.jsx
  */
 import { useTranslation } from 'react-i18next';
 import { PageLayout, MiniGame } from '@/components';

@@ -1,6 +1,5 @@
 /**
  * MiniGame 组件
- * 迁移自 legacy/src/app/widgets/MiniGame.jsx
  */
 import { Unity, useUnityContext } from 'react-unity-webgl';
 

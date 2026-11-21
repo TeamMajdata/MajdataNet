@@ -1,6 +1,5 @@
 /**
  * 个人空间页面
- * 迁移自 legacy/src/app/space/page.jsx
  */
 
 import { useTranslation } from 'react-i18next';
