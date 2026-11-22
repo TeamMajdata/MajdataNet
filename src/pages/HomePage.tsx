@@ -10,7 +10,8 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
-import 'swiper/swiper-bundle.css';
+import 'swiper/css';
+import 'swiper/css/pagination';
 import SortMenu from '@/components/ui/SortMenu';
 import SearchBox from '@/components/search/SearchBox';
 import { SORT_WORDS, parseIndexParam, useSortOptions } from '@/components/search/chartSort';
