@@ -86,7 +86,14 @@
   .song-sidebar > h2.song-label { display: none; }
   .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
   .song-header-actions { grid-column: 1 / -1; grid-row: 3; }
-  .song-header-actions > button { flex: 1; }
+  /* 按钮平分一行；屏幕窄到放不下（点赞点踩 + 三个按钮）时这一行自己横向滑，不能把整页撑宽
+     （撑宽后手机浏览器会缩小整页，左边被切、右边按钮出屏） */
+  .song-header-actions { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .song-header-actions::-webkit-scrollbar { display: none; }
+  .song-header-actions > * { flex: 1 0 auto; }
+  /* 手机上按钮左右内边距和间距收一点：常见的 375px 宽屏上一行放得下，不用滑 */
+  .song-header-actions { gap: .375rem; }
+  .song-header-actions > button { padding-inline: .625rem; }
   /* 侧栏是“概览”页签，紧接在页签下面，不用再画分隔线 */
   .song-sidebar { border-left: 0; padding: 0; }
   .song-sidebar[hidden] { display: none; }
