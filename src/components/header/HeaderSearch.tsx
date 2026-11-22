@@ -7,7 +7,7 @@ import { MOBILE_ICON_BUTTON } from './styles';
 
 /**
  * 顶栏的搜索按钮（和首页、搜索页同一个 SearchBox，带联想）：
- * - 电脑上（inline）：在按钮左边展开一个输入框，顶栏其他内容照常显示，再点按钮收起；
+ * - 电脑上（inline）：顶栏里常驻一个输入框，不需要先点按钮；
  * - 手机上：顶栏太窄，搜索框直接盖住整条顶栏，右边是关闭按钮。
  * 回车或选中联想进入搜索页。点外面、按 Esc、换页都会收起。
  */
@@ -46,6 +46,15 @@ export default function HeaderSearch({ inline = false }: { inline?: boolean }) {
     setOpen(false);
     navigate(value ? '/search?search=' + encodeURIComponent(value) : '/search');
   };
+  if (inline) {
+    // 和顶栏按钮一样高（36px）；宽度随窗口变
+    return (
+      <div className="w-56 lg:w-64 xl:w-72 [&_input]:h-9">
+        <SearchBox value="" onSubmit={submit} />
+      </div>
+    );
+  }
+
   return (
     <div ref={containerRef} className="relative">
       <button
@@ -60,13 +69,7 @@ export default function HeaderSearch({ inline = false }: { inline?: boolean }) {
       >
         <LuSearch aria-hidden="true" className="w-[18px] h-[18px]" />
       </button>
-      {open && inline && (
-        // 向左展开：贴在按钮左边，和顶栏按钮一样高（36px），底色不透明，盖住下面的导航文字
-        <div className="top-1/2 right-full absolute bg-[rgb(12_14_20)] mr-2 rounded-xl w-[min(22rem,calc(100vw-20rem))] -translate-y-1/2 animate-search-expand [&_input]:h-9">
-          <SearchBox value="" autoFocus onSubmit={submit} />
-        </div>
-      )}
-      {open && !inline && (
+      {open && (
         // 盖住整条顶栏：和顶栏一样高、一样的底色
         <div className="top-0 right-0 left-0 z-1001 fixed bg-[rgb(9_11_17/96%)] backdrop-blur-xl pt-[env(safe-area-inset-top)] border-white/[0.07] border-b">
           {/* 搜索框不铺满整条顶栏：最宽 36rem，居中，关闭按钮紧挨在右边；手机上自然占满 */}
