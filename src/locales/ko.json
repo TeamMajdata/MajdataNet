@@ -397,6 +397,7 @@
     "UserMenu": "사용자 메뉴"
   },
   "shared/header": {
+    "CloseSearch": "검색 닫기",
     "Loading": "불러오는 중..."
   },
   "shared/useCollections": {

@@ -397,6 +397,7 @@
     "UserMenu": "用户菜单"
   },
   "shared/header": {
+    "CloseSearch": "关闭搜索",
     "Loading": "加载中..."
   },
   "shared/useCollections": {

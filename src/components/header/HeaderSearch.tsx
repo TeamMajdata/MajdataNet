@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LuSearch } from 'react-icons/lu';
+import { LuSearch, LuX } from 'react-icons/lu';
 import SearchBox from '@/components/search/SearchBox';
 
 /**
- * 顶栏的搜索按钮：点开在顶栏下面弹出搜索框（和首页、搜索页同一个 SearchBox，带联想），
+ * 顶栏的搜索按钮：点开后搜索框直接盖在顶栏上（和首页、搜索页同一个 SearchBox，带联想），右边是关闭按钮；
  * 回车或选中联想进入搜索页。点外面、按 Esc、换页都会收起。
  */
 export default function HeaderSearch() {
@@ -54,16 +54,27 @@ export default function HeaderSearch() {
         <LuSearch aria-hidden="true" className="w-[18px] h-[18px]" />
       </button>
       {open && (
-        // 手机上左右各留 12px 铺满；电脑上靠右、最宽 36rem
-        <div className="top-[calc(var(--header-height)+env(safe-area-inset-top)+0.5rem)] right-3 md:right-4 left-3 md:left-auto z-1001 fixed md:w-[min(36rem,calc(100vw-2rem))]">
-          <SearchBox
-            value=""
-            autoFocus
-            onSubmit={(value) => {
-              setOpen(false);
-              navigate(value ? '/search?search=' + encodeURIComponent(value) : '/search');
-            }}
-          />
+        // 盖住整条顶栏：和顶栏一样高、一样的底色，内容和顶栏里的内容同宽对齐
+        <div className="top-0 right-0 left-0 z-1001 fixed bg-[rgb(9_11_17/96%)] backdrop-blur-xl pt-[env(safe-area-inset-top)] border-white/[0.07] border-b">
+          <div className="flex items-center gap-2 mx-auto px-3 sm:px-4 max-w-320 h-(--header-height)">
+            <SearchBox
+              value=""
+              autoFocus
+              onSubmit={(value) => {
+                setOpen(false);
+                navigate(value ? '/search?search=' + encodeURIComponent(value) : '/search');
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label={t('shared/header.CloseSearch')}
+              title={t('shared/header.CloseSearch')}
+              className="grid place-items-center hover:bg-white/[0.06] rounded-xl w-10 h-10 text-white/75 hover:text-white transition-colors cursor-pointer shrink-0"
+            >
+              <LuX aria-hidden="true" className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
     </div>

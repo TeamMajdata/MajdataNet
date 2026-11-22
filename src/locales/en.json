@@ -405,6 +405,7 @@
     "UserMenu": "User menu"
   },
   "shared/header": {
+    "CloseSearch": "Close search",
     "Loading": "Loading…"
   },
   "shared/useCollections": {
