@@ -56,6 +56,8 @@ export interface SongDifficultyLevelsProps {
   levels: (string | null)[];
   selected?: number;
   onSelect?: (level: number) => void;
+  /** vertical：电脑侧栏里的纵向列表（难度名在左、定数在右）；默认是一行分段页签 */
+  orientation?: 'horizontal' | 'vertical';
 }
 
 // ======================== 交互计数组件 ========================

@@ -88,10 +88,8 @@
     "Delete": "Delete",
     "DeleteFailed": "Could not delete",
     "DeleteSuccess": "Deleted",
-    "Favorite": "Favorite",
     "NoCover": "No cover",
-    "NoDescription": "No description",
-    "Unfavorite": "Unfavorite"
+    "NoDescription": "No description"
   },
   "collection/CollectionModal": {
     "Cancel": "Cancel",
@@ -141,7 +139,7 @@
     "SortBy": "Sort",
     "Submit": "Save",
     "Subscribe": "Subscribe",
-    "SubscribeSuccess": "Subscribed",
+    "SubscribeSuccess": "Subscribed. Sign in to MajPlay to see it in game",
     "Subscribed": "Subscribed",
     "UnsubscribeSuccess": "Unsubscribed",
     "UploadDate": "Upload date"
@@ -161,29 +159,30 @@
     "RelatedCharts": "Related Charts"
   },
   "home/HomeHighlights": {
-    "ByComments": "Comments",
-    "ByDownloads": "Downloads",
-    "ByPlays": "Plays",
-    "ByRating": "Rating",
     "Collections": "Collections",
     "CollectionsHint": "Chart collections curated by players",
+    "CommentRanking": "Most discussed this week",
+    "CommentRankingHint": "Most commented charts in the last 7 days",
+    "DownloadRanking": "Most downloaded this week",
+    "DownloadRankingHint": "Most downloaded charts in the last 7 days",
     "Likes_one": "{{formatted}} like",
     "Likes_other": "{{formatted}} likes",
-    "Next": "Next",
     "Plays_one": "{{formatted}} play",
     "Plays_other": "{{formatted}} plays",
     "Popular": "Popular this week",
-    "Previous": "Previous",
+    "PopularHint": "Most played charts in the last 7 days",
+    "RatingRanking": "Top rated this week",
+    "RatingRankingHint": "Best rated charts in the last 7 days",
     "RecentUploads": "Recent uploads",
     "RecentUploadsHint": "New from the community",
-    "SortBy": "Sort by",
+    "RecentlyActive": "Recently active",
+    "RecentlyActiveHint": "Charts people are playing and talking about",
+    "RecommendHint": "Picked for you from your plays",
     "ViewAll": "View all"
   },
   "home/HomePage": {
-    "AllCharts": "All Charts",
     "ClearSearch": "Clear search",
     "CommentCount": "Comments",
-    "EmptyData": "Nothing here yet",
     "EventCreatedAt": "Event created on {{date}}",
     "EventsCount_one": "+{{count}} event",
     "EventsCount_other": "+{{count}} events",
@@ -191,7 +190,6 @@
     "LatestActivityShort": "Active",
     "PersonalRecommend": "For You",
     "PlayCount": "Plays",
-    "RecommendEnd": "No more recommendations",
     "ScoreShort": "Score",
     "SearchHintHash": "hash:xxxx to search by chart hash",
     "SearchHintID": "id:xxxx to search by chart ID",
@@ -199,7 +197,6 @@
     "SearchHintUploader": "uploader:xxxx to show charts by an uploader",
     "SearchPlaceholder": "Search titles, artists, charters…",
     "SearchSuggestions": "Search suggestions",
-    "ServerError": "Server error",
     "SortBy": "Sort by:",
     "SuggestKindArtist": "Artist",
     "SuggestKindDesigner": "Charter",
@@ -247,7 +244,6 @@
     "Score": "Score"
   },
   "search/SearchPage": {
-    "ResultsFor": "Results for {{search}}",
     "Title": "Search charts"
   },
   "season/SeasonLastPlayed": {
@@ -409,6 +405,7 @@
     "UserMenu": "User menu"
   },
   "shared/header": {
+    "CloseSearch": "Close search",
     "Loading": "Loading…"
   },
   "shared/useCollections": {
@@ -565,7 +562,7 @@
   },
   "song/SongPage": {
     "BackToHome": "Back to home",
-    "ChartDetails": "Chart details",
+    "ChartDetails": "Chart info",
     "ClipboardSuccess": "Copied",
     "Collection": "Collection",
     "CopyFailed": "Could not copy to clipboard",
@@ -576,6 +573,7 @@
     "Duration": "Length",
     "ManageTags": "Manage tags",
     "NoTags": "No tags",
+    "Overview": "Overview",
     "Preview": "Chart preview",
     "SearchForArtist": "Search for artist",
     "SearchForTag": "Search for tag",

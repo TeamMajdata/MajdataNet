@@ -85,10 +85,8 @@
     "Delete": "삭제",
     "DeleteFailed": "삭제에 실패했습니다",
     "DeleteSuccess": "삭제되었습니다",
-    "Favorite": "즐겨찾기",
     "NoCover": "커버 없음",
-    "NoDescription": "설명이 없습니다",
-    "Unfavorite": "즐겨찾기 제거"
+    "NoDescription": "설명이 없습니다"
   },
   "collection/CollectionModal": {
     "Cancel": "취소",
@@ -138,7 +136,7 @@
     "SortBy": "정렬",
     "Submit": "저장",
     "Subscribe": "구독",
-    "SubscribeSuccess": "구독했습니다",
+    "SubscribeSuccess": "구독했습니다. MajPlay에 로그인하면 게임에서 볼 수 있습니다",
     "Subscribed": "구독 중",
     "UnsubscribeSuccess": "구독을 취소했습니다",
     "UploadDate": "날짜"
@@ -158,34 +156,34 @@
     "RelatedCharts": "관련 채보"
   },
   "home/HomeHighlights": {
-    "ByComments": "댓글",
-    "ByDownloads": "다운로드",
-    "ByPlays": "플레이",
-    "ByRating": "평가",
     "Collections": "컬렉션 광장",
     "CollectionsHint": "플레이어가 정리한 채보 컬렉션",
+    "CommentRanking": "7일 화제 랭킹",
+    "CommentRankingHint": "최근 7일간 댓글이 가장 많은 채보",
+    "DownloadRanking": "7일 다운로드 랭킹",
+    "DownloadRankingHint": "최근 7일간 다운로드가 가장 많은 채보",
     "Likes_other": "좋아요 {{formatted}}",
-    "Next": "다음",
     "Plays_other": "{{formatted}}회 플레이",
     "Popular": "이번 주 인기 채보",
-    "Previous": "이전",
+    "PopularHint": "최근 7일간 가장 많이 플레이된 채보",
+    "RatingRanking": "7일 호평 랭킹",
+    "RatingRankingHint": "최근 7일간 평가가 가장 높은 채보",
     "RecentUploads": "최근 업로드",
     "RecentUploadsHint": "커뮤니티의 새 작품",
-    "SortBy": "정렬 기준",
+    "RecentlyActive": "최근 활발",
+    "RecentlyActiveHint": "요즘 플레이되고 이야기되는 채보",
+    "RecommendHint": "플레이 기록을 바탕으로 한 추천",
     "ViewAll": "모두 보기"
   },
   "home/HomePage": {
-    "AllCharts": "모든 채보",
     "ClearSearch": "검색 지우기",
     "CommentCount": "댓글",
-    "EmptyData": "비어있음",
     "EventCreatedAt": "이벤트 생성일: {{date}}",
     "EventsCount_other": "+{{count}}개의 이벤트",
     "HotShort": "인기",
     "LatestActivityShort": "최근",
     "PersonalRecommend": "맞춤 추천",
     "PlayCount": "재생 수",
-    "RecommendEnd": "더 이상 추천이 없습니다",
     "ScoreShort": "점수",
     "SearchHintHash": "hash:xxxx - 채보 해시로 검색",
     "SearchHintID": "id:xxxx - 채보 ID로 검색",
@@ -193,7 +191,6 @@
     "SearchHintUploader": "uploader:xxxx - 업로더로 검색",
     "SearchPlaceholder": "곡/작곡가/채보자를 검색하세요...",
     "SearchSuggestions": "검색 추천",
-    "ServerError": "서버 오류",
     "SortBy": "정렬 기준:",
     "SuggestKindArtist": "아티스트",
     "SuggestKindDesigner": "채보자",
@@ -241,7 +238,6 @@
     "Score": "점수"
   },
   "search/SearchPage": {
-    "ResultsFor": "{{search}} 검색 결과",
     "Title": "채보 검색"
   },
   "season/SeasonLastPlayed": {
@@ -401,6 +397,7 @@
     "UserMenu": "사용자 메뉴"
   },
   "shared/header": {
+    "CloseSearch": "검색 닫기",
     "Loading": "불러오는 중..."
   },
   "shared/useCollections": {
@@ -565,6 +562,7 @@
     "Duration": "길이",
     "ManageTags": "태그 관리",
     "NoTags": "태그 없음",
+    "Overview": "개요",
     "Preview": "채보 미리보기",
     "SearchForArtist": "작곡가 검색",
     "SearchForTag": "태그 검색",

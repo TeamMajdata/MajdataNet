@@ -11,7 +11,7 @@ import {
   SongDifficultyLevels,
   CommentSection,
   CommentSortMenu,
-  ChartVotePanel,
+  ChartVoteBadge,
   ScoreRanking,
   CollectionModal,
 } from '@/components';
@@ -24,7 +24,7 @@ import { ChartMarkContext, type ChartMark, type ChartMarkTarget } from '@/compon
 import UserAvatar from '@/components/user/UserAvatar';
 import UnderlineTabs from '@/components/ui/UnderlineTabs';
 import SectionLoading from '@/components/ui/SectionLoading';
-import { LuFileCode, LuPlay, LuTrophy } from 'react-icons/lu';
+import { LuFileCode, LuInfo, LuMessageSquare, LuPlay, LuTrophy } from 'react-icons/lu';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiTagSimple } from 'react-icons/pi';
@@ -37,6 +37,7 @@ import { compactNumber } from '@/utils/interaction';
 import { formatDuration } from '@/utils/simai';
 import { useChartMeta } from '@/hooks/useChartMeta';
 import { useChartMediaUrl } from '@/hooks/useChartMediaUrl';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { preloadMajView } from '@/majview/preload';
 
 // 网页版谱面预览带着 PixiJS，只在点开预览时加载
@@ -118,12 +119,17 @@ const ACTION_BUTTON_CLASS = 'flex justify-center items-center gap-1.5 bg-white/[
 
 const TAG_CLASS = 'inline-flex items-center bg-white/[0.06] hover:bg-white/10 px-2.5 border border-white/10 hover:border-white/20 rounded-full h-7 text-white/80 hover:text-white text-xs no-underline transition-colors';
 
-const songTabs = [
-  { id: 'preview', label: 'song/SongPage.Preview', icon: LuPlay },
-  { id: 'chart', label: 'song/ChartFile.Title', icon: LuFileCode },
-  { id: 'scores', label: 'song/ScoreRanking.RankingList', icon: LuTrophy },
-] as const;
-type SongTab = typeof songTabs[number]['id'];
+/** 和 song-detail.css 里手机布局的断点一致 */
+const MOBILE_QUERY = '(max-width: 48rem)';
+
+const PREVIEW_TAB = { id: 'preview', label: 'song/SongPage.Preview', icon: LuPlay } as const;
+const OVERVIEW_TAB = { id: 'overview', label: 'song/SongPage.Overview', icon: LuInfo } as const;
+const COMMENTS_TAB = { id: 'comments', label: 'song/SongComments.Comments', icon: LuMessageSquare } as const;
+const CHART_TAB = { id: 'chart', label: 'song/ChartFile.Title', icon: LuFileCode } as const;
+const SCORES_TAB = { id: 'scores', label: 'song/ScoreRanking.RankingList', icon: LuTrophy } as const;
+const desktopTabs = [PREVIEW_TAB, SCORES_TAB, CHART_TAB];
+const mobileTabs = [OVERVIEW_TAB, COMMENTS_TAB, SCORES_TAB, CHART_TAB];
+type SongTab = typeof PREVIEW_TAB['id'] | typeof OVERVIEW_TAB['id'] | typeof COMMENTS_TAB['id'] | typeof CHART_TAB['id'] | typeof SCORES_TAB['id'];
 
 // 打开页面就显示播放器（停在开头）；没有可预览的难度时只显示封面
 type MarkRange = { length: number; maxCombo: number } | null;
@@ -147,7 +153,7 @@ function ChartPreview({ song, chartLevel, active, jump, onMarkRange }: {
     <div className="song-stage">
       {chartLevel === undefined || cover.recovering ? coverImage : (
         <Suspense fallback={coverImage}>
-          <MajView songId={song.id} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
+          <MajView songId={song.id} title={stripTmpTags(song.title) || song.title} artist={song.artist} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
             active={active} jump={jump} onMarkRange={onMarkRange} />
         </Suspense>
       )}
@@ -162,8 +168,11 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const chartLevel = parseRequestedLevel(params.get('level'), song.levels) ?? getDefaultChartLevel(song.levels);
   const tagWidget = useRef<TagManageWidgetRef>(null);
   const requestedTab = params.get('tab');
-  // 评论不再是页签，一直在播放器下面；旧链接里的 ?tab=comments 落到预览页签
-  const activeTab: SongTab = songTabs.find(tab => tab.id === requestedTab)?.id ?? 'preview';
+  // 手机上（和视频网站一样）播放器一直在最上面，不是页签；侧栏的谱面资料变成“概览”页签（默认），评论也是页签。
+  // 电脑上评论一直在播放器下面、资料在侧栏；手机专用的页签在电脑上落到预览，?tab=preview 在手机上落到概览
+  const isMobile = useMediaQuery(MOBILE_QUERY);
+  const tabs = isMobile ? mobileTabs : desktopTabs;
+  const activeTab: SongTab = tabs.find(tab => tab.id === requestedTab)?.id ?? tabs[0].id;
   const [collecting, setCollecting] = useState(false);
   // 评论排序：菜单放在评论区标题右边，评论区按它加载
   const [commentSort, setCommentSort] = useState<CommentSort>('best');
@@ -181,6 +190,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const { data: interact } = useSWR<ChartInteractSummary>(endpoints.maichart.interactsum(song.id), apiFetcher, { revalidateOnFocus: false });
   const tabCounts: Partial<Record<SongTab, number>> = {
     scores: leaderboard && chartLevel !== undefined ? leaderboard.scores?.[chartLevel]?.length ?? 0 : undefined,
+    comments: interact?.comments,
   };
 
   async function copy(value: string) {
@@ -200,11 +210,14 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
 
   const jumpTo = useCallback((mark: ChartMark) => {
     setJump({ ...mark, key: Date.now() });
-    const next = new URLSearchParams(params);
-    next.set('tab', 'preview');
-    setParams(next, { preventScrollReset: true });
+    // 手机上播放器不在页签里，留在评论页签就行
+    if (!isMobile) {
+      const next = new URLSearchParams(params);
+      next.set('tab', 'preview');
+      setParams(next, { preventScrollReset: true });
+    }
     requestAnimationFrame(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-  }, [params, setParams]);
+  }, [params, setParams, isMobile]);
   const markTarget = useMemo<ChartMarkTarget | null>(
     () => markRange && { ...markRange, jump: jumpTo },
     [markRange, jumpTo],
@@ -216,6 +229,35 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
     next.set('tab', tab);
     setParams(next, { preventScrollReset: true });
   }
+
+  // 点赞点踩 + 下载 / 收藏 / 分享：手机上在页头里，电脑上在播放器下面
+  const actions = (
+    <div className="song-header-actions">
+      {/* 点赞点踩放在下载左边，和旁边的按钮一样高、一样的边框 */}
+      <ChartVoteBadge songid={song.id} size="md" />
+      {([
+        [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
+        [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
+        [PiLinkSimple, t('song/SongPage.Share'), () => void copy(window.location.href)],
+      ] as const).map(([Icon, label, onClick]) => (
+        <button key={label} type="button" onClick={onClick} className={ACTION_BUTTON_CLASS}>
+          <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
+        </button>
+      ))}
+    </div>
+  );
+
+  // 标签：作者标签和玩家标签都是可点的小标签，最后是“管理标签”。一行，接在点赞点踩和操作按钮下面
+  const tags = (
+    <div className="song-tags flex flex-wrap items-center gap-1.5" role="group" aria-label={t('song/SongPage.Tags')}>
+      {song.tags?.map(tag => <Link key={tag} to={searchLink(tag)} title={t('song/SongPage.SearchForTag')} className={TAG_CLASS}>{tag}</Link>)}
+      {song.publicTags?.map(tag => <Link key={tag} to={searchLink('tag:' + tag)} title={t('song/SongPage.SearchForTag')} className={`${TAG_CLASS} text-teal-200/90!`}>{tag}</Link>)}
+      {!song.tags?.length && !song.publicTags?.length && <span className="text-white/40 text-xs">{t('song/SongPage.NoTags')}</span>}
+      <button type="button" onClick={() => tagWidget.current?.openWindow()} className="inline-flex items-center gap-1 px-2 rounded-full h-7 text-white/55 hover:text-white text-xs transition-colors cursor-pointer">
+        <PiTagSimple aria-hidden="true" className="w-3.5 h-3.5" />{t('song/SongPage.ManageTags')}
+      </button>
+    </div>
+  );
 
   return (
     <>
@@ -234,33 +276,32 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             {song.artist && <Link className="song-artist" to={searchLink(song.artist)} title={t('song/SongPage.SearchForArtist')}>{song.artist}</Link>}
           </div>
           {/* 和个人空间“编辑资料”一样的次要按钮，放在页头标题右边；窄屏时排到标题下面 */}
-          <div className="song-header-actions">
-            {([
-              [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
-              [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
-              [PiLinkSimple, t('song/SongPage.Share'), () => void copy(window.location.href)],
-            ] as const).map(([Icon, label, onClick]) => (
-              <button key={label} type="button" onClick={onClick} className={ACTION_BUTTON_CLASS}>
-                <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
-              </button>
-            ))}
-          </div>
-          <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
-            <SongDifficultyLevels levels={song.levels} selected={chartLevel} onSelect={selectLevel} />
-          </div>
+          {/* 手机上播放器在页头上面，操作按钮跟在标题和难度下面；电脑上放在播放器下面（见预览页签） */}
+          {isMobile && actions}
+          {isMobile && tags}
+          {/* 手机上难度是页头里的一行页签；电脑上是侧栏最上面的纵向列表 */}
+          {isMobile && (
+            <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
+              <SongDifficultyLevels levels={song.levels} selected={chartLevel} onSelect={selectLevel} />
+            </div>
+          )}
         </header>
 
         <div className="song-workspace">
           <UnderlineTabs
-            tabs={songTabs.map(({ id, label, icon }) => ({ key: id, label: t(label), icon, count: tabCounts[id] }))}
+            tabs={tabs.map(({ id, label, icon }) => ({ key: id, label: t(label), icon, count: tabCounts[id] }))}
             active={activeTab}
             onSelect={selectTab}
             idPrefix="song"
             label={t('song/SongPage.ChartDetails')}
           />
           {/* 播放器一直挂着：切到别的页签不用重新加载，评论里的时间 / combo 也要靠它判断范围 */}
-          <section ref={previewRef} id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
-            <ChartPreview song={song} chartLevel={chartLevel} active={activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} />
+          {/* 手机上（song-detail.css）这一块不受页签控制，一直显示在页面最上面 */}
+          <section ref={previewRef} id="song-panel-preview" className="song-preview-panel"
+            role={isMobile ? undefined : 'tabpanel'} aria-labelledby={isMobile ? undefined : 'song-tab-preview'} hidden={!isMobile && activeTab !== 'preview'}>
+            <ChartPreview song={song} chartLevel={chartLevel} active={isMobile || activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} />
+            {/* 电脑上点赞点踩和操作按钮在播放器正下方 */}
+            {!isMobile && <div className="song-player-actions">{actions}{tags}</div>}
           </section>
           <section id="song-panel-chart" role="tabpanel" aria-labelledby="song-tab-chart" hidden={activeTab !== 'chart'}>
             {/* 只读查看器不需要后台保活：切走就卸载，回来时从缓存的谱面文本重建 */}
@@ -273,8 +314,12 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           <section id="song-panel-scores" role="tabpanel" aria-labelledby="song-tab-scores" hidden={activeTab !== 'scores'}>
             <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} chartLevel={chartLevel} /></Activity>
           </section>
-          {/* 评论一直放在播放器下面：点评论里的时间戳跳到谱面那一刻时，播放器和评论能同时看到 */}
-          <div className="song-comments">
+          {/* 电脑上评论一直放在播放器下面：点评论里的时间戳跳到谱面那一刻时，播放器和评论能同时看到。
+              手机上是一个页签（播放器钉在上面，同样能同时看到） */}
+          <div className="song-comments" {...(isMobile
+            ? { id: 'song-panel-comments', role: 'tabpanel', 'aria-labelledby': 'song-tab-comments', hidden: activeTab !== 'comments' }
+            // 电脑上评论只跟着“谱面预览”页签出现，排行榜、谱面文件页签下不显示
+            : { hidden: activeTab !== 'preview' })}>
             {/* 读屏器用评论区里自带的标题，这里的文字只给眼睛看 */}
             <div className="flex justify-between items-center gap-3 mb-3">
               <p className="song-label" aria-hidden="true">
@@ -286,7 +331,16 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             <ChartMarkContext value={markTarget}><CommentSection chartId={song.id} uploader={song.uploader} focusId={focusId} sort={commentSort} /></ChartMarkContext>
           </div>
         </div>
-        <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}>
+        <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}
+          {...(isMobile ? { id: 'song-panel-overview', role: 'tabpanel', 'aria-labelledby': 'song-tab-overview', hidden: activeTab !== 'overview' } : {})}>
+          {!isMobile && (
+            <section className="gap-2.5 grid song-levels-section" aria-labelledby="song-levels-title">
+              <h2 id="song-levels-title" className="song-label">{t('song/SongPage.Difficulty')}</h2>
+              <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
+                <SongDifficultyLevels levels={song.levels} selected={chartLevel} onSelect={selectLevel} orientation="vertical" />
+              </div>
+            </section>
+          )}
           <h2 className="song-label">{t('song/SongPage.ChartDetails')}</h2>
           <dl className="song-credits">
             {song.designer && <div><dt>{t('song/SongPage.Designer')}</dt><dd>{song.designer}</dd></div>}
@@ -302,26 +356,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             {duration !== undefined && <div><dt>{t('song/SongPage.Duration')}</dt><dd className="tabular-nums">{formatDuration(duration)}</dd></div>}
             {interact && <div><dt>{t('song/SongInteraction.Plays')}</dt><dd className="tabular-nums">{compactNumber(interact.plays, language)}</dd></div>}
           </dl>
-          <ChartVotePanel songid={song.id} />
-          {/* 标签：作者标签和玩家标签都是可点的小标签，右边“管理”打开编辑窗口 */}
-          <section className="gap-2.5 grid song-side-section" aria-labelledby="song-tags-title">
-            <div className="flex justify-between items-center gap-3">
-              <h3 id="song-tags-title" className="song-label">{t('song/SongPage.Tags')}</h3>
-              <button type="button" onClick={() => tagWidget.current?.openWindow()} className="inline-flex items-center gap-1 text-white/55 hover:text-white text-xs transition-colors cursor-pointer">
-                <PiTagSimple aria-hidden="true" className="w-3.5 h-3.5" />{t('song/SongPage.ManageTags')}
-              </button>
-            </div>
-            {song.tags?.length || song.publicTags?.length ? (
-              <div className="flex flex-wrap gap-1.5">
-                {song.tags?.map(tag => <Link key={tag} to={searchLink(tag)} title={t('song/SongPage.SearchForTag')} className={TAG_CLASS}>{tag}</Link>)}
-                {song.publicTags?.map(tag => <Link key={tag} to={searchLink('tag:' + tag)} title={t('song/SongPage.SearchForTag')} className={`${TAG_CLASS} text-teal-200/90!`}>{tag}</Link>)}
-              </div>
-            ) : (
-              <p className="m-0 text-white/40! text-xs">{t('song/SongPage.NoTags')}</p>
-            )}
-          </section>
-          <ChartRadar id={song.id} hash={song.hash} chartLevel={chartLevel} />
-          {/* ID / HASH：一行一个，值过长时省略，整行点击复制，复制图标对齐在右边 */}
+          {/* ID / HASH：紧接在谱面资料（播放次数）下面，一行一个，值过长时省略，整行点击复制，复制图标对齐在右边 */}
           <dl className="gap-1 grid m-0 song-side-section">
             {([['ID', song.id], ['HASH', song.hash]] as const).map(([key, value]) => (
               <div key={key} className="min-w-0">
@@ -337,6 +372,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
               </div>
             ))}
           </dl>
+          <ChartRadar id={song.id} hash={song.hash} chartLevel={chartLevel} />
         </aside>
       </div>
       <TagManageWidget ref={tagWidget} songid={song.id} />

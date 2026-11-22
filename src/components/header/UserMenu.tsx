@@ -5,6 +5,7 @@ import { useUserContext } from '@/hooks';
 import UserAvatar from '@/components/user/UserAvatar';
 import { handleLogout as logoutUtil } from '@/utils';
 import Dropdown from './Dropdown';
+import { MOBILE_ICON_BUTTON } from './styles';
 import { LuFileMusic, LuHouse, LuListMusic, LuLogOut, LuTrophy } from 'react-icons/lu';
 
 const MENU_ITEM = 'flex items-center gap-3 bg-transparent px-3 border-none rounded-lg w-full h-10 text-white/80 hover:text-white text-sm no-underline hover:bg-white/[0.06] transition-colors cursor-pointer';
@@ -71,13 +72,13 @@ export default function UserMenu({ username }: UserMenuProps) {
       <button
         className={`group flex items-center gap-2 p-1 md:pr-3 border-none rounded-full h-10 font-medium text-sm cursor-pointer touch-manipulation transition-colors duration-150 ${
           isOpen ? 'bg-white/10 text-white' : 'bg-transparent text-white/85 hover:bg-white/[0.06] hover:text-white'
-        }`}
+        } ${MOBILE_ICON_BUTTON}`}
         onClick={() => setIsOpen(canHover() ? true : !isOpen)}
         aria-expanded={isOpen}
         aria-label={t("shared/UserMenu.UserMenu")}
       >
         <UserAvatar
-          className={`w-8 h-8 rounded-full object-cover ring-1 transition-shadow duration-150 ${isOpen ? 'ring-2 ring-blue-400/70' : 'ring-white/15 group-hover:ring-white/40'}`}
+          className={`w-7 md:w-8 h-7 md:h-8 rounded-full object-cover ring-1 transition-shadow duration-150 ${isOpen ? 'ring-2 ring-blue-400/70' : 'ring-white/15 group-hover:ring-white/40'}`}
           username={username}
           avatarId={user?.avatarId}
         />

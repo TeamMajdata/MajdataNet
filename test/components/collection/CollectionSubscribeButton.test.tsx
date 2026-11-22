@@ -29,7 +29,7 @@ describe('collection subscription', () => {
     const button = container.querySelector('button')!;
     expect(button.textContent).toBe('订阅');
     await act(async () => button.click());
-    expect(favorites.toggleFavorite).toHaveBeenCalledWith(id, { added: '订阅成功', removed: '已取消订阅' });
+    expect(favorites.toggleFavorite).toHaveBeenCalledWith(id, { added: '订阅成功，登录 MajPlay 后即可在游戏内看到', removed: '已取消订阅' });
     favorites.favoriteIds.add(id);
     await act(async () => root.render(<CollectionSubscribeButton collectionId={id} />));
     expect(button.textContent).toBe('已订阅');

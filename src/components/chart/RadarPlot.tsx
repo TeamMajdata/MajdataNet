@@ -40,7 +40,9 @@ export default function RadarPlot({ feature }: RadarPlotProps) {
 
   return (
     <svg
-      viewBox="0 0 320 360"
+      // 上下各留 150（约 166 分）：以前按满分 200 留了 180，一般的谱面上下都空出一大块。
+      // 更高的分数仍然画得出来（overflow-visible），只是会伸到框外
+      viewBox="0 30 320 300"
       className="block w-full overflow-visible text-white/90"
       role="img"
       aria-label={`${labels.map((label, i) => `${label}: ${values[i] ?? '—'}`).join(', ')}; ${estiLabel}: ${esti?.toFixed(2) ?? '—'}`}

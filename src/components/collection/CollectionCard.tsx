@@ -10,6 +10,7 @@ import type { Collection, CollectionSongList } from '@/types';
 import { useFavorites } from '@/hooks';
 import { LuListMusic, LuUser } from 'react-icons/lu';
 import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
+import { SubscribeIcon } from './CollectionSubscribeButton';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
@@ -117,7 +118,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
         </div>
       </div>
 
-      {/* Favorite button */}
+      {/* 订阅按钮：和歌单页的“订阅”是同一个操作、同样的提示（以前这里叫“收藏”、是爱心） */}
       {!isManaging && (
         <m.button
           initial={{ opacity: 0, scale: 0.8 }}
@@ -126,22 +127,21 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
           whileTap={{ scale: 0.9 }}
           onClick={(e) => {
             e.stopPropagation();
-            toggleFavorite(collection.id);
+            toggleFavorite(collection.id, {
+              added: t("collection/CollectionPage.SubscribeSuccess"),
+              removed: t("collection/CollectionPage.UnsubscribeSuccess"),
+            });
           }}
           disabled={isFavoriteLoading}
           className={`absolute top-2.5 right-2.5 z-10 flex justify-center items-center border-none rounded-lg w-7 h-7 text-sm cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${isFavorited
-            ? 'bg-pink-500/15 hover:bg-pink-500/25 text-pink-300'
+            ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-300'
             : 'bg-transparent hover:bg-white/10 text-white/45 hover:text-white'
             }`}
-          title={isFavorited ? t("collection/CollectionCard.Unfavorite") : t("collection/CollectionCard.Favorite")}
+          title={isFavorited ? t("collection/CollectionPage.Subscribed") : t("collection/CollectionPage.Subscribe")}
+          aria-label={isFavorited ? t("collection/CollectionPage.Subscribed") : t("collection/CollectionPage.Subscribe")}
+          aria-pressed={isFavorited}
         >
-          {isFavoriteLoading ? (
-            <LoadingSpinner size="14px" />
-          ) : isFavorited ? (
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-          )}
+          {isFavoriteLoading ? <LoadingSpinner size="14px" /> : <SubscribeIcon subscribed={isFavorited} size={14} />}
         </m.button>
       )}
 

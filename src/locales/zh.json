@@ -85,10 +85,8 @@
     "Delete": "删除",
     "DeleteFailed": "删除失败",
     "DeleteSuccess": "删除成功",
-    "Favorite": "收藏",
     "NoCover": "无封面",
-    "NoDescription": "暂无描述",
-    "Unfavorite": "取消收藏"
+    "NoDescription": "暂无描述"
   },
   "collection/CollectionModal": {
     "Cancel": "取消",
@@ -138,7 +136,7 @@
     "SortBy": "排序",
     "Submit": "保存",
     "Subscribe": "订阅",
-    "SubscribeSuccess": "订阅成功",
+    "SubscribeSuccess": "订阅成功，登录 MajPlay 后即可在游戏内看到",
     "Subscribed": "已订阅",
     "UnsubscribeSuccess": "已取消订阅",
     "UploadDate": "时"
@@ -158,34 +156,34 @@
     "RelatedCharts": "相关谱面"
   },
   "home/HomeHighlights": {
-    "ByComments": "评论",
-    "ByDownloads": "下载",
-    "ByPlays": "游玩",
-    "ByRating": "评价",
     "Collections": "歌单广场",
     "CollectionsHint": "大家整理的谱面合集",
+    "CommentRanking": "七日热议榜",
+    "CommentRankingHint": "近七天评论最多的谱面",
+    "DownloadRanking": "七日下载榜",
+    "DownloadRankingHint": "近七天下载最多的谱面",
     "Likes_other": "{{formatted}} 个赞",
-    "Next": "下一页",
     "Plays_other": "{{formatted}} 次游玩",
     "Popular": "七日人气榜",
-    "Previous": "上一页",
+    "PopularHint": "近七天游玩最多的谱面",
+    "RatingRanking": "七日好评榜",
+    "RatingRankingHint": "近七天评价最高的谱面",
     "RecentUploads": "最近上传",
     "RecentUploadsHint": "来自社区的新作品",
-    "SortBy": "排序方式",
+    "RecentlyActive": "最近活跃",
+    "RecentlyActiveHint": "最近有人在玩、在讨论的谱面",
+    "RecommendHint": "根据你的游玩记录推荐",
     "ViewAll": "查看全部"
   },
   "home/HomePage": {
-    "AllCharts": "全部谱面",
     "ClearSearch": "清空搜索",
     "CommentCount": "评论",
-    "EmptyData": "空的",
     "EventCreatedAt": "活动创建于 {{date}}",
     "EventsCount_other": "+{{count}} 个活动",
     "HotShort": "热门",
     "LatestActivityShort": "活跃",
     "PersonalRecommend": "个人推荐",
     "PlayCount": "播放",
-    "RecommendEnd": "没有更多推荐了",
     "ScoreShort": "分数",
     "SearchHintHash": "hash:xxxx 可以按hash查询谱面",
     "SearchHintID": "id:xxxx 可以按id查询谱面",
@@ -193,7 +191,6 @@
     "SearchHintUploader": "uploader:xxxx 可以只看他传的谱面",
     "SearchPlaceholder": "搜索曲目/作曲家/谱师...",
     "SearchSuggestions": "搜索建议",
-    "ServerError": "已闭店",
     "SortBy": "排序：",
     "SuggestKindArtist": "曲师",
     "SuggestKindDesigner": "谱师",
@@ -241,7 +238,6 @@
     "Score": "分数"
   },
   "search/SearchPage": {
-    "ResultsFor": "{{search}} 的搜索结果",
     "Title": "搜索谱面"
   },
   "season/SeasonLastPlayed": {
@@ -401,6 +397,7 @@
     "UserMenu": "用户菜单"
   },
   "shared/header": {
+    "CloseSearch": "关闭搜索",
     "Loading": "加载中..."
   },
   "shared/useCollections": {
@@ -554,7 +551,7 @@
   },
   "song/SongPage": {
     "BackToHome": "返回首页",
-    "ChartDetails": "谱面资料",
+    "ChartDetails": "谱面信息",
     "ClipboardSuccess": "已复制到剪贴板",
     "Collection": "收藏",
     "CopyFailed": "复制失败",
@@ -565,6 +562,7 @@
     "Duration": "时长",
     "ManageTags": "管理标签",
     "NoTags": "暂无标签",
+    "Overview": "概览",
     "Preview": "谱面预览",
     "SearchForArtist": "搜索该艺术家",
     "SearchForTag": "搜索标签",

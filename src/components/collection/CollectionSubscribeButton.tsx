@@ -28,17 +28,24 @@ export default function CollectionSubscribeButton({ collectionId }: { collection
     >
       {isLoadingFavorites || isSubscriptionPending ? (
         <LoadingSpinner size={16} />
-      ) : isSubscribed ? (
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="m5 12 4 4L19 6" />
-        </svg>
       ) : (
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-          <path d="M10 21h4" />
-        </svg>
+        <SubscribeIcon subscribed={isSubscribed} size={16} />
       )}
       <span>{isSubscribed ? t("collection/CollectionPage.Subscribed") : t("collection/CollectionPage.Subscribe")}</span>
     </button>
+  );
+}
+
+/** 订阅图标：没订阅是铃铛，订阅了是对勾（歌单页按钮和歌单卡片共用） */
+export function SubscribeIcon({ subscribed, size }: { subscribed: boolean; size: number }) {
+  return subscribed ? (
+    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m5 12 4 4L19 6" />
+    </svg>
+  ) : (
+    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+      <path d="M10 21h4" />
+    </svg>
   );
 }

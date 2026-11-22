@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { LuMaximize, LuPause, LuPlay, LuRotateCcw, LuSettings2 } from 'react-icons/lu';
 import { Board } from '@/majview/renderer.js';
 import { Transport, adoptDecoded } from '@/majview/audio.js';
+import { useMediaSession } from './useMediaSession';
 import { compileChart, readMaidata } from '@/majview/simai.js';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
 import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, ARROW_SEEK_SEC, ARROW_STEP_SEC, BRIGHT_DRAG_PX, KEY_FAST_RATE, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, VERTICAL_SLOP_PX, VOLUME_DRAG_PX, seekTarget } from '@/majview/gestures.js';
@@ -88,8 +89,11 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ songId, level, cover, onCoverError, active = true, jump, onMarkRange }: {
+export default function MajView({ songId, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange }: {
   songId: string;
+  /** 曲名、曲师：显示在系统的媒体控件里（锁屏、控制中心、通知栏） */
+  title: string;
+  artist?: string;
   level: number;
   cover: string;
   onCoverError?: () => void;
@@ -118,6 +122,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const contextRef = useRef<AudioContext | null>(null);
   /** 当前 AudioContext 是否真正跑起来过（第一次点播放之前它本来就是暂停的，不算卡死） */
   const contextRanRef = useRef(false);
+  /** 跑过的 AudioContext 之后页面进过后台：iOS 回来后它可能还报 running，但时钟再也不走，下次点播放一律换新的 */
+  const backgroundedRef = useRef(false);
   const chartRef = useRef<Chart | null>(null);
   const transportRef = useRef<Transport | null>(null);
   // 后台准备音乐的进度：打开页面就开始下载解码，点播放时多半已经好了
@@ -304,19 +310,36 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     };
   }, [dropTransport]);
 
-  // 回到页面时：音频在后台被系统停掉了（iOS），界面还显示在播放，先切回暂停，下次点播放会换新的 AudioContext
+  // iOS 切后台再回来：AudioContext 可能停在 interrupted / suspended，也可能照样报 running 但时钟一动不动
+  // （只看 state 判断不出来）。所以：
+  // - 进后台时记下来，下次点播放一律换一个新的 AudioContext（togglePlay）；
+  // - 回到页面时如果还在“播放”，看半秒时钟有没有走，没走就先切回暂停，界面不会卡在播放状态
   useEffect(() => {
-    const onVisible = () => {
+    let timer: number | undefined;
+    const onVisibility = () => {
+      window.clearTimeout(timer);
+      if (document.visibilityState === 'hidden') {
+        if (contextRanRef.current) backgroundedRef.current = true;
+        return;
+      }
       const transport = transportRef.current;
-      if (document.visibilityState !== 'visible' || !transport?.playing) return;
-      if (contextRef.current?.state === 'running') return;
-      transport.pause();
-      setPlaying(false);
-      syncVideo(true);
-      frame();
+      const context = contextRef.current;
+      if (!transport?.playing || !context) return;
+      const before = context.currentTime;
+      timer = window.setTimeout(() => {
+        if (transportRef.current !== transport || !transport.playing) return;
+        if (context.state === 'running' && context.currentTime - before > 0.1) return;
+        transport.pause();
+        setPlaying(false);
+        syncVideo(true);
+        frame();
+      }, 500);
     };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [frame, syncVideo]);
 
   // 系统回收了画布的 WebGL（切后台久了、内存紧张）：Pixi 恢复后重画一帧，暂停时画面才不会停在空白
@@ -522,6 +545,20 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     };
   }, [perf]);
 
+  // 系统媒体控件：锁屏 / 控制中心 / 通知栏的播放、暂停、拖动、快进快退都接到这里。时间按界面上显示的算（减掉 begin）
+  const media = useMediaSession({
+    title,
+    artist,
+    artwork: cover,
+    playing,
+    duration: Math.max(0, duration - beginRef.current),
+    rate,
+    getTime: () => (transportRef.current?.time ?? previewTimeRef.current) - beginRef.current,
+    onPlay: () => { if (!transportRef.current?.playing) void togglePlay(); },
+    onPause: () => { if (transportRef.current?.playing) void togglePlay(); },
+    onSeek: (time) => seek(beginRef.current + time),
+  });
+
   const togglePlay = async () => {
     const current = transportRef.current;
     if (current?.playing) {
@@ -535,10 +572,12 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     if (status === 'buffering' || !target) return;
     // 在点击里创建 / 恢复 AudioContext，iOS 才允许出声
     preferPlaybackSession();
+    // 系统媒体控件靠一段静音 <audio> 激活，它的第一次播放也要在点击里
+    media.prime();
     let context = contextRef.current;
-    // iOS 切到后台再回来，跑过的 AudioContext 会停在 interrupted / suspended：resume() 一直不返回，
-    // 时钟也不走，播放、暂停、拖动都像没反应。这时在这次点击里换一个新的，解码好的音频直接带过去
-    if (context && contextRanRef.current && context.state !== 'running') {
+    // iOS 切到后台再回来，跑过的 AudioContext 会卡住：resume() 一直不返回，或者报 running 但时钟不走，
+    // 播放、暂停、拖动都像没反应。这时在这次点击里换一个新的，解码好的音频直接带过去
+    if (context && contextRanRef.current && (context.state !== 'running' || backgroundedRef.current)) {
       const at = transportRef.current?.time;
       if (at !== undefined) previewTimeRef.current = at;
       dropTransport();
@@ -548,6 +587,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       context = fresh;
       contextRanRef.current = false;
     }
+    backgroundedRef.current = false;
     context ??= new AudioContext({ latencyHint: 'interactive' });
     contextRef.current = context;
     const resumed = context.resume();
@@ -586,6 +626,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     transportRef.current?.move(value);
     syncVideo(true);
     frame();
+    media.syncPosition();
   };
 
   const changeRate = (value: number) => {
@@ -744,6 +785,24 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     }, 2500);
   }, []);
 
+  /** 鼠标动一下 / 点一下叫出控制条；触屏不在这里处理（单击判定盘切换显示，按控制条上的按钮会重新计时） */
+  const pokeByMouse = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'touch') pokeControls();
+  };
+
+  /** 全屏时触屏单击：控制条在就收起，不在就叫出来（之后照样 2.5 秒自动收起） */
+  const toggleControls = () => {
+    if (!controlsShownRef.current) {
+      pokeControls();
+      return;
+    }
+    if (controlsTimerRef.current !== null) {
+      clearTimeout(controlsTimerRef.current);
+      controlsTimerRef.current = null;
+    }
+    setControlsShown(false);
+  };
+
   /** 键盘上下键：总音量 ±0.1 */
   const volumeStep = (delta: number) => {
     const next = Math.round(clamp(settingsRef.current.Master + delta, 0, 2) * 10) / 10;
@@ -885,15 +944,27 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       }, DOUBLE_TAP_MS);
       return;
     }
-    // 触摸：双击播放/暂停（单击留给页面滚动/点按）
+    // 触摸：双击播放/暂停。全屏时单击切换控制条（点一下出来，再点一下收起）；
+    // 单击要等一小会儿，确认不是双击的第一下再切，免得双击时控制条闪一下
     const now = performance.now();
     const last = lastTapRef.current;
     if (last && now - last.at <= DOUBLE_TAP_MS
       && Math.hypot(gesture.x - last.x, gesture.y - last.y) <= DOUBLE_TAP_SLOP_PX) {
       lastTapRef.current = null;
+      if (clickTimerRef.current !== null) {
+        clearTimeout(clickTimerRef.current);
+        clickTimerRef.current = null;
+      }
       void togglePlay();
     } else {
       lastTapRef.current = { at: now, x: gesture.x, y: gesture.y };
+      if (document.fullscreenElement) {
+        if (clickTimerRef.current !== null) clearTimeout(clickTimerRef.current);
+        clickTimerRef.current = setTimeout(() => {
+          clickTimerRef.current = null;
+          toggleControls();
+        }, DOUBLE_TAP_MS);
+      }
     }
   };
 
@@ -976,7 +1047,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const controlClass = 'grid place-items-center hover:bg-white/10 rounded-lg w-9 h-9 text-white/85 hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default';
 
   return (
-    <div ref={rootRef} className="majview" onPointerMove={pokeControls} onPointerDown={pokeControls}>
+    <div ref={rootRef} className="majview" onPointerMove={pokeByMouse} onPointerDown={pokeByMouse}>
       <img className="majview-backdrop" src={cover} alt="" crossOrigin="anonymous" />
       {/* 性能信息覆盖层：设置里打开（或 ?perf=1）后出现 */}
       {perf && <div ref={perfRef} className="majview-perf" aria-hidden="true" />}
@@ -1030,7 +1101,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       </div>
       </div>
 
-      <div className="majview-controls" data-hidden={!controlsShown}>
+      <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
         <input
           ref={timelineRef}
           type="range"

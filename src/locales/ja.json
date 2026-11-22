@@ -85,10 +85,8 @@
     "Delete": "削除",
     "DeleteFailed": "削除失敗",
     "DeleteSuccess": "削除しました",
-    "Favorite": "お気に入り",
     "NoCover": "カバーなし",
-    "NoDescription": "説明はありません",
-    "Unfavorite": "お気に入り解除"
+    "NoDescription": "説明はありません"
   },
   "collection/CollectionModal": {
     "Cancel": "キャンセル",
@@ -138,7 +136,7 @@
     "SortBy": "並び替え",
     "Submit": "保存",
     "Subscribe": "購読",
-    "SubscribeSuccess": "購読しました",
+    "SubscribeSuccess": "登録しました。MajPlay にログインするとゲーム内で表示されます",
     "Subscribed": "購読済み",
     "UnsubscribeSuccess": "購読を解除しました",
     "UploadDate": "新しい順"
@@ -158,34 +156,34 @@
     "RelatedCharts": "関連譜面"
   },
   "home/HomeHighlights": {
-    "ByComments": "コメント",
-    "ByDownloads": "ダウンロード",
-    "ByPlays": "プレイ",
-    "ByRating": "評価",
     "Collections": "コレクション広場",
     "CollectionsHint": "プレイヤーがまとめた譜面コレクション",
+    "CommentRanking": "7日間話題ランキング",
+    "CommentRankingHint": "直近7日間で最もコメントされた譜面",
+    "DownloadRanking": "7日間ダウンロードランキング",
+    "DownloadRankingHint": "直近7日間で最もダウンロードされた譜面",
     "Likes_other": "いいね {{formatted}}",
-    "Next": "次へ",
     "Plays_other": "{{formatted}} 回プレイ",
     "Popular": "今週の人気譜面",
-    "Previous": "前へ",
+    "PopularHint": "直近7日間で最もプレイされた譜面",
+    "RatingRanking": "7日間高評価ランキング",
+    "RatingRankingHint": "直近7日間で最も評価の高い譜面",
     "RecentUploads": "最近のアップロード",
     "RecentUploadsHint": "コミュニティの新作",
-    "SortBy": "並び替え",
+    "RecentlyActive": "最近アクティブ",
+    "RecentlyActiveHint": "最近プレイ・話題になっている譜面",
+    "RecommendHint": "あなたのプレイ履歴からのおすすめ",
     "ViewAll": "すべて見る"
   },
   "home/HomePage": {
-    "AllCharts": "すべての譜面",
     "ClearSearch": "検索をクリア",
     "CommentCount": "コメント数",
-    "EmptyData": "空です",
     "EventCreatedAt": "イベント作成日：{{date}}",
     "EventsCount_other": "+{{count}} 個のイベント",
     "HotShort": "人気",
     "LatestActivityShort": "最近",
     "PersonalRecommend": "おすすめ",
     "PlayCount": "再生数",
-    "RecommendEnd": "これ以上おすすめはありません",
     "ScoreShort": "スコア",
     "SearchHintHash": "hash:xxxx でハッシュで検索",
     "SearchHintID": "id:xxxx で譜面IDで検索",
@@ -193,7 +191,6 @@
     "SearchHintUploader": "uploader:xxxx でアップローダーで検索",
     "SearchPlaceholder": "楽曲/作曲家/譜面師を検索...",
     "SearchSuggestions": "検索候補",
-    "ServerError": "閉店中",
     "SortBy": "並び順：",
     "SuggestKindArtist": "アーティスト",
     "SuggestKindDesigner": "譜面作者",
@@ -241,7 +238,6 @@
     "Score": "スコア"
   },
   "search/SearchPage": {
-    "ResultsFor": "{{search}} の検索結果",
     "Title": "譜面を検索"
   },
   "season/SeasonLastPlayed": {
@@ -401,6 +397,7 @@
     "UserMenu": "ユーザーメニュー"
   },
   "shared/header": {
+    "CloseSearch": "検索を閉じる",
     "Loading": "読み込み中..."
   },
   "shared/useCollections": {
@@ -565,6 +562,7 @@
     "Duration": "長さ",
     "ManageTags": "タグを管理",
     "NoTags": "タグがありません",
+    "Overview": "概要",
     "Preview": "譜面プレビュー",
     "SearchForArtist": "アーティストを検索",
     "SearchForTag": "タグを検索",

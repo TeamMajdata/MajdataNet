@@ -138,14 +138,21 @@
   grid-template-columns: auto auto;
   column-gap: .375rem;
   color: rgb(255 255 255 / 55%);
-  font-size: .75rem;
-  line-height: 1.25;
+  /* 电脑上播放器是长方形，判定盘两边各有 200px 左右的空，物量可以大一点 */
+  font-size: .9375rem;
+  line-height: 1.3;
   pointer-events: none;
   text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
 }
 .majview-counter-top { top: .25rem; }
 .majview-counter-bottom { bottom: .25rem; }
+/* 全屏时控制条是盖在画面底部的浮层（约 62px 高）：下面那组物量放到它上面，不被挡住 */
+.majview:fullscreen .majview-counter-bottom { bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
 .majview-counter[hidden] { display: none; }
+/* 窄一点的电脑窗口：判定盘两边的空不够放大字号 */
+@media (max-width: 64rem) {
+  .majview-counter { font-size: .75rem; line-height: 1.25; }
+}
 /* 手机上播放器和判定盘一样宽，物量只能塞进判定线外面的角落，字号要小 */
 @media (max-width: 48rem) {
   .majview-counter { font-size: .5625rem; }

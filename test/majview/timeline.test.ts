@@ -30,6 +30,21 @@ describe('MajView sound events (aligned with MajdataPlay NoteAudioManager)', () 
     expect(events).toEqual([['touchHold_riser', 1, 1.5], ['judge', 2.5, 0]]);
   });
 
+  it('ends every long hold with a plain tap judge, even EX and break holds (HoldDrop.End)', () => {
+    const judgesAt = (hold: Partial<Note>) =>
+      soundEvents({ notes: [{ kind: 'hold', time: 1, end: 2, ...hold }] })
+        .filter((e) => e.time === 2 && e.name.startsWith('judge'))
+        .map((e) => e.name);
+    expect(judgesAt({})).toEqual(['judge']);
+    expect(judgesAt({ ex: true })).toEqual(['judge']);
+    expect(judgesAt({ brk: true })).toEqual(['judge']);
+  });
+
+  it('merging notes a few ms apart keeps one-shot sounds full length', () => {
+    const merged = soundEvents({ notes: [tap(80.7273), tap(80.7386)] }).filter((e) => e.name === 'judge' || e.name === 'answer');
+    expect(merged.map((e) => [e.name, e.time, e.length])).toEqual([['answer', 80.7273, 0], ['judge', 80.7273, 0]]);
+  });
+
   it('requests each sound at most once per frame', () => {
     const judges = soundEvents({ notes: [tap(1), tap(1.005), tap(1.5)] }).filter((e) => e.name === 'judge');
     expect(judges.map((e) => e.time)).toEqual([1, 1.5]);

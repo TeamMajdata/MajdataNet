@@ -53,16 +53,28 @@ export default function SuggestionListbox<T extends SuggestionListboxItem>({ id,
             id={`${id}-${index}`}
             role="option"
             aria-selected={active}
-            className={`flex items-center gap-3 px-3 rounded-lg h-10 text-sm cursor-pointer ${active ? 'bg-white/[0.08] text-white' : 'text-white/80 hover:bg-white/[0.05]'}`}
+            className={`flex items-center gap-3 px-2 py-1.5 rounded-lg min-h-11 text-sm cursor-pointer transition-colors ${active ? 'bg-white/[0.08] text-white' : 'text-white/80 hover:bg-white/[0.05]'}`}
             onMouseDown={(event) => event.preventDefault()}
             onMouseEnter={() => onHover(index)}
             onClick={() => onPick(item)}
           >
-            <Icon aria-hidden="true" className="w-4 h-4 text-white/40 shrink-0" />
-            <span className={`truncate ${item.kind ? '' : 'font-mono text-blue-200'}`}>
-              {item.kind ? <HighlightMatch text={item.label} query={highlight} /> : item.label}
+            {/* 图标放在小方块里，比光秃秃的灰图标更好对齐 */}
+            <span aria-hidden="true" className={`grid place-items-center rounded-md w-7 h-7 shrink-0 ${item.kind ? 'bg-white/[0.06] text-white/55' : 'bg-blue-400/10 text-blue-300'}`}>
+              <Icon className="w-3.5 h-3.5" />
             </span>
-            <span className="ml-auto pl-2 text-white/35 text-xs truncate shrink-0 max-w-[60%]">{item.hint}</span>
+            {item.kind ? (
+              <>
+                <span className="flex-1 min-w-0 truncate"><HighlightMatch text={item.label} query={highlight} /></span>
+                {/* 匹配的是哪个字段：小标签，不再是挤在右边、经常被截断的灰字 */}
+                <span className="bg-white/[0.06] px-1.5 py-0.5 rounded text-[0.6875rem] text-white/50 leading-none whitespace-nowrap shrink-0">{item.hint}</span>
+              </>
+            ) : (
+              // 搜索语法提示：上面是操作符，下面一行是说明，说明不再被截断
+              <span className="flex flex-col flex-1 min-w-0">
+                <span className="font-mono text-blue-200 leading-tight">{item.label}</span>
+                <span className="mt-0.5 text-white/40 text-xs leading-snug">{item.hint}</span>
+              </span>
+            )}
           </li>
         );
       })}

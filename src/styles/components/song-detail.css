@@ -20,6 +20,13 @@
   grid-template-areas: 'heading heading' 'workspace sidebar';
   gap: 1.25rem clamp(1.5rem, 3vw, 3rem);
   align-items: start;
+  /* 页头上面不再留白（组件上的 py-5 / sm:py-8 只留底部的） */
+  padding-top: 0;
+}
+/* 电脑上再收紧：顶栏到标题只留约 15px（抵掉 main 的 1rem 上边距），页头分隔线到页签 / 侧栏 12px。
+   手机布局的上边距另有算法（播放器贴着顶栏），不受影响 */
+@media (min-width: 48.0625rem) {
+  .song-page { margin-top: -1rem; row-gap: .75rem; }
 }
 .song-header {
   grid-area: heading; display: grid; align-items: center;
@@ -27,9 +34,13 @@
   gap: .4rem 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--rule);
 }
 .song-header-actions { display: flex; gap: .5rem; align-self: center; }
+/* 电脑上：点赞点踩和操作按钮在播放器正下方 */
+.song-player-actions { display: grid; gap: .75rem; margin-top: .75rem; }
 .song-workspace { grid-area: workspace; min-width: 0; }
 .song-sidebar { grid-area: sidebar; display: grid; gap: .85rem; min-width: 0; padding-left: 1.4rem; border-left: 1px solid var(--rule); }
 .song-sidebar > .song-label { padding-top: .65rem; }
+/* 电脑侧栏：难度和下面的谱面信息之间也画一条分隔线，和其他几块一致 */
+.song-levels-section + .song-label { border-top: 1px solid var(--rule); padding-top: .9rem; }
 /* 侧栏里“谱面资料”之后的每一块：上面一条分隔线，块内标题和内容间距一致 */
 .song-side-section, .song-sidebar .song-radar { border-top: 1px solid var(--rule); padding-top: .9rem; }
 .song-sidebar .song-radar { display: grid; gap: .6rem; }
@@ -42,7 +53,9 @@
 .song-comments { margin-top: 1.75rem; }
 .song-levels { grid-column: 1 / -1; margin-top: .35rem; }
 .song-detail .song-label { margin: 0; font-size: .875rem; font-weight: 600; text-align: start; line-height: 1.4; }
-.song-stage { position: relative; width: min(100%, 84svh); aspect-ratio: 1; margin-inline: auto; }
+/* 电脑上播放器是和内容栏一样宽的长方形（5:3，最高不超过 84% 屏高）：判定盘在中间，两边是模糊的封面；
+   左边和下面的操作按钮、评论区对齐。手机上另有规则（下面的媒体查询） */
+.song-stage { position: relative; width: 100%; aspect-ratio: 5 / 3; max-height: 84svh; }
 .song-preview, .song-cover { overflow: hidden; border-radius: var(--radius-xl); }
 .song-preview { position: relative; display: block; width: 100%; height: 100%; background: #14181e; }
 .song-preview img { width: 100%; height: 100%; object-fit: cover; }
@@ -61,11 +74,50 @@
 .song-detail :is(button, a, summary):focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
 
 @media (max-width: 48rem) {
-  .song-page { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'heading' 'workspace' 'sidebar'; gap: 1rem; }
+  /* 手机：和视频网站一样，播放器在最上面（顶栏下面），下面依次是标题和操作、页签（评论 / 谱面文件 / 排行榜）、谱面资料。
+     song-workspace 拆开（display: contents），播放器才能排到页头前面 */
+  .song-page { display: flex; flex-direction: column; align-items: stretch; gap: 1rem; padding-top: 0; }
+  .song-workspace { display: contents; }
+  /* 和视频网站一样贴边：紧贴顶栏下边线、横向占满屏幕（抵掉页边距）、不要圆角。
+     上边距要抵掉的是 index.css 手机上 body 在顶栏下面多留的 .75rem 和 main 的 mt-3（640px 起是 mt-4），
+     多留 1px 是顶栏的下边线 */
+  .song-preview-panel {
+    order: -1;
+    margin-top: calc(1px - 1.5rem);
+    margin-inline: calc(50% - 50vw);
+  }
+  .song-preview-panel :is(.song-stage, .song-preview, .majview) { border-radius: 0; }
+}
+@media (min-width: 40rem) and (max-width: 48rem) {
+  .song-preview-panel { margin-top: calc(1px - 1.75rem); }
+}
+@media (max-width: 48rem) {
+  .song-comments { margin-top: 0; }
+  /* 页签栏自带 mb-6，再加上这里的 1rem 间距，页签和内容之间空得太多 */
+  .song-workspace > :first-child { margin-bottom: 0; }
+  /* 页头分隔线到页签：页签栏自己上面还有留白，再加 1rem 间距显得空，收到半个间距 */
+  .song-header { padding-bottom: .5rem; }
+  .song-workspace > :first-child { margin-top: -.5rem; }
+  /* “概览”页签里不用再重复“谱面资料”标题 */
+  .song-sidebar > h2.song-label { display: none; }
   .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
   .song-header-actions { grid-column: 1 / -1; grid-row: 3; }
-  .song-header-actions > button { flex: 1; }
-  .song-sidebar { border-left: 0; border-top: 1px solid var(--rule); padding: .5rem 0 0; }
+  /* 手机页头：标题 → 点赞点踩和操作按钮 → 标签 → 难度（行号写死，免得自动排版把它们塞进前面空出来的格子） */
+  .song-tags { grid-column: 1 / -1; grid-row: 4; }
+  .song-header .song-levels { grid-row: 5; }
+  /* 按钮平分一行；屏幕窄到放不下（点赞点踩 + 三个按钮）时这一行自己横向滑，不能把整页撑宽
+     （撑宽后手机浏览器会缩小整页，左边被切、右边按钮出屏） */
+  .song-header-actions { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .song-header-actions::-webkit-scrollbar { display: none; }
+  .song-header-actions > * { flex: 1 0 auto; }
+  /* 点赞点踩不跟着拉宽：外框变宽而里面两个按钮不变，“踩”的高亮底色右边会空出一截 */
+  .song-header-actions > [role="group"] { flex: none; }
+  /* 手机上按钮左右内边距和间距收一点：常见的 375px 宽屏上一行放得下，不用滑 */
+  .song-header-actions { gap: .375rem; }
+  .song-header-actions > button { padding-inline: .625rem; }
+  /* 侧栏是“概览”页签，紧接在页签下面，不用再画分隔线 */
+  .song-sidebar { border-left: 0; padding: 0; }
+  .song-sidebar[hidden] { display: none; }
   /* 手机上播放器不再是正方形：判定盘占满整个宽度，控制条接在下面，不然判定盘两边各空出半个控制条高 */
   .song-stage:has(.majview) { aspect-ratio: auto; }
   .song-stage .majview { height: auto; }
