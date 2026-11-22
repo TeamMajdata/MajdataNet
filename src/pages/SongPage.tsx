@@ -247,6 +247,18 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
     </div>
   );
 
+  // 标签：作者标签和玩家标签都是可点的小标签，最后是“管理标签”。一行，接在点赞点踩和操作按钮下面
+  const tags = (
+    <div className="song-tags flex flex-wrap items-center gap-1.5" role="group" aria-label={t('song/SongPage.Tags')}>
+      {song.tags?.map(tag => <Link key={tag} to={searchLink(tag)} title={t('song/SongPage.SearchForTag')} className={TAG_CLASS}>{tag}</Link>)}
+      {song.publicTags?.map(tag => <Link key={tag} to={searchLink('tag:' + tag)} title={t('song/SongPage.SearchForTag')} className={`${TAG_CLASS} text-teal-200/90!`}>{tag}</Link>)}
+      {!song.tags?.length && !song.publicTags?.length && <span className="text-white/40 text-xs">{t('song/SongPage.NoTags')}</span>}
+      <button type="button" onClick={() => tagWidget.current?.openWindow()} className="inline-flex items-center gap-1 px-2 rounded-full h-7 text-white/55 hover:text-white text-xs transition-colors cursor-pointer">
+        <PiTagSimple aria-hidden="true" className="w-3.5 h-3.5" />{t('song/SongPage.ManageTags')}
+      </button>
+    </div>
+  );
+
   return (
     <>
       <div className="song-backdrop" aria-hidden="true" style={{ backgroundImage: 'url(' + cover + ')' }} />
@@ -266,6 +278,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           {/* 和个人空间“编辑资料”一样的次要按钮，放在页头标题右边；窄屏时排到标题下面 */}
           {/* 手机上播放器在页头上面，操作按钮跟在标题和难度下面；电脑上放在播放器下面（见预览页签） */}
           {isMobile && actions}
+          {isMobile && tags}
           {/* 手机上难度是页头里的一行页签；电脑上是侧栏最上面的纵向列表 */}
           {isMobile && (
             <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
@@ -288,7 +301,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             role={isMobile ? undefined : 'tabpanel'} aria-labelledby={isMobile ? undefined : 'song-tab-preview'} hidden={!isMobile && activeTab !== 'preview'}>
             <ChartPreview song={song} chartLevel={chartLevel} active={isMobile || activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} />
             {/* 电脑上点赞点踩和操作按钮在播放器正下方 */}
-            {!isMobile && <div className="song-player-actions">{actions}</div>}
+            {!isMobile && <div className="song-player-actions">{actions}{tags}</div>}
           </section>
           <section id="song-panel-chart" role="tabpanel" aria-labelledby="song-tab-chart" hidden={activeTab !== 'chart'}>
             {/* 只读查看器不需要后台保活：切走就卸载，回来时从缓存的谱面文本重建 */}
@@ -356,23 +369,6 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
               </div>
             ))}
           </dl>
-          {/* 标签：作者标签和玩家标签都是可点的小标签，右边“管理”打开编辑窗口 */}
-          <section className="gap-2.5 grid song-side-section" aria-labelledby="song-tags-title">
-            <div className="flex justify-between items-center gap-3">
-              <h3 id="song-tags-title" className="song-label">{t('song/SongPage.Tags')}</h3>
-              <button type="button" onClick={() => tagWidget.current?.openWindow()} className="inline-flex items-center gap-1 text-white/55 hover:text-white text-xs transition-colors cursor-pointer">
-                <PiTagSimple aria-hidden="true" className="w-3.5 h-3.5" />{t('song/SongPage.ManageTags')}
-              </button>
-            </div>
-            {song.tags?.length || song.publicTags?.length ? (
-              <div className="flex flex-wrap gap-1.5">
-                {song.tags?.map(tag => <Link key={tag} to={searchLink(tag)} title={t('song/SongPage.SearchForTag')} className={TAG_CLASS}>{tag}</Link>)}
-                {song.publicTags?.map(tag => <Link key={tag} to={searchLink('tag:' + tag)} title={t('song/SongPage.SearchForTag')} className={`${TAG_CLASS} text-teal-200/90!`}>{tag}</Link>)}
-              </div>
-            ) : (
-              <p className="m-0 text-white/40! text-xs">{t('song/SongPage.NoTags')}</p>
-            )}
-          </section>
           <ChartRadar id={song.id} hash={song.hash} chartLevel={chartLevel} />
         </aside>
       </div>

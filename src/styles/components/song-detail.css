@@ -30,7 +30,7 @@
 }
 .song-header-actions { display: flex; gap: .5rem; align-self: center; }
 /* 电脑上：点赞点踩和操作按钮在播放器正下方 */
-.song-player-actions { margin-top: .75rem; }
+.song-player-actions { display: grid; gap: .75rem; margin-top: .75rem; }
 .song-workspace { grid-area: workspace; min-width: 0; }
 .song-sidebar { grid-area: sidebar; display: grid; gap: .85rem; min-width: 0; padding-left: 1.4rem; border-left: 1px solid var(--rule); }
 .song-sidebar > .song-label { padding-top: .65rem; }
@@ -92,6 +92,9 @@
   .song-sidebar > h2.song-label { display: none; }
   .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
   .song-header-actions { grid-column: 1 / -1; grid-row: 3; }
+  /* 手机页头：标题 → 点赞点踩和操作按钮 → 标签 → 难度（行号写死，免得自动排版把它们塞进前面空出来的格子） */
+  .song-tags { grid-column: 1 / -1; grid-row: 4; }
+  .song-header .song-levels { grid-row: 5; }
   /* 按钮平分一行；屏幕窄到放不下（点赞点踩 + 三个按钮）时这一行自己横向滑，不能把整页撑宽
      （撑宽后手机浏览器会缩小整页，左边被切、右边按钮出屏） */
   .song-header-actions { min-width: 0; overflow-x: auto; scrollbar-width: none; }
