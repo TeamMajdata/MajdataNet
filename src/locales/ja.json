@@ -241,8 +241,8 @@
     "Score": "スコア"
   },
   "search/SearchPage": {
-    "Title": "譜面を検索",
-    "ResultsFor": "{{search}} の検索結果"
+    "ResultsFor": "{{search}} の検索結果",
+    "Title": "譜面を検索"
   },
   "season/SeasonLastPlayed": {
     "Empty": "直近30日間の記録なし",
@@ -456,7 +456,6 @@
     "SettingBreak": "Break音",
     "SettingCombo": "コンボを表示",
     "SettingCounter": "ノーツ数を表示",
-    "SettingSlideClassic": "スライド表示順番：Classic（新しいスライドが上）",
     "SettingDisableGestures": "ジェスチャーを無効化",
     "SettingEX": "EX音",
     "SettingEffects": "打撃音",
@@ -468,6 +467,7 @@
     "SettingOffset": "SE オフセット",
     "SettingPerf": "パフォーマンス情報を表示",
     "SettingSlide": "Slide音",
+    "SettingSlideClassic": "スライド表示順番：Classic（新しいスライドが上）",
     "SettingTouch": "Touch音",
     "SettingTouchSpeed": "タッチ速度",
     "Settings": "設定",

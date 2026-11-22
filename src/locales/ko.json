@@ -241,8 +241,8 @@
     "Score": "점수"
   },
   "search/SearchPage": {
-    "Title": "채보 검색",
-    "ResultsFor": "{{search}} 검색 결과"
+    "ResultsFor": "{{search}} 검색 결과",
+    "Title": "채보 검색"
   },
   "season/SeasonLastPlayed": {
     "Empty": "최근 30일 내 기록 없음",
@@ -456,7 +456,6 @@
     "SettingBreak": "Break 음",
     "SettingCombo": "콤보 표시",
     "SettingCounter": "노트 수 표시",
-    "SettingSlideClassic": "슬라이드 표시 순서: Classic (새 슬라이드가 위)",
     "SettingDisableGestures": "제스처 비활성화",
     "SettingEX": "EX 음",
     "SettingEffects": "타격음",
@@ -468,6 +467,7 @@
     "SettingOffset": "효과음 오프셋",
     "SettingPerf": "성능 정보 표시",
     "SettingSlide": "Slide 음",
+    "SettingSlideClassic": "슬라이드 표시 순서: Classic (새 슬라이드가 위)",
     "SettingTouch": "Touch 음",
     "SettingTouchSpeed": "터치 속도",
     "Settings": "설정",

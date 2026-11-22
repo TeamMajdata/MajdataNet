@@ -247,8 +247,8 @@
     "Score": "Score"
   },
   "search/SearchPage": {
-    "Title": "Search charts",
-    "ResultsFor": "Results for {{search}}"
+    "ResultsFor": "Results for {{search}}",
+    "Title": "Search charts"
   },
   "season/SeasonLastPlayed": {
     "Empty": "No records in the last 30 days",
@@ -464,7 +464,6 @@
     "SettingBreak": "Break",
     "SettingCombo": "Show combo",
     "SettingCounter": "Show note counts",
-    "SettingSlideClassic": "Slide order: Classic (newer slides on top)",
     "SettingDisableGestures": "Disable gestures",
     "SettingEX": "EX",
     "SettingEffects": "Hit sounds",
@@ -476,6 +475,7 @@
     "SettingOffset": "Sound offset",
     "SettingPerf": "Show performance stats",
     "SettingSlide": "Slide",
+    "SettingSlideClassic": "Slide order: Classic (newer slides on top)",
     "SettingTouch": "Touch",
     "SettingTouchSpeed": "Touch speed",
     "Settings": "Settings",
