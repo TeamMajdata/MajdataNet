@@ -4,6 +4,7 @@ import { FreeMode, Mousewheel } from 'swiper/modules';
 import type { Swiper as SwiperInstance } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/free-mode';
+import { NATIVE_SCROLL } from './touchScroll';
 import SongTile, { SongTileSkeleton } from './SongTile';
 import { CarouselHeader } from './carousel';
 import type { Song } from '@/types';
@@ -44,6 +45,7 @@ export default function SongTileRow({ id, title, hint, songs, meta, ranked = fal
           modules={[FreeMode, Mousewheel]}
           onSwiper={setSwiper}
           slidesPerView="auto"
+          cssMode={NATIVE_SCROLL}
           spaceBetween={GAP_PX}
           freeMode={{ enabled: true, momentumRatio: 0.6 }}
           mousewheel={{ forceToAxis: true }}

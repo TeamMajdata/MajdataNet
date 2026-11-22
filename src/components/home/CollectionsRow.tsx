@@ -7,6 +7,7 @@ import { FreeMode, Mousewheel } from 'swiper/modules';
 import type { Swiper as SwiperInstance } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/free-mode';
+import { NATIVE_SCROLL } from './touchScroll';
 import { LuChevronRight } from 'react-icons/lu';
 import { endpoints } from '@/config/api';
 import { apiFetcher } from '@/utils/apiClient';
@@ -82,6 +83,7 @@ export default function CollectionsRow() {
           modules={[FreeMode, Mousewheel]}
           onSwiper={setSwiper}
           slidesPerView="auto"
+          cssMode={NATIVE_SCROLL}
           spaceBetween={12}
           slidesOffsetBefore={bleed}
           slidesOffsetAfter={bleed}
@@ -93,7 +95,9 @@ export default function CollectionsRow() {
           // - 竖向不裁（overflow-x: clip 允许 y 方向保持 visible），阴影和悬停上浮完整显示；
           // - 横向：滑动区域往左右各伸出阴影的宽度（不超出屏幕，见 useShadowBleed），第一张卡片仍然对齐内容列，
           //   停在开头时阴影完整；滑动时卡片多露出这一段再被切掉，卡片和阴影在同一条线上一起切
-          className="my-0! p-0! overflow-x-clip! overflow-y-visible!"
+          // 触屏原生滚动时滚动容器是 wrapper，它会把竖向也裁掉：上下各让出一段给阴影，
+          // 只占标题下面的间距（16px）和下一段上面的间距（40px），不盖住标题行的按钮
+          className="my-0! p-0! overflow-x-clip! overflow-y-visible! [&.swiper-css-mode>.swiper-wrapper]:pt-4 [&.swiper-css-mode>.swiper-wrapper]:pb-10 [&.swiper-css-mode>.swiper-wrapper]:-mt-4 [&.swiper-css-mode>.swiper-wrapper]:-mb-10"
           style={{ marginInline: -bleed, '--bleed': bleed + 'px' } as CSSProperties}
         >
           {data.map((collection) => (
