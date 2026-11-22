@@ -134,13 +134,12 @@ type SongTab = typeof PREVIEW_TAB['id'] | typeof OVERVIEW_TAB['id'] | typeof COM
 // 打开页面就显示播放器（停在开头）；没有可预览的难度时只显示封面
 type MarkRange = { length: number; maxCombo: number } | null;
 
-function ChartPreview({ song, chartLevel, active, jump, onMarkRange, onPlayingChange }: {
+function ChartPreview({ song, chartLevel, active, jump, onMarkRange }: {
   song: SongSummary;
   chartLevel?: number;
   active: boolean;
   jump: (ChartMark & { key: number }) | null;
   onMarkRange: (range: MarkRange) => void;
-  onPlayingChange: (playing: boolean) => void;
 }) {
   const cover = useChartMediaUrl(endpoints.maichart.fullImage(song.id));
   const coverSrc = cover.src ?? endpoints.maichart.image(song.id);
@@ -155,7 +154,7 @@ function ChartPreview({ song, chartLevel, active, jump, onMarkRange, onPlayingCh
       {chartLevel === undefined || cover.recovering ? coverImage : (
         <Suspense fallback={coverImage}>
           <MajView songId={song.id} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
-            active={active} jump={jump} onMarkRange={onMarkRange} onPlayingChange={onPlayingChange} />
+            active={active} jump={jump} onMarkRange={onMarkRange} />
         </Suspense>
       )}
     </div>
@@ -181,8 +180,6 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const [markRange, setMarkRange] = useState<MarkRange>(null);
   const [jump, setJump] = useState<(ChartMark & { key: number }) | null>(null);
   const previewRef = useRef<HTMLElement>(null);
-  // 手机上播放时播放器钉在顶栏下面（像视频网站），暂停了就跟着页面滚走
-  const [previewPlaying, setPreviewPlaying] = useState(false);
   const searchLink = (text: string) => '/search?search=' + encodeURIComponent(text);
   const uploadTime = new Date(song.timestamp);
   const cover = endpoints.maichart.image(song.id);
@@ -276,9 +273,9 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           />
           {/* 播放器一直挂着：切到别的页签不用重新加载，评论里的时间 / combo 也要靠它判断范围 */}
           {/* 手机上（song-detail.css）这一块不受页签控制，一直显示在页面最上面 */}
-          <section ref={previewRef} id="song-panel-preview" className="song-preview-panel" data-playing={previewPlaying || undefined}
+          <section ref={previewRef} id="song-panel-preview" className="song-preview-panel"
             role={isMobile ? undefined : 'tabpanel'} aria-labelledby={isMobile ? undefined : 'song-tab-preview'} hidden={!isMobile && activeTab !== 'preview'}>
-            <ChartPreview song={song} chartLevel={chartLevel} active={isMobile || activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} onPlayingChange={setPreviewPlaying} />
+            <ChartPreview song={song} chartLevel={chartLevel} active={isMobile || activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} />
           </section>
           <section id="song-panel-chart" role="tabpanel" aria-labelledby="song-tab-chart" hidden={activeTab !== 'chart'}>
             {/* 只读查看器不需要后台保活：切走就卸载，回来时从缓存的谱面文本重建 */}

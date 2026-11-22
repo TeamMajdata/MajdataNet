@@ -80,14 +80,6 @@
 }
 @media (max-width: 48rem) {
   .song-comments { margin-top: 0; }
-  /* 播放中往下滑：播放器钉在顶栏下面，下面的内容从它后面滚过去 */
-  .song-preview-panel[data-playing] {
-    position: sticky;
-    top: calc(var(--header-height) + env(safe-area-inset-top));
-    z-index: 20;
-    /* 不透明的底色，后面滚过去的内容不会透出来 */
-    background: rgb(10 12 16);
-  }
   /* “概览”页签里不用再重复“谱面资料”标题 */
   .song-sidebar > h2.song-label { display: none; }
   .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
