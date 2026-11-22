@@ -46,7 +46,7 @@ export default function UnifiedHeader() {
 
         {/* Language + User Section */}
         <div className="flex items-center gap-1.5 shrink-0">
-          <div className="hidden md:block"><HeaderSearch /></div>
+          <div className="hidden md:block"><HeaderSearch inline /></div>
           <LanguageMenu />
           <div className="relative flex items-center">
             {isLoading ? (
