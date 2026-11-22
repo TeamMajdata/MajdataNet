@@ -52,7 +52,7 @@ export function ChartVotePanel({ songid }: { songid: string }) {
 }
 
 /** 成绩卡片等紧凑场景下的投票控件：只有箭头和分数。 */
-export function ChartVoteBadge({ songid }: { songid: string }) {
+export function ChartVoteBadge({ songid, size }: { songid: string; size?: 'sm' | 'md' }) {
   const { t } = useTranslation();
   const { data, mutate } = useSWR<ChartInteractSummary>(endpoints.maichart.interactsum(songid), apiFetcher, {
     revalidateOnFocus: false,
@@ -61,6 +61,7 @@ export function ChartVoteBadge({ songid }: { songid: string }) {
   if (!data) return null;
   return (
     <VoteControl
+      size={size}
       score={data.score}
       myVote={data.myVote}
       label={t("song/SongInteraction.VoteOnChart")}
