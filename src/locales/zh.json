@@ -551,7 +551,7 @@
   },
   "song/SongPage": {
     "BackToHome": "返回首页",
-    "ChartDetails": "谱面资料",
+    "ChartDetails": "谱面信息",
     "ClipboardSuccess": "已复制到剪贴板",
     "Collection": "收藏",
     "CopyFailed": "复制失败",

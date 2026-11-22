@@ -39,6 +39,8 @@
 .song-workspace { grid-area: workspace; min-width: 0; }
 .song-sidebar { grid-area: sidebar; display: grid; gap: .85rem; min-width: 0; padding-left: 1.4rem; border-left: 1px solid var(--rule); }
 .song-sidebar > .song-label { padding-top: .65rem; }
+/* 电脑侧栏：难度和下面的谱面信息之间也画一条分隔线，和其他几块一致 */
+.song-levels-section + .song-label { border-top: 1px solid var(--rule); padding-top: .9rem; }
 /* 侧栏里“谱面资料”之后的每一块：上面一条分隔线，块内标题和内容间距一致 */
 .song-side-section, .song-sidebar .song-radar { border-top: 1px solid var(--rule); padding-top: .9rem; }
 .song-sidebar .song-radar { display: grid; gap: .6rem; }

@@ -334,7 +334,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
         <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}
           {...(isMobile ? { id: 'song-panel-overview', role: 'tabpanel', 'aria-labelledby': 'song-tab-overview', hidden: activeTab !== 'overview' } : {})}>
           {!isMobile && (
-            <section className="gap-2.5 grid" aria-labelledby="song-levels-title">
+            <section className="gap-2.5 grid song-levels-section" aria-labelledby="song-levels-title">
               <h2 id="song-levels-title" className="song-label">{t('song/SongPage.Difficulty')}</h2>
               <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
                 <SongDifficultyLevels levels={song.levels} selected={chartLevel} onSelect={selectLevel} orientation="vertical" />

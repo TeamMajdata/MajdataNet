@@ -562,7 +562,7 @@
   },
   "song/SongPage": {
     "BackToHome": "Back to home",
-    "ChartDetails": "Chart details",
+    "ChartDetails": "Chart info",
     "ClipboardSuccess": "Copied",
     "Collection": "Collection",
     "CopyFailed": "Could not copy to clipboard",
