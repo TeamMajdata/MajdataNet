@@ -173,12 +173,15 @@ export class Transport {
       source.fade.connect(this.gains[channel]);
       source.connect(source.fade);
       const previous = this.lastVoice.get(name);
-      if (previous && this.voices.has(previous)) {
-        const cut = Math.max(when, this.context.currentTime);
+      const cut = Math.max(when, this.context.currentTime);
+      // 只在上一响到那时还没结束时才打断它。音效是提前几秒排好的：上一响自己定好了结束时间
+      // （例如 touchhold 的 riser 到结束判定就停），再调一次 stop() 会把结束时间推迟到这一响开始
+      if (previous && this.voices.has(previous) && previous.endsAt > cut) {
         const gain = previous.fade.gain;
         gain.setValueAtTime(1, Math.max(this.context.currentTime, cut - 0.004));
         gain.linearRampToValueAtTime(0, cut);
         previous.stop(cut + 0.001);
+        previous.endsAt = cut;
       }
       this.lastVoice.set(name, source);
     }
@@ -191,6 +194,10 @@ export class Transport {
     };
     source.start(when, offset);
     if (length > 0) source.stop(when + length / this.rate);
+    // 这一响会在什么时候结束（音乐的倍速在 playbackRate 里，音效按原速播放）
+    source.endsAt = length > 0
+      ? when + length / this.rate
+      : when + (buffer.duration - offset) / (music ? this.rate : 1);
   }
   start() {
     if (this.playing) return;
