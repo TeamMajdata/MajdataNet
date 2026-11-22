@@ -88,9 +88,11 @@ export default function CollectionsRow() {
           // - 竖向不裁（overflow-x: clip 允许 y 方向保持 visible），阴影和悬停上浮完整显示；
           // - 横向：滑动区域往左右各伸出阴影的宽度（不超出屏幕，见 useShadowBleed），第一张卡片仍然对齐内容列，
           //   停在开头时阴影完整；滑动时卡片多露出这一段再被切掉，卡片和阴影在同一条线上一起切
-          // 触屏原生滚动时滚动容器是 wrapper，它会把竖向也裁掉：上下各让出一段给阴影，
-          // 只占标题下面的间距（16px）和下一段上面的间距（40px），不盖住标题行的按钮
-          className="my-0! p-0! overflow-x-clip! overflow-y-visible! [&.swiper-css-mode>.swiper-wrapper]:pt-4 [&.swiper-css-mode>.swiper-wrapper]:pb-10 [&.swiper-css-mode>.swiper-wrapper]:-mt-4 [&.swiper-css-mode>.swiper-wrapper]:-mb-10"
+          // 触屏原生滚动时滚动容器是 wrapper，它会把竖向也裁掉：上下各让出 64px（阴影 60px 模糊），阴影不会切出一道边。
+          // 让出来的这段盖在标题行和下一栏上，所以 wrapper 不接收点击（pointer-events: none），只有卡片接收，
+          // 手指按在卡片上照样能横滑
+          // （wrapper 是 ul，全站的 ul { margin: 0 } 不在 layer 里，负外边距要加 ! 才压得过）
+          className="my-0! p-0! overflow-x-clip! overflow-y-visible! [&.swiper-css-mode>.swiper-wrapper]:py-16 [&.swiper-css-mode>.swiper-wrapper]:-my-16! [&.swiper-css-mode]:pointer-events-none [&.swiper-css-mode>.swiper-wrapper]:pointer-events-none [&.swiper-css-mode_.swiper-slide]:pointer-events-auto"
           style={{ marginInline: -bleed, '--bleed': bleed + 'px' } as CSSProperties}
         >
           {data.map((collection) => (
