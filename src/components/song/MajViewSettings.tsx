@@ -114,6 +114,10 @@ export default function MajViewSettings({ settings, onChange, onClose }: {
           <input type="checkbox" checked={settings.Combo} onChange={(e) => onChange({ Combo: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
         </label>
         <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
+          {t('song/MajView.SettingCounter')}
+          <input type="checkbox" checked={settings.Counter} onChange={(e) => onChange({ Counter: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
+        </label>
+        <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
           {t('song/MajView.SettingPerf')}
           <input type="checkbox" checked={settings.Perf} onChange={(e) => onChange({ Perf: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
         </label>

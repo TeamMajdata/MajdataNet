@@ -935,8 +935,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       <div className="majview-stage">
       {/* 物量分在左上、左下两个角：左上是总数和两种达成率，左下是各类音符已打 / 总数。
           渲染器按播放位置直接改文字 */}
-      <div ref={summaryRef} className="majview-counter majview-counter-top" hidden={!chart} aria-hidden="true" />
-      <div ref={counterRef} className="majview-counter majview-counter-bottom" hidden={!chart} aria-hidden="true" />
+      <div ref={summaryRef} className="majview-counter majview-counter-top" hidden={!chart || !settings.Counter} aria-hidden="true" />
+      <div ref={counterRef} className="majview-counter majview-counter-bottom" hidden={!chart || !settings.Counter} aria-hidden="true" />
       <div
         ref={sceneRef}
         className="majview-scene"

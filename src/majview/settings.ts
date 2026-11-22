@@ -25,7 +25,7 @@ const DEFAULT_VOLUME: Record<VolumeKey, number> = {
 
 export type VolumeKey = typeof MAIN_VOLUMES[number] | typeof EFFECT_VOLUMES[number];
 export type SettingKey = typeof VIEW_FIELDS[number]['key'] | VolumeKey;
-export type ViewSettings = Record<SettingKey, number> & { Combo: boolean; Perf: boolean; Gestures: boolean };
+export type ViewSettings = Record<SettingKey, number> & { Combo: boolean; Counter: boolean; Perf: boolean; Gestures: boolean };
 export type Channel = Exclude<VolumeKey, 'Effects' | 'Master'> | 'Clock';
 
 // 开发中用过百分比格式的 MajViewSettings，换个名字不读它
@@ -55,9 +55,10 @@ export function loadSettings(): ViewSettings {
 }
 
 function parseSettings(saved: Record<string, unknown>): ViewSettings {
-  // 开关项：连击数、性能信息、手势（默认都开，性能信息默认关）
+  // 开关项：连击数、物量、性能信息、手势（默认都开，性能信息默认关）
   const settings = {
     Combo: saved.Combo !== false,
+    Counter: saved.Counter !== false,
     Perf: saved.Perf === true,
     Gestures: saved.Gestures !== false,
   } as ViewSettings;
