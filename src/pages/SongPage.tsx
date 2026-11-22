@@ -11,7 +11,6 @@ import {
   SongDifficultyLevels,
   CommentSection,
   CommentSortMenu,
-  ChartVotePanel,
   ChartVoteBadge,
   ScoreRanking,
   CollectionModal,
@@ -231,6 +230,23 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
     setParams(next, { preventScrollReset: true });
   }
 
+  // 点赞点踩 + 下载 / 收藏 / 分享：手机上在页头里，电脑上在播放器下面
+  const actions = (
+    <div className="song-header-actions">
+      {/* 点赞点踩放在下载左边，和旁边的按钮一样高、一样的边框 */}
+      <ChartVoteBadge songid={song.id} size="md" />
+      {([
+        [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
+        [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
+        [PiLinkSimple, t('song/SongPage.Share'), () => void copy(window.location.href)],
+      ] as const).map(([Icon, label, onClick]) => (
+        <button key={label} type="button" onClick={onClick} className={ACTION_BUTTON_CLASS}>
+          <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <>
       <div className="song-backdrop" aria-hidden="true" style={{ backgroundImage: 'url(' + cover + ')' }} />
@@ -248,19 +264,8 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             {song.artist && <Link className="song-artist" to={searchLink(song.artist)} title={t('song/SongPage.SearchForArtist')}>{song.artist}</Link>}
           </div>
           {/* 和个人空间“编辑资料”一样的次要按钮，放在页头标题右边；窄屏时排到标题下面 */}
-          <div className="song-header-actions">
-            {/* 手机上点赞点踩放在下载左边（电脑上在侧栏），和旁边的按钮一样高、一样的边框 */}
-            {isMobile && <ChartVoteBadge songid={song.id} size="md" />}
-            {([
-              [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
-              [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
-              [PiLinkSimple, t('song/SongPage.Share'), () => void copy(window.location.href)],
-            ] as const).map(([Icon, label, onClick]) => (
-              <button key={label} type="button" onClick={onClick} className={ACTION_BUTTON_CLASS}>
-                <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
-              </button>
-            ))}
-          </div>
+          {/* 手机上播放器在页头上面，操作按钮跟在标题和难度下面；电脑上放在播放器下面（见预览页签） */}
+          {isMobile && actions}
           <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
             <SongDifficultyLevels levels={song.levels} selected={chartLevel} onSelect={selectLevel} />
           </div>
@@ -279,6 +284,8 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           <section ref={previewRef} id="song-panel-preview" className="song-preview-panel"
             role={isMobile ? undefined : 'tabpanel'} aria-labelledby={isMobile ? undefined : 'song-tab-preview'} hidden={!isMobile && activeTab !== 'preview'}>
             <ChartPreview song={song} chartLevel={chartLevel} active={isMobile || activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} />
+            {/* 电脑上点赞点踩和操作按钮在播放器正下方 */}
+            {!isMobile && <div className="song-player-actions">{actions}</div>}
           </section>
           <section id="song-panel-chart" role="tabpanel" aria-labelledby="song-tab-chart" hidden={activeTab !== 'chart'}>
             {/* 只读查看器不需要后台保活：切走就卸载，回来时从缓存的谱面文本重建 */}
@@ -338,7 +345,6 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
               </div>
             ))}
           </dl>
-          {!isMobile && <ChartVotePanel songid={song.id} />}
           {/* 标签：作者标签和玩家标签都是可点的小标签，右边“管理”打开编辑窗口 */}
           <section className="gap-2.5 grid song-side-section" aria-labelledby="song-tags-title">
             <div className="flex justify-between items-center gap-3">

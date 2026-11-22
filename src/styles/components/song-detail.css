@@ -27,6 +27,8 @@
   gap: .4rem 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--rule);
 }
 .song-header-actions { display: flex; gap: .5rem; align-self: center; }
+/* 电脑上：点赞点踩和操作按钮在播放器正下方 */
+.song-player-actions { margin-top: .75rem; }
 .song-workspace { grid-area: workspace; min-width: 0; }
 .song-sidebar { grid-area: sidebar; display: grid; gap: .85rem; min-width: 0; padding-left: 1.4rem; border-left: 1px solid var(--rule); }
 .song-sidebar > .song-label { padding-top: .65rem; }
