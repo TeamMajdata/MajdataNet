@@ -316,7 +316,10 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           </section>
           {/* 电脑上评论一直放在播放器下面：点评论里的时间戳跳到谱面那一刻时，播放器和评论能同时看到。
               手机上是一个页签（播放器钉在上面，同样能同时看到） */}
-          <div className="song-comments" {...(isMobile ? { id: 'song-panel-comments', role: 'tabpanel', 'aria-labelledby': 'song-tab-comments', hidden: activeTab !== 'comments' } : {})}>
+          <div className="song-comments" {...(isMobile
+            ? { id: 'song-panel-comments', role: 'tabpanel', 'aria-labelledby': 'song-tab-comments', hidden: activeTab !== 'comments' }
+            // 电脑上评论只跟着“谱面预览”页签出现，排行榜、谱面文件页签下不显示
+            : { hidden: activeTab !== 'preview' })}>
             {/* 读屏器用评论区里自带的标题，这里的文字只给眼睛看 */}
             <div className="flex justify-between items-center gap-3 mb-3">
               <p className="song-label" aria-hidden="true">
