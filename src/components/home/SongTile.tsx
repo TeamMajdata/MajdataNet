@@ -4,6 +4,7 @@ import { endpoints } from '@/config/api';
 import { parseTmpRichText } from '@/utils/richTextUtils';
 import Levels from '@/components/score/Levels';
 import { RANK_BADGE_CLASS } from '@/components/score/rankBadge';
+import { useImpressionRef } from '@/hooks/useImpressionRef';
 import type { Song } from '@/types';
 
 /**
@@ -18,8 +19,10 @@ export default function SongTile({ song, meta, rank }: {
   rank?: number;
 }) {
   const href = '/song?id=' + song.id;
+  // 处在 ImpressionScope 里（个人推荐）时登记曝光，其他地方是空操作
+  const impressionRef = useImpressionRef(song.hash);
   return (
-    <div className="group min-w-0">
+    <div ref={impressionRef} className="group min-w-0">
       <div className="relative">
         <Link to={href} className="block bg-white/5 rounded-xl aspect-[4/3] overflow-hidden" aria-label={song.title}>
           <img src={endpoints.maichart.image(song.id)} alt="" loading="lazy" draggable={false} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
