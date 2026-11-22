@@ -127,8 +127,8 @@ const OVERVIEW_TAB = { id: 'overview', label: 'song/SongPage.Overview', icon: Lu
 const COMMENTS_TAB = { id: 'comments', label: 'song/SongComments.Comments', icon: LuMessageSquare } as const;
 const CHART_TAB = { id: 'chart', label: 'song/ChartFile.Title', icon: LuFileCode } as const;
 const SCORES_TAB = { id: 'scores', label: 'song/ScoreRanking.RankingList', icon: LuTrophy } as const;
-const desktopTabs = [PREVIEW_TAB, CHART_TAB, SCORES_TAB];
-const mobileTabs = [OVERVIEW_TAB, COMMENTS_TAB, CHART_TAB, SCORES_TAB];
+const desktopTabs = [PREVIEW_TAB, SCORES_TAB, CHART_TAB];
+const mobileTabs = [OVERVIEW_TAB, COMMENTS_TAB, SCORES_TAB, CHART_TAB];
 type SongTab = typeof PREVIEW_TAB['id'] | typeof OVERVIEW_TAB['id'] | typeof COMMENTS_TAB['id'] | typeof CHART_TAB['id'] | typeof SCORES_TAB['id'];
 
 // 打开页面就显示播放器（停在开头）；没有可预览的难度时只显示封面
