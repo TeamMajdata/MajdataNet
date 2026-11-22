@@ -40,6 +40,11 @@ describe('MajView sound events (aligned with MajdataPlay NoteAudioManager)', () 
     expect(judgesAt({ brk: true })).toEqual(['judge']);
   });
 
+  it('merging notes a few ms apart keeps one-shot sounds full length', () => {
+    const merged = soundEvents({ notes: [tap(80.7273), tap(80.7386)] }).filter((e) => e.name === 'judge' || e.name === 'answer');
+    expect(merged.map((e) => [e.name, e.time, e.length])).toEqual([['answer', 80.7273, 0], ['judge', 80.7273, 0]]);
+  });
+
   it('requests each sound at most once per frame', () => {
     const judges = soundEvents({ notes: [tap(1), tap(1.005), tap(1.5)] }).filter((e) => e.name === 'judge');
     expect(judges.map((e) => e.time)).toEqual([1, 1.5]);

@@ -73,7 +73,9 @@ export function soundEvents(chart) {
   for (const e of raw) {
     const previous = last.get(e.name);
     if (previous && e.time - previous.time < FRAME) {
-      previous.length = Math.max(previous.length, e.time + e.length - previous.time);
+      // 只有持续音（touchhold 的 riser）要把长度延到后一个的结尾；一次性的音效 length 是 0（播完为止），
+      // 不能改：以前这里把相隔几毫秒的两个 tap 合并后的 judge / answer 设成了几毫秒长，响一下就被掐断
+      if (previous.length > 0) previous.length = Math.max(previous.length, e.time + e.length - previous.time);
       continue;
     }
     const event = { ...e };
