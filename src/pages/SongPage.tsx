@@ -266,9 +266,12 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           {/* 和个人空间“编辑资料”一样的次要按钮，放在页头标题右边；窄屏时排到标题下面 */}
           {/* 手机上播放器在页头上面，操作按钮跟在标题和难度下面；电脑上放在播放器下面（见预览页签） */}
           {isMobile && actions}
-          <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
-            <SongDifficultyLevels levels={song.levels} selected={chartLevel} onSelect={selectLevel} />
-          </div>
+          {/* 手机上难度是页头里的一行页签；电脑上是侧栏最上面的纵向列表 */}
+          {isMobile && (
+            <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
+              <SongDifficultyLevels levels={song.levels} selected={chartLevel} onSelect={selectLevel} />
+            </div>
+          )}
         </header>
 
         <div className="song-workspace">
@@ -314,6 +317,14 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
         </div>
         <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}
           {...(isMobile ? { id: 'song-panel-overview', role: 'tabpanel', 'aria-labelledby': 'song-tab-overview', hidden: activeTab !== 'overview' } : {})}>
+          {!isMobile && (
+            <section className="gap-2.5 grid" aria-labelledby="song-levels-title">
+              <h2 id="song-levels-title" className="song-label">{t('song/SongPage.Difficulty')}</h2>
+              <div className="song-levels" data-radar-level={chartLevel} role="group" aria-label={t('song/SongPage.Difficulty')}>
+                <SongDifficultyLevels levels={song.levels} selected={chartLevel} onSelect={selectLevel} orientation="vertical" />
+              </div>
+            </section>
+          )}
           <h2 className="song-label">{t('song/SongPage.ChartDetails')}</h2>
           <dl className="song-credits">
             {song.designer && <div><dt>{t('song/SongPage.Designer')}</dt><dd>{song.designer}</dd></div>}

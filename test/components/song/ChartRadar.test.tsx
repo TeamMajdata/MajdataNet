@@ -87,24 +87,24 @@ describe('radar on the song page', () => {
     expect(container.querySelector('[data-radar-level]')?.getAttribute('data-radar-level')).toBe('5');
   });
 
-  it('keeps the cover, title, artist and difficulty in the header and both identifiers in the sidebar across tabs', async () => {
+  it('keeps the cover, title and artist in the header, and difficulty and both identifiers in the desktop sidebar across tabs', async () => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary')
       ? response({ ...summary, artist: 'Track artist' }) : response(radar()));
     await render();
     const heading = container.querySelector('header')!;
     expect(heading.querySelector('h1')?.textContent).toBe('Song');
     expect(heading.textContent).toContain('Track artist');
-    expect(heading.contains(difficulty(3))).toBe(true);
     expect(heading.querySelector('.song-cover img')?.getAttribute('src')).toContain('/song/image');
     expect(heading.querySelector('.song-credits, code')).toBeNull();
     const sidebar = container.querySelector('aside')!;
+    expect(sidebar.contains(difficulty(3))).toBe(true);
     expect(Array.from(sidebar.querySelectorAll('code'), item => item.textContent)).toEqual(['song', 'hash']);
     expect(sidebar.querySelector('details')).toBeNull();
     const scores = container.querySelector<HTMLButtonElement>('#song-tab-scores')!;
     await act(async () => scores.click());
     expect(scores.getAttribute('aria-selected')).toBe('true');
     expect(container.querySelector('[role="tabpanel"]:not([hidden])')?.id).toBe('song-panel-scores');
-    expect(heading.contains(difficulty(3))).toBe(true);
+    expect(sidebar.contains(difficulty(3))).toBe(true);
   });
 
   it.each(['/song?id=song#comments', '/song?id=song&comment=specific'])('opens the discussion for %s', async entry => {
