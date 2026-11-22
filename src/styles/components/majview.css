@@ -120,6 +120,20 @@
   text-align: center;
 }
 
+/* 物量：放在判定盘圆形外的左上角，不挡音符 */
+.majview-note-count {
+  position: absolute;
+  top: .25rem;
+  left: .25rem;
+  z-index: 1;
+  color: rgb(255 255 255 / 60%);
+  font-size: clamp(.6875rem, 2.6cqw, .875rem);
+  line-height: 1.2;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 60%);
+}
+.majview-note-count strong { color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
+
 /* 帧率诊断覆盖层（开发期 / ?perf=1）：压在判定盘左上角，等宽字体，不抢焦点 */
 .majview-perf {
   position: absolute;

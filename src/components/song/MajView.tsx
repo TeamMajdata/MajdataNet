@@ -965,6 +965,11 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
               : status === 'buffering' ? t('song/MajView.LoadingTrack') : t('song/MajView.Loading')}
           </div>
         )}
+        {chart && (
+          <div className="majview-note-count">
+            {t('song/MajView.NoteCount')} <strong>{scores.length}</strong>
+          </div>
+        )}
         {/* 音量 / 亮度拖动时压在判定盘正中间；进度看时间读数右边的 ±，倍速看控制条 */}
         <div ref={valueHintRef} className="majview-value-hint" hidden aria-hidden="true">
           <span ref={valueHintLabelRef} />
