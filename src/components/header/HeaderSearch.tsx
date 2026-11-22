@@ -54,9 +54,10 @@ export default function HeaderSearch() {
         <LuSearch aria-hidden="true" className="w-[18px] h-[18px]" />
       </button>
       {open && (
-        // 盖住整条顶栏：和顶栏一样高、一样的底色，内容和顶栏里的内容同宽对齐
+        // 盖住整条顶栏：和顶栏一样高、一样的底色
         <div className="top-0 right-0 left-0 z-1001 fixed bg-[rgb(9_11_17/96%)] backdrop-blur-xl pt-[env(safe-area-inset-top)] border-white/[0.07] border-b">
-          <div className="flex items-center gap-2 mx-auto px-3 sm:px-4 max-w-320 h-(--header-height)">
+          {/* 搜索框不铺满整条顶栏：最宽 36rem，居中，关闭按钮紧挨在右边；手机上自然占满 */}
+          <div className="flex justify-center items-center gap-2 mx-auto px-3 sm:px-4 max-w-[calc(36rem+3.5rem)] h-(--header-height)">
             <SearchBox
               value=""
               autoFocus
