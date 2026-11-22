@@ -95,6 +95,9 @@
   .song-comments { margin-top: 0; }
   /* 页签栏自带 mb-6，再加上这里的 1rem 间距，页签和内容之间空得太多 */
   .song-workspace > :first-child { margin-bottom: 0; }
+  /* 页头分隔线到页签：页签栏自己上面还有留白，再加 1rem 间距显得空，收到半个间距 */
+  .song-header { padding-bottom: .5rem; }
+  .song-workspace > :first-child { margin-top: -.5rem; }
   /* “概览”页签里不用再重复“谱面资料”标题 */
   .song-sidebar > h2.song-label { display: none; }
   .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
