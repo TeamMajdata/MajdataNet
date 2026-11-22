@@ -9,7 +9,8 @@ import { useLogoEasterEgg } from '@/components/header/useLogoEasterEgg';
 import FloatingButtons from './FloatingButtons';
 import ToastIcon from '@/components/ui/ToastIcon';
 import { updateMascotPreferences, useMascotPreferences } from '@/components/mascot/mascotState';
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
+import { markBooted } from '@/utils/boot';
 import type { PageLayoutProps } from '@/types';
 
 
@@ -42,6 +43,8 @@ export default function PageLayout({
   const logoEasterEgg = useLogoEasterEgg();
   const mascotHidden = useMascotPreferences().hidden === true;
   const desktop = useSyncExternalStore(subscribeDesktop, () => window.matchMedia(DESKTOP_QUERY).matches, () => false);
+  // 第一个页面出来了：之后的整页加载改用带页头页脚的版本（见 PageLoading）
+  useEffect(markBooted, []);
 
   return (
     <>
