@@ -23,7 +23,8 @@
     <meta name="twitter:image" content="https://majdata.net/salt.webp" />
     <!-- JS 下载完之前的加载界面：纯色背景、正中转圈，和 PageLoading 首次加载时的样子一致；React 第一次渲染时会把它换掉 -->
     <style>
-      html, body { margin: 0; background: rgb(20 20 20); }
+      /* 只给 body 设底色（和 index.css 一样）：html 也有背景的话，body 的背景不再铺到画布上，会盖住页面里 z-index 为负的动态背景 */
+      body { margin: 0; background: rgb(20 20 20); }
       .boot-loading {
         position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
         color: rgb(255 255 255 / 55%); font: 0.875rem/1.25rem ui-sans-serif, system-ui, sans-serif;
