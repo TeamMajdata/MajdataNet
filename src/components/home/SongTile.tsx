@@ -30,8 +30,9 @@ export default function SongTile({ song, meta, rank }: {
             #{rank}
           </span>
         )}
-        {/* 难度标签叠在封面左下角，各自可点进对应难度 */}
-        <div className="bottom-2 left-2 absolute drop-shadow-[0_2px_6px_rgb(0_0_0/0.6)]">
+        {/* 难度标签叠在封面左下角，各自可点进对应难度。左右都要定住：宽度是封面的宽度，
+            Levels 才知道能放几个，放不下的收进“+N”；空着的地方不挡点击封面 */}
+        <div className="right-2 bottom-2 left-2 absolute drop-shadow-[0_2px_6px_rgb(0_0_0/0.6)] pointer-events-none [&_a]:pointer-events-auto [&_span[title]]:pointer-events-auto">
           <Levels levels={song.levels} songid={song.id} linkToSong />
         </div>
       </div>
