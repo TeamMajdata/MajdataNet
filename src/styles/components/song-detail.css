@@ -20,6 +20,8 @@
   grid-template-areas: 'heading heading' 'workspace sidebar';
   gap: 1.25rem clamp(1.5rem, 3vw, 3rem);
   align-items: start;
+  /* 页头上面不再留白（组件上的 py-5 / sm:py-8 只留底部的） */
+  padding-top: 0;
 }
 .song-header {
   grid-area: heading; display: grid; align-items: center;
