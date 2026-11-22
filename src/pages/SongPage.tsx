@@ -12,6 +12,7 @@ import {
   CommentSection,
   CommentSortMenu,
   ChartVotePanel,
+  ChartVoteBadge,
   ScoreRanking,
   CollectionModal,
 } from '@/components';
@@ -248,6 +249,8 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           </div>
           {/* 和个人空间“编辑资料”一样的次要按钮，放在页头标题右边；窄屏时排到标题下面 */}
           <div className="song-header-actions">
+            {/* 手机上点赞点踩放在下载左边（电脑上在侧栏） */}
+            {isMobile && <ChartVoteBadge songid={song.id} />}
             {([
               [PiDownloadSimple, t('song/SongPage.Download'), () => void downloadSong({ id: song.id, title: song.title, toast })],
               [PiBookmarkSimple, t('song/SongPage.Collection'), () => setCollecting(true)],
@@ -335,7 +338,7 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
               </div>
             ))}
           </dl>
-          <ChartVotePanel songid={song.id} />
+          {!isMobile && <ChartVotePanel songid={song.id} />}
           {/* 标签：作者标签和玩家标签都是可点的小标签，右边“管理”打开编辑窗口 */}
           <section className="gap-2.5 grid song-side-section" aria-labelledby="song-tags-title">
             <div className="flex justify-between items-center gap-3">
