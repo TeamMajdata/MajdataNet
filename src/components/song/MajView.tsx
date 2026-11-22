@@ -106,6 +106,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const boardHostRef = useRef<HTMLDivElement>(null);
   const comboRef = useRef<HTMLDivElement>(null);
   const comboValueRef = useRef<HTMLElement>(null);
+  const counterRef = useRef<HTMLDivElement>(null);
+  const summaryRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   // 背景压暗层：拖动调亮度时直接写样式，不等 React 重渲染
   const shadeRef = useRef<HTMLDivElement>(null);
@@ -272,7 +274,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     if (!host) return;
     let disposed = false;
     let created: Board | null = null;
-    Board.create(host, 'webgl', SKIN_BASE, { combo: comboRef.current, comboValue: comboValueRef.current })
+    Board.create(host, 'webgl', SKIN_BASE, { combo: comboRef.current, comboValue: comboValueRef.current, counter: counterRef.current, summary: summaryRef.current })
       .then((board) => {
         if (disposed) {
           board.destroy();
@@ -965,11 +967,10 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
               : status === 'buffering' ? t('song/MajView.LoadingTrack') : t('song/MajView.Loading')}
           </div>
         )}
-        {chart && (
-          <div className="majview-note-count">
-            {t('song/MajView.NoteCount')} <strong>{scores.length}</strong>
-          </div>
-        )}
+        {/* 物量分在两个角，不挡判定线：左上是总数和两种达成率，左下是各类音符已打 / 总数。
+            渲染器按播放位置直接改文字 */}
+        <div ref={summaryRef} className="majview-counter majview-counter-top" hidden={!chart} aria-hidden="true" />
+        <div ref={counterRef} className="majview-counter majview-counter-bottom" hidden={!chart} aria-hidden="true" />
         {/* 音量 / 亮度拖动时压在判定盘正中间；进度看时间读数右边的 ±，倍速看控制条 */}
         <div ref={valueHintRef} className="majview-value-hint" hidden aria-hidden="true">
           <span ref={valueHintLabelRef} />

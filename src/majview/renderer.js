@@ -129,6 +129,26 @@ class Layer {
 // 判定盘设计尺寸是 1080，再高的分辨率看不出区别
 const MAX_PIXELS = 1440;
 
+const COUNTER_KINDS = ['Tap', 'Hold', 'Slide', 'Touch', 'Break'];
+
+/**
+ * 物量统计：每行一个名称和一个数值。行只在第一次建出来，之后只改数值的文字，
+ * 免得每打一个音符都重建 DOM
+ */
+function writeCounter(element, rows) {
+  if (element.childElementCount !== rows.length * 2) {
+    element.replaceChildren(...rows.flatMap(([name]) => {
+      const label = document.createElement('span');
+      label.textContent = name;
+      return [label, document.createElement('strong')];
+    }));
+  }
+  rows.forEach(([, value], i) => {
+    const cell = element.children[i * 2 + 1];
+    if (cell.textContent !== value) cell.textContent = value;
+  });
+}
+
 export class Board {
   static async create(host, preference, skinBase, ui = {}) {
     const options = {
@@ -181,10 +201,11 @@ export class Board {
     this.fireLayer.addChild(this.rays);
     this.glows = new Layer(this.fireLayer, skin);
     this.skin = skin;
-    // 连击数和统计显示在页面上（可选）
+    // 连击数和物量统计显示在页面上（可选）
     this.combo = ui.combo ?? null;
     this.comboValue = ui.comboValue ?? null;
-    this.stats = ui.stats ?? null;
+    this.counter = ui.counter ?? null;
+    this.summary = ui.summary ?? null;
     this.maskLayer = new Container();
     this.root.addChild(this.maskLayer);
     this.chart = null;
@@ -254,14 +275,12 @@ export class Board {
       if (count !== this.lastCount) {
         const { counts, totals, classic, deluxe } = scoreAt(this.scores, count);
         if (this.comboValue) this.comboValue.textContent = count ? String(count) : '';
-        if (this.stats) this.stats.textContent = ['Tap', 'Hold', 'Slide', 'Touch', 'Break']
-          .map((name, i) => name + '   ' + counts[i] + ' / ' + totals[i])
-          .concat(
-            'All   ' + count + ' / ' + this.scores.length,
-            'FiNALE   ' + classic.toFixed(2) + '%',
-            'DELUXE   ' + deluxe.toFixed(4) + '%',
-          )
-          .join('\n');
+        if (this.counter) writeCounter(this.counter, COUNTER_KINDS.map((name, i) => [name, counts[i] + '/' + totals[i]]));
+        if (this.summary) writeCounter(this.summary, [
+          ['All', count + '/' + this.scores.length],
+          ['FiNALE', classic.toFixed(2) + '%'],
+          ['DELUXE', deluxe.toFixed(4) + '%'],
+        ]);
         this.lastCount = count;
       }
     }

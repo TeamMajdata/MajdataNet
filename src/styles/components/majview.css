@@ -121,19 +121,30 @@
   text-align: center;
 }
 
-/* 物量：放在判定盘圆形外的左上角，不挡音符 */
-.majview-note-count {
+/* 物量：分在左上、左下两个角，落在判定线外面那一圈，不挡音符。
+   两列：名称左对齐，数值右对齐；字号跟判定盘走，手机上小一点才塞得进角落 */
+.majview-counter {
   position: absolute;
-  top: .25rem;
   left: .25rem;
   z-index: 1;
-  color: rgb(255 255 255 / 60%);
-  font-size: clamp(.6875rem, 2.6cqw, .875rem);
-  line-height: 1.2;
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: .375rem;
+  color: rgb(255 255 255 / 55%);
+  font-size: clamp(.5625rem, 2.2cqmin, .75rem);
+  line-height: 1.25;
   pointer-events: none;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 60%);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
 }
-.majview-note-count strong { color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
+.majview-counter-top { top: .25rem; }
+.majview-counter-bottom { bottom: .25rem; }
+.majview-counter[hidden] { display: none; }
+.majview-counter strong {
+  color: rgb(255 255 255 / 90%);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
 
 /* 帧率诊断覆盖层（开发期 / ?perf=1）：压在判定盘左上角，等宽字体，不抢焦点 */
 .majview-perf {
