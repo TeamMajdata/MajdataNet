@@ -581,7 +581,8 @@ export class Board {
       this.animation(touch ? 'touch' : 'tap', p, ageAfterHit);
     } else {
       const angle = laneAngle(n.lane);
-      this.animation(n.brk ? 'break' : 'tap', p, age, -angle - Math.PI / 4);
+      // Play 把第 i 道的 TapEffect 转 -22.5° − 45°·i（Unity 逆时针为正）；换到画布（y 朝下、顺时针为正）正好是这一道的角度
+      this.animation(n.brk ? 'break' : 'tap', p, age, angle);
       this.animation(n.brk ? 'judgeBreak' : 'judge', { x: 0, y: 0 }, age, angle, this.judges);
     }
   }
