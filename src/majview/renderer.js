@@ -262,14 +262,18 @@ export class Board {
         if (e.to >= time) visible.push(e);
       }
       visibleNotes = visible.length;
-      // Play 里同一层先出现的 note 在前面（SortOrder 递减），所以从后出现的开始画
+      // Play 里同一层先出现的 note 在前面（SortOrder 递减），所以从后出现的开始画。
+      // Slide 跟着 Play 的 SlideSortOrder：Modern（默认）同样是旧的在上；Classic 是新的在上，单独按出现顺序画
+      const classic = this.settings.SlideClassic;
       for (let i = visible.length - 1; i >= 0; i--) {
         const e = visible[i];
         const n = e.n;
-        if (n.kind === 'slide') this.slide(n, time, e.speed);
-        else if (n.kind.startsWith('touch')) this.touch(n, time, slots);
+        if (n.kind === 'slide') {
+          if (!classic) this.slide(n, time, e.speed);
+        } else if (n.kind.startsWith('touch')) this.touch(n, time, slots);
         else this.laneNote(n, time, e.speed);
       }
+      if (classic) for (const e of visible) if (e.n.kind === 'slide') this.slide(e.n, time, e.speed);
       const count = lowerBound(this.scores, time, (entry) => entry.time);
       if (this.combo) this.combo.hidden = !this.settings.Combo || count === 0;
       if (count !== this.lastCount) {
