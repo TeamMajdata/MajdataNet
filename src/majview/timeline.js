@@ -62,7 +62,9 @@ export function soundEvents(chart) {
       }
       if (n.ex) add(n.time, 'judge_ex');
       if (!n.ex && !n.brk) add(n.time, 'judge');
-      if (long && !n.ex && !n.brk) add(n.end, 'judge');
+      // hold 尾判和 Play 的 HoldDrop.End() 一样：不管 hold 本身是 EX 还是绝赞，都按普通 tap 判定音响
+      // （IsBreak = false、IsEX = false）。以前只给普通 hold 加，EX / 绝赞 hold 的尾巴不响
+      if (long) add(n.end, 'judge');
     }
   }
   raw.sort((a, b) => a.time - b.time);
