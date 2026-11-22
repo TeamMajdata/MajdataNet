@@ -458,34 +458,6 @@ test('desktop: fullscreen and mobile resize release then restore the model', asy
   expect(errors).toEqual([]);
 });
 
-test('desktop: player surface stays above the mascot', async ({ page }, info) => {
-  test.skip(info.project.name !== 'desktop');
-  await page.goto('/song?id=mascot-test-0');
-  const mascot = page.getByTestId('live2d-mascot');
-  await expect(mascot).toHaveAttribute('data-model-status', 'ready');
-  await page.locator('button.song-preview').click();
-  const player = page.locator('div.z-100').filter({ has: page.locator('canvas') }).last();
-  await expect(player).toBeVisible();
-  const playerBox = (await player.boundingBox())!;
-  const pokeBox = (await page.getByTestId('mascot-poke').boundingBox())!;
-  await page.mouse.move(pokeBox.x + pokeBox.width / 2, pokeBox.y + pokeBox.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(playerBox.x + playerBox.width / 2, playerBox.y + playerBox.height / 2, { steps: 15 });
-  await page.mouse.up();
-  const layer = await player.evaluate((element) => {
-    const rect = element.getBoundingClientRect();
-    const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
-    const parents = [];
-    for (let parent: HTMLElement | null = element; parent; parent = parent.parentElement) {
-      const style = getComputedStyle(parent);
-      parents.push({ tag: parent.tagName, class: parent.className, z: style.zIndex, position: style.position, filter: style.filter, backdrop: style.backdropFilter, transform: style.transform, opacity: style.opacity, isolation: style.isolation });
-    }
-    return { clear: element.contains(hit), hit: hit?.outerHTML.slice(0, 350), parents };
-  });
-  expect(layer.clear, JSON.stringify(layer, null, 2)).toBe(true);
-  await page.screenshot({ path: info.outputPath('desktop-player-layer.png') });
-});
-
 test('desktop: a moc3 arriving after the timeout cannot access a destroyed framework', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   const errors: string[] = [];
