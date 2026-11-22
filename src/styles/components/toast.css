@@ -34,6 +34,32 @@
   gap: 8px;
 }
 
+/* 库在 480px 以下把通知改成贴边的直角通栏（border-radius: 0、容器 100vw、贴着屏幕底边），
+   手机上要和电脑一样：圆角胶囊居中、离底边和安全区留出距离 */
+@media only screen and (max-width: 480px) {
+  .Toastify .Toastify__toast-container {
+    width: 100vw;
+    padding: 0 16px;
+    bottom: calc(env(safe-area-inset-bottom) + 16px);
+  }
+
+  /* 顶部的（顶栏头像彩蛋）同样离开屏幕上边和刘海 */
+  .Toastify .Toastify__toast-container--top-center {
+    top: calc(env(safe-area-inset-top) + 16px);
+    bottom: auto;
+  }
+
+  .Toastify .Toastify__toast {
+    border-radius: var(--toastify-toast-bd-radius);
+    margin-bottom: 0;
+  }
+
+  .Toastify .Toastify__toast.download-toast {
+    width: 100%;
+    border-radius: 14px;
+  }
+}
+
 /* 图标是 24px 的浅色底圆点（ToastIcon），默认 20px 的槽位放不下 */
 .Toastify .Toastify__toast-icon {
   width: auto;
