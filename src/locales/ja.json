@@ -238,7 +238,6 @@
     "Score": "スコア"
   },
   "search/SearchPage": {
-    "ResultsFor": "{{search}} の検索結果",
     "Title": "譜面を検索"
   },
   "season/SeasonLastPlayed": {

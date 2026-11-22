@@ -51,11 +51,9 @@ export default function SearchPage() {
 
   return (
     <PageLayout>
-      <div className="mx-auto py-5 sm:py-8 w-full max-w-320 min-w-0">
-        <h1 className="m-0 mb-4 sm:mb-5 font-semibold text-white! text-2xl! sm:text-3xl! text-left! tracking-tight">
-          {/* 搜索词用颜色标出来，不加引号：中文引号会用西文字体显示成窄窄的斜引号 */}
-          {search ? <ResultsTitle search={search} /> : t('search/SearchPage.Title')}
-        </h1>
+      <div className="mx-auto pb-5 sm:pb-8 w-full max-w-320 min-w-0">
+        {/* 页面标题只给读屏器：搜索框里已经写着搜的是什么，不再单独显示“xxx 的搜索结果” */}
+        <h1 className="sr-only">{t('search/SearchPage.Title')}</h1>
         <div id="search-toolbar" className="z-30 relative flex gap-2 mb-4 sm:mb-5 scroll-mt-24">
           <SearchBox
             value={search}
@@ -83,14 +81,4 @@ export default function SearchPage() {
       </div>
     </PageLayout>
   );
-}
-
-/** 占位符：翻译文本里搜索词的位置。搜索词本身由 React 当普通文字渲染，不会被当成标签解析 */
-const SEARCH_SLOT = '\u0000';
-
-/** “Tane 的搜索结果”：搜索词用颜色标出来，按翻译文本里的位置拼回去 */
-function ResultsTitle({ search }: { search: string }) {
-  const { t } = useTranslation();
-  const [before, after = ''] = t('search/SearchPage.ResultsFor', { search: SEARCH_SLOT }).split(SEARCH_SLOT);
-  return <>{before}<span className="text-sky-300">{search}</span>{after}</>;
 }

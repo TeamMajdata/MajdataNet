@@ -238,7 +238,6 @@
     "Score": "점수"
   },
   "search/SearchPage": {
-    "ResultsFor": "{{search}} 검색 결과",
     "Title": "채보 검색"
   },
   "season/SeasonLastPlayed": {

@@ -238,7 +238,6 @@
     "Score": "分数"
   },
   "search/SearchPage": {
-    "ResultsFor": "{{search}} 的搜索结果",
     "Title": "搜索谱面"
   },
   "season/SeasonLastPlayed": {
