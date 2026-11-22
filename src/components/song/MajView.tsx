@@ -118,6 +118,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   const contextRef = useRef<AudioContext | null>(null);
   /** 当前 AudioContext 是否真正跑起来过（第一次点播放之前它本来就是暂停的，不算卡死） */
   const contextRanRef = useRef(false);
+  /** 跑过的 AudioContext 之后页面进过后台：iOS 回来后它可能还报 running，但时钟再也不走，下次点播放一律换新的 */
+  const backgroundedRef = useRef(false);
   const chartRef = useRef<Chart | null>(null);
   const transportRef = useRef<Transport | null>(null);
   // 后台准备音乐的进度：打开页面就开始下载解码，点播放时多半已经好了
@@ -304,19 +306,36 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     };
   }, [dropTransport]);
 
-  // 回到页面时：音频在后台被系统停掉了（iOS），界面还显示在播放，先切回暂停，下次点播放会换新的 AudioContext
+  // iOS 切后台再回来：AudioContext 可能停在 interrupted / suspended，也可能照样报 running 但时钟一动不动
+  // （只看 state 判断不出来）。所以：
+  // - 进后台时记下来，下次点播放一律换一个新的 AudioContext（togglePlay）；
+  // - 回到页面时如果还在“播放”，看半秒时钟有没有走，没走就先切回暂停，界面不会卡在播放状态
   useEffect(() => {
-    const onVisible = () => {
+    let timer: number | undefined;
+    const onVisibility = () => {
+      window.clearTimeout(timer);
+      if (document.visibilityState === 'hidden') {
+        if (contextRanRef.current) backgroundedRef.current = true;
+        return;
+      }
       const transport = transportRef.current;
-      if (document.visibilityState !== 'visible' || !transport?.playing) return;
-      if (contextRef.current?.state === 'running') return;
-      transport.pause();
-      setPlaying(false);
-      syncVideo(true);
-      frame();
+      const context = contextRef.current;
+      if (!transport?.playing || !context) return;
+      const before = context.currentTime;
+      timer = window.setTimeout(() => {
+        if (transportRef.current !== transport || !transport.playing) return;
+        if (context.state === 'running' && context.currentTime - before > 0.1) return;
+        transport.pause();
+        setPlaying(false);
+        syncVideo(true);
+        frame();
+      }, 500);
     };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [frame, syncVideo]);
 
   // 系统回收了画布的 WebGL（切后台久了、内存紧张）：Pixi 恢复后重画一帧，暂停时画面才不会停在空白
@@ -536,9 +555,9 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     // 在点击里创建 / 恢复 AudioContext，iOS 才允许出声
     preferPlaybackSession();
     let context = contextRef.current;
-    // iOS 切到后台再回来，跑过的 AudioContext 会停在 interrupted / suspended：resume() 一直不返回，
-    // 时钟也不走，播放、暂停、拖动都像没反应。这时在这次点击里换一个新的，解码好的音频直接带过去
-    if (context && contextRanRef.current && context.state !== 'running') {
+    // iOS 切到后台再回来，跑过的 AudioContext 会卡住：resume() 一直不返回，或者报 running 但时钟不走，
+    // 播放、暂停、拖动都像没反应。这时在这次点击里换一个新的，解码好的音频直接带过去
+    if (context && contextRanRef.current && (context.state !== 'running' || backgroundedRef.current)) {
       const at = transportRef.current?.time;
       if (at !== undefined) previewTimeRef.current = at;
       dropTransport();
@@ -548,6 +567,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       context = fresh;
       contextRanRef.current = false;
     }
+    backgroundedRef.current = false;
     context ??= new AudioContext({ latencyHint: 'interactive' });
     contextRef.current = context;
     const resumed = context.resume();
