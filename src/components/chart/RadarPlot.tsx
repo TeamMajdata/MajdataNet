@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { radarAxes } from '@/utils/radar';
 import type { RadarAxis } from '@/types/radar';
 import radarBackground from '@/assets/radar/MajRadarBG.png';
@@ -46,7 +46,7 @@ export default function RadarPlot({ feature }: RadarPlotProps) {
       aria-label={`${labels.map((label, i) => `${label}: ${values[i] ?? '—'}`).join(', ')}; ${estiLabel}: ${esti?.toFixed(2) ?? '—'}`}
     >
       {complete && (
-        <motion.polygon
+        <m.polygon
           initial={reduceMotion ? false : { points: Array(6).fill(`${RADAR_CENTER_X},${RADAR_CENTER_Y}`).join(' ') }}
           animate={{ points, fill: color.fill, stroke: color.stroke }}
           transition={{ duration: reduceMotion ? 0 : 0.5, ease: [0.215, 0.61, 0.355, 1] }}

@@ -8,7 +8,7 @@ import { useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { LuSearch, LuX } from 'react-icons/lu';
 import SongList from '@/components/song/SongList';
 import SongCard from '@/components/song/SongCard';
@@ -135,7 +135,7 @@ export default function UploadedCharts({ username, onDataLoaded }: {
         />
         <AnimatePresence>
           {currentValue && (
-            <motion.button
+            <m.button
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
@@ -146,7 +146,7 @@ export default function UploadedCharts({ username, onDataLoaded }: {
               aria-label={t("home/HomePage.ClearSearch")}
             >
               <LuX aria-hidden="true" className="w-3.5 h-3.5" />
-            </motion.button>
+            </m.button>
           )}
         </AnimatePresence>
 

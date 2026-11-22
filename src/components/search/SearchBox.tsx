@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useDebouncedCallback } from 'use-debounce';
 import { LuSearch, LuX } from 'react-icons/lu';
 import { buildSuggestions, SEARCH_OPERATORS, type SuggestionKind, type SuggestionSource } from '@/utils/searchSuggestions';
@@ -160,7 +160,7 @@ export default function SearchBox({ value, onChange, onSubmit, autoFocus = false
       )}
       <AnimatePresence>
         {currentValue && (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
@@ -171,7 +171,7 @@ export default function SearchBox({ value, onChange, onSubmit, autoFocus = false
             aria-label={t("home/HomePage.ClearSearch")}
           >
             <LuX aria-hidden="true" className="w-3.5 h-3.5" />
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
 

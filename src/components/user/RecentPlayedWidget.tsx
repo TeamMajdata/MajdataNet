@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { ScoreCard } from '@/components';
 import type { RecentPlayedWidgetProps, RecentPlayedData, Score } from '@/types';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import RecentActivityChart from '@/components/chart/RecentActivityChart';
 import { SONG_GRID_CLASS } from '@/components/song/songGrid';
 import { parseRecentTime } from '@/utils/recentActivity';
@@ -106,7 +106,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded, gridClassNa
     const score = convertToScore(recentData);
 
     return (
-      <motion.div
+      <m.div
         key={`${recentData.chartId}-${recentData.timestamp || index}`}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -119,7 +119,7 @@ export default function RecentPlayedWidget({ username, onDataLoaded, gridClassNa
           showRank={true}
           rankUsername={username}
         />
-      </motion.div>
+      </m.div>
     );
   });
 

@@ -4,7 +4,7 @@
 
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { type ReactNode, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 
 export const TooltipProvider = TooltipPrimitive.Provider;
 
@@ -52,7 +52,7 @@ export default function Tooltip({
               side={side}
               sideOffset={sideOffset}
             >
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 4, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 4, scale: 0.95 }}
@@ -65,7 +65,7 @@ export default function Tooltip({
               >
                 {content}
                 {!plain && <TooltipPrimitive.Arrow className="fill-black/85" />}
-              </motion.div>
+              </m.div>
             </TooltipPrimitive.Content>
           </TooltipPrimitive.Portal>
         )}
