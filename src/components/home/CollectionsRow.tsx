@@ -1,111 +1,39 @@
-import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { FreeMode, Mousewheel } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/free-mode';
-import { NATIVE_SCROLL } from './touchScroll';
 import { LuChevronRight } from 'react-icons/lu';
 import { endpoints } from '@/config/api';
 import { apiFetcher } from '@/utils/apiClient';
-import CollectionCard from '@/components/collection/CollectionCard';
-import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
-import { CarouselHeader } from './carousel';
+import CollectionTile from './CollectionTile';
+import TileRow from './TileRow';
 import type { Collection } from '@/types';
 
 const COUNT = 12;
-/** 卡片阴影向两边扩散的宽度（CARD_SURFACE_CLASS 里最大的那层阴影：60px 模糊） */
-const SHADOW_BLEED = 60;
 
 /**
- * 滑动区域往内容列两边各伸出多少：最多是阴影的宽度，但不能超出屏幕边缘
- * （超出的话手机会把整页缩小，桌面窄窗口也会多出横向滚动）
- */
-function useShadowBleed() {
-  const ref = useRef<HTMLElement>(null);
-  const [bleed, setBleed] = useState(0);
-  useLayoutEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const measure = () => {
-      const rect = element.getBoundingClientRect();
-      const room = Math.min(rect.left, document.documentElement.clientWidth - rect.right);
-      setBleed(Math.max(0, Math.min(SHADOW_BLEED, Math.floor(room))));
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    window.addEventListener('resize', measure);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', measure);
-    };
-  }, []);
-  return [ref, bleed] as const;
-}
-
-/**
- * 首页“歌单广场”横栏：歌单广场第一页的歌单，和最近上传一样横向自由滑动，标题旁边可以进入完整的歌单广场。
+ * 首页“歌单广场”横栏：歌单广场第一页的歌单，和上面的谱面横栏同一种版式（大封面、横向自由滑动），
+ * 卡片做成播放列表的样子；标题旁边可以进入完整的歌单广场。
  */
 export default function CollectionsRow() {
   const { t } = useTranslation();
   const { data } = useSWR<Collection[]>(endpoints.collection.list(0, COUNT), apiFetcher, { revalidateOnFocus: false });
-  const [sectionRef, bleed] = useShadowBleed();
   if (data && data.length === 0) return null;
 
   return (
-    <section ref={sectionRef} aria-labelledby="home-collections" className="mb-10">
-      <CarouselHeader
-        id="home-collections"
-        title={t('home/HomeHighlights.Collections')}
-        hint={
-          <span className="flex flex-wrap items-center gap-x-2">
-            {t('home/HomeHighlights.CollectionsHint')}
-            <Link to="/collection/hiroba" className="inline-flex items-center text-sky-300/80 hover:text-sky-200 no-underline">
-              {t('home/HomeHighlights.ViewAll')}<LuChevronRight aria-hidden="true" className="w-3.5 h-3.5" />
-            </Link>
-          </span>
-        }
-      />
-      {data ? (
-        <Swiper
-          // 两边伸出的宽度变了就重建：Swiper 会更新 slidesOffsetBefore 参数，但不会把当前位置挪过去。
-          // 歌单数据有缓存时（回到首页），Swiper 在量出宽度之前就建好了，第一张卡片会偏左一截
-          key={bleed}
-          modules={[FreeMode, Mousewheel]}
-          slidesPerView="auto"
-          cssMode={NATIVE_SCROLL}
-          spaceBetween={12}
-          slidesOffsetBefore={bleed}
-          slidesOffsetAfter={bleed}
-          freeMode={{ enabled: true, momentumRatio: 0.6 }}
-          mousewheel={{ forceToAxis: true }}
-          grabCursor
-          wrapperTag="ul"
-          // Swiper 默认 overflow: hidden，卡片的大阴影四边都被裁成硬边的暗块：
-          // - 竖向不裁（overflow-x: clip 允许 y 方向保持 visible），阴影和悬停上浮完整显示；
-          // - 横向：滑动区域往左右各伸出阴影的宽度（不超出屏幕，见 useShadowBleed），第一张卡片仍然对齐内容列，
-          //   停在开头时阴影完整；滑动时卡片多露出这一段再被切掉，卡片和阴影在同一条线上一起切
-          // 触屏原生滚动时滚动容器是 wrapper，它会把竖向也裁掉：上下各让出 64px（阴影 60px 模糊），阴影不会切出一道边。
-          // 让出来的这段盖在标题行和下一栏上，所以 wrapper 不接收点击（pointer-events: none），只有卡片接收，
-          // 手指按在卡片上照样能横滑
-          // （wrapper 是 ul，全站的 ul { margin: 0 } 不在 layer 里，负外边距要加 ! 才压得过）
-          className="my-0! p-0! overflow-x-clip! overflow-y-visible! [&.swiper-css-mode>.swiper-wrapper]:py-16 [&.swiper-css-mode>.swiper-wrapper]:-my-16! [&.swiper-css-mode]:pointer-events-none [&.swiper-css-mode>.swiper-wrapper]:pointer-events-none [&.swiper-css-mode_.swiper-slide]:pointer-events-auto"
-          style={{ marginInline: -bleed, '--bleed': bleed + 'px' } as CSSProperties}
-        >
-          {data.map((collection) => (
-            <SwiperSlide key={collection.id} tag="li" className="w-[calc((100%-2*var(--bleed))*0.85)]! sm:w-[calc((100%-2*var(--bleed)-12px)/2.15)]! lg:w-[calc((100%-2*var(--bleed)-24px)/3.15)]! h-auto! list-none">
-              <CollectionCard collection={collection} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      ) : (
-        <div className="gap-3 grid sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
-          {Array.from({ length: 3 }, (_, i) => <div key={i} className={`${CARD_SURFACE_CLASS} h-28 animate-pulse ${i > 0 ? 'max-sm:hidden' : ''} ${i > 1 ? 'max-lg:hidden' : ''}`} />)}
-        </div>
-      )}
-    </section>
+    <TileRow
+      id="home-collections"
+      title={t('home/HomeHighlights.Collections')}
+      hint={
+        <span className="flex flex-wrap items-center gap-x-2">
+          {t('home/HomeHighlights.CollectionsHint')}
+          <Link to="/collection/hiroba" className="inline-flex items-center text-sky-300/80 hover:text-sky-200 no-underline">
+            {t('home/HomeHighlights.ViewAll')}<LuChevronRight aria-hidden="true" className="w-3.5 h-3.5" />
+          </Link>
+        </span>
+      }
+      items={data}
+      itemKey={(collection) => collection.id}
+      renderItem={(collection) => <CollectionTile collection={collection} />}
+    />
   );
 }
