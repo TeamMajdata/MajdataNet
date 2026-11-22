@@ -1,7 +1,8 @@
 /* 网页版谱面预览（MajView）：上面是正方形的判定盘，下面是播放控制条 */
+/* 连击数用 Play 的 [UI]Jua-Regular SDF；只切了 COMBO 和数字，woff2 只有几 KB */
 @font-face {
-  font-family: Minimoon;
-  src: url('/majview/skin/Minimoon.ttf') format('truetype');
+  font-family: Jua;
+  src: url('/majview/skin/Jua-Combo.woff2') format('woff2');
   font-display: swap;
 }
 
@@ -183,14 +184,15 @@
 }
 .majview-seek-delta[hidden] { display: none; }
 
-/* 连击数：位置和字号按 Play 的 CanvasCombo 换算到正方形判定盘 */
+/* 连击数：位置和字号按 Play 的 CenterInfoDisplayer 换算到正方形判定盘。
+   COMBO 44、数字 65，COMBO 中心比数字中心高 62.7 个单位（判定盘按 1080 设计） */
 .majview-combo {
   position: absolute;
   inset: 0;
   container-type: size;
   pointer-events: none;
   color: #ca3e7c;
-  font-family: Minimoon, sans-serif;
+  font-family: Jua, sans-serif;
   text-align: center;
 }
 .majview-combo[hidden] { display: none; }
@@ -209,21 +211,21 @@
   --sy-t: calc(var(--shadow-y) - var(--edge));
   --sy-b: calc(var(--shadow-y) + var(--edge));
   text-shadow:
-    var(--edge) var(--edge) #ddd, calc(-1 * var(--edge)) var(--edge) #ddd,
-    var(--edge) calc(-1 * var(--edge)) #ddd, calc(-1 * var(--edge)) calc(-1 * var(--edge)) #ddd,
+    var(--edge) var(--edge) #b9b9b9, calc(-1 * var(--edge)) var(--edge) #b9b9b9,
+    var(--edge) calc(-1 * var(--edge)) #b9b9b9, calc(-1 * var(--edge)) calc(-1 * var(--edge)) #b9b9b9,
     var(--sx-r) var(--sy-b) black, var(--sx-l) var(--sy-b) black,
     var(--sx-r) var(--sy-t) black, var(--sx-l) var(--sy-t) black;
 }
 .majview-combo span {
-  top: 43.41%;
-  font-size: 3.407cqw;
+  top: 44.194%;
+  font-size: 4.074cqw;
   --edge: 0.05em;
   --shadow-x: 0.055em;
   --shadow-y: 0.0875em;
 }
 .majview-combo strong {
-  top: 50.25%;
-  font-size: 6.896cqw;
+  top: 50%;
+  font-size: 6.019cqw;
   --edge: 0.03333em;
   --shadow-x: 0.03667em;
   --shadow-y: 0.05833em;
