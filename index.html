@@ -21,9 +21,45 @@
     <meta name="twitter:title" content="Majdata.Net" />
     <meta name="twitter:description" content="a Place to Share Maimai Fanmade Charts. maimai 饭制谱面分享平台，支持谱面上传、下载、排行榜和社区互动。" />
     <meta name="twitter:image" content="https://majdata.net/salt.webp" />
+    <!-- JS 下载完之前的加载界面：纯色背景、正中转圈，和 PageLoading 首次加载时的样子一致；React 第一次渲染时会把它换掉 -->
+    <style>
+      html, body { margin: 0; background: rgb(20 20 20); }
+      .boot-loading {
+        position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+        color: rgb(255 255 255 / 55%); font: 0.875rem/1.25rem ui-sans-serif, system-ui, sans-serif;
+      }
+      /* 站点样式表里 p 有全局颜色，加载完会盖过这里，所以要 !important（PageLoading 里也是这样） */
+      .boot-loading p { margin: 0; color: rgb(255 255 255 / 55%) !important; }
+      .boot-spinner {
+        box-sizing: border-box; width: 40px; height: 40px; border: 3px solid rgb(255 255 255 / 20%); border-top-color: #fff;
+        border-radius: 50%; animation: boot-spin 800ms linear infinite;
+      }
+      @keyframes boot-spin { to { transform: rotate(360deg); } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot-loading" role="status">
+        <div class="boot-spinner"></div>
+        <p id="boot-loading-text">Loading…</p>
+      </div>
+    </div>
+    <script>
+      // 提示文字跟着语言走（和 i18n 一样：菜单里选过的优先，否则看浏览器语言）；
+      // 转圈的起始角度按时间对齐，React 接手后的转圈接着转，不会跳一下
+      (function () {
+        var texts = { zh: '加载中…', ja: '読み込み中…', ko: '불러오는 중…', en: 'Loading…' };
+        var choice = null;
+        try { choice = localStorage.getItem('languageChoice'); } catch (e) {}
+        var langs = choice ? [choice] : (navigator.languages || [navigator.language || 'en']);
+        for (var i = 0; i < langs.length; i++) {
+          var code = String(langs[i]).toLowerCase().split('-')[0];
+          if (texts[code]) { document.getElementById('boot-loading-text').textContent = texts[code]; break; }
+        }
+        var spinner = document.querySelector('.boot-spinner');
+        if (spinner && window.performance) spinner.style.animationDelay = -(performance.now() % 800) + 'ms';
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
