@@ -110,6 +110,8 @@
   .song-header-actions { min-width: 0; overflow-x: auto; scrollbar-width: none; }
   .song-header-actions::-webkit-scrollbar { display: none; }
   .song-header-actions > * { flex: 1 0 auto; }
+  /* 点赞点踩不跟着拉宽：外框变宽而里面两个按钮不变，“踩”的高亮底色右边会空出一截 */
+  .song-header-actions > [role="group"] { flex: none; }
   /* 手机上按钮左右内边距和间距收一点：常见的 375px 宽屏上一行放得下，不用滑 */
   .song-header-actions { gap: .375rem; }
   .song-header-actions > button { padding-inline: .625rem; }
