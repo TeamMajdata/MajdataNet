@@ -80,6 +80,9 @@ export default function CollectionsRow() {
       />
       {data ? (
         <Swiper
+          // 两边伸出的宽度变了就重建：Swiper 会更新 slidesOffsetBefore 参数，但不会把当前位置挪过去。
+          // 歌单数据有缓存时（回到首页），Swiper 在量出宽度之前就建好了，第一张卡片会偏左一截
+          key={bleed}
           modules={[FreeMode, Mousewheel]}
           onSwiper={setSwiper}
           slidesPerView="auto"
