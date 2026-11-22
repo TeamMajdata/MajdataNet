@@ -145,6 +145,8 @@
 }
 .majview-counter-top { top: .25rem; }
 .majview-counter-bottom { bottom: .25rem; }
+/* 全屏时控制条是盖在画面底部的浮层（约 62px 高）：下面那组物量放到它上面，不被挡住 */
+.majview:fullscreen .majview-counter-bottom { bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
 .majview-counter[hidden] { display: none; }
 /* 手机上播放器和判定盘一样宽，物量只能塞进判定线外面的角落，字号要小 */
 @media (max-width: 48rem) {
