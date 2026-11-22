@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LuSearch, LuX } from 'react-icons/lu';
 import SearchBox from '@/components/search/SearchBox';
+import { MOBILE_ICON_BUTTON } from './styles';
 
 /**
  * 顶栏的搜索按钮：点开后搜索框直接盖在顶栏上（和首页、搜索页同一个 SearchBox，带联想），右边是关闭按钮；
@@ -49,7 +50,7 @@ export default function HeaderSearch() {
         title={label}
         className={`grid place-items-center border rounded-xl w-10 md:w-9 h-10 md:h-9 text-white/75 hover:text-white transition-colors duration-150 cursor-pointer touch-manipulation ${
           open ? 'bg-white/10 border-white/20 text-white' : 'border-transparent hover:bg-white/[0.06]'
-        }`}
+        } ${MOBILE_ICON_BUTTON}`}
       >
         <LuSearch aria-hidden="true" className="w-[18px] h-[18px]" />
       </button>

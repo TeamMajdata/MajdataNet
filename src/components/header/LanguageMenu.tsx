@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { setLanguage, useLanguage } from '@/i18n';
 import { LANGUAGE_CONFIG, SUPPORTED_LANGUAGES } from '@/config/i18n';
 import Dropdown from './Dropdown';
+import { MOBILE_ICON_BUTTON } from './styles';
 
 /** 顶栏右上角的语言切换菜单 */
 export default function LanguageMenu() {
@@ -17,7 +18,7 @@ export default function LanguageMenu() {
         type="button"
         className={`flex items-center gap-1.5 px-2.5 border rounded-xl h-10 md:h-9 font-medium text-white/75 hover:text-white text-sm transition-colors duration-150 cursor-pointer touch-manipulation ${
           isOpen ? 'bg-white/10 border-white/20 text-white' : 'border-transparent hover:bg-white/[0.06]'
-        }`}
+        } ${MOBILE_ICON_BUTTON}`}
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="true"

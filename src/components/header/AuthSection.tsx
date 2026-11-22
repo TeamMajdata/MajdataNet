@@ -30,12 +30,12 @@ export default function AuthSection() {
       {/* 移动端：下拉菜单形式 */}
       <div className="md:hidden block relative">
         <button
-          className={`${HAMBURGER_BUTTON_BASE} ${isMobileAuthMenuOpen ? HAMBURGER_BUTTON_ACTIVE : HAMBURGER_BUTTON_HOVER}`}
+          className={`${HAMBURGER_BUTTON_BASE} w-10 px-0 ${isMobileAuthMenuOpen ? HAMBURGER_BUTTON_ACTIVE : HAMBURGER_BUTTON_HOVER}`}
           onClick={() => setIsMobileAuthMenuOpen(!isMobileAuthMenuOpen)}
           aria-expanded={isMobileAuthMenuOpen}
           aria-label={t("shared/AuthSection.AccountActions")}
         >
-          <AiOutlineUser className="font-medium text-white/85 text-base" />
+          <AiOutlineUser aria-hidden="true" className="w-[18px] h-[18px] text-white/85" />
         </button>
 
         <Dropdown isOpen={isMobileAuthMenuOpen} onClose={() => setIsMobileAuthMenuOpen(false)} position="right" className="p-1.5 w-[min(13rem,calc(100vw-1.5rem))]">
