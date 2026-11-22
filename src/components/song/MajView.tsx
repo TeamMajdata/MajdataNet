@@ -931,6 +931,12 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       <img className="majview-backdrop" src={cover} alt="" crossOrigin="anonymous" />
       {/* 性能信息覆盖层：设置里打开（或 ?perf=1）后出现 */}
       {perf && <div ref={perfRef} className="majview-perf" aria-hidden="true">…</div>}
+      {/* 判定盘所在的区域：比判定盘宽时（桌面），物量贴着这块区域的左边缘，放在判定盘外面的空位里 */}
+      <div className="majview-stage">
+      {/* 物量分在左上、左下两个角：左上是总数和两种达成率，左下是各类音符已打 / 总数。
+          渲染器按播放位置直接改文字 */}
+      <div ref={summaryRef} className="majview-counter majview-counter-top" hidden={!chart} aria-hidden="true" />
+      <div ref={counterRef} className="majview-counter majview-counter-bottom" hidden={!chart} aria-hidden="true" />
       <div
         ref={sceneRef}
         className="majview-scene"
@@ -967,15 +973,12 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
               : status === 'buffering' ? t('song/MajView.LoadingTrack') : t('song/MajView.Loading')}
           </div>
         )}
-        {/* 物量分在两个角，不挡判定线：左上是总数和两种达成率，左下是各类音符已打 / 总数。
-            渲染器按播放位置直接改文字 */}
-        <div ref={summaryRef} className="majview-counter majview-counter-top" hidden={!chart} aria-hidden="true" />
-        <div ref={counterRef} className="majview-counter majview-counter-bottom" hidden={!chart} aria-hidden="true" />
         {/* 音量 / 亮度拖动时压在判定盘正中间；进度看时间读数右边的 ±，倍速看控制条 */}
         <div ref={valueHintRef} className="majview-value-hint" hidden aria-hidden="true">
           <span ref={valueHintLabelRef} />
           <strong ref={valueHintValueRef} />
         </div>
+      </div>
       </div>
 
       <div className="majview-controls" data-hidden={!controlsShown}>

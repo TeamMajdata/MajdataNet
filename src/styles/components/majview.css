@@ -71,6 +71,16 @@
   background: radial-gradient(circle at 50% 45%, transparent 40%, rgb(0 0 0 / 40%) 100%);
 }
 
+/* 判定盘所在的区域（控制条以上）：物量按它定位。全屏时不定位，判定盘和物量都按整块屏幕放 */
+.majview-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.majview:fullscreen .majview-stage { position: static; }
+
 .majview-scene {
   position: relative;
   flex: 1;
@@ -131,7 +141,7 @@
   grid-template-columns: auto auto;
   column-gap: .375rem;
   color: rgb(255 255 255 / 55%);
-  font-size: clamp(.5625rem, 2.2cqmin, .75rem);
+  font-size: .75rem;
   line-height: 1.25;
   pointer-events: none;
   text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
@@ -139,6 +149,10 @@
 .majview-counter-top { top: .25rem; }
 .majview-counter-bottom { bottom: .25rem; }
 .majview-counter[hidden] { display: none; }
+/* 手机上播放器和判定盘一样宽，物量只能塞进判定线外面的角落，字号要小 */
+@media (max-width: 48rem) {
+  .majview-counter { font-size: .5625rem; }
+}
 .majview-counter strong {
   color: rgb(255 255 255 / 90%);
   font-weight: 500;
