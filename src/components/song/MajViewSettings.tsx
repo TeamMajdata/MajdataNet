@@ -64,7 +64,7 @@ function NumberField({ id, name, value, min, max, onChange }: {
     setDraft(null);
   };
   return (
-    <span className="flex items-baseline gap-1 text-white/55 text-xs">
+    <span className="flex items-center gap-1 text-white/55 text-xs">
       <input
         type="text"
         // 偏移可以是负数，iOS 的小数键盘没有负号，只好用完整键盘
@@ -86,10 +86,10 @@ function NumberField({ id, name, value, min, max, onChange }: {
           }
         }}
         // iOS Safari 聚焦字号小于 16px 的输入框会放大整页，所以手机上用 16px
-        className="bg-white/[0.05] focus:bg-white/10 px-1.5 border border-white/10 focus:border-sky-300/60 rounded-md outline-none w-14 max-sm:w-16 h-6 max-sm:h-7 text-white/85 text-xs max-sm:text-base text-right tabular-nums transition-colors"
+        className="bg-white/[0.05] focus:bg-white/10 px-1.5 border border-white/10 focus:border-sky-300/60 rounded-md outline-none w-14 max-sm:w-16 h-6 max-sm:h-7 text-white/85 text-xs max-sm:text-base text-center tabular-nums transition-colors"
       />
       {/* 单位占固定宽度，有没有单位的数字框都能对齐 */}
-      <span className="w-4">{UNITS[name]}</span>
+      <span className="w-5 text-left">{UNITS[name]}</span>
     </span>
   );
 }
