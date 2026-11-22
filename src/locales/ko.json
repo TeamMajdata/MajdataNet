@@ -242,7 +242,7 @@
   },
   "search/SearchPage": {
     "Title": "채보 검색",
-    "ResultsFor": "“{{search}}” 검색 결과"
+    "ResultsFor": "{{search}} 검색 결과"
   },
   "season/SeasonLastPlayed": {
     "Empty": "최근 30일 내 기록 없음",

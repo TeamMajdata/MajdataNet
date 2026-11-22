@@ -242,7 +242,7 @@
   },
   "search/SearchPage": {
     "Title": "譜面を検索",
-    "ResultsFor": "「{{search}}」の検索結果"
+    "ResultsFor": "{{search}} の検索結果"
   },
   "season/SeasonLastPlayed": {
     "Empty": "直近30日間の記録なし",

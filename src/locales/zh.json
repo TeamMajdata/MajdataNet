@@ -242,7 +242,7 @@
   },
   "search/SearchPage": {
     "Title": "搜索谱面",
-    "ResultsFor": "“{{search}}”的搜索结果"
+    "ResultsFor": "{{search}} 的搜索结果"
   },
   "season/SeasonLastPlayed": {
     "Empty": "近 30 天无记录",
