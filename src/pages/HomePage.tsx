@@ -33,15 +33,15 @@ export default function HomePage() {
       {/* Events Carousel */}
       <EventsCarousel />
 
-      {/* 活动下面：搜索栏（回车进搜索页）、最近上传、七日排行、歌单广场、最近活跃、个人推荐 */}
+      {/* 活动下面：搜索栏（回车进搜索页），然后是各个横栏 */}
       <div className="mx-auto mt-6 w-full max-w-320 min-w-0">
         <HomeSearch />
+        {/* 个人推荐（只给登录用户）在最上面，接着是最近活跃、最近上传，再是七日排行和歌单广场 */}
+        <RecommendRow />
+        <ActiveRow />
         <RecentUploads />
         <PopularRanking />
         <CollectionsRow />
-        {/* 原来下面“全部谱面 / 个人推荐”两个页签的列表，现在也是横栏；完整列表在搜索页 */}
-        <ActiveRow />
-        <RecommendRow />
       </div>
       <LegacySearchRedirect />
     </PageLayout>
