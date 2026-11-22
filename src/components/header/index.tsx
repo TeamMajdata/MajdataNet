@@ -7,6 +7,7 @@ import Navigation from './Navigation';
 import UserMenu from './UserMenu';
 import AuthSection from './AuthSection';
 import LanguageMenu from './LanguageMenu';
+import HeaderSearch from './HeaderSearch';
 
 /**
  * 统一顶部导航栏组件
@@ -32,6 +33,8 @@ export default function UnifiedHeader() {
 
           {/* Main Navigation */}
           <Navigation />
+          {/* 手机上搜索按钮放在菜单按钮旁边：右边已经有语言和头像，再放会挤到中间的 Logo */}
+          <div className="md:hidden"><HeaderSearch /></div>
         </div>
 
         {/* 移动端中间Logo */}
@@ -43,6 +46,7 @@ export default function UnifiedHeader() {
 
         {/* Language + User Section */}
         <div className="flex items-center gap-1.5 shrink-0">
+          <div className="hidden md:block"><HeaderSearch /></div>
           <LanguageMenu />
           <div className="relative flex items-center">
             {isLoading ? (
