@@ -138,7 +138,7 @@ export function ScoreCard({
         className={`marquee-host relative flex gap-3 bg-[rgb(var(--background-start)/0.8)] ${comboGlowClass} ${comboCardClass} p-2.5 border rounded-2xl w-full h-36 overflow-hidden ring-1 ring-transparent hover:ring-white/30 transition-shadow duration-200`}
       >
         <div className="relative h-full aspect-square shrink-0">
-          <CoverPic id={score.chartInfo.id} to={'/song?id=' + score.chartInfo.id} zoomable={false} radiusClassName="rounded-lg" />
+          <CoverPic id={score.chartInfo.id} to={'/song?id=' + score.chartInfo.id} radiusClassName="rounded-lg" />
           {/* 榜单名次放在封面左上角，不和准确率挤在一行 */}
           {resolvedRank && (
             <span

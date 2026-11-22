@@ -71,7 +71,6 @@ const SongCard = memo(function SongCard({ song, index, isRanking, isManage, disa
             <CoverPic
               id={song.id}
               to={disableLink || onClick ? undefined : '/song?id=' + song.id}
-              zoomable={false}
               radiusClassName="rounded-lg"
             />
             {/* 排行榜名次：和成绩卡片的名次标签同一位置和形状，前三名金银铜 */}

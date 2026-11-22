@@ -88,7 +88,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete, flat }: 
               <LoadingSpinner size="24px" />
             </div>
           ) : data && data.items && data.items.length > 0 ? (
-            <CoverPic id={data.items[currentCoverIndex] ?? data.items[0]} zoomable={false} radiusClassName="rounded-lg" />
+            <CoverPic id={data.items[currentCoverIndex] ?? data.items[0]} radiusClassName="rounded-lg" />
           ) : (
             <div className="flex flex-col justify-center items-center gap-1.5 bg-white/[0.04] rounded-lg w-full h-full text-white/30 text-xs">
               <LuListMusic aria-hidden="true" className="w-6 h-6" />

@@ -25,6 +25,7 @@ import UserAvatar from '@/components/user/UserAvatar';
 import UnderlineTabs from '@/components/ui/UnderlineTabs';
 import { LuPlay, LuTrophy } from 'react-icons/lu';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
+import 'react-photo-view/dist/react-photo-view.css';
 import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiTagSimple } from 'react-icons/pi';
 import { getLocale, useLanguage } from '@/i18n';
 import '@/styles/components/song-detail.css';
