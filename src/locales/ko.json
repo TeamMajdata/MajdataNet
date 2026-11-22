@@ -413,6 +413,15 @@
     "OperationFailed": "작업에 실패했습니다",
     "UnfavoriteSuccess": "즐겨찾기에서 삭제했습니다"
   },
+  "song/ChartFile": {
+    "Copied": "클립보드에 복사했습니다",
+    "Copy": "복사",
+    "CopyFailed": "복사하지 못했습니다",
+    "EmptyLevel": "이 난이도에는 채보가 없습니다",
+    "LoadFailed": "채보 파일을 불러오지 못했습니다",
+    "Retry": "다시 시도",
+    "Title": "채보 파일"
+  },
   "song/ChartRadar": {
     "AnalysisFailed": "이 난이도를 분석할 수 없습니다",
     "AxisJack": "연타",

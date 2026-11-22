@@ -23,7 +23,8 @@ import ChartRadar from '@/components/song/ChartRadar';
 import { ChartMarkContext, type ChartMark, type ChartMarkTarget } from '@/components/song/chartMarks';
 import UserAvatar from '@/components/user/UserAvatar';
 import UnderlineTabs from '@/components/ui/UnderlineTabs';
-import { LuPlay, LuTrophy } from 'react-icons/lu';
+import SectionLoading from '@/components/ui/SectionLoading';
+import { LuFileCode, LuPlay, LuTrophy } from 'react-icons/lu';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiTagSimple } from 'react-icons/pi';
@@ -40,6 +41,8 @@ import { preloadMajView } from '@/majview/preload';
 
 // 网页版谱面预览带着 PixiJS，只在点开预览时加载
 const MajView = lazy(() => import('@/components/song/MajView'));
+// 谱面文件页签带着 Monaco（约 700 KB gzip），同样只在打开页签时加载
+const ChartFile = lazy(() => import('@/components/song/ChartFile'));
 
 export default function SongPage() {
   const { t } = useTranslation();
@@ -117,6 +120,7 @@ const TAG_CLASS = 'inline-flex items-center bg-white/[0.06] hover:bg-white/10 px
 
 const songTabs = [
   { id: 'preview', label: 'song/SongPage.Preview', icon: LuPlay },
+  { id: 'chart', label: 'song/ChartFile.Title', icon: LuFileCode },
   { id: 'scores', label: 'song/ScoreRanking.RankingList', icon: LuTrophy },
 ] as const;
 type SongTab = typeof songTabs[number]['id'];
@@ -257,6 +261,14 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           {/* 播放器一直挂着：切到别的页签不用重新加载，评论里的时间 / combo 也要靠它判断范围 */}
           <section ref={previewRef} id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
             <ChartPreview song={song} chartLevel={chartLevel} active={activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} />
+          </section>
+          <section id="song-panel-chart" role="tabpanel" aria-labelledby="song-tab-chart" hidden={activeTab !== 'chart'}>
+            {/* 只读查看器不需要后台保活：切走就卸载，回来时从缓存的谱面文本重建 */}
+            {activeTab === 'chart' && (
+              <Suspense fallback={<SectionLoading />}>
+                <ChartFile songId={song.id} level={chartLevel} />
+              </Suspense>
+            )}
           </section>
           <section id="song-panel-scores" role="tabpanel" aria-labelledby="song-tab-scores" hidden={activeTab !== 'scores'}>
             <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} chartLevel={chartLevel} /></Activity>
