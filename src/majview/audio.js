@@ -23,6 +23,15 @@ function audioBuffer(context, url, signal) {
   });
 }
 
+/**
+ * 换了一个新的 AudioContext（iOS 切后台回来旧的卡死了）时，把旧的解码缓存带过去：
+ * AudioBuffer 不绑定 context，不用重新下载、解码。
+ */
+export function adoptDecoded(from, to) {
+  const cache = decoded.get(from);
+  if (cache && !decoded.has(to)) decoded.set(to, cache);
+}
+
 async function fetchAudioBuffer(context, url, signal) {
   // 以前没带 CORS 加载过的 CDN 响应可能留在缓存里，导致这次请求失败；失败时绕过缓存再试一次
   const r = await fetch(url, { signal }).catch((error) => {
