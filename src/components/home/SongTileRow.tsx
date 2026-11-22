@@ -1,7 +1,6 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { FreeMode, Mousewheel } from 'swiper/modules';
-import type { Swiper as SwiperInstance } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/free-mode';
 import { NATIVE_SCROLL } from './touchScroll';
@@ -15,7 +14,7 @@ const SLIDE_CLASS = 'w-[calc((100%-16px)/2.25)]! sm:w-[calc((100%-32px)/3.25)]! 
 
 /**
  * 首页的谱面横栏（最近上传、七日人气榜共用）：标题行 + 一排大封面卡片，横向自由滑动
- * （手指 / 鼠标拖，触控板横向滚动也行），不自动滑；标题右边的按钮一次滑过一屏。
+ * （手指 / 鼠标拖，触控板横向滚动也行），不自动滑。
  * songs 还没到时显示同样大小的灰色卡片，标题行（包括人气榜的排序按钮）一直在。
  */
 export default function SongTileRow({ id, title, hint, songs, meta, ranked = false }: {
@@ -28,22 +27,12 @@ export default function SongTileRow({ id, title, hint, songs, meta, ranked = fal
   /** 排行榜：封面左上角标出名次 */
   ranked?: boolean;
 }) {
-  const [swiper, setSwiper] = useState<SwiperInstance | null>(null);
-
-  // 按钮一次滑过当前能看到的张数
-  const step = (direction: -1 | 1) => {
-    if (!swiper || !songs) return;
-    const shown = Math.max(1, Math.floor(swiper.width / ((swiper.slides[0]?.offsetWidth ?? swiper.width) + GAP_PX)));
-    swiper.slideTo(Math.max(0, Math.min(songs.length - 1, swiper.activeIndex + direction * shown)));
-  };
-
   return (
     <section aria-labelledby={id} className="mb-10">
-      <CarouselHeader id={id} title={title} hint={hint} onStep={songs ? step : undefined} />
+      <CarouselHeader id={id} title={title} hint={hint} />
       {songs ? (
         <Swiper
           modules={[FreeMode, Mousewheel]}
-          onSwiper={setSwiper}
           slidesPerView="auto"
           cssMode={NATIVE_SCROLL}
           spaceBetween={GAP_PX}

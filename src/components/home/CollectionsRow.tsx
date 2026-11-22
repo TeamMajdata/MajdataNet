@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { FreeMode, Mousewheel } from 'swiper/modules';
-import type { Swiper as SwiperInstance } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/free-mode';
 import { NATIVE_SCROLL } from './touchScroll';
@@ -53,15 +52,8 @@ function useShadowBleed() {
 export default function CollectionsRow() {
   const { t } = useTranslation();
   const { data } = useSWR<Collection[]>(endpoints.collection.list(0, COUNT), apiFetcher, { revalidateOnFocus: false });
-  const [swiper, setSwiper] = useState<SwiperInstance | null>(null);
   const [sectionRef, bleed] = useShadowBleed();
   if (data && data.length === 0) return null;
-
-  const step = (direction: -1 | 1) => {
-    if (!swiper || !data) return;
-    const shown = Math.max(1, Math.floor((swiper.width - 2 * bleed) / ((swiper.slides[0]?.offsetWidth ?? swiper.width) + 12)));
-    swiper.slideTo(Math.max(0, Math.min(data.length - 1, swiper.activeIndex + direction * shown)));
-  };
 
   return (
     <section ref={sectionRef} aria-labelledby="home-collections" className="mb-10">
@@ -76,7 +68,6 @@ export default function CollectionsRow() {
             </Link>
           </span>
         }
-        onStep={data ? step : undefined}
       />
       {data ? (
         <Swiper
@@ -84,7 +75,6 @@ export default function CollectionsRow() {
           // 歌单数据有缓存时（回到首页），Swiper 在量出宽度之前就建好了，第一张卡片会偏左一截
           key={bleed}
           modules={[FreeMode, Mousewheel]}
-          onSwiper={setSwiper}
           slidesPerView="auto"
           cssMode={NATIVE_SCROLL}
           spaceBetween={12}
