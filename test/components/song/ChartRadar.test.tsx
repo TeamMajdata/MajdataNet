@@ -19,7 +19,7 @@ vi.mock('@/components', async () => ({
   SongDifficultyLevels: (await import('@/components/song/SongDifficultyLevels')).default,
   Majdata: ({ level }: { level: string }) => <output data-player-level={level} />,
   CoverPic: () => null, TagManageWidget: () => null,
-  CommentSection: () => null, CommentSortMenu: () => null, ChartVotePanel: () => null,
+  CommentSection: () => null, CommentSortMenu: () => null, ChartVoteBadge: () => null,
   ScoreRanking: () => null, CollectionModal: () => null, LoadingSpinner: () => null,
 }));
 
