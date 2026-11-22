@@ -161,10 +161,6 @@
     "RelatedCharts": "Related Charts"
   },
   "home/HomeHighlights": {
-    "ByComments": "Comments",
-    "ByDownloads": "Downloads",
-    "ByPlays": "Plays",
-    "ByRating": "Rating",
     "Collections": "Collections",
     "CollectionsHint": "Chart collections curated by players",
     "Likes_one": "{{formatted}} like",
@@ -172,9 +168,9 @@
     "Plays_one": "{{formatted}} play",
     "Plays_other": "{{formatted}} plays",
     "Popular": "Popular this week",
+    "PopularHint": "Most played charts in the last 7 days",
     "RecentUploads": "Recent uploads",
     "RecentUploadsHint": "New from the community",
-    "SortBy": "Sort by",
     "ViewAll": "View all"
   },
   "home/HomePage": {

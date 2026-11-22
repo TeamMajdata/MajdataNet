@@ -158,18 +158,14 @@
     "RelatedCharts": "相关谱面"
   },
   "home/HomeHighlights": {
-    "ByComments": "评论",
-    "ByDownloads": "下载",
-    "ByPlays": "游玩",
-    "ByRating": "评价",
     "Collections": "歌单广场",
     "CollectionsHint": "大家整理的谱面合集",
     "Likes_other": "{{formatted}} 个赞",
     "Plays_other": "{{formatted}} 次游玩",
     "Popular": "七日人气榜",
+    "PopularHint": "近七天游玩最多的谱面",
     "RecentUploads": "最近上传",
     "RecentUploadsHint": "来自社区的新作品",
-    "SortBy": "排序方式",
     "ViewAll": "查看全部"
   },
   "home/HomePage": {
