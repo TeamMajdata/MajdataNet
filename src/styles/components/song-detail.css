@@ -23,6 +23,11 @@
   /* 页头上面不再留白（组件上的 py-5 / sm:py-8 只留底部的） */
   padding-top: 0;
 }
+/* 电脑上再收紧：顶栏到标题只留约 15px（抵掉 main 的 1rem 上边距），页头分隔线到页签 / 侧栏 12px。
+   手机布局的上边距另有算法（播放器贴着顶栏），不受影响 */
+@media (min-width: 48.0625rem) {
+  .song-page { margin-top: -1rem; row-gap: .75rem; }
+}
 .song-header {
   grid-area: heading; display: grid; align-items: center;
   grid-template-columns: clamp(3.5rem, 7vw, 5rem) minmax(0, 1fr) auto;
