@@ -44,7 +44,9 @@
 .song-comments { margin-top: 1.75rem; }
 .song-levels { grid-column: 1 / -1; margin-top: .35rem; }
 .song-detail .song-label { margin: 0; font-size: .875rem; font-weight: 600; text-align: start; line-height: 1.4; }
-.song-stage { position: relative; width: min(100%, 84svh); aspect-ratio: 1; margin-inline: auto; }
+/* 电脑上播放器是和内容栏一样宽的长方形（5:3，最高不超过 84% 屏高）：判定盘在中间，两边是模糊的封面；
+   左边和下面的操作按钮、评论区对齐。手机上另有规则（下面的媒体查询） */
+.song-stage { position: relative; width: 100%; aspect-ratio: 5 / 3; max-height: 84svh; }
 .song-preview, .song-cover { overflow: hidden; border-radius: var(--radius-xl); }
 .song-preview { position: relative; display: block; width: 100%; height: 100%; background: #14181e; }
 .song-preview img { width: 100%; height: 100%; object-fit: cover; }
