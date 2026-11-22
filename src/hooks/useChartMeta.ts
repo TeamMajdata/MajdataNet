@@ -3,12 +3,10 @@ import useSWR from 'swr';
 import { endpoints } from '@/config/api';
 import { useChartMediaUrl } from './useChartMediaUrl';
 import { parseChartBpm } from '@/utils/simai';
+import { loadChartText } from '@/majview/chartCache';
 
 /** maidata.txt 只有几 KB；它和音频都重定向到 CDN，不需要带登录信息 */
-const fetchText = (url: string) => fetch(url).then(response => {
-  if (!response.ok) throw new Error(String(response.status));
-  return response.text();
-});
+const fetchText = (url: string) => loadChartText(url);
 
 /**
  * 谱面的 BPM（来自 maidata.txt）和时长（来自音频文件头，只读元数据、不下载整首歌）。

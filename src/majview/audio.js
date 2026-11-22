@@ -35,9 +35,20 @@ async function fetchAudioBuffer(context, url, signal) {
 
 // 音效时间在谱面里都是确定的，可以提前很久交给音频线程。提前量大，主线程卡一下也不会漏音；
 // 暂停、拖动时会停掉所有已排好的声音，不会多响。
-const SCHEDULE_AHEAD_SEC = 1.5;
-const SCHEDULE_INTERVAL_MS = 250;
-const LATE_LIMIT_SEC = 0.25;
+const SCHEDULE_AHEAD_SEC = 3;
+const SCHEDULE_INTERVAL_MS = 500;
+// 已经错过的事件：晚一点点就在现在补上（听不出来），晚得多就干脆不补——
+// 补发的音效会落在错误的拍子上，比少响一声更难受。
+const LATE_SKIP_SEC = 0.05;
+// 调度间隔突然变得很长（GC、布局、切标签页把定时器拖慢）：说明积压了一批过期事件，
+// 直接把游标推到当前时间，而不是一次性补发一串错位的音效。
+const STALL_RESYNC_SEC = 0.4;
+
+// DSP 时钟一次音频回调才前进一次（缓冲区大小决定，通常 10ms 级），
+// 画面不能直接用：用 performance.now() 外推、再用 DSP 纠偏。
+const CLOCK_SNAP_SEC = 0.05; // 误差超过这个值直接对齐（seek / 挂起恢复）
+const CLOCK_CORRECTION = 0.1; // 每个音频块纠掉 10% 的误差
+const CLOCK_MAX_SLEW = 0.002; // 单次最多纠 2ms，改太快画面会抖
 
 export class Transport {
   constructor(context, song, samples, chart, settings) {
@@ -54,6 +65,14 @@ export class Transport {
     this.offset = this.begin;
     this.rate = 1;
     this.playing = false;
+    // 谱面整体平移量（秒）：来自设置里的 First 偏移，音符和打击音一起动，音乐不动
+    this.firstOffset = 0;
+    // 高精度计时器的锚点：当前值、对应的墙钟时刻、最近一次读到的 DSP 值
+    this.anchorTime = this.offset;
+    this.anchorWall = performance.now();
+    this.lastDsp = this.offset;
+    // 调度诊断：late＝晚了但在容忍范围内补发，dropped＝过期丢弃，resync＝卡顿后重新定位
+    this.stats = { late: 0, dropped: 0, resync: 0 };
     this.voices = new Set();
     // 每种音效只有一个声道（同 Play 的 PlayOneShot：同一条流跳回开头重播），新的一响会打断上一响
     this.lastVoice = new Map();
@@ -83,10 +102,39 @@ export class Transport {
   get latency() {
     return (this.context.baseLatency || 0) + (this.context.outputLatency || 0);
   }
-  get time() {
+  /** DSP 时钟换算出的媒体时间：权威，但一次音频回调才更新一次（粒度＝音频缓冲区） */
+  get dspTime() {
     if (!this.playing) return this.offset;
     const heard = (this.context.currentTime - this.started - this.latency) * this.rate;
     return Math.min(this.duration, this.offset + Math.max(0, heard));
+  }
+  /**
+   * 谱面时间＝单独的高精度计时器：以 DSP 为锚点，帧与帧之间用 performance.now() 外推。
+   * 直接读 DSP 会让画面每 10ms 才动一次（144fps 下约 1/3 的帧是重复的），所以这里做插值，
+   * 每收到一个新的 DSP 值就纠一点偏差，长期仍锁定音频。
+   */
+  get time() {
+    if (!this.playing) return this.offset;
+    const now = performance.now();
+    const dsp = this.dspTime;
+    if (dsp <= this.offset && this.anchorTime <= this.offset) {
+      // 还没走过输出延迟，声音还没出来，画面先停在起点
+      this.anchorTime = this.offset;
+      this.anchorWall = now;
+      this.lastDsp = dsp;
+      return this.offset;
+    }
+    let value = this.anchorTime + ((now - this.anchorWall) / 1000) * this.rate;
+    if (dsp !== this.lastDsp) {
+      this.lastDsp = dsp;
+      const error = dsp - value;
+      value = Math.abs(error) > CLOCK_SNAP_SEC
+        ? dsp
+        : value + Math.max(-CLOCK_MAX_SLEW, Math.min(CLOCK_MAX_SLEW, error * CLOCK_CORRECTION));
+    }
+    this.anchorTime = value;
+    this.anchorWall = now;
+    return Math.min(this.duration, Math.max(0, value));
   }
   setSettings(settings) {
     const gains = channelGains(settings);
@@ -97,6 +145,19 @@ export class Transport {
       this.soundOffset = offset;
       this.start();
     } else this.soundOffset = offset;
+  }
+  /**
+   * 谱面整体平移（秒）：设置在谱面自带 &first 之上，正值让音符和打击音整体晚一点。
+   * 已经排进音频线程的音效是按旧偏移算的，所以从当前位置重新起播一次。
+   */
+  setFirstOffset(seconds) {
+    if (seconds === this.firstOffset) return;
+    const at = this.time;
+    const resume = this.playing;
+    if (resume) this.pause();
+    this.firstOffset = seconds;
+    this.offset = Math.max(this.begin, Math.min(this.duration, at));
+    if (resume && this.offset < this.duration) this.start();
   }
   voice(buffer, channel, when, offset = 0, length = 0, music = false, name = '') {
     if (!buffer || offset >= buffer.duration) return;
@@ -135,9 +196,16 @@ export class Transport {
     if (this.offset >= this.duration) this.offset = this.begin;
     this.started = this.context.currentTime;
     this.playing = true;
+    // 重新起播：计时器从当前位置重新锚定，调度诊断也清零
+    this.anchorTime = this.offset;
+    this.anchorWall = performance.now();
+    this.lastDsp = this.offset;
+    this.stats = { late: 0, dropped: 0, resync: 0 };
+    this.lastSchedule = this.context.currentTime;
     if (this.offset < 0) this.voice(this.song, 'BGM', this.started - this.offset / this.rate, 0, 0, true);
     else this.voice(this.song, 'BGM', this.started, this.offset, 0, true);
-    const at = this.offset + this.soundOffset;
+    // 当前媒体位置对应的谱面时间（含 First 偏移和音效偏移）
+    const at = this.offset + this.soundOffset - this.firstOffset;
     this.next = lowerBound(this.events, at, (e) => e.time);
     for (const e of this.events.slice(0, this.next)) {
       if (e.length && e.time + e.length > at)
@@ -156,13 +224,30 @@ export class Transport {
   }
   schedule() {
     const now = this.context.currentTime;
+    // 主线程被卡住过（GC、布局、切后台把定时器拖慢）：事件表已经落后一大截，
+    // 重新定位游标，避免醒来时一次性补发一串已经过期的音效
+    if (this.lastSchedule !== undefined && now - this.lastSchedule > STALL_RESYNC_SEC) {
+      const at = this.offset + this.soundOffset - this.firstOffset + (now - this.started) * this.rate;
+      const index = lowerBound(this.events, at - LATE_SKIP_SEC, (e) => e.time);
+      if (index > this.next) {
+        this.stats.resync++;
+        this.stats.dropped += index - this.next;
+        this.next = index;
+      }
+    }
+    this.lastSchedule = now;
     while (this.next < this.events.length) {
       const e = this.events[this.next];
-      const when = this.started + (e.time - this.soundOffset - this.offset) / this.rate;
+      const when = this.started + (e.time - this.soundOffset - this.offset + this.firstOffset) / this.rate;
       if (when > now + SCHEDULE_AHEAD_SEC) break;
-      // 定时器被拖慢时（手机、主线程忙）宁可晚一点响也不要漏掉；只有晚太多（比如切回前台）才跳过
-      if (when >= now - LATE_LIMIT_SEC)
+      const late = now - when;
+      if (late <= LATE_SKIP_SEC) {
+        if (late > 0) this.stats.late++;
         this.voice(this.samples[e.name], channels[e.name], Math.max(when, now), 0, e.length, false, e.name);
+      } else {
+        // 已经过期：宁可不响，也不要落在错误的拍子上
+        this.stats.dropped++;
+      }
       this.next++;
     }
   }

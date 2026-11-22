@@ -1,8 +1,7 @@
 /* 网页版谱面预览（MajView）：上面是正方形的判定盘，下面是播放控制条 */
-/* 连击数用 Play 的 [UI]Jua-Regular SDF；只切了 COMBO 和数字，woff2 只有几 KB */
 @font-face {
-  font-family: Jua;
-  src: url('/majview/skin/Jua-Combo.woff2') format('woff2');
+  font-family: Minimoon;
+  src: url('/majview/skin/Minimoon.ttf') format('truetype');
   font-display: swap;
 }
 
@@ -17,7 +16,38 @@
   border-radius: var(--radius-xl);
   background: #0b0e13;
 }
-.majview:fullscreen { justify-content: center; border-radius: 0; }
+.majview:fullscreen { border-radius: 0; }
+/* 全屏：判定盘铺满整块屏幕（背景也不再是圆形），控制条变成自动隐藏的浮层 */
+.majview:fullscreen .majview-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: auto;
+}
+.majview:fullscreen .majview-background { border-radius: 0; }
+.majview:fullscreen .majview-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  padding-bottom: calc(.375rem + env(safe-area-inset-bottom, 0px));
+  transition: opacity .25s ease;
+}
+.majview:fullscreen .majview-controls[data-hidden='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+/* 连击数用 cqw 定位：全屏时按判定盘（短边）算，别按屏幕宽度 */
+.majview:fullscreen .majview-combo {
+  inset: 50% auto auto 50%;
+  width: min(100vw, 100vh);
+  height: min(100vw, 100vh);
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
 
 /* 判定盘圆形以外的地方：铺一层放大、模糊、压暗的封面 */
 .majview-backdrop {
@@ -48,15 +78,15 @@
   max-width: 100%;
   margin-inline: auto;
   container-type: size;
-  /* 判定盘上的触摸手势：横向拖进度，竖向调音量 / 亮度，都交给脚本，所以页面在判定盘上不滚动；
-     同时去掉长按菜单和文字选中。iOS 只认带前缀的 -webkit-user-select，漏掉它长按会进入文本选择状态 */
+  /* 判定盘手势：横向调进度、竖向调音量/亮度，所以默认不让浏览器接管触摸方向；
+     手势关掉时组件会把 touch-action 改回 pan-y，恢复页面滚动。
+     同时去掉长按菜单和文字选中，iOS 只认带前缀的 -webkit-user-select */
   touch-action: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
 }
 .majview-board,
-.majview-board canvas,
 .majview-background,
 .majview-background > * {
   position: absolute;
@@ -64,9 +94,13 @@
   width: 100%;
   height: 100%;
 }
+/* 画布是正方形（渲染器按宿主短边算好并居中），和 Play 一样裁成圆形遮罩 */
+.majview-board canvas {
+  position: absolute;
+  clip-path: circle(50%);
+}
 .majview-background { overflow: hidden; border-radius: 50%; background: #262626; }
-/* 和 Play 主屏幕的圆形遮罩一样：hanabi、打击特效超出判定盘圆形的部分裁掉 */
-.majview-board { clip-path: circle(50%); }
+.majview-board { clip-path: none; }
 .majview-background img,
 .majview-background video { object-fit: contain; -webkit-user-drag: none; }
 .majview-background video { opacity: 0; background: #000; }
@@ -86,27 +120,31 @@
   text-align: center;
 }
 
-/* 物量：放在判定盘圆形外的左上角，不挡音符 */
-.majview-note-count {
+/* 帧率诊断覆盖层（开发期 / ?perf=1）：压在判定盘左上角，等宽字体，不抢焦点 */
+.majview-perf {
   position: absolute;
-  top: .25rem;
-  left: .25rem;
-  z-index: 1;
-  color: rgb(255 255 255 / 60%);
-  font-size: clamp(.6875rem, 2.6cqw, .875rem);
-  line-height: 1.2;
+  top: .5rem;
+  left: .5rem;
+  z-index: 3;
+  padding: .25rem .5rem;
+  border-radius: .375rem;
+  background: rgb(0 0 0 / 65%);
+  color: #7dd3fc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .6875rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  white-space: pre;
   pointer-events: none;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 60%);
 }
-.majview-note-count strong { color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
 
-/* 拖动进度时显示目标时间，长按 2 倍速时显示倍率：压在判定盘上方中间，深色胶囊在封面上也看得清 */
-.majview-seek-hint,
-.majview-speed-hint {
+/* 只给音量 / 亮度用：拖动时压在判定盘正中间。
+   进度看时间读数右边的 ±，倍速看控制条上的倍速按钮，都不需要额外浮层 */
+.majview-value-hint {
   position: absolute;
   left: 50%;
-  top: 10%;
-  z-index: 2;
+  top: 50%;
+  z-index: 3;
   display: flex;
   align-items: baseline;
   gap: .5rem;
@@ -119,20 +157,26 @@
   line-height: 1.2;
   pointer-events: none;
 }
-.majview-seek-hint[hidden],
-.majview-speed-hint[hidden] { display: none; }
-.majview-seek-hint strong { font-size: 1.5rem; font-weight: 500; }
-.majview-seek-hint span { font-size: .8125rem; color: rgb(255 255 255 / 65%); }
-.majview-speed-hint { font-size: 1.5rem; font-weight: 600; letter-spacing: .02em; }
 
-/* 连击数：位置和字号按 Play 的 CenterInfoDisplayer 换算到正方形判定盘。
-   COMBO 44、数字 65，COMBO 中心比数字中心高 62.7 个单位（判定盘按 1080 设计） */
+.majview-value-hint[hidden] { display: none; }
+.majview-value-hint span { font-size: .8125rem; color: rgb(255 255 255 / 65%); }
+.majview-value-hint strong { font-size: 1.5rem; font-weight: 500; }
+
+/* 拖动进度时跟在时间读数右边的 ±，和时间读数是同一套字号 */
+.majview-seek-delta {
+  margin-left: .4rem;
+  color: #7dd3fc;
+}
+.majview-seek-delta[hidden] { display: none; }
+
+/* 连击数：位置和字号按 Play 的 CanvasCombo 换算到正方形判定盘 */
 .majview-combo {
   position: absolute;
   inset: 0;
+  container-type: size;
   pointer-events: none;
   color: #ca3e7c;
-  font-family: Jua, sans-serif;
+  font-family: Minimoon, sans-serif;
   text-align: center;
 }
 .majview-combo[hidden] { display: none; }
@@ -151,21 +195,21 @@
   --sy-t: calc(var(--shadow-y) - var(--edge));
   --sy-b: calc(var(--shadow-y) + var(--edge));
   text-shadow:
-    var(--edge) var(--edge) #b9b9b9, calc(-1 * var(--edge)) var(--edge) #b9b9b9,
-    var(--edge) calc(-1 * var(--edge)) #b9b9b9, calc(-1 * var(--edge)) calc(-1 * var(--edge)) #b9b9b9,
+    var(--edge) var(--edge) #ddd, calc(-1 * var(--edge)) var(--edge) #ddd,
+    var(--edge) calc(-1 * var(--edge)) #ddd, calc(-1 * var(--edge)) calc(-1 * var(--edge)) #ddd,
     var(--sx-r) var(--sy-b) black, var(--sx-l) var(--sy-b) black,
     var(--sx-r) var(--sy-t) black, var(--sx-l) var(--sy-t) black;
 }
 .majview-combo span {
-  top: 44.194%;
-  font-size: 4.074cqw;
+  top: 43.41%;
+  font-size: 3.407cqw;
   --edge: 0.05em;
   --shadow-x: 0.055em;
   --shadow-y: 0.0875em;
 }
 .majview-combo strong {
-  top: 50%;
-  font-size: 6.019cqw;
+  top: 50.25%;
+  font-size: 6.896cqw;
   --edge: 0.03333em;
   --shadow-x: 0.03667em;
   --shadow-y: 0.05833em;

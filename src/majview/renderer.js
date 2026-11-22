@@ -6,7 +6,7 @@ import { displayIndex, hanabiTimeline, lowerBound, touchDuration, scoreTimeline,
 
 async function loadSkin(skinBase) {
   const base = new URL(skinBase, document.baseURI);
-  const response = await fetch(new URL('atlas.json', base), { cache: 'no-cache' });
+  const response = await fetch(new URL('atlas.json', base));
   if (!response.ok) throw Error('Could not load the note skin');
   const { pages, sprites, rings } = await response.json();
   const sheets = await Promise.all(
@@ -88,6 +88,8 @@ class Layer {
     this.container = new Container();
     parent.addChild(this.container);
     this.used = 0;
+    // 上一帧用了多少个精灵（诊断用）
+    this.lastUsed = 0;
   }
   draw(key, x, y, rotation = 0, sx = 1, sy = sx, alpha = 1, tint = 0xffffff, blend = 'normal') {
     const texture = this.skin[key];
@@ -119,6 +121,7 @@ class Layer {
   finish() {
     for (let i = this.used; i < this.container.children.length; i++)
       this.container.children[i].visible = false;
+    this.lastUsed = this.used;
     this.used = 0;
   }
 }
@@ -186,10 +189,21 @@ export class Board {
     this.root.addChild(this.maskLayer);
     this.chart = null;
     this.lastTime = 0;
+    // 帧率诊断（由 MajView 在开发期打开）：打开后每帧记录分段耗时与精灵数
+    this.profile = false;
+    this.stats = null;
     this.resize = new ResizeObserver(() => {
-      const size = Math.max(1, Math.round(host.clientWidth));
+      const width = Math.max(1, Math.round(host.clientWidth));
+      const height = Math.max(1, Math.round(host.clientHeight));
+      // 判定盘永远是正方形：取短边，居中放进宿主。
+      // 全屏时宿主是整块屏幕（不是正方形），画布要自己定位。
+      const size = Math.min(width, height);
       // 画布实际像素不超过 MAX_PIXELS：大屏 + 高分屏时贴图（最大 1080）再放大也没有更多细节
       app.renderer.resize(size, size, Math.min(devicePixelRatio, 2, Math.max(1, MAX_PIXELS / size)));
+      app.canvas.style.width = size + 'px';
+      app.canvas.style.height = size + 'px';
+      app.canvas.style.left = Math.round((width - size) / 2) + 'px';
+      app.canvas.style.top = Math.round((height - size) / 2) + 'px';
       this.root.position.set(size / 2);
       this.root.scale.set(size / 1080);
       this.render(this.lastTime);
@@ -205,10 +219,18 @@ export class Board {
     this.scores = scoreTimeline(chart.notes);
     this.lastCount = -1;
   }
+  /** 打开/关闭逐帧诊断（开发期用） */
+  setProfiling(on) {
+    this.profile = Boolean(on);
+    this.stats = null;
+  }
   render(time) {
     this.lastTime = time;
+    const profile = this.profile;
+    const t0 = profile ? performance.now() : 0;
     this.base.draw('outline', 0, 0);
     this.drawHanabi(time);
+    let visibleNotes = 0;
     if (this.chart) {
       const slots = new Map();
       const visible = this.visible;
@@ -218,6 +240,7 @@ export class Board {
         if (e.from > time) break;
         if (e.to >= time) visible.push(e);
       }
+      visibleNotes = visible.length;
       // Play 里同一层先出现的 note 在前面（SortOrder 递减），所以从后出现的开始画
       for (let i = visible.length - 1; i >= 0; i--) {
         const e = visible[i];
@@ -242,8 +265,21 @@ export class Board {
         this.lastCount = count;
       }
     }
+    const t1 = profile ? performance.now() : 0;
     for (const layer of this.layers) layer.finish();
     this.app.render();
+    if (profile) {
+      const t2 = performance.now();
+      let sprites = this.glows.lastUsed;
+      for (const layer of this.layers) sprites += layer.lastUsed;
+      this.stats = {
+        notes: visibleNotes,
+        sprites,
+        scene: t1 - t0,
+        present: t2 - t1,
+        total: t2 - t0,
+      };
+    }
   }
   laneNote(n, time, speed) {
     const elapsed = time - n.time,
