@@ -80,6 +80,8 @@
 }
 @media (max-width: 48rem) {
   .song-comments { margin-top: 0; }
+  /* 页签栏自带 mb-6，再加上这里的 1rem 间距，页签和内容之间空得太多 */
+  .song-workspace > :first-child { margin-bottom: 0; }
   /* “概览”页签里不用再重复“谱面资料”标题 */
   .song-sidebar > h2.song-label { display: none; }
   .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
