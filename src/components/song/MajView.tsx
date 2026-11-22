@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { LuMaximize, LuPause, LuPlay, LuRotateCcw, LuSettings2 } from 'react-icons/lu';
 import { Board } from '@/majview/renderer.js';
 import { Transport, adoptDecoded } from '@/majview/audio.js';
+import { useMediaSession } from './useMediaSession';
 import { compileChart, readMaidata } from '@/majview/simai.js';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
 import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, ARROW_SEEK_SEC, ARROW_STEP_SEC, BRIGHT_DRAG_PX, KEY_FAST_RATE, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, VERTICAL_SLOP_PX, VOLUME_DRAG_PX, seekTarget } from '@/majview/gestures.js';
@@ -88,8 +89,11 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ songId, level, cover, onCoverError, active = true, jump, onMarkRange }: {
+export default function MajView({ songId, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange }: {
   songId: string;
+  /** 曲名、曲师：显示在系统的媒体控件里（锁屏、控制中心、通知栏） */
+  title: string;
+  artist?: string;
   level: number;
   cover: string;
   onCoverError?: () => void;
@@ -541,6 +545,20 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     };
   }, [perf]);
 
+  // 系统媒体控件：锁屏 / 控制中心 / 通知栏的播放、暂停、拖动、快进快退都接到这里。时间按界面上显示的算（减掉 begin）
+  const media = useMediaSession({
+    title,
+    artist,
+    artwork: cover,
+    playing,
+    duration: Math.max(0, duration - beginRef.current),
+    rate,
+    getTime: () => (transportRef.current?.time ?? previewTimeRef.current) - beginRef.current,
+    onPlay: () => { if (!transportRef.current?.playing) void togglePlay(); },
+    onPause: () => { if (transportRef.current?.playing) void togglePlay(); },
+    onSeek: (time) => seek(beginRef.current + time),
+  });
+
   const togglePlay = async () => {
     const current = transportRef.current;
     if (current?.playing) {
@@ -554,6 +572,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     if (status === 'buffering' || !target) return;
     // 在点击里创建 / 恢复 AudioContext，iOS 才允许出声
     preferPlaybackSession();
+    // 系统媒体控件靠一段静音 <audio> 激活，它的第一次播放也要在点击里
+    media.prime();
     let context = contextRef.current;
     // iOS 切到后台再回来，跑过的 AudioContext 会卡住：resume() 一直不返回，或者报 running 但时钟不走，
     // 播放、暂停、拖动都像没反应。这时在这次点击里换一个新的，解码好的音频直接带过去
@@ -606,6 +626,7 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     transportRef.current?.move(value);
     syncVideo(true);
     frame();
+    media.syncPosition();
   };
 
   const changeRate = (value: number) => {

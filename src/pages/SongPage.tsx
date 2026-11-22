@@ -154,7 +154,7 @@ function ChartPreview({ song, chartLevel, active, jump, onMarkRange }: {
     <div className="song-stage">
       {chartLevel === undefined || cover.recovering ? coverImage : (
         <Suspense fallback={coverImage}>
-          <MajView songId={song.id} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
+          <MajView songId={song.id} title={stripTmpTags(song.title) || song.title} artist={song.artist} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
             active={active} jump={jump} onMarkRange={onMarkRange} />
         </Suspense>
       )}
