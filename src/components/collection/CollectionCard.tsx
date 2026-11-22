@@ -9,7 +9,7 @@ import { endpoints } from '@/config/api';
 import type { Collection, CollectionSongList } from '@/types';
 import { useFavorites } from '@/hooks';
 import { LuListMusic, LuUser } from 'react-icons/lu';
-import { CARD_SURFACE_CLASS } from '@/components/ui/surface';
+import { CARD_SURFACE_CLASS, CARD_SURFACE_FLAT_CLASS } from '@/components/ui/surface';
 
 const fetcher = (url: string) => fetch(url, { mode: 'cors', credentials: 'include' }).then((res) => res.json());
 
@@ -17,9 +17,11 @@ interface CollectionCardProps {
   collection: Collection;
   isManaging?: boolean;
   onDelete?: () => void;
+  /** 不要外阴影（横向滑动的行里用，见 CARD_SURFACE_FLAT_CLASS） */
+  flat?: boolean;
 }
 
-const CollectionCardContent = memo(({ collection, isManaging, onDelete }: CollectionCardProps) => {
+const CollectionCardContent = memo(({ collection, isManaging, onDelete, flat }: CollectionCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { favoriteIds, toggleFavorite, isPending } = useFavorites();
@@ -71,7 +73,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
     // 悬停上浮放在外层，收藏/删除按钮跟着整张卡片一起动
     <div className={`relative transition-transform duration-250 ease-in-out ${isManaging ? '' : 'md:hover:-translate-y-1.25'}`}>
       <div
-        className={`flex gap-3 ${CARD_SURFACE_CLASS} p-2.5 w-full h-36 overflow-hidden ${isManaging ? 'cursor-default ring-1 ring-red-500/30' : 'cursor-pointer'}`}
+        className={`flex gap-3 ${flat ? CARD_SURFACE_FLAT_CLASS : CARD_SURFACE_CLASS} p-2.5 w-full h-36 overflow-hidden ${isManaging ? 'cursor-default ring-1 ring-red-500/30' : 'cursor-pointer'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => { setIsHovered(false); setCurrentCoverIndex(0); }}
         onClick={() => {
@@ -206,10 +208,10 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
   );
 });
 
-export default function CollectionCard({ collection, isManaging, onDelete }: CollectionCardProps) {
+export default function CollectionCard({ collection, isManaging, onDelete, flat }: CollectionCardProps) {
   return (
     <LazyLoad height={144}>
-      <CollectionCardContent collection={collection} isManaging={isManaging} onDelete={onDelete} />
+      <CollectionCardContent collection={collection} isManaging={isManaging} onDelete={onDelete} flat={flat} />
     </LazyLoad>
   );
 }

@@ -56,11 +56,12 @@ export default function CollectionsRow() {
           mousewheel={{ forceToAxis: true }}
           grabCursor
           wrapperTag="ul"
-          className="m-0! p-0!"
+          // 上面留出悬停上浮的距离（卡片上移 5px），不然会被 Swiper 裁掉一条边
+          className="-mt-1.5! m-0! pt-1.5! p-0!"
         >
           {data.map((collection) => (
             <SwiperSlide key={collection.id} tag="li" className="w-[85%]! sm:w-[calc((100%-12px)/2.15)]! lg:w-[calc((100%-24px)/3.15)]! h-auto! list-none">
-              <CollectionCard collection={collection} />
+              <CollectionCard collection={collection} flat />
             </SwiperSlide>
           ))}
         </Swiper>
