@@ -46,10 +46,15 @@ export function soundEvents(chart) {
     // 和 Play 一样：不到一帧的 hold 不算长条，结束时不再响 answer
     const long = (n.kind === 'hold' || n.kind === 'touchHold') && n.end - n.time >= FRAME;
     if (long) add(n.end, 'answer');
-    if (n.kind.startsWith('touch')) {
+    if (n.kind === 'touchHold') {
+      // 和 Play 的 TouchHoldDrop 一样：头判只起 riser（不响 touch），riser 一直响到结束判定才停，
+      // 结束判定时响一下普通 tap 判定音（PlayTapSound，TouchHold 固定按非 break、非 EX 处理）
+      if (long) add(n.time, 'touchHold_riser', n.end - n.time);
+      add(n.end, 'judge');
+      if (n.firework) add(n.end, 'hanabi');
+    } else if (n.kind === 'touch') {
       add(n.time, 'touch');
       if (n.firework) add(n.end, 'hanabi');
-      if (n.kind === 'touchHold' && long) add(n.time, 'touchHold_riser', n.end - n.time);
     } else {
       if (n.brk) {
         add(n.time, 'break');
