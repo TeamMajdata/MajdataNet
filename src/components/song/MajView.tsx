@@ -88,7 +88,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ songId, level, cover, onCoverError, active = true, jump, onMarkRange }: {
+export default function MajView({ songId, level, cover, onCoverError, active = true, jump, onMarkRange, onPlayingChange }: {
   songId: string;
   level: number;
   cover: string;
@@ -99,6 +99,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   jump?: (ChartMark & { key: number }) | null;
   /** 告诉页面当前谱面的范围，用来判断评论里的时间 / combo 是否有效 */
   onMarkRange?: (range: { length: number; maxCombo: number } | null) => void;
+  /** 播放 / 暂停时通知页面（手机上播放时把播放器钉在顶栏下面） */
+  onPlayingChange?: (playing: boolean) => void;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -170,6 +172,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
   // 错误只记原因，文案在渲染时翻译
   const [error, setError] = useState<{ track?: boolean; detail?: string }>({});
   const [playing, setPlaying] = useState(false);
+  useEffect(() => { onPlayingChange?.(playing); }, [playing, onPlayingChange]);
+  useEffect(() => () => onPlayingChange?.(false), [onPlayingChange]);
   const [duration, setDuration] = useState(0);
   // 开头 clock 在 0 之前时，进度条从第一下 clock 开始，显示的时间和总长也把这段算进去
   const [begin, setBegin] = useState(0);

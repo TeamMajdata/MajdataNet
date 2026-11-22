@@ -61,11 +61,41 @@
 .song-detail :is(button, a, summary):focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
 
 @media (max-width: 48rem) {
-  .song-page { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'heading' 'workspace' 'sidebar'; gap: 1rem; }
+  /* 手机：和视频网站一样，播放器在最上面（顶栏下面），下面依次是标题和操作、页签（评论 / 谱面文件 / 排行榜）、谱面资料。
+     song-workspace 拆开（display: contents），播放器才能排到页头前面 */
+  .song-page { display: flex; flex-direction: column; align-items: stretch; gap: 1rem; padding-top: 0; }
+  .song-workspace { display: contents; }
+  /* 和视频网站一样贴边：紧贴顶栏下边线、横向占满屏幕（抵掉页边距）、不要圆角。
+     上边距要抵掉的是 index.css 手机上 body 在顶栏下面多留的 .75rem 和 main 的 mt-3（640px 起是 mt-4），
+     多留 1px 是顶栏的下边线 */
+  .song-preview-panel {
+    order: -1;
+    margin-top: calc(1px - 1.5rem);
+    margin-inline: calc(50% - 50vw);
+  }
+  .song-preview-panel :is(.song-stage, .song-preview, .majview) { border-radius: 0; }
+}
+@media (min-width: 40rem) and (max-width: 48rem) {
+  .song-preview-panel { margin-top: calc(1px - 1.75rem); }
+}
+@media (max-width: 48rem) {
+  .song-comments { margin-top: 0; }
+  /* 播放中往下滑：播放器钉在顶栏下面，下面的内容从它后面滚过去 */
+  .song-preview-panel[data-playing] {
+    position: sticky;
+    top: calc(var(--header-height) + env(safe-area-inset-top));
+    z-index: 20;
+    /* 不透明的底色，后面滚过去的内容不会透出来 */
+    background: rgb(10 12 16);
+  }
+  /* “概览”页签里不用再重复“谱面资料”标题 */
+  .song-sidebar > h2.song-label { display: none; }
   .song-header { gap: .45rem 1rem; padding-bottom: .65rem; }
   .song-header-actions { grid-column: 1 / -1; grid-row: 3; }
   .song-header-actions > button { flex: 1; }
-  .song-sidebar { border-left: 0; border-top: 1px solid var(--rule); padding: .5rem 0 0; }
+  /* 侧栏是“概览”页签，紧接在页签下面，不用再画分隔线 */
+  .song-sidebar { border-left: 0; padding: 0; }
+  .song-sidebar[hidden] { display: none; }
   /* 手机上播放器不再是正方形：判定盘占满整个宽度，控制条接在下面，不然判定盘两边各空出半个控制条高 */
   .song-stage:has(.majview) { aspect-ratio: auto; }
   .song-stage .majview { height: auto; }
