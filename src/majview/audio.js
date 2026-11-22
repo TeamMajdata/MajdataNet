@@ -134,7 +134,8 @@ export class Transport {
     }
     this.anchorTime = value;
     this.anchorWall = now;
-    return Math.min(this.duration, Math.max(0, value));
+    // 下限是起播点（可以是负数）：开头四拍的 clock 在 0 之前，夹到 0 会让这几拍画面停住
+    return Math.min(this.duration, Math.max(this.begin, value));
   }
   setSettings(settings) {
     const gains = channelGains(settings);
