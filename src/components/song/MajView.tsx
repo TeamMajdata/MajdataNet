@@ -785,6 +785,24 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     }, 2500);
   }, []);
 
+  /** 鼠标动一下 / 点一下叫出控制条；触屏不在这里处理（单击判定盘切换显示，按控制条上的按钮会重新计时） */
+  const pokeByMouse = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'touch') pokeControls();
+  };
+
+  /** 全屏时触屏单击：控制条在就收起，不在就叫出来（之后照样 2.5 秒自动收起） */
+  const toggleControls = () => {
+    if (!controlsShownRef.current) {
+      pokeControls();
+      return;
+    }
+    if (controlsTimerRef.current !== null) {
+      clearTimeout(controlsTimerRef.current);
+      controlsTimerRef.current = null;
+    }
+    setControlsShown(false);
+  };
+
   /** 键盘上下键：总音量 ±0.1 */
   const volumeStep = (delta: number) => {
     const next = Math.round(clamp(settingsRef.current.Master + delta, 0, 2) * 10) / 10;
@@ -926,15 +944,27 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       }, DOUBLE_TAP_MS);
       return;
     }
-    // 触摸：双击播放/暂停（单击留给页面滚动/点按）
+    // 触摸：双击播放/暂停。全屏时单击切换控制条（点一下出来，再点一下收起）；
+    // 单击要等一小会儿，确认不是双击的第一下再切，免得双击时控制条闪一下
     const now = performance.now();
     const last = lastTapRef.current;
     if (last && now - last.at <= DOUBLE_TAP_MS
       && Math.hypot(gesture.x - last.x, gesture.y - last.y) <= DOUBLE_TAP_SLOP_PX) {
       lastTapRef.current = null;
+      if (clickTimerRef.current !== null) {
+        clearTimeout(clickTimerRef.current);
+        clickTimerRef.current = null;
+      }
       void togglePlay();
     } else {
       lastTapRef.current = { at: now, x: gesture.x, y: gesture.y };
+      if (document.fullscreenElement) {
+        if (clickTimerRef.current !== null) clearTimeout(clickTimerRef.current);
+        clickTimerRef.current = setTimeout(() => {
+          clickTimerRef.current = null;
+          toggleControls();
+        }, DOUBLE_TAP_MS);
+      }
     }
   };
 
@@ -1017,7 +1047,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   const controlClass = 'grid place-items-center hover:bg-white/10 rounded-lg w-9 h-9 text-white/85 hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default';
 
   return (
-    <div ref={rootRef} className="majview" onPointerMove={pokeControls} onPointerDown={pokeControls}>
+    <div ref={rootRef} className="majview" onPointerMove={pokeByMouse} onPointerDown={pokeByMouse}>
       <img className="majview-backdrop" src={cover} alt="" crossOrigin="anonymous" />
       {/* 性能信息覆盖层：设置里打开（或 ?perf=1）后出现 */}
       {perf && <div ref={perfRef} className="majview-perf" aria-hidden="true" />}
@@ -1071,7 +1101,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       </div>
       </div>
 
-      <div className="majview-controls" data-hidden={!controlsShown}>
+      <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
         <input
           ref={timelineRef}
           type="range"
