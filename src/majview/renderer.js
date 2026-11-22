@@ -495,7 +495,9 @@ export class Board {
       );
       return;
     }
-    for (let i = 0; i < n.segments.length; i++) {
+    // 从最后一段、每段从最后一个箭头往前画：后画的在上面，所以先滑到的部分盖在后滑到的上面
+    // （ppqqpq 这类绕回来和自己重叠的星星，重叠处显示先经过的那一圈）
+    for (let i = n.segments.length - 1; i >= 0; i--) {
       const seg = n.segments[i],
         shape = seg.shape;
       if (time > seg.end) continue;
@@ -505,7 +507,7 @@ export class Board {
       const cursor = progress * (shape.wifi ? bars.length - 1 : bars.length);
       const first = Math.ceil(cursor);
       const drawBars = (opacity, blend) => {
-        for (let j = first; j < bars.length; j++) {
+        for (let j = bars.length - 1; j >= first; j--) {
           const b = bars[j];
           const key = shape.wifi ? 'wifi' + style + '_' + j : 'slide' + style;
           this.trails.draw(key, b.x, b.y, b.angle, b.sx, b.sy, opacity, 0xffffff, blend);
