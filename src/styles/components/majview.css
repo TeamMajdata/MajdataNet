@@ -160,22 +160,56 @@
   text-align: right;
 }
 
-/* 帧率诊断覆盖层（开发期 / ?perf=1）：压在判定盘左上角，等宽字体，不抢焦点 */
+/* 性能信息（设置里打开或 ?perf=1）：右上角的小卡片。顶上是帧率，下面两列指标，超标的数值变黄 / 变红 */
 .majview-perf {
   position: absolute;
   top: .5rem;
-  left: .5rem;
+  right: .5rem;
   z-index: 3;
-  padding: .25rem .5rem;
-  border-radius: .375rem;
-  background: rgb(0 0 0 / 65%);
-  color: #7dd3fc;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  min-width: 11rem;
+  padding: .5rem .625rem .5625rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: .625rem;
+  background: rgb(10 12 18 / 78%);
+  backdrop-filter: blur(8px);
+  color: rgb(255 255 255 / 85%);
   font-size: .6875rem;
   font-variant-numeric: tabular-nums;
-  line-height: 1.4;
-  white-space: pre;
+  line-height: 1.35;
   pointer-events: none;
+}
+.majview-perf-head {
+  display: flex;
+  align-items: baseline;
+  gap: .25rem;
+  padding-bottom: .375rem;
+  margin-bottom: .375rem;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+.majview-perf-head strong { font-size: 1.25rem; font-weight: 600; line-height: 1; color: #6ee7b7; }
+.majview-perf-head span { color: rgb(255 255 255 / 50%); }
+.majview-perf-head small {
+  margin-left: auto;
+  padding-left: .75rem;
+  color: rgb(255 255 255 / 40%);
+  font-size: .625rem;
+  white-space: nowrap;
+}
+.majview-perf dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: .125rem .75rem;
+  margin: 0;
+}
+.majview-perf dt { color: rgb(255 255 255 / 45%); }
+.majview-perf dd { margin: 0; text-align: right; white-space: nowrap; }
+.majview-perf [data-tone='warn'] { color: #fcd34d; }
+.majview-perf [data-tone='bad'] { color: #fca5a5; }
+.majview-perf-head strong[data-tone='warn'] { color: #fcd34d; }
+.majview-perf-head strong[data-tone='bad'] { color: #fca5a5; }
+@media (max-width: 48rem) {
+  .majview-perf { top: .25rem; right: .25rem; min-width: 0; padding: .375rem .5rem; font-size: .5625rem; }
+  .majview-perf-head strong { font-size: 1rem; }
 }
 
 /* 只给音量 / 亮度用：拖动时压在判定盘正中间。
