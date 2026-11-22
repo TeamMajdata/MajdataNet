@@ -54,22 +54,3 @@ export function SongTileSkeleton() {
     </div>
   );
 }
-
-/** 一排灰色卡片（手机 2 张、平板 3 张、宽屏 5 张） */
-export function SongTileGridSkeleton() {
-  return (
-    <div className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" aria-hidden="true">
-      {Array.from({ length: 5 }, (_, i) => <div key={i} className={i >= 3 ? 'max-lg:hidden' : i >= 2 ? 'max-sm:hidden' : ''}><SongTileSkeleton /></div>)}
-    </div>
-  );
-}
-
-/** 整段加载中：标题占位加一排灰色卡片 */
-export function SongTileSectionSkeleton() {
-  return (
-    <div className="mb-10" aria-hidden="true">
-      <div className="bg-white/[0.06] mb-4 rounded w-24 h-5" />
-      <SongTileGridSkeleton />
-    </div>
-  );
-}
