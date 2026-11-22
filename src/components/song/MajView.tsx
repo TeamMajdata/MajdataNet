@@ -638,13 +638,19 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
 
   // iOS 上长按偶尔还是会走进文本选择或上下文菜单，除了 CSS 再兜一层底
   useEffect(() => {
-    const scene = sceneRef.current;
-    if (!scene) return;
-    const prevent = (e: Event) => e.preventDefault();
+    // 挂在整个播放器上（不只是判定盘）：手势经常从判定盘边上的物量、连击、时间文字开始；输入框除外
+    const root = rootRef.current;
+    if (!root) return;
+    const prevent = (e: Event) => {
+      // selectstart 的 target 可能是文字节点，取它的父元素
+      const target = e.target instanceof Element ? e.target : (e.target as Node | null)?.parentElement;
+      if (target?.closest('input, textarea')) return;
+      e.preventDefault();
+    };
     const events = ['selectstart', 'contextmenu', 'dragstart'];
-    for (const name of events) scene.addEventListener(name, prevent);
+    for (const name of events) root.addEventListener(name, prevent);
     return () => {
-      for (const name of events) scene.removeEventListener(name, prevent);
+      for (const name of events) root.removeEventListener(name, prevent);
     };
   }, []);
 

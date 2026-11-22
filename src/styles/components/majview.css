@@ -91,11 +91,8 @@
   container-type: size;
   /* 判定盘手势：横向调进度、竖向调音量/亮度，所以默认不让浏览器接管触摸方向；
      手势关掉时组件会把 touch-action 改回 pan-y，恢复页面滚动。
-     同时去掉长按菜单和文字选中，iOS 只认带前缀的 -webkit-user-select */
+     长按菜单和文字选中在整个播放器（.majview）上去掉 */
   touch-action: none;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
 }
 .majview-board,
 .majview-background,
@@ -318,4 +315,17 @@
   background: rgb(14 16 22 / 94%);
   box-shadow: 0 20px 50px rgb(0 0 0 / 50%);
   backdrop-filter: blur(12px);
+}
+
+/* 整个播放器都不能选中文字、不弹长按菜单：iOS 上在判定盘上滑动或长按时，选区会落到旁边的物量、连击、时间等文字上。
+   iOS 只认带前缀的 -webkit-user-select；设置面板里的输入框单独恢复 */
+.majview {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.majview input,
+.majview textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
