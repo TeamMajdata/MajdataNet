@@ -162,6 +162,8 @@
     "ByDownloads": "下载",
     "ByPlays": "游玩",
     "ByRating": "评价",
+    "Collections": "歌单广场",
+    "CollectionsHint": "大家整理的谱面合集",
     "Likes_other": "{{formatted}} 个赞",
     "Next": "下一页",
     "Plays_other": "{{formatted}} 次游玩",
@@ -169,7 +171,8 @@
     "Previous": "上一页",
     "RecentUploads": "最近上传",
     "RecentUploadsHint": "来自社区的新作品",
-    "SortBy": "排序方式"
+    "SortBy": "排序方式",
+    "ViewAll": "查看全部"
   },
   "home/HomePage": {
     "AllCharts": "全部谱面",
@@ -236,6 +239,10 @@
     "Comments": "评论",
     "Plays": "播放",
     "Score": "分数"
+  },
+  "search/SearchPage": {
+    "ResultsFor": "{{search}} 的搜索结果",
+    "Title": "搜索谱面"
   },
   "season/SeasonLastPlayed": {
     "Empty": "近 30 天无记录",
@@ -406,6 +413,15 @@
     "OperationFailed": "操作失败",
     "UnfavoriteSuccess": "已取消收藏"
   },
+  "song/ChartFile": {
+    "Copied": "已复制到剪贴板",
+    "Copy": "复制",
+    "CopyFailed": "复制失败",
+    "EmptyLevel": "该难度暂无谱面",
+    "LoadFailed": "谱面文件加载失败",
+    "Retry": "重试",
+    "Title": "谱面文件"
+  },
   "song/ChartRadar": {
     "AnalysisFailed": "该难度暂时无法分析",
     "AxisJack": "纵连",
@@ -439,6 +455,7 @@
     "SettingBGM": "音乐",
     "SettingBreak": "Break 音",
     "SettingCombo": "显示连击数",
+    "SettingCounter": "显示物量",
     "SettingDisableGestures": "禁用手势",
     "SettingEX": "EX 音",
     "SettingEffects": "打击音",
@@ -450,6 +467,7 @@
     "SettingOffset": "音效偏移",
     "SettingPerf": "显示性能信息",
     "SettingSlide": "Slide 音",
+    "SettingSlideClassic": "Slide 排列顺序：Classic（新的 Slide 在上）",
     "SettingTouch": "Touch 音",
     "SettingTouchSpeed": "Touch 流速",
     "Settings": "设置",

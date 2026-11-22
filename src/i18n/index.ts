@@ -3,7 +3,8 @@
  *
  * - 文案位于 src/locales/<lang>.json，按 `路由/组件` 分组：`t('song/SongPage.Download')`。
  * - 语言包由 Vite 按需拆包（带 hash 的独立 chunk），切换语言时才下载，部署后不会命中旧缓存。
- * - 语言检测顺序：localStorage → 浏览器语言，结果写回 localStorage。
+ * - 语言检测顺序：用户在语言菜单里选过的语言（localStorage）→ 浏览器语言。检测结果不写回，
+ *   没选过语言的用户换了浏览器语言，网页也跟着换；选择由 setLanguage 保存。
  * - 当前语言缺失的文案回退到 DEFAULT_LANGUAGE，组件里不要再写行内 fallback。
  * - 动态内容用插值 `{{name}}`，数量用复数后缀 `_one` / `_other` 并传 `count`，不要拼接字符串。
  * - 修改语言包后运行 `pnpm i18n:fix`：key 按字母排序以减少合并冲突，CI 会拒绝未排序的文件。
@@ -45,7 +46,7 @@ void i18n
     detection: {
       order: ['localStorage', 'navigator'],
       lookupLocalStorage: LANGUAGE_STORAGE_KEY,
-      caches: ['localStorage'],
+      caches: [],
       // zh-CN / zh-TW / en-US → zh / en，与语言包文件名一致
       convertDetectedLanguage: (language) => language.split('-')[0].toLowerCase(),
     },
@@ -54,6 +55,14 @@ void i18n
       escapeValue: false,
     },
   });
+
+/** 用户在语言菜单里选了语言：切换并记住，以后不再按浏览器语言自动切换 */
+export function setLanguage(language: Language): void {
+  try {
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+  } catch { /* 存不了就只对这次访问生效 */ }
+  void i18n.changeLanguage(language);
+}
 
 /** 当前生效的语言（非 React 代码使用；组件内请用 useLanguage 以便随语言切换重新渲染）。 */
 export function getCurrentLanguage(): Language {

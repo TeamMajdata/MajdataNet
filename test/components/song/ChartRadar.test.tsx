@@ -110,9 +110,11 @@ describe('radar on the song page', () => {
   it.each(['/song?id=song#comments', '/song?id=song&comment=specific'])('opens the discussion for %s', async entry => {
     fetchMock.mockImplementation(async url => String(url).endsWith('/summary') ? response(summary) : response(radar()));
     await render(<SongPage />, entry);
-    expect(container.querySelector('#song-tab-comments')?.getAttribute('aria-selected')).toBe('true');
+    // 评论一直在播放器下面，预览页签保持打开，换难度后评论区也还在
+    expect(container.querySelector('#song-tab-preview')?.getAttribute('aria-selected')).toBe('true');
+    expect(container.querySelector('#song-tab-comments')).toBeNull();
     await act(async () => difficulty(3).click());
-    expect(container.querySelector('#song-panel-comments')?.hasAttribute('hidden')).toBe(false);
+    expect(container.querySelector('.song-comments')).not.toBeNull();
   });
 
   it('uses the default difficulty when navigating to another song', async () => {

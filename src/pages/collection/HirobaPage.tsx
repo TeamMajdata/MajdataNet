@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import SectionLoading from '@/components/ui/SectionLoading';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { PageLayout, CollectionCard, Tooltip } from '@/components';
 import { LuInfo, LuSearch, LuX } from 'react-icons/lu';
 import Pager from '@/components/ui/Pager';
@@ -90,7 +90,7 @@ export default function CollectionsHirobaPage() {
             {/* Clear button */}
             <AnimatePresence>
               {currentValue && (
-                <motion.button
+                <m.button
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
@@ -100,7 +100,7 @@ export default function CollectionsHirobaPage() {
                   aria-label={t("collection/hiroba/HirobaPage.ClearSearch")}
                 >
                   <LuX aria-hidden="true" className="w-3.5 h-3.5" />
-                </motion.button>
+                </m.button>
               )}
             </AnimatePresence>
 
@@ -120,7 +120,7 @@ export default function CollectionsHirobaPage() {
         {/* Content */}
         <AnimatePresence mode="wait">
           {isLoading || isSearching ? (
-            <motion.div
+            <m.div
               key="loading"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -128,9 +128,9 @@ export default function CollectionsHirobaPage() {
               className="flex justify-center items-center py-20 w-full"
             >
               <SectionLoading />
-            </motion.div>
+            </m.div>
           ) : error ? (
-            <motion.div
+            <m.div
               key="error"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -142,9 +142,9 @@ export default function CollectionsHirobaPage() {
                 <path d="m15 9-6 6" /><path d="m9 9 6 6" />
               </svg>
               <p className="m-0 text-white/50 text-base">{t("collection/hiroba/HirobaPage.ServerError")}</p>
-            </motion.div>
+            </m.div>
           ) : !data || data.length === 0 ? (
-            <motion.div
+            <m.div
               key="empty"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -159,9 +159,9 @@ export default function CollectionsHirobaPage() {
               <p className="m-0 text-white/40 text-base">
                 {keyword ? t("collection/hiroba/HirobaPage.NoSearchResults") : t("collection/hiroba/HirobaPage.EmptyData")}
               </p>
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.div
+            <m.div
               key="grid"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -169,7 +169,7 @@ export default function CollectionsHirobaPage() {
               className="gap-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
             >
               {data.map((collection, i) => (
-                <motion.div
+                <m.div
                   key={collection.id}
                   custom={i}
                   variants={cardVariants}
@@ -177,9 +177,9 @@ export default function CollectionsHirobaPage() {
                   animate="visible"
                 >
                   <CollectionCard collection={collection} />
-                </motion.div>
+                </m.div>
               ))}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 

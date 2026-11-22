@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 /**
  * 浮动按钮组件
@@ -23,7 +23,7 @@ export default function FloatingButtons() {
   return (
     <div className="right-3 sm:right-4 md:right-6 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] sm:bottom-4 md:bottom-6 z-100 fixed flex flex-col items-center gap-2 md:gap-3">
       {/* Go to Top Button */}
-      <motion.button
+      <m.button
         className={`${baseButtonClasses} text-base md:text-[1.1rem] select-none`}
         onClick={() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -34,7 +34,7 @@ export default function FloatingButtons() {
         aria-label="回到顶部"
       >
         ↑
-      </motion.button>
+      </m.button>
     </div>
   );
 }

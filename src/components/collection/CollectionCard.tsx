@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import { LazyLoad, CoverPic, LoadingSpinner } from '@/components';
 import { endpoints } from '@/config/api';
@@ -86,7 +86,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
               <LoadingSpinner size="24px" />
             </div>
           ) : data && data.items && data.items.length > 0 ? (
-            <CoverPic id={data.items[currentCoverIndex] ?? data.items[0]} zoomable={false} radiusClassName="rounded-lg" />
+            <CoverPic id={data.items[currentCoverIndex] ?? data.items[0]} radiusClassName="rounded-lg" />
           ) : (
             <div className="flex flex-col justify-center items-center gap-1.5 bg-white/[0.04] rounded-lg w-full h-full text-white/30 text-xs">
               <LuListMusic aria-hidden="true" className="w-6 h-6" />
@@ -119,7 +119,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
 
       {/* Favorite button */}
       {!isManaging && (
-        <motion.button
+        <m.button
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.1 }}
@@ -142,13 +142,13 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
           ) : (
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
           )}
-        </motion.button>
+        </m.button>
       )}
 
       {/* Delete button (management mode) */}
       <AnimatePresence>
         {isManaging && !confirmDelete && (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
@@ -162,14 +162,14 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
             title={t("collection/CollectionCard.Delete")}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
 
       {/* Delete confirmation overlay */}
       <AnimatePresence>
         {confirmDelete && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -199,7 +199,7 @@ const CollectionCardContent = memo(({ collection, isManaging, onDelete }: Collec
                 {t("collection/CollectionCard.Cancel")}
               </button>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

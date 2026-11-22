@@ -1,4 +1,4 @@
-import { useId, useRef } from 'react';
+import { useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronRight, LuX } from 'react-icons/lu';
 import { defaultSettings, EFFECT_VOLUMES, MAIN_VOLUMES, VIEW_FIELDS, VOLUME_RANGE, type SettingKey, type ViewSettings } from '@/majview/settings';
@@ -24,11 +24,74 @@ const LABELS = {
 
 const VIEW_KEYS: SettingKey[] = ['NoteSpeed', 'TouchSpeed', 'Offset', 'FirstOffset', 'BGCover'];
 
-function formatValue(key: SettingKey, value: number) {
-  if (key === 'Offset' || key === 'FirstOffset') return `${value} ms`;
+/**
+ * 数字框里显示和输入用的单位：流速按 Play 显示成 7.5（存的是 75），背景暗度显示成百分比（存的是 0–10），
+ * 偏移是毫秒，音量是倍数
+ */
+function toDisplay(key: SettingKey, value: number) {
   if (key === 'NoteSpeed' || key === 'TouchSpeed') return (value / 10).toFixed(1);
-  if (key === 'BGCover') return `${value * 10}%`;
+  if (key === 'BGCover') return String(value * 10);
+  if (key === 'Offset' || key === 'FirstOffset') return String(value);
   return value.toFixed(1);
+}
+
+function fromDisplay(key: SettingKey, value: number) {
+  if (key === 'NoteSpeed' || key === 'TouchSpeed') return Math.round(value * 10);
+  if (key === 'BGCover') return Math.round(value / 10);
+  if (key === 'Offset' || key === 'FirstOffset') return Math.round(value);
+  return Math.round(value * 10) / 10;
+}
+
+const UNITS: Partial<Record<SettingKey, string>> = { Offset: 'ms', FirstOffset: 'ms', BGCover: '%' };
+
+/** 滑块旁边的数字框：可以直接输入，回车或离开时生效，超出范围按边界算，输错了恢复原值 */
+function NumberField({ id, name, value, min, max, onChange }: {
+  id: string;
+  name: SettingKey;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  const { t } = useTranslation();
+  const [draft, setDraft] = useState<string | null>(null);
+  const commit = (input: HTMLInputElement) => {
+    const parsed = Number(input.value.trim().replace(',', '.'));
+    if (input.value.trim() !== '' && Number.isFinite(parsed)) {
+      const next = Math.max(min, Math.min(max, fromDisplay(name, parsed)));
+      if (next !== value) onChange(next);
+    }
+    setDraft(null);
+  };
+  return (
+    <span className="flex items-center gap-1 text-white/55 text-xs">
+      <input
+        type="text"
+        // 偏移可以是负数，iOS 的小数键盘没有负号，只好用完整键盘
+        inputMode={min < 0 ? 'text' : 'decimal'}
+        enterKeyHint="done"
+        aria-label={t(LABELS[name])}
+        aria-describedby={id}
+        value={draft ?? toDisplay(name, value)}
+        onFocus={(e) => { setDraft(e.currentTarget.value); e.currentTarget.select(); }}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={(e) => commit(e.currentTarget)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.currentTarget.blur();
+          if (e.key === 'Escape') {
+            // 只撤销这次输入，不关掉整个设置面板
+            e.stopPropagation();
+            setDraft(null);
+            requestAnimationFrame(() => (e.target as HTMLInputElement).blur());
+          }
+        }}
+        // iOS Safari 聚焦字号小于 16px 的输入框会放大整页，所以手机上用 16px
+        className="bg-white/[0.05] focus:bg-white/10 px-1.5 border border-white/10 focus:border-sky-300/60 rounded-md outline-none w-14 max-sm:w-16 h-6 max-sm:h-7 text-white/85 text-xs max-sm:text-base text-center tabular-nums transition-colors"
+      />
+      {/* 单位占固定宽度，有没有单位的数字框都能对齐 */}
+      <span className="w-5 text-left">{UNITS[name]}</span>
+    </span>
+  );
 }
 
 /** 滑块头（thumb）中心大概在哪：按值比例算，两端留出半个拇指的宽度 */
@@ -51,9 +114,9 @@ function Slider({ name, value, onChange }: { name: SettingKey; value: number; on
   // 手机上点滑条身体会直接跳到那个值，翻页时很容易误触，所以只允许从滑块头开始拖
   const blockedRef = useRef(false);
   return (
-    <div className="gap-x-3 grid grid-cols-[1fr_auto] py-1.5">
+    <div className="items-center gap-x-3 grid grid-cols-[1fr_auto] py-1.5">
       <label htmlFor={id} className="text-white/75 text-sm">{t(LABELS[name])}</label>
-      <output htmlFor={id} className="text-white/55 text-xs tabular-nums">{formatValue(name, value)}</output>
+      <NumberField id={id} name={name} value={value} min={field.min} max={field.max} onChange={onChange} />
       <input
         id={id}
         type="range"
@@ -114,8 +177,16 @@ export default function MajViewSettings({ settings, onChange, onClose }: {
           <input type="checkbox" checked={settings.Combo} onChange={(e) => onChange({ Combo: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
         </label>
         <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
+          {t('song/MajView.SettingCounter')}
+          <input type="checkbox" checked={settings.Counter} onChange={(e) => onChange({ Counter: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
+        </label>
+        <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
           {t('song/MajView.SettingPerf')}
           <input type="checkbox" checked={settings.Perf} onChange={(e) => onChange({ Perf: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
+        </label>
+        <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
+          {t('song/MajView.SettingSlideClassic')}
+          <input type="checkbox" checked={settings.SlideClassic} onChange={(e) => onChange({ SlideClassic: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
         </label>
         {/* 开关本身叫“禁用手势”，存的是“启用手势”，勾上才是关 */}
         <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">

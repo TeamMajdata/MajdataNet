@@ -38,6 +38,8 @@
   display: flex; align-items: center;
 }
 .song-workspace [role="tabpanel"] { min-width: 0; }
+/* 评论在播放器（或排行榜）下面，隔开一段 */
+.song-comments { margin-top: 1.75rem; }
 .song-levels { grid-column: 1 / -1; margin-top: .35rem; }
 .song-detail .song-label { margin: 0; font-size: .875rem; font-weight: 600; text-align: start; line-height: 1.4; }
 .song-stage { position: relative; width: min(100%, 84svh); aspect-ratio: 1; margin-inline: auto; }

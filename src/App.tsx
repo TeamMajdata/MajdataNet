@@ -1,4 +1,5 @@
 import { Suspense, lazy, useState } from 'react';
+import { LazyMotion } from 'framer-motion';
 import PageLoading from '@/components/ui/PageLoading';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -26,7 +27,10 @@ const UserCollectionsPage = lazy(() => import('./pages/user/CollectionsPage'));
 const QRAuthPage = lazy(() => import('./pages/QRAuthPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const CollectionsHirobaPage = lazy(() => import('./pages/collection/HirobaPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
 const CollectionPage = lazy(() => import('./pages/collection/CollectionPage'));
+
+const loadMotionFeatures = () => import('./utils/motionFeatures').then((module) => module.default);
 
 function RouteFallback() {
   return (
@@ -59,6 +63,7 @@ function AppRoutes() {
         <Route path="/chart-events" element={<EventsPage />} />
         <Route path="/ranking/user" element={<UserRankingPage />} />
         <Route path="/song" element={<SongPage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/space" element={<SpacePage />} />
         <Route path="/eventTag" element={<EventTagPage />} />
         <Route path="/minigame" element={<MiniGamePage />} />
@@ -107,6 +112,8 @@ function App() {
         />
         <meta name="twitter:image" content="https://majdata.net/salt.webp" />
       </Helmet>
+      {/* 动画功能单独一个 chunk 按需加载；strict：误用完整的 motion 组件会直接报错，免得又把整套功能带回首屏 */}
+      <LazyMotion features={loadMotionFeatures} strict>
       <TooltipProvider delayDuration={200}>
         {/* 语言包按需加载：首次加载期间由 Suspense 显示 loading，而不是每个页面各自判断 */}
         <Suspense fallback={<RouteFallback />}>
@@ -123,6 +130,7 @@ function App() {
           </UserProvider>
         </Suspense>
       </TooltipProvider>
+      </LazyMotion>
     </HelmetProvider>
   );
 }

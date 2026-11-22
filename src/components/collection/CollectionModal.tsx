@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { LoadingSpinner } from '@/components';
 import Modal from '@/components/ui/Modal';
@@ -194,7 +194,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
                 const isAdding = isPending(collection.id);
                 const isInCollection = isSongInCollection(collection.id, songHash);
                 return (
-                  <motion.button
+                  <m.button
                     key={collection.id}
                     custom={index}
                     variants={listItemVariants}
@@ -240,7 +240,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
                     <div className="flex justify-center items-center bg-white/5 px-2.5 rounded-full h-6 shrink-0">
                       <span className="text-white/40 text-xs">{collection.count}</span>
                     </div>
-                  </motion.button>
+                  </m.button>
                 );
               })}
             </div>
@@ -248,7 +248,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
         )}
 
         {!createOnly && isLoading && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -262,13 +262,13 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
                 <span className="text-white/45 text-xs">{t("collection/CollectionModal.PleaseWait")}</span>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Create form (collapsible) */}
         <AnimatePresence>
           {creating && (
-            <motion.div
+            <m.div
               // 只新建模式下表单就是全部内容，不再单独展开，否则弹窗会边弹出边被撑高
               initial={createOnly ? false : { height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
@@ -344,7 +344,7 @@ export default function CollectionModal({ isOpen, onClose, chartId, songHash, on
                   </button>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { PageLayout, AvatarUploader, IntroUploader } from '@/components';
 import NicknameEditor from '@/components/user/NicknameEditor';
@@ -43,7 +43,7 @@ export default function UserProfilePage() {
           </h1>
         </header>
 
-        <motion.div
+        <m.div
           className="flex flex-col gap-5"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -61,7 +61,7 @@ export default function UserProfilePage() {
           <SettingsCard title={t("user/profile/ProfilePage.PersonalIntro")} description={t("user/profile/ProfilePage.IntroHint")}>
             <IntroUploader />
           </SettingsCard>
-        </motion.div>
+        </m.div>
       </div>
     </PageLayout>
   );

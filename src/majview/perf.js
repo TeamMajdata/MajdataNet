@@ -22,6 +22,11 @@ function percentile(sorted, p) {
   return sorted[i];
 }
 
+/** 指标好坏：不超过 warn 为空（正常），超过 warn 为 warn，超过 bad 为 bad */
+function tone(value, warn, bad) {
+  return value > bad ? 'bad' : value > warn ? 'warn' : '';
+}
+
 export function createPerf(label = 'majview') {
   const deltas = []; // 最近的 rAF 间隔
   const renders = []; // 最近的 render 耗时
@@ -160,28 +165,56 @@ export function createPerf(label = 'majview') {
     return cached;
   }
 
-  /** 覆盖层文字（在渲染循环里直接写 DOM，不走 React） */
-  function overlay() {
+  /**
+   * 把覆盖层画进一个元素：顶上一行是帧率（按好坏上色）和 GPU，下面是两列的指标表。
+   * 第一次建好结构，之后只改文字和颜色，不重建 DOM
+   */
+  function paint(element) {
     const s = summary();
     const gpu = scene.gpu
       ? String(scene.gpu).replace(/^ANGLE \(/, '').split(',')[0].slice(0, 26)
       : (scene.renderer ?? '?');
-    const dsp = s.dspDeltaMedian == null ? '—' : `${s.dspDeltaMedian.toFixed(1)}/${s.dspDeltaMax.toFixed(1)}`;
-    const video = s.videoDeltaMedian == null ? '—' : `${s.videoDeltaMedian.toFixed(1)}/${s.videoDeltaMax.toFixed(1)}`;
-    return (
-      `${s.fps.toFixed(0)} fps · p95 ${s.frameP95.toFixed(1)}ms · render ${s.renderMedian.toFixed(1)}/${s.renderP95.toFixed(1)}ms · ` +
-      `notes ${s.notes} · sprites ${s.sprites} · ${gpu}\n` +
-      `step ${(s.stepMedian * 1000).toFixed(1)}ms · frozen ${s.frozen}/${s.window} · ` +
-      `Δdsp ${dsp}ms · Δvideo ${video}ms\n` +
-      `audio late ${s.audioLate} · dropped ${s.audioDropped} · resync ${s.audioResync} · long task ${s.longTaskMax}ms`
-    );
+    const pair = (a, b, digits) => (a == null ? '—' : `${a.toFixed(digits)} / ${b.toFixed(digits)}`);
+    const rows = [
+      ['frame p95', `${s.frameP95.toFixed(1)} ms`, tone(s.frameP95, 20, 34)],
+      ['render', `${s.renderMedian.toFixed(1)} / ${s.renderP95.toFixed(1)} ms`, tone(s.renderP95, 4, 8)],
+      ['notes · sprites', `${s.notes} · ${s.sprites}`, ''],
+      ['step', `${(s.stepMedian * 1000).toFixed(1)} ms`, ''],
+      ['frozen', `${s.frozen} / ${s.window}`, tone(s.frozen, 1, 10)],
+      ['Δ dsp', `${pair(s.dspDeltaMedian, s.dspDeltaMax, 1)} ms`, tone(s.dspDeltaMax ?? 0, 10, 30)],
+      ['Δ video', `${pair(s.videoDeltaMedian, s.videoDeltaMax, 1)} ms`, tone(Math.abs(s.videoDeltaMedian ?? 0), 50, 120)],
+      ['audio', `${s.audioLate} late · ${s.audioDropped} drop · ${s.audioResync} sync`, tone(s.audioDropped + s.audioResync, 1, 5)],
+      ['long task', `${s.longTaskMax} ms`, tone(s.longTaskMax, 50, 200)],
+    ];
+    if (!element.firstChild) {
+      const head = document.createElement('div');
+      head.className = 'majview-perf-head';
+      head.append(document.createElement('strong'), document.createElement('span'), document.createElement('small'));
+      head.children[1].textContent = 'fps';
+      const grid = document.createElement('dl');
+      for (const [label] of rows) {
+        const dt = document.createElement('dt');
+        dt.textContent = label;
+        grid.append(dt, document.createElement('dd'));
+      }
+      element.replaceChildren(head, grid);
+    }
+    const [head, grid] = element.children;
+    head.children[0].textContent = s.fps.toFixed(0);
+    head.children[0].dataset.tone = tone(-s.fps, -55, -30);
+    head.children[2].textContent = gpu;
+    rows.forEach(([, value, level], i) => {
+      const dd = grid.children[i * 2 + 1];
+      if (dd.textContent !== value) dd.textContent = value;
+      if ((dd.dataset.tone ?? '') !== level) dd.dataset.tone = level;
+    });
   }
 
   return {
     markFrame,
     markRender,
     summary,
-    overlay,
+    paint,
     setScene(patch) {
       Object.assign(scene, patch);
       cached = null;

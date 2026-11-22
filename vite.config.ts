@@ -44,7 +44,8 @@ export default defineConfig({
   },
   build: {
     // 不再手动分块：页面已按路由 lazy 拆分，交给 Rollup 自动提取公共依赖。
-    chunkSizeWarningLimit: 1000, // Live2D 运行时（l2d）单个 chunk 约 650 kB，按需加载
+    // 按需加载的大块：Live2D 运行时（l2d）约 650 kB，谱面文件页签的 Monaco 约 2.7 MB。
+    chunkSizeWarningLimit: 3000,
   },
   server: {
     port: 3000,

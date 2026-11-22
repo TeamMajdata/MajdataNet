@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import PageLoading from '@/components/ui/PageLoading';
 import { Activity, Suspense, lazy, useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { endpoints } from '@/config/api';
 import { toast } from 'react-toastify';
@@ -23,8 +23,10 @@ import ChartRadar from '@/components/song/ChartRadar';
 import { ChartMarkContext, type ChartMark, type ChartMarkTarget } from '@/components/song/chartMarks';
 import UserAvatar from '@/components/user/UserAvatar';
 import UnderlineTabs from '@/components/ui/UnderlineTabs';
-import { LuMessageCircle, LuPlay, LuTrophy } from 'react-icons/lu';
+import SectionLoading from '@/components/ui/SectionLoading';
+import { LuFileCode, LuPlay, LuTrophy } from 'react-icons/lu';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
+import 'react-photo-view/dist/react-photo-view.css';
 import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiTagSimple } from 'react-icons/pi';
 import { getLocale, useLanguage } from '@/i18n';
 import '@/styles/components/song-detail.css';
@@ -39,6 +41,8 @@ import { preloadMajView } from '@/majview/preload';
 
 // 网页版谱面预览带着 PixiJS，只在点开预览时加载
 const MajView = lazy(() => import('@/components/song/MajView'));
+// 谱面文件页签带着 Monaco（约 700 KB gzip），同样只在打开页签时加载
+const ChartFile = lazy(() => import('@/components/song/ChartFile'));
 
 export default function SongPage() {
   const { t } = useTranslation();
@@ -116,8 +120,8 @@ const TAG_CLASS = 'inline-flex items-center bg-white/[0.06] hover:bg-white/10 px
 
 const songTabs = [
   { id: 'preview', label: 'song/SongPage.Preview', icon: LuPlay },
+  { id: 'chart', label: 'song/ChartFile.Title', icon: LuFileCode },
   { id: 'scores', label: 'song/ScoreRanking.RankingList', icon: LuTrophy },
-  { id: 'comments', label: 'song/SongComments.Comments', icon: LuMessageCircle },
 ] as const;
 type SongTab = typeof songTabs[number]['id'];
 
@@ -157,18 +161,17 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const [params, setParams] = useSearchParams();
   const chartLevel = parseRequestedLevel(params.get('level'), song.levels) ?? getDefaultChartLevel(song.levels);
   const tagWidget = useRef<TagManageWidgetRef>(null);
-  const location = useLocation();
   const requestedTab = params.get('tab');
-  const activeTab: SongTab = songTabs.find(tab => tab.id === requestedTab)?.id
-    ?? (focusId || location.hash === '#comments' ? 'comments' : 'preview');
+  // 评论不再是页签，一直在播放器下面；旧链接里的 ?tab=comments 落到预览页签
+  const activeTab: SongTab = songTabs.find(tab => tab.id === requestedTab)?.id ?? 'preview';
   const [collecting, setCollecting] = useState(false);
-  // 评论排序：菜单放在页签栏右边，评论区按它加载
+  // 评论排序：菜单放在评论区标题右边，评论区按它加载
   const [commentSort, setCommentSort] = useState<CommentSort>('best');
-  // 评论里的时间 / combo：播放器报告当前谱面的范围，点了切到预览页签并跳过去
+  // 评论里的时间 / combo：播放器报告当前谱面的范围，点了切到预览页签、把播放器滚到眼前并跳过去
   const [markRange, setMarkRange] = useState<MarkRange>(null);
   const [jump, setJump] = useState<(ChartMark & { key: number }) | null>(null);
   const previewRef = useRef<HTMLElement>(null);
-  const searchLink = (text: string) => '/?search=' + encodeURIComponent(text);
+  const searchLink = (text: string) => '/search?search=' + encodeURIComponent(text);
   const uploadTime = new Date(song.timestamp);
   const cover = endpoints.maichart.image(song.id);
   // 和侧栏投票面板同一个请求（SWR 会合并），这里只取播放次数
@@ -178,7 +181,6 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   const { data: interact } = useSWR<ChartInteractSummary>(endpoints.maichart.interactsum(song.id), apiFetcher, { revalidateOnFocus: false });
   const tabCounts: Partial<Record<SongTab, number>> = {
     scores: leaderboard && chartLevel !== undefined ? leaderboard.scores?.[chartLevel]?.length ?? 0 : undefined,
-    comments: interact?.comments,
   };
 
   async function copy(value: string) {
@@ -193,7 +195,6 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
   function selectLevel(level: number) {
     const next = new URLSearchParams(params);
     next.set('level', String(level));
-    if (location.hash === '#comments') next.set('tab', activeTab);
     setParams(next, { replace: true, preventScrollReset: true });
   }
 
@@ -256,18 +257,34 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             onSelect={selectTab}
             idPrefix="song"
             label={t('song/SongPage.ChartDetails')}
-            trailing={activeTab === 'comments' && !focusId && <CommentSortMenu compact value={commentSort} onChange={setCommentSort} />}
           />
           {/* 播放器一直挂着：切到别的页签不用重新加载，评论里的时间 / combo 也要靠它判断范围 */}
           <section ref={previewRef} id="song-panel-preview" role="tabpanel" aria-labelledby="song-tab-preview" hidden={activeTab !== 'preview'}>
             <ChartPreview song={song} chartLevel={chartLevel} active={activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} />
           </section>
+          <section id="song-panel-chart" role="tabpanel" aria-labelledby="song-tab-chart" hidden={activeTab !== 'chart'}>
+            {/* 只读查看器不需要后台保活：切走就卸载，回来时从缓存的谱面文本重建 */}
+            {activeTab === 'chart' && (
+              <Suspense fallback={<SectionLoading />}>
+                <ChartFile songId={song.id} level={chartLevel} />
+              </Suspense>
+            )}
+          </section>
           <section id="song-panel-scores" role="tabpanel" aria-labelledby="song-tab-scores" hidden={activeTab !== 'scores'}>
             <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} chartLevel={chartLevel} /></Activity>
           </section>
-          <section id="song-panel-comments" role="tabpanel" aria-labelledby="song-tab-comments" hidden={activeTab !== 'comments'}>
-            <Activity mode={activeTab === 'comments' ? 'visible' : 'hidden'}><ChartMarkContext value={markTarget}><CommentSection chartId={song.id} uploader={song.uploader} focusId={focusId} sort={commentSort} /></ChartMarkContext></Activity>
-          </section>
+          {/* 评论一直放在播放器下面：点评论里的时间戳跳到谱面那一刻时，播放器和评论能同时看到 */}
+          <div className="song-comments">
+            {/* 读屏器用评论区里自带的标题，这里的文字只给眼睛看 */}
+            <div className="flex justify-between items-center gap-3 mb-3">
+              <p className="song-label" aria-hidden="true">
+                {t('song/SongComments.Comments')}
+                {interact?.comments !== undefined && <span className="ml-1.5 font-normal text-white/45 tabular-nums">{interact.comments}</span>}
+              </p>
+              {!focusId && <CommentSortMenu compact value={commentSort} onChange={setCommentSort} />}
+            </div>
+            <ChartMarkContext value={markTarget}><CommentSection chartId={song.id} uploader={song.uploader} focusId={focusId} sort={commentSort} /></ChartMarkContext>
+          </div>
         </div>
         <aside className="song-sidebar" aria-label={t('song/SongPage.ChartDetails')}>
           <h2 className="song-label">{t('song/SongPage.ChartDetails')}</h2>

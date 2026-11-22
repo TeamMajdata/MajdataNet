@@ -640,7 +640,7 @@ export function CommentSection({ chartId, uploader, focusId, sort: controlledSor
       aria-labelledby="comments-heading"
       className="space-y-5 min-w-0 scroll-mt-24"
     >
-      {/* 标题和评论数已经在页签上，这里只留给读屏用 */}
+      {/* 标题和评论数在谱面页评论区上方显示过了，这里只留给读屏用 */}
       <h2 id="comments-heading" className="sr-only">
         {t("song/SongComments.Comments")}
         {summary && <span>{summary.comments}</span>}

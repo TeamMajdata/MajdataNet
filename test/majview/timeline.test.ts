@@ -23,6 +23,13 @@ describe('MajView sound events (aligned with MajdataPlay NoteAudioManager)', () 
     expect(answers([{ kind: 'slide', time: 1, travel: 1.25, end: 2 }, tap(3, { mine: true })])).toEqual([]);
   });
 
+  it('touch holds start only the riser, stop it at the end and play a tap judge there (TouchHoldDrop)', () => {
+    const events = soundEvents({ notes: [{ kind: 'touchHold', time: 1, end: 2.5 }] })
+      .filter((e) => e.name !== 'answer')
+      .map((e) => [e.name, e.time, e.length]);
+    expect(events).toEqual([['touchHold_riser', 1, 1.5], ['judge', 2.5, 0]]);
+  });
+
   it('requests each sound at most once per frame', () => {
     const judges = soundEvents({ notes: [tap(1), tap(1.005), tap(1.5)] }).filter((e) => e.name === 'judge');
     expect(judges.map((e) => e.time)).toEqual([1, 1.5]);

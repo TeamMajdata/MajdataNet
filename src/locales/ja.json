@@ -162,6 +162,8 @@
     "ByDownloads": "ダウンロード",
     "ByPlays": "プレイ",
     "ByRating": "評価",
+    "Collections": "コレクション広場",
+    "CollectionsHint": "プレイヤーがまとめた譜面コレクション",
     "Likes_other": "いいね {{formatted}}",
     "Next": "次へ",
     "Plays_other": "{{formatted}} 回プレイ",
@@ -169,7 +171,8 @@
     "Previous": "前へ",
     "RecentUploads": "最近のアップロード",
     "RecentUploadsHint": "コミュニティの新作",
-    "SortBy": "並び替え"
+    "SortBy": "並び替え",
+    "ViewAll": "すべて見る"
   },
   "home/HomePage": {
     "AllCharts": "すべての譜面",
@@ -236,6 +239,10 @@
     "Comments": "コメント",
     "Plays": "再生",
     "Score": "スコア"
+  },
+  "search/SearchPage": {
+    "ResultsFor": "{{search}} の検索結果",
+    "Title": "譜面を検索"
   },
   "season/SeasonLastPlayed": {
     "Empty": "直近30日間の記録なし",
@@ -406,6 +413,15 @@
     "OperationFailed": "操作に失敗しました",
     "UnfavoriteSuccess": "お気に入りから削除しました"
   },
+  "song/ChartFile": {
+    "Copied": "クリップボードにコピーしました",
+    "Copy": "コピー",
+    "CopyFailed": "コピーに失敗しました",
+    "EmptyLevel": "この難易度には譜面がありません",
+    "LoadFailed": "譜面ファイルの読み込みに失敗しました",
+    "Retry": "再試行",
+    "Title": "譜面ファイル"
+  },
   "song/ChartRadar": {
     "AnalysisFailed": "この難易度を解析できませんでした",
     "AxisJack": "縦連",
@@ -439,6 +455,7 @@
     "SettingBGM": "音楽",
     "SettingBreak": "Break音",
     "SettingCombo": "コンボを表示",
+    "SettingCounter": "ノーツ数を表示",
     "SettingDisableGestures": "ジェスチャーを無効化",
     "SettingEX": "EX音",
     "SettingEffects": "打撃音",
@@ -450,6 +467,7 @@
     "SettingOffset": "SE オフセット",
     "SettingPerf": "パフォーマンス情報を表示",
     "SettingSlide": "Slide音",
+    "SettingSlideClassic": "スライド表示順番：Classic（新しいスライドが上）",
     "SettingTouch": "Touch音",
     "SettingTouchSpeed": "タッチ速度",
     "Settings": "設定",

@@ -1,7 +1,8 @@
 /* 网页版谱面预览（MajView）：上面是正方形的判定盘，下面是播放控制条 */
+/* 连击数用 Play 的 [UI]Jua-Regular SDF；只切了 COMBO 和数字，woff2 只有几 KB */
 @font-face {
-  font-family: Minimoon;
-  src: url('/majview/skin/Minimoon.ttf') format('truetype');
+  font-family: Jua;
+  src: url('/majview/skin/Jua-Combo.woff2') format('woff2');
   font-display: swap;
 }
 
@@ -70,6 +71,16 @@
   background: radial-gradient(circle at 50% 45%, transparent 40%, rgb(0 0 0 / 40%) 100%);
 }
 
+/* 判定盘所在的区域（控制条以上）：物量按它定位。全屏时不定位，判定盘和物量都按整块屏幕放 */
+.majview-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.majview:fullscreen .majview-stage { position: static; }
+
 .majview-scene {
   position: relative;
   flex: 1;
@@ -120,22 +131,85 @@
   text-align: center;
 }
 
-/* 帧率诊断覆盖层（开发期 / ?perf=1）：压在判定盘左上角，等宽字体，不抢焦点 */
+/* 物量：分在左上、左下两个角，落在判定线外面那一圈，不挡音符。
+   两列：名称左对齐，数值右对齐；字号跟判定盘走，手机上小一点才塞得进角落 */
+.majview-counter {
+  position: absolute;
+  left: .25rem;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: .375rem;
+  color: rgb(255 255 255 / 55%);
+  font-size: .75rem;
+  line-height: 1.25;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
+}
+.majview-counter-top { top: .25rem; }
+.majview-counter-bottom { bottom: .25rem; }
+.majview-counter[hidden] { display: none; }
+/* 手机上播放器和判定盘一样宽，物量只能塞进判定线外面的角落，字号要小 */
+@media (max-width: 48rem) {
+  .majview-counter { font-size: .5625rem; }
+}
+.majview-counter strong {
+  color: rgb(255 255 255 / 90%);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* 性能信息（设置里打开或 ?perf=1）：右上角的小卡片。顶上是帧率，下面两列指标，超标的数值变黄 / 变红 */
 .majview-perf {
   position: absolute;
   top: .5rem;
-  left: .5rem;
+  right: .5rem;
   z-index: 3;
-  padding: .25rem .5rem;
-  border-radius: .375rem;
-  background: rgb(0 0 0 / 65%);
-  color: #7dd3fc;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  min-width: 11rem;
+  padding: .5rem .625rem .5625rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: .625rem;
+  background: rgb(10 12 18 / 78%);
+  backdrop-filter: blur(8px);
+  color: rgb(255 255 255 / 85%);
   font-size: .6875rem;
   font-variant-numeric: tabular-nums;
-  line-height: 1.4;
-  white-space: pre;
+  line-height: 1.35;
   pointer-events: none;
+}
+.majview-perf-head {
+  display: flex;
+  align-items: baseline;
+  gap: .25rem;
+  padding-bottom: .375rem;
+  margin-bottom: .375rem;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+.majview-perf-head strong { font-size: 1.25rem; font-weight: 600; line-height: 1; color: #6ee7b7; }
+.majview-perf-head span { color: rgb(255 255 255 / 50%); }
+.majview-perf-head small {
+  margin-left: auto;
+  padding-left: .75rem;
+  color: rgb(255 255 255 / 40%);
+  font-size: .625rem;
+  white-space: nowrap;
+}
+.majview-perf dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: .125rem .75rem;
+  margin: 0;
+}
+.majview-perf dt { color: rgb(255 255 255 / 45%); }
+.majview-perf dd { margin: 0; text-align: right; white-space: nowrap; }
+.majview-perf [data-tone='warn'] { color: #fcd34d; }
+.majview-perf [data-tone='bad'] { color: #fca5a5; }
+.majview-perf-head strong[data-tone='warn'] { color: #fcd34d; }
+.majview-perf-head strong[data-tone='bad'] { color: #fca5a5; }
+@media (max-width: 48rem) {
+  .majview-perf { top: .25rem; right: .25rem; min-width: 0; padding: .375rem .5rem; font-size: .5625rem; }
+  .majview-perf-head strong { font-size: 1rem; }
 }
 
 /* 只给音量 / 亮度用：拖动时压在判定盘正中间。
@@ -169,14 +243,15 @@
 }
 .majview-seek-delta[hidden] { display: none; }
 
-/* 连击数：位置和字号按 Play 的 CanvasCombo 换算到正方形判定盘 */
+/* 连击数：位置和字号按 Play 的 CenterInfoDisplayer 换算到正方形判定盘。
+   COMBO 44、数字 65，COMBO 中心比数字中心高 62.7 个单位（判定盘按 1080 设计） */
 .majview-combo {
   position: absolute;
   inset: 0;
   container-type: size;
   pointer-events: none;
   color: #ca3e7c;
-  font-family: Minimoon, sans-serif;
+  font-family: Jua, sans-serif;
   text-align: center;
 }
 .majview-combo[hidden] { display: none; }
@@ -195,21 +270,21 @@
   --sy-t: calc(var(--shadow-y) - var(--edge));
   --sy-b: calc(var(--shadow-y) + var(--edge));
   text-shadow:
-    var(--edge) var(--edge) #ddd, calc(-1 * var(--edge)) var(--edge) #ddd,
-    var(--edge) calc(-1 * var(--edge)) #ddd, calc(-1 * var(--edge)) calc(-1 * var(--edge)) #ddd,
+    var(--edge) var(--edge) #b9b9b9, calc(-1 * var(--edge)) var(--edge) #b9b9b9,
+    var(--edge) calc(-1 * var(--edge)) #b9b9b9, calc(-1 * var(--edge)) calc(-1 * var(--edge)) #b9b9b9,
     var(--sx-r) var(--sy-b) black, var(--sx-l) var(--sy-b) black,
     var(--sx-r) var(--sy-t) black, var(--sx-l) var(--sy-t) black;
 }
 .majview-combo span {
-  top: 43.41%;
-  font-size: 3.407cqw;
+  top: 44.194%;
+  font-size: 4.074cqw;
   --edge: 0.05em;
   --shadow-x: 0.055em;
   --shadow-y: 0.0875em;
 }
 .majview-combo strong {
-  top: 50.25%;
-  font-size: 6.896cqw;
+  top: 50%;
+  font-size: 6.019cqw;
   --edge: 0.03333em;
   --shadow-x: 0.03667em;
   --shadow-y: 0.05833em;

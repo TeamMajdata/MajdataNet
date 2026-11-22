@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 
 /** 弹窗面板的默认外观；尺寸（max-w-*）等由 className 补充 */
 const EXIT_SECONDS = 0.15;
@@ -74,7 +74,7 @@ export default function Modal({
           // 弹窗里的点击不要冒泡到触发它的卡片等元素上
           onClick={(event) => event.stopPropagation()}
         >
-          <motion.div
+          <m.div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -84,7 +84,7 @@ export default function Modal({
             onUpdate={keepJsAnimation}
             onClick={dismissible ? onClose : undefined}
           />
-          <motion.div
+          <m.div
             role={role}
             aria-modal="true"
             aria-labelledby={labelledBy}
@@ -94,7 +94,7 @@ export default function Modal({
             {...panelMotion}
           >
             {children}
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>,

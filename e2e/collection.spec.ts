@@ -85,7 +85,7 @@ async function mockApi(page: Page, { items, username = 'viewer' }: MockOptions) 
         : [];
     await route.fulfill({ json: body });
   });
-  await page.addInitScript(() => localStorage.setItem('language', 'en'));
+  await page.addInitScript(() => localStorage.setItem('languageChoice', 'en'));
   return requests;
 }
 

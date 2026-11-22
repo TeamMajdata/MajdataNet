@@ -129,6 +129,26 @@ class Layer {
 // 判定盘设计尺寸是 1080，再高的分辨率看不出区别
 const MAX_PIXELS = 1440;
 
+const COUNTER_KINDS = ['Tap', 'Hold', 'Slide', 'Touch', 'Break'];
+
+/**
+ * 物量统计：每行一个名称和一个数值。行只在第一次建出来，之后只改数值的文字，
+ * 免得每打一个音符都重建 DOM
+ */
+function writeCounter(element, rows) {
+  if (element.childElementCount !== rows.length * 2) {
+    element.replaceChildren(...rows.flatMap(([name]) => {
+      const label = document.createElement('span');
+      label.textContent = name;
+      return [label, document.createElement('strong')];
+    }));
+  }
+  rows.forEach(([, value], i) => {
+    const cell = element.children[i * 2 + 1];
+    if (cell.textContent !== value) cell.textContent = value;
+  });
+}
+
 export class Board {
   static async create(host, preference, skinBase, ui = {}) {
     const options = {
@@ -181,10 +201,11 @@ export class Board {
     this.fireLayer.addChild(this.rays);
     this.glows = new Layer(this.fireLayer, skin);
     this.skin = skin;
-    // 连击数和统计显示在页面上（可选）
+    // 连击数和物量统计显示在页面上（可选）
     this.combo = ui.combo ?? null;
     this.comboValue = ui.comboValue ?? null;
-    this.stats = ui.stats ?? null;
+    this.counter = ui.counter ?? null;
+    this.summary = ui.summary ?? null;
     this.maskLayer = new Container();
     this.root.addChild(this.maskLayer);
     this.chart = null;
@@ -241,27 +262,29 @@ export class Board {
         if (e.to >= time) visible.push(e);
       }
       visibleNotes = visible.length;
-      // Play 里同一层先出现的 note 在前面（SortOrder 递减），所以从后出现的开始画
+      // Play 里同一层先出现的 note 在前面（SortOrder 递减），所以从后出现的开始画。
+      // Slide 跟着 Play 的 SlideSortOrder：Modern（默认）同样是旧的在上；Classic 是新的在上，单独按出现顺序画
+      const classic = this.settings.SlideClassic;
       for (let i = visible.length - 1; i >= 0; i--) {
         const e = visible[i];
         const n = e.n;
-        if (n.kind === 'slide') this.slide(n, time, e.speed);
-        else if (n.kind.startsWith('touch')) this.touch(n, time, slots);
+        if (n.kind === 'slide') {
+          if (!classic) this.slide(n, time, e.speed);
+        } else if (n.kind.startsWith('touch')) this.touch(n, time, slots);
         else this.laneNote(n, time, e.speed);
       }
+      if (classic) for (const e of visible) if (e.n.kind === 'slide') this.slide(e.n, time, e.speed);
       const count = lowerBound(this.scores, time, (entry) => entry.time);
       if (this.combo) this.combo.hidden = !this.settings.Combo || count === 0;
       if (count !== this.lastCount) {
         const { counts, totals, classic, deluxe } = scoreAt(this.scores, count);
         if (this.comboValue) this.comboValue.textContent = count ? String(count) : '';
-        if (this.stats) this.stats.textContent = ['Tap', 'Hold', 'Slide', 'Touch', 'Break']
-          .map((name, i) => name + '   ' + counts[i] + ' / ' + totals[i])
-          .concat(
-            'All   ' + count + ' / ' + this.scores.length,
-            'FiNALE   ' + classic.toFixed(2) + '%',
-            'DELUXE   ' + deluxe.toFixed(4) + '%',
-          )
-          .join('\n');
+        if (this.counter) writeCounter(this.counter, COUNTER_KINDS.map((name, i) => [name, counts[i] + '/' + totals[i]]));
+        if (this.summary) writeCounter(this.summary, [
+          ['All', count + '/' + this.scores.length],
+          ['FiNALE', classic.toFixed(2) + '%'],
+          ['DELUXE', deluxe.toFixed(4) + '%'],
+        ]);
         this.lastCount = count;
       }
     }
@@ -476,7 +499,9 @@ export class Board {
       );
       return;
     }
-    for (let i = 0; i < n.segments.length; i++) {
+    // 从最后一段、每段从最后一个箭头往前画：后画的在上面，所以先滑到的部分盖在后滑到的上面
+    // （ppqqpq 这类绕回来和自己重叠的星星，重叠处显示先经过的那一圈）
+    for (let i = n.segments.length - 1; i >= 0; i--) {
       const seg = n.segments[i],
         shape = seg.shape;
       if (time > seg.end) continue;
@@ -486,7 +511,7 @@ export class Board {
       const cursor = progress * (shape.wifi ? bars.length - 1 : bars.length);
       const first = Math.ceil(cursor);
       const drawBars = (opacity, blend) => {
-        for (let j = first; j < bars.length; j++) {
+        for (let j = bars.length - 1; j >= first; j--) {
           const b = bars[j];
           const key = shape.wifi ? 'wifi' + style + '_' + j : 'slide' + style;
           this.trails.draw(key, b.x, b.y, b.angle, b.sx, b.sy, opacity, 0xffffff, blend);
@@ -562,7 +587,8 @@ export class Board {
       this.animation(touch ? 'touch' : 'tap', p, ageAfterHit);
     } else {
       const angle = laneAngle(n.lane);
-      this.animation(n.brk ? 'break' : 'tap', p, age, -angle - Math.PI / 4);
+      // Play 把第 i 道的 TapEffect 转 -22.5° − 45°·i（Unity 逆时针为正）；换到画布（y 朝下、顺时针为正）正好是这一道的角度
+      this.animation(n.brk ? 'break' : 'tap', p, age, angle);
       this.animation(n.brk ? 'judgeBreak' : 'judge', { x: 0, y: 0 }, age, angle, this.judges);
     }
   }
