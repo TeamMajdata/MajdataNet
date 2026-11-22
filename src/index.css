@@ -304,6 +304,16 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* 全站背景极光带（AmbientBackground）：三条光带各自飘动、伸缩弯曲、明暗呼吸，只动 transform 和 opacity。
    rotate 写在元素的 rotate 属性上（Tailwind 类），这里的 transform 叠加在它上面 */
+/* 顶栏搜索框从按钮那边向左展开 */
+@keyframes search-expand {
+  from { opacity: 0; clip-path: inset(0 0 0 100% round 12px); }
+  to { opacity: 1; clip-path: inset(0 0 0 0 round 12px); }
+}
+.animate-search-expand { animation: search-expand .22s cubic-bezier(.2, .8, .2, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .animate-search-expand { animation: none; }
+}
+
 @keyframes aurora-band-a {
   0% { transform: translateX(-6%) scaleY(0.9) skewX(-8deg); opacity: 0.45; }
   50% { opacity: 0.75; }

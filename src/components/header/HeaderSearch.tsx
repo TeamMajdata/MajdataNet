@@ -62,7 +62,7 @@ export default function HeaderSearch({ inline = false }: { inline?: boolean }) {
       </button>
       {open && inline && (
         // 向左展开：贴在按钮左边，和顶栏按钮一样高（36px），底色不透明，盖住下面的导航文字
-        <div className="top-1/2 right-full absolute bg-[rgb(12_14_20)] mr-2 rounded-xl w-[min(22rem,calc(100vw-20rem))] -translate-y-1/2 [&_input]:h-9">
+        <div className="top-1/2 right-full absolute bg-[rgb(12_14_20)] mr-2 rounded-xl w-[min(22rem,calc(100vw-20rem))] -translate-y-1/2 animate-search-expand [&_input]:h-9">
           <SearchBox value="" autoFocus onSubmit={submit} />
         </div>
       )}
