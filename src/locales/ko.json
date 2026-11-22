@@ -160,10 +160,16 @@
   "home/HomeHighlights": {
     "Collections": "컬렉션 광장",
     "CollectionsHint": "플레이어가 정리한 채보 컬렉션",
+    "CommentRanking": "7일 화제 랭킹",
+    "CommentRankingHint": "최근 7일간 댓글이 가장 많은 채보",
+    "DownloadRanking": "7일 다운로드 랭킹",
+    "DownloadRankingHint": "최근 7일간 다운로드가 가장 많은 채보",
     "Likes_other": "좋아요 {{formatted}}",
     "Plays_other": "{{formatted}}회 플레이",
     "Popular": "이번 주 인기 채보",
     "PopularHint": "최근 7일간 가장 많이 플레이된 채보",
+    "RatingRanking": "7일 호평 랭킹",
+    "RatingRankingHint": "최근 7일간 평가가 가장 높은 채보",
     "RecentUploads": "최근 업로드",
     "RecentUploadsHint": "커뮤니티의 새 작품",
     "ViewAll": "모두 보기"

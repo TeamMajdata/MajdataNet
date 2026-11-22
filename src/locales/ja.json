@@ -160,10 +160,16 @@
   "home/HomeHighlights": {
     "Collections": "コレクション広場",
     "CollectionsHint": "プレイヤーがまとめた譜面コレクション",
+    "CommentRanking": "7日間話題ランキング",
+    "CommentRankingHint": "直近7日間で最もコメントされた譜面",
+    "DownloadRanking": "7日間ダウンロードランキング",
+    "DownloadRankingHint": "直近7日間で最もダウンロードされた譜面",
     "Likes_other": "いいね {{formatted}}",
     "Plays_other": "{{formatted}} 回プレイ",
     "Popular": "今週の人気譜面",
     "PopularHint": "直近7日間で最もプレイされた譜面",
+    "RatingRanking": "7日間高評価ランキング",
+    "RatingRankingHint": "直近7日間で最も評価の高い譜面",
     "RecentUploads": "最近のアップロード",
     "RecentUploadsHint": "コミュニティの新作",
     "ViewAll": "すべて見る"

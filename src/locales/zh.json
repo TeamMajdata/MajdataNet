@@ -160,10 +160,16 @@
   "home/HomeHighlights": {
     "Collections": "歌单广场",
     "CollectionsHint": "大家整理的谱面合集",
+    "CommentRanking": "七日热议榜",
+    "CommentRankingHint": "近七天评论最多的谱面",
+    "DownloadRanking": "七日下载榜",
+    "DownloadRankingHint": "近七天下载最多的谱面",
     "Likes_other": "{{formatted}} 个赞",
     "Plays_other": "{{formatted}} 次游玩",
     "Popular": "七日人气榜",
     "PopularHint": "近七天游玩最多的谱面",
+    "RatingRanking": "七日好评榜",
+    "RatingRankingHint": "近七天评价最高的谱面",
     "RecentUploads": "最近上传",
     "RecentUploadsHint": "来自社区的新作品",
     "ViewAll": "查看全部"

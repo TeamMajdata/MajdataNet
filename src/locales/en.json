@@ -163,12 +163,18 @@
   "home/HomeHighlights": {
     "Collections": "Collections",
     "CollectionsHint": "Chart collections curated by players",
+    "CommentRanking": "Most discussed this week",
+    "CommentRankingHint": "Most commented charts in the last 7 days",
+    "DownloadRanking": "Most downloaded this week",
+    "DownloadRankingHint": "Most downloaded charts in the last 7 days",
     "Likes_one": "{{formatted}} like",
     "Likes_other": "{{formatted}} likes",
     "Plays_one": "{{formatted}} play",
     "Plays_other": "{{formatted}} plays",
     "Popular": "Popular this week",
     "PopularHint": "Most played charts in the last 7 days",
+    "RatingRanking": "Top rated this week",
+    "RatingRankingHint": "Best rated charts in the last 7 days",
     "RecentUploads": "Recent uploads",
     "RecentUploadsHint": "New from the community",
     "ViewAll": "View all"
