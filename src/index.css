@@ -321,4 +321,3 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 /* 首页轮播翻页时新的一页淡入 */
-@keyframes carousel-in { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }

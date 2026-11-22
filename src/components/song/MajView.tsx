@@ -11,7 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as
 import { useTranslation } from 'react-i18next';
 import { LuMaximize, LuPause, LuPlay, LuRotateCcw, LuSettings2 } from 'react-icons/lu';
 import { Board } from '@/majview/renderer.js';
-import { Transport } from '@/majview/audio.js';
+import { Transport, adoptDecoded } from '@/majview/audio.js';
 import { compileChart, readMaidata } from '@/majview/simai.js';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
 import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, ARROW_SEEK_SEC, ARROW_STEP_SEC, BRIGHT_DRAG_PX, KEY_FAST_RATE, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, VERTICAL_SLOP_PX, VOLUME_DRAG_PX, seekTarget } from '@/majview/gestures.js';
@@ -116,6 +116,8 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
 
   const boardRef = useRef<Board | null>(null);
   const contextRef = useRef<AudioContext | null>(null);
+  /** 当前 AudioContext 是否真正跑起来过（第一次点播放之前它本来就是暂停的，不算卡死） */
+  const contextRanRef = useRef(false);
   const chartRef = useRef<Chart | null>(null);
   const transportRef = useRef<Transport | null>(null);
   // 后台准备音乐的进度：打开页面就开始下载解码，点播放时多半已经好了
@@ -298,8 +300,33 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       boardRef.current = null;
       void contextRef.current?.close();
       contextRef.current = null;
+      contextRanRef.current = false;
     };
   }, [dropTransport]);
+
+  // 回到页面时：音频在后台被系统停掉了（iOS），界面还显示在播放，先切回暂停，下次点播放会换新的 AudioContext
+  useEffect(() => {
+    const onVisible = () => {
+      const transport = transportRef.current;
+      if (document.visibilityState !== 'visible' || !transport?.playing) return;
+      if (contextRef.current?.state === 'running') return;
+      transport.pause();
+      setPlaying(false);
+      syncVideo(true);
+      frame();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [frame, syncVideo]);
+
+  // 系统回收了画布的 WebGL（切后台久了、内存紧张）：Pixi 恢复后重画一帧，暂停时画面才不会停在空白
+  useEffect(() => {
+    const host = boardHostRef.current;
+    if (!host) return;
+    const redraw = () => frame();
+    host.addEventListener('webglcontextrestored', redraw, true);
+    return () => host.removeEventListener('webglcontextrestored', redraw, true);
+  }, [frame]);
 
   /** 下载并解码音乐、准备音效；同一个谱面只做一次。失败时返回 null，下次点播放再试 */
   const prepareTrack = useCallback((target: Chart) => {
@@ -508,8 +535,22 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
     if (status === 'buffering' || !target) return;
     // 在点击里创建 / 恢复 AudioContext，iOS 才允许出声
     preferPlaybackSession();
-    contextRef.current ??= new AudioContext({ latencyHint: 'interactive' });
-    const resumed = contextRef.current.resume();
+    let context = contextRef.current;
+    // iOS 切到后台再回来，跑过的 AudioContext 会停在 interrupted / suspended：resume() 一直不返回，
+    // 时钟也不走，播放、暂停、拖动都像没反应。这时在这次点击里换一个新的，解码好的音频直接带过去
+    if (context && contextRanRef.current && context.state !== 'running') {
+      const at = transportRef.current?.time;
+      if (at !== undefined) previewTimeRef.current = at;
+      dropTransport();
+      const fresh = new AudioContext({ latencyHint: 'interactive' });
+      adoptDecoded(context, fresh);
+      void context.close().catch(() => {});
+      context = fresh;
+      contextRanRef.current = false;
+    }
+    context ??= new AudioContext({ latencyHint: 'interactive' });
+    contextRef.current = context;
+    const resumed = context.resume();
     // 真正要点播放了，才去拉背景 PV
     setVideoArmed(true);
     const video = videoRef.current;
@@ -529,7 +570,9 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
       }
       setStatus('ready');
     }
-    await resumed.catch(() => {});
+    // resume() 在 iOS 上偶尔永远不返回，最多等一秒，别让播放按钮卡死
+    await Promise.race([resumed.catch(() => {}), new Promise((done) => setTimeout(done, 1000))]);
+    if (context.state === 'running') contextRanRef.current = true;
     if (transport !== transportRef.current) return;
     if (transport.time >= transport.duration) transport.move(transport.begin);
     transport.start();
@@ -595,13 +638,19 @@ export default function MajView({ songId, level, cover, onCoverError, active = t
 
   // iOS 上长按偶尔还是会走进文本选择或上下文菜单，除了 CSS 再兜一层底
   useEffect(() => {
-    const scene = sceneRef.current;
-    if (!scene) return;
-    const prevent = (e: Event) => e.preventDefault();
+    // 挂在整个播放器上（不只是判定盘）：手势经常从判定盘边上的物量、连击、时间文字开始；输入框除外
+    const root = rootRef.current;
+    if (!root) return;
+    const prevent = (e: Event) => {
+      // selectstart 的 target 可能是文字节点，取它的父元素
+      const target = e.target instanceof Element ? e.target : (e.target as Node | null)?.parentElement;
+      if (target?.closest('input, textarea')) return;
+      e.preventDefault();
+    };
     const events = ['selectstart', 'contextmenu', 'dragstart'];
-    for (const name of events) scene.addEventListener(name, prevent);
+    for (const name of events) root.addEventListener(name, prevent);
     return () => {
-      for (const name of events) scene.removeEventListener(name, prevent);
+      for (const name of events) root.removeEventListener(name, prevent);
     };
   }, []);
 

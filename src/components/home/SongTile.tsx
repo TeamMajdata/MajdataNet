@@ -30,8 +30,9 @@ export default function SongTile({ song, meta, rank }: {
             #{rank}
           </span>
         )}
-        {/* 难度标签叠在封面左下角，各自可点进对应难度 */}
-        <div className="bottom-2 left-2 absolute drop-shadow-[0_2px_6px_rgb(0_0_0/0.6)]">
+        {/* 难度标签叠在封面左下角，各自可点进对应难度。左右都要定住：宽度是封面的宽度，
+            Levels 才知道能放几个，放不下的收进“+N”；空着的地方不挡点击封面 */}
+        <div className="right-2 bottom-2 left-2 absolute drop-shadow-[0_2px_6px_rgb(0_0_0/0.6)] pointer-events-none [&_a]:pointer-events-auto [&_span[title]]:pointer-events-auto">
           <Levels levels={song.levels} songid={song.id} linkToSong />
         </div>
       </div>
@@ -50,25 +51,6 @@ export function SongTileSkeleton() {
       <div className="bg-white/[0.06] rounded-xl aspect-[4/3] animate-pulse" />
       <div className="bg-white/[0.06] mt-2.5 rounded w-3/4 h-4" />
       <div className="bg-white/[0.04] mt-1.5 rounded w-1/2 h-3" />
-    </div>
-  );
-}
-
-/** 一排灰色卡片（手机 2 张、平板 3 张、宽屏 5 张） */
-export function SongTileGridSkeleton() {
-  return (
-    <div className="gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" aria-hidden="true">
-      {Array.from({ length: 5 }, (_, i) => <div key={i} className={i >= 3 ? 'max-lg:hidden' : i >= 2 ? 'max-sm:hidden' : ''}><SongTileSkeleton /></div>)}
-    </div>
-  );
-}
-
-/** 整段加载中：标题占位加一排灰色卡片 */
-export function SongTileSectionSkeleton() {
-  return (
-    <div className="mb-10" aria-hidden="true">
-      <div className="bg-white/[0.06] mb-4 rounded w-24 h-5" />
-      <SongTileGridSkeleton />
     </div>
   );
 }

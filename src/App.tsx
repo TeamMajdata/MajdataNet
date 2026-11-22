@@ -1,5 +1,6 @@
 import { Suspense, lazy, useState } from 'react';
 import { LazyMotion } from 'framer-motion';
+import { loadMotionFeatures } from '@/utils/loadMotionFeatures';
 import PageLoading from '@/components/ui/PageLoading';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -30,7 +31,6 @@ const CollectionsHirobaPage = lazy(() => import('./pages/collection/HirobaPage')
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const CollectionPage = lazy(() => import('./pages/collection/CollectionPage'));
 
-const loadMotionFeatures = () => import('./utils/motionFeatures').then((module) => module.default);
 
 function RouteFallback() {
   return (

@@ -1,4 +1,6 @@
 import { createRoot } from 'react-dom/client';
+import { LazyMotion } from 'framer-motion';
+import { loadMotionFeatures } from './loadMotionFeatures';
 import DownloadFormatDialog, { type DownloadFormat } from '@/components/ui/DownloadFormatDialog';
 
 const LAST_FORMAT_KEY = 'DownloadType';
@@ -39,6 +41,11 @@ export function chooseDownloadFormat(title: string): Promise<DownloadFormat | nu
       host.remove();
     });
 
-    root.render(<DownloadFormatDialog title={title} lastFormat={readLastFormat()} onDone={done} onClosed={closed} />);
+    // 单独的 React 根，不在 App 的 LazyMotion 里：自己包一层，否则弹窗的动画不加载、一直透明看不见
+    root.render(
+      <LazyMotion features={loadMotionFeatures} strict>
+        <DownloadFormatDialog title={title} lastFormat={readLastFormat()} onDone={done} onClosed={closed} />
+      </LazyMotion>,
+    );
   });
 }
