@@ -85,10 +85,8 @@
     "Delete": "삭제",
     "DeleteFailed": "삭제에 실패했습니다",
     "DeleteSuccess": "삭제되었습니다",
-    "Favorite": "즐겨찾기",
     "NoCover": "커버 없음",
-    "NoDescription": "설명이 없습니다",
-    "Unfavorite": "즐겨찾기 제거"
+    "NoDescription": "설명이 없습니다"
   },
   "collection/CollectionModal": {
     "Cancel": "취소",
@@ -138,7 +136,7 @@
     "SortBy": "정렬",
     "Submit": "저장",
     "Subscribe": "구독",
-    "SubscribeSuccess": "구독했습니다",
+    "SubscribeSuccess": "구독했습니다. MajPlay에 로그인하면 게임에서 볼 수 있습니다",
     "Subscribed": "구독 중",
     "UnsubscribeSuccess": "구독을 취소했습니다",
     "UploadDate": "날짜"

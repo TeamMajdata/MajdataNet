@@ -88,10 +88,8 @@
     "Delete": "Delete",
     "DeleteFailed": "Could not delete",
     "DeleteSuccess": "Deleted",
-    "Favorite": "Favorite",
     "NoCover": "No cover",
-    "NoDescription": "No description",
-    "Unfavorite": "Unfavorite"
+    "NoDescription": "No description"
   },
   "collection/CollectionModal": {
     "Cancel": "Cancel",
@@ -141,7 +139,7 @@
     "SortBy": "Sort",
     "Submit": "Save",
     "Subscribe": "Subscribe",
-    "SubscribeSuccess": "Subscribed",
+    "SubscribeSuccess": "Subscribed. Sign in to MajPlay to see it in game",
     "Subscribed": "Subscribed",
     "UnsubscribeSuccess": "Unsubscribed",
     "UploadDate": "Upload date"

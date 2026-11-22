@@ -85,10 +85,8 @@
     "Delete": "删除",
     "DeleteFailed": "删除失败",
     "DeleteSuccess": "删除成功",
-    "Favorite": "收藏",
     "NoCover": "无封面",
-    "NoDescription": "暂无描述",
-    "Unfavorite": "取消收藏"
+    "NoDescription": "暂无描述"
   },
   "collection/CollectionModal": {
     "Cancel": "取消",
@@ -138,7 +136,7 @@
     "SortBy": "排序",
     "Submit": "保存",
     "Subscribe": "订阅",
-    "SubscribeSuccess": "订阅成功",
+    "SubscribeSuccess": "订阅成功，登录 MajPlay 后即可在游戏内看到",
     "Subscribed": "已订阅",
     "UnsubscribeSuccess": "已取消订阅",
     "UploadDate": "时"

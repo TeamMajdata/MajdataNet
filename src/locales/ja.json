@@ -85,10 +85,8 @@
     "Delete": "削除",
     "DeleteFailed": "削除失敗",
     "DeleteSuccess": "削除しました",
-    "Favorite": "お気に入り",
     "NoCover": "カバーなし",
-    "NoDescription": "説明はありません",
-    "Unfavorite": "お気に入り解除"
+    "NoDescription": "説明はありません"
   },
   "collection/CollectionModal": {
     "Cancel": "キャンセル",
@@ -138,7 +136,7 @@
     "SortBy": "並び替え",
     "Submit": "保存",
     "Subscribe": "購読",
-    "SubscribeSuccess": "購読しました",
+    "SubscribeSuccess": "登録しました。MajPlay にログインするとゲーム内で表示されます",
     "Subscribed": "購読済み",
     "UnsubscribeSuccess": "購読を解除しました",
     "UploadDate": "新しい順"
