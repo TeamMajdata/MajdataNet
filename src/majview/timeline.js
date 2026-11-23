@@ -98,6 +98,24 @@ export function lowerBound(items, value, key) {
 export const noteSpeed = (setting) => 107.25 / (71.4184491 * (setting + 0.9975) ** -0.985558604);
 export const touchDuration = (speed) => 3.209385682 * speed ** -0.9549621752;
 
+// HoldDrop.OnUpdate keeps the body between two distances, in 1080px disc units where the
+// judgment ring is at 480 and a note appears from 122.5:
+//   - the tail stays at 122.5 until it reaches the ring-ward end of its travel, and the end
+//     point (the small cap) is shown only once it has left there;
+//   - the head stops at the judgment ring once it has passed it, so the body never runs
+//     outside the ring.
+// A negative HS is clamped the same way, so a reverse hold arrives like a normal one.
+export function holdSpan(time, note, speed) {
+  const head = 480 + (time - note.time) * speed * 100;
+  const tail = 480 + (time - note.end) * speed * 100;
+  const endVisible = tail >= 122.5;
+  return {
+    head: Math.min(480, Math.max(122.5, head)),
+    tail: Math.max(122.5, tail),
+    endVisible,
+  };
+}
+
 // Overlapping long notes survive a seek. The prefix maximum allows skipping
 // completed intervals even when their end times differ from their start order.
 export function displayIndex(notes, settings) {

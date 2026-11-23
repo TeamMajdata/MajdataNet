@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { chartStart, displayIndex, soundEvents } from '@/majview/timeline.js';
+﻿import { describe, expect, it } from 'vitest';
+import { chartStart, displayIndex, holdSpan, soundEvents } from '@/majview/timeline.js';
 
 type Note = { kind: string; time: number; end: number; travel?: number; mine?: boolean; brk?: boolean; ex?: boolean; firework?: boolean };
 const tap = (time: number, extra: Partial<Note> = {}): Note => ({ kind: 'tap', time, end: time, ...extra });
@@ -78,6 +78,34 @@ describe('MajView display windows', () => {
   });
 });
 
+describe('hold body (aligned with MajdataPlay HoldDrop)', () => {
+  const hold = { kind: 'hold', time: 10, end: 11, lane: 1 };
+  // 1000px per second keeps the numbers exact: 1s before the head it is 1000px away.
+  const speed = 10;
+
+  it('pins the tail at the inner radius and hides the end point until it appears', () => {
+    expect(holdSpan(9.5, hold, speed)).toEqual({ head: 122.5, tail: 122.5, endVisible: false });
+  });
+
+  it('stops the head at the judgment ring once it has passed', () => {
+    expect(holdSpan(10.5, hold, speed)).toEqual({ head: 480, tail: 122.5, endVisible: false });
+  });
+
+  it('shows the end point once the tail has left the inner radius', () => {
+    const span = holdSpan(10.7, hold, speed);
+    expect(span.head).toBe(480);
+    expect(span.tail).toBeCloseTo(180, 6);
+    expect(span.endVisible).toBe(true);
+  });
+
+  it('clamps a reverse hold like the game does', () => {
+    const span = holdSpan(10.5, hold, -speed);
+    expect(span.head).toBe(122.5);
+    expect(span.tail).toBe(980);
+    expect(span.endVisible).toBe(true);
+  });
+});
+
 describe('MajView clocks (aligned with MajdataPlay AnswerSoundSchedule)', () => {
   const clocks = (notes: Note[], firstBpm = 120) =>
     soundEvents({ notes, firstBpm }).filter((e) => e.name === 'clock').map((e) => e.time);
@@ -93,3 +121,5 @@ describe('MajView clocks (aligned with MajdataPlay AnswerSoundSchedule)', () => 
     expect(chartStart({ notes: [tap(2)], firstBpm: 120 })).toBe(0);
   });
 });
+
+

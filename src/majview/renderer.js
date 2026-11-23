@@ -2,7 +2,7 @@ import { Application, Assets, Container, Graphics, Mesh, MeshGeometry, Rectangle
 import animations from './generated/effects.json' with { type: 'json' };
 import { createHanabiRays } from './hanabi.js';
 import { clamp, laneAngle, lanePoint, sensorPoint } from './geometry.js';
-import { displayIndex, hanabiTimeline, lowerBound, touchDuration, scoreTimeline, scoreAt } from './timeline.js';
+import { displayIndex, hanabiTimeline, holdSpan, lowerBound, touchDuration, scoreTimeline, scoreAt } from './timeline.js';
 
 async function loadSkin(skinBase) {
   const base = new URL(skinBase, document.baseURI);
@@ -316,7 +316,10 @@ export class Board {
     const dist = 480 + elapsed * speed * 100,
       scale = clamp((dist / 100) * NOTE_APPEAR_RATE + 1 - NOTE_APPEAR_RATE * 1.225);
     if (!scale) return;
-    const r = Math.max(122.5, dist),
+    // HoldDrop.OnUpdate keeps the body between the head and the tail distance, with the head
+    // stopped at the judgment ring; a tap keeps running (a negative HS brings it from outside).
+    const span = n.kind === 'hold' ? holdSpan(time, n, speed) : null;
+    const r = span ? span.head : Math.max(122.5, dist),
       p = lanePoint(n.lane, r),
       style = variant(n);
     if (scale > 0.3) {
@@ -327,7 +330,7 @@ export class Board {
         this.lines.draw('eachline' + n.link.length, 0, 0, ((n.link.lane - 1) * Math.PI) / 4, r / 480);
     }
     if (n.kind === 'hold') {
-      const t = Math.max(122.5, 480 + tail * speed * 100);
+      const t = span.tail;
       const mid = lanePoint(n.lane, (r + t) / 2),
         length = Math.abs(r - t) + 140;
       const key = 'hold' + style;
@@ -347,7 +350,7 @@ export class Board {
       drawBody(key);
       if (n.brk || (elapsed > 0 && !n.mine)) drawBody(key, 0xffffff, shine(elapsed), 'add');
       if (n.ex) drawBody('hold_ex', exTint(n));
-      if (480 + tail * speed * 100 >= 122.5) {
+      if (span.endVisible) {
         const end = lanePoint(n.lane, t + Math.sign(t - r) * 1.75);
         this.notes.draw(
           n.mine ? 'hold_mine_end' : n.brk ? 'hold_break_end' : n.each ? 'hold_each_end' : 'hold_end',
