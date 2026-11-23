@@ -341,13 +341,18 @@ export class Board {
         const parts = this.skin.holdSlices[key];
         if (!parts) return;
         const cap = Math.min(58, length / 2),
-          span = (length - 2 * cap) * scale;
+          middle = (length - 2 * cap) * scale;
         const point = (offset) => lanePoint(n.lane, (r + t) / 2 + offset);
-        const head = point((span + cap * scale) / 2),
-          foot = point(-(span + cap * scale) / 2);
-        this.notes.draw(key + 'Top', head.x, head.y, angle, scale, (scale * cap) / 58, alpha, tint, blend);
-        this.notes.draw(key + 'Middle', mid.x, mid.y, angle, scale, span / parts.middle, alpha, tint, blend);
-        this.notes.draw(key + 'Bottom', foot.x, foot.y, angle, scale, (scale * cap) / 58, alpha, tint, blend);
+        const headPoint = point((middle + cap * scale) / 2),
+          footPoint = point(-(middle + cap * scale) / 2);
+        // Unity draws a negative size as a sprite flipped on its vertical axis: the top border
+        // ends up at the inner end of the body, so swap the caps and mirror each slice.
+        const vFlip = span.size < 0 ? -1 : 1,
+          capHead = span.size < 0 ? 'Bottom' : 'Top',
+          capFoot = span.size < 0 ? 'Top' : 'Bottom';
+        this.notes.draw(key + capHead, headPoint.x, headPoint.y, angle, scale, (vFlip * scale * cap) / 58, alpha, tint, blend);
+        this.notes.draw(key + 'Middle', mid.x, mid.y, angle, scale, (vFlip * middle) / parts.middle, alpha, tint, blend);
+        this.notes.draw(key + capFoot, footPoint.x, footPoint.y, angle, scale, (vFlip * scale * cap) / 58, alpha, tint, blend);
       };
       drawBody(key);
       if (n.brk || (elapsed > 0 && !n.mine)) drawBody(key, 0xffffff, shine(elapsed), 'add');
