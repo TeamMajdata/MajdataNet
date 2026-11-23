@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chartStart, soundEvents } from '@/majview/timeline.js';
+import { chartStart, displayIndex, soundEvents } from '@/majview/timeline.js';
 
 type Note = { kind: string; time: number; end: number; travel?: number; mine?: boolean; brk?: boolean; ex?: boolean; firework?: boolean };
 const tap = (time: number, extra: Partial<Note> = {}): Note => ({ kind: 'tap', time, end: time, ...extra });
@@ -48,6 +48,33 @@ describe('MajView sound events (aligned with MajdataPlay NoteAudioManager)', () 
   it('requests each sound at most once per frame', () => {
     const judges = soundEvents({ notes: [tap(1), tap(1.005), tap(1.5)] }).filter((e) => e.name === 'judge');
     expect(judges.map((e) => e.time)).toEqual([1, 1.5]);
+  });
+});
+
+describe('MajView display windows', () => {
+  const settings = { NoteSpeed: 75, TouchSpeed: 75 };
+
+  it('keeps a note with a negative HS in the display window', () => {
+    // <HS*-0.5> scrolls backwards: the note comes from outside the ring, so it has to be
+    // visible before its time instead of dropping out of the timeline (the chart used to
+    // go blank from the first reverse section).
+    const [entry] = displayIndex([{ kind: 'tap', time: 10, end: 10, lane: 1, speed: -0.5 }], settings);
+    expect(entry.from).toBeLessThan(10);
+    expect(entry.to).toBeGreaterThanOrEqual(10);
+  });
+
+  it('keeps a reverse touch and hold in the display window', () => {
+    const entries = displayIndex(
+      [
+        { kind: 'touch', time: 10, end: 10, lane: 1, speed: -0.5 },
+        { kind: 'hold', time: 10, end: 11, lane: 2, speed: -1 },
+      ],
+      settings,
+    );
+    for (const entry of entries) {
+      expect(entry.from).toBeLessThan(10);
+      expect(entry.to).toBeGreaterThan(10);
+    }
   });
 });
 

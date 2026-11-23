@@ -103,10 +103,13 @@ export const touchDuration = (speed) => 3.209385682 * speed ** -0.9549621752;
 export function displayIndex(notes, settings) {
   const entries = notes.map((n) => {
     const speed = noteSpeed(settings.NoteSpeed / 10) * n.speed;
+    // A negative HS scrolls the note backwards: it comes from outside the judgment
+    // ring, so the lead is measured with the magnitude of the speed either way.
+    const absSpeed = Math.abs(speed);
     const lead = n.kind.startsWith('touch')
-      ? touchDuration((settings.TouchSpeed / 10) * n.speed)
+      ? touchDuration((settings.TouchSpeed / 10) * Math.abs(n.speed))
       // 从 destScale = 0 的位置（中心以内 1/NoteAppearRate − 1.225 个单位）走到判定线
-      : (4.8 + 1 / 0.265 - 1.225) / speed;
+      : (4.8 + 1 / 0.265 - 1.225) / absSpeed;
     return { n, speed, from: n.time - lead, to: n.end + 0.76 };
   });
   // The Unity scene restarts one tap and judge animator per lane. A mine

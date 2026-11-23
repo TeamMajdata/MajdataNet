@@ -65,7 +65,7 @@ function exTint(n) {
 function slideFadeIn(n, time, speed, wifi) {
   const complete = n.time - 0.05;
   if (time > complete) return 1;
-  const start = n.time - 3.926913 / speed;
+  const start = n.time - 3.926913 / Math.abs(speed);
   if (time < start) return 0;
   const duration = clamp(complete - start, 0, 0.2),
     max = wifi ? 1 : 0.5;
@@ -316,7 +316,7 @@ export class Board {
     const dist = 480 + elapsed * speed * 100,
       scale = clamp((dist / 100) * NOTE_APPEAR_RATE + 1 - NOTE_APPEAR_RATE * 1.225);
     if (!scale) return;
-    const r = clamp(dist, 122.5, 480),
+    const r = Math.max(122.5, dist),
       p = lanePoint(n.lane, r),
       style = variant(n);
     if (scale > 0.3) {
@@ -327,9 +327,9 @@ export class Board {
         this.lines.draw('eachline' + n.link.length, 0, 0, ((n.link.lane - 1) * Math.PI) / 4, r / 480);
     }
     if (n.kind === 'hold') {
-      const t = clamp(480 + tail * speed * 100, 122.5, 480);
+      const t = Math.max(122.5, 480 + tail * speed * 100);
       const mid = lanePoint(n.lane, (r + t) / 2),
-        length = r - t + 140;
+        length = Math.abs(r - t) + 140;
       const key = 'hold' + style;
       const drawBody = (key, tint = 0xffffff, alpha = 1, blend = 'normal') => {
         // Keep end caps round while the distance between head and tail changes.
@@ -348,7 +348,7 @@ export class Board {
       if (n.brk || (elapsed > 0 && !n.mine)) drawBody(key, 0xffffff, shine(elapsed), 'add');
       if (n.ex) drawBody('hold_ex', exTint(n));
       if (480 + tail * speed * 100 >= 122.5) {
-        const end = lanePoint(n.lane, t - 1.75);
+        const end = lanePoint(n.lane, t + Math.sign(t - r) * 1.75);
         this.notes.draw(
           n.mine ? 'hold_mine_end' : n.brk ? 'hold_break_end' : n.each ? 'hold_each_end' : 'hold_end',
           end.x,
@@ -398,7 +398,7 @@ export class Board {
       this.hit(n, p, tail);
       return;
     }
-    const duration = touchDuration((this.settings.TouchSpeed / 10) * n.speed);
+    const duration = touchDuration((this.settings.TouchSpeed / 10) * Math.abs(n.speed));
     const alpha = Number.isFinite(duration) ? clamp((duration + elapsed) / (0.2 * duration)) : 1;
     if (!alpha) return;
     // Play TouchDrop：扇叶距离 0.226 + clamp((0.42 − e^(8·0.43·t/移动时长 − 0.85)) × 0.75, 0, 0.30)，移动时长 = 0.8 × 总时长
