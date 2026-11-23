@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "preview": "vite preview --host",
+    "simai:golden": "node scripts/gen-simai-golden.mjs",
     "events:thumbs": "bash scripts/gen-event-thumbs.sh"
   },
   "dependencies": {
