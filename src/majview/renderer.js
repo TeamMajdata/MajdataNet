@@ -313,7 +313,10 @@ export class Board {
       return;
     }
     // Play TapDrop / HoldDrop：destScale = 距离 × NoteAppearRate + (1 − NoteAppearRate × 1.225)，距离以 100px 为 1 个单位
-    const dist = 480 + elapsed * speed * 100,
+    // A hold with a negative HS is drawn forwards, so it fades in from the center with |speed|;
+    // a tap keeps the signed speed and comes from outside the ring.
+    const scroll = n.kind === 'hold' ? Math.abs(speed) : speed;
+    const dist = 480 + elapsed * scroll * 100,
       scale = clamp((dist / 100) * NOTE_APPEAR_RATE + 1 - NOTE_APPEAR_RATE * 1.225);
     if (!scale) return;
     // HoldDrop.OnUpdate keeps the body between the head and the tail distance, with the head
