@@ -33,6 +33,7 @@ const compile = (text: string, first?: string) =>
     warnings: { token: string; message: string }[];
     firstBpm: number;
     last: number;
+    commaTimings: { time: number; bpm: number; sigNum: number; sigDen: number }[];
   };
 
 const at = (notes: RenderedNote[], kind: string) => notes.filter((n) => n.kind === kind);
@@ -200,6 +201,17 @@ describe('compileChart (MajSimai model to the renderer model)', () => {
   it('applies the &first offset and stops at the E marker', () => {
     const chart = compile('(120){4}1,2,E,3,', '2.5');
     expect(chart.notes.map((n) => n.time)).toEqual([2.5, 3]);
+  });
+
+  it('exposes the comma timings for the seek bar, shifted like the notes', () => {
+    const chart = compile('(120){4}1,2,(240)3,4,', '2');
+    expect(chart.commaTimings.map((timing) => timing.bpm)).toEqual([120, 120, 240, 240, 240]);
+    expect(chart.commaTimings.map((timing) => timing.time)).toEqual([2, 2.5, 3, 3.25, 3.5]);
+  });
+
+  it('carries the time signature of the chart for the beat grid', () => {
+    const chart = compile('(120)||s3/4\n1,2,3,');
+    expect(chart.commaTimings.every((timing) => timing.sigNum === 3 && timing.sigDen === 4)).toBe(true);
   });
 
   it('warns about slides the renderer cannot draw instead of failing the chart', () => {

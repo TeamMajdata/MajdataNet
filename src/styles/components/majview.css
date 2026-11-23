@@ -306,9 +306,19 @@
   display: block;
   width: 100%;
 }
+/* 谱面时间轴：中线是当前时间，谱面/波形/BPM/拍线随播放滚动。
+   纯视图（不接收指针），全局键盘的左右键仍然管拖动。
+   高度按原控件的标记尺寸留足：8 条轨 + 上下留白，太矮的话 7px 的方块会互相压住 */
+.majview-visualizer {
+  display: block;
+  width: 100%;
+  height: 8rem;
+  pointer-events: none;
+}
 /* 手机上判定盘贴着控制条：判定线外面本来就有一圈封面，不用再留内边距 */
 @media (max-width: 48rem) {
   .majview-controls { padding-top: 0; }
+  .majview-visualizer { height: 6.5rem; }
 }
 
 /* 设置面板：盖在播放器右侧（窄屏铺满），内容多了可以滚动 */

@@ -1034,5 +1034,8 @@ export function compileChart(fields, difficulty) {
 
   if (!notes.length) throw Error('This difficulty is empty.');
   notes.sort((a, b) => a.time - b.time);
-  return { notes, warnings, firstBpm, last: notes.reduce((end, n) => Math.max(end, n.end), 0) };
+  // The seek bar's timeline draws one label per BPM change and one tick per comma, so the
+  // comma timing points go out with the notes, shifted like the notes are.
+  const commaTimings = parsed.commaTimings.map((timing) => ({ ...timing, time: timing.time + offset }));
+  return { notes, warnings, firstBpm, last: notes.reduce((end, n) => Math.max(end, n.end), 0), commaTimings };
 }

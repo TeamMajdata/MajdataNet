@@ -16,6 +16,9 @@ import { useMediaSession } from './useMediaSession';
 import { compileChart, readMaidata } from '@/majview/simai.js';
 import { analyzeChart } from '@/majview/analyzer.js';
 import MajViewAnalyzer from './MajViewAnalyzer';
+import { buildWaveform } from '@/majview/visualizer.js';
+import MajViewVisualizer, { type SpectrumAnalysis, type VisualizerHandle } from './MajViewVisualizer';
+import { AURORA_DEFAULTS, downsample } from '@/majview/spectrum.js';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
 import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, ARROW_SEEK_SEC, ARROW_STEP_SEC, BRIGHT_DRAG_PX, KEY_FAST_RATE, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, VERTICAL_SLOP_PX, VOLUME_DRAG_PX, seekTarget } from '@/majview/gestures.js';
 import { createPerf, perfForced } from '@/majview/perf.js';
@@ -118,9 +121,14 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   // 背景压暗层：拖动调亮度时直接写样式，不等 React 重渲染
   const shadeRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLInputElement>(null);
+  // 进度条上方的时间轴：每帧由 frame() 推时间进去
+  const visualizerRef = useRef<VisualizerHandle>(null);
   const clockRef = useRef<HTMLSpanElement>(null);
 
   const boardRef = useRef<Board | null>(null);
+  const spectrumWorkerRef = useRef<Worker | null>(null);
+  // 换谱面时旧 Worker 的结果要丢掉
+  const spectrumIdRef = useRef(0);
   const contextRef = useRef<AudioContext | null>(null);
   /** 当前 AudioContext 是否真正跑起来过（第一次点播放之前它本来就是暂停的，不算卡死） */
   const contextRanRef = useRef(false);
@@ -179,6 +187,10 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   const [error, setError] = useState<{ track?: boolean; detail?: string }>({});
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
+  // 波形包络：音乐解码好之后算一次，进度条上方的时间轴拿它当背景
+  const [waveform, setWaveform] = useState<{ data: Float32Array; duration: number } | null>(null);
+  // 波形颜色：Worker 里算出来的 Aurora 三段分频结果，没到之前波形是纯绿的
+  const [spectrum, setSpectrum] = useState<SpectrumAnalysis | null>(null);
   // 开头 clock 在 0 之前时，进度条从第一下 clock 开始，显示的时间和总长也把这段算进去
   const [begin, setBegin] = useState(0);
   const beginRef = useRef(0);
@@ -256,6 +268,8 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       });
     }
     if (timelineRef.current) timelineRef.current.value = String(time);
+    // 时间轴：中线固定在中间，窗口里的谱面和波形每帧跟着这个时间重画
+    visualizerRef.current?.render(time);
     // 时间文字一秒才变一次，没变就不碰 DOM
     const clock = formatClock(time - beginRef.current);
     if (clockRef.current && clockRef.current.textContent !== clock) clockRef.current.textContent = clock;
@@ -353,6 +367,36 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     return () => host.removeEventListener('webglcontextrestored', redraw, true);
   }, [frame]);
 
+  /** 频谱颜色：整曲 FFT 约 300ms，放 Worker 里算，主线程只做 2:1 降采样 */
+  const analyzeTrack = useCallback((transport: Transport) => {
+    const id = spectrumIdRef.current + 1;
+    spectrumIdRef.current = id;
+    spectrumWorkerRef.current?.terminate();
+    const worker = new Worker(new URL('../../majview/spectrum.worker.js', import.meta.url), { type: 'module' });
+    spectrumWorkerRef.current = worker;
+    worker.onmessage = (event: MessageEvent<SpectrumAnalysis>) => {
+      worker.terminate();
+      if (spectrumIdRef.current === id) setSpectrum(event.data);
+    };
+    worker.onerror = (event) => {
+      // 失败了就算了，波形退回绿色，但别让错误静默消失
+      console.warn('[majview] spectrum worker failed', event.message ?? event);
+      worker.terminate();
+    };
+    // 降到 24kHz 再分析（Nyquist 12kHz 覆盖 Aurora 的蓝色段），降采样顺带当抗混叠低通
+    const samples = downsample(transport.song.getChannelData(0), AURORA_DEFAULTS.decimate);
+    worker.postMessage(
+      { samples, rate: transport.song.sampleRate / AURORA_DEFAULTS.decimate },
+      [samples.buffer],
+    );
+  }, []);
+
+  // 卸载时把频谱 Worker 停掉
+  useEffect(() => () => {
+    spectrumWorkerRef.current?.terminate();
+    spectrumWorkerRef.current = null;
+  }, []);
+
   /** 下载并解码音乐、准备音效；同一个谱面只做一次。失败时返回 null，下次点播放再试 */
   const prepareTrack = useCallback((target: Chart) => {
     if (trackRef.current?.chart === target) return trackRef.current.promise;
@@ -371,6 +415,11 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
         transport.move(previewTimeRef.current);
         transportRef.current = transport;
         setDuration(transport.duration);
+        // 波形只要音乐的包络，和播放状态无关：解码完就在主线程空闲前算好（约 10–20ms）
+        const data = buildWaveform(transport.song);
+        if (data) setWaveform({ data, duration: transport.song.duration });
+        // 颜色另算：Worker 里跑 FFT，结果晚一点到，到了波形自己会变色
+        analyzeTrack(transport);
         mark('majview:track-ready');
         return transport;
       })
@@ -380,7 +429,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       });
     trackRef.current = { chart: target, controller, promise };
     return promise;
-  }, [chartUrl]);
+  }, [chartUrl, analyzeTrack]);
 
   /** 谱面出来后再等浏览器空闲才准备音乐：先保证画面，别让 2MB 音频和皮肤/谱面抢带宽 */
   const scheduleTrack = useCallback((target: Chart) => {
@@ -408,6 +457,10 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     if (valueHintRef.current) valueHintRef.current.hidden = true;
     setFastForward(false);
     setChart(null);
+    setWaveform(null);
+    setSpectrum(null);
+    // 上一条谱面的频谱结果作废（Worker 可能还在跑）
+    spectrumIdRef.current += 1;
     setPlaying(false);
     setRate(1);
     setStatus('loading');
@@ -1111,6 +1164,14 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
 
       <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
         {analyzer && analyzer.max > 0 && <MajViewAnalyzer bars={analyzer.bars} />}
+        <MajViewVisualizer
+          ref={visualizerRef}
+          chart={chart}
+          waveform={waveform?.data ?? null}
+          waveformDuration={waveform?.duration ?? 0}
+          analysis={spectrum}
+          offset={settings.FirstOffset / 1000}
+        />
         <input
           ref={timelineRef}
           type="range"
