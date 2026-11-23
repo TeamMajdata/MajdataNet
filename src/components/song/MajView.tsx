@@ -14,6 +14,8 @@ import { Board } from '@/majview/renderer.js';
 import { Transport, adoptDecoded } from '@/majview/audio.js';
 import { useMediaSession } from './useMediaSession';
 import { compileChart, readMaidata } from '@/majview/simai.js';
+import { analyzeChart } from '@/majview/analyzer.js';
+import MajViewAnalyzer from './MajViewAnalyzer';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
 import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, ARROW_SEEK_SEC, ARROW_STEP_SEC, BRIGHT_DRAG_PX, KEY_FAST_RATE, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, VERTICAL_SLOP_PX, VOLUME_DRAG_PX, seekTarget } from '@/majview/gestures.js';
 import { createPerf, perfForced } from '@/majview/perf.js';
@@ -440,6 +442,12 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
 
   // 和渲染器里的 combo 计数用同一份时间表：第 n 个元素结束时 combo 变成 n
   const scores = useMemo(() => chart ? scoreTimeline(chart.notes) as { time: number }[] : [], [chart]);
+
+  // 进度条上方的谱面密度：按 Seek 条的范围切 64 根柱，和 MajdataPlay 的 ChartAnalyzer 一致
+  const analyzer = useMemo(
+    () => (chart && duration > begin ? analyzeChart(chart.notes, duration - begin, begin) : null),
+    [chart, duration, begin],
+  );
 
   useEffect(() => {
     onMarkRange?.(chart ? { length: duration - begin, maxCombo: scores.length } : null);
@@ -1102,6 +1110,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       </div>
 
       <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
+        {analyzer && analyzer.max > 0 && <MajViewAnalyzer bars={analyzer.bars} />}
         <input
           ref={timelineRef}
           type="range"
