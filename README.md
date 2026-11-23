@@ -114,6 +114,8 @@ public/               # 公共资源
 
 `src/majview/simai.js` 是 [MajSimai](https://github.com/TeamMajdata/MajSimai) 3.0.1 的 JS 移植：`parseChart()` 复刻 `SimaiParser.ParseChart` 的 note 模型、标记与时间计算，`compileChart()` 再把它适配成 MajView 渲染器使用的模型。解析结果由 `test/fixtures/simai/` 里 MajSimai 实机生成的 golden 数据逐项校验，改完解析逻辑先跑 `pnpm test`；需要重新录制 golden 时运行 `pnpm simai:golden`（需要 .NET SDK 和 NuGet 还原）。
 
+滑条的几何形状（箭头位置、朝向和终点箭头）在 `src/majview/generated/paths.json`，由 MajdataPlay 的 `Assets/Prefabs/Game/Slides` 生成：`pnpm majview:paths`，默认读取同级目录下的 MajdataPlay，也可以用参数或 `MAJDATAPLAY_SLIDES` 指定。改了布局或升级了皮肤资源后重新生成并跑 `pnpm test`。
+
 ## 路由说明
 
 - `/` - 首页

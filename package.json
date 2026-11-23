@@ -17,6 +17,7 @@
     "test:e2e": "playwright test",
     "preview": "vite preview --host",
     "simai:golden": "node scripts/gen-simai-golden.mjs",
+    "majview:paths": "node scripts/gen-majview-paths.mjs",
     "events:thumbs": "bash scripts/gen-event-thumbs.sh"
   },
   "dependencies": {
