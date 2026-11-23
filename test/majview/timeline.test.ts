@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { chartStart, displayIndex, holdSpan, soundEvents } from '@/majview/timeline.js';
 
 type Note = { kind: string; time: number; end: number; travel?: number; mine?: boolean; brk?: boolean; ex?: boolean; firework?: boolean };
@@ -84,11 +84,11 @@ describe('hold body (aligned with MajdataPlay HoldDrop)', () => {
   const speed = 10;
 
   it('pins the tail at the inner radius and hides the end point until it appears', () => {
-    expect(holdSpan(9.5, hold, speed)).toEqual({ head: 122.5, tail: 122.5, endVisible: false });
+    expect(holdSpan(9.5, hold, speed)).toEqual({ head: 122.5, tail: 122.5, endVisible: false, size: 140 });
   });
 
   it('stops the head at the judgment ring once it has passed', () => {
-    expect(holdSpan(10.5, hold, speed)).toEqual({ head: 480, tail: 122.5, endVisible: false });
+    expect(holdSpan(10.5, hold, speed)).toEqual({ head: 480, tail: 122.5, endVisible: false, size: 497.5 });
   });
 
   it('shows the end point once the tail has left the inner radius', () => {
@@ -96,13 +96,17 @@ describe('hold body (aligned with MajdataPlay HoldDrop)', () => {
     expect(span.head).toBe(480);
     expect(span.tail).toBeCloseTo(180, 6);
     expect(span.endVisible).toBe(true);
+    expect(span.size).toBeCloseTo(440, 6);
   });
 
-  it('clamps a reverse hold like the game does', () => {
+  it('gives a reverse hold a negative sprite size, like the game', () => {
     const span = holdSpan(10.5, hold, -speed);
     expect(span.head).toBe(122.5);
     expect(span.tail).toBe(980);
     expect(span.endVisible).toBe(true);
+    // distance - holdDistance + 1.4 with a negative HS is shorter than the gap, and Unity
+    // draws the flipped sprite over |size|; the renderer draws the same length.
+    expect(span.size).toBeCloseTo(122.5 - 980 + 140, 6);
   });
 });
 

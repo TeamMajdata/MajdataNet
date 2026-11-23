@@ -104,15 +104,19 @@ export const touchDuration = (speed) => 3.209385682 * speed ** -0.9549621752;
 //     point (the small cap) is shown only once it has left there;
 //   - the head stops at the judgment ring once it has passed it, so the body never runs
 //     outside the ring.
-// A negative HS is clamped the same way, so a reverse hold arrives like a normal one.
+// The body sprite is sized `head - tail + 140`: a negative HS scrolls backwards, which makes
+// that size negative and the sprite flipped, so `size` is kept signed for the renderer.
 export function holdSpan(time, note, speed) {
   const head = 480 + (time - note.time) * speed * 100;
   const tail = 480 + (time - note.end) * speed * 100;
   const endVisible = tail >= 122.5;
+  const clampedHead = Math.min(480, Math.max(122.5, head));
+  const clampedTail = Math.max(122.5, tail);
   return {
-    head: Math.min(480, Math.max(122.5, head)),
-    tail: Math.max(122.5, tail),
+    head: clampedHead,
+    tail: clampedTail,
     endVisible,
+    size: clampedHead - clampedTail + 140,
   };
 }
 

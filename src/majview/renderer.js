@@ -332,7 +332,9 @@ export class Board {
     if (n.kind === 'hold') {
       const t = span.tail;
       const mid = lanePoint(n.lane, (r + t) / 2),
-        length = Math.abs(r - t) + 140;
+        // HoldDrop sizes the sliced body as `distance - holdDistance + 1.4`; with a negative HS
+        // that is negative and Unity draws the sprite flipped, so draw the same length.
+        length = Math.abs(span.size);
       const key = 'hold' + style;
       const drawBody = (key, tint = 0xffffff, alpha = 1, blend = 'normal') => {
         // Keep end caps round while the distance between head and tail changes.
@@ -351,7 +353,7 @@ export class Board {
       if (n.brk || (elapsed > 0 && !n.mine)) drawBody(key, 0xffffff, shine(elapsed), 'add');
       if (n.ex) drawBody('hold_ex', exTint(n));
       if (span.endVisible) {
-        const end = lanePoint(n.lane, t + Math.sign(t - r) * 1.75);
+        const end = lanePoint(n.lane, t - 1.75);
         this.notes.draw(
           n.mine ? 'hold_mine_end' : n.brk ? 'hold_break_end' : n.each ? 'hold_each_end' : 'hold_end',
           end.x,
