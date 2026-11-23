@@ -332,9 +332,9 @@ export class Board {
     if (n.kind === 'hold') {
       const t = span.tail;
       const mid = lanePoint(n.lane, (r + t) / 2),
-        // HoldDrop sizes the sliced body as `distance - holdDistance + 1.4`; with a negative HS
-        // that is negative and Unity draws the sprite flipped, so draw the same length.
-        length = Math.abs(span.size);
+        // HoldDrop sizes the sliced body as `distance - holdDistance + 1.4`; a hold with a
+        // negative HS is drawn forwards, so the size is always positive here.
+        length = span.size;
       const key = 'hold' + style;
       const drawBody = (key, tint = 0xffffff, alpha = 1, blend = 'normal') => {
         // Keep end caps round while the distance between head and tail changes.
@@ -345,14 +345,9 @@ export class Board {
         const point = (offset) => lanePoint(n.lane, (r + t) / 2 + offset);
         const headPoint = point((middle + cap * scale) / 2),
           footPoint = point(-(middle + cap * scale) / 2);
-        // Unity draws a negative size as a sprite flipped on its vertical axis: the top border
-        // ends up at the inner end of the body, so swap the caps and mirror each slice.
-        const vFlip = span.size < 0 ? -1 : 1,
-          capHead = span.size < 0 ? 'Bottom' : 'Top',
-          capFoot = span.size < 0 ? 'Top' : 'Bottom';
-        this.notes.draw(key + capHead, headPoint.x, headPoint.y, angle, scale, (vFlip * scale * cap) / 58, alpha, tint, blend);
-        this.notes.draw(key + 'Middle', mid.x, mid.y, angle, scale, (vFlip * middle) / parts.middle, alpha, tint, blend);
-        this.notes.draw(key + capFoot, footPoint.x, footPoint.y, angle, scale, (vFlip * scale * cap) / 58, alpha, tint, blend);
+        this.notes.draw(key + 'Top', headPoint.x, headPoint.y, angle, scale, (scale * cap) / 58, alpha, tint, blend);
+        this.notes.draw(key + 'Middle', mid.x, mid.y, angle, scale, middle / parts.middle, alpha, tint, blend);
+        this.notes.draw(key + 'Bottom', footPoint.x, footPoint.y, angle, scale, (scale * cap) / 58, alpha, tint, blend);
       };
       drawBody(key);
       if (n.brk || (elapsed > 0 && !n.mine)) drawBody(key, 0xffffff, shine(elapsed), 'add');

@@ -99,14 +99,11 @@ describe('hold body (aligned with MajdataPlay HoldDrop)', () => {
     expect(span.size).toBeCloseTo(440, 6);
   });
 
-  it('gives a reverse hold a negative sprite size, like the game', () => {
-    const span = holdSpan(10.5, hold, -speed);
-    expect(span.head).toBe(122.5);
-    expect(span.tail).toBe(980);
-    expect(span.endVisible).toBe(true);
-    // distance - holdDistance + 1.4 with a negative HS is shorter than the gap, and Unity
-    // draws the flipped sprite over |size|; the renderer draws the same length.
-    expect(span.size).toBeCloseTo(122.5 - 980 + 140, 6);
+  it('draws a hold with a negative HS exactly like a positive one', () => {
+    const forward = holdSpan(10.5, hold, speed);
+    const reverse = holdSpan(10.5, hold, -speed);
+    expect(reverse).toEqual(forward);
+    expect(reverse).toEqual({ head: 480, tail: 122.5, endVisible: false, size: 497.5 });
   });
 });
 

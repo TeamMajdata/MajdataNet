@@ -920,7 +920,7 @@ function slideSegments(slide, bpm, totalTime, startTime) {
   });
 }
 
-function noteSpeedFields(note, time, speed) {
+function noteSpeedFields(note, time, speed, each) {
   return {
     lane: note.start,
     time,
@@ -932,7 +932,7 @@ function noteSpeedFields(note, time, speed) {
     firework: note.isHanabi,
     star: note.isForceStar,
     rotate: note.isFakeRotate,
-    each: note.isEach,
+    each,
   };
 }
 
@@ -952,6 +952,13 @@ export function compileChart(fields, difficulty) {
     const time = timingPoint.time + offset;
     const speed = timingPoint.hs;
 
+    // MajdataPlay's IsEachNote counts only notes whose path is not a mine, never marks a mine as
+    // an each, and counts a star head once for its slide (the slide itself never counts).
+    const slideEach = timingPoint.notes.filter((note) => note.type === NoteType.Slide && !note.isMine).length > 1;
+    const otherEach =
+      timingPoint.notes.filter((note) => note.type !== NoteType.Slide && !note.isMine).length > 1;
+    const eachOf = (note) => !note.isMine && (note.type === NoteType.Slide ? slideEach : otherEach);
+
     // Slides are built first: a star head is only worth drawing when one of its slides is
     // drawable, so the heads below look their slides up here.
     const slides = new Map();
@@ -963,7 +970,7 @@ export function compileChart(fields, difficulty) {
         slides.set(note, null);
         continue;
       }
-      const n = noteSpeedFields(note, time, speed);
+      const n = noteSpeedFields(note, time, speed, eachOf(note));
       n.kind = 'slide';
       n.travel = note.slideStart + offset;
       n.end = n.travel + note.slideTime;
@@ -988,7 +995,7 @@ export function compileChart(fields, difficulty) {
         const related = note.related.map((slide) => slides.get(slide)).filter(Boolean);
         // A head whose only slides are undrawable would be a star that never moves.
         if (note.related.length > 0 && related.length === 0) continue;
-        const n = noteSpeedFields(note, time, speed);
+        const n = noteSpeedFields(note, time, speed, eachOf(note));
         // Only a slide head is a "star" for the renderer: it spins while its slide travels.
         // A tap forced to the star skin ($) is drawn as a star but does not spin.
         n.kind = note.isStar && related.length > 0 ? 'star' : 'tap';
@@ -996,17 +1003,17 @@ export function compileChart(fields, difficulty) {
         if (n.kind === 'star') n.spinPeriod = related[0].end - related[0].travel;
         group.push(n);
       } else if (note.type === NoteType.Hold) {
-        const n = noteSpeedFields(note, time, speed);
+        const n = noteSpeedFields(note, time, speed, eachOf(note));
         n.kind = 'hold';
         n.end = time + note.hold;
         group.push(n);
       } else if (note.type === NoteType.Touch) {
-        const n = noteSpeedFields(note, time, speed);
+        const n = noteSpeedFields(note, time, speed, eachOf(note));
         n.kind = 'touch';
         n.area = note.area;
         group.push(n);
       } else if (note.type === NoteType.TouchHold) {
-        const n = noteSpeedFields(note, time, speed);
+        const n = noteSpeedFields(note, time, speed, eachOf(note));
         n.kind = 'touchHold';
         n.area = note.area;
         n.end = time + note.hold;

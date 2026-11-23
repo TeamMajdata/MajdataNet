@@ -147,6 +147,22 @@ describe('compileChart (MajSimai model to the renderer model)', () => {
     expect(problems).toEqual([]);
   });
 
+  it('marks a slide each only by its non-mine slides (IsEachNote)', () => {
+    const both = compile('(120){4}1-3[8:1]/2-4[8:1],');
+    expect(at(both.notes, 'slide').map((n) => n.each)).toEqual([true, true]);
+
+    const withMine = compile('(120){4}1-3[8:1]/2-4[8:1]m,');
+    expect(at(withMine.notes, 'slide').map((n) => n.each)).toEqual([false, false]);
+  });
+
+  it('never marks a mine note as an each', () => {
+    const chart = compile('(120){4}1m/2,');
+    expect(chart.notes.map((n) => [n.mine, n.each])).toEqual([
+      [true, false],
+      [false, false],
+    ]);
+  });
+
   it('keeps each, break, mine, EX, force star and fake rotate', () => {
     const chart = compile('(120){4}1/2,3b,4m,5x,6$,7$$,');
     const [left, right] = chart.notes;
