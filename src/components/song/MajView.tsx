@@ -28,7 +28,6 @@ import type { ChartMark } from './chartMarks';
 import { loadSettings, saveSettings, type ViewSettings } from '@/majview/settings';
 import SortMenu from '@/components/ui/SortMenu';
 import MajViewSettings from './MajViewSettings';
-import { endpoints } from '@/config/api';
 import '@/styles/components/majview.css';
 
 const SKIN_BASE = '/majview/skin/';
@@ -94,8 +93,18 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ songId, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange }: {
-  songId: string;
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime }: {
+  /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
+  chartUrl?: string;
+  /**
+   * 直接给谱面文本（编辑器的实时预览）。给了就不再请求 chartUrl，
+   * 之后的每次变化只重编译并热换谱面，不重载音频、不跳播放位置。
+   */
+  chartText?: string;
+  /** 音乐（mp3）的地址 */
+  trackUrl: string;
+  /** 背景 PV 的地址；没有就不挂视频 */
+  videoUrl?: string;
   /** 曲名、曲师：显示在系统的媒体控件里（锁屏、控制中心、通知栏） */
   title: string;
   artist?: string;
@@ -108,6 +117,8 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   jump?: (ChartMark & { key: number }) | null;
   /** 告诉页面当前谱面的范围，用来判断评论里的时间 / combo 是否有效 */
   onMarkRange?: (range: { length: number; maxCombo: number } | null) => void;
+  /** 每帧上报播放时间（秒）；编辑器用它在中栏显示时间 */
+  onTime?: (time: number) => void;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -135,6 +146,12 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   /** 跑过的 AudioContext 之后页面进过后台：iOS 回来后它可能还报 running，但时钟再也不走，下次点播放一律换新的 */
   const backgroundedRef = useRef(false);
   const chartRef = useRef<Chart | null>(null);
+  /** 编辑器给的实时谱面文本；用 ref 是为了不在每次输入时重跑整个加载流程 */
+  const chartTextRef = useRef(chartText);
+  chartTextRef.current = chartText;
+  /** 每帧上报时间给页面；走 ref 免得 frame() 的依赖里多一项 */
+  const onTimeRef = useRef(onTime);
+  onTimeRef.current = onTime;
   const transportRef = useRef<Transport | null>(null);
   // 后台准备音乐的进度：打开页面就开始下载解码，点播放时多半已经好了
   const trackRef = useRef<{ chart: Chart; controller: AbortController; promise: Promise<Transport | null> } | null>(null);
@@ -150,7 +167,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
 
   // 性能信息：设置里的开关（默认关闭），?perf=1 可以强制打开
   const perfOn = settings.Perf || perfForced();
-  const perf = useMemo(() => (perfOn ? createPerf(`majview ${songId}#${level}`) : null), [perfOn, songId, level]);
+  const perf = useMemo(() => (perfOn ? createPerf(`majview ${title}#${level}`) : null), [perfOn, title, level]);
   const perfRef = useRef<HTMLDivElement>(null);
   const perfPaintRef = useRef(0);
   const perfFirstFrameRef = useRef(false);
@@ -204,8 +221,6 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   durationRef.current = duration;
   rateRef.current = rate;
 
-  const chartUrl = endpoints.maichart.prefix('') + songId;
-
   const currentTime = () => transportRef.current?.time ?? previewTimeRef.current;
 
   /**
@@ -246,6 +261,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     }
     const transport = transportRef.current;
     const time = transport?.time ?? previewTimeRef.current;
+    onTimeRef.current?.(time);
     if (perf) perf.markFrame();
     if (transport?.playing && time >= transport.duration) {
       transport.pause();
@@ -405,7 +421,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     contextRef.current ??= new AudioContext({ latencyHint: 'interactive' });
     const context = contextRef.current;
     const controller = new AbortController();
-    const promise = Transport.load(context, chartUrl + '/track', target, settingsRef.current, controller.signal, SKIN_BASE)
+    const promise = Transport.load(context, trackUrl, target, settingsRef.current, controller.signal, SKIN_BASE)
       .then((transport) => {
         if (controller.signal.aborted || target !== chartRef.current) {
           transport.dispose();
@@ -429,7 +445,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       });
     trackRef.current = { chart: target, controller, promise };
     return promise;
-  }, [chartUrl, analyzeTrack]);
+  }, [trackUrl, analyzeTrack]);
 
   /** 谱面出来后再等浏览器空闲才准备音乐：先保证画面，别让 2MB 音频和皮肤/谱面抢带宽 */
   const scheduleTrack = useCallback((target: Chart) => {
@@ -469,7 +485,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     async function load() {
       try {
         mark('majview:chart-request');
-        const text = await loadChartText(chartUrl + '/chart', signal);
+        const text = chartTextRef.current ?? (chartUrl ? await loadChartText(chartUrl, signal) : '');
         if (signal.aborted) return;
         mark('majview:chart-response');
         const compiled = compileChart(readMaidata(text), level);
@@ -492,6 +508,28 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     void load();
     return () => controller.abort();
   }, [chartUrl, level, dropTransport, prepareTrack, scheduleTrack]);
+
+  /**
+   * 编辑器里每敲一下都要更新画面：只重编译并热换谱面。
+   * 不重载音频、不回到开头、不动播放位置；编译失败（半句话）就保留上一版。
+   */
+  const hotChartRef = useRef(chartText);
+  useEffect(() => {
+    if (chartText === undefined || hotChartRef.current === chartText) return;
+    hotChartRef.current = chartText;
+    // 首次加载由上面的 load() 负责，这里只管"已经有一版在画"之后的更新
+    if (!chartRef.current) return;
+    let compiled: Chart;
+    try {
+      compiled = compileChart(readMaidata(chartText), level);
+    } catch {
+      return;
+    }
+    chartRef.current = compiled;
+    setChart(compiled);
+    // 没有音频时总长由谱面决定；有音频时以 Transport 的时长为准，不要改小
+    if (!transportRef.current) setDuration(chartDuration(compiled));
+  }, [chartText, level]);
 
   // 和渲染器里的 combo 计数用同一份时间表：第 n 个元素结束时 combo 变成 n
   const scores = useMemo(() => chart ? scoreTimeline(chart.notes) as { time: number }[] : [], [chart]);
@@ -541,7 +579,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     video.load();
     const started = video.play();
     if (started) started.catch(() => { /* 还没解码完也没关系，syncVideo 会接着播 */ });
-  }, [videoArmed, chartUrl]);
+  }, [videoArmed, videoUrl]);
 
   // 谱面和渲染器都好了才画出来
   useEffect(() => {
@@ -1132,7 +1170,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
           <img src={cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
           <video
             ref={videoRef}
-            src={videoArmed ? chartUrl + '/video' : undefined}
+            src={videoArmed ? videoUrl : undefined}
             muted
             playsInline
             preload="none"

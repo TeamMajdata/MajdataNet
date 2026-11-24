@@ -30,12 +30,22 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const CollectionsHirobaPage = lazy(() => import('./pages/collection/HirobaPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const CollectionPage = lazy(() => import('./pages/collection/CollectionPage'));
+const EditorPage = lazy(() => import('./pages/EditorPage'));
 
 
 function RouteFallback() {
   return (
     <PageLoading />
   );
+}
+
+/**
+ * 桌面端立绘。编辑器要整屏、且左下角就是谱面预览，所以那边不挂。
+ */
+function SiteMascot() {
+  const { pathname } = useLocation();
+  if (pathname === '/editor') return null;
+  return <Live2DMascot />;
 }
 
 /**
@@ -71,6 +81,8 @@ function AppRoutes() {
         <Route path="/season" element={<SeasonPage />} />
         <Route path="/collection/hiroba" element={<CollectionsHirobaPage />} />
         <Route path="/collection" element={<CollectionPage />} />
+        {/* 本地谱面编辑器：不依赖账号，只在浏览器里读写本地文件夹 */}
+        <Route path="/editor" element={<EditorPage />} />
         <Route path="*" element={<NotFoundPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/user/charts" element={<UserChartsPage />} />
@@ -124,7 +136,7 @@ function App() {
                 <AppRoutes />
               </Suspense>
               <Suspense fallback={null}>
-                <Live2DMascot />
+                <SiteMascot />
               </Suspense>
             </Router>
           </UserProvider>

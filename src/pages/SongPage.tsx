@@ -38,7 +38,7 @@ import { formatDuration } from '@/utils/simai';
 import { useChartMeta } from '@/hooks/useChartMeta';
 import { useChartMediaUrl } from '@/hooks/useChartMediaUrl';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { preloadMajView } from '@/majview/preload';
+import { preloadMajView } from '@/components/song/preloadMajView';
 
 // 网页版谱面预览带着 PixiJS，只在点开预览时加载
 const MajView = lazy(() => import('@/components/song/MajView'));
@@ -143,6 +143,8 @@ function ChartPreview({ song, chartLevel, active, jump, onMarkRange }: {
 }) {
   const cover = useChartMediaUrl(endpoints.maichart.fullImage(song.id));
   const coverSrc = cover.src ?? endpoints.maichart.image(song.id);
+  // 播放器只要三个地址，不认识 songId 也不知道接口长什么样
+  const base = endpoints.maichart.prefix(song.id);
   const coverImage = (
     <div className="song-preview">
       <img src={coverSrc} onError={cover.onError} alt="" crossOrigin={cover.src ? 'anonymous' : undefined} fetchPriority="high" />
@@ -153,7 +155,8 @@ function ChartPreview({ song, chartLevel, active, jump, onMarkRange }: {
     <div className="song-stage">
       {chartLevel === undefined || cover.recovering ? coverImage : (
         <Suspense fallback={coverImage}>
-          <MajView songId={song.id} title={stripTmpTags(song.title) || song.title} artist={song.artist} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
+          <MajView chartUrl={base + '/chart'} trackUrl={base + '/track'} videoUrl={base + '/video'}
+            title={stripTmpTags(song.title) || song.title} artist={song.artist} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
             active={active} jump={jump} onMarkRange={onMarkRange} />
         </Suspense>
       )}
