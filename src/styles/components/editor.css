@@ -275,10 +275,22 @@
 .editor-side {
   display: grid;
   grid-template-columns: 152px 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   min-width: 0;
   min-height: 0;
 }
+
+/* 波形时间轴（MajView portal 过来）：贴着编辑器一侧的底部 */
+.editor-timeline {
+  grid-row: 3;
+  grid-column: 1 / -1;
+  min-width: 0;
+  border-top: 1px solid rgb(255 255 255 / 8%);
+  background: #0b0e13;
+}
+
+.editor-timeline:empty { display: none; }
+.editor-timeline .majview-timeline { padding: 0 .5rem .25rem; }
 
 /* ── 难度页签 ── */
 .editor-tabs {

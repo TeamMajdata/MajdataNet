@@ -76,6 +76,7 @@ export default function EditorPage() {
   const [chartInfoOpen, setChartInfoOpen] = useState(false);
   const [followCursor, setFollowCursor] = useState(false);
   const [settingsHost, setSettingsHost] = useState<HTMLDivElement | null>(null);
+  const [timelineHost, setTimelineHost] = useState<HTMLDivElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [command, setCommand] = useState<{ type: 'playPause' | 'stop'; key: number } | null>(null);
   const latestRef = useRef({ maidata: '', active: 4 });
@@ -385,6 +386,8 @@ export default function EditorPage() {
                   command={command}
                   onPlayingChange={setPlaying}
                   showControls={false}
+                  showTimeline
+                  timelineHost={timelineHost}
                 />
               ) : (
                 <div
@@ -478,6 +481,9 @@ export default function EditorPage() {
                   onCursorLineChange={handleCursorLine}
                 />
               </div>
+
+              {/* 波形时间轴挂在这里（MajView 用 portal 送过来） */}
+              <div className="editor-timeline" ref={setTimelineHost} />
             </section>
           </main>
         )}

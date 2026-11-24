@@ -94,7 +94,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showAnalysis = false }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -133,13 +133,14 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   command?: { type: 'playPause' | 'stop'; key: number } | null;
   /** 播放状态变化时回调，编辑器用自己的两个按钮显示 ▶ / ⏸ */
   onPlayingChange?: (playing: boolean) => void;
-  /** 是否渲染播放器自带的控制条（编辑器只要两个控制键，会关掉） */
+  /** 是否渲染播放器自带的控制条（进度条 + 按钮那一条；编辑器不要） */
   showControls?: boolean;
-  /**
-   * 是否显示谱面分析（音符密度条 + 时间轴）。
-   * 谱面页不需要，默认关闭；编辑器打开。
-   */
-  showAnalysis?: boolean;
+  /** 是否渲染波形时间轴（编辑器要保留） */
+  showTimeline?: boolean;
+  /** 把时间轴挂到这个节点里（编辑器用） */
+  timelineHost?: HTMLElement | null;
+  /** 是否渲染音符密度柱状图（目前哪里都不显示） */
+  showAnalyzer?: boolean;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -174,8 +175,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   const onTimeRef = useRef(onTime);
   onTimeRef.current = onTime;
   /** 谱面分析开关：prepareTrack 里要用，但不想因此重跑整个加载流程 */
-  const showAnalysisRef = useRef(showAnalysis);
-  showAnalysisRef.current = showAnalysis;
+  const showAnalysisRef = useRef(showTimeline || showAnalyzer);
+  showAnalysisRef.current = showTimeline || showAnalyzer;
   const transportRef = useRef<Transport | null>(null);
   // 后台准备音乐的进度：打开页面就开始下载解码，点播放时多半已经好了
   const trackRef = useRef<{ chart: Chart; controller: AbortController; promise: Promise<Transport | null> } | null>(null);
@@ -575,8 +576,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
 
   // 进度条上方的谱面密度：按 Seek 条的范围切 64 根柱，和 MajdataPlay 的 ChartAnalyzer 一致
   const analyzer = useMemo(
-    () => (showAnalysis && chart && duration > begin ? analyzeChart(chart.notes, duration - begin, begin) : null),
-    [showAnalysis, chart, duration, begin],
+    () => (showAnalyzer && chart && duration > begin ? analyzeChart(chart.notes, duration - begin, begin) : null),
+    [showAnalyzer, chart, duration, begin],
   );
 
   useEffect(() => {
@@ -1228,31 +1229,34 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
    * 默认画在播放器里；编辑器要把它放到自己的格子时传 controlsHost，用 portal 挂过去——
    * 逻辑和 ref 都还属于这个组件，只是换了挂载点。
    */
+  /** 波形时间轴：单独一块，可以挂到编辑器自己的格子里 */
+  const timelineNode = (
+    <div className="majview-timeline">
+      <MajViewVisualizer
+        ref={visualizerRef}
+        chart={chart}
+        waveform={waveform?.data ?? null}
+        waveformDuration={waveform?.duration ?? 0}
+        analysis={spectrum}
+        offset={settings.FirstOffset / 1000}
+        zoom={timelineZoom}
+      />
+      {/* 时间轴缩放：范围沿用 MajdataEdit 的 0.1–10，默认 4 */}
+      <div className="majview-zoom">
+        <button type="button" onClick={() => zoomTimeline(0.5)} aria-label={t('song/MajView.ZoomIn')}>
+          <LuPlus aria-hidden="true" />
+        </button>
+        <button type="button" onClick={() => zoomTimeline(-0.5)} aria-label={t('song/MajView.ZoomOut')}>
+          <LuMinus aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  );
+
   const controlsNode = (
     <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
-      {showAnalysis && analyzer && analyzer.max > 0 && <MajViewAnalyzer bars={analyzer.bars} />}
-      {showAnalysis && (
-        <div className="majview-timeline">
-          <MajViewVisualizer
-            ref={visualizerRef}
-            chart={chart}
-            waveform={waveform?.data ?? null}
-            waveformDuration={waveform?.duration ?? 0}
-            analysis={spectrum}
-            offset={settings.FirstOffset / 1000}
-            zoom={timelineZoom}
-          />
-          {/* 时间轴缩放：范围沿用 MajdataEdit 的 0.1–10，默认 4 */}
-          <div className="majview-zoom">
-            <button type="button" onClick={() => zoomTimeline(0.5)} aria-label={t('song/MajView.ZoomIn')}>
-              <LuPlus aria-hidden="true" />
-            </button>
-            <button type="button" onClick={() => zoomTimeline(-0.5)} aria-label={t('song/MajView.ZoomOut')}>
-              <LuMinus aria-hidden="true" />
-            </button>
-          </div>
-        </div>
-      )}
+      {showAnalyzer && analyzer && analyzer.max > 0 && <MajViewAnalyzer bars={analyzer.bars} />}
+      {showTimeline && timelineNode}
       <input
         ref={timelineRef}
         type="range"
@@ -1362,6 +1366,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
       </div>
       </div>
 
+      {/* 编辑器关掉控制条时，时间轴单独挂到页面自己的格子里 */}
+      {!showControls && showTimeline && (timelineHost ? createPortal(timelineNode, timelineHost) : timelineNode)}
       {showControls && (controlsHost ? createPortal(controlsNode, controlsHost) : controlsNode)}
 
       {settingsOpen && (settingsHost ? createPortal(settingsNode, settingsHost) : settingsNode)}
