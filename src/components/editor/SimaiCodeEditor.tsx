@@ -16,9 +16,11 @@ type Props = {
   onReady?: (editor: SimaiEditor) => void;
   /** 选区是否非空——编辑菜单的变换只在有选区时才生效 */
   onSelectionChange?: (hasSelection: boolean) => void;
+  /** 光标所在行变化（1-based），用于「光标 → 时间轴」 */
+  onCursorLineChange?: (line: number) => void;
 };
 
-export default function SimaiCodeEditor({ initialTexts, active, onChange, onReady, onSelectionChange }: Props) {
+export default function SimaiCodeEditor({ initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<SimaiEditor | null>(null);
   const modelsRef = useRef<(monaco.editor.ITextModel | null)[]>(new Array(7).fill(null));
@@ -30,11 +32,13 @@ export default function SimaiCodeEditor({ initialTexts, active, onChange, onRead
   const onReadyRef = useRef(onReady);
   const initialRef = useRef(initialTexts);
   const onSelectionChangeRef = useRef(onSelectionChange);
+  const onCursorLineChangeRef = useRef(onCursorLineChange);
 
   useEffect(() => { activeRef.current = active; }, [active]);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
   useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
   useEffect(() => { onSelectionChangeRef.current = onSelectionChange; }, [onSelectionChange]);
+  useEffect(() => { onCursorLineChangeRef.current = onCursorLineChange; }, [onCursorLineChange]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -72,6 +76,8 @@ export default function SimaiCodeEditor({ initialTexts, active, onChange, onRead
     const selectionSubscription = editor.onDidChangeCursorSelection(() => {
       const selection = editor.getSelection();
       onSelectionChangeRef.current?.(Boolean(selection && !selection.isEmpty()));
+      const position = editor.getPosition();
+      if (position) onCursorLineChangeRef.current?.(position.lineNumber);
     });
     onReadyRef.current?.(editor);
 

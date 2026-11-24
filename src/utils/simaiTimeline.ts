@@ -115,3 +115,16 @@ export function lineAt(timeline: Timeline | null, seconds: number): number | nul
   }
   return lines[found] ?? null;
 }
+
+/**
+ * 反过来：光标停在第 line 行时对应的时间。
+ * 一行里可能有多个音符，取这一行的**第一个**；光标在最后一行之后则停在最后一个音符。
+ */
+export function timeAtLine(timeline: Timeline | null, line: number): number | null {
+  if (!timeline || !timeline.times.length) return null;
+  const { times, lines } = timeline;
+
+  // lines 单调不减：第一个「不在目标行之前」的格子就是这一行的起点
+  const index = lines.findIndex((value) => value >= line);
+  return times[index === -1 ? times.length - 1 : index] ?? null;
+}

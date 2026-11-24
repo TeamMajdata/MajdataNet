@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildTimeline, lineAt } from '@/utils/simaiTimeline';
+import { buildTimeline, lineAt, timeAtLine } from '@/utils/simaiTimeline';
 import { parseChart } from '@/majview/simai.js';
 
 describe('buildTimeline', () => {
@@ -87,5 +87,32 @@ describe('lineAt', () => {
 
   it('空时间轴返回 null', () => {
     expect(lineAt(null, 1)).toBeNull();
+  });
+});
+
+describe('timeAtLine', () => {
+  const timeline = buildTimeline('(120){4},1,2,\n3,4,')!;
+
+  it('光标在某个音符行，返回那一行的时间', () => {
+    const line = timeline.lines[0];
+    expect(timeAtLine(timeline, line)).toBeCloseTo(timeline.times[0], 5);
+  });
+
+  it('光标在最后一行之后，停在最后一个音符', () => {
+    expect(timeAtLine(timeline, 99)).toBeCloseTo(timeline.times[timeline.times.length - 1], 5);
+  });
+
+  it('光标在所有音符之前，回到第一个音符', () => {
+    expect(timeAtLine(timeline, 0)).toBeCloseTo(timeline.times[0], 5);
+  });
+
+  it('和 lineAt 互为反函数（同一时间轴上）', () => {
+    const time = timeline.times[2];
+    const line = lineAt(timeline, time)!;
+    expect(timeAtLine(timeline, line)).toBeCloseTo(time, 5);
+  });
+
+  it('空时间轴返回 null', () => {
+    expect(timeAtLine(null, 3)).toBeNull();
   });
 });

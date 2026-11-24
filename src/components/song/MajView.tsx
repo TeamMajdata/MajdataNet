@@ -94,7 +94,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, showAnalysis = false }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, showAnalysis = false }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -127,6 +127,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   controlsHost?: HTMLElement | null;
   /** 把设置面板挂到这个节点里（编辑器用），同理 */
   settingsHost?: HTMLElement | null;
+  /** 编辑器里光标换行 → 跳到那一刻（绝对秒）；key 每次不同才能重复跳同一个位置 */
+  seekTo?: { seconds: number; key: number } | null;
   /**
    * 是否显示谱面分析（音符密度条 + 时间轴）。
    * 谱面页不需要，默认关闭；编辑器打开。
@@ -759,6 +761,20 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     media.syncPosition();
   };
 
+  /**
+   * 编辑器里光标换了行 → 直接跳到那一刻。
+   * seek 每次渲染都会重建，用 ref 拿最新的，避免把它塞进依赖里。
+   */
+  const seekRef = useRef(seek);
+  seekRef.current = seek;
+  const handledSeekTo = useRef<number | null>(null);
+  useEffect(() => {
+    if (!seekTo || handledSeekTo.current === seekTo.key) return;
+    if (!chartRef.current) return;
+    handledSeekTo.current = seekTo.key;
+    seekRef.current(Math.max(beginRef.current, seekTo.seconds));
+  }, [seekTo]);
+
   const changeRate = (value: number) => {
     setRate(value);
     const transport = transportRef.current;
@@ -1222,7 +1238,20 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
         <button type="button" className={controlClass} onClick={togglePlay} disabled={status !== 'ready'} aria-label={playing ? t('song/MajView.Pause') : t('song/MajView.Play')}>
           {playing ? <LuPause aria-hidden="true" className="w-4.5 h-4.5" /> : <LuPlay aria-hidden="true" className="w-4.5 h-4.5" />}
         </button>
-        <button type="button" className={controlClass} onClick={() => seek(begin)} disabled={!canControl} aria-label={t('song/MajView.Restart')}>
+        <button
+          type="button"
+          className={controlClass}
+          onClick={() => {
+            // 编辑器里这个键是「停止」：先停下再回开头；谱面页保持原来的「回到开头」
+            if (showAnalysis) {
+              transportRef.current?.pause();
+              setPlaying(false);
+            }
+            seek(begin);
+          }}
+          disabled={!canControl}
+          aria-label={showAnalysis ? t('song/MajView.Stop') : t('song/MajView.Restart')}
+        >
           <LuRotateCcw aria-hidden="true" className="w-4 h-4" />
         </button>
         <span className="flex-1 px-1 text-white/70 text-xs tabular-nums">

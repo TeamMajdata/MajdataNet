@@ -24,7 +24,7 @@ import EditorWindow from '@/components/editor/EditorWindow';
 import { useChartFolder } from '@/hooks/useChartFolder';
 import type { SimaiEditor } from '@/components/song/monacoSimai';
 import { clearDraft, readDraft, shouldOfferRestore, writeDraft } from '@/utils/autosave';
-import { buildTimeline, lineAt } from '@/utils/simaiTimeline';
+import { buildTimeline, lineAt, timeAtLine } from '@/utils/simaiTimeline';
 import { transformFumen, type MirrorKind } from '@/utils/simaiMirror';
 import {
   filledDifficulties,
@@ -165,6 +165,16 @@ export default function EditorPage() {
     if (line === null) return;
     editor.revealLineInCenterIfOutsideViewport(line);
   }, [time, followCursor, timeline]);
+
+  const [seekTo, setSeekTo] = useState<{ seconds: number; key: number } | null>(null);
+
+  /** 反向：光标换行时让播放器跳到那一刻（和上游一样，只在开文本跟随时生效） */
+  const handleCursorLine = useCallback((line: number) => {
+    if (!followCursor) return;
+    const seconds = timeAtLine(timeline, line);
+    if (seconds === null) return;
+    setSeekTo({ seconds, key: Date.now() });
+  }, [followCursor, timeline]);
 
   /** 变换只作用于选区；没有选区就什么都不做（决策 1） */
   const applyTransform = useCallback((kind: MirrorKind) => {
@@ -346,6 +356,7 @@ export default function EditorPage() {
                   onSettingsOpenChange={setSettingsOpen}
                   controlsHost={controlsHost}
                   settingsHost={settingsHost}
+                  seekTo={seekTo}
                   showAnalysis
                 />
               ) : (
@@ -417,6 +428,7 @@ export default function EditorPage() {
                   onChange={handleEditorChange}
                   onReady={(editor) => { editorRef.current = editor; }}
                   onSelectionChange={setHasSelection}
+                  onCursorLineChange={handleCursorLine}
                 />
               </div>
 
