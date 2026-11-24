@@ -192,11 +192,7 @@ export default function MajViewSettings({ settings, onChange, onClose, hideHeade
           {t('song/MajView.SettingSlideClassic')}
           <input type="checkbox" checked={settings.SlideClassic} onChange={(e) => onChange({ SlideClassic: e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
         </label>
-        {/* 开关本身叫“禁用手势”，存的是“启用手势”，勾上才是关 */}
-        <label className="flex justify-between items-center py-2 text-white/75 text-sm cursor-pointer">
-          {t('song/MajView.SettingDisableGestures')}
-          <input type="checkbox" checked={!settings.Gestures} onChange={(e) => onChange({ Gestures: !e.target.checked })} className="w-4 h-4 accent-sky-300 cursor-pointer" />
-        </label>
+        {/* 手势已经在 MajView 里整体关掉了（快捷键/手势都由页面接管），这一项先不显示 */}
       </section>
 
       <section className="mt-2 pt-3 border-white/10 border-t">

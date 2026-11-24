@@ -20,12 +20,10 @@ type Props = {
   onCursorLineChange?: (line: number, column: number) => void;
   /** Ctrl / Cmd + 点击文本：跳到光标所在的那一行 */
   onCtrlClickLine?: (line: number, column: number) => void;
-  /** Ctrl / Cmd + 左右方向键移动光标之后：把播放位置跟过去 */
-  onCtrlArrow?: (line: number, column: number) => void;
 };
 
 export default function SimaiCodeEditor({
-  initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange, onCtrlClickLine, onCtrlArrow,
+  initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange, onCtrlClickLine,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -40,7 +38,6 @@ export default function SimaiCodeEditor({
   const onSelectionChangeRef = useRef(onSelectionChange);
   const onCursorLineChangeRef = useRef(onCursorLineChange);
   const onCtrlClickLineRef = useRef(onCtrlClickLine);
-  const onCtrlArrowRef = useRef(onCtrlArrow);
 
   useEffect(() => { activeRef.current = active; }, [active]);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
@@ -48,7 +45,6 @@ export default function SimaiCodeEditor({
   useEffect(() => { onSelectionChangeRef.current = onSelectionChange; }, [onSelectionChange]);
   useEffect(() => { onCursorLineChangeRef.current = onCursorLineChange; }, [onCursorLineChange]);
   useEffect(() => { onCtrlClickLineRef.current = onCtrlClickLine; }, [onCtrlClickLine]);
-  useEffect(() => { onCtrlArrowRef.current = onCtrlArrow; }, [onCtrlArrow]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -121,36 +117,6 @@ export default function SimaiCodeEditor({
     <div
       ref={hostRef}
       className="editor-code"
-      // Ctrl/Cmd + 左右方向键：光标按单词跳，跳完让播放位置跟过去。
-      // Monaco 在 EditContext 模式下收不到这个组合键，这里直接调它的 action。
-      onKeyDownCapture={(event) => {
-        if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
-        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-        const editor = editorRef.current;
-        if (!editor) return;
-        event.preventDefault();
-        event.stopPropagation();
-        const model = editor.getModel();
-        const position = editor.getPosition();
-        if (!model || !position) return;
-        // 按逗号跳格：正好是「上一个 / 下一个音符」
-        const text = model.getValue();
-        const offset = model.getOffsetAt(position);
-        let target: number;
-        if (event.key === 'ArrowRight') {
-          const next = text.indexOf(',', offset);
-          target = next === -1 ? text.length : next + 1;
-        } else {
-          // 从「当前位置之前」找上一个逗号：光标刚跳完时正停在逗号后面，
-          // 直接 lastIndexOf(',', offset - 1) 会命中同一个逗号，导致左键不动
-          const previous = offset >= 2 ? text.lastIndexOf(',', offset - 2) : -1;
-          target = previous === -1 ? 0 : previous + 1;
-        }
-        const nextPosition = model.getPositionAt(target);
-        editor.setPosition(nextPosition);
-        editor.revealPositionInCenterIfOutsideViewport(nextPosition);
-        onCtrlArrowRef.current?.(nextPosition.lineNumber, nextPosition.column);
-      }}
       // Ctrl/Cmd + 点击：等 Monaco 把光标挪到点击处之后再读行号
       onMouseDownCapture={(event) => {
         if (!(event.ctrlKey || event.metaKey)) return;

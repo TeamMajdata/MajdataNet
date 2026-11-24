@@ -21,7 +21,7 @@ import { buildWaveform } from '@/majview/visualizer.js';
 import MajViewVisualizer, { type SpectrumAnalysis, type VisualizerHandle } from './MajViewVisualizer';
 import { AURORA_DEFAULTS, downsample } from '@/majview/spectrum.js';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
-import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, ARROW_SEEK_SEC, ARROW_STEP_SEC, BRIGHT_DRAG_PX, KEY_FAST_RATE, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, VERTICAL_SLOP_PX, VOLUME_DRAG_PX, seekTarget } from '@/majview/gestures.js';
+import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, BRIGHT_DRAG_PX, KEY_FAST_RATE, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, VERTICAL_SLOP_PX, VOLUME_DRAG_PX, seekTarget } from '@/majview/gestures.js';
 import { createPerf, perfForced } from '@/majview/perf.js';
 import { loadChartText } from '@/majview/chartCache';
 import { clamp } from '@/majview/geometry.js';
@@ -109,7 +109,7 @@ function compileForView(text: string, level: number, allowEmpty: boolean): Chart
   return compileChart(fields, level);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false, onTextError, allowEmptyChart = false, judgeArea = false, hideNotes = false, rate: rateProp }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false, onTextError, allowEmptyChart = false, judgeArea = false, hideNotes = false, rate: rateProp, gestures = false }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -145,7 +145,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   /** 编辑器里光标换行 → 跳到那一刻（绝对秒）；key 每次不同才能重复跳同一个位置 */
   seekTo?: { seconds: number; key: number } | null;
   /** 外部播放控制：播放/暂停、停止。key 每次不同才触发一次 */
-  command?: { type: 'playPause' | 'stop'; key: number } | null;
+  command?: { type: 'playPause' | 'stop' | 'playOrRewind'; key: number } | null;
   /** 播放状态变化时回调，编辑器用自己的两个按钮显示 ▶ / ⏸ */
   onPlayingChange?: (playing: boolean) => void;
   /** 是否渲染播放器自带的控制条（进度条 + 按钮那一条；编辑器不要） */
@@ -174,6 +174,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   hideNotes?: boolean;
   /** 播放倍速（受控）；不传则由播放器自己的按钮管 */
   rate?: number;
+  /** 是否响应指针手势（拖动判定盘调进度/音量/亮度、双击全屏）。默认关闭，由页面自己控制 */
+  gestures?: boolean;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -264,8 +266,6 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   controlsShownRef.current = controlsShown;
   // 鼠标单击播放/暂停要等一小会儿，确认不是双击（双击是切全屏）
   const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const arrowHoldRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const arrowFastRef = useRef(false);
 
   const [boardReady, setBoardReady] = useState(false);
   const [chart, setChart] = useState<Chart | null>(null);
@@ -869,11 +869,14 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   togglePlayRef.current = togglePlay;
   const stopRef = useRef(stopAndRewind);
   stopRef.current = stopAndRewind;
+  /** playOrRewind 定义在后面，这里先留个 ref 给命令用 */
+  const playOrRewindRef = useRef<() => void | Promise<void>>(() => {});
   const handledCommand = useRef<number | null>(null);
   useEffect(() => {
     if (!command || handledCommand.current === command.key) return;
     handledCommand.current = command.key;
     if (command.type === 'playPause') void togglePlayRef.current();
+    else if (command.type === 'playOrRewind') void playOrRewindRef.current();
     else stopRef.current();
   }, [command]);
 
@@ -958,7 +961,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     };
   }, []);
 
-  const gesturesEnabled = settings.Gestures;
+  const gesturesEnabled = gestures && settings.Gestures;
   const canControl = status === 'ready' || status === 'buffering';
 
   const hideSeekHint = () => {
@@ -1090,6 +1093,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     setPlayStart(playStartRef.current);
     return togglePlay();
   };
+  playOrRewindRef.current = playOrRewind;
 
   // 键盘和定时器里用到的操作放到 ref，避免事件监听器每次渲染都重新绑定
   const actionsRef = useRef({ togglePlay, playOrRewind, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls });
@@ -1258,91 +1262,6 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     frame();
   }, [notesHidden, frame]);
 
-  // 桌面快捷键：空格播放/暂停；左右键快进快退（暂停时按 0.01 秒步进）；长按右箭头 2 倍速
-  useEffect(() => {
-    if (!gesturesEnabled) return;
-    const isTyping = (target: EventTarget | null) => {
-      const node = target as HTMLElement | null;
-      return !!node && (node.tagName === 'INPUT' || node.tagName === 'TEXTAREA' || node.tagName === 'SELECT' || node.isContentEditable === true);
-    };
-    /** 事件来自代码编辑器：除了空格，其它键都让 Monaco 自己处理（否则 Ctrl+方向键会被逐帧步进吃掉） */
-    const fromEditor = (target: EventTarget | null) => {
-      const node = target as HTMLElement | null;
-      return !!node?.closest?.('.editor-code');
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || isTyping(event.target)) return;
-      const actions = actionsRef.current;
-      actions.pokeControls();
-      if (event.code === 'Space') {
-        // Ctrl+空格：原来的播放/暂停；Shift+空格：正常输入空格，交给编辑器
-        if (event.ctrlKey || event.metaKey) {
-          event.preventDefault();
-          void actions.togglePlay();
-          return;
-        }
-        if (event.shiftKey) return;
-        event.preventDefault();
-        void actions.playOrRewind();
-        return;
-      }
-      if (fromEditor(event.target)) return;
-      // 上下键调总音量（0.1 一格）
-      if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
-        event.preventDefault();
-        actions.volumeStep(event.code === 'ArrowUp' ? 0.1 : -0.1);
-        return;
-      }
-      if (event.code !== 'ArrowLeft' && event.code !== 'ArrowRight') return;
-      const transport = transportRef.current;
-      if (!transport) return;
-      event.preventDefault();
-      const dir = event.code === 'ArrowRight' ? 1 : -1;
-      // 暂停时按 0.01 秒步进，方便逐帧对位；按住可以连续步进
-      if (!transport.playing) {
-        actions.seekBy(dir * ARROW_STEP_SEC);
-        return;
-      }
-      if (event.repeat) return;
-      // 播放中：先不跳，按住右箭头会走快放；真的快进放在 keyup，
-      // 这样长按快放就不会先触发一次 5 秒跳转
-      if (event.code !== 'ArrowRight') return;
-      if (arrowHoldRef.current !== null) clearTimeout(arrowHoldRef.current);
-      arrowHoldRef.current = setTimeout(() => {
-        arrowHoldRef.current = null;
-        if (actions.startFastForward()) arrowFastRef.current = true;
-      }, LONG_PRESS_MS);
-    };
-    const onKeyUp = (event: KeyboardEvent) => {
-      if (event.code !== 'ArrowLeft' && event.code !== 'ArrowRight') return;
-      if (event.code === 'ArrowRight' && arrowHoldRef.current !== null) {
-        clearTimeout(arrowHoldRef.current);
-        arrowHoldRef.current = null;
-      }
-      // 长按快放已经生效过：这次松手不再快进
-      if (arrowFastRef.current) {
-        arrowFastRef.current = false;
-        actionsRef.current.restoreSpeed();
-        return;
-      }
-      const transport = transportRef.current;
-      // 暂停时是 keydown 的 0.01 秒步进，这里不重复处理
-      if (!transport?.playing) return;
-      actionsRef.current.seekBy((event.code === 'ArrowRight' ? 1 : -1) * ARROW_SEEK_SEC);
-    };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      if (arrowHoldRef.current !== null) clearTimeout(arrowHoldRef.current);
-      arrowHoldRef.current = null;
-      if (arrowFastRef.current) {
-        arrowFastRef.current = false;
-        actionsRef.current.restoreSpeed();
-      }
-    };
-  }, [gesturesEnabled]);
 
   const controlClass = 'grid place-items-center hover:bg-white/10 rounded-lg w-9 h-9 text-white/85 hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default';
 

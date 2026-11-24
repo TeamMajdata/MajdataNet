@@ -145,6 +145,22 @@ function ChartPreview({ song, chartLevel, active, jump, onMarkRange }: {
   const coverSrc = cover.src ?? endpoints.maichart.image(song.id);
   // 播放器只要三个地址，不认识 songId 也不知道接口长什么样
   const base = endpoints.maichart.prefix(song.id);
+  // 快捷键提到页面层：空格的播放/暂停由这里发命令给播放器
+  const [command, setCommand] = useState<{ type: 'playPause'; key: number } | null>(null);
+  useEffect(() => {
+    const isTyping = (target: EventTarget | null) => {
+      const node = target as HTMLElement | null;
+      return !!node && (node.tagName === 'INPUT' || node.tagName === 'TEXTAREA' || node.tagName === 'SELECT' || node.isContentEditable === true);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.code !== 'Space' || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      if (event.defaultPrevented || isTyping(event.target)) return;
+      event.preventDefault();
+      setCommand({ type: 'playPause', key: Date.now() });
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
   const coverImage = (
     <div className="song-preview">
       <img src={coverSrc} onError={cover.onError} alt="" crossOrigin={cover.src ? 'anonymous' : undefined} fetchPriority="high" />
@@ -157,7 +173,7 @@ function ChartPreview({ song, chartLevel, active, jump, onMarkRange }: {
         <Suspense fallback={coverImage}>
           <MajView chartUrl={base + '/chart'} trackUrl={base + '/track'} videoUrl={base + '/video'}
             title={stripTmpTags(song.title) || song.title} artist={song.artist} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
-            active={active} jump={jump} onMarkRange={onMarkRange} />
+            active={active} jump={jump} onMarkRange={onMarkRange} command={command} />
         </Suspense>
       )}
     </div>

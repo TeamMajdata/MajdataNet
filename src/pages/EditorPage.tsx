@@ -88,7 +88,7 @@ export default function EditorPage() {
   const [playing, setPlaying] = useState(false);
   /** 当前文本编译不过的原因：显示在编辑器底部 */
   const [chartError, setChartError] = useState<string | null>(null);
-  const [command, setCommand] = useState<{ type: 'playPause' | 'stop'; key: number } | null>(null);
+  const [command, setCommand] = useState<{ type: 'playPause' | 'stop' | 'playOrRewind'; key: number } | null>(null);
   const latestRef = useRef({ maidata: '', active: 4 });
   const lastSecondRef = useRef(-1);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -328,6 +328,61 @@ export default function EditorPage() {
    * Ctrl/Cmd+S 保存、Ctrl/Cmd+O 打开文件夹。
    * 不绑在 Monaco 上是因为这两个是页面级动作，而且要拦掉浏览器的「保存网页」。
    */
+  /**
+   * 页面级快捷键（和控件焦点无关，整页生效）：
+   * 空格 = 播放 / 回起点；Ctrl+空格 = 播放/暂停；Shift+空格 = 正常输入空格；
+   * Ctrl+左右 = 按音符移动文本光标并跳到那一刻。
+   */
+  useEffect(() => {
+    const isTyping = (target: EventTarget | null) => {
+      const node = target as HTMLElement | null;
+      if (!node) return false;
+      // Monaco 的输入目标是 div.native-edit-context，不算输入框：编辑器里空格照样播放
+      return node.tagName === 'INPUT' || node.tagName === 'TEXTAREA' || node.tagName === 'SELECT' || node.isContentEditable === true;
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (isTyping(event.target)) return;
+
+      if (event.code === 'Space') {
+        if (event.ctrlKey || event.metaKey) {
+          event.preventDefault();
+          setCommand({ type: 'playPause', key: Date.now() });
+          return;
+        }
+        if (event.shiftKey) return; // 交给编辑器输入空格
+        if (event.defaultPrevented) return;
+        event.preventDefault();
+        setCommand({ type: 'playOrRewind', key: Date.now() });
+        return;
+      }
+
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+        const editor = editorRef.current;
+        const model = editor?.getModel();
+        if (!editor || !model) return;
+        event.preventDefault();
+        const position = editor.getPosition();
+        const offset = position ? model.getOffsetAt(position) : 0;
+        const text = model.getValue();
+        let target: number;
+        if (event.key === 'ArrowRight') {
+          const next = text.indexOf(',', offset);
+          target = next === -1 ? text.length : next + 1;
+        } else {
+          // 光标刚跳完时正停在逗号后面，要从更前面找，否则原地不动
+          const previous = offset >= 2 ? text.lastIndexOf(',', offset - 2) : -1;
+          target = previous === -1 ? 0 : previous + 1;
+        }
+        const nextPosition = model.getPositionAt(target);
+        editor.setPosition(nextPosition);
+        editor.revealPositionInCenterIfOutsideViewport(nextPosition);
+        handleCtrlClickLine(nextPosition.lineNumber, nextPosition.column);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleCtrlClickLine]);
+
   /** 打开 / 新建前先确认未保存的改动 */
   /** 有未保存改动时先弹「保存 / 不保存 / 取消」，选完再执行动作 */
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
@@ -635,7 +690,6 @@ export default function EditorPage() {
                   onSelectionChange={setHasSelection}
                   onCursorLineChange={handleCursorLine}
                   onCtrlClickLine={handleCtrlClickLine}
-                  onCtrlArrow={handleCtrlClickLine}
                 />
                 {/* 文本编译不过时的提示：贴在编辑器底部，不挡预览 */}
                 {chartError && (
