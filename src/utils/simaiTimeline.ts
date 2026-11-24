@@ -23,57 +23,62 @@ function blankComments(fumen: string): string {
   return fumen.replace(/^[ \t]*\|\|[^\n]*/gm, (match) => match.replace(/[^\n]/g, ' '));
 }
 
-/** 去掉格子开头的 `(...)` / `{...}` 命令前缀，返回剩下的音符正文 */
-function noteBody(cell: string): string {
-  let rest = cell.trim();
-  for (;;) {
-    if (!rest.startsWith('(') && !rest.startsWith('{')) return rest;
-    const closer = rest[0] === '(' ? ')' : '}';
-    const end = rest.indexOf(closer);
-    // 括号没闭合就当作有内容，交给 parseChart 去报错
-    if (end === -1) return rest;
-    rest = rest.slice(end + 1).trim();
-  }
-}
-
-/** 每个音符格子的行列位置（指向格子里的第一个非空白字符） */
+/**
+ * 每个「timing」对应的行列位置（指向该段里的第一个非空白字符）。
+ *
+ * 必须和 parseChart 的计数规则完全一致，否则位置会整体错位：
+ * - 只有带音符的格子才产生 timing（去掉前导 (...) / {...} 后非空）；
+ * - 一个格子里的反引号会把内容拆成多段，每段各产生一个 timing（假 each）。
+ */
 function noteCellPositions(fumen: string): { line: number; column: number }[] {
   const out: { line: number; column: number }[] = [];
-  let offset = 0;
-  let line = 1;
-  let lineStart = 0;
-  let cellStart = 0;
-  // 当前格子里第一个非空白字符的位置
-  let firstOffset = -1;
-  let firstLine = 1;
-  let firstLineStart = 0;
+  const lineStarts = [0];
+  for (let i = 0; i < fumen.length; i++) if (fumen[i] === '\n') lineStarts.push(i + 1);
 
-  const flush = (end: number) => {
-    const cell = fumen.slice(cellStart, end);
-    if (noteBody(cell) !== '' && firstOffset >= 0) {
-      out.push({ line: firstLine, column: firstOffset - firstLineStart + 1 });
+  const positionOf = (offset: number) => {
+    let low = 0;
+    let high = lineStarts.length - 1;
+    while (low < high) {
+      const mid = (low + high + 1) >> 1;
+      if (lineStarts[mid] <= offset) low = mid;
+      else high = mid - 1;
     }
-    firstOffset = -1;
-    cellStart = end + 1;
+    return { line: low + 1, column: offset - lineStarts[low] + 1 };
   };
 
-  for (const char of fumen) {
-    if (char === ',') {
-      flush(offset);
-    } else {
-      const space = char === ' ' || char === '\t' || char === '\r' || char === '\n';
-      if (!space && firstOffset === -1) {
-        firstOffset = offset;
-        firstLine = line;
-        firstLineStart = lineStart;
-      }
-      if (char === '\n') {
-        line += 1;
-        lineStart = offset + 1;
+  let cellStart = 0;
+  const flush = (cellEnd: number) => {
+    const cell = fumen.slice(cellStart, cellEnd);
+    // 跳过前导空白和 (...) / {...} 声明，定位从真正的音符正文开始
+    let bodyStart = 0;
+    for (;;) {
+      while (bodyStart < cell.length && /\s/.test(cell[bodyStart])) bodyStart += 1;
+      if (cell[bodyStart] !== '(' && cell[bodyStart] !== '{') break;
+      const closer = cell[bodyStart] === '(' ? ')' : '}';
+      const end = cell.indexOf(closer, bodyStart + 1);
+      if (end === -1) break;
+      bodyStart = end + 1;
+    }
+    const body = cell.slice(bodyStart);
+    if (body.trim() !== '') {
+      // 和 parseChart 一样按反引号切段（空段跳过）
+      let partStart = 0;
+      for (;;) {
+        const tick = body.indexOf('`', partStart);
+        const partEnd = tick === -1 ? body.length : tick;
+        const part = body.slice(partStart, partEnd);
+        if (part !== '') {
+          const lead = part.search(/\S/);
+          out.push(positionOf(cellStart + bodyStart + partStart + (lead === -1 ? 0 : lead)));
+        }
+        if (tick === -1) break;
+        partStart = tick + 1;
       }
     }
-    offset += 1;
-  }
+    cellStart = cellEnd + 1;
+  };
+
+  for (let i = 0; i < fumen.length; i++) if (fumen[i] === ',') flush(i);
   flush(fumen.length);
   return out;
 }

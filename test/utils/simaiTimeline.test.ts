@@ -155,4 +155,27 @@ describe('位置映射（行 + 列）', () => {
       expect(timeAtPosition(timeline, position.line, position.column)).toBeCloseTo(timeline.times[index], 5);
     }
   });
+
+  it('注释行不会让位置错位', () => {
+    // 注释整行被抹成空格，第二行没有音符，位置必须落到第 3 行的 2 上
+    const withComment = buildTimeline('(120){4},1,\n||comment\n2,')!;
+    expect(withComment.times.length).toBe(2);
+    expect(withComment.lines).toEqual([1, 3]);
+    expect(withComment.columns).toEqual([10, 1]);
+  });
+
+  it('反引号假 each 的每一段都有自己的位置', () => {
+    // 1`2 会被 parseChart 拆成两个 timing，位置也要拆
+    const fakeEach = buildTimeline('(120){4},1`2,3,')!;
+    expect(fakeEach.times.length).toBe(3);
+    expect(fakeEach.lines).toEqual([1, 1, 1]);
+    expect(fakeEach.columns).toEqual([10, 12, 14]);
+  });
+
+  it('格子开头的 (…) / {…} 不参与定位', () => {
+    // {12} 后面直接跟音符：位置应该指向音符，而不是声明
+    const declared = buildTimeline('(120){4},{12},1,')!;
+    expect(declared.lines).toEqual([1]);
+    expect(declared.columns).toEqual([15]);
+  });
 });
