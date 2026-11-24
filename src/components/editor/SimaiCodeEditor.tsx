@@ -141,7 +141,9 @@ export default function SimaiCodeEditor({
           const next = text.indexOf(',', offset);
           target = next === -1 ? text.length : next + 1;
         } else {
-          const previous = text.lastIndexOf(',', Math.max(0, offset - 1));
+          // 从「当前位置之前」找上一个逗号：光标刚跳完时正停在逗号后面，
+          // 直接 lastIndexOf(',', offset - 1) 会命中同一个逗号，导致左键不动
+          const previous = offset >= 2 ? text.lastIndexOf(',', offset - 2) : -1;
           target = previous === -1 ? 0 : previous + 1;
         }
         const nextPosition = model.getPositionAt(target);

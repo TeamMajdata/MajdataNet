@@ -80,6 +80,9 @@ export default function EditorPage() {
   const [judgeArea, setJudgeArea] = useState(false);
   const [hideNotes, setHideNotes] = useState(false);
   const [speed, setSpeed] = useState(1);
+  /** 按住修饰键的临时效果：Ctrl 显示判定区、Shift 隐藏音符 */
+  const [holdCtrl, setHoldCtrl] = useState(false);
+  const [holdShift, setHoldShift] = useState(false);
   const [settingsHost, setSettingsHost] = useState<HTMLDivElement | null>(null);
   const [timelineHost, setTimelineHost] = useState<HTMLDivElement | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -188,6 +191,27 @@ export default function EditorPage() {
     followCursorRef.current = followCursor;
     followKeyRef.current = null;
   }, [followCursor]);
+
+  // 按住 Ctrl / Shift 的临时效果，checkbox 也要跟着显示成勾上
+  useEffect(() => {
+    const down = (event: KeyboardEvent) => {
+      if (event.key === 'Control') setHoldCtrl(true);
+      else if (event.key === 'Shift') setHoldShift(true);
+    };
+    const up = (event: KeyboardEvent) => {
+      if (event.key === 'Control') setHoldCtrl(false);
+      else if (event.key === 'Shift') setHoldShift(false);
+    };
+    const reset = () => { setHoldCtrl(false); setHoldShift(false); };
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    window.addEventListener('blur', reset);
+    return () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', reset);
+    };
+  }, []);
 
   /** 把文本光标精确放到某个音符的位置上（行 + 列），并滚过去 */
   const moveCaret = useCallback((editor: SimaiEditor, line: number, column: number) => {
@@ -480,8 +504,8 @@ export default function EditorPage() {
                   onTimelineScrubEnd={focusEditor}
                   preloadVideo
                   allowEmptyChart
-                  judgeArea={judgeArea}
-                  hideNotes={hideNotes}
+                  judgeArea={judgeArea || holdCtrl}
+                  hideNotes={hideNotes || holdShift}
                   rate={speed}
                   onTextError={setChartError}
                 />
@@ -528,11 +552,29 @@ export default function EditorPage() {
                     type="number"
                     step="0.01"
                     defaultValue={getFirst(maidata)}
+                    // 滚轮/输入都要立刻生效，不能等失焦
+                    onChange={(event) => {
+                      const value = Number(event.target.value);
+                      if (Number.isFinite(value)) setMaidata((prev) => setFirst(prev, value));
+                    }}
                     onBlur={(event) => {
                       const value = Number(event.target.value);
                       if (Number.isFinite(value)) setMaidata((prev) => setFirst(prev, value));
                     }}
                   />
+                </label>
+
+                {/* 倍速放在所有 checkbox 上面 */}
+                <label className="editor-field">
+                  <span>{t('editor/EditorPage.PlaybackRate')}</span>
+                  <select
+                    value={speed}
+                    onChange={(event) => setSpeed(Number(event.target.value))}
+                  >
+                    {PLAYBACK_RATES.map((value) => (
+                      <option key={value} value={value}>{`${value}×`}</option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className="editor-toggle">
@@ -547,7 +589,7 @@ export default function EditorPage() {
                 <label className="editor-toggle">
                   <input
                     type="checkbox"
-                    checked={judgeArea}
+                    checked={judgeArea || holdCtrl}
                     onChange={(event) => setJudgeArea(event.target.checked)}
                   />
                   {t('editor/EditorPage.ShowJudgeArea')}
@@ -556,22 +598,10 @@ export default function EditorPage() {
                 <label className="editor-toggle">
                   <input
                     type="checkbox"
-                    checked={hideNotes}
+                    checked={hideNotes || holdShift}
                     onChange={(event) => setHideNotes(event.target.checked)}
                   />
                   {t('editor/EditorPage.HideNotes')}
-                </label>
-
-                <label className="editor-field">
-                  <span>{t('editor/EditorPage.PlaybackRate')}</span>
-                  <select
-                    value={speed}
-                    onChange={(event) => setSpeed(Number(event.target.value))}
-                  >
-                    {PLAYBACK_RATES.map((value) => (
-                      <option key={value} value={value}>{`${value}×`}</option>
-                    ))}
-                  </select>
                 </label>
 
                 {/* 只有原版两个播放控制键：■ 停止、▶/⏸ 播放暂停 */}

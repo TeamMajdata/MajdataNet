@@ -279,12 +279,9 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   /** 本轮播放的起点（空格第二下跳回来） */
   const [playStart, setPlayStart] = useState<number | null>(null);
   const playStartRef = useRef<number | null>(null);
-  /** 按住 Ctrl 临时显示判定区、按住 Shift 临时隐藏音符 */
-  const [holdCtrl, setHoldCtrl] = useState(false);
-  const [holdShift, setHoldShift] = useState(false);
-  /** 判定区 / 隐藏音符：开关本身或按住修饰键时生效 */
-  const showJudge = judgeArea || holdCtrl;
-  const notesHidden = hideNotes || holdShift;
+  /** 判定区 / 隐藏音符：由页面控制（页面还负责按住 Ctrl / Shift 的临时效果） */
+  const showJudge = judgeArea;
+  const notesHidden = hideNotes;
 
   // 把「当前文本编译不过的原因」报给页面（编辑器把它显示在编辑器底部）
   const onTextErrorRef = useRef(onTextError);
@@ -1255,27 +1252,6 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   const handlePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, false);
   const handlePointerCancel = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, true);
 
-  // 按住 Ctrl 临时显示判定区、按住 Shift 临时隐藏音符；松手（或窗口失焦）恢复
-  useEffect(() => {
-    const down = (event: KeyboardEvent) => {
-      if (event.key === 'Control') setHoldCtrl(true);
-      else if (event.key === 'Shift') setHoldShift(true);
-    };
-    const up = (event: KeyboardEvent) => {
-      if (event.key === 'Control') setHoldCtrl(false);
-      else if (event.key === 'Shift') setHoldShift(false);
-    };
-    const reset = () => { setHoldCtrl(false); setHoldShift(false); };
-    window.addEventListener('keydown', down);
-    window.addEventListener('keyup', up);
-    window.addEventListener('blur', reset);
-    return () => {
-      window.removeEventListener('keydown', down);
-      window.removeEventListener('keyup', up);
-      window.removeEventListener('blur', reset);
-    };
-  }, []);
-
   // 隐藏音符：交给渲染器，它一帧内自己判断
   useEffect(() => {
     if (boardRef.current) boardRef.current.hideNotes = notesHidden;
@@ -1299,7 +1275,12 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
       const actions = actionsRef.current;
       actions.pokeControls();
       if (event.code === 'Space') {
-        // Shift+空格是正常输入空格，交给编辑器
+        // Ctrl+空格：原来的播放/暂停；Shift+空格：正常输入空格，交给编辑器
+        if (event.ctrlKey || event.metaKey) {
+          event.preventDefault();
+          void actions.togglePlay();
+          return;
+        }
         if (event.shiftKey) return;
         event.preventDefault();
         void actions.playOrRewind();
