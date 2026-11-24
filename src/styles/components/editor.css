@@ -157,6 +157,26 @@
 /* MajView 自己就是 flex 列（判定盘 + 控制条），撑满这一格 */
 .editor-stage > * { flex: 1; min-height: 0; }
 
+/* 空难度：显示默认底图，不报错 */
+.editor-stage-idle {
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background-color: #08090b;
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 8%) inset;
+}
+
+.editor-stage-idle span {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: rgb(255 255 255 / 70%);
+  background: rgb(0 0 0 / 55%);
+  border: 1px solid rgb(255 255 255 / 10%);
+}
+
 .editor-side {
   display: grid;
   grid-template-columns: 152px 1fr;

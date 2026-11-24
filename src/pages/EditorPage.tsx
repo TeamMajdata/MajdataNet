@@ -9,12 +9,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { LuFolderOpen, LuPlay, LuSave } from 'react-icons/lu';
+import {
+  LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuPlay, LuRefreshCw, LuRotateCcw, LuRotateCw, LuSave,
+} from 'react-icons/lu';
+import type { IconType } from 'react-icons';
 import MajView from '@/components/song/MajView';
 import DifficultyTabs from '@/components/editor/DifficultyTabs';
 import SimaiCodeEditor from '@/components/editor/SimaiCodeEditor';
 import BpmTapWindow from '@/components/editor/BpmTapWindow';
 import { useChartFolder } from '@/hooks/useChartFolder';
+import type { SimaiEditor } from '@/components/song/monacoSimai';
+import { transformFumen, type MirrorKind } from '@/utils/simaiMirror';
 import {
   filledDifficulties,
   getDesigner,
@@ -34,25 +39,34 @@ const DEFAULT_COVER = '/majview/skin/Default_Background.png';
 
 const LEVEL_COUNT = 7;
 
+/** 编辑菜单里的变换；顺序和快捷键沿用 MajdataEdit-Neo */
+const TRANSFORMS: { kind: MirrorKind; label: string; Icon: IconType }[] = [
+  { kind: 'lr', label: '水平镜像', Icon: LuFlipHorizontal },
+  { kind: 'ud', label: '垂直镜像', Icon: LuFlipVertical },
+  { kind: '180', label: '180° 镜像', Icon: LuRefreshCw },
+  { kind: 'cw45', label: '旋转 +45°', Icon: LuRotateCw },
+  { kind: 'ccw45', label: '旋转 −45°', Icon: LuRotateCcw },
+];
+
+type MenuId = 'file' | 'edit' | null;
+
 function formatClock(seconds: number) {
   const total = Math.max(0, Math.floor(seconds));
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }
 
-/**
- * 谱面编译本身只有 1–2ms，这里不做防抖：预览必须和输入同步，
- * 防抖反而会让"打开文件夹"后的首帧拿到空文本。
- */
 export default function EditorPage() {
   const { folder, error, busy, open, download } = useChartFolder();
   const [maidata, setMaidata] = useState('');
   const [origin, setOrigin] = useState('');
   const [active, setActive] = useState(4);
-  const [fileMenuOpen, setFileMenuOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<MenuId>(null);
   const [bpmOpen, setBpmOpen] = useState(false);
   const [time, setTime] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [hasSelection, setHasSelection] = useState(false);
   const lastSecondRef = useRef(-1);
+  const editorRef = useRef<SimaiEditor | null>(null);
 
   // 打开文件夹：整份文本作为新的真源，并跳到第一个有内容的难度
   useEffect(() => {
@@ -94,6 +108,22 @@ export default function EditorPage() {
     setTime(value);
   }, []);
 
+  /** 变换只作用于选区；没有选区就什么都不做（决策 1） */
+  const applyTransform = useCallback((kind: MirrorKind) => {
+    const editor = editorRef.current;
+    const selection = editor?.getSelection();
+    if (!editor || !selection || selection.isEmpty()) return;
+    const model = editor.getModel();
+    if (!model) return;
+    const source = model.getValueInRange(selection);
+    editor.executeEdits('simai-transform', [{
+      range: selection,
+      text: transformFumen(source, kind),
+      forceMoveMarkers: true,
+    }]);
+    editor.focus();
+  }, []);
+
   const save = useCallback(async () => {
     if (!folder) return;
     setSaving(true);
@@ -108,15 +138,22 @@ export default function EditorPage() {
 
   // 点菜单外面收起
   useEffect(() => {
-    if (!fileMenuOpen) return;
-    const close = () => setFileMenuOpen(false);
+    if (!openMenu) return;
+    const close = () => setOpenMenu(null);
     window.addEventListener('pointerdown', close);
     return () => window.removeEventListener('pointerdown', close);
-  }, [fileMenuOpen]);
+  }, [openMenu]);
 
   const title = getField(maidata, 'title') ?? folder?.name ?? '';
   const artist = getField(maidata, 'artist') ?? '';
   const cover = folder?.coverUrl ?? DEFAULT_COVER;
+  /** 当前难度还没有谱面：按规格显示默认底图，不当成错误 */
+  const hasChart = getDifficultyText(maidata, active).trim().length > 0;
+
+  const toggleMenu = (menu: Exclude<MenuId, null>) => (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setOpenMenu((current) => (current === menu ? null : menu));
+  };
 
   return (
     <>
@@ -129,21 +166,38 @@ export default function EditorPage() {
           <Link to="/" className="editor-brand">Majdata.Net</Link>
 
           <div className="editor-menu-wrap">
-            <button
-              type="button"
-              className={`editor-top-item${fileMenuOpen ? ' is-open' : ''}`}
-              onClick={(event) => { event.stopPropagation(); setFileMenuOpen((open2) => !open2); }}
-            >
+            <button type="button" className={`editor-top-item${openMenu === 'file' ? ' is-open' : ''}`} onClick={toggleMenu('file')}>
               文件
             </button>
-            {fileMenuOpen && (
+            {openMenu === 'file' && (
               <div className="editor-menu" onPointerDown={(event) => event.stopPropagation()}>
-                <button type="button" onClick={() => { setFileMenuOpen(false); void open(); }} disabled={busy}>
+                <button type="button" onClick={() => { setOpenMenu(null); void open(); }} disabled={busy}>
                   <LuFolderOpen aria-hidden="true" />打开文件夹…
                 </button>
-                <button type="button" onClick={() => { setFileMenuOpen(false); void save(); }} disabled={!folder || saving}>
+                <button type="button" onClick={() => { setOpenMenu(null); void save(); }} disabled={!folder || saving}>
                   <LuSave aria-hidden="true" />保存
                 </button>
+              </div>
+            )}
+          </div>
+
+          <div className="editor-menu-wrap">
+            <button type="button" className={`editor-top-item${openMenu === 'edit' ? ' is-open' : ''}`} onClick={toggleMenu('edit')}>
+              编辑
+            </button>
+            {openMenu === 'edit' && (
+              <div className="editor-menu" onPointerDown={(event) => event.stopPropagation()}>
+                {TRANSFORMS.map(({ kind, label, Icon }) => (
+                  <button
+                    key={kind}
+                    type="button"
+                    disabled={!hasSelection}
+                    title={hasSelection ? label : '先在编辑器里选中要变换的谱面'}
+                    onClick={() => { setOpenMenu(null); applyTransform(kind); }}
+                  >
+                    <Icon aria-hidden="true" />{label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -173,7 +227,7 @@ export default function EditorPage() {
           <main className="editor-main">
             <section className="editor-stage">
               {/* 文本还没就位时先不挂播放器，否则首帧会带着空谱面进错误态 */}
-              {maidata && (
+              {maidata && (hasChart ? (
                 <MajView
                   key={folder.name}
                   chartText={maidata}
@@ -185,7 +239,14 @@ export default function EditorPage() {
                   cover={cover}
                   onTime={handleTime}
                 />
-              )}
+              ) : (
+                <div
+                  className="editor-stage-idle"
+                  style={{ backgroundImage: `url('${cover}')` }}
+                >
+                  <span>这个难度还没有谱面</span>
+                </div>
+              ))}
             </section>
 
             <section className="editor-side">
@@ -241,6 +302,8 @@ export default function EditorPage() {
                   initialTexts={initialTexts}
                   active={active}
                   onChange={handleEditorChange}
+                  onReady={(editor) => { editorRef.current = editor; }}
+                  onSelectionChange={setHasSelection}
                 />
               </div>
             </section>

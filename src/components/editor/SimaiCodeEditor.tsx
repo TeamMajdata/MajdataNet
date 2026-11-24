@@ -11,9 +11,11 @@ type Props = {
   active: number;
   onChange: (level: number, text: string) => void;
   onReady?: (editor: SimaiEditor) => void;
+  /** 选区是否非空——编辑菜单的变换只在有选区时才生效 */
+  onSelectionChange?: (hasSelection: boolean) => void;
 };
 
-export default function SimaiCodeEditor({ initialTexts, active, onChange, onReady }: Props) {
+export default function SimaiCodeEditor({ initialTexts, active, onChange, onReady, onSelectionChange }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<SimaiEditor | null>(null);
   const modelsRef = useRef<(monaco.editor.ITextModel | null)[]>(new Array(7).fill(null));
@@ -24,10 +26,12 @@ export default function SimaiCodeEditor({ initialTexts, active, onChange, onRead
   const onChangeRef = useRef(onChange);
   const onReadyRef = useRef(onReady);
   const initialRef = useRef(initialTexts);
+  const onSelectionChangeRef = useRef(onSelectionChange);
 
   useEffect(() => { activeRef.current = active; }, [active]);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
   useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
+  useEffect(() => { onSelectionChangeRef.current = onSelectionChange; }, [onSelectionChange]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -62,10 +66,15 @@ export default function SimaiCodeEditor({ initialTexts, active, onChange, onRead
     const subscription = editor.onDidChangeModelContent(() => {
       onChangeRef.current(activeRef.current, editor.getValue());
     });
+    const selectionSubscription = editor.onDidChangeCursorSelection(() => {
+      const selection = editor.getSelection();
+      onSelectionChangeRef.current?.(Boolean(selection && !selection.isEmpty()));
+    });
     onReadyRef.current?.(editor);
 
     return () => {
       subscription.dispose();
+      selectionSubscription.dispose();
       editor.dispose();
       for (const model of modelsRef.current) model?.dispose();
       modelsRef.current = new Array(7).fill(null);
@@ -83,6 +92,8 @@ export default function SimaiCodeEditor({ initialTexts, active, onChange, onRead
       modelsRef.current[active] = model;
     }
     if (editor.getModel() !== model) editor.setModel(model);
+    // 换 model 之后选区一定是空的
+    onSelectionChangeRef.current?.(false);
   }, [active]);
 
   return <div ref={hostRef} className="editor-code" />;
