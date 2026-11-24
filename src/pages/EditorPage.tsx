@@ -65,6 +65,7 @@ export default function EditorPage() {
   const [time, setTime] = useState(0);
   const [saving, setSaving] = useState(false);
   const [hasSelection, setHasSelection] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const lastSecondRef = useRef(-1);
   const editorRef = useRef<SimaiEditor | null>(null);
 
@@ -202,6 +203,7 @@ export default function EditorPage() {
             )}
           </div>
 
+          <button type="button" className="editor-top-item" onClick={() => setSettingsOpen(true)}>设置</button>
           <button type="button" className="editor-top-item" onClick={() => setBpmOpen(true)}>BPM Tap</button>
 
           <span className="editor-spacer" />
@@ -238,6 +240,8 @@ export default function EditorPage() {
                   level={active}
                   cover={cover}
                   onTime={handleTime}
+                  settingsOpen={settingsOpen}
+                  onSettingsOpenChange={setSettingsOpen}
                 />
               ) : (
                 <div

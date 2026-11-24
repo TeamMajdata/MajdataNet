@@ -93,7 +93,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -119,6 +119,9 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   onMarkRange?: (range: { length: number; maxCombo: number } | null) => void;
   /** 每帧上报播放时间（秒）；编辑器用它在中栏显示时间 */
   onTime?: (time: number) => void;
+  /** 设置面板的开关（受控）。不传则由播放器自己的按钮管 */
+  settingsOpen?: boolean;
+  onSettingsOpenChange?: (open: boolean) => void;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -162,7 +165,14 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   // First 偏移（秒）：谱面整体平移，渲染时把媒体时间往回挪这么多
   const firstOffsetRef = useRef(settings.FirstOffset / 1000);
   firstOffsetRef.current = settings.FirstOffset / 1000;
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsOpenState, setSettingsOpenState] = useState(false);
+  // 外部（编辑器的菜单栏）想控制设置面板时传 settingsOpen，不传就是播放器自己管
+  const settingsOpen = settingsOpenProp ?? settingsOpenState;
+  const setSettingsOpen = (next: boolean | ((open: boolean) => boolean)) => {
+    const value = typeof next === 'function' ? next(settingsOpen) : next;
+    if (settingsOpenProp === undefined) setSettingsOpenState(value);
+    onSettingsOpenChange?.(value);
+  };
   const rafRef = useRef(0);
 
   // 性能信息：设置里的开关（默认关闭），?perf=1 可以强制打开
