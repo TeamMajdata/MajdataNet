@@ -37,7 +37,13 @@ describe('simai Monarch rules', () => {
     expect(tokenize('6h[4:1]')).toEqual(['hold:6h', 'period:[4:1]']);
     expect(tokenize('A1h[4:1]')).toEqual(['touch:A1h', 'period:[4:1]']);
     expect(tokenize('Ch[4:3]')).toEqual(['touch:Ch', 'period:[4:3]']);
-    expect(tokenize('B2/E3')).toEqual(['touch:B2', 'delimiter:/', 'touch:E3']);
+    expect(tokenize('B2/E3')).toEqual(['touch:B2', 'each:/', 'touch:E3']);
+  });
+
+  it('tells break notes apart from taps', () => {
+    expect(tokenize('1b')).toEqual(['break:1b']);
+    expect(tokenize('8bx')).toEqual(['break:8bx']);
+    expect(tokenize('1x')).toEqual(['tap:1x']);
   });
 
   it('tells the end marker from an E touch note', () => {

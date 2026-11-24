@@ -41,18 +41,22 @@ export function setupSimai() {
     base: 'vs-dark',
     inherit: true,
     // defineTheme 必须带 rules，只传 colors 会在运行时抛 "reading 'fontStyle'"
+    // 颜色参照时间轴（visualizer.js 的 VISUALIZER_COLORS）：tap/hold 粉、slide 天蓝、
+    // touch 深天蓝、break 橙红、each 金、BPM/节拍黄，注释和分隔符压暗
     rules: [
       { token: 'comment', foreground: '6B7280', fontStyle: 'italic' },
-      { token: 'bpm', foreground: 'F0ABFC' },
-      { token: 'measure', foreground: 'FCD34D' },
+      { token: 'bpm', foreground: 'FFFF00' },
+      { token: 'measure', foreground: 'FDE047' },
       { token: 'period', foreground: '5EEAD4' },
       { token: 'speed', foreground: 'A3E635' },
-      { token: 'end', foreground: 'FBBF24', fontStyle: 'bold' },
-      { token: 'touch', foreground: 'C4B5FD' },
-      { token: 'hold', foreground: '93C5FD' },
-      { token: 'slide', foreground: 'FDA4AF' },
-      { token: 'tap', foreground: 'E5E7EB' },
-      { token: 'modifier', foreground: 'FB923C' },
+      { token: 'end', foreground: '9CA3AF' },
+      { token: 'touch', foreground: '00BFFF' },
+      { token: 'hold', foreground: 'FF9EC4' },
+      { token: 'slide', foreground: '87CEEB' },
+      { token: 'break', foreground: 'FF4500' },
+      { token: 'tap', foreground: 'FFB6C1' },
+      { token: 'each', foreground: 'FFD700' },
+      { token: 'modifier', foreground: 'A3A3A3' },
       { token: 'delimiter', foreground: '4B5563' },
     ],
     colors: {

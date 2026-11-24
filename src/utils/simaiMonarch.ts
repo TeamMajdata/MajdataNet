@@ -21,7 +21,10 @@ export const SIMAI_TOKEN_RULES: readonly (readonly [RegExp, string])[] = [
   [/[1-8][bx]*h[bx]*/, 'hold'],
   [/[1-8][bxm]*(?:[<>^\-vpqszwV][qp]?[1-8]+)+/, 'slide'],
   [/(?:[<>^\-vpqszwV][qp]?[1-8]+)+/, 'slide'],
+  // 地雷 / break：时间轴上用 OrangeRed 画，这里单独成一个 token
+  [/[1-8]{1,2}b[bxmf$]*/, 'break'],
   [/[1-8]{1,2}[bxmf$]*/, 'tap'],
   [/[bxfm$]+/, 'modifier'],
-  [/[,/`*]/, 'delimiter'],
+  [/\//, 'each'],
+  [/[,`*]/, 'delimiter'],
 ];
