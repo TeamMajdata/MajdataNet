@@ -40,6 +40,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // monaco 的 exports 映射会给 CSS 也补上 .js 后缀，直接用子路径引不进来；
+      // codicon 是编辑器图标字体（查找替换窗的按钮就靠它），单独指个别名
+      'monaco-codicon': path.resolve(__dirname, './node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon'),
     },
   },
   build: {

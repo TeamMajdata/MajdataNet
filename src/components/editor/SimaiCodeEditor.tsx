@@ -6,6 +6,9 @@ import { useEffect, useRef } from 'react';
 // 项目引的是 monaco 的 editor.api（只要内核），查找控件要单独注册进来，
 // 菜单里的「查找替换」才能用 editor.getAction('actions.find')。
 import 'monaco-editor/editor/contrib/find/browser/findController.js';
+// 查找窗的按钮图标走 codicon 字体：@font-face 和基础样式必须自己引，
+// 否则那些按钮会显示成空白方块（glyph 规则是 Monaco 运行时注入的，不受影响）
+import 'monaco-codicon/codicon.css';
 import { monaco, setupSimai, type SimaiEditor } from '@/components/song/monacoSimai';
 
 type Props = {
