@@ -8,6 +8,7 @@
  * DSP / 视频时间的差），默认关闭。
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { LuMaximize, LuPause, LuPlay, LuRotateCcw, LuSettings2 } from 'react-icons/lu';
 import { Board } from '@/majview/renderer.js';
@@ -93,7 +94,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, showAnalysis = false }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -122,6 +123,13 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   /** 设置面板的开关（受控）。不传则由播放器自己的按钮管 */
   settingsOpen?: boolean;
   onSettingsOpenChange?: (open: boolean) => void;
+  /** 把播放控制条挂到这个节点里（编辑器用）；不传就画在播放器内部 */
+  controlsHost?: HTMLElement | null;
+  /**
+   * 是否显示谱面分析（音符密度条 + 时间轴）。
+   * 谱面页不需要，默认关闭；编辑器打开。
+   */
+  showAnalysis?: boolean;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -155,6 +163,9 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   /** 每帧上报时间给页面；走 ref 免得 frame() 的依赖里多一项 */
   const onTimeRef = useRef(onTime);
   onTimeRef.current = onTime;
+  /** 谱面分析开关：prepareTrack 里要用，但不想因此重跑整个加载流程 */
+  const showAnalysisRef = useRef(showAnalysis);
+  showAnalysisRef.current = showAnalysis;
   const transportRef = useRef<Transport | null>(null);
   // 后台准备音乐的进度：打开页面就开始下载解码，点播放时多半已经好了
   const trackRef = useRef<{ chart: Chart; controller: AbortController; promise: Promise<Transport | null> } | null>(null);
@@ -442,10 +453,13 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
         transportRef.current = transport;
         setDuration(transport.duration);
         // 波形只要音乐的包络，和播放状态无关：解码完就在主线程空闲前算好（约 10–20ms）
-        const data = buildWaveform(transport.song);
-        if (data) setWaveform({ data, duration: transport.song.duration });
-        // 颜色另算：Worker 里跑 FFT，结果晚一点到，到了波形自己会变色
-        analyzeTrack(transport);
+        // 波形包络和频谱颜色都是给时间轴用的；不显示分析就不必算
+        if (showAnalysisRef.current) {
+          const data = buildWaveform(transport.song);
+          if (data) setWaveform({ data, duration: transport.song.duration });
+          // 颜色另算：Worker 里跑 FFT，结果晚一点到，到了波形自己会变色
+          analyzeTrack(transport);
+        }
         mark('majview:track-ready');
         return transport;
       })
@@ -546,8 +560,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
 
   // 进度条上方的谱面密度：按 Seek 条的范围切 64 根柱，和 MajdataPlay 的 ChartAnalyzer 一致
   const analyzer = useMemo(
-    () => (chart && duration > begin ? analyzeChart(chart.notes, duration - begin, begin) : null),
-    [chart, duration, begin],
+    () => (showAnalysis && chart && duration > begin ? analyzeChart(chart.notes, duration - begin, begin) : null),
+    [showAnalysis, chart, duration, begin],
   );
 
   useEffect(() => {
@@ -1155,6 +1169,69 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
 
   const controlClass = 'grid place-items-center hover:bg-white/10 rounded-lg w-9 h-9 text-white/85 hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default';
 
+  /**
+   * 播放控制条（谱面密度 / 时间轴 / 进度 / 按钮）。
+   * 默认画在播放器里；编辑器要把它放到自己的格子时传 controlsHost，用 portal 挂过去——
+   * 逻辑和 ref 都还属于这个组件，只是换了挂载点。
+   */
+  const controlsNode = (
+    <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
+      {showAnalysis && analyzer && analyzer.max > 0 && <MajViewAnalyzer bars={analyzer.bars} />}
+      {showAnalysis && (
+        <MajViewVisualizer
+          ref={visualizerRef}
+          chart={chart}
+          waveform={waveform?.data ?? null}
+          waveformDuration={waveform?.duration ?? 0}
+          analysis={spectrum}
+          offset={settings.FirstOffset / 1000}
+        />
+      )}
+      <input
+        ref={timelineRef}
+        type="range"
+        min={begin}
+        max={duration || 1}
+        step={0.001}
+        defaultValue={begin}
+        disabled={!canControl}
+        onChange={(e) => seek(Number(e.target.value))}
+        aria-label={t('song/MajView.Position')}
+        className="w-full accent-sky-300"
+      />
+      <div className="flex items-center gap-1">
+        <button type="button" className={controlClass} onClick={togglePlay} disabled={status !== 'ready'} aria-label={playing ? t('song/MajView.Pause') : t('song/MajView.Play')}>
+          {playing ? <LuPause aria-hidden="true" className="w-4.5 h-4.5" /> : <LuPlay aria-hidden="true" className="w-4.5 h-4.5" />}
+        </button>
+        <button type="button" className={controlClass} onClick={() => seek(begin)} disabled={!canControl} aria-label={t('song/MajView.Restart')}>
+          <LuRotateCcw aria-hidden="true" className="w-4 h-4" />
+        </button>
+        <span className="flex-1 px-1 text-white/70 text-xs tabular-nums">
+          <span ref={clockRef}>{formatClock(currentTime() - begin)}</span> / {formatClock(duration - begin)}
+          <span ref={seekDeltaRef} className="majview-seek-delta" hidden />
+        </span>
+        <SortMenu
+          compact
+          icon={null}
+          placement="up"
+          options={RATES.map((value) => `${value}×`)}
+          value={RATES.indexOf(fastForward ? KEY_FAST_RATE : rate)}
+          onChange={(index) => changeRate(RATES[index])}
+          label={t('song/MajView.Speed')}
+          disabled={!canControl}
+        />
+        <button type="button" className={controlClass} onClick={() => setSettingsOpen((open) => !open)} aria-expanded={settingsOpen} aria-label={t('song/MajView.Settings')}>
+          <LuSettings2 aria-hidden="true" className="w-4 h-4" />
+        </button>
+        {CAN_FULLSCREEN && (
+          <button type="button" className={controlClass} onClick={toggleFullscreen} aria-label={t('song/MajView.Fullscreen')}>
+            <LuMaximize aria-hidden="true" className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div ref={rootRef} className="majview" onPointerMove={pokeByMouse} onPointerDown={pokeByMouse}>
       <img className="majview-backdrop" src={cover} alt="" crossOrigin="anonymous" />
@@ -1210,59 +1287,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
       </div>
       </div>
 
-      <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
-        {analyzer && analyzer.max > 0 && <MajViewAnalyzer bars={analyzer.bars} />}
-        <MajViewVisualizer
-          ref={visualizerRef}
-          chart={chart}
-          waveform={waveform?.data ?? null}
-          waveformDuration={waveform?.duration ?? 0}
-          analysis={spectrum}
-          offset={settings.FirstOffset / 1000}
-        />
-        <input
-          ref={timelineRef}
-          type="range"
-          min={begin}
-          max={duration || 1}
-          step={0.001}
-          defaultValue={begin}
-          disabled={!canControl}
-          onChange={(e) => seek(Number(e.target.value))}
-          aria-label={t('song/MajView.Position')}
-          className="w-full accent-sky-300"
-        />
-        <div className="flex items-center gap-1">
-          <button type="button" className={controlClass} onClick={togglePlay} disabled={status !== 'ready'} aria-label={playing ? t('song/MajView.Pause') : t('song/MajView.Play')}>
-            {playing ? <LuPause aria-hidden="true" className="w-4.5 h-4.5" /> : <LuPlay aria-hidden="true" className="w-4.5 h-4.5" />}
-          </button>
-          <button type="button" className={controlClass} onClick={() => seek(begin)} disabled={!canControl} aria-label={t('song/MajView.Restart')}>
-            <LuRotateCcw aria-hidden="true" className="w-4 h-4" />
-          </button>
-          <span className="flex-1 px-1 text-white/70 text-xs tabular-nums">
-            <span ref={clockRef}>{formatClock(currentTime() - begin)}</span> / {formatClock(duration - begin)}
-            <span ref={seekDeltaRef} className="majview-seek-delta" hidden />
-          </span>
-          <SortMenu
-            compact
-            icon={null}
-            placement="up"
-            options={RATES.map((value) => `${value}×`)}
-            value={RATES.indexOf(fastForward ? KEY_FAST_RATE : rate)}
-            onChange={(index) => changeRate(RATES[index])}
-            label={t('song/MajView.Speed')}
-            disabled={!canControl}
-          />
-          <button type="button" className={controlClass} onClick={() => setSettingsOpen((open) => !open)} aria-expanded={settingsOpen} aria-label={t('song/MajView.Settings')}>
-            <LuSettings2 aria-hidden="true" className="w-4 h-4" />
-          </button>
-          {CAN_FULLSCREEN && (
-            <button type="button" className={controlClass} onClick={toggleFullscreen} aria-label={t('song/MajView.Fullscreen')}>
-              <LuMaximize aria-hidden="true" className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </div>
+      {controlsHost ? createPortal(controlsNode, controlsHost) : controlsNode}
 
       {settingsOpen && <MajViewSettings settings={settings} onChange={changeSettings} onClose={() => setSettingsOpen(false)} />}
     </div>

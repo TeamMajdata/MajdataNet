@@ -11,7 +11,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
-  LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuInfo, LuPlay, LuRefreshCw, LuRotateCcw, LuRotateCw, LuSave,
+  LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuInfo, LuRefreshCw, LuRotateCcw, LuRotateCw, LuSave,
 } from 'react-icons/lu';
 import type { IconType } from 'react-icons';
 import MajView from '@/components/song/MajView';
@@ -73,6 +73,7 @@ export default function EditorPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [chartInfoOpen, setChartInfoOpen] = useState(false);
   const [followCursor, setFollowCursor] = useState(false);
+  const [controlsHost, setControlsHost] = useState<HTMLDivElement | null>(null);
   const latestRef = useRef({ maidata: '', active: 4 });
   const lastSecondRef = useRef(-1);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -306,6 +307,8 @@ export default function EditorPage() {
                   onTime={handleTime}
                   settingsOpen={settingsOpen}
                   onSettingsOpenChange={setSettingsOpen}
+                  controlsHost={controlsHost}
+                  showAnalysis
                 />
               ) : (
                 <div
@@ -366,11 +369,6 @@ export default function EditorPage() {
                   />
                   {t('editor/EditorPage.FollowCursor')}
                 </label>
-
-                <div className="editor-controls-hint">
-                  <LuPlay aria-hidden="true" />
-                  {t('editor/EditorPage.PlayHint')}
-                </div>
               </div>
 
               <div className="editor-editor">
@@ -383,6 +381,9 @@ export default function EditorPage() {
                   onSelectionChange={setHasSelection}
                 />
               </div>
+
+              {/* 播放控制条挂在这里（MajView 用 portal 送过来） */}
+              <div className="editor-transport" ref={setControlsHost} />
             </section>
           </main>
         )}
