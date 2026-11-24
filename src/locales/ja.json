@@ -159,6 +159,7 @@
     "Cancel": "キャンセル",
     "ChartTitle": "タイトル",
     "Confirm": "決定",
+    "Designer": "譜師",
     "DuplicateKey": "この項目は既に存在します",
     "Empty": "他の項目はありません",
     "Hint": "変更はメモリ上の maidata.txt にのみ適用され、保存しないとファイルに書き込まれません",

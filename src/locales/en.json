@@ -162,6 +162,7 @@
     "Cancel": "Cancel",
     "ChartTitle": "Title",
     "Confirm": "OK",
+    "Designer": "Charter",
     "DuplicateKey": "This field already exists",
     "Empty": "No other fields",
     "Hint": "Edits apply to the in-memory maidata.txt; you still need to save to write the file",

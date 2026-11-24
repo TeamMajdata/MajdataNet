@@ -159,6 +159,7 @@
     "Cancel": "취소",
     "ChartTitle": "제목",
     "Confirm": "확인",
+    "Designer": "채보 제작자",
     "DuplicateKey": "이미 있는 필드입니다",
     "Empty": "다른 필드가 없습니다",
     "Hint": "변경 사항은 메모리의 maidata.txt에만 적용되며 저장해야 파일에 기록됩니다",

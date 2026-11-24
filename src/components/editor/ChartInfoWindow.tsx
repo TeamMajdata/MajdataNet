@@ -15,26 +15,31 @@ import { getField, listFields, removeField, setField } from '@/utils/maidataEdit
 
 const FUUMEN_KEY = /^inote_\d+$/;
 const KEY_SHAPE = /^[\w-]+$/;
+/** 这些字段有自己的专门 UI（标题 / 曲师 / 谱师 / First / 难度），不在「其它字段」里重复出现 */
+const STRUCTURED_KEY = /^(title|artist|first|first_\d+|lv_\d+|des_\d+)$/;
 
 type ErrorKey = '' | 'editor/ChartInfoWindow.InvalidKey' | 'editor/ChartInfoWindow.DuplicateKey';
 
 type Props = {
   maidata: string;
+  /** 当前难度：谱师取 &des_{level+1} */
+  level: number;
   onApply: (next: string) => void;
   onClose: () => void;
 };
 
-export default function ChartInfoWindow({ maidata, onApply, onClose }: Props) {
+export default function ChartInfoWindow({ maidata, level, onApply, onClose }: Props) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState(maidata);
   const [newKey, setNewKey] = useState('');
   const [newValue, setNewValue] = useState('');
   const [error, setError] = useState<ErrorKey>('');
 
-  // title / artist 单独一栏；谱面正文不在这里编辑
+  // title / artist / 谱师 单独一栏；谱面正文和结构化字段不在这里编辑
   const commands = listFields(draft).filter(
-    (field) => !FUUMEN_KEY.test(field.key) && field.key !== 'title' && field.key !== 'artist',
+    (field) => !FUUMEN_KEY.test(field.key) && !STRUCTURED_KEY.test(field.key),
   );
+  const designerKey = `des_${level + 1}`;
 
   const write = (key: string, value: string) => setDraft((prev) => setField(prev, key, value));
 
@@ -69,6 +74,13 @@ export default function ChartInfoWindow({ maidata, onApply, onClose }: Props) {
         <label className="editor-info-row">
           <span className="editor-info-label">{t('editor/ChartInfoWindow.Artist')}</span>
           <input value={getField(draft, 'artist') ?? ''} onChange={(event) => write('artist', event.target.value)} />
+        </label>
+        <label className="editor-info-row">
+          <span className="editor-info-label">{t('editor/ChartInfoWindow.Designer')}</span>
+          <input
+            value={getField(draft, designerKey) ?? ''}
+            onChange={(event) => write(designerKey, event.target.value)}
+          />
         </label>
 
         <div className="editor-info-head">

@@ -748,7 +748,7 @@ export default function EditorPage() {
           </EditorWindow>
         )}
         {chartInfoOpen && folder && (
-          <ChartInfoWindow maidata={maidata} onApply={setMaidata} onClose={() => setChartInfoOpen(false)} />
+          <ChartInfoWindow maidata={maidata} level={active} onApply={setMaidata} onClose={() => setChartInfoOpen(false)} />
         )}
 
         {pendingAction && (

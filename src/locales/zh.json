@@ -159,6 +159,7 @@
     "Cancel": "取消",
     "ChartTitle": "曲名",
     "Confirm": "确定",
+    "Designer": "谱师",
     "DuplicateKey": "这个字段已经存在了",
     "Empty": "没有其它字段",
     "Hint": "改动只作用于内存里的 maidata.txt，点「确定」后仍需保存才写回文件",
