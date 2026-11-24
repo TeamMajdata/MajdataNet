@@ -12,6 +12,8 @@ export type Timeline = {
   times: number[];
   /** 每个音符格子所在的文本行号（1-based） */
   lines: number[];
+  /** 每个音符格子在该行里的列号（1-based，指向第一个非空白字符） */
+  columns: number[];
 };
 
 type ParsedTiming = { time: number };
@@ -34,34 +36,46 @@ function noteBody(cell: string): string {
   }
 }
 
-/** 每个音符格子所在的行号 */
-function noteCellLines(fumen: string): number[] {
-  const lines: number[] = [];
+/** 每个音符格子的行列位置（指向格子里的第一个非空白字符） */
+function noteCellPositions(fumen: string): { line: number; column: number }[] {
+  const out: { line: number; column: number }[] = [];
+  let offset = 0;
   let line = 1;
-  let cellStartLine = 1;
-  let cell = '';
+  let lineStart = 0;
+  let cellStart = 0;
+  // 当前格子里第一个非空白字符的位置
+  let firstOffset = -1;
+  let firstLine = 1;
+  let firstLineStart = 0;
 
-  const flush = () => {
-    if (noteBody(cell) !== '') {
-      // 格子可能跨行，取第一个非空白字符所在行
-      const offset = cell.search(/\S/);
-      const extra = offset === -1 ? 0 : (cell.slice(0, offset).match(/\n/g)?.length ?? 0);
-      lines.push(cellStartLine + extra);
+  const flush = (end: number) => {
+    const cell = fumen.slice(cellStart, end);
+    if (noteBody(cell) !== '' && firstOffset >= 0) {
+      out.push({ line: firstLine, column: firstOffset - firstLineStart + 1 });
     }
-    cell = '';
-    cellStartLine = line;
+    firstOffset = -1;
+    cellStart = end + 1;
   };
 
   for (const char of fumen) {
     if (char === ',') {
-      flush();
-      continue;
+      flush(offset);
+    } else {
+      const space = char === ' ' || char === '\t' || char === '\r' || char === '\n';
+      if (!space && firstOffset === -1) {
+        firstOffset = offset;
+        firstLine = line;
+        firstLineStart = lineStart;
+      }
+      if (char === '\n') {
+        line += 1;
+        lineStart = offset + 1;
+      }
     }
-    if (char === '\n') line += 1;
-    cell += char;
+    offset += 1;
   }
-  flush();
-  return lines;
+  flush(fumen.length);
+  return out;
 }
 
 export function buildTimeline(fumen: string, offset = 0): Timeline | null {
@@ -78,29 +92,35 @@ export function buildTimeline(fumen: string, offset = 0): Timeline | null {
   const timings = parsed.noteTimings ?? [];
   if (!timings.length) return null;
 
-  const cellLines = noteCellLines(cleaned);
+  const cells = noteCellPositions(cleaned);
   const totalLines = Math.max(1, cleaned.split('\n').length);
   const times = timings.map((timing) => timing.time + offset);
 
   const lines = timings.map((_, index) => {
-    const line = cellLines.length === timings.length
-      ? cellLines[index]
+    const cell = cells.length === timings.length
+      ? cells[index]
       // 数量对不上（异常谱面）：按比例落到某个格子上，别让跟随直接失效
-      : cellLines.length
-        ? cellLines[Math.min(cellLines.length - 1, Math.floor((index / timings.length) * cellLines.length))]
-        : 1;
-    return Math.min(Math.max(line, 1), totalLines);
+      : cells.length
+        ? cells[Math.min(cells.length - 1, Math.floor((index / timings.length) * cells.length))]
+        : { line: 1, column: 1 };
+    return Math.min(Math.max(cell.line, 1), totalLines);
+  });
+  const columns = timings.map((_, index) => {
+    const cell = cells.length === timings.length
+      ? cells[index]
+      : cells.length
+        ? cells[Math.min(cells.length - 1, Math.floor((index / timings.length) * cells.length))]
+        : { line: 1, column: 1 };
+    return Math.max(cell.column, 1);
   });
 
-  return { times, lines };
+  return { times, lines, columns };
 }
 
-/** 当前时间落在哪个格子上；早于第一个返回 null，晚于最后一个停在最后 */
-export function lineAt(timeline: Timeline | null, seconds: number): number | null {
-  if (!timeline || !timeline.times.length) return null;
-  const { times, lines } = timeline;
-  if (seconds < times[0]) return null;
-
+/** 当前时间对应第几个格子；早于第一个返回 null */
+function indexAt(timeline: Timeline, seconds: number): number | null {
+  const { times } = timeline;
+  if (!times.length || seconds < times[0]) return null;
   let low = 0;
   let high = times.length - 1;
   let found = 0;
@@ -113,18 +133,46 @@ export function lineAt(timeline: Timeline | null, seconds: number): number | nul
       high = mid - 1;
     }
   }
-  return lines[found] ?? null;
+  return found;
+}
+
+/** 当前时间落在哪个格子上；早于第一个返回 null，晚于最后一个停在最后 */
+export function lineAt(timeline: Timeline | null, seconds: number): number | null {
+  if (!timeline) return null;
+  const index = indexAt(timeline, seconds);
+  return index === null ? null : (timeline.lines[index] ?? null);
+}
+
+/** 当前时间对应的文本位置（行 + 列），用来把光标精确放到那个音符上 */
+export function positionAt(timeline: Timeline | null, seconds: number): { line: number; column: number } | null {
+  if (!timeline) return null;
+  const index = indexAt(timeline, seconds);
+  if (index === null) return null;
+  return { line: timeline.lines[index], column: timeline.columns[index] ?? 1 };
 }
 
 /**
- * 反过来：光标停在第 line 行时对应的时间。
- * 一行里可能有多个音符，取这一行的**第一个**；光标在最后一行之后则停在最后一个音符。
+ * 反过来：光标在第 line 行第 column 列时对应的时间。
+ * 取这一行里最后一个「不晚于光标」的格子；光标在所有音符之前就取第一个。
  */
-export function timeAtLine(timeline: Timeline | null, line: number): number | null {
+export function timeAtPosition(timeline: Timeline | null, line: number, column = 1): number | null {
   if (!timeline || !timeline.times.length) return null;
-  const { times, lines } = timeline;
+  const { times, lines, columns } = timeline;
 
-  // lines 单调不减：第一个「不在目标行之前」的格子就是这一行的起点
-  const index = lines.findIndex((value) => value >= line);
-  return times[index === -1 ? times.length - 1 : index] ?? null;
+  let found = -1;
+  for (let index = 0; index < lines.length; index++) {
+    const cellLine = lines[index];
+    const cellColumn = columns[index] ?? 1;
+    if (cellLine < line || (cellLine === line && cellColumn <= column)) found = index;
+    else break;
+  }
+  if (found !== -1) return times[found] ?? null;
+
+  // 光标在第一个音符之前：回到第一个
+  return times[0] ?? null;
+}
+
+/** 兼容旧调用：只给行号时，取这一行的第一个格子 */
+export function timeAtLine(timeline: Timeline | null, line: number): number | null {
+  return timeAtPosition(timeline, line, 1);
 }

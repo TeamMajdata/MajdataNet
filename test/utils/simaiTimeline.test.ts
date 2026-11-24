@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildTimeline, lineAt, timeAtLine } from '@/utils/simaiTimeline';
+import { buildTimeline, lineAt, positionAt, timeAtLine, timeAtPosition } from '@/utils/simaiTimeline';
 import { parseChart } from '@/majview/simai.js';
 
 describe('buildTimeline', () => {
@@ -114,5 +114,45 @@ describe('timeAtLine', () => {
 
   it('空时间轴返回 null', () => {
     expect(timeAtLine(null, 3)).toBeNull();
+  });
+});
+
+describe('位置映射（行 + 列）', () => {
+  // (180){4},1,2,\n3,4,   →  1 在第 10 列、2 在第 12 列、3 在第二行第 1 列、4 在第 3 列
+  const timeline = buildTimeline('(180){4},1,2,\n3,4,')!;
+
+  it('每个格子记下自己的行号', () => {
+    expect(timeline.lines).toEqual([1, 1, 2, 2]);
+  });
+
+  it('每个格子记下自己的列号', () => {
+    expect(timeline.columns).toEqual([10, 12, 1, 3]);
+  });
+
+  it('positionAt 给出精确的行列，而不是行首', () => {
+    expect(positionAt(timeline, timeline.times[0])).toEqual({ line: 1, column: 10 });
+    expect(positionAt(timeline, timeline.times[1])).toEqual({ line: 1, column: 12 });
+    expect(positionAt(timeline, timeline.times[2])).toEqual({ line: 2, column: 1 });
+  });
+
+  it('timeAtPosition 按列区分同一行里的多个音符', () => {
+    // 第 1 行：第 10 列是第一个音符，第 11 列还属于它
+    expect(timeAtPosition(timeline, 1, 11)).toBeCloseTo(timeline.times[0], 5);
+    // 第 12 列就是第二个音符了
+    expect(timeAtPosition(timeline, 1, 12)).toBeCloseTo(timeline.times[1], 5);
+    // 再往后还是第二个
+    expect(timeAtPosition(timeline, 1, 30)).toBeCloseTo(timeline.times[1], 5);
+  });
+
+  it('timeAtPosition 在行首时回退到这一行的第一个音符', () => {
+    expect(timeAtPosition(timeline, 1, 1)).toBeCloseTo(timeline.times[0], 5);
+    expect(timeAtPosition(timeline, 2, 1)).toBeCloseTo(timeline.times[2], 5);
+  });
+
+  it('positionAt 和 timeAtPosition 在音符位置上互为反函数', () => {
+    for (let index = 0; index < timeline.times.length; index++) {
+      const position = positionAt(timeline, timeline.times[index])!;
+      expect(timeAtPosition(timeline, position.line, position.column)).toBeCloseTo(timeline.times[index], 5);
+    }
   });
 });

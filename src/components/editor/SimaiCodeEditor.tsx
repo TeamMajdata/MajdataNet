@@ -16,10 +16,10 @@ type Props = {
   onReady?: (editor: SimaiEditor) => void;
   /** 选区是否非空——编辑菜单的变换只在有选区时才生效 */
   onSelectionChange?: (hasSelection: boolean) => void;
-  /** 光标所在行变化（1-based），用于「光标 → 时间轴」 */
-  onCursorLineChange?: (line: number) => void;
+  /** 光标位置变化（line / column 均 1-based） */
+  onCursorLineChange?: (line: number, column: number) => void;
   /** Ctrl / Cmd + 点击文本：跳到光标所在的那一行 */
-  onCtrlClickLine?: (line: number) => void;
+  onCtrlClickLine?: (line: number, column: number) => void;
 };
 
 export default function SimaiCodeEditor({
@@ -85,7 +85,7 @@ export default function SimaiCodeEditor({
       const selection = editor.getSelection();
       onSelectionChangeRef.current?.(Boolean(selection && !selection.isEmpty()));
       const position = editor.getPosition();
-      if (position) onCursorLineChangeRef.current?.(position.lineNumber);
+      if (position) onCursorLineChangeRef.current?.(position.lineNumber, position.column);
     });
     onReadyRef.current?.(editor);
 
@@ -132,7 +132,7 @@ export default function SimaiCodeEditor({
             endLineNumber: position.lineNumber,
             endColumn: position.column,
           });
-          onCtrlClickLineRef.current?.(position.lineNumber);
+          onCtrlClickLineRef.current?.(position.lineNumber, position.column);
         }, 0);
       }}
     />

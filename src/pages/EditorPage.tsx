@@ -24,7 +24,7 @@ import EditorWindow from '@/components/editor/EditorWindow';
 import { useChartFolder } from '@/hooks/useChartFolder';
 import type { SimaiEditor } from '@/components/song/monacoSimai';
 import { clearDraft, readDraft, shouldOfferRestore, writeDraft } from '@/utils/autosave';
-import { buildTimeline, lineAt, timeAtLine } from '@/utils/simaiTimeline';
+import { buildTimeline, positionAt, timeAtPosition } from '@/utils/simaiTimeline';
 import { transformFumen, type MirrorKind } from '@/utils/simaiMirror';
 import {
   filledDifficulties,
@@ -158,46 +158,59 @@ export default function EditorPage() {
     [maidata, active],
   );
 
-  /** 把文本光标挪到某一行并滚过去；用 setSelection 显式收起选区，避免残留多行选中 */
-  const moveCaret = useCallback((editor: SimaiEditor, line: number) => {
+  /** 把文本光标精确放到某个音符的位置上（行 + 列），并滚过去 */
+  const moveCaret = useCallback((editor: SimaiEditor, line: number, column: number) => {
     const model = editor.getModel();
-    if (!model || line < 1 || line > model.getLineCount()) return;
-    editor.setSelection({ startLineNumber: line, startColumn: 1, endLineNumber: line, endColumn: 1 });
-    editor.revealLineInCenterIfOutsideViewport(line);
+    if (!model) return;
+    const safeLine = Math.min(Math.max(line, 1), model.getLineCount());
+    const maxColumn = model.getLineMaxColumn(safeLine);
+    const safeColumn = Math.min(Math.max(column, 1), maxColumn);
+    editor.setSelection({
+      startLineNumber: safeLine,
+      startColumn: safeColumn,
+      endLineNumber: safeLine,
+      endColumn: safeColumn,
+    });
+    editor.revealLineInCenterIfOutsideViewport(safeLine);
   }, []);
 
-  // 文本跟随只做一件事：播放时把文本光标挪到当前时间那一行
+  // 文本跟随只做一件事：播放时把文本光标挪到当前时间那个音符上
   useEffect(() => {
     if (!followCursor || !playing) return;
     const editor = editorRef.current;
     if (!editor) return;
-    const line = lineAt(timeline, time);
-    if (line === null) return;
-    moveCaret(editor, line);
+    const position = positionAt(timeline, time);
+    if (!position) return;
+    moveCaret(editor, position.line, position.column);
   }, [time, followCursor, playing, timeline, moveCaret]);
 
   const [seekTo, setSeekTo] = useState<{ seconds: number; key: number } | null>(null);
-  /** 文本光标所在行：时间轴顶部的小三角跟着它走 */
-  const [caretLine, setCaretLine] = useState(1);
-  const caretTime = useMemo(() => timeAtLine(timeline, caretLine), [timeline, caretLine]);
+  /** 文本光标的位置：时间轴顶部的小三角跟着它走 */
+  const [caretPos, setCaretPos] = useState({ line: 1, column: 1 });
+  const caretTime = useMemo(
+    () => timeAtPosition(timeline, caretPos.line, caretPos.column),
+    [timeline, caretPos],
+  );
 
-  // 光标换行只记录行号，不自动 seek
-  const handleCursorLine = useCallback((line: number) => setCaretLine(line), []);
+  // 光标移动只记录位置，不自动 seek
+  const handleCursorLine = useCallback((line: number, column: number) => {
+    setCaretPos({ line, column });
+  }, []);
 
   /** Ctrl / Cmd + 点击文本：时间跳到光标位置 */
-  const handleCtrlClickLine = useCallback((line: number) => {
-    const seconds = timeAtLine(timeline, line);
+  const handleCtrlClickLine = useCallback((line: number, column: number) => {
+    const seconds = timeAtPosition(timeline, line, column);
     if (seconds === null) return;
     setSeekTo({ seconds, key: Date.now() });
   }, [timeline]);
 
-  /** 拖动时间轴：把文本光标挪到对应行 */
+  /** 拖动时间轴：把文本光标挪到对应音符上 */
   const handleTimelineScrub = useCallback((seconds: number) => {
     const editor = editorRef.current;
     if (!editor) return;
-    const line = lineAt(timeline, seconds);
-    if (line === null) return;
-    moveCaret(editor, line);
+    const position = positionAt(timeline, seconds);
+    if (!position) return;
+    moveCaret(editor, position.line, position.column);
   }, [timeline, moveCaret]);
 
   /** 变换只作用于选区；没有选区就什么都不做（决策 1） */

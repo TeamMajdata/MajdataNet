@@ -402,9 +402,14 @@
 
 .editor-code { flex: 1; min-width: 0; min-height: 0; }
 
-/* simai 主题把光标设成了全透明（原本只读的谱面文件页签用），可编辑时补回来 */
+/* simai 主题把光标设成了全透明（原本只读的谱面文件页签用），可编辑时补回来。
+   visibility 也要强制：Monaco 在编辑器失焦时会把它设成 hidden，
+   而拖动时间轴 / 点时间轴正好会让编辑器失焦，光标就看不见了 */
 .editor-code .monaco-editor { --vscode-editorCursor-foreground: #22d3ee; }
-.editor-code .monaco-editor .cursors-layer .cursor { background-color: #22d3ee !important; }
+.editor-code .monaco-editor .cursors-layer .cursor {
+  background-color: #22d3ee !important;
+  visibility: visible !important;
+}
 
 /* ── 浮动窗 ── */
 .editor-window {
