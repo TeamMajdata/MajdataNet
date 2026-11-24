@@ -10,15 +10,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
-  LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuPlay, LuRefreshCw, LuRotateCcw, LuRotateCw, LuSave,
+  LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuInfo, LuPlay, LuRefreshCw, LuRotateCcw, LuRotateCw, LuSave,
 } from 'react-icons/lu';
 import type { IconType } from 'react-icons';
 import MajView from '@/components/song/MajView';
 import DifficultyTabs from '@/components/editor/DifficultyTabs';
 import SimaiCodeEditor from '@/components/editor/SimaiCodeEditor';
 import BpmTapWindow from '@/components/editor/BpmTapWindow';
+import ChartInfoWindow from '@/components/editor/ChartInfoWindow';
 import { useChartFolder } from '@/hooks/useChartFolder';
 import type { SimaiEditor } from '@/components/song/monacoSimai';
+import { clearDraft, readDraft, shouldOfferRestore, writeDraft } from '@/utils/autosave';
 import { transformFumen, type MirrorKind } from '@/utils/simaiMirror';
 import {
   filledDifficulties,
@@ -66,6 +68,8 @@ export default function EditorPage() {
   const [saving, setSaving] = useState(false);
   const [hasSelection, setHasSelection] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [chartInfoOpen, setChartInfoOpen] = useState(false);
+  const latestRef = useRef({ maidata: '', active: 4 });
   const lastSecondRef = useRef(-1);
   const editorRef = useRef<SimaiEditor | null>(null);
 
@@ -86,6 +90,35 @@ export default function EditorPage() {
     () => Array.from({ length: LEVEL_COUNT }, (_, level) => getDifficultyText(folder?.maidata ?? '', level)),
     [folder],
   );
+
+  /** 打开文件夹后：如果本地草稿比文件新，问一下要不要恢复 */
+  useEffect(() => {
+    if (!folder) return;
+    let cancelled = false;
+    void readDraft(folder.name).then((draft) => {
+      if (cancelled || !shouldOfferRestore(draft, folder)) return;
+      if (window.confirm('发现比文件更新的本地草稿，恢复上次编辑？')) {
+        setMaidata(draft!.maidata);
+        setActive(draft!.active);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [folder]);
+
+  // 自动保存：停止编辑 5s 后落一次，另外每 30s 兜底；都不改变「已保存/未保存」
+  useEffect(() => { latestRef.current = { maidata, active }; }, [maidata, active]);
+  useEffect(() => {
+    if (!folder) return;
+    const debounce = setTimeout(() => { void writeDraft(folder.name, maidata, active); }, 5000);
+    return () => clearTimeout(debounce);
+  }, [folder, maidata, active]);
+  useEffect(() => {
+    if (!folder) return;
+    const timer = setInterval(() => {
+      void writeDraft(folder.name, latestRef.current.maidata, latestRef.current.active);
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [folder]);
 
   const dirty = useMemo(() => {
     const perLevel = Array.from({ length: LEVEL_COUNT }, (_, level) =>
@@ -132,6 +165,8 @@ export default function EditorPage() {
       if (folder.save) await folder.save(maidata);
       else download(maidata);
       setOrigin(maidata);
+      // 已经落到文件了，草稿没有存在意义
+      void clearDraft(folder.name);
     } finally {
       setSaving(false);
     }
@@ -199,6 +234,14 @@ export default function EditorPage() {
                     <Icon aria-hidden="true" />{label}
                   </button>
                 ))}
+                <div className="editor-menu-sep" />
+                <button
+                  type="button"
+                  disabled={!folder}
+                  onClick={() => { setOpenMenu(null); setChartInfoOpen(true); }}
+                >
+                  <LuInfo aria-hidden="true" />谱面信息…
+                </button>
               </div>
             )}
           </div>
@@ -315,6 +358,9 @@ export default function EditorPage() {
         )}
 
         {bpmOpen && <BpmTapWindow onClose={() => setBpmOpen(false)} />}
+        {chartInfoOpen && folder && (
+          <ChartInfoWindow maidata={maidata} onApply={setMaidata} onClose={() => setChartInfoOpen(false)} />
+        )}
       </div>
     </>
   );

@@ -10,6 +10,8 @@ export type ChartFolder = {
   /** 文件夹名，用来显示 */
   name: string;
   maidata: string;
+  /** maidata.txt 的修改时间，用来判断本地草稿是不是更新 */
+  modifiedAt: number;
   /** 媒体一律是 blob URL；没有对应文件时为空 */
   trackUrl?: string;
   coverUrl?: string;
@@ -149,6 +151,7 @@ export function useChartFolder() {
       setFolder({
         name,
         maidata: await maidata.file.text(),
+        modifiedAt: maidata.file.lastModified,
         trackUrl,
         coverUrl,
         videoUrl,

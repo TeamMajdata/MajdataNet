@@ -83,6 +83,101 @@
 .editor-menu button:hover:not(:disabled) { background: rgb(34 211 238 / 14%); color: #fff; }
 .editor-menu button:disabled { opacity: .4; cursor: default; }
 .editor-menu svg { width: 14px; height: 14px; }
+.editor-menu-sep { height: 1px; margin: 4px 6px; background: rgb(255 255 255 / 9%); }
+
+/* ── 谱面信息窗 ── */
+.editor-info { display: flex; flex-direction: column; gap: 8px; }
+.editor-info-row { display: flex; align-items: center; gap: 8px; }
+
+.editor-info-label { width: 40px; flex: none; font-size: 11.5px; color: #8b9bb0; }
+
+.editor-info-key {
+  width: 92px;
+  flex: none;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  color: #9fb0c2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-info-row input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 12px;
+  color: #dbe6f2;
+  background: rgb(255 255 255 / 5%);
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 5px;
+  padding: 5px 8px;
+}
+
+.editor-info-row input:focus { outline: none; border-color: rgb(34 211 238 / 50%); }
+
+.editor-info-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 10.5px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: #8b9bb0;
+}
+
+.editor-info-head small { text-transform: none; letter-spacing: 0; color: #6b7a8c; }
+
+.editor-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.editor-info-empty { margin: 0; font-size: 11.5px; color: #6b7a8c; }
+
+.editor-info-remove,
+.editor-info-add {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 1px solid rgb(255 255 255 / 9%);
+  background: rgb(255 255 255 / 5%);
+  color: #9fb0c2;
+  cursor: pointer;
+}
+
+.editor-info-remove:hover { color: #fca5a5; border-color: rgb(248 113 113 / 40%); }
+.editor-info-add:hover { color: #86efac; border-color: rgb(52 211 153 / 40%); }
+.editor-info-remove svg, .editor-info-add svg { width: 12px; height: 12px; }
+
+.editor-info-error { margin: 0; font-size: 11.5px; color: #fca5a5; }
+
+.editor-info-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+
+.editor-info-actions button {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 16px;
+  border-radius: 7px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 5%);
+  color: #cddaea;
+  cursor: pointer;
+}
+
+.editor-info-actions .is-primary {
+  background: rgb(34 211 238 / 16%);
+  border-color: rgb(34 211 238 / 45%);
+  color: #a5f3fc;
+}
 
 .editor-spacer { flex: 1; }
 

@@ -42,6 +42,11 @@ function scan(text: string): Span[] {
   return spans;
 }
 
+/** 按出现顺序列出所有字段（值已 trim）。谱面信息窗用它渲染 `&k=v` 列表 */
+export function listFields(text: string): { key: string; value: string }[] {
+  return scan(text).map((span) => ({ key: span.key, value: text.slice(span.start, span.end) }));
+}
+
 /** 读一个字段的值（已 trim）；不存在返回 undefined */
 export function getField(text: string, key: string): string | undefined {
   const span = scan(text).find((item) => item.key === key);

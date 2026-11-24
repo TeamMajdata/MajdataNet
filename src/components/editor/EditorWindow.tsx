@@ -11,9 +11,11 @@ type Props = {
   children: ReactNode;
   /** 附加说明，显示在窗底部 */
   hint?: string;
+  /** 窗宽，默认 212 */
+  width?: number;
 };
 
-export default function EditorWindow({ title, onClose, children, hint }: Props) {
+export default function EditorWindow({ title, onClose, children, hint, width = 212 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
 
@@ -47,7 +49,7 @@ export default function EditorWindow({ title, onClose, children, hint }: Props) 
   }, []);
 
   return (
-    <div ref={ref} className="editor-window" role="dialog" aria-label={title}>
+    <div ref={ref} className="editor-window" role="dialog" aria-label={title} style={{ width }}>
       <div
         className="editor-window-head"
         onPointerDown={onPointerDown}
