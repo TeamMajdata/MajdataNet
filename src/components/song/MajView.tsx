@@ -94,7 +94,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, showAnalysis = false }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, showAnalysis = false }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -125,6 +125,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   onSettingsOpenChange?: (open: boolean) => void;
   /** 把播放控制条挂到这个节点里（编辑器用）；不传就画在播放器内部 */
   controlsHost?: HTMLElement | null;
+  /** 把设置面板挂到这个节点里（编辑器用），同理 */
+  settingsHost?: HTMLElement | null;
   /**
    * 是否显示谱面分析（音符密度条 + 时间轴）。
    * 谱面页不需要，默认关闭；编辑器打开。
@@ -1232,6 +1234,15 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     </div>
   );
 
+  const settingsNode = (
+    <MajViewSettings
+      settings={settings}
+      onChange={changeSettings}
+      onClose={() => setSettingsOpen(false)}
+      hideHeader={Boolean(settingsHost)}
+    />
+  );
+
   return (
     <div ref={rootRef} className="majview" onPointerMove={pokeByMouse} onPointerDown={pokeByMouse}>
       <img className="majview-backdrop" src={cover} alt="" crossOrigin="anonymous" />
@@ -1289,7 +1300,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
 
       {controlsHost ? createPortal(controlsNode, controlsHost) : controlsNode}
 
-      {settingsOpen && <MajViewSettings settings={settings} onChange={changeSettings} onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && (settingsHost ? createPortal(settingsNode, settingsHost) : settingsNode)}
     </div>
   );
 }

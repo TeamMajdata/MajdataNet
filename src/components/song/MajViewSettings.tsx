@@ -148,10 +148,12 @@ function Slider({ name, value, onChange }: { name: SettingKey; value: number; on
 /**
  * 播放器里的设置面板：画在播放器内部（而不是全站弹窗），这样全屏时也能打开。
  */
-export default function MajViewSettings({ settings, onChange, onClose }: {
+export default function MajViewSettings({ settings, onChange, onClose, hideHeader = false }: {
   settings: ViewSettings;
   onChange: (patch: Partial<ViewSettings>) => void;
   onClose: () => void;
+  /** 挂进外层浮窗时隐藏自己的标题和关闭按钮，避免和浮窗的重复 */
+  hideHeader?: boolean;
 }) {
   const { t } = useTranslation();
   const headingId = useId();
@@ -162,13 +164,15 @@ export default function MajViewSettings({ settings, onChange, onClose }: {
       aria-labelledby={headingId}
       onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); onClose(); } }}
     >
-      <div className="flex justify-between items-center mb-2">
-        <h3 id={headingId} className="m-0 font-semibold text-white text-base">{t('song/MajView.Settings')}</h3>
-        <button type="button" onClick={onClose} aria-label={t('song/MajView.CloseSettings')}
-          className="grid place-items-center hover:bg-white/10 rounded-lg w-8 h-8 text-white/70 hover:text-white transition-colors cursor-pointer">
-          <LuX aria-hidden="true" className="w-4 h-4" />
-        </button>
-      </div>
+      {!hideHeader && (
+        <div className="flex justify-between items-center mb-2">
+          <h3 id={headingId} className="m-0 font-semibold text-white text-base">{t('song/MajView.Settings')}</h3>
+          <button type="button" onClick={onClose} aria-label={t('song/MajView.CloseSettings')}
+            className="grid place-items-center hover:bg-white/10 rounded-lg w-8 h-8 text-white/70 hover:text-white transition-colors cursor-pointer">
+            <LuX aria-hidden="true" className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       <section>
         {VIEW_KEYS.map((key) => <Slider key={key} name={key} value={settings[key]} onChange={(value) => onChange({ [key]: value })} />)}

@@ -19,6 +19,7 @@ import DifficultyTabs from '@/components/editor/DifficultyTabs';
 import SimaiCodeEditor from '@/components/editor/SimaiCodeEditor';
 import BpmTapWindow from '@/components/editor/BpmTapWindow';
 import ChartInfoWindow from '@/components/editor/ChartInfoWindow';
+import EditorWindow from '@/components/editor/EditorWindow';
 import { useChartFolder } from '@/hooks/useChartFolder';
 import type { SimaiEditor } from '@/components/song/monacoSimai';
 import { clearDraft, readDraft, shouldOfferRestore, writeDraft } from '@/utils/autosave';
@@ -74,6 +75,7 @@ export default function EditorPage() {
   const [chartInfoOpen, setChartInfoOpen] = useState(false);
   const [followCursor, setFollowCursor] = useState(false);
   const [controlsHost, setControlsHost] = useState<HTMLDivElement | null>(null);
+  const [settingsHost, setSettingsHost] = useState<HTMLDivElement | null>(null);
   const latestRef = useRef({ maidata: '', active: 4 });
   const lastSecondRef = useRef(-1);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -308,6 +310,7 @@ export default function EditorPage() {
                   settingsOpen={settingsOpen}
                   onSettingsOpenChange={setSettingsOpen}
                   controlsHost={controlsHost}
+                  settingsHost={settingsHost}
                   showAnalysis
                 />
               ) : (
@@ -389,6 +392,16 @@ export default function EditorPage() {
         )}
 
         {bpmOpen && <BpmTapWindow onClose={() => setBpmOpen(false)} />}
+        {settingsOpen && (
+          <EditorWindow
+            title={t('song/MajView.Settings')}
+            width={340}
+            onClose={() => setSettingsOpen(false)}
+          >
+            {/* MajView 把设置面板 portal 到这里，所以它也是居中可拖动的浮窗 */}
+            <div ref={setSettingsHost} />
+          </EditorWindow>
+        )}
         {chartInfoOpen && folder && (
           <ChartInfoWindow maidata={maidata} onApply={setMaidata} onClose={() => setChartInfoOpen(false)} />
         )}

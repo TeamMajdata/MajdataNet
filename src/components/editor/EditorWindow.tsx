@@ -20,18 +20,30 @@ export default function EditorWindow({ title, onClose, children, hint, width = 2
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
+  /** 用户拖过之后就不再自动居中 */
+  const draggedRef = useRef(false);
 
-  // 居中：只在挂载时做一次，之后拖动的位置就是用户的
-  useEffect(() => {
+  const center = useCallback(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || draggedRef.current) return;
     el.style.left = `${Math.round((window.innerWidth - el.offsetWidth) / 2)}px`;
     el.style.top = `${Math.round((window.innerHeight - el.offsetHeight) / 2)}px`;
   }, []);
 
+  // 居中对齐：内容（比如 portal 进来的设置面板）渲染后高度会变，所以跟着尺寸重新居中
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    center();
+    const observer = new ResizeObserver(center);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [center]);
+
   const onPointerDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     const el = ref.current;
     if (!el || (event.target as HTMLElement).closest('button')) return;
+    draggedRef.current = true;
     dragRef.current = { dx: event.clientX - el.offsetLeft, dy: event.clientY - el.offsetTop };
     event.currentTarget.setPointerCapture(event.pointerId);
   }, []);

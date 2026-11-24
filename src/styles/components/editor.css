@@ -426,7 +426,27 @@
 }
 .editor-window-close svg { width: 12px; height: 12px; }
 
-.editor-window-body { padding: 10px; }
+.editor-window-body {
+  padding: 10px;
+  max-height: calc(100vh - 160px);
+  overflow: auto;
+}
+
+/* 设置面板在播放器里是绝对定位的浮层；挂进编辑器浮窗后交回给浮窗排版 */
+.editor-window .majview-settings {
+  position: static;
+  inset: auto;
+  z-index: auto;
+  width: auto;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
 
 .editor-window-hint {
   padding: 0 10px 9px;
