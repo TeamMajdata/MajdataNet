@@ -175,9 +175,10 @@
     "Label": "난이도"
   },
   "editor/EditorPage": {
+    "Cancel": "취소",
     "ChartInfo": "악보 정보…",
     "Designer": "채보자",
-    "DiscardChanges": "저장하지 않은 변경이 사라집니다. 계속할까요?",
+    "DontSave": "저장 안 함",
     "EmptyDifficulty": "이 난이도에는 아직 채보가 없습니다",
     "EmptyHint": "maidata.txt(및 선택 사항인 track, bg, pv)가 있는 로컬 채보 폴더를 선택하세요. 아무것도 업로드되지 않습니다.",
     "FindReplace": "찾기 및 바꾸기",
@@ -203,6 +204,8 @@
     "SelectRangeFirst": "먼저 변환할 범위를 선택하세요",
     "Title": "채보 편집기",
     "Unsaved": "저장 안 됨",
+    "UnsavedBody": "다른 채보를 열면 변경이 사라집니다. 먼저 저장할까요?",
+    "UnsavedTitle": "저장하지 않은 변경이 있습니다",
     "Untitled": "제목 없는 채보"
   },
   "editor/EditorWindow": {

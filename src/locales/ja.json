@@ -175,9 +175,10 @@
     "Label": "難易度"
   },
   "editor/EditorPage": {
+    "Cancel": "キャンセル",
     "ChartInfo": "譜面情報…",
     "Designer": "譜師",
-    "DiscardChanges": "未保存の変更は失われます。続行しますか？",
+    "DontSave": "保存しない",
     "EmptyDifficulty": "この難易度はまだ譜面がありません",
     "EmptyHint": "maidata.txt（と任意の track・bg・pv）を含むローカルの譜面フォルダーを選んでください。何もアップロードされません。",
     "FindReplace": "検索と置換",
@@ -203,6 +204,8 @@
     "SelectRangeFirst": "先に変換する範囲を選択してください",
     "Title": "譜面エディター",
     "Unsaved": "未保存",
+    "UnsavedBody": "別の譜面を開くと変更は失われます。先に保存しますか？",
+    "UnsavedTitle": "未保存の変更があります",
     "Untitled": "無題の譜面"
   },
   "editor/EditorWindow": {

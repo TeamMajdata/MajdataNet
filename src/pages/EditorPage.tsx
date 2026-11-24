@@ -298,17 +298,20 @@ export default function EditorPage() {
    * 不绑在 Monaco 上是因为这两个是页面级动作，而且要拦掉浏览器的「保存网页」。
    */
   /** 打开 / 新建前先确认未保存的改动 */
-  const confirmDiscard = useCallback(() => !anyDirty || window.confirm(t('editor/EditorPage.DiscardChanges')), [anyDirty, t]);
+  /** 有未保存改动时先弹「保存 / 不保存 / 取消」，选完再执行动作 */
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  const handleOpen = useCallback(() => {
-    if (!confirmDiscard()) return;
-    void open();
-  }, [confirmDiscard, open]);
+  const requestAction = useCallback((action: () => void) => {
+    if (!anyDirty) {
+      action();
+      return;
+    }
+    setPendingAction(() => action);
+  }, [anyDirty]);
 
-  const handleCreateNew = useCallback(() => {
-    if (!confirmDiscard()) return;
-    void createNew();
-  }, [confirmDiscard, createNew]);
+  const handleOpen = useCallback(() => requestAction(() => { void open(); }), [requestAction, open]);
+
+  const handleCreateNew = useCallback(() => requestAction(() => { void createNew(); }), [requestAction, createNew]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -586,6 +589,47 @@ export default function EditorPage() {
         )}
         {chartInfoOpen && folder && (
           <ChartInfoWindow maidata={maidata} onApply={setMaidata} onClose={() => setChartInfoOpen(false)} />
+        )}
+
+        {pendingAction && (
+          <div
+            className="editor-confirm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="editor-confirm-title"
+            onKeyDown={(event) => { if (event.key === 'Escape') setPendingAction(null); }}
+          >
+            <div className="editor-confirm-box">
+              <h2 id="editor-confirm-title">{t('editor/EditorPage.UnsavedTitle')}</h2>
+              <p>{t('editor/EditorPage.UnsavedBody')}</p>
+              <div className="editor-confirm-actions">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const action = pendingAction;
+                    setPendingAction(null);
+                    await save();
+                    action();
+                  }}
+                >
+                  {t('editor/EditorPage.Save')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const action = pendingAction;
+                    setPendingAction(null);
+                    action();
+                  }}
+                >
+                  {t('editor/EditorPage.DontSave')}
+                </button>
+                <button type="button" className="is-primary" onClick={() => setPendingAction(null)} autoFocus>
+                  {t('editor/EditorPage.Cancel')}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </>

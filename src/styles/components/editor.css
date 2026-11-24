@@ -522,3 +522,43 @@
   .editor-side { grid-template-columns: 1fr; }
   .editor-controls { display: none; }
 }
+
+/* 未保存改动的三选一确认框（保存 / 不保存 / 取消） */
+.editor-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 55%);
+}
+
+.editor-confirm-box {
+  min-width: 320px;
+  max-width: 440px;
+  padding: 18px 20px 16px;
+  border-radius: 12px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: #12161d;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 55%);
+}
+
+.editor-confirm-box h2 { margin: 0 0 8px; font-size: 14px; color: #fff; }
+.editor-confirm-box p { margin: 0 0 16px; font-size: 12.5px; line-height: 1.6; color: #9fb0c4; }
+
+.editor-confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.editor-confirm-actions button {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 6%);
+  color: #dbe6f2;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+.editor-confirm-actions button:hover { background: rgb(255 255 255 / 12%); color: #fff; }
+.editor-confirm-actions button.is-primary { border-color: rgb(34 211 238 / 45%); background: rgb(34 211 238 / 14%); color: #a5f3fc; }

@@ -175,9 +175,10 @@
     "Label": "难度"
   },
   "editor/EditorPage": {
+    "Cancel": "取消",
     "ChartInfo": "谱面信息…",
     "Designer": "制谱人",
-    "DiscardChanges": "当前改动还没保存，继续会丢弃它们。继续？",
+    "DontSave": "不保存",
     "EmptyDifficulty": "这个难度还没有谱面",
     "EmptyHint": "选择一个本地谱面文件夹，包含 maidata.txt（以及可选的 track、bg、pv）。文件不会被上传。",
     "FindReplace": "查找替换",
@@ -203,6 +204,8 @@
     "SelectRangeFirst": "先在编辑器里选中要变换的谱面",
     "Title": "谱面编辑器",
     "Unsaved": "未保存",
+    "UnsavedBody": "打开新的谱面会丢弃当前改动。要先保存吗？",
+    "UnsavedTitle": "还有未保存的改动",
     "Untitled": "未命名谱面"
   },
   "editor/EditorWindow": {

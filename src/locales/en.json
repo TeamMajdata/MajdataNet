@@ -178,9 +178,10 @@
     "Label": "Difficulty"
   },
   "editor/EditorPage": {
+    "Cancel": "Cancel",
     "ChartInfo": "Chart info…",
     "Designer": "Charter",
-    "DiscardChanges": "Unsaved changes will be lost. Continue?",
+    "DontSave": "Don't save",
     "EmptyDifficulty": "This difficulty has no chart yet",
     "EmptyHint": "Pick a local chart folder containing maidata.txt (and optional track, bg, pv). Nothing is uploaded.",
     "FindReplace": "Find and replace",
@@ -206,6 +207,8 @@
     "SelectRangeFirst": "Select the chart text to transform first",
     "Title": "Chart editor",
     "Unsaved": "Unsaved",
+    "UnsavedBody": "Opening another chart will discard these changes. Save first?",
+    "UnsavedTitle": "Unsaved changes",
     "Untitled": "Untitled chart"
   },
   "editor/EditorWindow": {
