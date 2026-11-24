@@ -515,13 +515,6 @@
   cursor: pointer;
 }
 
-@media (max-width: 900px) {
-  .editor-main { grid-template-columns: 1fr; grid-template-rows: 44% 56%; }
-  .editor-stage { border-right: 0; border-bottom: 1px solid rgb(255 255 255 / 8%); }
-  .editor-side { grid-template-columns: 1fr; }
-  .editor-controls { display: none; }
-}
-
 /* 未保存改动的三选一确认框（保存 / 不保存 / 取消） */
 .editor-confirm {
   position: fixed;
@@ -613,3 +606,80 @@
 }
 
 .editor-shortcut-row span { font-size: 12px; color: rgb(255 255 255 / 72%); }
+/* ── 竖屏（手机 / 窄高窗口）─────────────────────────────────────────
+   横向排布在竖屏上会把编辑器和判定盘都挤成细条，这里改成上下四段：
+   菜单栏 / 判定盘 / 页签+编辑器 / 时间轴，控制列变成可横向滚动的工具条 */
+@media (orientation: portrait), (max-width: 820px) {
+  .editor-app {
+    grid-template-rows: auto 1fr;
+  }
+
+  .editor-menubar {
+    padding: 0 6px;
+    gap: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .editor-brand { margin-right: 6px; }
+  .editor-top-item { padding: 0 6px; }
+
+  .editor-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(150px, 32vh) 1fr;
+  }
+
+  .editor-stage {
+    padding: 6px;
+    border-right: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+  }
+
+  .editor-side {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+  }
+
+  /* 控制列 → 横向工具条 */
+  .editor-controls {
+    grid-row: 2;
+    grid-column: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+  }
+  .editor-controls > * { flex: 0 0 auto; }
+  .editor-clock { margin-bottom: 0; }
+  .editor-clock b { font-size: 18px; }
+  .editor-clock small { max-width: 96px; }
+  .editor-field { flex-direction: row; align-items: center; gap: 6px; }
+  .editor-field input,
+  .editor-field select { width: 76px; }
+  .editor-toggle { white-space: nowrap; gap: 4px; }
+  .editor-playback { width: 104px; margin-top: 0; }
+  .editor-playback button { height: 26px; }
+
+  .editor-editor { grid-row: 3; grid-column: 1; }
+  .editor-timeline { grid-row: 4; grid-column: 1; }
+  .editor-tabs { padding: 0 4px; }
+  .editor-tab { padding: 7px 9px; font-size: 11px; }
+
+  /* 浮窗和对话框别超出屏幕 */
+  .editor-window { max-width: calc(100vw - 16px); }
+  .editor-window-body { max-height: calc(100vh - 220px); }
+  .editor-confirm-box { min-width: 0; max-width: calc(100vw - 24px); }
+  .editor-shortcut-row { grid-template-columns: 108px 1fr; }
+}
+
+/* 特别矮的横屏（手机横放）：判定盘和编辑器都要留出高度，时间轴压薄一点 */
+@media (max-height: 460px) and (orientation: landscape) {
+  .editor-main { grid-template-columns: 1fr 1fr; }
+  .editor-stage { padding: 4px; }
+  .editor-tabs { padding: 0 4px; }
+  .editor-tab { padding: 5px 9px; }
+  .editor-timeline .majview-visualizer { height: 4rem; }
+}
