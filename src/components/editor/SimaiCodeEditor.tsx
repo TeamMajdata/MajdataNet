@@ -3,6 +3,9 @@
  * 组件只负责"文本 → 页面"，不持有业务状态。
  */
 import { useEffect, useRef } from 'react';
+// 项目引的是 monaco 的 editor.api（只要内核），查找控件要单独注册进来，
+// 菜单里的「查找替换」才能用 editor.getAction('actions.find')。
+import 'monaco-editor/editor/contrib/find/browser/findController.js';
 import { monaco, setupSimai, type SimaiEditor } from '@/components/song/monacoSimai';
 
 type Props = {

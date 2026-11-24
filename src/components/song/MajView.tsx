@@ -10,7 +10,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { LuMaximize, LuPause, LuPlay, LuRotateCcw, LuSettings2 } from 'react-icons/lu';
+import { LuMaximize, LuMinus, LuPause, LuPlay, LuPlus, LuRotateCcw, LuSettings2 } from 'react-icons/lu';
 import { Board } from '@/majview/renderer.js';
 import { Transport, adoptDecoded } from '@/majview/audio.js';
 import { useMediaSession } from './useMediaSession';
@@ -179,6 +179,11 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   const firstOffsetRef = useRef(settings.FirstOffset / 1000);
   firstOffsetRef.current = settings.FirstOffset / 1000;
   const [settingsOpenState, setSettingsOpenState] = useState(false);
+  /** 时间轴缩放：中线两侧各显示多少秒 */
+  const [timelineZoom, setTimelineZoom] = useState(4);
+  const zoomTimeline = useCallback((delta: number) => {
+    setTimelineZoom((value) => Math.min(10, Math.max(0.1, Math.round((value + delta) * 10) / 10)));
+  }, []);
   // 外部（编辑器的菜单栏）想控制设置面板时传 settingsOpen，不传就是播放器自己管
   const settingsOpen = settingsOpenProp ?? settingsOpenState;
   const setSettingsOpen = (next: boolean | ((open: boolean) => boolean)) => {
@@ -1180,14 +1185,26 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
       {showAnalysis && analyzer && analyzer.max > 0 && <MajViewAnalyzer bars={analyzer.bars} />}
       {showAnalysis && (
-        <MajViewVisualizer
-          ref={visualizerRef}
-          chart={chart}
-          waveform={waveform?.data ?? null}
-          waveformDuration={waveform?.duration ?? 0}
-          analysis={spectrum}
-          offset={settings.FirstOffset / 1000}
-        />
+        <div className="majview-timeline">
+          <MajViewVisualizer
+            ref={visualizerRef}
+            chart={chart}
+            waveform={waveform?.data ?? null}
+            waveformDuration={waveform?.duration ?? 0}
+            analysis={spectrum}
+            offset={settings.FirstOffset / 1000}
+            zoom={timelineZoom}
+          />
+          {/* 时间轴缩放：范围沿用 MajdataEdit 的 0.1–10，默认 4 */}
+          <div className="majview-zoom">
+            <button type="button" onClick={() => zoomTimeline(0.5)} aria-label={t('song/MajView.ZoomIn')}>
+              <LuPlus aria-hidden="true" />
+            </button>
+            <button type="button" onClick={() => zoomTimeline(-0.5)} aria-label={t('song/MajView.ZoomOut')}>
+              <LuMinus aria-hidden="true" />
+            </button>
+          </div>
+        </div>
       )}
       <input
         ref={timelineRef}

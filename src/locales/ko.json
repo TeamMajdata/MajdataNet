@@ -177,8 +177,10 @@
   "editor/EditorPage": {
     "ChartInfo": "악보 정보…",
     "Designer": "채보자",
+    "DiscardChanges": "저장하지 않은 변경이 사라집니다. 계속할까요?",
     "EmptyDifficulty": "이 난이도에는 아직 채보가 없습니다",
     "EmptyHint": "maidata.txt(및 선택 사항인 track, bg, pv)가 있는 로컬 채보 폴더를 선택하세요. 아무것도 업로드되지 않습니다.",
+    "FindReplace": "찾기 및 바꾸기",
     "First": "First",
     "FollowCursor": "텍스트 따라가기",
     "Level": "난이도",
@@ -189,6 +191,7 @@
     "Mirror180": "180° 반전",
     "MirrorHorizontal": "좌우 반전",
     "MirrorVertical": "상하 반전",
+    "New": "새로 만들기",
     "OpenFolder": "폴더 열기…",
     "OpenFolderButton": "폴더 열기",
     "Opening": "여는 중…",
@@ -199,7 +202,8 @@
     "Saved": "저장됨",
     "SelectRangeFirst": "먼저 변환할 범위를 선택하세요",
     "Title": "채보 편집기",
-    "Unsaved": "저장 안 됨"
+    "Unsaved": "저장 안 됨",
+    "Untitled": "제목 없는 채보"
   },
   "editor/EditorWindow": {
     "Close": "닫기"
@@ -527,7 +531,9 @@
     "Settings": "설정",
     "Speed": "재생 속도",
     "TrackFailed": "음악을 불러오지 못했습니다. 재생을 다시 눌러 주세요.",
-    "Volume": "음량"
+    "Volume": "음량",
+    "ZoomIn": "타임라인 확대",
+    "ZoomOut": "타임라인 축소"
   },
   "song/ScoreRanking": {
     "FailedToLoad": "불러오기에 실패했습니다",

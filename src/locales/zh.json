@@ -177,8 +177,10 @@
   "editor/EditorPage": {
     "ChartInfo": "谱面信息…",
     "Designer": "制谱人",
+    "DiscardChanges": "当前改动还没保存，继续会丢弃它们。继续？",
     "EmptyDifficulty": "这个难度还没有谱面",
     "EmptyHint": "选择一个本地谱面文件夹，包含 maidata.txt（以及可选的 track、bg、pv）。文件不会被上传。",
+    "FindReplace": "查找替换",
     "First": "First",
     "FollowCursor": "文本跟随",
     "Level": "难度",
@@ -189,6 +191,7 @@
     "Mirror180": "180° 镜像",
     "MirrorHorizontal": "水平镜像",
     "MirrorVertical": "垂直镜像",
+    "New": "新建",
     "OpenFolder": "打开文件夹…",
     "OpenFolderButton": "打开文件夹",
     "Opening": "打开中…",
@@ -199,7 +202,8 @@
     "Saved": "已保存",
     "SelectRangeFirst": "先在编辑器里选中要变换的谱面",
     "Title": "谱面编辑器",
-    "Unsaved": "未保存"
+    "Unsaved": "未保存",
+    "Untitled": "未命名谱面"
   },
   "editor/EditorWindow": {
     "Close": "关闭"
@@ -527,7 +531,9 @@
     "Settings": "设置",
     "Speed": "播放速度",
     "TrackFailed": "音乐加载失败，请再点一次播放重试",
-    "Volume": "音量"
+    "Volume": "音量",
+    "ZoomIn": "放大时间轴",
+    "ZoomOut": "缩小时间轴"
   },
   "song/ScoreRanking": {
     "FailedToLoad": "加载失败",

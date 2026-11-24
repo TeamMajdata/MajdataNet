@@ -177,8 +177,10 @@
   "editor/EditorPage": {
     "ChartInfo": "譜面情報…",
     "Designer": "譜師",
+    "DiscardChanges": "未保存の変更は失われます。続行しますか？",
     "EmptyDifficulty": "この難易度はまだ譜面がありません",
     "EmptyHint": "maidata.txt（と任意の track・bg・pv）を含むローカルの譜面フォルダーを選んでください。何もアップロードされません。",
+    "FindReplace": "検索と置換",
     "First": "First",
     "FollowCursor": "テキスト追従",
     "Level": "難易度",
@@ -189,6 +191,7 @@
     "Mirror180": "180° 反転",
     "MirrorHorizontal": "左右反転",
     "MirrorVertical": "上下反転",
+    "New": "新規作成",
     "OpenFolder": "フォルダーを開く…",
     "OpenFolderButton": "フォルダーを開く",
     "Opening": "読み込み中…",
@@ -199,7 +202,8 @@
     "Saved": "保存済み",
     "SelectRangeFirst": "先に変換する範囲を選択してください",
     "Title": "譜面エディター",
-    "Unsaved": "未保存"
+    "Unsaved": "未保存",
+    "Untitled": "無題の譜面"
   },
   "editor/EditorWindow": {
     "Close": "閉じる"
@@ -527,7 +531,9 @@
     "Settings": "設定",
     "Speed": "再生速度",
     "TrackFailed": "音楽を読み込めませんでした。もう一度再生を押してください。",
-    "Volume": "音量"
+    "Volume": "音量",
+    "ZoomIn": "タイムラインを拡大",
+    "ZoomOut": "タイムラインを縮小"
   },
   "song/ScoreRanking": {
     "FailedToLoad": "読み込みに失敗しました",

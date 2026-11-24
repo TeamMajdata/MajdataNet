@@ -11,7 +11,8 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
-  LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuInfo, LuRefreshCw, LuRotateCcw, LuRotateCw, LuSave,
+  LuFilePlus, LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuInfo, LuRefreshCw,
+  LuRotateCcw, LuRotateCw, LuSave, LuSearch,
 } from 'react-icons/lu';
 import type { IconType } from 'react-icons';
 import MajView from '@/components/song/MajView';
@@ -62,7 +63,7 @@ function formatClock(seconds: number) {
 
 export default function EditorPage() {
   const { t } = useTranslation();
-  const { folder, error, busy, open, download } = useChartFolder();
+  const { folder, setFolder, error, busy, open, download } = useChartFolder();
   const [maidata, setMaidata] = useState('');
   const [origin, setOrigin] = useState('');
   const [active, setActive] = useState(4);
@@ -203,6 +204,29 @@ export default function EditorPage() {
     return () => window.removeEventListener('pointerdown', close);
   }, [openMenu]);
 
+  /** 新建：先有未保存改动就问一下；新建的谱面没有落地文件，保存会退化成下载 */
+  const createNew = useCallback(() => {
+    if (anyDirty && !window.confirm(t('editor/EditorPage.DiscardChanges'))) return;
+    const blank = [
+      '&title=',
+      '&artist=',
+      '&first=0',
+      ...Array.from({ length: LEVEL_COUNT }, (_, level) => `&inote_${level + 1}=`),
+      '',
+    ].join('\n');
+    setFolder({
+      name: t('editor/EditorPage.Untitled'),
+      maidata: blank,
+      modifiedAt: Date.now(),
+      save: null,
+    });
+  }, [anyDirty, setFolder, t]);
+
+  const openFindReplace = useCallback(() => {
+    editorRef.current?.getAction('actions.find')?.run();
+    editorRef.current?.focus();
+  }, []);
+
   const title = getField(maidata, 'title') ?? folder?.name ?? '';
   const artist = getField(maidata, 'artist') ?? '';
   const cover = folder?.coverUrl ?? DEFAULT_COVER;
@@ -230,6 +254,9 @@ export default function EditorPage() {
             </button>
             {openMenu === 'file' && (
               <div className="editor-menu" onPointerDown={(event) => event.stopPropagation()}>
+                <button type="button" onClick={() => { setOpenMenu(null); createNew(); }} disabled={busy}>
+                  <LuFilePlus aria-hidden="true" />{t('editor/EditorPage.New')}
+                </button>
                 <button type="button" onClick={() => { setOpenMenu(null); void open(); }} disabled={busy}>
                   <LuFolderOpen aria-hidden="true" />{t('editor/EditorPage.OpenFolder')}
                 </button>
@@ -264,6 +291,14 @@ export default function EditorPage() {
                   onClick={() => { setOpenMenu(null); setChartInfoOpen(true); }}
                 >
                   <LuInfo aria-hidden="true" />{t('editor/EditorPage.ChartInfo')}
+                </button>
+                <div className="editor-menu-sep" />
+                <button
+                  type="button"
+                  disabled={!folder}
+                  onClick={() => { setOpenMenu(null); openFindReplace(); }}
+                >
+                  <LuSearch aria-hidden="true" />{t('editor/EditorPage.FindReplace')}
                 </button>
               </div>
             )}

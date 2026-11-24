@@ -315,6 +315,32 @@
   height: 8rem;
   pointer-events: none;
 }
+/* 时间轴左上角的缩放按钮（只在编辑器里出现） */
+.majview-timeline { position: relative; }
+.majview-zoom {
+  position: absolute;
+  left: .25rem;
+  top: .25rem;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .125rem;
+}
+.majview-zoom button {
+  display: grid;
+  place-items: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  border-radius: .25rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(0 0 0 / 45%);
+  color: rgb(255 255 255 / 70%);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.majview-zoom button:hover { color: #fff; background: rgb(255 255 255 / 14%); }
+.majview-zoom svg { width: .625rem; height: .625rem; }
 /* 手机上判定盘贴着控制条：判定线外面本来就有一圈封面，不用再留内边距 */
 @media (max-width: 48rem) {
   .majview-controls { padding-top: 0; }
