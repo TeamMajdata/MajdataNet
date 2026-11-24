@@ -78,16 +78,19 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  /* 判定盘要按这块区域的短边取正方形，所以这里做成尺寸容器 */
+  container-type: size;
 }
 .majview:fullscreen .majview-stage { position: static; }
 
+/* 判定盘永远是正方形：宽高都取容器的短边。
+   只写 aspect-ratio + flex:1 的话，容器窄高时宽度被 max-width 夹住、高度却被拉满，圆盘会变成椭圆 */
 .majview-scene {
   position: relative;
-  flex: 1;
-  min-height: 0;
-  aspect-ratio: 1;
-  max-width: 100%;
-  margin-inline: auto;
+  width: min(100cqw, 100cqh);
+  height: min(100cqw, 100cqh);
+  flex: none;
+  margin: auto;
   container-type: size;
   /* 判定盘手势：横向调进度、竖向调音量/亮度，所以默认不让浏览器接管触摸方向；
      手势关掉时组件会把 touch-action 改回 pan-y，恢复页面滚动。
@@ -301,9 +304,51 @@
 }
 /* 块级：行内的 range 下面会多出一段行高空隙 */
 .majview-controls input[type='range'] { display: block; }
+/* 谱面密度：进度条上方的 64 根柱，颜色和 MajdataPlay 的 ChartAnalyzer 一致 */
+.majview-analyzer {
+  display: block;
+  width: 100%;
+}
+/* 谱面时间轴：中线是当前时间，谱面/波形/BPM/拍线随播放滚动。
+   纯视图（不接收指针），全局键盘的左右键仍然管拖动。
+   高度按原控件的标记尺寸留足：8 条轨 + 上下留白，太矮的话 7px 的方块会互相压住 */
+.majview-visualizer {
+  display: block;
+  width: 100%;
+  height: 8rem;
+  pointer-events: none;
+}
+/* 时间轴左上角的缩放按钮（只在编辑器里出现） */
+.majview-timeline { position: relative; cursor: grab; touch-action: none; }
+.majview-timeline:active { cursor: grabbing; }
+.majview-zoom {
+  position: absolute;
+  left: .25rem;
+  top: .25rem;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .125rem;
+}
+.majview-zoom button {
+  display: grid;
+  place-items: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  border-radius: .25rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(0 0 0 / 45%);
+  color: rgb(255 255 255 / 70%);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.majview-zoom button:hover { color: #fff; background: rgb(255 255 255 / 14%); }
+.majview-zoom svg { width: .625rem; height: .625rem; }
 /* 手机上判定盘贴着控制条：判定线外面本来就有一圈封面，不用再留内边距 */
 @media (max-width: 48rem) {
   .majview-controls { padding-top: 0; }
+  .majview-visualizer { height: 6.5rem; }
 }
 
 /* 设置面板：盖在播放器右侧（窄屏铺满），内容多了可以滚动 */
@@ -335,4 +380,23 @@
 .majview textarea {
   -webkit-user-select: text;
   user-select: text;
+}
+
+/* 编辑器里文本编译不过时的提示：压在判定盘上方，不挡住画面 */
+.majview-text-error {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: min(92%, 520px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgb(248 113 113 / 45%);
+  background: rgb(60 12 12 / 88%);
+  color: #fecaca;
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
+  overflow-wrap: anywhere;
 }

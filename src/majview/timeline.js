@@ -98,15 +98,41 @@ export function lowerBound(items, value, key) {
 export const noteSpeed = (setting) => 107.25 / (71.4184491 * (setting + 0.9975) ** -0.985558604);
 export const touchDuration = (speed) => 3.209385682 * speed ** -0.9549621752;
 
+// HoldDrop.OnUpdate keeps the body between two distances, in 1080px disc units where the
+// judgment ring is at 480 and a note appears from 122.5:
+//   - the tail stays at 122.5 until it reaches the ring-ward end of its travel, and the end
+//     point (the small cap) is shown only once it has left there;
+//   - the head stops at the judgment ring once it has passed it, so the body never runs
+//     outside the ring.
+// A hold with a negative HS is drawn as if the HS were positive: the body scrolls in from the
+// center like any other hold instead of coming from outside the ring.
+export function holdSpan(time, note, speed) {
+  const scroll = Math.abs(speed);
+  const head = 480 + (time - note.time) * scroll * 100;
+  const tail = 480 + (time - note.end) * scroll * 100;
+  const endVisible = tail >= 122.5;
+  const clampedHead = Math.min(480, Math.max(122.5, head));
+  const clampedTail = Math.max(122.5, tail);
+  return {
+    head: clampedHead,
+    tail: clampedTail,
+    endVisible,
+    size: clampedHead - clampedTail + 140,
+  };
+}
+
 // Overlapping long notes survive a seek. The prefix maximum allows skipping
 // completed intervals even when their end times differ from their start order.
 export function displayIndex(notes, settings) {
   const entries = notes.map((n) => {
     const speed = noteSpeed(settings.NoteSpeed / 10) * n.speed;
+    // A negative HS scrolls the note backwards: it comes from outside the judgment
+    // ring, so the lead is measured with the magnitude of the speed either way.
+    const absSpeed = Math.abs(speed);
     const lead = n.kind.startsWith('touch')
-      ? touchDuration((settings.TouchSpeed / 10) * n.speed)
+      ? touchDuration((settings.TouchSpeed / 10) * Math.abs(n.speed))
       // 从 destScale = 0 的位置（中心以内 1/NoteAppearRate − 1.225 个单位）走到判定线
-      : (4.8 + 1 / 0.265 - 1.225) / speed;
+      : (4.8 + 1 / 0.265 - 1.225) / absSpeed;
     return { n, speed, from: n.time - lead, to: n.end + 0.76 };
   });
   // The Unity scene restarts one tap and judge animator per lane. A mine

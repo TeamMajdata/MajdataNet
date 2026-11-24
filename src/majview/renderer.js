@@ -2,7 +2,7 @@ import { Application, Assets, Container, Graphics, Mesh, MeshGeometry, Rectangle
 import animations from './generated/effects.json' with { type: 'json' };
 import { createHanabiRays } from './hanabi.js';
 import { clamp, laneAngle, lanePoint, sensorPoint } from './geometry.js';
-import { displayIndex, hanabiTimeline, lowerBound, touchDuration, scoreTimeline, scoreAt } from './timeline.js';
+import { displayIndex, hanabiTimeline, holdSpan, lowerBound, touchDuration, scoreTimeline, scoreAt } from './timeline.js';
 
 async function loadSkin(skinBase) {
   const base = new URL(skinBase, document.baseURI);
@@ -65,7 +65,7 @@ function exTint(n) {
 function slideFadeIn(n, time, speed, wifi) {
   const complete = n.time - 0.05;
   if (time > complete) return 1;
-  const start = n.time - 3.926913 / speed;
+  const start = n.time - 3.926913 / Math.abs(speed);
   if (time < start) return 0;
   const duration = clamp(complete - start, 0, 0.2),
     max = wifi ? 1 : 0.5;
@@ -231,6 +231,8 @@ export class Board {
     });
     this.resize.observe(host);
     host.dataset.renderer = app.renderer.name;
+    /** 隐藏所有音符（编辑器里的开关 / 按住 Alt） */
+    this.hideNotes = false;
   }
   setChart(chart, settings) {
     this.chart = chart;
@@ -256,10 +258,13 @@ export class Board {
       const slots = new Map();
       const visible = this.visible;
       visible.length = 0;
-      for (let i = lowerBound(this.index, time, (e) => e.latest); i < this.index.length; i++) {
-        const e = this.index[i];
-        if (e.from > time) break;
-        if (e.to >= time) visible.push(e);
+      // 隐藏音符：只跳过绘制，连击数/物量照常更新
+      if (!this.hideNotes) {
+        for (let i = lowerBound(this.index, time, (e) => e.latest); i < this.index.length; i++) {
+          const e = this.index[i];
+          if (e.from > time) break;
+          if (e.to >= time) visible.push(e);
+        }
       }
       visibleNotes = visible.length;
       // Play 里同一层先出现的 note 在前面（SortOrder 递减），所以从后出现的开始画。
@@ -313,10 +318,16 @@ export class Board {
       return;
     }
     // Play TapDrop / HoldDrop：destScale = 距离 × NoteAppearRate + (1 − NoteAppearRate × 1.225)，距离以 100px 为 1 个单位
-    const dist = 480 + elapsed * speed * 100,
+    // A hold with a negative HS is drawn forwards, so it fades in from the center with |speed|;
+    // a tap keeps the signed speed and comes from outside the ring.
+    const scroll = n.kind === 'hold' ? Math.abs(speed) : speed;
+    const dist = 480 + elapsed * scroll * 100,
       scale = clamp((dist / 100) * NOTE_APPEAR_RATE + 1 - NOTE_APPEAR_RATE * 1.225);
     if (!scale) return;
-    const r = clamp(dist, 122.5, 480),
+    // HoldDrop.OnUpdate keeps the body between the head and the tail distance, with the head
+    // stopped at the judgment ring; a tap keeps running (a negative HS brings it from outside).
+    const span = n.kind === 'hold' ? holdSpan(time, n, speed) : null;
+    const r = span ? span.head : Math.max(122.5, dist),
       p = lanePoint(n.lane, r),
       style = variant(n);
     if (scale > 0.3) {
@@ -327,27 +338,29 @@ export class Board {
         this.lines.draw('eachline' + n.link.length, 0, 0, ((n.link.lane - 1) * Math.PI) / 4, r / 480);
     }
     if (n.kind === 'hold') {
-      const t = clamp(480 + tail * speed * 100, 122.5, 480);
+      const t = span.tail;
       const mid = lanePoint(n.lane, (r + t) / 2),
-        length = r - t + 140;
+        // HoldDrop sizes the sliced body as `distance - holdDistance + 1.4`; a hold with a
+        // negative HS is drawn forwards, so the size is always positive here.
+        length = span.size;
       const key = 'hold' + style;
       const drawBody = (key, tint = 0xffffff, alpha = 1, blend = 'normal') => {
         // Keep end caps round while the distance between head and tail changes.
         const parts = this.skin.holdSlices[key];
         if (!parts) return;
         const cap = Math.min(58, length / 2),
-          span = (length - 2 * cap) * scale;
+          middle = (length - 2 * cap) * scale;
         const point = (offset) => lanePoint(n.lane, (r + t) / 2 + offset);
-        const head = point((span + cap * scale) / 2),
-          foot = point(-(span + cap * scale) / 2);
-        this.notes.draw(key + 'Top', head.x, head.y, angle, scale, (scale * cap) / 58, alpha, tint, blend);
-        this.notes.draw(key + 'Middle', mid.x, mid.y, angle, scale, span / parts.middle, alpha, tint, blend);
-        this.notes.draw(key + 'Bottom', foot.x, foot.y, angle, scale, (scale * cap) / 58, alpha, tint, blend);
+        const headPoint = point((middle + cap * scale) / 2),
+          footPoint = point(-(middle + cap * scale) / 2);
+        this.notes.draw(key + 'Top', headPoint.x, headPoint.y, angle, scale, (scale * cap) / 58, alpha, tint, blend);
+        this.notes.draw(key + 'Middle', mid.x, mid.y, angle, scale, middle / parts.middle, alpha, tint, blend);
+        this.notes.draw(key + 'Bottom', footPoint.x, footPoint.y, angle, scale, (scale * cap) / 58, alpha, tint, blend);
       };
       drawBody(key);
       if (n.brk || (elapsed > 0 && !n.mine)) drawBody(key, 0xffffff, shine(elapsed), 'add');
       if (n.ex) drawBody('hold_ex', exTint(n));
-      if (480 + tail * speed * 100 >= 122.5) {
+      if (span.endVisible) {
         const end = lanePoint(n.lane, t - 1.75);
         this.notes.draw(
           n.mine ? 'hold_mine_end' : n.brk ? 'hold_break_end' : n.each ? 'hold_each_end' : 'hold_end',
@@ -398,7 +411,7 @@ export class Board {
       this.hit(n, p, tail);
       return;
     }
-    const duration = touchDuration((this.settings.TouchSpeed / 10) * n.speed);
+    const duration = touchDuration((this.settings.TouchSpeed / 10) * Math.abs(n.speed));
     const alpha = Number.isFinite(duration) ? clamp((duration + elapsed) / (0.2 * duration)) : 1;
     if (!alpha) return;
     // Play TouchDrop：扇叶距离 0.226 + clamp((0.42 − e^(8·0.43·t/移动时长 − 0.85)) × 0.75, 0, 0.30)，移动时长 = 0.8 × 总时长

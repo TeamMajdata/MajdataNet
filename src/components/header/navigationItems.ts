@@ -49,7 +49,8 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     id: 'tools',
     labelKey: 'shared/Navigation.Tools',
     children: [
-      { kind: 'link', id: 'chart-editor', labelKey: 'shared/Navigation.ChartEditor', to: 'https://docs.majdata.net/majdatax/', external: true },
+      // 站内自己的编辑器页面（原来是跳到 MajdataX 文档）
+      { kind: 'link', id: 'chart-editor', labelKey: 'shared/Navigation.ChartEditor', to: '/editor' },
       { kind: 'link', id: 'chart-player', labelKey: 'shared/Navigation.ChartPlayer', to: 'https://docs.majdata.net/majdataplay/', external: true },
     ],
   },

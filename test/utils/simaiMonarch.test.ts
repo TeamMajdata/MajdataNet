@@ -37,7 +37,22 @@ describe('simai Monarch rules', () => {
     expect(tokenize('6h[4:1]')).toEqual(['hold:6h', 'period:[4:1]']);
     expect(tokenize('A1h[4:1]')).toEqual(['touch:A1h', 'period:[4:1]']);
     expect(tokenize('Ch[4:3]')).toEqual(['touch:Ch', 'period:[4:3]']);
-    expect(tokenize('B2/E3')).toEqual(['touch:B2', 'delimiter:/', 'touch:E3']);
+    expect(tokenize('B2/E3')).toEqual(['touch:B2', 'each:/', 'touch:E3']);
+  });
+
+  it('tells break notes apart from taps', () => {
+    expect(tokenize('1b')).toEqual(['break:1b']);
+    expect(tokenize('8bx')).toEqual(['break:8bx']);
+    expect(tokenize('1x')).toEqual(['tap:1x']);
+  });
+
+  it('marks slides that carry a break flag', () => {
+    expect(tokenize('8b-5')).toEqual(['break:8b-5']);
+    expect(tokenize('2bV47b[8:1]')).toEqual(['break:2bV47b', 'period:[8:1]']);
+    expect(tokenize('1b-4b[8:1]')).toEqual(['break:1b-4b', 'period:[8:1]']);
+    expect(tokenize('6p3[8:5]b')).toEqual(['break:6p3[8:5]b']);
+    // 不带 b 的滑动仍然是 slide
+    expect(tokenize('1-2[4:1]')).toEqual(['slide:1-2', 'period:[4:1]']);
   });
 
   it('tells the end marker from an E touch note', () => {

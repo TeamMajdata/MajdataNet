@@ -8,12 +8,18 @@
  * DSP / 视频时间的差），默认关闭。
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { LuMaximize, LuPause, LuPlay, LuRotateCcw, LuSettings2 } from 'react-icons/lu';
+import { LuMaximize, LuMinus, LuPause, LuPlay, LuPlus, LuRotateCcw, LuSettings2 } from 'react-icons/lu';
 import { Board } from '@/majview/renderer.js';
 import { Transport, adoptDecoded } from '@/majview/audio.js';
 import { useMediaSession } from './useMediaSession';
 import { compileChart, readMaidata } from '@/majview/simai.js';
+import { analyzeChart } from '@/majview/analyzer.js';
+import MajViewAnalyzer from './MajViewAnalyzer';
+import { buildWaveform } from '@/majview/visualizer.js';
+import MajViewVisualizer, { type SpectrumAnalysis, type VisualizerHandle } from './MajViewVisualizer';
+import { AURORA_DEFAULTS, downsample } from '@/majview/spectrum.js';
 import { chartStart, scoreTimeline } from '@/majview/timeline.js';
 import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, ARROW_SEEK_SEC, ARROW_STEP_SEC, BRIGHT_DRAG_PX, KEY_FAST_RATE, LONG_PRESS_MS, SCRUB_SLOP_PX, TAP_SLOP_PX, VERTICAL_SLOP_PX, VOLUME_DRAG_PX, seekTarget } from '@/majview/gestures.js';
 import { createPerf, perfForced } from '@/majview/perf.js';
@@ -23,10 +29,11 @@ import type { ChartMark } from './chartMarks';
 import { loadSettings, saveSettings, type ViewSettings } from '@/majview/settings';
 import SortMenu from '@/components/ui/SortMenu';
 import MajViewSettings from './MajViewSettings';
-import { endpoints } from '@/config/api';
 import '@/styles/components/majview.css';
 
 const SKIN_BASE = '/majview/skin/';
+/** MajdataView 的默认底图（带判定区文字），「显示判定区」时用它盖掉谱面自带的 bg/pv */
+const DEFAULT_BACKGROUND = `${SKIN_BASE}Default_Background.png`;
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 /** 加载各阶段的 performance 标记，便于在控制台/Performance 面板里核对耗时 */
@@ -89,8 +96,31 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ songId, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange }: {
-  songId: string;
+/**
+ * 空难度也要能听音乐、看视频、看波形（测 BPM 用），所以给一个没有音符的空谱面。
+ * clockTimes / chartStart / chartDuration 都已经能处理空 notes。
+ */
+const EMPTY_CHART: Chart = { notes: [], warnings: [], firstBpm: 120, last: 0, commaTimings: [] };
+
+/** 允许空难度时，难度字段为空就直接用空谱面，不当成错误 */
+function compileForView(text: string, level: number, allowEmpty: boolean): Chart {
+  const fields = readMaidata(text) as Record<string, string>;
+  if (allowEmpty && !(fields[`inote_${level + 1}`] ?? '').trim()) return EMPTY_CHART;
+  return compileChart(fields, level);
+}
+
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false, onTextError, allowEmptyChart = false, judgeArea = false, hideNotes = false, rate: rateProp, gestures = false, shortcuts = false }: {
+  /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
+  chartUrl?: string;
+  /**
+   * 直接给谱面文本（编辑器的实时预览）。给了就不再请求 chartUrl，
+   * 之后的每次变化只重编译并热换谱面，不重载音频、不跳播放位置。
+   */
+  chartText?: string;
+  /** 音乐（mp3）的地址 */
+  trackUrl: string;
+  /** 背景 PV 的地址；没有就不挂视频 */
+  videoUrl?: string;
   /** 曲名、曲师：显示在系统的媒体控件里（锁屏、控制中心、通知栏） */
   title: string;
   artist?: string;
@@ -103,6 +133,51 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   jump?: (ChartMark & { key: number }) | null;
   /** 告诉页面当前谱面的范围，用来判断评论里的时间 / combo 是否有效 */
   onMarkRange?: (range: { length: number; maxCombo: number } | null) => void;
+  /** 每帧上报播放时间（秒）；编辑器用它在中栏显示时间 */
+  onTime?: (time: number) => void;
+  /** 设置面板的开关（受控）。不传则由播放器自己的按钮管 */
+  settingsOpen?: boolean;
+  onSettingsOpenChange?: (open: boolean) => void;
+  /** 把播放控制条挂到这个节点里（编辑器用）；不传就画在播放器内部 */
+  controlsHost?: HTMLElement | null;
+  /** 把设置面板挂到这个节点里（编辑器用），同理 */
+  settingsHost?: HTMLElement | null;
+  /** 编辑器里光标换行 → 跳到那一刻（绝对秒）；key 每次不同才能重复跳同一个位置 */
+  seekTo?: { seconds: number; key: number } | null;
+  /** 外部播放控制：播放/暂停、停止。key 每次不同才触发一次 */
+  command?: { type: 'playPause' | 'stop' | 'playOrRewind'; key: number } | null;
+  /** 播放状态变化时回调，编辑器用自己的两个按钮显示 ▶ / ⏸ */
+  onPlayingChange?: (playing: boolean) => void;
+  /** 是否渲染播放器自带的控制条（进度条 + 按钮那一条；编辑器不要） */
+  showControls?: boolean;
+  /** 是否渲染波形时间轴（编辑器要保留） */
+  showTimeline?: boolean;
+  /** 把时间轴挂到这个节点里（编辑器用） */
+  timelineHost?: HTMLElement | null;
+  /** 是否渲染音符密度柱状图（目前哪里都不显示） */
+  showAnalyzer?: boolean;
+  /** 文本光标时间（秒），时间轴顶部的小三角跟着它走 */
+  caretTime?: number | null;
+  /** 拖动时间轴时上报目标时间，页面据此移动文本光标 */
+  onTimelineScrub?: (seconds: number) => void;
+  /** 拖动结束（松开 / 取消），页面据此把焦点还给文本编辑器 */
+  onTimelineScrubEnd?: () => void;
+  /** 谱面一载入就开始下载背景 PV（编辑器要；song 页仍然点播放才拉） */
+  preloadVideo?: boolean;
+  /** 文本编译不过时的原因（null 表示恢复正常）；给了就由页面自己显示 */
+  onTextError?: (message: string | null) => void;
+  /** 难度为空时也给一个空谱面（编辑器要：空难度也要能放音乐、看波形） */
+  allowEmptyChart?: boolean;
+  /** 显示判定区：强制用带判定区文字的默认背景，并隐藏视频 */
+  judgeArea?: boolean;
+  /** 隐藏所有音符 */
+  hideNotes?: boolean;
+  /** 播放倍速（受控）；不传则由播放器自己的按钮管 */
+  rate?: number;
+  /** 是否响应指针手势（拖动判定盘调进度/音量/亮度、双击全屏）。默认关闭，由页面自己控制 */
+  gestures?: boolean;
+  /** 是否启用播放器自带的那套键盘操作（空格、方向键步进/快进、上下键音量）。默认关闭 */
+  shortcuts?: boolean;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -116,15 +191,29 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   // 背景压暗层：拖动调亮度时直接写样式，不等 React 重渲染
   const shadeRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLInputElement>(null);
+  // 进度条上方的时间轴：每帧由 frame() 推时间进去
+  const visualizerRef = useRef<VisualizerHandle>(null);
   const clockRef = useRef<HTMLSpanElement>(null);
 
   const boardRef = useRef<Board | null>(null);
+  const spectrumWorkerRef = useRef<Worker | null>(null);
+  // 换谱面时旧 Worker 的结果要丢掉
+  const spectrumIdRef = useRef(0);
   const contextRef = useRef<AudioContext | null>(null);
   /** 当前 AudioContext 是否真正跑起来过（第一次点播放之前它本来就是暂停的，不算卡死） */
   const contextRanRef = useRef(false);
   /** 跑过的 AudioContext 之后页面进过后台：iOS 回来后它可能还报 running，但时钟再也不走，下次点播放一律换新的 */
   const backgroundedRef = useRef(false);
   const chartRef = useRef<Chart | null>(null);
+  /** 编辑器给的实时谱面文本；用 ref 是为了不在每次输入时重跑整个加载流程 */
+  const chartTextRef = useRef(chartText);
+  chartTextRef.current = chartText;
+  /** 每帧上报时间给页面；走 ref 免得 frame() 的依赖里多一项 */
+  const onTimeRef = useRef(onTime);
+  onTimeRef.current = onTime;
+  /** 谱面分析开关：prepareTrack 里要用，但不想因此重跑整个加载流程 */
+  const showAnalysisRef = useRef(showTimeline || showAnalyzer);
+  showAnalysisRef.current = showTimeline || showAnalyzer;
   const transportRef = useRef<Transport | null>(null);
   // 后台准备音乐的进度：打开页面就开始下载解码，点播放时多半已经好了
   const trackRef = useRef<{ chart: Chart; controller: AbortController; promise: Promise<Transport | null> } | null>(null);
@@ -135,12 +224,24 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   // First 偏移（秒）：谱面整体平移，渲染时把媒体时间往回挪这么多
   const firstOffsetRef = useRef(settings.FirstOffset / 1000);
   firstOffsetRef.current = settings.FirstOffset / 1000;
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsOpenState, setSettingsOpenState] = useState(false);
+  /** 时间轴缩放：中线两侧各显示多少秒 */
+  const [timelineZoom, setTimelineZoom] = useState(4);
+  const zoomTimeline = useCallback((delta: number) => {
+    setTimelineZoom((value) => Math.min(10, Math.max(0.1, Math.round((value + delta) * 10) / 10)));
+  }, []);
+  // 外部（编辑器的菜单栏）想控制设置面板时传 settingsOpen，不传就是播放器自己管
+  const settingsOpen = settingsOpenProp ?? settingsOpenState;
+  const setSettingsOpen = (next: boolean | ((open: boolean) => boolean)) => {
+    const value = typeof next === 'function' ? next(settingsOpen) : next;
+    if (settingsOpenProp === undefined) setSettingsOpenState(value);
+    onSettingsOpenChange?.(value);
+  };
   const rafRef = useRef(0);
 
   // 性能信息：设置里的开关（默认关闭），?perf=1 可以强制打开
   const perfOn = settings.Perf || perfForced();
-  const perf = useMemo(() => (perfOn ? createPerf(`majview ${songId}#${level}`) : null), [perfOn, songId, level]);
+  const perf = useMemo(() => (perfOn ? createPerf(`majview ${title}#${level}`) : null), [perfOn, title, level]);
   const perfRef = useRef<HTMLDivElement>(null);
   const perfPaintRef = useRef(0);
   const perfFirstFrameRef = useRef(false);
@@ -175,8 +276,29 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   const [status, setStatus] = useState<Status>('loading');
   // 错误只记原因，文案在渲染时翻译
   const [error, setError] = useState<{ track?: boolean; detail?: string }>({});
+  /** 加一就会重新走一遍完整加载：首次编译失败后靠它把状态救回来 */
+  const [reloadKey, setReloadKey] = useState(0);
+  /** 编辑时文本编译不过：画面继续显示上一版，但要把错误提示出来 */
+  const [textError, setTextError] = useState<string | null>(null);
+  /** 本轮播放的起点（空格第二下跳回来） */
+  const [playStart, setPlayStart] = useState<number | null>(null);
+  const playStartRef = useRef<number | null>(null);
+  /** 判定区 / 隐藏音符：由页面控制（页面还负责按住 Ctrl / Shift 的临时效果） */
+  const showJudge = judgeArea;
+  const notesHidden = hideNotes;
+
+  // 把「当前文本编译不过的原因」报给页面（编辑器把它显示在编辑器底部）
+  const onTextErrorRef = useRef(onTextError);
+  onTextErrorRef.current = onTextError;
+  useEffect(() => {
+    onTextErrorRef.current?.(textError);
+  }, [textError]);
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
+  // 波形包络：音乐解码好之后算一次，进度条上方的时间轴拿它当背景
+  const [waveform, setWaveform] = useState<{ data: Float32Array; duration: number } | null>(null);
+  // 波形颜色：Worker 里算出来的 Aurora 三段分频结果，没到之前波形是纯绿的
+  const [spectrum, setSpectrum] = useState<SpectrumAnalysis | null>(null);
   // 开头 clock 在 0 之前时，进度条从第一下 clock 开始，显示的时间和总长也把这段算进去
   const [begin, setBegin] = useState(0);
   const beginRef = useRef(0);
@@ -184,13 +306,13 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   const [videoVisible, setVideoVisible] = useState(false);
   // 背景 PV 在第一次点播放前不挂 src：否则打开页面就把整段视频下下来了
   const [videoArmed, setVideoArmed] = useState(false);
+  /** 编辑器里谱面一就绪就挂 src 预加载；song 页仍然点播放才拉 */
+  const attachVideo = videoArmed || preloadVideo;
   // 手势回调在两次渲染之间触发，读 ref 才能拿到当前总长和倍速
   const durationRef = useRef(0);
   const rateRef = useRef(1);
   durationRef.current = duration;
   rateRef.current = rate;
-
-  const chartUrl = endpoints.maichart.prefix('') + songId;
 
   const currentTime = () => transportRef.current?.time ?? previewTimeRef.current;
 
@@ -232,6 +354,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     }
     const transport = transportRef.current;
     const time = transport?.time ?? previewTimeRef.current;
+    onTimeRef.current?.(time);
     if (perf) perf.markFrame();
     if (transport?.playing && time >= transport.duration) {
       transport.pause();
@@ -254,6 +377,8 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       });
     }
     if (timelineRef.current) timelineRef.current.value = String(time);
+    // 时间轴：中线固定在中间，窗口里的谱面和波形每帧跟着这个时间重画
+    visualizerRef.current?.render(time);
     // 时间文字一秒才变一次，没变就不碰 DOM
     const clock = formatClock(time - beginRef.current);
     if (clockRef.current && clockRef.current.textContent !== clock) clockRef.current.textContent = clock;
@@ -351,6 +476,36 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     return () => host.removeEventListener('webglcontextrestored', redraw, true);
   }, [frame]);
 
+  /** 频谱颜色：整曲 FFT 约 300ms，放 Worker 里算，主线程只做 2:1 降采样 */
+  const analyzeTrack = useCallback((transport: Transport) => {
+    const id = spectrumIdRef.current + 1;
+    spectrumIdRef.current = id;
+    spectrumWorkerRef.current?.terminate();
+    const worker = new Worker(new URL('../../majview/spectrum.worker.js', import.meta.url), { type: 'module' });
+    spectrumWorkerRef.current = worker;
+    worker.onmessage = (event: MessageEvent<SpectrumAnalysis>) => {
+      worker.terminate();
+      if (spectrumIdRef.current === id) setSpectrum(event.data);
+    };
+    worker.onerror = (event) => {
+      // 失败了就算了，波形退回绿色，但别让错误静默消失
+      console.warn('[majview] spectrum worker failed', event.message ?? event);
+      worker.terminate();
+    };
+    // 降到 24kHz 再分析（Nyquist 12kHz 覆盖 Aurora 的蓝色段），降采样顺带当抗混叠低通
+    const samples = downsample(transport.song.getChannelData(0), AURORA_DEFAULTS.decimate);
+    worker.postMessage(
+      { samples, rate: transport.song.sampleRate / AURORA_DEFAULTS.decimate },
+      [samples.buffer],
+    );
+  }, []);
+
+  // 卸载时把频谱 Worker 停掉
+  useEffect(() => () => {
+    spectrumWorkerRef.current?.terminate();
+    spectrumWorkerRef.current = null;
+  }, []);
+
   /** 下载并解码音乐、准备音效；同一个谱面只做一次。失败时返回 null，下次点播放再试 */
   const prepareTrack = useCallback((target: Chart) => {
     if (trackRef.current?.chart === target) return trackRef.current.promise;
@@ -359,7 +514,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     contextRef.current ??= new AudioContext({ latencyHint: 'interactive' });
     const context = contextRef.current;
     const controller = new AbortController();
-    const promise = Transport.load(context, chartUrl + '/track', target, settingsRef.current, controller.signal, SKIN_BASE)
+    const promise = Transport.load(context, trackUrl, target, settingsRef.current, controller.signal, SKIN_BASE)
       .then((transport) => {
         if (controller.signal.aborted || target !== chartRef.current) {
           transport.dispose();
@@ -369,6 +524,14 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
         transport.move(previewTimeRef.current);
         transportRef.current = transport;
         setDuration(transport.duration);
+        // 波形只要音乐的包络，和播放状态无关：解码完就在主线程空闲前算好（约 10–20ms）
+        // 波形包络和频谱颜色都是给时间轴用的；不显示分析就不必算
+        if (showAnalysisRef.current) {
+          const data = buildWaveform(transport.song);
+          if (data) setWaveform({ data, duration: transport.song.duration });
+          // 颜色另算：Worker 里跑 FFT，结果晚一点到，到了波形自己会变色
+          analyzeTrack(transport);
+        }
         mark('majview:track-ready');
         return transport;
       })
@@ -378,7 +541,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       });
     trackRef.current = { chart: target, controller, promise };
     return promise;
-  }, [chartUrl]);
+  }, [trackUrl, analyzeTrack]);
 
   /** 谱面出来后再等浏览器空闲才准备音乐：先保证画面，别让 2MB 音频和皮肤/谱面抢带宽 */
   const scheduleTrack = useCallback((target: Chart) => {
@@ -406,18 +569,25 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     if (valueHintRef.current) valueHintRef.current.hidden = true;
     setFastForward(false);
     setChart(null);
+    setWaveform(null);
+    setSpectrum(null);
+    // 上一条谱面的频谱结果作废（Worker 可能还在跑）
+    spectrumIdRef.current += 1;
     setPlaying(false);
     setRate(1);
     setStatus('loading');
     setError({});
+    setTextError(null);
+    playStartRef.current = null;
+    setPlayStart(null);
 
     async function load() {
       try {
         mark('majview:chart-request');
-        const text = await loadChartText(chartUrl + '/chart', signal);
+        const text = chartTextRef.current ?? (chartUrl ? await loadChartText(chartUrl, signal) : '');
         if (signal.aborted) return;
         mark('majview:chart-response');
-        const compiled = compileChart(readMaidata(text), level);
+        const compiled = compileForView(text, level, allowEmptyChart);
         if (signal.aborted) return;
         mark('majview:chart-compiled');
         chartRef.current = compiled;
@@ -431,15 +601,61 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       } catch (err) {
         if (signal.aborted) return;
         setError({ detail: (err as Error).message });
+        setTextError((err as Error).message);
         setStatus('error');
       }
     }
     void load();
     return () => controller.abort();
-  }, [chartUrl, level, dropTransport, prepareTrack, scheduleTrack]);
+  }, [chartUrl, level, dropTransport, prepareTrack, scheduleTrack, reloadKey, allowEmptyChart]);
+
+  /**
+   * 编辑器里每敲一下都要更新画面：只重编译并热换谱面。
+   * 不重载音频、不回到开头、不动播放位置；编译失败（半句话）就保留上一版。
+   */
+  const hotChartRef = useRef(chartText);
+  useEffect(() => {
+    if (chartText === undefined || hotChartRef.current === chartText) return;
+    hotChartRef.current = chartText;
+    /**
+     * 还没有成功编译过一版（第一版就编译失败，比如编辑器里刚敲了半句话）：
+     * 这里必须能把状态救回来，否则 chartRef 一直是 null，
+     * 后面再怎么改文本都会被下面的 return 挡住、永远停在错误态。
+     */
+    if (!chartRef.current) {
+      try {
+        compileForView(chartText, level, allowEmptyChart);
+      } catch (err) {
+        setTextError((err as Error).message);
+        return; // 还是半句话，继续等下一次输入
+      }
+      setTextError(null);
+      setReloadKey((value) => value + 1);
+      return;
+    }
+    let compiled: Chart;
+    try {
+      compiled = compileForView(chartText, level, allowEmptyChart);
+      setTextError(null);
+    } catch (err) {
+      // 画面保留上一版，但要让用户知道现在这份文本编译不过
+      setTextError((err as Error).message);
+      return;
+    }
+    chartRef.current = compiled;
+    setChart(compiled);
+    // 没有音频时总长由谱面决定；有音频时以 Transport 的时长为准，不要改小
+    if (!transportRef.current) setDuration(chartDuration(compiled));
+  }, [chartText, level, allowEmptyChart]);
 
   // 和渲染器里的 combo 计数用同一份时间表：第 n 个元素结束时 combo 变成 n
   const scores = useMemo(() => chart ? scoreTimeline(chart.notes) as { time: number }[] : [], [chart]);
+
+  // 进度条上方的谱面密度：按 Seek 条的范围切 64 根柱，和 MajdataPlay 的 ChartAnalyzer 一致
+  const analyzer = useMemo(
+    () => (showAnalyzer && chart && duration > begin ? analyzeChart(chart.notes, duration - begin, begin) : null),
+    [showAnalyzer, chart, duration, begin],
+  );
 
   useEffect(() => {
     onMarkRange?.(chart ? { length: duration - begin, maxCombo: scores.length } : null);
@@ -476,11 +692,13 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   // 否则 readyState 一直是 0，syncVideo() 永远等不到可播放的视频
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !videoArmed) return;
+    if (!video || !attachVideo) return;
     video.load();
+    // 预加载模式只下载、不试播（播放时 syncVideo 会接管）
+    if (preloadVideo) return;
     const started = video.play();
     if (started) started.catch(() => { /* 还没解码完也没关系，syncVideo 会接着播 */ });
-  }, [videoArmed, chartUrl]);
+  }, [attachVideo, videoUrl, preloadVideo]);
 
   // 谱面和渲染器都好了才画出来
   useEffect(() => {
@@ -629,6 +847,48 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     media.syncPosition();
   };
 
+  /**
+   * 编辑器里光标换了行 → 直接跳到那一刻。
+   * seek 每次渲染都会重建，用 ref 拿最新的，避免把它塞进依赖里。
+   */
+  const seekRef = useRef(seek);
+  seekRef.current = seek;
+  const handledSeekTo = useRef<number | null>(null);
+  useEffect(() => {
+    if (!seekTo || handledSeekTo.current === seekTo.key) return;
+    if (!chartRef.current) return;
+    handledSeekTo.current = seekTo.key;
+    seekRef.current(Math.max(beginRef.current, seekTo.seconds));
+  }, [seekTo]);
+
+  /** 停止：先暂停再回开头（编辑器自己的 ■ 按钮用） */
+  const stopAndRewind = () => {
+    transportRef.current?.pause();
+    setPlaying(false);
+    seek(begin);
+  };
+
+  // 编辑器的 ▶ / ■ 通过 command 发进来；同样用 ref 拿最新的函数
+  const togglePlayRef = useRef(togglePlay);
+  togglePlayRef.current = togglePlay;
+  const stopRef = useRef(stopAndRewind);
+  stopRef.current = stopAndRewind;
+  /** playOrRewind 定义在后面，这里先留个 ref 给命令用 */
+  const playOrRewindRef = useRef<() => void | Promise<void>>(() => {});
+  const handledCommand = useRef<number | null>(null);
+  useEffect(() => {
+    if (!command || handledCommand.current === command.key) return;
+    handledCommand.current = command.key;
+    if (command.type === 'playPause') void togglePlayRef.current();
+    else if (command.type === 'playOrRewind') void playOrRewindRef.current();
+    else stopRef.current();
+  }, [command]);
+
+  // 把播放状态报给页面，页面据此切换 ▶ / ⏸
+  useEffect(() => {
+    onPlayingChange?.(playing);
+  }, [playing, onPlayingChange]);
+
   const changeRate = (value: number) => {
     setRate(value);
     const transport = transportRef.current;
@@ -636,6 +896,16 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     syncVideo(true);
     frame();
   };
+
+  // 编辑器里的倍速下拉框（受控）：外部传入的值变化时套用一次
+  const changeRateRef = useRef(changeRate);
+  changeRateRef.current = changeRate;
+  const appliedRateRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (rateProp == null || appliedRateRef.current === rateProp) return;
+    appliedRateRef.current = rateProp;
+    changeRateRef.current(rateProp);
+  }, [rateProp]);
 
   const changeSettings = (patch: Partial<ViewSettings>) => {
     const previous = settingsRef.current;
@@ -695,7 +965,7 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     };
   }, []);
 
-  const gesturesEnabled = settings.Gestures;
+  const gesturesEnabled = gestures && settings.Gestures;
   const canControl = status === 'ready' || status === 'buffering';
 
   const hideSeekHint = () => {
@@ -810,9 +1080,28 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
     showValueHint(t('song/MajView.SettingMaster'), next * 100, true);
   };
 
+  /**
+   * 空格的动作：没在播 → 从当前位置开始播，并记下这个起点；
+   * 正在播 → 不暂停，而是跳回起点并停下（时间轴底部用红三角标出起点）。
+   */
+  const playOrRewind = () => {
+    const transport = transportRef.current;
+    if (transport?.playing) {
+      transport.pause();
+      setPlaying(false);
+      const start = playStartRef.current;
+      if (start !== null) seek(start);
+      return;
+    }
+    playStartRef.current = transportRef.current?.time ?? previewTimeRef.current;
+    setPlayStart(playStartRef.current);
+    return togglePlay();
+  };
+  playOrRewindRef.current = playOrRewind;
+
   // 键盘和定时器里用到的操作放到 ref，避免事件监听器每次渲染都重新绑定
-  const actionsRef = useRef({ togglePlay, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls });
-  actionsRef.current = { togglePlay, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls };
+  const actionsRef = useRef({ togglePlay, playOrRewind, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls });
+  actionsRef.current = { togglePlay, playOrRewind, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls };
 
   // 全屏时控制条自动隐藏：动一下鼠标 / 点一下画面就重新出现
   useEffect(() => {
@@ -971,9 +1260,18 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
   const handlePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, false);
   const handlePointerCancel = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, true);
 
-  // 桌面快捷键：空格播放/暂停；左右键快进快退（暂停时按 0.01 秒步进）；长按右箭头 2 倍速
+  // 隐藏音符：交给渲染器，它一帧内自己判断
   useEffect(() => {
-    if (!gesturesEnabled) return;
+    if (boardRef.current) boardRef.current.hideNotes = notesHidden;
+    frame();
+  }, [notesHidden, frame]);
+
+  /**
+   * 播放器自带的键盘操作（song 页用；编辑器把快捷键提到页面层，不传 shortcuts）：
+   * 空格播放/暂停；左右键快进快退（暂停时按 0.01 秒步进）；长按右箭头 2 倍速；上下键调总音量。
+   */
+  useEffect(() => {
+    if (!shortcuts) return;
     const isTyping = (target: EventTarget | null) => {
       const node = target as HTMLElement | null;
       return !!node && (node.tagName === 'INPUT' || node.tagName === 'TEXTAREA' || node.tagName === 'SELECT' || node.isContentEditable === true);
@@ -987,7 +1285,6 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
         void actions.togglePlay();
         return;
       }
-      // 上下键调总音量（0.1 一格）
       if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
         event.preventDefault();
         actions.volumeStep(event.code === 'ArrowUp' ? 0.1 : -0.1);
@@ -1042,9 +1339,147 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
         actionsRef.current.restoreSpeed();
       }
     };
-  }, [gesturesEnabled]);
+  }, [shortcuts]);
+
 
   const controlClass = 'grid place-items-center hover:bg-white/10 rounded-lg w-9 h-9 text-white/85 hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default';
+
+  /**
+   * 播放控制条（谱面密度 / 时间轴 / 进度 / 按钮）。
+   * 默认画在播放器里；编辑器要把它放到自己的格子时传 controlsHost，用 portal 挂过去——
+   * 逻辑和 ref 都还属于这个组件，只是换了挂载点。
+   */
+  /** 时间轴拖动：左右拖动改播放位置，同时把时间报给页面去挪文本光标 */
+  const timelineBoxRef = useRef<HTMLDivElement>(null);
+  const scrubRef = useRef<{ startX: number; startTime: number; secondsPerPixel: number } | null>(null);
+  const onScrubRef = useRef(onTimelineScrub);
+  onScrubRef.current = onTimelineScrub;
+  const onScrubEndRef = useRef(onTimelineScrubEnd);
+  onScrubEndRef.current = onTimelineScrubEnd;
+
+  const onTimelinePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    // 缩放按钮在时间轴里，别把它们当拖动
+    if ((event.target as HTMLElement).closest('.majview-zoom')) return;
+    const box = timelineBoxRef.current;
+    const width = box?.clientWidth ?? 0;
+    if (!(width > 0)) return;
+    scrubRef.current = {
+      startX: event.clientX,
+      startTime: transportRef.current?.time ?? previewTimeRef.current,
+      // 中线两侧各 timelineZoom 秒，整条宽度就是 2×timelineZoom 秒
+      secondsPerPixel: (2 * timelineZoom) / width,
+    };
+    transportRef.current?.pause();
+    setPlaying(false);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const onTimelinePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const scrub = scrubRef.current;
+    if (!scrub) return;
+    const target = scrub.startTime - (event.clientX - scrub.startX) * scrub.secondsPerPixel;
+    const seconds = Math.max(beginRef.current, Math.min(target, durationRef.current || target));
+    seek(seconds);
+    onScrubRef.current?.(seconds);
+  };
+
+  const onTimelinePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!scrubRef.current) return;
+    scrubRef.current = null;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    onScrubEndRef.current?.();
+  };
+
+  /** 波形时间轴：单独一块，可以挂到编辑器自己的格子里 */
+  const timelineNode = (
+    <div
+      className="majview-timeline"
+      ref={timelineBoxRef}
+      onPointerDown={onTimelinePointerDown}
+      onPointerMove={onTimelinePointerMove}
+      onPointerUp={onTimelinePointerUp}
+      onPointerCancel={onTimelinePointerUp}
+    >
+      <MajViewVisualizer
+        ref={visualizerRef}
+        chart={chart}
+        waveform={waveform?.data ?? null}
+        waveformDuration={waveform?.duration ?? 0}
+        analysis={spectrum}
+        offset={settings.FirstOffset / 1000}
+        zoom={timelineZoom}
+        caretTime={caretTime}
+        startMark={playStart}
+      />
+      {/* 时间轴缩放：数字是「中线两侧各显示多少秒」，所以 + 是缩小窗口（放大内容） */}
+      <div className="majview-zoom">
+        <button type="button" onClick={() => zoomTimeline(-0.5)} aria-label={t('song/MajView.ZoomIn')}>
+          <LuPlus aria-hidden="true" />
+        </button>
+        <button type="button" onClick={() => zoomTimeline(0.5)} aria-label={t('song/MajView.ZoomOut')}>
+          <LuMinus aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  );
+
+  const controlsNode = (
+    <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
+      {showAnalyzer && analyzer && analyzer.max > 0 && <MajViewAnalyzer bars={analyzer.bars} />}
+      {showTimeline && timelineNode}
+      <input
+        ref={timelineRef}
+        type="range"
+        min={begin}
+        max={duration || 1}
+        step={0.001}
+        defaultValue={begin}
+        disabled={!canControl}
+        onChange={(e) => seek(Number(e.target.value))}
+        aria-label={t('song/MajView.Position')}
+        className="w-full accent-sky-300"
+      />
+      <div className="flex items-center gap-1">
+        <button type="button" className={controlClass} onClick={togglePlay} disabled={status !== 'ready'} aria-label={playing ? t('song/MajView.Pause') : t('song/MajView.Play')}>
+          {playing ? <LuPause aria-hidden="true" className="w-4.5 h-4.5" /> : <LuPlay aria-hidden="true" className="w-4.5 h-4.5" />}
+        </button>
+        <button type="button" className={controlClass} onClick={() => seek(begin)} disabled={!canControl} aria-label={t('song/MajView.Restart')}>
+          <LuRotateCcw aria-hidden="true" className="w-4 h-4" />
+        </button>
+        <span className="flex-1 px-1 text-white/70 text-xs tabular-nums">
+          <span ref={clockRef}>{formatClock(currentTime() - begin)}</span> / {formatClock(duration - begin)}
+          <span ref={seekDeltaRef} className="majview-seek-delta" hidden />
+        </span>
+        <SortMenu
+          compact
+          icon={null}
+          placement="up"
+          options={RATES.map((value) => `${value}×`)}
+          value={RATES.indexOf(fastForward ? KEY_FAST_RATE : rate)}
+          onChange={(index) => changeRate(RATES[index])}
+          label={t('song/MajView.Speed')}
+          disabled={!canControl}
+        />
+        <button type="button" className={controlClass} onClick={() => setSettingsOpen((open) => !open)} aria-expanded={settingsOpen} aria-label={t('song/MajView.Settings')}>
+          <LuSettings2 aria-hidden="true" className="w-4 h-4" />
+        </button>
+        {CAN_FULLSCREEN && (
+          <button type="button" className={controlClass} onClick={toggleFullscreen} aria-label={t('song/MajView.Fullscreen')}>
+            <LuMaximize aria-hidden="true" className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
+  const settingsNode = (
+    <MajViewSettings
+      settings={settings}
+      onChange={changeSettings}
+      onClose={() => setSettingsOpen(false)}
+      hideHeader={Boolean(settingsHost)}
+    />
+  );
 
   return (
     <div ref={rootRef} className="majview" onPointerMove={pokeByMouse} onPointerDown={pokeByMouse}>
@@ -1068,17 +1503,19 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
         onPointerCancel={handlePointerCancel}
       >
         <div className="majview-background">
-          <img src={cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
-          <video
-            ref={videoRef}
-            src={videoArmed ? chartUrl + '/video' : undefined}
-            muted
-            playsInline
-            preload="none"
-            className={videoVisible ? 'visible' : undefined}
-            onLoadedData={() => { setVideoVisible(true); syncVideo(true); }}
-            onError={() => setVideoVisible(false)}
-          />
+          <img src={showJudge ? DEFAULT_BACKGROUND : cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
+          {!showJudge && (
+            <video
+              ref={videoRef}
+              src={attachVideo ? videoUrl : undefined}
+              muted
+              playsInline
+              preload={preloadVideo ? 'auto' : 'none'}
+              className={videoVisible ? 'visible' : undefined}
+              onLoadedData={() => { setVideoVisible(true); syncVideo(true); }}
+              onError={() => setVideoVisible(false)}
+            />
+          )}
           <div ref={shadeRef} className="majview-shade" style={{ opacity: settings.BGCover / 10 }} />
         </div>
         <div ref={comboRef} className="majview-combo" hidden>
@@ -1093,6 +1530,12 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
               : status === 'buffering' ? t('song/MajView.LoadingTrack') : t('song/MajView.Loading')}
           </div>
         )}
+        {/* 编辑器里文本编译不过：画面还是上一版。页面给 onTextError 就交给页面显示 */}
+        {textError && status === 'ready' && !onTextError && (
+          <div className="majview-text-error" role="alert">
+            {t('song/MajView.ChartInvalid')} {textError}
+          </div>
+        )}
         {/* 音量 / 亮度拖动时压在判定盘正中间；进度看时间读数右边的 ±，倍速看控制条 */}
         <div ref={valueHintRef} className="majview-value-hint" hidden aria-hidden="true">
           <span ref={valueHintLabelRef} />
@@ -1101,52 +1544,11 @@ export default function MajView({ songId, title, artist, level, cover, onCoverEr
       </div>
       </div>
 
-      <div className="majview-controls" data-hidden={!controlsShown} onPointerDown={pokeControls}>
-        <input
-          ref={timelineRef}
-          type="range"
-          min={begin}
-          max={duration || 1}
-          step={0.001}
-          defaultValue={begin}
-          disabled={!canControl}
-          onChange={(e) => seek(Number(e.target.value))}
-          aria-label={t('song/MajView.Position')}
-          className="w-full accent-sky-300"
-        />
-        <div className="flex items-center gap-1">
-          <button type="button" className={controlClass} onClick={togglePlay} disabled={status !== 'ready'} aria-label={playing ? t('song/MajView.Pause') : t('song/MajView.Play')}>
-            {playing ? <LuPause aria-hidden="true" className="w-4.5 h-4.5" /> : <LuPlay aria-hidden="true" className="w-4.5 h-4.5" />}
-          </button>
-          <button type="button" className={controlClass} onClick={() => seek(begin)} disabled={!canControl} aria-label={t('song/MajView.Restart')}>
-            <LuRotateCcw aria-hidden="true" className="w-4 h-4" />
-          </button>
-          <span className="flex-1 px-1 text-white/70 text-xs tabular-nums">
-            <span ref={clockRef}>{formatClock(currentTime() - begin)}</span> / {formatClock(duration - begin)}
-            <span ref={seekDeltaRef} className="majview-seek-delta" hidden />
-          </span>
-          <SortMenu
-            compact
-            icon={null}
-            placement="up"
-            options={RATES.map((value) => `${value}×`)}
-            value={RATES.indexOf(fastForward ? KEY_FAST_RATE : rate)}
-            onChange={(index) => changeRate(RATES[index])}
-            label={t('song/MajView.Speed')}
-            disabled={!canControl}
-          />
-          <button type="button" className={controlClass} onClick={() => setSettingsOpen((open) => !open)} aria-expanded={settingsOpen} aria-label={t('song/MajView.Settings')}>
-            <LuSettings2 aria-hidden="true" className="w-4 h-4" />
-          </button>
-          {CAN_FULLSCREEN && (
-            <button type="button" className={controlClass} onClick={toggleFullscreen} aria-label={t('song/MajView.Fullscreen')}>
-              <LuMaximize aria-hidden="true" className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </div>
+      {/* 编辑器关掉控制条时，时间轴单独挂到页面自己的格子里 */}
+      {!showControls && showTimeline && (timelineHost ? createPortal(timelineNode, timelineHost) : timelineNode)}
+      {showControls && (controlsHost ? createPortal(controlsNode, controlsHost) : controlsNode)}
 
-      {settingsOpen && <MajViewSettings settings={settings} onChange={changeSettings} onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && (settingsHost ? createPortal(settingsNode, settingsHost) : settingsNode)}
     </div>
   );
 }

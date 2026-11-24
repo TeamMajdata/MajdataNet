@@ -1,0 +1,688 @@
+/* 谱面编辑器：左侧预览 + 右侧（难度页签 / 元信息 / 编辑器） */
+
+.editor-app {
+/* 站点给固定页头留了 body padding-top；编辑器要铺满整屏，所以直接脱离文档流 */
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 36px 1fr;
+  min-height: 0;
+  background: #0a0d12;
+  color: #e6edf5;
+}
+
+/* ── 菜单栏 ── */
+.editor-menubar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 12px;
+  background: #14181f;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+  position: relative;
+  z-index: 20;
+}
+
+.editor-brand {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #cfe0f0;
+  text-decoration: none;
+  margin-right: 12px;
+}
+
+.editor-top-item {
+  font: inherit;
+  font-size: 12px;
+  color: #b6c4d4;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.editor-top-item:hover,
+.editor-top-item.is-open {
+  background: rgb(255 255 255 / 7%);
+  color: #fff;
+}
+.editor-top-item:disabled { opacity: .35; cursor: default; }
+.editor-top-item:disabled:hover { background: transparent; color: #b6c4d4; }
+
+.editor-menu-wrap { position: relative; }
+
+.editor-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  min-width: 196px;
+  padding: 5px;
+  background: #171c24;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 9px;
+  box-shadow: 0 18px 40px -12px #000;
+  z-index: 30;
+}
+
+.editor-menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 9px;
+  font: inherit;
+  font-size: 12px;
+  color: #cddaea;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.editor-menu button:hover:not(:disabled) { background: rgb(34 211 238 / 14%); color: #fff; }
+.editor-menu button:disabled { opacity: .4; cursor: default; }
+.editor-menu svg { width: 14px; height: 14px; }
+.editor-menu-sep { height: 1px; margin: 4px 6px; background: rgb(255 255 255 / 9%); }
+
+/* ── 谱面信息窗 ── */
+.editor-info { display: flex; flex-direction: column; gap: 8px; }
+.editor-info-row { display: flex; align-items: center; gap: 8px; }
+
+.editor-info-label { width: 40px; flex: none; font-size: 11.5px; color: #8b9bb0; }
+
+.editor-info-key {
+  width: 92px;
+  flex: none;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  color: #9fb0c2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-info-row input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 12px;
+  color: #dbe6f2;
+  background: rgb(255 255 255 / 5%);
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 5px;
+  padding: 5px 8px;
+}
+
+.editor-info-row input:focus { outline: none; border-color: rgb(34 211 238 / 50%); }
+
+.editor-info-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 10.5px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: #8b9bb0;
+}
+
+.editor-info-head small { text-transform: none; letter-spacing: 0; color: #6b7a8c; }
+
+.editor-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.editor-info-empty { margin: 0; font-size: 11.5px; color: #6b7a8c; }
+
+.editor-info-remove,
+.editor-info-add {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 1px solid rgb(255 255 255 / 9%);
+  background: rgb(255 255 255 / 5%);
+  color: #9fb0c2;
+  cursor: pointer;
+}
+
+.editor-info-remove:hover { color: #fca5a5; border-color: rgb(248 113 113 / 40%); }
+.editor-info-add:hover { color: #86efac; border-color: rgb(52 211 153 / 40%); }
+.editor-info-remove svg, .editor-info-add svg { width: 12px; height: 12px; }
+
+.editor-info-error { margin: 0; font-size: 11.5px; color: #fca5a5; }
+
+.editor-info-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+
+.editor-info-actions button {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 16px;
+  border-radius: 7px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 5%);
+  color: #cddaea;
+  cursor: pointer;
+}
+
+.editor-info-actions .is-primary {
+  background: rgb(34 211 238 / 16%);
+  border-color: rgb(34 211 238 / 45%);
+  color: #a5f3fc;
+}
+
+.editor-spacer { flex: 1; }
+
+/* 淇濆瓨鐘舵€?*/
+.editor-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.editor-save i { width: 6px; height: 6px; border-radius: 50%; display: block; }
+.editor-save.is-saved { color: #86efac; background: rgb(52 211 153 / 10%); border-color: rgb(52 211 153 / 30%); }
+.editor-save.is-saved i { background: #34d399; }
+.editor-save.is-dirty { color: #fcd34d; background: rgb(251 191 36 / 10%); border-color: rgb(251 191 36 / 30%); }
+.editor-save.is-dirty i { background: #fbbf24; box-shadow: 0 0 6px rgb(251 191 36 / 80%); }
+
+/* ── 空状态 ── */
+.editor-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.editor-empty h1 { margin: 0; font-size: 20px; font-weight: 650; }
+.editor-empty p { margin: 0; max-width: 46ch; color: #8b9bb0; font-size: 13px; line-height: 1.6; }
+
+.editor-open-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 13px;
+  color: #0a0d12;
+  background: #22d3ee;
+  border: 0;
+  border-radius: 9px;
+  padding: 9px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editor-open-button:disabled { opacity: .6; cursor: default; }
+.editor-open-button svg { width: 16px; height: 16px; }
+.editor-error { color: #fca5a5 !important; font-size: 12.5px !important; }
+
+/* ── 主体 ── */
+.editor-main {
+  display: grid;
+  grid-template-columns: minmax(320px, 46fr) 54fr;
+  min-height: 0;
+}
+
+.editor-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 12px;
+  display: flex;
+  border-right: 1px solid rgb(255 255 255 / 8%);
+  background: radial-gradient(circle at 50% 45%, #15181d, #08090b 70%);
+}
+
+/* MajView 自己就是 flex 列（判定盘 + 控制条），撑满这一格 */
+.editor-stage > * { flex: 1; min-height: 0; }
+
+/* 空难度：播放器照常挂着（能听歌看波形），只在底部给一条提示 */
+.editor-stage-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 2;
+  margin: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: rgb(255 255 255 / 70%);
+  background: rgb(0 0 0 / 60%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  pointer-events: none;
+}
+
+.editor-side {
+  display: grid;
+  grid-template-columns: 152px 1fr;
+  grid-template-rows: auto 1fr auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 波形时间轴（MajView portal 过来）：贴着编辑器一侧的底部 */
+.editor-timeline {
+  grid-row: 3;
+  grid-column: 1 / -1;
+  min-width: 0;
+  border-top: 1px solid rgb(255 255 255 / 8%);
+  background: #0b0e13;
+}
+
+.editor-timeline:empty { display: none; }
+.editor-timeline .majview-timeline { padding: 0 .5rem .25rem; }
+
+/* ── 难度页签 ── */
+.editor-tabs {
+  grid-row: 1;
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 2px;
+  padding: 0 10px;
+  overflow-x: auto;
+  background: #101419;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+
+.editor-tab {
+  font: inherit;
+  font-size: 11.5px;
+  letter-spacing: .3px;
+  color: #8b9bb0;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 8px 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.editor-tab:hover { color: #cfe0f0; }
+.editor-tab.is-active { color: #fff; border-bottom-color: #22d3ee; }
+
+/* 还没有任何内容的难度：页签文字压暗（放在 hover / active 之后才能盖住它们） */
+.editor-tab.is-empty { color: rgb(255 255 255 / 26%); }
+.editor-tab.is-empty:hover { color: rgb(255 255 255 / 46%); }
+.editor-tab.is-empty.is-active { color: rgb(255 255 255 / 60%); border-bottom-color: rgb(34 211 238 / 55%); }
+.editor-tab-dirty { color: #fbbf24; margin-left: 3px; font-weight: 700; }
+
+/* ── 元信息列 ── */
+.editor-controls {
+  grid-row: 2;
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  overflow: auto;
+  background: #101419;
+  border-right: 1px solid rgb(255 255 255 / 8%);
+}
+
+.editor-clock { line-height: 1.15; margin-bottom: 2px; }
+.editor-clock b {
+  display: block;
+  font-size: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+.editor-clock small { font-size: 10.5px; color: #8b9bb0; word-break: break-all; }
+
+.editor-field { display: flex; flex-direction: column; gap: 4px; }
+.editor-field > span { font-size: 10.5px; color: #8b9bb0; letter-spacing: .3px; }
+.editor-field input {
+  font: inherit;
+  font-size: 11.5px;
+  color: #dbe6f2;
+  background: rgb(255 255 255 / 5%);
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 5px;
+  padding: 4px 7px;
+  min-width: 0;
+}
+.editor-field input:focus { outline: none; border-color: rgb(34 211 238 / 50%); }
+
+.editor-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: #c3d0de;
+  cursor: pointer;
+  user-select: none;
+}
+
+.editor-toggle input { width: 14px; height: 14px; accent-color: #22d3ee; cursor: pointer; }
+
+/* 播放控制键：只有 ■ 和 ▶/⏸ */
+.editor-playback { display: flex; gap: 6px; margin-top: auto; }
+
+.editor-playback button {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  height: 30px;
+  border-radius: 7px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  background: rgb(255 255 255 / 6%);
+  color: #dbe6f2;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+.editor-playback button:hover { background: rgb(255 255 255 / 12%); color: #fff; }
+.editor-playback svg { width: 14px; height: 14px; }
+
+/* ── 编辑器 ── */
+.editor-editor {
+  grid-row: 2;
+  grid-column: 2;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+/* 竖排：编辑器占满，错误提示贴在它下面 */
+  flex-direction: column;
+  background: #0e1218;
+}
+
+.editor-code { flex: 1; min-width: 0; min-height: 0; }
+
+/* simai 主题把光标设成了全透明（原本只读的谱面文件页签用），可编辑时补回来；
+   visibility 也要强制：Monaco 在编辑器失焦时会把它设成 hidden，
+   而拖动时间轴 / 点时间轴正好会让编辑器失焦，光标就看不见了 */
+.editor-code .monaco-editor { --vscode-editorCursor-foreground: #22d3ee; }
+.editor-code .monaco-editor .cursors-layer .cursor {
+  background-color: #22d3ee !important;
+  visibility: visible !important;
+}
+
+/* ── 浮动窗 ── */
+.editor-window {
+  position: fixed;
+  z-index: 60;
+  width: 212px;
+  border-radius: 12px;
+  background: rgb(15 20 27 / 97%);
+  border: 1px solid rgb(255 255 255 / 16%);
+  box-shadow: 0 34px 90px -26px #000;
+  backdrop-filter: blur(16px);
+}
+
+.editor-window-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 8px 7px 10px;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 11px 11px 0 0;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+}
+
+.editor-window-grip { color: #55677a; font-size: 10px; letter-spacing: -1px; }
+.editor-window-title { font-size: 11.5px; color: #c3d0de; }
+
+.editor-window-close {
+  margin-left: auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: #b9c6d4;
+  background: rgb(255 255 255 / 5%);
+  border: 0;
+  cursor: pointer;
+}
+.editor-window-close svg { width: 12px; height: 12px; }
+
+.editor-window-body {
+  padding: 10px;
+  max-height: calc(100vh - 160px);
+  overflow: auto;
+}
+
+/* 设置面板在播放器里是绝对定位的浮层；挂进编辑器浮窗后交回给浮窗排版 */
+.editor-window .majview-settings {
+  position: static;
+  inset: auto;
+  z-index: auto;
+  width: auto;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.editor-window-hint {
+  padding: 0 10px 9px;
+  font-size: 10px;
+  color: #8b9bb0;
+  letter-spacing: .2px;
+}
+
+.editor-bpm-tap {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 126px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 30px;
+  font-weight: 600;
+  color: #a5f3fc;
+  background: rgb(34 211 238 / 10%);
+  border: 1px solid rgb(34 211 238 / 32%);
+  cursor: pointer;
+}
+
+.editor-bpm-reset {
+  width: 100%;
+  margin-top: 9px;
+  padding: 8px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12px;
+  color: rgb(255 255 255 / 78%);
+  background: rgb(255 255 255 / 5%);
+  border: 1px solid rgb(255 255 255 / 9%);
+  cursor: pointer;
+}
+
+/* 未保存改动的三选一确认框（保存 / 不保存 / 取消） */
+.editor-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 55%);
+}
+
+.editor-confirm-box {
+  min-width: 320px;
+  max-width: 440px;
+  padding: 18px 20px 16px;
+  border-radius: 12px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: #12161d;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 55%);
+}
+
+.editor-confirm-box h2 { margin: 0 0 8px; font-size: 14px; color: #fff; }
+.editor-confirm-box p { margin: 0 0 16px; font-size: 12.5px; line-height: 1.6; color: #9fb0c4; }
+
+.editor-confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.editor-confirm-actions button {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 6%);
+  color: #dbe6f2;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+.editor-confirm-actions button:hover { background: rgb(255 255 255 / 12%); color: #fff; }
+.editor-confirm-actions button.is-primary { border-color: rgb(34 211 238 / 45%); background: rgb(34 211 238 / 14%); color: #a5f3fc; }
+/* 编辑器底部的谱面错误提示 */
+.editor-chart-error {
+  margin: 0;
+  padding: 6px 12px;
+  border-top: 1px solid rgb(248 113 113 / 35%);
+  background: rgb(60 12 12 / 70%);
+  color: #fecaca;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+/* 倍速下拉框：和输入框同一套外观 */
+.editor-field select {
+  font: inherit;
+  font-size: 11.5px;
+  color: #dbe6f2;
+  background: rgb(255 255 255 / 5%);
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 5px;
+  padding: 4px 7px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.editor-field select option { background: #12161d; color: #dbe6f2; }
+/* 快捷键说明窗 */
+.editor-shortcuts { display: flex; flex-direction: column; gap: 2px; }
+
+.editor-shortcut-row {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 2px;
+  border-bottom: 1px solid rgb(255 255 255 / 6%);
+}
+
+.editor-shortcut-row:last-child { border-bottom: 0; }
+
+.editor-shortcut-row kbd {
+  font: inherit;
+  font-size: 11.5px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  background: rgb(255 255 255 / 7%);
+  color: #cfe0f0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.editor-shortcut-row span { font-size: 12px; color: rgb(255 255 255 / 72%); }
+/* ── 竖屏（手机 / 窄高窗口）─────────────────────────────────────────
+   横向排布在竖屏上会把编辑器和判定盘都挤成细条，这里改成上下四段：
+   菜单栏 / 判定盘 / 页签+编辑器 / 时间轴，控制列变成可横向滚动的工具条 */
+@media (orientation: portrait), (max-width: 820px) {
+  .editor-app {
+    grid-template-rows: auto 1fr;
+  }
+
+  .editor-menubar {
+    padding: 3px 6px;
+    gap: 0;
+    /* 不能加 overflow：菜单栏只有一行高，会把下拉菜单整个裁掉（看起来像点击没反应）。
+       宽度不够时让它换行，grid 的第一行是 auto，会自动变高 */
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  .editor-brand { margin-right: 6px; font-size: 12.5px; }
+  .editor-top-item { padding: 2px 6px; font-size: 11.5px; }
+  .editor-save { padding: 3px 8px; }
+
+  .editor-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(150px, 32vh) 1fr;
+  }
+
+  .editor-stage {
+    padding: 6px;
+    border-right: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+  }
+
+  .editor-side {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+  }
+
+  /* 控制列 → 横向工具条 */
+  .editor-controls {
+    grid-row: 2;
+    grid-column: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+  }
+  .editor-controls > * { flex: 0 0 auto; }
+  .editor-clock { margin-bottom: 0; }
+  .editor-clock b { font-size: 18px; }
+  .editor-clock small { max-width: 96px; }
+  .editor-field { flex-direction: row; align-items: center; gap: 6px; }
+  .editor-field input,
+  .editor-field select { width: 76px; }
+  .editor-toggle { white-space: nowrap; gap: 4px; }
+  .editor-playback { width: 104px; margin-top: 0; }
+  .editor-playback button { height: 26px; }
+
+  .editor-editor { grid-row: 3; grid-column: 1; }
+  .editor-timeline { grid-row: 4; grid-column: 1; }
+  .editor-tabs { padding: 0 4px; }
+  .editor-tab { padding: 7px 9px; font-size: 11px; }
+
+  /* 浮窗和对话框别超出屏幕 */
+  .editor-window { max-width: calc(100vw - 16px); }
+  .editor-window-body { max-height: calc(100vh - 220px); }
+  .editor-confirm-box { min-width: 0; max-width: calc(100vw - 24px); }
+  .editor-shortcut-row { grid-template-columns: 108px 1fr; }
+}
+
+/* 特别矮的横屏（手机横放）：判定盘和编辑器都要留出高度，时间轴压薄一点 */
+@media (max-height: 460px) and (orientation: landscape) {
+  .editor-main { grid-template-columns: 1fr 1fr; }
+  .editor-stage { padding: 4px; }
+  .editor-tabs { padding: 0 4px; }
+  .editor-tab { padding: 5px 9px; }
+  .editor-timeline .majview-visualizer { height: 4rem; }
+}

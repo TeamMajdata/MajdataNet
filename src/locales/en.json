@@ -153,6 +153,87 @@
     "SearchCollectionsPlaceholder": "Search collections…",
     "ServerError": "Server error"
   },
+  "editor/BpmTapWindow": {
+    "Hint": "Drag the title bar to move · the editor stays editable"
+  },
+  "editor/ChartInfoWindow": {
+    "Add": "Add field",
+    "Artist": "Artist",
+    "Cancel": "Cancel",
+    "ChartTitle": "Title",
+    "Confirm": "OK",
+    "Designer": "Charter",
+    "DuplicateKey": "This field already exists",
+    "Empty": "No other fields",
+    "Hint": "Edits apply to the in-memory maidata.txt; you still need to save to write the file",
+    "InvalidKey": "Field names may only contain letters, digits, underscores and hyphens",
+    "KeyPlaceholder": "Field name",
+    "OtherFields": "Other fields",
+    "OtherFieldsHint": "Each row maps to one `&name=value` line",
+    "Remove": "Delete field {{key}}",
+    "Title": "Chart info",
+    "ValuePlaceholder": "Value"
+  },
+  "editor/DifficultyTabs": {
+    "Dirty": "Has unsaved changes",
+    "Label": "Difficulty"
+  },
+  "editor/EditorPage": {
+    "Cancel": "Cancel",
+    "ChartError": "Chart error:",
+    "ChartInfo": "Chart info…",
+    "Designer": "Charter",
+    "DontSave": "Don't save",
+    "EmptyDifficulty": "This difficulty has no chart yet",
+    "EmptyHint": "Pick a local chart folder containing maidata.txt (and optional track, bg, pv). Nothing is uploaded.",
+    "FindReplace": "Find and replace",
+    "First": "First",
+    "FollowCursor": "Follow cursor",
+    "HideNotes": "Hide all notes",
+    "Level": "Level",
+    "MenuBpmTap": "BPM Tap",
+    "MenuEdit": "Edit",
+    "MenuFile": "File",
+    "MenuSettings": "Settings",
+    "MenuShortcuts": "Shortcuts",
+    "Mirror180": "Mirror 180°",
+    "MirrorHorizontal": "Mirror horizontally",
+    "MirrorVertical": "Mirror vertically",
+    "New": "New",
+    "OpenFolder": "Open folder…",
+    "OpenFolderButton": "Open folder",
+    "Opening": "Opening…",
+    "PlaybackRate": "Speed",
+    "RestoreDraft": "A local draft is newer than the file. Restore it?",
+    "RotateCcw": "Rotate −45°",
+    "RotateCw": "Rotate +45°",
+    "Save": "Save",
+    "Saved": "Saved",
+    "SelectRangeFirst": "Select the chart text to transform first",
+    "ShortcutClick": "Jump to the caret position",
+    "ShortcutHoldCtrl": "Hold: show judge area",
+    "ShortcutHoldShift": "Hold: hide all notes",
+    "ShortcutNote": "Move the caret by note and seek",
+    "ShortcutOpen": "Open folder",
+    "ShortcutPlay": "Play / back to the start point",
+    "ShortcutSave": "Save",
+    "ShortcutToggle": "Play / pause",
+    "ShortcutTypeSpace": "Type a space in the editor",
+    "ShowJudgeArea": "Show judge area",
+    "Title": "Chart editor",
+    "Unsaved": "Unsaved",
+    "UnsavedBody": "Opening another chart will discard these changes. Save first?",
+    "UnsavedTitle": "Unsaved changes",
+    "Untitled": "Untitled chart"
+  },
+  "editor/EditorWindow": {
+    "Close": "Close"
+  },
+  "editor/useChartFolder": {
+    "MaidataExists": "This folder already has a maidata.txt. Use Open folder to load it instead.",
+    "MissingMaidata": "This folder has no maidata.txt",
+    "MissingTrack": "No track.ogg / track.mp3 in this folder. Please pick another folder."
+  },
   "eventTag/EventTagPage": {
     "OriginalSongs": "Original Songs",
     "OriginalSongsDesc": "Original songs and charts from the maj collaboration team!",
@@ -444,6 +525,7 @@
     "Unavailable": "Radar data is not available for this difficulty"
   },
   "song/MajView": {
+    "ChartInvalid": "Chart error:",
     "CloseSettings": "Close settings",
     "EffectDetails": "Adjust each hit sound",
     "Fullscreen": "Full screen",
@@ -477,8 +559,11 @@
     "SettingTouchSpeed": "Touch speed",
     "Settings": "Settings",
     "Speed": "Speed",
+    "Stop": "Stop",
     "TrackFailed": "Couldn't load the music. Press play to try again.",
-    "Volume": "Volume"
+    "Volume": "Volume",
+    "ZoomIn": "Zoom timeline in",
+    "ZoomOut": "Zoom timeline out"
   },
   "song/ScoreRanking": {
     "FailedToLoad": "Failed to load",

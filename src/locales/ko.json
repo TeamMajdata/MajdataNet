@@ -150,6 +150,87 @@
     "SearchCollectionsPlaceholder": "컬렉션 검색...",
     "ServerError": "서버 오류"
   },
+  "editor/BpmTapWindow": {
+    "Hint": "제목 표시줄로 이동 · 편집기는 계속 입력할 수 있습니다"
+  },
+  "editor/ChartInfoWindow": {
+    "Add": "필드 추가",
+    "Artist": "아티스트",
+    "Cancel": "취소",
+    "ChartTitle": "제목",
+    "Confirm": "확인",
+    "Designer": "채보 제작자",
+    "DuplicateKey": "이미 있는 필드입니다",
+    "Empty": "다른 필드가 없습니다",
+    "Hint": "변경 사항은 메모리의 maidata.txt에만 적용되며 저장해야 파일에 기록됩니다",
+    "InvalidKey": "필드 이름은 영문, 숫자, 밑줄, 하이픈만 사용할 수 있습니다",
+    "KeyPlaceholder": "필드 이름",
+    "OtherFields": "기타 필드",
+    "OtherFieldsHint": "`&이름=값`이 maidata.txt에 그대로 대응합니다",
+    "Remove": "{{key}} 필드 삭제",
+    "Title": "악보 정보",
+    "ValuePlaceholder": "값"
+  },
+  "editor/DifficultyTabs": {
+    "Dirty": "저장하지 않은 변경 있음",
+    "Label": "난이도"
+  },
+  "editor/EditorPage": {
+    "Cancel": "취소",
+    "ChartError": "채보 오류:",
+    "ChartInfo": "악보 정보…",
+    "Designer": "채보자",
+    "DontSave": "저장 안 함",
+    "EmptyDifficulty": "이 난이도에는 아직 채보가 없습니다",
+    "EmptyHint": "maidata.txt(및 선택 사항인 track, bg, pv)가 있는 로컬 채보 폴더를 선택하세요. 아무것도 업로드되지 않습니다.",
+    "FindReplace": "찾기 및 바꾸기",
+    "First": "First",
+    "FollowCursor": "텍스트 따라가기",
+    "HideNotes": "모든 노트 숨기기",
+    "Level": "난이도",
+    "MenuBpmTap": "BPM Tap",
+    "MenuEdit": "편집",
+    "MenuFile": "파일",
+    "MenuSettings": "설정",
+    "MenuShortcuts": "단축키",
+    "Mirror180": "180° 반전",
+    "MirrorHorizontal": "좌우 반전",
+    "MirrorVertical": "상하 반전",
+    "New": "새로 만들기",
+    "OpenFolder": "폴더 열기…",
+    "OpenFolderButton": "폴더 열기",
+    "Opening": "여는 중…",
+    "PlaybackRate": "재생 속도",
+    "RestoreDraft": "파일보다 최신 임시 저장본이 있습니다. 복원할까요?",
+    "RotateCcw": "−45° 회전",
+    "RotateCw": "+45° 회전",
+    "Save": "저장",
+    "Saved": "저장됨",
+    "SelectRangeFirst": "먼저 변환할 범위를 선택하세요",
+    "ShortcutClick": "커서 위치로 이동",
+    "ShortcutHoldCtrl": "누르는 동안: 판정 영역 표시",
+    "ShortcutHoldShift": "누르는 동안: 모든 노트 숨기기",
+    "ShortcutNote": "노트 단위로 커서 이동 및 점프",
+    "ShortcutOpen": "폴더 열기",
+    "ShortcutPlay": "재생 / 시작 지점으로",
+    "ShortcutSave": "저장",
+    "ShortcutToggle": "재생 / 일시정지",
+    "ShortcutTypeSpace": "편집기에서 공백 입력",
+    "ShowJudgeArea": "판정 영역 표시",
+    "Title": "채보 편집기",
+    "Unsaved": "저장 안 됨",
+    "UnsavedBody": "다른 채보를 열면 변경이 사라집니다. 먼저 저장할까요?",
+    "UnsavedTitle": "저장하지 않은 변경이 있습니다",
+    "Untitled": "제목 없는 채보"
+  },
+  "editor/EditorWindow": {
+    "Close": "닫기"
+  },
+  "editor/useChartFolder": {
+    "MaidataExists": "이 폴더에 이미 maidata.txt가 있습니다. '폴더 열기'로 불러오세요.",
+    "MissingMaidata": "이 폴더에 maidata.txt가 없습니다",
+    "MissingTrack": "이 폴더에 track.ogg / track.mp3가 없습니다. 다른 폴더를 선택하세요."
+  },
   "eventTag/EventTagPage": {
     "OriginalSongs": "오리지널 곡",
     "OriginalSongsDesc": "Maj 협업 팀이 만든 오리지널 곡과 채보!",
@@ -436,6 +517,7 @@
     "Unavailable": "이 난이도의 레이더 데이터가 없습니다"
   },
   "song/MajView": {
+    "ChartInvalid": "채보 오류:",
     "CloseSettings": "설정 닫기",
     "EffectDetails": "타격음 개별 조정",
     "Fullscreen": "전체 화면",
@@ -453,7 +535,7 @@
     "SettingBreak": "Break 음",
     "SettingCombo": "콤보 표시",
     "SettingCounter": "노트 수 표시",
-    "SettingDisableGestures": "제스처 비활성화",
+    "SettingDisableGestures": "제스처 사용 안 함",
     "SettingEX": "EX 음",
     "SettingEffects": "타격음",
     "SettingFirstOffset": "First 오프셋",
@@ -469,8 +551,11 @@
     "SettingTouchSpeed": "터치 속도",
     "Settings": "설정",
     "Speed": "재생 속도",
+    "Stop": "정지",
     "TrackFailed": "음악을 불러오지 못했습니다. 재생을 다시 눌러 주세요.",
-    "Volume": "음량"
+    "Volume": "음량",
+    "ZoomIn": "타임라인 확대",
+    "ZoomOut": "타임라인 축소"
   },
   "song/ScoreRanking": {
     "FailedToLoad": "불러오기에 실패했습니다",
