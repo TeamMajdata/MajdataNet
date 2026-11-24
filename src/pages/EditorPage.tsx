@@ -158,25 +158,47 @@ export default function EditorPage() {
     [maidata, active],
   );
 
-  // 文本跟随：播放时把编辑器滚到当前格子的那一行
+  /** 把文本光标挪到某一行并滚过去；用 setSelection 显式收起选区，避免残留多行选中 */
+  const moveCaret = useCallback((editor: SimaiEditor, line: number) => {
+    const model = editor.getModel();
+    if (!model || line < 1 || line > model.getLineCount()) return;
+    editor.setSelection({ startLineNumber: line, startColumn: 1, endLineNumber: line, endColumn: 1 });
+    editor.revealLineInCenterIfOutsideViewport(line);
+  }, []);
+
+  // 文本跟随只做一件事：播放时把文本光标挪到当前时间那一行
   useEffect(() => {
-    if (!followCursor) return;
+    if (!followCursor || !playing) return;
     const editor = editorRef.current;
     if (!editor) return;
     const line = lineAt(timeline, time);
     if (line === null) return;
-    editor.revealLineInCenterIfOutsideViewport(line);
-  }, [time, followCursor, timeline]);
+    moveCaret(editor, line);
+  }, [time, followCursor, playing, timeline, moveCaret]);
 
   const [seekTo, setSeekTo] = useState<{ seconds: number; key: number } | null>(null);
+  /** 文本光标所在行：时间轴顶部的小三角跟着它走 */
+  const [caretLine, setCaretLine] = useState(1);
+  const caretTime = useMemo(() => timeAtLine(timeline, caretLine), [timeline, caretLine]);
 
-  /** 反向：光标换行时让播放器跳到那一刻（和上游一样，只在开文本跟随时生效） */
-  const handleCursorLine = useCallback((line: number) => {
-    if (!followCursor) return;
+  // 光标换行只记录行号，不自动 seek
+  const handleCursorLine = useCallback((line: number) => setCaretLine(line), []);
+
+  /** Ctrl / Cmd + 点击文本：时间跳到光标位置 */
+  const handleCtrlClickLine = useCallback((line: number) => {
     const seconds = timeAtLine(timeline, line);
     if (seconds === null) return;
     setSeekTo({ seconds, key: Date.now() });
-  }, [followCursor, timeline]);
+  }, [timeline]);
+
+  /** 拖动时间轴：把文本光标挪到对应行 */
+  const handleTimelineScrub = useCallback((seconds: number) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const line = lineAt(timeline, seconds);
+    if (line === null) return;
+    moveCaret(editor, line);
+  }, [timeline, moveCaret]);
 
   /** 变换只作用于选区；没有选区就什么都不做（决策 1） */
   const applyTransform = useCallback((kind: MirrorKind) => {
@@ -388,6 +410,8 @@ export default function EditorPage() {
                   showControls={false}
                   showTimeline
                   timelineHost={timelineHost}
+                  caretTime={caretTime}
+                  onTimelineScrub={handleTimelineScrub}
                 />
               ) : (
                 <div
@@ -479,6 +503,7 @@ export default function EditorPage() {
                   onReady={(editor) => { editorRef.current = editor; }}
                   onSelectionChange={setHasSelection}
                   onCursorLineChange={handleCursorLine}
+                  onCtrlClickLine={handleCtrlClickLine}
                 />
               </div>
 

@@ -18,9 +18,13 @@ type Props = {
   onSelectionChange?: (hasSelection: boolean) => void;
   /** 光标所在行变化（1-based），用于「光标 → 时间轴」 */
   onCursorLineChange?: (line: number) => void;
+  /** Ctrl / Cmd + 点击文本：跳到光标所在的那一行 */
+  onCtrlClickLine?: (line: number) => void;
 };
 
-export default function SimaiCodeEditor({ initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange }: Props) {
+export default function SimaiCodeEditor({
+  initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange, onCtrlClickLine,
+}: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<SimaiEditor | null>(null);
   const modelsRef = useRef<(monaco.editor.ITextModel | null)[]>(new Array(7).fill(null));
@@ -33,12 +37,14 @@ export default function SimaiCodeEditor({ initialTexts, active, onChange, onRead
   const initialRef = useRef(initialTexts);
   const onSelectionChangeRef = useRef(onSelectionChange);
   const onCursorLineChangeRef = useRef(onCursorLineChange);
+  const onCtrlClickLineRef = useRef(onCtrlClickLine);
 
   useEffect(() => { activeRef.current = active; }, [active]);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
   useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
   useEffect(() => { onSelectionChangeRef.current = onSelectionChange; }, [onSelectionChange]);
   useEffect(() => { onCursorLineChangeRef.current = onCursorLineChange; }, [onCursorLineChange]);
+  useEffect(() => { onCtrlClickLineRef.current = onCtrlClickLine; }, [onCtrlClickLine]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -67,6 +73,8 @@ export default function SimaiCodeEditor({ initialTexts, active, onChange, onRead
       fontSize: 13,
       fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
       padding: { top: 12, bottom: 12 },
+      // Ctrl+点击留给我们自己做「跳到那一刻」，不要变成多光标
+      multiCursorModifier: 'alt',
     });
     editorRef.current = editor;
 
@@ -105,5 +113,28 @@ export default function SimaiCodeEditor({ initialTexts, active, onChange, onRead
     onSelectionChangeRef.current?.(false);
   }, [active]);
 
-  return <div ref={hostRef} className="editor-code" />;
+  return (
+    <div
+      ref={hostRef}
+      className="editor-code"
+      // Ctrl/Cmd + 点击：等 Monaco 把光标挪到点击处之后再读行号
+      onMouseDownCapture={(event) => {
+        if (!(event.ctrlKey || event.metaKey)) return;
+        const editor = editorRef.current;
+        if (!editor) return;
+        setTimeout(() => {
+          const position = editor.getPosition();
+          if (!position) return;
+          // Monaco 可能把这次点击当成拖选的起点，先把选区收起来
+          editor.setSelection({
+            startLineNumber: position.lineNumber,
+            startColumn: position.column,
+            endLineNumber: position.lineNumber,
+            endColumn: position.column,
+          });
+          onCtrlClickLineRef.current?.(position.lineNumber);
+        }, 0);
+      }}
+    />
+  );
 }

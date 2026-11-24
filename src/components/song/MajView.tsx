@@ -94,7 +94,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -141,6 +141,10 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   timelineHost?: HTMLElement | null;
   /** 是否渲染音符密度柱状图（目前哪里都不显示） */
   showAnalyzer?: boolean;
+  /** 文本光标时间（秒），时间轴顶部的小三角跟着它走 */
+  caretTime?: number | null;
+  /** 拖动时间轴时上报目标时间，页面据此移动文本光标 */
+  onTimelineScrub?: (seconds: number) => void;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -1229,9 +1233,54 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
    * 默认画在播放器里；编辑器要把它放到自己的格子时传 controlsHost，用 portal 挂过去——
    * 逻辑和 ref 都还属于这个组件，只是换了挂载点。
    */
+  /** 时间轴拖动：左右拖动改播放位置，同时把时间报给页面去挪文本光标 */
+  const timelineBoxRef = useRef<HTMLDivElement>(null);
+  const scrubRef = useRef<{ startX: number; startTime: number; secondsPerPixel: number } | null>(null);
+  const onScrubRef = useRef(onTimelineScrub);
+  onScrubRef.current = onTimelineScrub;
+
+  const onTimelinePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    // 缩放按钮在时间轴里，别把它们当拖动
+    if ((event.target as HTMLElement).closest('.majview-zoom')) return;
+    const box = timelineBoxRef.current;
+    const width = box?.clientWidth ?? 0;
+    if (!(width > 0)) return;
+    scrubRef.current = {
+      startX: event.clientX,
+      startTime: transportRef.current?.time ?? previewTimeRef.current,
+      // 中线两侧各 timelineZoom 秒，整条宽度就是 2×timelineZoom 秒
+      secondsPerPixel: (2 * timelineZoom) / width,
+    };
+    transportRef.current?.pause();
+    setPlaying(false);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const onTimelinePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const scrub = scrubRef.current;
+    if (!scrub) return;
+    const target = scrub.startTime - (event.clientX - scrub.startX) * scrub.secondsPerPixel;
+    const seconds = Math.max(beginRef.current, Math.min(target, durationRef.current || target));
+    seek(seconds);
+    onScrubRef.current?.(seconds);
+  };
+
+  const onTimelinePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!scrubRef.current) return;
+    scrubRef.current = null;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+  };
+
   /** 波形时间轴：单独一块，可以挂到编辑器自己的格子里 */
   const timelineNode = (
-    <div className="majview-timeline">
+    <div
+      className="majview-timeline"
+      ref={timelineBoxRef}
+      onPointerDown={onTimelinePointerDown}
+      onPointerMove={onTimelinePointerMove}
+      onPointerUp={onTimelinePointerUp}
+      onPointerCancel={onTimelinePointerUp}
+    >
       <MajViewVisualizer
         ref={visualizerRef}
         chart={chart}
@@ -1240,13 +1289,14 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
         analysis={spectrum}
         offset={settings.FirstOffset / 1000}
         zoom={timelineZoom}
+        caretTime={caretTime}
       />
-      {/* 时间轴缩放：范围沿用 MajdataEdit 的 0.1–10，默认 4 */}
+      {/* 时间轴缩放：数字是「中线两侧各显示多少秒」，所以 + 是缩小窗口（放大内容） */}
       <div className="majview-zoom">
-        <button type="button" onClick={() => zoomTimeline(0.5)} aria-label={t('song/MajView.ZoomIn')}>
+        <button type="button" onClick={() => zoomTimeline(-0.5)} aria-label={t('song/MajView.ZoomIn')}>
           <LuPlus aria-hidden="true" />
         </button>
-        <button type="button" onClick={() => zoomTimeline(-0.5)} aria-label={t('song/MajView.ZoomOut')}>
+        <button type="button" onClick={() => zoomTimeline(0.5)} aria-label={t('song/MajView.ZoomOut')}>
           <LuMinus aria-hidden="true" />
         </button>
       </div>

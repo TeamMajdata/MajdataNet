@@ -27,6 +27,8 @@ type Content = {
   offset: number;
   zoom: number;
   analysis: SpectrumAnalysis | null;
+  /** 文本光标所在的时间：时间轴顶部的小三角跟着它走 */
+  caretTime: number | null;
 };
 
 type Props = {
@@ -40,6 +42,8 @@ type Props = {
   offset: number;
   /** 中线两侧各显示多少秒（原控件的 ZoomLevel） */
   zoom?: number;
+  /** 文本光标时间（秒）；null 时不画三角 */
+  caretTime?: number | null;
   ref?: Ref<VisualizerHandle>;
 };
 
@@ -50,6 +54,7 @@ export default function MajViewVisualizer({
   analysis,
   offset,
   zoom = 3,
+  caretTime = null,
   ref,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -74,10 +79,10 @@ export default function MajViewVisualizer({
 
   // 谱面 / 波形 / 频谱 / 偏移 / 缩放变了才重建窗口模型
   useEffect(() => {
-    const content = chart ? { chart, waveform, waveformDuration, analysis, offset, zoom } : null;
+    const content = chart ? { chart, waveform, waveformDuration, analysis, offset, zoom, caretTime } : null;
     contentRef.current = content;
     visualizerRef.current?.setContent(content);
-  }, [chart, waveform, waveformDuration, analysis, offset, zoom]);
+  }, [chart, waveform, waveformDuration, analysis, offset, zoom, caretTime]);
 
   useImperativeHandle(ref, () => ({ render: (time: number) => visualizerRef.current?.render(time) }), []);
 

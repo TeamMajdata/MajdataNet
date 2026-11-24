@@ -319,7 +319,8 @@
   pointer-events: none;
 }
 /* 时间轴左上角的缩放按钮（只在编辑器里出现） */
-.majview-timeline { position: relative; }
+.majview-timeline { position: relative; cursor: grab; touch-action: none; }
+.majview-timeline:active { cursor: grabbing; }
 .majview-zoom {
   position: absolute;
   left: .25rem;

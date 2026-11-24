@@ -222,7 +222,7 @@ export class Visualizer {
 
   /**
    * @param {{ chart: object, waveform: Float32Array | null, waveformDuration: number,
-   *   offset: number, zoom: number } | null} content
+   *   offset: number, zoom: number, caretTime?: number | null } | null} content
    */
   setContent(content) {
     this.content = content;
@@ -282,13 +282,19 @@ export class Visualizer {
       drawNotes(context, notes, range, { xOf, scale, offset, width, height });
     }
 
-    context.fillStyle = VISUALIZER_COLORS.caret;
-    context.beginPath();
-    context.moveTo(width / 2 - 5, 0);
-    context.lineTo(width / 2 + 5, 0);
-    context.lineTo(width / 2, 8);
-    context.closePath();
-    context.fill();
+    // 顶部的黄色小三角标记的是「文本光标」所在的时间，不是播放位置；
+    // 红线才是播放头，固定在中间。
+    const caret = content.caretTime;
+    if (typeof caret === 'number' && Number.isFinite(caret) && caret >= from && caret <= to) {
+      const caretX = xOf(caret);
+      context.fillStyle = VISUALIZER_COLORS.caret;
+      context.beginPath();
+      context.moveTo(caretX - 5, 0);
+      context.lineTo(caretX + 5, 0);
+      context.lineTo(caretX, 8);
+      context.closePath();
+      context.fill();
+    }
     context.fillStyle = VISUALIZER_COLORS.playhead;
     context.fillRect(Math.round(width / 2) - 1, 8, 2, height - 16);
   }
