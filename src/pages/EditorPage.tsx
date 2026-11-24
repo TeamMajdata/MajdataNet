@@ -21,6 +21,7 @@ import ChartInfoWindow from '@/components/editor/ChartInfoWindow';
 import { useChartFolder } from '@/hooks/useChartFolder';
 import type { SimaiEditor } from '@/components/song/monacoSimai';
 import { clearDraft, readDraft, shouldOfferRestore, writeDraft } from '@/utils/autosave';
+import { buildTimeline, lineAt } from '@/utils/simaiTimeline';
 import { transformFumen, type MirrorKind } from '@/utils/simaiMirror';
 import {
   filledDifficulties,
@@ -69,6 +70,7 @@ export default function EditorPage() {
   const [hasSelection, setHasSelection] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [chartInfoOpen, setChartInfoOpen] = useState(false);
+  const [followCursor, setFollowCursor] = useState(false);
   const latestRef = useRef({ maidata: '', active: 4 });
   const lastSecondRef = useRef(-1);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -141,6 +143,22 @@ export default function EditorPage() {
     lastSecondRef.current = second;
     setTime(value);
   }, []);
+
+  /** 播放时间 → 文本行；谱面一改就得重算 */
+  const timeline = useMemo(
+    () => buildTimeline(getDifficultyText(maidata, active), getFirst(maidata)),
+    [maidata, active],
+  );
+
+  // 文本跟随：播放时把编辑器滚到当前格子的那一行
+  useEffect(() => {
+    if (!followCursor) return;
+    const editor = editorRef.current;
+    if (!editor) return;
+    const line = lineAt(timeline, time);
+    if (line === null) return;
+    editor.revealLineInCenterIfOutsideViewport(line);
+  }, [time, followCursor, timeline]);
 
   /** 变换只作用于选区；没有选区就什么都不做（决策 1） */
   const applyTransform = useCallback((kind: MirrorKind) => {
@@ -335,6 +353,15 @@ export default function EditorPage() {
                       if (Number.isFinite(value)) setMaidata((prev) => setFirst(prev, value));
                     }}
                   />
+                </label>
+
+                <label className="editor-toggle">
+                  <input
+                    type="checkbox"
+                    checked={followCursor}
+                    onChange={(event) => setFollowCursor(event.target.checked)}
+                  />
+                  文本跟随
                 </label>
 
                 <div className="editor-controls-hint">

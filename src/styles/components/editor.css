@@ -343,6 +343,18 @@
 }
 .editor-field input:focus { outline: none; border-color: rgb(34 211 238 / 50%); }
 
+.editor-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: #c3d0de;
+  cursor: pointer;
+  user-select: none;
+}
+
+.editor-toggle input { width: 14px; height: 14px; accent-color: #22d3ee; cursor: pointer; }
+
 .editor-controls-hint {
   display: flex;
   align-items: center;
