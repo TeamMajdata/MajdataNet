@@ -3,6 +3,7 @@
  * 没有 backdrop，所以窗开着的时编辑器照常能点、能输入。
  */
 import { useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuX } from 'react-icons/lu';
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export default function EditorWindow({ title, onClose, children, hint, width = 212 }: Props) {
+  const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
 
@@ -59,7 +61,7 @@ export default function EditorWindow({ title, onClose, children, hint, width = 2
       >
         <span className="editor-window-grip" aria-hidden="true">⠿</span>
         <span className="editor-window-title">{title}</span>
-        <button type="button" onClick={onClose} aria-label="关闭" className="editor-window-close">
+        <button type="button" onClick={onClose} aria-label={t('editor/EditorWindow.Close')} className="editor-window-close">
           <LuX aria-hidden="true" />
         </button>
       </div>

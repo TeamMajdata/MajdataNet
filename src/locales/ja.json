@@ -150,6 +150,64 @@
     "SearchCollectionsPlaceholder": "コレクションを検索...",
     "ServerError": "閉店中"
   },
+  "editor/BpmTapWindow": {
+    "Hint": "タイトルバーで移動 · エディターはそのまま入力できます"
+  },
+  "editor/ChartInfoWindow": {
+    "Add": "項目を追加",
+    "Artist": "アーティスト",
+    "Cancel": "キャンセル",
+    "ChartTitle": "タイトル",
+    "Confirm": "決定",
+    "DuplicateKey": "この項目は既に存在します",
+    "Empty": "他の項目はありません",
+    "Hint": "変更はメモリ上の maidata.txt にのみ適用され、保存しないとファイルに書き込まれません",
+    "InvalidKey": "項目名は英数字・アンダースコア・ハイフンのみ使用できます",
+    "KeyPlaceholder": "項目名",
+    "OtherFields": "その他の項目",
+    "OtherFieldsHint": "`&名前=値` がそのまま maidata.txt に対応します",
+    "Remove": "項目 {{key}} を削除",
+    "Title": "譜面情報",
+    "ValuePlaceholder": "値"
+  },
+  "editor/DifficultyTabs": {
+    "Dirty": "未保存の変更があります",
+    "Label": "難易度"
+  },
+  "editor/EditorPage": {
+    "ChartInfo": "譜面情報…",
+    "Designer": "譜師",
+    "EmptyDifficulty": "この難易度はまだ譜面がありません",
+    "EmptyHint": "maidata.txt（と任意の track・bg・pv）を含むローカルの譜面フォルダーを選んでください。何もアップロードされません。",
+    "First": "First",
+    "FollowCursor": "テキスト追従",
+    "Level": "難易度",
+    "MenuBpmTap": "BPM Tap",
+    "MenuEdit": "編集",
+    "MenuFile": "ファイル",
+    "MenuSettings": "設定",
+    "Mirror180": "180° 反転",
+    "MirrorHorizontal": "左右反転",
+    "MirrorVertical": "上下反転",
+    "OpenFolder": "フォルダーを開く…",
+    "OpenFolderButton": "フォルダーを開く",
+    "Opening": "読み込み中…",
+    "PlayHint": "再生コントロールはプレビューの下にあります",
+    "RestoreDraft": "ファイルより新しい下書きがあります。復元しますか？",
+    "RotateCcw": "−45° 回転",
+    "RotateCw": "+45° 回転",
+    "Save": "保存",
+    "Saved": "保存済み",
+    "SelectRangeFirst": "先に変換する範囲を選択してください",
+    "Title": "譜面エディター",
+    "Unsaved": "未保存"
+  },
+  "editor/EditorWindow": {
+    "Close": "閉じる"
+  },
+  "editor/useChartFolder": {
+    "MissingMaidata": "このフォルダーに maidata.txt がありません"
+  },
   "eventTag/EventTagPage": {
     "OriginalSongs": "オリジナル楽曲",
     "OriginalSongsDesc": "majコラボチームによるオリジナル楽曲と譜面です！",

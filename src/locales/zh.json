@@ -150,6 +150,64 @@
     "SearchCollectionsPlaceholder": "搜索歌单...",
     "ServerError": "已闭店"
   },
+  "editor/BpmTapWindow": {
+    "Hint": "拖动标题栏可移动 · 编辑器仍可继续输入"
+  },
+  "editor/ChartInfoWindow": {
+    "Add": "添加字段",
+    "Artist": "曲师",
+    "Cancel": "取消",
+    "ChartTitle": "曲名",
+    "Confirm": "确定",
+    "DuplicateKey": "这个字段已经存在了",
+    "Empty": "没有其它字段",
+    "Hint": "改动只作用于内存里的 maidata.txt，点「确定」后仍需保存才写回文件",
+    "InvalidKey": "字段名只能包含字母、数字、下划线和连字符",
+    "KeyPlaceholder": "字段名",
+    "OtherFields": "其它字段",
+    "OtherFieldsHint": "按 `&名称=值` 直接对应 maidata.txt",
+    "Remove": "删除字段 {{key}}",
+    "Title": "谱面信息",
+    "ValuePlaceholder": "值"
+  },
+  "editor/DifficultyTabs": {
+    "Dirty": "有未保存改动",
+    "Label": "难度"
+  },
+  "editor/EditorPage": {
+    "ChartInfo": "谱面信息…",
+    "Designer": "制谱人",
+    "EmptyDifficulty": "这个难度还没有谱面",
+    "EmptyHint": "选择一个本地谱面文件夹，包含 maidata.txt（以及可选的 track、bg、pv）。文件不会被上传。",
+    "First": "First",
+    "FollowCursor": "文本跟随",
+    "Level": "难度",
+    "MenuBpmTap": "BPM Tap",
+    "MenuEdit": "编辑",
+    "MenuFile": "文件",
+    "MenuSettings": "设置",
+    "Mirror180": "180° 镜像",
+    "MirrorHorizontal": "水平镜像",
+    "MirrorVertical": "垂直镜像",
+    "OpenFolder": "打开文件夹…",
+    "OpenFolderButton": "打开文件夹",
+    "Opening": "打开中…",
+    "PlayHint": "播放控制在预览下方",
+    "RestoreDraft": "发现比文件更新的本地草稿，恢复上次编辑？",
+    "RotateCcw": "旋转 −45°",
+    "RotateCw": "旋转 +45°",
+    "Save": "保存",
+    "Saved": "已保存",
+    "SelectRangeFirst": "先在编辑器里选中要变换的谱面",
+    "Title": "谱面编辑器",
+    "Unsaved": "未保存"
+  },
+  "editor/EditorWindow": {
+    "Close": "关闭"
+  },
+  "editor/useChartFolder": {
+    "MissingMaidata": "这个文件夹里没有 maidata.txt"
+  },
   "eventTag/EventTagPage": {
     "OriginalSongs": "原创曲",
     "OriginalSongsDesc": "来自maj合作团队的原创歌曲与谱面哟!",

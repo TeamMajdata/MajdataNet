@@ -8,6 +8,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
   LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuInfo, LuPlay, LuRefreshCw, LuRotateCcw, LuRotateCw, LuSave,
@@ -42,14 +43,14 @@ const DEFAULT_COVER = '/majview/skin/Default_Background.png';
 
 const LEVEL_COUNT = 7;
 
-/** 编辑菜单里的变换；顺序和快捷键沿用 MajdataEdit-Neo */
-const TRANSFORMS: { kind: MirrorKind; label: string; Icon: IconType }[] = [
-  { kind: 'lr', label: '水平镜像', Icon: LuFlipHorizontal },
-  { kind: 'ud', label: '垂直镜像', Icon: LuFlipVertical },
-  { kind: '180', label: '180° 镜像', Icon: LuRefreshCw },
-  { kind: 'cw45', label: '旋转 +45°', Icon: LuRotateCw },
-  { kind: 'ccw45', label: '旋转 −45°', Icon: LuRotateCcw },
-];
+/** 编辑菜单里的变换；顺序和快捷键沿用 MajdataEdit-Neo。labelKey 保持字面量类型，t() 才认。 */
+const TRANSFORMS = [
+  { kind: 'lr', labelKey: 'editor/EditorPage.MirrorHorizontal', Icon: LuFlipHorizontal },
+  { kind: 'ud', labelKey: 'editor/EditorPage.MirrorVertical', Icon: LuFlipVertical },
+  { kind: '180', labelKey: 'editor/EditorPage.Mirror180', Icon: LuRefreshCw },
+  { kind: 'cw45', labelKey: 'editor/EditorPage.RotateCw', Icon: LuRotateCw },
+  { kind: 'ccw45', labelKey: 'editor/EditorPage.RotateCcw', Icon: LuRotateCcw },
+] as const satisfies readonly { kind: MirrorKind; labelKey: string; Icon: IconType }[];
 
 type MenuId = 'file' | 'edit' | null;
 
@@ -59,6 +60,7 @@ function formatClock(seconds: number) {
 }
 
 export default function EditorPage() {
+  const { t } = useTranslation();
   const { folder, error, busy, open, download } = useChartFolder();
   const [maidata, setMaidata] = useState('');
   const [origin, setOrigin] = useState('');
@@ -99,13 +101,13 @@ export default function EditorPage() {
     let cancelled = false;
     void readDraft(folder.name).then((draft) => {
       if (cancelled || !shouldOfferRestore(draft, folder)) return;
-      if (window.confirm('发现比文件更新的本地草稿，恢复上次编辑？')) {
+      if (window.confirm(t('editor/EditorPage.RestoreDraft'))) {
         setMaidata(draft!.maidata);
         setActive(draft!.active);
       }
     });
     return () => { cancelled = true; };
-  }, [folder]);
+  }, [folder, t]);
 
   // 自动保存：停止编辑 5s 后落一次，另外每 30s 兜底；都不改变「已保存/未保存」
   useEffect(() => { latestRef.current = { maidata, active }; }, [maidata, active]);
@@ -212,7 +214,7 @@ export default function EditorPage() {
   return (
     <>
       <Helmet>
-        <title>{folder ? `${title} · 谱面编辑器 | Majdata.Net` : '谱面编辑器 | Majdata.Net'}</title>
+        <title>{folder ? `${title} · ${t('editor/EditorPage.Title')} | Majdata.Net` : `${t('editor/EditorPage.Title')} | Majdata.Net`}</title>
       </Helmet>
 
       <div className="editor-app">
@@ -221,15 +223,15 @@ export default function EditorPage() {
 
           <div className="editor-menu-wrap">
             <button type="button" className={`editor-top-item${openMenu === 'file' ? ' is-open' : ''}`} onClick={toggleMenu('file')}>
-              文件
+              {t('editor/EditorPage.MenuFile')}
             </button>
             {openMenu === 'file' && (
               <div className="editor-menu" onPointerDown={(event) => event.stopPropagation()}>
                 <button type="button" onClick={() => { setOpenMenu(null); void open(); }} disabled={busy}>
-                  <LuFolderOpen aria-hidden="true" />打开文件夹…
+                  <LuFolderOpen aria-hidden="true" />{t('editor/EditorPage.OpenFolder')}
                 </button>
                 <button type="button" onClick={() => { setOpenMenu(null); void save(); }} disabled={!folder || saving}>
-                  <LuSave aria-hidden="true" />保存
+                  <LuSave aria-hidden="true" />{t('editor/EditorPage.Save')}
                 </button>
               </div>
             )}
@@ -237,19 +239,19 @@ export default function EditorPage() {
 
           <div className="editor-menu-wrap">
             <button type="button" className={`editor-top-item${openMenu === 'edit' ? ' is-open' : ''}`} onClick={toggleMenu('edit')}>
-              编辑
+              {t('editor/EditorPage.MenuEdit')}
             </button>
             {openMenu === 'edit' && (
               <div className="editor-menu" onPointerDown={(event) => event.stopPropagation()}>
-                {TRANSFORMS.map(({ kind, label, Icon }) => (
+                {TRANSFORMS.map(({ kind, labelKey, Icon }) => (
                   <button
                     key={kind}
                     type="button"
                     disabled={!hasSelection}
-                    title={hasSelection ? label : '先在编辑器里选中要变换的谱面'}
+                    title={hasSelection ? t(labelKey) : t('editor/EditorPage.SelectRangeFirst')}
                     onClick={() => { setOpenMenu(null); applyTransform(kind); }}
                   >
-                    <Icon aria-hidden="true" />{label}
+                    <Icon aria-hidden="true" />{t(labelKey)}
                   </button>
                 ))}
                 <div className="editor-menu-sep" />
@@ -258,31 +260,32 @@ export default function EditorPage() {
                   disabled={!folder}
                   onClick={() => { setOpenMenu(null); setChartInfoOpen(true); }}
                 >
-                  <LuInfo aria-hidden="true" />谱面信息…
+                  <LuInfo aria-hidden="true" />{t('editor/EditorPage.ChartInfo')}
                 </button>
               </div>
             )}
           </div>
 
-          <button type="button" className="editor-top-item" onClick={() => setSettingsOpen(true)}>设置</button>
-          <button type="button" className="editor-top-item" onClick={() => setBpmOpen(true)}>BPM Tap</button>
+          <button type="button" className="editor-top-item" onClick={() => setSettingsOpen(true)}>{t('editor/EditorPage.MenuSettings')}</button>
+          <button type="button" className="editor-top-item" onClick={() => setBpmOpen(true)}>{t('editor/EditorPage.MenuBpmTap')}</button>
 
           <span className="editor-spacer" />
 
           {folder && (
             <span className={`editor-save${anyDirty ? ' is-dirty' : ' is-saved'}`}>
               <i aria-hidden="true" />
-              {anyDirty ? '未保存' : '已保存'}
+              {anyDirty ? t('editor/EditorPage.Unsaved') : t('editor/EditorPage.Saved')}
             </span>
           )}
         </header>
 
         {!folder ? (
           <div className="editor-empty">
-            <h1>谱面编辑器</h1>
-            <p>选择一个本地谱面文件夹，包含 maidata.txt（以及可选的 track、bg、pv）。文件不会被上传。</p>
+            <h1>{t('editor/EditorPage.Title')}</h1>
+            <p>{t('editor/EditorPage.EmptyHint')}</p>
             <button type="button" className="editor-open-button" onClick={() => void open()} disabled={busy}>
-              <LuFolderOpen aria-hidden="true" />{busy ? '打开中…' : '打开文件夹'}
+              <LuFolderOpen aria-hidden="true" />
+              {busy ? t('editor/EditorPage.Opening') : t('editor/EditorPage.OpenFolderButton')}
             </button>
             {error && <p className="editor-error" role="alert">{error}</p>}
           </div>
@@ -309,7 +312,7 @@ export default function EditorPage() {
                   className="editor-stage-idle"
                   style={{ backgroundImage: `url('${cover}')` }}
                 >
-                  <span>这个难度还没有谱面</span>
+                  <span>{t('editor/EditorPage.EmptyDifficulty')}</span>
                 </div>
               ))}
             </section>
@@ -324,7 +327,7 @@ export default function EditorPage() {
                 </div>
 
                 <label className="editor-field">
-                  <span>难度</span>
+                  <span>{t('editor/EditorPage.Level')}</span>
                   <input
                     value={getLevel(maidata, active)}
                     onChange={(event) => setMaidata((prev) => setLevel(prev, active, event.target.value))}
@@ -333,7 +336,7 @@ export default function EditorPage() {
                 </label>
 
                 <label className="editor-field">
-                  <span>制谱人</span>
+                  <span>{t('editor/EditorPage.Designer')}</span>
                   <input
                     value={getDesigner(maidata, active)}
                     onChange={(event) => setMaidata((prev) => setDesigner(prev, active, event.target.value))}
@@ -342,7 +345,7 @@ export default function EditorPage() {
                 </label>
 
                 <label className="editor-field">
-                  <span>First</span>
+                  <span>{t('editor/EditorPage.First')}</span>
                   <input
                     key={`${folder.name}-${active}`}
                     type="number"
@@ -361,12 +364,12 @@ export default function EditorPage() {
                     checked={followCursor}
                     onChange={(event) => setFollowCursor(event.target.checked)}
                   />
-                  文本跟随
+                  {t('editor/EditorPage.FollowCursor')}
                 </label>
 
                 <div className="editor-controls-hint">
                   <LuPlay aria-hidden="true" />
-                  播放控制在预览下方
+                  {t('editor/EditorPage.PlayHint')}
                 </div>
               </div>
 

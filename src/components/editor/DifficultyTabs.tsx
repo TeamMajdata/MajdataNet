@@ -2,6 +2,8 @@
  * 难度页签：七个档位常驻，没有内容的也在。
  * 有未保存改动的档位在名字后面显示一个 `*`。
  */
+import { useTranslation } from 'react-i18next';
+
 export const DIFFICULTY_NAMES = ['EASY', 'BASIC', 'ADVANCED', 'EXPERT', 'MASTER', 'RE:MASTER', 'UTAGE'] as const;
 
 type Props = {
@@ -11,8 +13,10 @@ type Props = {
 };
 
 export default function DifficultyTabs({ active, dirty, onSelect }: Props) {
+  const { t } = useTranslation();
+
   return (
-    <div className="editor-tabs" role="tablist" aria-label="难度">
+    <div className="editor-tabs" role="tablist" aria-label={t('editor/DifficultyTabs.Label')}>
       {DIFFICULTY_NAMES.map((name, level) => (
         <button
           key={name}
@@ -23,7 +27,9 @@ export default function DifficultyTabs({ active, dirty, onSelect }: Props) {
           onClick={() => onSelect(level)}
         >
           {name}
-          {dirty[level] && <span className="editor-tab-dirty" aria-label="有未保存改动">*</span>}
+          {dirty[level] && (
+            <span className="editor-tab-dirty" aria-label={t('editor/DifficultyTabs.Dirty')}>*</span>
+          )}
         </button>
       ))}
     </div>

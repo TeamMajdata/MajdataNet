@@ -153,6 +153,64 @@
     "SearchCollectionsPlaceholder": "Search collections…",
     "ServerError": "Server error"
   },
+  "editor/BpmTapWindow": {
+    "Hint": "Drag the title bar to move · the editor stays editable"
+  },
+  "editor/ChartInfoWindow": {
+    "Add": "Add field",
+    "Artist": "Artist",
+    "Cancel": "Cancel",
+    "ChartTitle": "Title",
+    "Confirm": "OK",
+    "DuplicateKey": "This field already exists",
+    "Empty": "No other fields",
+    "Hint": "Edits apply to the in-memory maidata.txt; you still need to save to write the file",
+    "InvalidKey": "Field names may only contain letters, digits, underscores and hyphens",
+    "KeyPlaceholder": "Field name",
+    "OtherFields": "Other fields",
+    "OtherFieldsHint": "Each row maps to one `&name=value` line",
+    "Remove": "Delete field {{key}}",
+    "Title": "Chart info",
+    "ValuePlaceholder": "Value"
+  },
+  "editor/DifficultyTabs": {
+    "Dirty": "Has unsaved changes",
+    "Label": "Difficulty"
+  },
+  "editor/EditorPage": {
+    "ChartInfo": "Chart info…",
+    "Designer": "Charter",
+    "EmptyDifficulty": "This difficulty has no chart yet",
+    "EmptyHint": "Pick a local chart folder containing maidata.txt (and optional track, bg, pv). Nothing is uploaded.",
+    "First": "First",
+    "FollowCursor": "Follow cursor",
+    "Level": "Level",
+    "MenuBpmTap": "BPM Tap",
+    "MenuEdit": "Edit",
+    "MenuFile": "File",
+    "MenuSettings": "Settings",
+    "Mirror180": "Mirror 180°",
+    "MirrorHorizontal": "Mirror horizontally",
+    "MirrorVertical": "Mirror vertically",
+    "OpenFolder": "Open folder…",
+    "OpenFolderButton": "Open folder",
+    "Opening": "Opening…",
+    "PlayHint": "Playback controls sit under the preview",
+    "RestoreDraft": "A local draft is newer than the file. Restore it?",
+    "RotateCcw": "Rotate −45°",
+    "RotateCw": "Rotate +45°",
+    "Save": "Save",
+    "Saved": "Saved",
+    "SelectRangeFirst": "Select the chart text to transform first",
+    "Title": "Chart editor",
+    "Unsaved": "Unsaved"
+  },
+  "editor/EditorWindow": {
+    "Close": "Close"
+  },
+  "editor/useChartFolder": {
+    "MissingMaidata": "This folder has no maidata.txt"
+  },
   "eventTag/EventTagPage": {
     "OriginalSongs": "Original Songs",
     "OriginalSongsDesc": "Original songs and charts from the maj collaboration team!",

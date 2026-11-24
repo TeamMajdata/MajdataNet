@@ -5,6 +5,7 @@
  * （只读，保存走下载）。两条路径最后都归一到同一份 `ChartFolder`，页面不用区分。
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type ChartFolder = {
   /** 文件夹名，用来显示 */
@@ -92,6 +93,7 @@ function pickViaInput(): Promise<{ name: string; files: File[] } | null> {
 }
 
 export function useChartFolder() {
+  const { t } = useTranslation();
   const [folder, setFolder] = useState<ChartFolder | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -137,7 +139,7 @@ export function useChartFolder() {
 
       const maidata = picked.find((item) => item.name.toLowerCase() === 'maidata.txt');
       if (!maidata) {
-        setError('这个文件夹里没有 maidata.txt');
+        setError(t('editor/useChartFolder.MissingMaidata'));
         return;
       }
 
@@ -168,7 +170,7 @@ export function useChartFolder() {
     } finally {
       setBusy(false);
     }
-  }, [releaseUrls]);
+  }, [releaseUrls, t]);
 
   /** 不支持原地写时，退化成下载 */
   const download = useCallback((content: string, name = 'maidata.txt') => {

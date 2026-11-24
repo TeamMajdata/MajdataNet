@@ -3,9 +3,11 @@
  * —— 每两次点击算 60/Δt，超过 20 个就去掉一个最小和一个最大，结果直接显示在按钮上。
  */
 import { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import EditorWindow from './EditorWindow';
 
 export default function BpmTapWindow({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   const tapsRef = useRef<number[]>([]);
   const lastRef = useRef<number | null>(null);
   const [bpm, setBpm] = useState<number | null>(null);
@@ -35,7 +37,7 @@ export default function BpmTapWindow({ onClose }: { onClose: () => void }) {
   }, []);
 
   return (
-    <EditorWindow title="BPM Tap" onClose={onClose} hint="拖动标题栏可移动 · 编辑器仍可继续输入">
+    <EditorWindow title="BPM Tap" onClose={onClose} hint={t('editor/BpmTapWindow.Hint')}>
       <button type="button" className="editor-bpm-tap" onClick={tap}>
         {bpm === null ? 'Tap' : bpm.toFixed(1)}
       </button>

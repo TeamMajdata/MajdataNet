@@ -8,12 +8,15 @@
  * 所有编辑都作用在一份草稿文本上，确定时才整体交回页面——取消就是丢弃。
  */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuPlus, LuX } from 'react-icons/lu';
 import EditorWindow from './EditorWindow';
 import { getField, listFields, removeField, setField } from '@/utils/maidataEdit';
 
 const FUUMEN_KEY = /^inote_\d+$/;
 const KEY_SHAPE = /^[\w-]+$/;
+
+type ErrorKey = '' | 'editor/ChartInfoWindow.InvalidKey' | 'editor/ChartInfoWindow.DuplicateKey';
 
 type Props = {
   maidata: string;
@@ -22,10 +25,11 @@ type Props = {
 };
 
 export default function ChartInfoWindow({ maidata, onApply, onClose }: Props) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState(maidata);
   const [newKey, setNewKey] = useState('');
   const [newValue, setNewValue] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<ErrorKey>('');
 
   // title / artist 单独一栏；谱面正文不在这里编辑
   const commands = listFields(draft).filter(
@@ -37,11 +41,11 @@ export default function ChartInfoWindow({ maidata, onApply, onClose }: Props) {
   const addCommand = () => {
     const key = newKey.trim();
     if (!KEY_SHAPE.test(key)) {
-      setError('字段名只能包含字母、数字、下划线和连字符');
+      setError('editor/ChartInfoWindow.InvalidKey');
       return;
     }
     if (listFields(draft).some((field) => field.key === key)) {
-      setError('这个字段已经存在了');
+      setError('editor/ChartInfoWindow.DuplicateKey');
       return;
     }
     setError('');
@@ -52,24 +56,24 @@ export default function ChartInfoWindow({ maidata, onApply, onClose }: Props) {
 
   return (
     <EditorWindow
-      title="谱面信息"
+      title={t('editor/ChartInfoWindow.Title')}
       width={560}
       onClose={onClose}
-      hint="改动只作用于内存里的 maidata.txt，点「确定」后仍需保存才写回文件"
+      hint={t('editor/ChartInfoWindow.Hint')}
     >
       <div className="editor-info">
         <label className="editor-info-row">
-          <span className="editor-info-label">曲名</span>
+          <span className="editor-info-label">{t('editor/ChartInfoWindow.ChartTitle')}</span>
           <input value={getField(draft, 'title') ?? ''} onChange={(event) => write('title', event.target.value)} />
         </label>
         <label className="editor-info-row">
-          <span className="editor-info-label">曲师</span>
+          <span className="editor-info-label">{t('editor/ChartInfoWindow.Artist')}</span>
           <input value={getField(draft, 'artist') ?? ''} onChange={(event) => write('artist', event.target.value)} />
         </label>
 
         <div className="editor-info-head">
-          <span>其它字段</span>
-          <small>按 `&名称=值` 直接对应 maidata.txt</small>
+          <span>{t('editor/ChartInfoWindow.OtherFields')}</span>
+          <small>{t('editor/ChartInfoWindow.OtherFieldsHint')}</small>
         </div>
 
         <div className="editor-info-list">
@@ -80,29 +84,44 @@ export default function ChartInfoWindow({ maidata, onApply, onClose }: Props) {
               <button
                 type="button"
                 className="editor-info-remove"
-                aria-label={`删除字段 ${key}`}
+                aria-label={t('editor/ChartInfoWindow.Remove', { key })}
                 onClick={() => setDraft((prev) => removeField(prev, key))}
               >
                 <LuX aria-hidden="true" />
               </button>
             </div>
           ))}
-          {commands.length === 0 && <p className="editor-info-empty">没有其它字段</p>}
+          {commands.length === 0 && <p className="editor-info-empty">{t('editor/ChartInfoWindow.Empty')}</p>}
         </div>
 
         <div className="editor-info-row">
           <span className="editor-info-key">&amp;</span>
-          <input placeholder="字段名" value={newKey} onChange={(event) => { setNewKey(event.target.value); setError(''); }} />
-          <input placeholder="值" value={newValue} onChange={(event) => setNewValue(event.target.value)} />
-          <button type="button" className="editor-info-add" aria-label="添加字段" onClick={addCommand}>
+          <input
+            placeholder={t('editor/ChartInfoWindow.KeyPlaceholder')}
+            value={newKey}
+            onChange={(event) => { setNewKey(event.target.value); setError(''); }}
+          />
+          <input
+            placeholder={t('editor/ChartInfoWindow.ValuePlaceholder')}
+            value={newValue}
+            onChange={(event) => setNewValue(event.target.value)}
+          />
+          <button
+            type="button"
+            className="editor-info-add"
+            aria-label={t('editor/ChartInfoWindow.Add')}
+            onClick={addCommand}
+          >
             <LuPlus aria-hidden="true" />
           </button>
         </div>
-        {error && <p className="editor-info-error" role="alert">{error}</p>}
+        {error && <p className="editor-info-error" role="alert">{t(error)}</p>}
 
         <div className="editor-info-actions">
-          <button type="button" onClick={onClose}>取消</button>
-          <button type="button" className="is-primary" onClick={() => { onApply(draft); onClose(); }}>确定</button>
+          <button type="button" onClick={onClose}>{t('editor/ChartInfoWindow.Cancel')}</button>
+          <button type="button" className="is-primary" onClick={() => { onApply(draft); onClose(); }}>
+            {t('editor/ChartInfoWindow.Confirm')}
+          </button>
         </div>
       </div>
     </EditorWindow>
