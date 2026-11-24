@@ -586,3 +586,30 @@
 }
 
 .editor-field select option { background: #12161d; color: #dbe6f2; }
+/* 快捷键说明窗 */
+.editor-shortcuts { display: flex; flex-direction: column; gap: 2px; }
+
+.editor-shortcut-row {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 2px;
+  border-bottom: 1px solid rgb(255 255 255 / 6%);
+}
+
+.editor-shortcut-row:last-child { border-bottom: 0; }
+
+.editor-shortcut-row kbd {
+  font: inherit;
+  font-size: 11.5px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  background: rgb(255 255 255 / 7%);
+  color: #cfe0f0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.editor-shortcut-row span { font-size: 12px; color: rgb(255 255 255 / 72%); }

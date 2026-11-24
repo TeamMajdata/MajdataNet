@@ -47,6 +47,19 @@ const LEVEL_COUNT = 7;
 /** 播放器的倍速档位（和 MajView 控制条里的一致） */
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
+/** 快捷键说明窗里的一行 */
+const SHORTCUTS = [
+  { keys: 'Space', labelKey: 'editor/EditorPage.ShortcutPlay' },
+  { keys: 'Ctrl + Space', labelKey: 'editor/EditorPage.ShortcutToggle' },
+  { keys: 'Shift + Space', labelKey: 'editor/EditorPage.ShortcutTypeSpace' },
+  { keys: 'Ctrl + ← / →', labelKey: 'editor/EditorPage.ShortcutNote' },
+  { keys: 'Ctrl + Click', labelKey: 'editor/EditorPage.ShortcutClick' },
+  { keys: 'Ctrl + S', labelKey: 'editor/EditorPage.ShortcutSave' },
+  { keys: 'Ctrl + O', labelKey: 'editor/EditorPage.ShortcutOpen' },
+  { keys: 'Ctrl（按住）', labelKey: 'editor/EditorPage.ShortcutHoldCtrl' },
+  { keys: 'Shift（按住）', labelKey: 'editor/EditorPage.ShortcutHoldShift' },
+] as const;
+
 /** 编辑菜单里的变换；顺序和快捷键沿用 MajdataEdit-Neo。labelKey 保持字面量类型，t() 才认。 */
 const TRANSFORMS = [
   { kind: 'lr', labelKey: 'editor/EditorPage.MirrorHorizontal', Icon: LuFlipHorizontal },
@@ -76,6 +89,7 @@ export default function EditorPage() {
   const [hasSelection, setHasSelection] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [chartInfoOpen, setChartInfoOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [followCursor, setFollowCursor] = useState(false);
   const [judgeArea, setJudgeArea] = useState(false);
   const [hideNotes, setHideNotes] = useState(false);
@@ -444,7 +458,7 @@ export default function EditorPage() {
 
       <div className="editor-app">
         <header className="editor-menubar">
-          <Link to="/" className="editor-brand">Majdata.Net</Link>
+          <Link to="/" className="editor-brand">Majdata Edit</Link>
 
           <div className="editor-menu-wrap">
             <button type="button" className={`editor-top-item${openMenu === 'file' ? ' is-open' : ''}`} onClick={toggleMenu('file')}>
@@ -509,6 +523,7 @@ export default function EditorPage() {
             disabled={!folder}
           >{t('editor/EditorPage.MenuSettings')}</button>
           <button type="button" className="editor-top-item" onClick={() => setBpmOpen(true)}>{t('editor/EditorPage.MenuBpmTap')}</button>
+          <button type="button" className="editor-top-item" onClick={() => setShortcutsOpen(true)}>{t('editor/EditorPage.MenuShortcuts')}</button>
 
           <span className="editor-spacer" />
 
@@ -706,6 +721,22 @@ export default function EditorPage() {
         )}
 
         {bpmOpen && <BpmTapWindow onClose={() => setBpmOpen(false)} />}
+        {shortcutsOpen && (
+          <EditorWindow
+            title={t('editor/EditorPage.MenuShortcuts')}
+            width={460}
+            onClose={() => setShortcutsOpen(false)}
+          >
+            <div className="editor-shortcuts">
+              {SHORTCUTS.map(({ keys, labelKey }) => (
+                <div key={labelKey} className="editor-shortcut-row">
+                  <kbd>{keys}</kbd>
+                  <span>{t(labelKey)}</span>
+                </div>
+              ))}
+            </div>
+          </EditorWindow>
+        )}
         {settingsOpen && (
           <EditorWindow
             title={t('song/MajView.Settings')}
