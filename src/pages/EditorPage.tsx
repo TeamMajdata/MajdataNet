@@ -11,8 +11,8 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
-  LuFilePlus, LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuInfo, LuRefreshCw,
-  LuRotateCcw, LuRotateCw, LuSave, LuSearch,
+  LuFilePlus, LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuInfo, LuPause, LuPlay,
+  LuRefreshCw, LuRotateCcw, LuRotateCw, LuSave, LuSearch, LuSquare,
 } from 'react-icons/lu';
 import type { IconType } from 'react-icons';
 import MajView from '@/components/song/MajView';
@@ -75,8 +75,9 @@ export default function EditorPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [chartInfoOpen, setChartInfoOpen] = useState(false);
   const [followCursor, setFollowCursor] = useState(false);
-  const [controlsHost, setControlsHost] = useState<HTMLDivElement | null>(null);
   const [settingsHost, setSettingsHost] = useState<HTMLDivElement | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [command, setCommand] = useState<{ type: 'playPause' | 'stop'; key: number } | null>(null);
   const latestRef = useRef({ maidata: '', active: 4 });
   const lastSecondRef = useRef(-1);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -257,6 +258,11 @@ export default function EditorPage() {
     editorRef.current?.focus();
   }, []);
 
+  /** 编辑器只有两个播放控制键，命令通过 command 发给播放器 */
+  const sendCommand = useCallback((type: 'playPause' | 'stop') => {
+    setCommand({ type, key: Date.now() });
+  }, []);
+
   const title = getField(maidata, 'title') ?? folder?.name ?? '';
   const artist = getField(maidata, 'artist') ?? '';
   const cover = folder?.coverUrl ?? DEFAULT_COVER;
@@ -374,10 +380,11 @@ export default function EditorPage() {
                   onTime={handleTime}
                   settingsOpen={settingsOpen}
                   onSettingsOpenChange={setSettingsOpen}
-                  controlsHost={controlsHost}
                   settingsHost={settingsHost}
                   seekTo={seekTo}
-                  showAnalysis
+                  command={command}
+                  onPlayingChange={setPlaying}
+                  showControls={false}
                 />
               ) : (
                 <div
@@ -438,6 +445,26 @@ export default function EditorPage() {
                   />
                   {t('editor/EditorPage.FollowCursor')}
                 </label>
+
+                {/* 只有原版两个播放控制键：■ 停止、▶/⏸ 播放暂停 */}
+                <div className="editor-playback">
+                  <button
+                    type="button"
+                    onClick={() => sendCommand('stop')}
+                    aria-label={t('song/MajView.Stop')}
+                    title={t('song/MajView.Stop')}
+                  >
+                    <LuSquare aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => sendCommand('playPause')}
+                    aria-label={playing ? t('song/MajView.Pause') : t('song/MajView.Play')}
+                    title={playing ? t('song/MajView.Pause') : t('song/MajView.Play')}
+                  >
+                    {playing ? <LuPause aria-hidden="true" /> : <LuPlay aria-hidden="true" />}
+                  </button>
+                </div>
               </div>
 
               <div className="editor-editor">
@@ -451,9 +478,6 @@ export default function EditorPage() {
                   onCursorLineChange={handleCursorLine}
                 />
               </div>
-
-              {/* 播放控制条挂在这里（MajView 用 portal 送过来） */}
-              <div className="editor-transport" ref={setControlsHost} />
             </section>
           </main>
         )}

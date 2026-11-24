@@ -78,16 +78,19 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  /* 判定盘要按这块区域的短边取正方形，所以这里做成尺寸容器 */
+  container-type: size;
 }
 .majview:fullscreen .majview-stage { position: static; }
 
+/* 判定盘永远是正方形：宽高都取容器的短边。
+   只写 aspect-ratio + flex:1 的话，容器窄高时宽度被 max-width 夹住、高度却被拉满，圆盘会变成椭圆 */
 .majview-scene {
   position: relative;
-  flex: 1;
-  min-height: 0;
-  aspect-ratio: 1;
-  max-width: 100%;
-  margin-inline: auto;
+  width: min(100cqw, 100cqh);
+  height: min(100cqw, 100cqh);
+  flex: none;
+  margin: auto;
   container-type: size;
   /* 判定盘手势：横向调进度、竖向调音量/亮度，所以默认不让浏览器接管触摸方向；
      手势关掉时组件会把 touch-action 改回 pan-y，恢复页面滚动。

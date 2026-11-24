@@ -94,7 +94,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, showAnalysis = false }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showAnalysis = false }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -129,6 +129,12 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   settingsHost?: HTMLElement | null;
   /** 编辑器里光标换行 → 跳到那一刻（绝对秒）；key 每次不同才能重复跳同一个位置 */
   seekTo?: { seconds: number; key: number } | null;
+  /** 外部播放控制：播放/暂停、停止。key 每次不同才触发一次 */
+  command?: { type: 'playPause' | 'stop'; key: number } | null;
+  /** 播放状态变化时回调，编辑器用自己的两个按钮显示 ▶ / ⏸ */
+  onPlayingChange?: (playing: boolean) => void;
+  /** 是否渲染播放器自带的控制条（编辑器只要两个控制键，会关掉） */
+  showControls?: boolean;
   /**
    * 是否显示谱面分析（音符密度条 + 时间轴）。
    * 谱面页不需要，默认关闭；编辑器打开。
@@ -775,6 +781,31 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     seekRef.current(Math.max(beginRef.current, seekTo.seconds));
   }, [seekTo]);
 
+  /** 停止：先暂停再回开头（编辑器自己的 ■ 按钮用） */
+  const stopAndRewind = () => {
+    transportRef.current?.pause();
+    setPlaying(false);
+    seek(begin);
+  };
+
+  // 编辑器的 ▶ / ■ 通过 command 发进来；同样用 ref 拿最新的函数
+  const togglePlayRef = useRef(togglePlay);
+  togglePlayRef.current = togglePlay;
+  const stopRef = useRef(stopAndRewind);
+  stopRef.current = stopAndRewind;
+  const handledCommand = useRef<number | null>(null);
+  useEffect(() => {
+    if (!command || handledCommand.current === command.key) return;
+    handledCommand.current = command.key;
+    if (command.type === 'playPause') void togglePlayRef.current();
+    else stopRef.current();
+  }, [command]);
+
+  // 把播放状态报给页面，页面据此切换 ▶ / ⏸
+  useEffect(() => {
+    onPlayingChange?.(playing);
+  }, [playing, onPlayingChange]);
+
   const changeRate = (value: number) => {
     setRate(value);
     const transport = transportRef.current;
@@ -1238,20 +1269,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
         <button type="button" className={controlClass} onClick={togglePlay} disabled={status !== 'ready'} aria-label={playing ? t('song/MajView.Pause') : t('song/MajView.Play')}>
           {playing ? <LuPause aria-hidden="true" className="w-4.5 h-4.5" /> : <LuPlay aria-hidden="true" className="w-4.5 h-4.5" />}
         </button>
-        <button
-          type="button"
-          className={controlClass}
-          onClick={() => {
-            // 编辑器里这个键是「停止」：先停下再回开头；谱面页保持原来的「回到开头」
-            if (showAnalysis) {
-              transportRef.current?.pause();
-              setPlaying(false);
-            }
-            seek(begin);
-          }}
-          disabled={!canControl}
-          aria-label={showAnalysis ? t('song/MajView.Stop') : t('song/MajView.Restart')}
-        >
+        <button type="button" className={controlClass} onClick={() => seek(begin)} disabled={!canControl} aria-label={t('song/MajView.Restart')}>
           <LuRotateCcw aria-hidden="true" className="w-4 h-4" />
         </button>
         <span className="flex-1 px-1 text-white/70 text-xs tabular-nums">
@@ -1344,7 +1362,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
       </div>
       </div>
 
-      {controlsHost ? createPortal(controlsNode, controlsHost) : controlsNode}
+      {showControls && (controlsHost ? createPortal(controlsNode, controlsHost) : controlsNode)}
 
       {settingsOpen && (settingsHost ? createPortal(settingsNode, settingsHost) : settingsNode)}
     </div>
