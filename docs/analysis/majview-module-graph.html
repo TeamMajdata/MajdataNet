@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MajdataNet · 模块连线图（majview ↔ SongPage）</title>
+<style>
+  :root {
+    --bg: #080b10;
+    --panel: rgba(13, 18, 26, 0.88);
+    --line: rgba(255, 255, 255, 0.09);
+    --text: #e6edf5;
+    --muted: #8b9bb0;
+    --engine: #22d3ee;
+    --song: #f59e0b;
+    --page: #e879f9;
+    --ui: #a78bfa;
+    --hooks: #34d399;
+    --types: #94a3b8;
+    --utils: #60a5fa;
+    --config: #fb7185;
+    --i18n: #fbbf24;
+    --other: #64748b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body {
+    background: radial-gradient(1200px 800px at 30% 0%, #0f1723 0%, var(--bg) 55%);
+    color: var(--text);
+    font: 13px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  #stage { position: fixed; inset: 0; cursor: grab; }
+  #stage.dragging { cursor: grabbing; }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  .hud { position: fixed; z-index: 5; }
+
+  #title { top: 18px; left: 20px; max-width: 46ch; pointer-events: none; }
+  #title h1 { margin: 0 0 4px; font-size: 15px; font-weight: 650; letter-spacing: .2px; }
+  #title p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.55; }
+  #title code { color: var(--engine); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  #legend {
+    left: 20px; bottom: 18px; padding: 10px 12px; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(12px);
+    display: flex; flex-direction: column; gap: 5px; font-size: 11.5px;
+  }
+  #legend .row { display: flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; }
+  #legend .row:hover { color: #fff; }
+  #legend .row.off { opacity: .3; text-decoration: line-through; }
+  #legend .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  #legend .n { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; padding-left: 8px; }
+  #legend hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0 2px; width: 100%; }
+  #legend .key { color: var(--muted); font-size: 11px; display: flex; align-items: center; gap: 6px; }
+  #legend .swatch { width: 22px; height: 0; border-top: 2px solid; flex: none; }
+
+  #panel {
+    top: 16px; right: 16px; bottom: 16px; width: 336px; max-width: calc(100vw - 32px);
+    padding: 14px 15px; border-radius: 12px; overflow-y: auto;
+    background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(14px);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  #panel::-webkit-scrollbar { width: 8px; }
+  #panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+
+  .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .metric { padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,.035); border: 1px solid var(--line); }
+  .metric .k { color: var(--muted); font-size: 10.5px; letter-spacing: .3px; text-transform: uppercase; }
+  .metric .v { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.25; }
+  .metric .v small { font-size: 10.5px; font-weight: 400; color: var(--muted); }
+
+  .tools { display: flex; flex-wrap: wrap; gap: 6px; }
+  button.chip {
+    font: inherit; font-size: 11.5px; color: var(--text); background: rgba(255,255,255,.05);
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; cursor: pointer; transition: .15s;
+  }
+  button.chip:hover { background: rgba(255,255,255,.11); }
+  button.chip[aria-pressed="true"] { background: rgba(34,211,238,.16); border-color: rgba(34,211,238,.5); color: #a5f3fc; }
+
+  input[type="search"] {
+    font: inherit; font-size: 12px; width: 100%; color: var(--text);
+    background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; outline: none;
+  }
+  input[type="search"]:focus { border-color: rgba(34,211,238,.5); }
+
+  #detail { font-size: 12px; }
+  #detail h2 { margin: 0 0 2px; font-size: 13px; font-weight: 600; word-break: break-all; }
+  #detail .path { color: var(--muted); font-size: 11px; font-family: ui-monospace, Menlo, Consolas, monospace; word-break: break-all; }
+  #detail .tag { display: inline-block; margin: 6px 0 0; padding: 1px 8px; border-radius: 999px; font-size: 10.5px; }
+  #detail h3 { margin: 12px 0 5px; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .4px; text-transform: uppercase; }
+  #detail ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  #detail li { padding: 3px 7px; border-radius: 6px; cursor: pointer; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; color: #cfe0f0; word-break: break-all; }
+  #detail li:hover { background: rgba(255,255,255,.08); }
+  #detail li .k { color: var(--muted); }
+  .empty { color: var(--muted); font-size: 11.5px; }
+  .hint { color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+  #tip {
+    position: fixed; z-index: 20; pointer-events: none; opacity: 0; transition: opacity .1s;
+    padding: 5px 9px; border-radius: 7px; background: rgba(8,11,16,.95); border: 1px solid var(--line);
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; white-space: nowrap;
+  }
+  @media (max-width: 880px) {
+    #panel { width: 270px; }
+    #title { max-width: 40vw; }
+  }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv"></canvas></div>
+
+<div class="hud" id="title">
+  <h1>MajdataNet 模块连线图</h1>
+  <p>节点 = <code>src/</code> 下的一个文件，连线 = 一条 <code>import</code>。颜色 = 所属模块。
+     实线是静态依赖，虚线是 <code>import()</code> 动态加载。点节点看它的上下游。</p>
+</div>
+
+<div class="hud" id="legend"></div>
+
+<div class="hud" id="panel">
+  <div class="metrics" id="metrics"></div>
+  <div class="tools">
+    <button class="chip" data-view="all" aria-pressed="true">全部</button>
+    <button class="chip" data-view="focus" aria-pressed="false">聚焦 majview</button>
+    <button class="chip" data-view="cross" aria-pressed="false">只看跨层连线</button>
+    <button class="chip" data-view="reset">重置</button>
+  </div>
+  <input type="search" id="q" placeholder="搜索文件…  ( / 聚焦)" spellcheck="false" />
+  <div id="detail">
+    <p class="hint">点击任意节点查看它的 import / 被 import。拖动节点可以挪开重叠，滚轮缩放，空白处拖动平移。</p>
+  </div>
+</div>
+
+<div id="tip"></div>
+
+<script>
+const DATA = {"nodes":[{"id":"App.tsx","lines":139},{"id":"components/auth/AuthModal.tsx","lines":419},{"id":"components/chart/RadarPlot.tsx","lines":85},{"id":"components/chart/RecentActivityChart.tsx","lines":116},{"id":"components/collection/CollectionCard.tsx","lines":216},{"id":"components/collection/CollectionModal.tsx","lines":369},{"id":"components/collection/CollectionSubscribeButton.tsx","lines":52},{"id":"components/event/EnhancedDescription.tsx","lines":56},{"id":"components/event/EventBanner.tsx","lines":59},{"id":"components/event/EventsFilter.tsx","lines":47},{"id":"components/event/TimelineModal.tsx","lines":512},{"id":"components/header/AuthSection.tsx","lines":55},{"id":"components/header/Dropdown.tsx","lines":61},{"id":"components/header/HeaderSearch.tsx","lines":93},{"id":"components/header/index.tsx","lines":68},{"id":"components/header/LanguageMenu.tsx","lines":74},{"id":"components/header/MajdataLogo.tsx","lines":24},{"id":"components/header/Navigation.tsx","lines":340},{"id":"components/header/navigationItems.ts","lines":92},{"id":"components/header/styles.ts","lines":11},{"id":"components/header/useLogoEasterEgg.ts","lines":17},{"id":"components/header/UserMenu.tsx","lines":116},{"id":"components/home/carousel.tsx","lines":19},{"id":"components/home/CollectionsRow.tsx","lines":40},{"id":"components/home/CollectionTile.tsx","lines":66},{"id":"components/home/FeedRows.tsx","lines":87},{"id":"components/home/PopularRanking.tsx","lines":58},{"id":"components/home/RecentUploads.tsx","lines":38},{"id":"components/home/SongTile.tsx","lines":60},{"id":"components/home/SongTileRow.tsx","lines":28},{"id":"components/home/TileRow.tsx","lines":56},{"id":"components/home/touchScroll.ts","lines":7},{"id":"components/index.ts","lines":53},{"id":"components/layout/AmbientBackground.tsx","lines":25},{"id":"components/layout/AmbientParticles.tsx","lines":140},{"id":"components/layout/FloatingButtons.tsx","lines":41},{"id":"components/layout/PageLayout.tsx","lines":149},{"id":"components/mascot/Live2DMascot.tsx","lines":346},{"id":"components/mascot/mascotState.ts","lines":144},{"id":"components/mascot/runtime.ts","lines":255},{"id":"components/ProtectedRoute.tsx","lines":33},{"id":"components/score/InteractCount.tsx","lines":41},{"id":"components/score/Level.tsx","lines":31},{"id":"components/score/levelColors.ts","lines":11},{"id":"components/score/Levels.tsx","lines":112},{"id":"components/score/rankBadge.ts","lines":7},{"id":"components/score/ScoreCard.tsx","lines":189},{"id":"components/score/ScoreCount.tsx","lines":104},{"id":"components/ScrollToTopListener.tsx","lines":18},{"id":"components/search/chartSort.ts","lines":24},{"id":"components/search/SearchBox.tsx","lines":192},{"id":"components/season/SeasonLeaderboard.tsx","lines":146},{"id":"components/season/SeasonScoreDetails.tsx","lines":103},{"id":"components/song/ChartFile.tsx","lines":132},{"id":"components/song/chartMarks.ts","lines":36},{"id":"components/song/ChartRadar.tsx","lines":40},{"id":"components/song/commentTree.ts","lines":80},{"id":"components/song/InteractSummaryProvider.tsx","lines":23},{"id":"components/song/MajView.tsx","lines":1223},{"id":"components/song/MajViewAnalyzer.tsx","lines":78},{"id":"components/song/MajViewSettings.tsx","lines":219},{"id":"components/song/MajViewVisualizer.tsx","lines":86},{"id":"components/song/MiniGame.tsx","lines":39},{"id":"components/song/monacoSimai.ts","lines":83},{"id":"components/song/ScoreRanking.tsx","lines":64},{"id":"components/song/SongCard.tsx","lines":189},{"id":"components/song/SongComments.tsx","lines":803},{"id":"components/song/SongDifficultyLevels.tsx","lines":44},{"id":"components/song/songGrid.ts","lines":23},{"id":"components/song/SongInteraction.tsx","lines":85},{"id":"components/song/SongList.tsx","lines":73},{"id":"components/song/useMediaSession.ts","lines":161},{"id":"components/song/VoteControl.tsx","lines":104},{"id":"components/ui/ConfirmDialog.tsx","lines":66},{"id":"components/ui/CoverPic.tsx","lines":38},{"id":"components/ui/DownloadFormatDialog.tsx","lines":93},{"id":"components/ui/DownloadToast.tsx","lines":79},{"id":"components/ui/EmptyState.tsx","lines":11},{"id":"components/ui/LazyLoad.tsx","lines":60},{"id":"components/ui/LoadingSpinner.tsx","lines":26},{"id":"components/ui/MarqueeText.tsx","lines":59},{"id":"components/ui/Modal.tsx","lines":104},{"id":"components/ui/PageLoading.tsx","lines":35},{"id":"components/ui/Pager.tsx","lines":74},{"id":"components/ui/SectionLoading.tsx","lines":17},{"id":"components/ui/SegmentedTabs.tsx","lines":33},{"id":"components/ui/SortMenu.tsx","lines":137},{"id":"components/ui/SuggestionListbox.tsx","lines":98},{"id":"components/ui/surface.ts","lines":11},{"id":"components/ui/TagManageWidget.tsx","lines":363},{"id":"components/ui/ToastIcon.tsx","lines":29},{"id":"components/ui/Tooltip.tsx","lines":76},{"id":"components/ui/UnderlineTabs.tsx","lines":45},{"id":"components/user/AvatarUploader.tsx","lines":194},{"id":"components/user/BestScores.tsx","lines":92},{"id":"components/user/ChartUploadDialog.tsx","lines":72},{"id":"components/user/ChartUploader.tsx","lines":369},{"id":"components/user/IntroUploader.tsx","lines":137},{"id":"components/user/Logout.tsx","lines":29},{"id":"components/user/NicknameEditor.tsx","lines":41},{"id":"components/user/RecentPlayedWidget.tsx","lines":135},{"id":"components/user/UploadedCharts.tsx","lines":195},{"id":"components/user/UserAvatar.tsx","lines":31},{"id":"components/user/UserRating.tsx","lines":110},{"id":"components/user/UserSeasons.tsx","lines":123},{"id":"config/api.ts","lines":107},{"id":"config/apiRetCode.ts","lines":34},{"id":"config/i18n.ts","lines":24},{"id":"contexts/ImpressionContext.tsx","lines":33},{"id":"contexts/impressionContextDef.ts","lines":13},{"id":"contexts/interactSummaryContextDef.ts","lines":11},{"id":"contexts/UserContext.tsx","lines":59},{"id":"contexts/userContextDef.ts","lines":9},{"id":"hooks/index.ts","lines":11},{"id":"hooks/useAvatarUrl.ts","lines":37},{"id":"hooks/useChartMediaUrl.ts","lines":41},{"id":"hooks/useChartMeta.ts","lines":43},{"id":"hooks/useChartRadar.ts","lines":50},{"id":"hooks/useCollections.ts","lines":155},{"id":"hooks/useEventClock.ts","lines":44},{"id":"hooks/useFavorites.ts","lines":81},{"id":"hooks/useImpressionRef.ts","lines":17},{"id":"hooks/useInteractSummary.ts","lines":27},{"id":"hooks/useIsAdministrator.ts","lines":16},{"id":"hooks/useMediaQuery.ts","lines":15},{"id":"hooks/useSeasonBreakdown.ts","lines":88},{"id":"hooks/useSeasonCharts.ts","lines":129},{"id":"hooks/useSeasonLastPlayed.ts","lines":106},{"id":"hooks/useSeasonRanking.ts","lines":69},{"id":"hooks/useUserContext.ts","lines":24},{"id":"hooks/useUserRating.ts","lines":55},{"id":"i18n/i18next.d.ts","lines":13},{"id":"i18n/index.ts","lines":84},{"id":"main.tsx","lines":12},{"id":"majview/analyzer.js","lines":58},{"id":"majview/audio.js","lines":296},{"id":"majview/chartCache.ts","lines":32},{"id":"majview/geometry.js","lines":111},{"id":"majview/gestures.js","lines":30},{"id":"majview/hanabi.js","lines":82},{"id":"majview/perf.js","lines":256},{"id":"majview/preload.ts","lines":45},{"id":"majview/renderer.js","lines":663},{"id":"majview/settings.ts","lines":87},{"id":"majview/simai.js","lines":1042},{"id":"majview/spectrum.js","lines":241},{"id":"majview/spectrum.worker.js","lines":13},{"id":"majview/timeline.js","lines":196},{"id":"majview/visualizer.js","lines":530},{"id":"pages/collection/CollectionPage.tsx","lines":432},{"id":"pages/collection/HirobaPage.tsx","lines":196},{"id":"pages/EventsPage.tsx","lines":166},{"id":"pages/EventTagPage.tsx","lines":64},{"id":"pages/HomePage.tsx","lines":295},{"id":"pages/MiniGamePage.tsx","lines":22},{"id":"pages/NotFoundPage.tsx","lines":61},{"id":"pages/QRAuthPage.tsx","lines":173},{"id":"pages/ranking/UserRankingPage.tsx","lines":26},{"id":"pages/SearchPage.tsx","lines":85},{"id":"pages/SeasonPage.tsx","lines":166},{"id":"pages/SongPage.tsx","lines":383},{"id":"pages/SpacePage.tsx","lines":207},{"id":"pages/user/ChartsPage.tsx","lines":73},{"id":"pages/user/CollectionsPage.tsx","lines":177},{"id":"pages/user/ProfilePage.tsx","lines":69},{"id":"pages/user/ScoresPage.tsx","lines":294},{"id":"types/collection.ts","lines":5},{"id":"types/components.ts","lines":155},{"id":"types/download.ts","lines":13},{"id":"types/enums.ts","lines":26},{"id":"types/event.ts","lines":80},{"id":"types/hooks.ts","lines":15},{"id":"types/index.ts","lines":18},{"id":"types/interact.ts","lines":84},{"id":"types/pages.ts","lines":14},{"id":"types/radar.ts","lines":24},{"id":"types/score.ts","lines":91},{"id":"types/song.ts","lines":31},{"id":"types/swiper-css.d.ts","lines":5},{"id":"types/timeline.ts","lines":47},{"id":"types/user.ts","lines":33},{"id":"utils/apiClient.ts","lines":40},{"id":"utils/authPaths.ts","lines":15},{"id":"utils/authUtils.ts","lines":53},{"id":"utils/boot.ts","lines":17},{"id":"utils/chartInfo.ts","lines":35},{"id":"utils/chartTags.ts","lines":60},{"id":"utils/chartUploadValidation.ts","lines":16},{"id":"utils/comboUtils.ts","lines":27},{"id":"utils/download.tsx","lines":125},{"id":"utils/downloadFormat.tsx","lines":52},{"id":"utils/eventImage.ts","lines":21},{"id":"utils/eventLink.ts","lines":9},{"id":"utils/eventsData.ts","lines":161},{"id":"utils/httpMessage.ts","lines":76},{"id":"utils/impressionTracker.ts","lines":124},{"id":"utils/index.ts","lines":22},{"id":"utils/interaction.ts","lines":16},{"id":"utils/levelUtils.ts","lines":31},{"id":"utils/loadMotionFeatures.ts","lines":8},{"id":"utils/maidataHash.ts","lines":56},{"id":"utils/motionFeatures.ts","lines":7},{"id":"utils/radar.ts","lines":24},{"id":"utils/recentActivity.ts","lines":139},{"id":"utils/remarkCenter.ts","lines":86},{"id":"utils/remarkChartMarks.ts","lines":51},{"id":"utils/remarkMentions.ts","lines":53},{"id":"utils/richTextUtils.tsx","lines":281},{"id":"utils/scrollUtils.ts","lines":16},{"id":"utils/searchSuggestions.ts","lines":65},{"id":"utils/season.ts","lines":133},{"id":"utils/simai.ts","lines":29},{"id":"utils/simaiMonarch.ts","lines":28},{"id":"utils/simaiSection.ts","lines":13},{"id":"utils/sleep.ts","lines":8},{"id":"utils/uploadedChartSearch.ts","lines":67}],"edges":[{"from":"App.tsx","to":"utils/loadMotionFeatures.ts","kind":"static"},{"from":"App.tsx","to":"components/ui/PageLoading.tsx","kind":"static"},{"from":"App.tsx","to":"contexts/UserContext.tsx","kind":"static"},{"from":"App.tsx","to":"components/index.ts","kind":"static"},{"from":"App.tsx","to":"pages/HomePage.tsx","kind":"static"},{"from":"App.tsx","to":"utils/authPaths.ts","kind":"static"},{"from":"App.tsx","to":"App.css","kind":"static"},{"from":"App.tsx","to":"components/auth/AuthModal.tsx","kind":"dynamic"},{"from":"App.tsx","to":"components/mascot/Live2DMascot.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/EventsPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/ranking/UserRankingPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/SongPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/SpacePage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/EventTagPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/SeasonPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/user/ChartsPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/user/ProfilePage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/MiniGamePage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/user/ScoresPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/user/CollectionsPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/QRAuthPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/NotFoundPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/collection/HirobaPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/SearchPage.tsx","kind":"dynamic"},{"from":"App.tsx","to":"pages/collection/CollectionPage.tsx","kind":"dynamic"},{"from":"components/auth/AuthModal.tsx","to":"config/api.ts","kind":"static"},{"from":"components/auth/AuthModal.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/auth/AuthModal.tsx","to":"components/ui/LoadingSpinner.tsx","kind":"static"},{"from":"components/auth/AuthModal.tsx","to":"components/ui/Modal.tsx","kind":"static"},{"from":"components/auth/AuthModal.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/auth/AuthModal.tsx","to":"config/apiRetCode.ts","kind":"static"},{"from":"components/chart/RadarPlot.tsx","to":"utils/radar.ts","kind":"static"},{"from":"components/chart/RadarPlot.tsx","to":"types/radar.ts","kind":"static"},{"from":"components/chart/RadarPlot.tsx","to":"assets/radar/MajRadarBG.png","kind":"static"},{"from":"components/chart/RecentActivityChart.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/chart/RecentActivityChart.tsx","to":"types/index.ts","kind":"static"},{"from":"components/chart/RecentActivityChart.tsx","to":"utils/recentActivity.ts","kind":"static"},{"from":"components/collection/CollectionCard.tsx","to":"components/index.ts","kind":"static"},{"from":"components/collection/CollectionCard.tsx","to":"config/api.ts","kind":"static"},{"from":"components/collection/CollectionCard.tsx","to":"types/index.ts","kind":"static"},{"from":"components/collection/CollectionCard.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/collection/CollectionCard.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/collection/CollectionCard.tsx","to":"components/collection/CollectionSubscribeButton.tsx","kind":"static"},{"from":"components/collection/CollectionModal.tsx","to":"components/index.ts","kind":"static"},{"from":"components/collection/CollectionModal.tsx","to":"components/ui/Modal.tsx","kind":"static"},{"from":"components/collection/CollectionModal.tsx","to":"config/api.ts","kind":"static"},{"from":"components/collection/CollectionModal.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/collection/CollectionSubscribeButton.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/collection/CollectionSubscribeButton.tsx","to":"components/ui/LoadingSpinner.tsx","kind":"static"},{"from":"components/event/EnhancedDescription.tsx","to":"types/index.ts","kind":"static"},{"from":"components/event/EventBanner.tsx","to":"components/event/EnhancedDescription.tsx","kind":"static"},{"from":"components/event/EventBanner.tsx","to":"types/index.ts","kind":"static"},{"from":"components/event/EventBanner.tsx","to":"utils/eventsData.ts","kind":"static"},{"from":"components/event/EventBanner.tsx","to":"utils/eventImage.ts","kind":"static"},{"from":"components/event/EventsFilter.tsx","to":"types/index.ts","kind":"static"},{"from":"components/event/EventsFilter.tsx","to":"utils/index.ts","kind":"static"},{"from":"components/event/TimelineModal.tsx","to":"i18n/index.ts","kind":"static"},{"from":"components/event/TimelineModal.tsx","to":"utils/eventLink.ts","kind":"static"},{"from":"components/event/TimelineModal.tsx","to":"components/ui/Modal.tsx","kind":"static"},{"from":"components/event/TimelineModal.tsx","to":"utils/eventsData.ts","kind":"static"},{"from":"components/event/TimelineModal.tsx","to":"hooks/useEventClock.ts","kind":"static"},{"from":"components/event/TimelineModal.tsx","to":"types/index.ts","kind":"static"},{"from":"components/event/TimelineModal.tsx","to":"types/event.ts","kind":"static"},{"from":"components/header/AuthSection.tsx","to":"components/header/styles.ts","kind":"static"},{"from":"components/header/AuthSection.tsx","to":"components/header/Dropdown.tsx","kind":"static"},{"from":"components/header/HeaderSearch.tsx","to":"components/search/SearchBox.tsx","kind":"static"},{"from":"components/header/HeaderSearch.tsx","to":"components/header/styles.ts","kind":"static"},{"from":"components/header/index.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/header/index.tsx","to":"components/index.ts","kind":"static"},{"from":"components/header/index.tsx","to":"components/header/MajdataLogo.tsx","kind":"static"},{"from":"components/header/index.tsx","to":"components/header/Navigation.tsx","kind":"static"},{"from":"components/header/index.tsx","to":"components/header/UserMenu.tsx","kind":"static"},{"from":"components/header/index.tsx","to":"components/header/AuthSection.tsx","kind":"static"},{"from":"components/header/index.tsx","to":"components/header/LanguageMenu.tsx","kind":"static"},{"from":"components/header/index.tsx","to":"components/header/HeaderSearch.tsx","kind":"static"},{"from":"components/header/LanguageMenu.tsx","to":"i18n/index.ts","kind":"static"},{"from":"components/header/LanguageMenu.tsx","to":"config/i18n.ts","kind":"static"},{"from":"components/header/LanguageMenu.tsx","to":"components/header/Dropdown.tsx","kind":"static"},{"from":"components/header/LanguageMenu.tsx","to":"components/header/styles.ts","kind":"static"},{"from":"components/header/MajdataLogo.tsx","to":"components/header/useLogoEasterEgg.ts","kind":"static"},{"from":"components/header/Navigation.tsx","to":"components/header/navigationItems.ts","kind":"static"},{"from":"components/header/navigationItems.ts","to":"i18n/index.ts","kind":"static"},{"from":"components/header/UserMenu.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/header/UserMenu.tsx","to":"components/user/UserAvatar.tsx","kind":"static"},{"from":"components/header/UserMenu.tsx","to":"utils/index.ts","kind":"static"},{"from":"components/header/UserMenu.tsx","to":"components/header/Dropdown.tsx","kind":"static"},{"from":"components/header/UserMenu.tsx","to":"components/header/styles.ts","kind":"static"},{"from":"components/home/carousel.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/home/CollectionsRow.tsx","to":"config/api.ts","kind":"static"},{"from":"components/home/CollectionsRow.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/home/CollectionsRow.tsx","to":"components/home/CollectionTile.tsx","kind":"static"},{"from":"components/home/CollectionsRow.tsx","to":"components/home/TileRow.tsx","kind":"static"},{"from":"components/home/CollectionsRow.tsx","to":"types/index.ts","kind":"static"},{"from":"components/home/CollectionTile.tsx","to":"config/api.ts","kind":"static"},{"from":"components/home/CollectionTile.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/home/CollectionTile.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/home/CollectionTile.tsx","to":"components/ui/LoadingSpinner.tsx","kind":"static"},{"from":"components/home/CollectionTile.tsx","to":"components/collection/CollectionSubscribeButton.tsx","kind":"static"},{"from":"components/home/CollectionTile.tsx","to":"types/index.ts","kind":"static"},{"from":"components/home/FeedRows.tsx","to":"config/api.ts","kind":"static"},{"from":"components/home/FeedRows.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/home/FeedRows.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/home/FeedRows.tsx","to":"contexts/ImpressionContext.tsx","kind":"static"},{"from":"components/home/FeedRows.tsx","to":"components/home/SongTileRow.tsx","kind":"static"},{"from":"components/home/FeedRows.tsx","to":"types/index.ts","kind":"static"},{"from":"components/home/PopularRanking.tsx","to":"config/api.ts","kind":"static"},{"from":"components/home/PopularRanking.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/home/PopularRanking.tsx","to":"utils/interaction.ts","kind":"static"},{"from":"components/home/PopularRanking.tsx","to":"i18n/index.ts","kind":"static"},{"from":"components/home/PopularRanking.tsx","to":"hooks/useInteractSummary.ts","kind":"static"},{"from":"components/home/PopularRanking.tsx","to":"components/song/InteractSummaryProvider.tsx","kind":"static"},{"from":"components/home/PopularRanking.tsx","to":"components/home/SongTileRow.tsx","kind":"static"},{"from":"components/home/PopularRanking.tsx","to":"types/index.ts","kind":"static"},{"from":"components/home/RecentUploads.tsx","to":"config/api.ts","kind":"static"},{"from":"components/home/RecentUploads.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/home/RecentUploads.tsx","to":"i18n/index.ts","kind":"static"},{"from":"components/home/RecentUploads.tsx","to":"components/home/SongTileRow.tsx","kind":"static"},{"from":"components/home/RecentUploads.tsx","to":"types/index.ts","kind":"static"},{"from":"components/home/SongTile.tsx","to":"config/api.ts","kind":"static"},{"from":"components/home/SongTile.tsx","to":"utils/richTextUtils.tsx","kind":"static"},{"from":"components/home/SongTile.tsx","to":"components/score/Levels.tsx","kind":"static"},{"from":"components/home/SongTile.tsx","to":"components/score/rankBadge.ts","kind":"static"},{"from":"components/home/SongTile.tsx","to":"hooks/useImpressionRef.ts","kind":"static"},{"from":"components/home/SongTile.tsx","to":"types/index.ts","kind":"static"},{"from":"components/home/SongTileRow.tsx","to":"components/home/SongTile.tsx","kind":"static"},{"from":"components/home/SongTileRow.tsx","to":"components/home/TileRow.tsx","kind":"static"},{"from":"components/home/SongTileRow.tsx","to":"types/index.ts","kind":"static"},{"from":"components/home/TileRow.tsx","to":"components/home/touchScroll.ts","kind":"static"},{"from":"components/home/TileRow.tsx","to":"components/home/SongTile.tsx","kind":"static"},{"from":"components/home/TileRow.tsx","to":"components/home/carousel.tsx","kind":"static"},{"from":"components/index.ts","to":"components/layout/PageLayout.tsx","kind":"static"},{"from":"components/index.ts","to":"components/header/index.tsx","kind":"static"},{"from":"components/index.ts","to":"components/user/AvatarUploader.tsx","kind":"static"},{"from":"components/index.ts","to":"components/user/IntroUploader.tsx","kind":"static"},{"from":"components/index.ts","to":"components/score/Level.tsx","kind":"static"},{"from":"components/index.ts","to":"components/score/Levels.tsx","kind":"static"},{"from":"components/index.ts","to":"components/ui/CoverPic.tsx","kind":"static"},{"from":"components/index.ts","to":"components/score/InteractCount.tsx","kind":"static"},{"from":"components/index.ts","to":"components/score/ScoreCount.tsx","kind":"static"},{"from":"components/index.ts","to":"components/ui/TagManageWidget.tsx","kind":"static"},{"from":"components/index.ts","to":"components/score/ScoreCard.tsx","kind":"static"},{"from":"components/index.ts","to":"components/song/SongList.tsx","kind":"static"},{"from":"components/index.ts","to":"components/song/SongCard.tsx","kind":"static"},{"from":"components/index.ts","to":"components/song/MiniGame.tsx","kind":"static"},{"from":"components/index.ts","to":"components/user/RecentPlayedWidget.tsx","kind":"static"},{"from":"components/index.ts","to":"components/event/EventBanner.tsx","kind":"static"},{"from":"components/index.ts","to":"components/event/EnhancedDescription.tsx","kind":"static"},{"from":"components/index.ts","to":"components/event/EventsFilter.tsx","kind":"static"},{"from":"components/index.ts","to":"components/event/TimelineModal.tsx","kind":"static"},{"from":"components/index.ts","to":"components/song/SongDifficultyLevels.tsx","kind":"static"},{"from":"components/index.ts","to":"components/song/SongComments.tsx","kind":"static"},{"from":"components/index.ts","to":"components/song/SongInteraction.tsx","kind":"static"},{"from":"components/index.ts","to":"components/song/ScoreRanking.tsx","kind":"static"},{"from":"components/index.ts","to":"components/ui/Tooltip.tsx","kind":"static"},{"from":"components/index.ts","to":"components/ui/LazyLoad.tsx","kind":"static"},{"from":"components/index.ts","to":"components/ui/LoadingSpinner.tsx","kind":"static"},{"from":"components/index.ts","to":"components/collection/CollectionCard.tsx","kind":"static"},{"from":"components/index.ts","to":"components/collection/CollectionModal.tsx","kind":"static"},{"from":"components/index.ts","to":"components/ProtectedRoute.tsx","kind":"static"},{"from":"components/index.ts","to":"components/ScrollToTopListener.tsx","kind":"static"},{"from":"components/layout/AmbientBackground.tsx","to":"components/layout/AmbientParticles.tsx","kind":"static"},{"from":"components/layout/PageLayout.tsx","to":"components/index.ts","kind":"static"},{"from":"components/layout/PageLayout.tsx","to":"components/layout/AmbientBackground.tsx","kind":"static"},{"from":"components/layout/PageLayout.tsx","to":"components/header/useLogoEasterEgg.ts","kind":"static"},{"from":"components/layout/PageLayout.tsx","to":"components/layout/FloatingButtons.tsx","kind":"static"},{"from":"components/layout/PageLayout.tsx","to":"components/ui/ToastIcon.tsx","kind":"static"},{"from":"components/layout/PageLayout.tsx","to":"components/mascot/mascotState.ts","kind":"static"},{"from":"components/layout/PageLayout.tsx","to":"utils/boot.ts","kind":"static"},{"from":"components/layout/PageLayout.tsx","to":"types/index.ts","kind":"static"},{"from":"components/mascot/Live2DMascot.tsx","to":"components/mascot/runtime.ts","kind":"static"},{"from":"components/mascot/Live2DMascot.tsx","to":"components/mascot/mascotState.ts","kind":"static"},{"from":"components/mascot/Live2DMascot.tsx","to":"components/mascot/mascot.css","kind":"static"},{"from":"components/ProtectedRoute.tsx","to":"components/ui/PageLoading.tsx","kind":"static"},{"from":"components/ProtectedRoute.tsx","to":"utils/authPaths.ts","kind":"static"},{"from":"components/ProtectedRoute.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/score/InteractCount.tsx","to":"i18n/index.ts","kind":"static"},{"from":"components/score/InteractCount.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/score/InteractCount.tsx","to":"utils/interaction.ts","kind":"static"},{"from":"components/score/InteractCount.tsx","to":"types/index.ts","kind":"static"},{"from":"components/score/Level.tsx","to":"types/index.ts","kind":"static"},{"from":"components/score/Levels.tsx","to":"types/index.ts","kind":"static"},{"from":"components/score/Levels.tsx","to":"components/score/levelColors.ts","kind":"static"},{"from":"components/score/ScoreCard.tsx","to":"components/index.ts","kind":"static"},{"from":"components/score/ScoreCard.tsx","to":"components/ui/MarqueeText.tsx","kind":"static"},{"from":"components/score/ScoreCard.tsx","to":"utils/richTextUtils.tsx","kind":"static"},{"from":"components/score/ScoreCard.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/score/ScoreCard.tsx","to":"config/api.ts","kind":"static"},{"from":"components/score/ScoreCard.tsx","to":"utils/index.ts","kind":"static"},{"from":"components/score/ScoreCard.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/score/ScoreCard.tsx","to":"types/index.ts","kind":"static"},{"from":"components/score/ScoreCount.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/score/ScoreCount.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"components/score/ScoreCount.tsx","to":"config/api.ts","kind":"static"},{"from":"components/score/ScoreCount.tsx","to":"components/user/UserAvatar.tsx","kind":"static"},{"from":"components/score/ScoreCount.tsx","to":"types/index.ts","kind":"static"},{"from":"components/score/ScoreCount.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/score/ScoreCount.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/ScrollToTopListener.tsx","to":"utils/scrollUtils.ts","kind":"static"},{"from":"components/ScrollToTopListener.tsx","to":"utils/authPaths.ts","kind":"static"},{"from":"components/search/SearchBox.tsx","to":"utils/searchSuggestions.ts","kind":"static"},{"from":"components/search/SearchBox.tsx","to":"components/ui/SuggestionListbox.tsx","kind":"static"},{"from":"components/search/SearchBox.tsx","to":"config/api.ts","kind":"static"},{"from":"components/search/SearchBox.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"i18n/index.ts","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"components/score/ScoreCount.tsx","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"hooks/useSeasonRanking.ts","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"hooks/useSeasonLastPlayed.ts","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"components/season/SeasonScoreDetails.tsx","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"components/ui/Pager.tsx","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"components/ui/LazyLoad.tsx","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"hooks/useSeasonCharts.ts","kind":"static"},{"from":"components/season/SeasonLeaderboard.tsx","to":"types/event.ts","kind":"static"},{"from":"components/season/SeasonScoreDetails.tsx","to":"hooks/useSeasonBreakdown.ts","kind":"static"},{"from":"components/season/SeasonScoreDetails.tsx","to":"config/api.ts","kind":"static"},{"from":"components/season/SeasonScoreDetails.tsx","to":"utils/richTextUtils.tsx","kind":"static"},{"from":"components/season/SeasonScoreDetails.tsx","to":"types/event.ts","kind":"static"},{"from":"components/season/SeasonScoreDetails.tsx","to":"hooks/useSeasonCharts.ts","kind":"static"},{"from":"components/season/SeasonScoreDetails.tsx","to":"styles/components/season-score-details.css","kind":"static"},{"from":"components/song/ChartFile.tsx","to":"config/api.ts","kind":"static"},{"from":"components/song/ChartFile.tsx","to":"majview/chartCache.ts","kind":"static"},{"from":"components/song/ChartFile.tsx","to":"utils/simaiSection.ts","kind":"static"},{"from":"components/song/ChartFile.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/song/ChartFile.tsx","to":"components/song/monacoSimai.ts","kind":"static"},{"from":"components/song/ChartFile.tsx","to":"styles/components/simai-code.css","kind":"static"},{"from":"components/song/ChartRadar.tsx","to":"hooks/useChartRadar.ts","kind":"static"},{"from":"components/song/ChartRadar.tsx","to":"components/chart/RadarPlot.tsx","kind":"static"},{"from":"components/song/commentTree.ts","to":"types/index.ts","kind":"static"},{"from":"components/song/InteractSummaryProvider.tsx","to":"config/api.ts","kind":"static"},{"from":"components/song/InteractSummaryProvider.tsx","to":"contexts/interactSummaryContextDef.ts","kind":"static"},{"from":"components/song/InteractSummaryProvider.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/song/InteractSummaryProvider.tsx","to":"types/index.ts","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/renderer.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/audio.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"components/song/useMediaSession.ts","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/simai.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/analyzer.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"components/song/MajViewAnalyzer.tsx","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/visualizer.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"components/song/MajViewVisualizer.tsx","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/spectrum.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/timeline.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/gestures.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/perf.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/chartCache.ts","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/geometry.js","kind":"static"},{"from":"components/song/MajView.tsx","to":"components/song/chartMarks.ts","kind":"static"},{"from":"components/song/MajView.tsx","to":"majview/settings.ts","kind":"static"},{"from":"components/song/MajView.tsx","to":"components/ui/SortMenu.tsx","kind":"static"},{"from":"components/song/MajView.tsx","to":"components/song/MajViewSettings.tsx","kind":"static"},{"from":"components/song/MajView.tsx","to":"config/api.ts","kind":"static"},{"from":"components/song/MajView.tsx","to":"styles/components/majview.css","kind":"static"},{"from":"components/song/MajViewAnalyzer.tsx","to":"majview/analyzer.js","kind":"static"},{"from":"components/song/MajViewSettings.tsx","to":"majview/settings.ts","kind":"static"},{"from":"components/song/MajViewVisualizer.tsx","to":"majview/visualizer.js","kind":"static"},{"from":"components/song/MajViewVisualizer.tsx","to":"majview/simai.js","kind":"static"},{"from":"components/song/monacoSimai.ts","to":"utils/simaiMonarch.ts","kind":"static"},{"from":"components/song/ScoreRanking.tsx","to":"config/api.ts","kind":"static"},{"from":"components/song/ScoreRanking.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/song/ScoreRanking.tsx","to":"utils/comboUtils.ts","kind":"static"},{"from":"components/song/ScoreRanking.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/song/ScoreRanking.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"components/song/ScoreRanking.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/song/ScoreRanking.tsx","to":"components/score/rankBadge.ts","kind":"static"},{"from":"components/song/ScoreRanking.tsx","to":"components/user/UserAvatar.tsx","kind":"static"},{"from":"components/song/ScoreRanking.tsx","to":"types/index.ts","kind":"static"},{"from":"components/song/SongCard.tsx","to":"components/index.ts","kind":"static"},{"from":"components/song/SongCard.tsx","to":"config/api.ts","kind":"static"},{"from":"components/song/SongCard.tsx","to":"hooks/useImpressionRef.ts","kind":"static"},{"from":"components/song/SongCard.tsx","to":"utils/download.tsx","kind":"static"},{"from":"components/song/SongCard.tsx","to":"utils/richTextUtils.tsx","kind":"static"},{"from":"components/song/SongCard.tsx","to":"types/index.ts","kind":"static"},{"from":"components/song/SongCard.tsx","to":"components/ui/ConfirmDialog.tsx","kind":"static"},{"from":"components/song/SongCard.tsx","to":"components/ui/MarqueeText.tsx","kind":"static"},{"from":"components/song/SongCard.tsx","to":"components/score/rankBadge.ts","kind":"static"},{"from":"components/song/SongCard.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/song/SongComments.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"components/song/SongComments.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"i18n/index.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"config/api.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"components/ui/SortMenu.tsx","kind":"static"},{"from":"components/song/SongComments.tsx","to":"components/user/UserAvatar.tsx","kind":"static"},{"from":"components/song/SongComments.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"components/song/VoteControl.tsx","kind":"static"},{"from":"components/song/SongComments.tsx","to":"utils/interaction.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"utils/remarkMentions.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"utils/remarkChartMarks.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"components/song/chartMarks.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"components/song/commentTree.ts","kind":"static"},{"from":"components/song/SongComments.tsx","to":"types/index.ts","kind":"static"},{"from":"components/song/SongDifficultyLevels.tsx","to":"utils/levelUtils.ts","kind":"static"},{"from":"components/song/SongDifficultyLevels.tsx","to":"components/score/levelColors.ts","kind":"static"},{"from":"components/song/SongDifficultyLevels.tsx","to":"types/index.ts","kind":"static"},{"from":"components/song/SongInteraction.tsx","to":"config/api.ts","kind":"static"},{"from":"components/song/SongInteraction.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/song/SongInteraction.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/song/SongInteraction.tsx","to":"components/song/VoteControl.tsx","kind":"static"},{"from":"components/song/SongInteraction.tsx","to":"types/index.ts","kind":"static"},{"from":"components/song/SongList.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"components/song/SongList.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/song/SongList.tsx","to":"components/song/SongCard.tsx","kind":"static"},{"from":"components/song/SongList.tsx","to":"components/song/InteractSummaryProvider.tsx","kind":"static"},{"from":"components/song/SongList.tsx","to":"types/index.ts","kind":"static"},{"from":"components/song/SongList.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"components/song/VoteControl.tsx","to":"i18n/index.ts","kind":"static"},{"from":"components/song/VoteControl.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/song/VoteControl.tsx","to":"utils/interaction.ts","kind":"static"},{"from":"components/song/VoteControl.tsx","to":"types/index.ts","kind":"static"},{"from":"components/ui/ConfirmDialog.tsx","to":"components/ui/LoadingSpinner.tsx","kind":"static"},{"from":"components/ui/ConfirmDialog.tsx","to":"components/ui/Modal.tsx","kind":"static"},{"from":"components/ui/CoverPic.tsx","to":"config/api.ts","kind":"static"},{"from":"components/ui/CoverPic.tsx","to":"types/index.ts","kind":"static"},{"from":"components/ui/DownloadFormatDialog.tsx","to":"components/ui/Modal.tsx","kind":"static"},{"from":"components/ui/MarqueeText.tsx","to":"styles/components/marquee.css","kind":"static"},{"from":"components/ui/PageLoading.tsx","to":"components/index.ts","kind":"static"},{"from":"components/ui/PageLoading.tsx","to":"utils/boot.ts","kind":"static"},{"from":"components/ui/PageLoading.tsx","to":"components/ui/LoadingSpinner.tsx","kind":"static"},{"from":"components/ui/SectionLoading.tsx","to":"components/ui/LoadingSpinner.tsx","kind":"static"},{"from":"components/ui/SortMenu.tsx","to":"components/header/Dropdown.tsx","kind":"static"},{"from":"components/ui/SuggestionListbox.tsx","to":"utils/searchSuggestions.ts","kind":"static"},{"from":"components/ui/TagManageWidget.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/ui/TagManageWidget.tsx","to":"components/ui/Modal.tsx","kind":"static"},{"from":"components/ui/TagManageWidget.tsx","to":"config/api.ts","kind":"static"},{"from":"components/ui/TagManageWidget.tsx","to":"utils/sleep.ts","kind":"static"},{"from":"components/ui/TagManageWidget.tsx","to":"utils/chartTags.ts","kind":"static"},{"from":"components/ui/TagManageWidget.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/ui/TagManageWidget.tsx","to":"config/apiRetCode.ts","kind":"static"},{"from":"components/ui/TagManageWidget.tsx","to":"types/index.ts","kind":"static"},{"from":"components/user/AvatarUploader.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/user/AvatarUploader.tsx","to":"config/api.ts","kind":"static"},{"from":"components/user/AvatarUploader.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/user/AvatarUploader.tsx","to":"hooks/useAvatarUrl.ts","kind":"static"},{"from":"components/user/AvatarUploader.tsx","to":"utils/index.ts","kind":"static"},{"from":"components/user/BestScores.tsx","to":"config/api.ts","kind":"static"},{"from":"components/user/BestScores.tsx","to":"utils/index.ts","kind":"static"},{"from":"components/user/BestScores.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/user/BestScores.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"components/user/BestScores.tsx","to":"components/score/levelColors.ts","kind":"static"},{"from":"components/user/BestScores.tsx","to":"types/index.ts","kind":"static"},{"from":"components/user/ChartUploadDialog.tsx","to":"components/user/ChartUploader.tsx","kind":"static"},{"from":"components/user/ChartUploadDialog.tsx","to":"components/ui/Modal.tsx","kind":"static"},{"from":"components/user/ChartUploader.tsx","to":"config/api.ts","kind":"static"},{"from":"components/user/ChartUploader.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/user/ChartUploader.tsx","to":"utils/index.ts","kind":"static"},{"from":"components/user/ChartUploader.tsx","to":"utils/maidataHash.ts","kind":"static"},{"from":"components/user/ChartUploader.tsx","to":"utils/chartUploadValidation.ts","kind":"static"},{"from":"components/user/ChartUploader.tsx","to":"components/index.ts","kind":"static"},{"from":"components/user/ChartUploader.tsx","to":"types/index.ts","kind":"static"},{"from":"components/user/IntroUploader.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/user/IntroUploader.tsx","to":"config/api.ts","kind":"static"},{"from":"components/user/IntroUploader.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/user/IntroUploader.tsx","to":"utils/index.ts","kind":"static"},{"from":"components/user/IntroUploader.tsx","to":"utils/remarkCenter.ts","kind":"static"},{"from":"components/user/IntroUploader.tsx","to":"types/index.ts","kind":"static"},{"from":"components/user/IntroUploader.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/user/Logout.tsx","to":"utils/index.ts","kind":"static"},{"from":"components/user/NicknameEditor.tsx","to":"config/api.ts","kind":"static"},{"from":"components/user/NicknameEditor.tsx","to":"hooks/index.ts","kind":"static"},{"from":"components/user/NicknameEditor.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/user/NicknameEditor.tsx","to":"utils/httpMessage.ts","kind":"static"},{"from":"components/user/RecentPlayedWidget.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/user/RecentPlayedWidget.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"components/user/RecentPlayedWidget.tsx","to":"config/api.ts","kind":"static"},{"from":"components/user/RecentPlayedWidget.tsx","to":"components/index.ts","kind":"static"},{"from":"components/user/RecentPlayedWidget.tsx","to":"types/index.ts","kind":"static"},{"from":"components/user/RecentPlayedWidget.tsx","to":"components/chart/RecentActivityChart.tsx","kind":"static"},{"from":"components/user/RecentPlayedWidget.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"components/user/RecentPlayedWidget.tsx","to":"utils/recentActivity.ts","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"components/song/SongList.tsx","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"components/song/SongCard.tsx","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"components/song/InteractSummaryProvider.tsx","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"components/ui/SuggestionListbox.tsx","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"config/api.ts","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"utils/searchSuggestions.ts","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"utils/uploadedChartSearch.ts","kind":"static"},{"from":"components/user/UploadedCharts.tsx","to":"types/index.ts","kind":"static"},{"from":"components/user/UserAvatar.tsx","to":"hooks/useAvatarUrl.ts","kind":"static"},{"from":"components/user/UserRating.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"components/user/UserRating.tsx","to":"hooks/useUserRating.ts","kind":"static"},{"from":"components/user/UserRating.tsx","to":"components/chart/RadarPlot.tsx","kind":"static"},{"from":"components/user/UserRating.tsx","to":"components/user/BestScores.tsx","kind":"static"},{"from":"components/user/UserRating.tsx","to":"types/index.ts","kind":"static"},{"from":"components/user/UserRating.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"components/user/UserSeasons.tsx","to":"i18n/index.ts","kind":"static"},{"from":"components/user/UserSeasons.tsx","to":"hooks/useEventClock.ts","kind":"static"},{"from":"components/user/UserSeasons.tsx","to":"hooks/useSeasonCharts.ts","kind":"static"},{"from":"components/user/UserSeasons.tsx","to":"hooks/useSeasonRanking.ts","kind":"static"},{"from":"components/user/UserSeasons.tsx","to":"utils/eventsData.ts","kind":"static"},{"from":"components/user/UserSeasons.tsx","to":"utils/season.ts","kind":"static"},{"from":"components/user/UserSeasons.tsx","to":"types/event.ts","kind":"static"},{"from":"components/user/UserSeasons.tsx","to":"utils/eventImage.ts","kind":"static"},{"from":"components/user/UserSeasons.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"contexts/ImpressionContext.tsx","to":"config/api.ts","kind":"static"},{"from":"contexts/ImpressionContext.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"contexts/ImpressionContext.tsx","to":"utils/impressionTracker.ts","kind":"static"},{"from":"contexts/ImpressionContext.tsx","to":"contexts/impressionContextDef.ts","kind":"static"},{"from":"contexts/impressionContextDef.ts","to":"utils/impressionTracker.ts","kind":"static"},{"from":"contexts/interactSummaryContextDef.ts","to":"types/index.ts","kind":"static"},{"from":"contexts/UserContext.tsx","to":"config/api.ts","kind":"static"},{"from":"contexts/UserContext.tsx","to":"types/index.ts","kind":"static"},{"from":"contexts/UserContext.tsx","to":"contexts/userContextDef.ts","kind":"static"},{"from":"contexts/userContextDef.ts","to":"types/index.ts","kind":"static"},{"from":"hooks/index.ts","to":"hooks/useUserContext.ts","kind":"static"},{"from":"hooks/index.ts","to":"hooks/useFavorites.ts","kind":"static"},{"from":"hooks/index.ts","to":"hooks/useCollections.ts","kind":"static"},{"from":"hooks/index.ts","to":"hooks/useIsAdministrator.ts","kind":"static"},{"from":"hooks/index.ts","to":"hooks/useInteractSummary.ts","kind":"static"},{"from":"hooks/useAvatarUrl.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useAvatarUrl.ts","to":"types/index.ts","kind":"static"},{"from":"hooks/useAvatarUrl.ts","to":"utils/apiClient.ts","kind":"static"},{"from":"hooks/useChartMeta.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useChartMeta.ts","to":"hooks/useChartMediaUrl.ts","kind":"static"},{"from":"hooks/useChartMeta.ts","to":"utils/simai.ts","kind":"static"},{"from":"hooks/useChartMeta.ts","to":"majview/chartCache.ts","kind":"static"},{"from":"hooks/useChartRadar.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useChartRadar.ts","to":"utils/radar.ts","kind":"static"},{"from":"hooks/useChartRadar.ts","to":"types/radar.ts","kind":"static"},{"from":"hooks/useCollections.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useCollections.ts","to":"hooks/index.ts","kind":"static"},{"from":"hooks/useCollections.ts","to":"types/index.ts","kind":"static"},{"from":"hooks/useEventClock.ts","to":"types/event.ts","kind":"static"},{"from":"hooks/useFavorites.ts","to":"utils/interaction.ts","kind":"static"},{"from":"hooks/useFavorites.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useFavorites.ts","to":"hooks/index.ts","kind":"static"},{"from":"hooks/useFavorites.ts","to":"types/index.ts","kind":"static"},{"from":"hooks/useFavorites.ts","to":"utils/apiClient.ts","kind":"static"},{"from":"hooks/useImpressionRef.ts","to":"contexts/impressionContextDef.ts","kind":"static"},{"from":"hooks/useInteractSummary.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useInteractSummary.ts","to":"contexts/interactSummaryContextDef.ts","kind":"static"},{"from":"hooks/useInteractSummary.ts","to":"utils/apiClient.ts","kind":"static"},{"from":"hooks/useInteractSummary.ts","to":"types/index.ts","kind":"static"},{"from":"hooks/useIsAdministrator.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useIsAdministrator.ts","to":"types/index.ts","kind":"static"},{"from":"hooks/useIsAdministrator.ts","to":"utils/apiClient.ts","kind":"static"},{"from":"hooks/useIsAdministrator.ts","to":"hooks/useUserContext.ts","kind":"static"},{"from":"hooks/useSeasonBreakdown.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useSeasonBreakdown.ts","to":"types/event.ts","kind":"static"},{"from":"hooks/useSeasonBreakdown.ts","to":"types/song.ts","kind":"static"},{"from":"hooks/useSeasonBreakdown.ts","to":"utils/season.ts","kind":"static"},{"from":"hooks/useSeasonBreakdown.ts","to":"hooks/useSeasonCharts.ts","kind":"static"},{"from":"hooks/useSeasonBreakdown.ts","to":"hooks/useSeasonRanking.ts","kind":"static"},{"from":"hooks/useSeasonCharts.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useSeasonCharts.ts","to":"types/event.ts","kind":"static"},{"from":"hooks/useSeasonCharts.ts","to":"types/song.ts","kind":"static"},{"from":"hooks/useSeasonCharts.ts","to":"utils/season.ts","kind":"static"},{"from":"hooks/useSeasonLastPlayed.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useSeasonLastPlayed.ts","to":"types/event.ts","kind":"static"},{"from":"hooks/useSeasonLastPlayed.ts","to":"hooks/useSeasonCharts.ts","kind":"static"},{"from":"hooks/useSeasonLastPlayed.ts","to":"utils/season.ts","kind":"static"},{"from":"hooks/useSeasonRanking.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useSeasonRanking.ts","to":"types/event.ts","kind":"static"},{"from":"hooks/useSeasonRanking.ts","to":"utils/season.ts","kind":"static"},{"from":"hooks/useUserContext.ts","to":"contexts/userContextDef.ts","kind":"static"},{"from":"hooks/useUserContext.ts","to":"types/index.ts","kind":"static"},{"from":"hooks/useUserRating.ts","to":"config/api.ts","kind":"static"},{"from":"hooks/useUserRating.ts","to":"utils/radar.ts","kind":"static"},{"from":"hooks/useUserRating.ts","to":"types/radar.ts","kind":"static"},{"from":"i18n/i18next.d.ts","to":"locales/en.json","kind":"static"},{"from":"i18n/index.ts","to":"config/i18n.ts","kind":"static"},{"from":"main.tsx","to":"App.tsx","kind":"static"},{"from":"majview/audio.js","to":"majview/settings.ts","kind":"static"},{"from":"majview/audio.js","to":"majview/timeline.js","kind":"static"},{"from":"majview/geometry.js","to":"majview/generated/paths.json","kind":"static"},{"from":"majview/preload.ts","to":"config/api.ts","kind":"static"},{"from":"majview/preload.ts","to":"majview/chartCache.ts","kind":"static"},{"from":"majview/preload.ts","to":"components/song/MajView.tsx","kind":"dynamic"},{"from":"majview/renderer.js","to":"majview/generated/effects.json","kind":"static"},{"from":"majview/renderer.js","to":"majview/hanabi.js","kind":"static"},{"from":"majview/renderer.js","to":"majview/geometry.js","kind":"static"},{"from":"majview/renderer.js","to":"majview/timeline.js","kind":"static"},{"from":"majview/simai.js","to":"majview/geometry.js","kind":"static"},{"from":"majview/spectrum.worker.js","to":"majview/spectrum.js","kind":"static"},{"from":"majview/visualizer.js","to":"majview/geometry.js","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"hooks/index.ts","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"types/index.ts","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"utils/chartInfo.ts","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"components/collection/CollectionSubscribeButton.tsx","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"components/ui/PageLoading.tsx","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"components/ui/Pager.tsx","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"components/ui/SegmentedTabs.tsx","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"components/ui/SortMenu.tsx","kind":"static"},{"from":"pages/collection/CollectionPage.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"pages/collection/HirobaPage.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"pages/collection/HirobaPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/collection/HirobaPage.tsx","to":"components/ui/Pager.tsx","kind":"static"},{"from":"pages/collection/HirobaPage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/collection/HirobaPage.tsx","to":"types/index.ts","kind":"static"},{"from":"pages/EventsPage.tsx","to":"utils/eventLink.ts","kind":"static"},{"from":"pages/EventsPage.tsx","to":"utils/eventImage.ts","kind":"static"},{"from":"pages/EventsPage.tsx","to":"hooks/useEventClock.ts","kind":"static"},{"from":"pages/EventsPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/EventsPage.tsx","to":"utils/eventsData.ts","kind":"static"},{"from":"pages/EventsPage.tsx","to":"types/index.ts","kind":"static"},{"from":"pages/EventTagPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/EventTagPage.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"pages/EventTagPage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/EventTagPage.tsx","to":"utils/eventsData.ts","kind":"static"},{"from":"pages/EventTagPage.tsx","to":"types/index.ts","kind":"static"},{"from":"pages/EventTagPage.tsx","to":"types/event.ts","kind":"static"},{"from":"pages/HomePage.tsx","to":"i18n/index.ts","kind":"static"},{"from":"pages/HomePage.tsx","to":"utils/eventLink.ts","kind":"static"},{"from":"pages/HomePage.tsx","to":"utils/eventImage.ts","kind":"static"},{"from":"pages/HomePage.tsx","to":"components/search/SearchBox.tsx","kind":"static"},{"from":"pages/HomePage.tsx","to":"hooks/useEventClock.ts","kind":"static"},{"from":"pages/HomePage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/HomePage.tsx","to":"utils/eventsData.ts","kind":"static"},{"from":"pages/HomePage.tsx","to":"components/home/RecentUploads.tsx","kind":"static"},{"from":"pages/HomePage.tsx","to":"components/home/PopularRanking.tsx","kind":"static"},{"from":"pages/HomePage.tsx","to":"components/home/CollectionsRow.tsx","kind":"static"},{"from":"pages/HomePage.tsx","to":"components/home/FeedRows.tsx","kind":"static"},{"from":"pages/MiniGamePage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/NotFoundPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/QRAuthPage.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"pages/QRAuthPage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/QRAuthPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/QRAuthPage.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"pages/QRAuthPage.tsx","to":"config/apiRetCode.ts","kind":"static"},{"from":"pages/ranking/UserRankingPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/SearchPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/SearchPage.tsx","to":"components/ui/Pager.tsx","kind":"static"},{"from":"pages/SearchPage.tsx","to":"components/ui/SortMenu.tsx","kind":"static"},{"from":"pages/SearchPage.tsx","to":"components/search/SearchBox.tsx","kind":"static"},{"from":"pages/SearchPage.tsx","to":"components/search/chartSort.ts","kind":"static"},{"from":"pages/SearchPage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/SearchPage.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"i18n/index.ts","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"components/song/SongCard.tsx","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"components/season/SeasonLeaderboard.tsx","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"components/collection/CollectionSubscribeButton.tsx","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"hooks/useEventClock.ts","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"hooks/useSeasonCharts.ts","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"utils/eventsData.ts","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"utils/season.ts","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"types/event.ts","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"pages/SeasonPage.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"components/ui/PageLoading.tsx","kind":"static"},{"from":"pages/SongPage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"utils/download.tsx","kind":"static"},{"from":"pages/SongPage.tsx","to":"utils/index.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"utils/richTextUtils.tsx","kind":"static"},{"from":"pages/SongPage.tsx","to":"utils/radar.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"components/song/ChartRadar.tsx","kind":"static"},{"from":"pages/SongPage.tsx","to":"components/song/chartMarks.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"components/user/UserAvatar.tsx","kind":"static"},{"from":"pages/SongPage.tsx","to":"components/ui/UnderlineTabs.tsx","kind":"static"},{"from":"pages/SongPage.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"pages/SongPage.tsx","to":"i18n/index.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"types/index.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"utils/interaction.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"utils/simai.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"hooks/useChartMeta.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"hooks/useChartMediaUrl.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"hooks/useMediaQuery.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"majview/preload.ts","kind":"static"},{"from":"pages/SongPage.tsx","to":"components/song/MajView.tsx","kind":"dynamic"},{"from":"pages/SongPage.tsx","to":"components/song/ChartFile.tsx","kind":"dynamic"},{"from":"pages/SpacePage.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"pages/SpacePage.tsx","to":"i18n/index.ts","kind":"static"},{"from":"pages/SpacePage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/SpacePage.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"pages/SpacePage.tsx","to":"components/user/UploadedCharts.tsx","kind":"static"},{"from":"pages/SpacePage.tsx","to":"components/user/UserRating.tsx","kind":"static"},{"from":"pages/SpacePage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/SpacePage.tsx","to":"utils/remarkCenter.ts","kind":"static"},{"from":"pages/SpacePage.tsx","to":"hooks/index.ts","kind":"static"},{"from":"pages/SpacePage.tsx","to":"types/index.ts","kind":"static"},{"from":"pages/SpacePage.tsx","to":"components/user/UserSeasons.tsx","kind":"static"},{"from":"pages/SpacePage.tsx","to":"components/ui/EmptyState.tsx","kind":"static"},{"from":"pages/SpacePage.tsx","to":"components/ui/UnderlineTabs.tsx","kind":"static"},{"from":"pages/SpacePage.tsx","to":"components/ui/surface.ts","kind":"static"},{"from":"pages/SpacePage.tsx","to":"utils/apiClient.ts","kind":"static"},{"from":"pages/user/ChartsPage.tsx","to":"components/ui/PageLoading.tsx","kind":"static"},{"from":"pages/user/ChartsPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/user/ChartsPage.tsx","to":"components/user/ChartUploadDialog.tsx","kind":"static"},{"from":"pages/user/ChartsPage.tsx","to":"components/ui/Pager.tsx","kind":"static"},{"from":"pages/user/ChartsPage.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"pages/user/ChartsPage.tsx","to":"hooks/index.ts","kind":"static"},{"from":"pages/user/ChartsPage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/user/CollectionsPage.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"pages/user/CollectionsPage.tsx","to":"components/ui/SegmentedTabs.tsx","kind":"static"},{"from":"pages/user/CollectionsPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/user/CollectionsPage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/user/CollectionsPage.tsx","to":"hooks/index.ts","kind":"static"},{"from":"pages/user/CollectionsPage.tsx","to":"components/ui/Pager.tsx","kind":"static"},{"from":"pages/user/CollectionsPage.tsx","to":"types/index.ts","kind":"static"},{"from":"pages/user/ProfilePage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/user/ProfilePage.tsx","to":"components/user/NicknameEditor.tsx","kind":"static"},{"from":"pages/user/ScoresPage.tsx","to":"components/ui/SectionLoading.tsx","kind":"static"},{"from":"pages/user/ScoresPage.tsx","to":"config/api.ts","kind":"static"},{"from":"pages/user/ScoresPage.tsx","to":"components/index.ts","kind":"static"},{"from":"pages/user/ScoresPage.tsx","to":"components/ui/SortMenu.tsx","kind":"static"},{"from":"pages/user/ScoresPage.tsx","to":"components/ui/Pager.tsx","kind":"static"},{"from":"pages/user/ScoresPage.tsx","to":"components/song/songGrid.ts","kind":"static"},{"from":"pages/user/ScoresPage.tsx","to":"types/index.ts","kind":"static"},{"from":"types/components.ts","to":"types/event.ts","kind":"static"},{"from":"types/event.ts","to":"types/user.ts","kind":"static"},{"from":"types/hooks.ts","to":"types/index.ts","kind":"static"},{"from":"types/index.ts","to":"types/enums.ts","kind":"static"},{"from":"types/index.ts","to":"types/user.ts","kind":"static"},{"from":"types/index.ts","to":"types/event.ts","kind":"static"},{"from":"types/index.ts","to":"types/song.ts","kind":"static"},{"from":"types/index.ts","to":"types/score.ts","kind":"static"},{"from":"types/index.ts","to":"types/interact.ts","kind":"static"},{"from":"types/index.ts","to":"types/timeline.ts","kind":"static"},{"from":"types/index.ts","to":"types/components.ts","kind":"static"},{"from":"types/index.ts","to":"types/pages.ts","kind":"static"},{"from":"types/index.ts","to":"types/download.ts","kind":"static"},{"from":"types/index.ts","to":"types/hooks.ts","kind":"static"},{"from":"types/index.ts","to":"types/collection.ts","kind":"static"},{"from":"types/interact.ts","to":"types/user.ts","kind":"static"},{"from":"types/radar.ts","to":"types/score.ts","kind":"static"},{"from":"types/score.ts","to":"types/enums.ts","kind":"static"},{"from":"types/score.ts","to":"types/user.ts","kind":"static"},{"from":"types/timeline.ts","to":"types/event.ts","kind":"static"},{"from":"utils/apiClient.ts","to":"utils/httpMessage.ts","kind":"static"},{"from":"utils/authUtils.ts","to":"config/api.ts","kind":"static"},{"from":"utils/chartInfo.ts","to":"config/api.ts","kind":"static"},{"from":"utils/chartInfo.ts","to":"types/song.ts","kind":"static"},{"from":"utils/chartInfo.ts","to":"utils/apiClient.ts","kind":"static"},{"from":"utils/chartTags.ts","to":"config/api.ts","kind":"static"},{"from":"utils/chartTags.ts","to":"utils/apiClient.ts","kind":"static"},{"from":"utils/comboUtils.ts","to":"types/index.ts","kind":"static"},{"from":"utils/download.tsx","to":"config/api.ts","kind":"static"},{"from":"utils/download.tsx","to":"utils/downloadFormat.tsx","kind":"static"},{"from":"utils/download.tsx","to":"utils/richTextUtils.tsx","kind":"static"},{"from":"utils/download.tsx","to":"components/ui/DownloadToast.tsx","kind":"static"},{"from":"utils/download.tsx","to":"types/download.ts","kind":"static"},{"from":"utils/downloadFormat.tsx","to":"utils/loadMotionFeatures.ts","kind":"static"},{"from":"utils/downloadFormat.tsx","to":"components/ui/DownloadFormatDialog.tsx","kind":"static"},{"from":"utils/eventLink.ts","to":"types/event.ts","kind":"static"},{"from":"utils/eventsData.ts","to":"i18n/index.ts","kind":"static"},{"from":"utils/eventsData.ts","to":"types/index.ts","kind":"static"},{"from":"utils/eventsData.ts","to":"types/event.ts","kind":"static"},{"from":"utils/eventsData.ts","to":"../public/events.json","kind":"static"},{"from":"utils/index.ts","to":"utils/sleep.ts","kind":"static"},{"from":"utils/index.ts","to":"utils/comboUtils.ts","kind":"static"},{"from":"utils/index.ts","to":"utils/authUtils.ts","kind":"static"},{"from":"utils/index.ts","to":"utils/httpMessage.ts","kind":"static"},{"from":"utils/index.ts","to":"utils/richTextUtils.tsx","kind":"static"},{"from":"utils/index.ts","to":"utils/eventsData.ts","kind":"static"},{"from":"utils/interaction.ts","to":"config/i18n.ts","kind":"static"},{"from":"utils/interaction.ts","to":"i18n/index.ts","kind":"static"},{"from":"utils/levelUtils.ts","to":"types/index.ts","kind":"static"},{"from":"utils/loadMotionFeatures.ts","to":"utils/motionFeatures.ts","kind":"dynamic"},{"from":"utils/radar.ts","to":"i18n/index.ts","kind":"static"},{"from":"utils/radar.ts","to":"types/radar.ts","kind":"static"},{"from":"utils/recentActivity.ts","to":"types/index.ts","kind":"static"},{"from":"utils/remarkChartMarks.ts","to":"components/song/chartMarks.ts","kind":"static"},{"from":"utils/searchSuggestions.ts","to":"types/index.ts","kind":"static"},{"from":"utils/searchSuggestions.ts","to":"utils/richTextUtils.tsx","kind":"static"},{"from":"utils/season.ts","to":"types/event.ts","kind":"static"},{"from":"utils/uploadedChartSearch.ts","to":"utils/searchSuggestions.ts","kind":"static"},{"from":"utils/uploadedChartSearch.ts","to":"utils/richTextUtils.tsx","kind":"static"}]};
+</script>
+<script>
+(() => {
+  "use strict";
+  const stage = document.getElementById("stage");
+  const canvas = document.getElementById("cv");
+  const ctx = canvas.getContext("2d");
+  const tip = document.getElementById("tip");
+  const detail = document.getElementById("detail");
+  const legendEl = document.getElementById("legend");
+  const metricsEl = document.getElementById("metrics");
+  const qEl = document.getElementById("q");
+
+  // ---------- 聚类 ----------
+  const CLUSTERS = {
+    engine: { label: "src/majview 引擎", color: "#22d3ee" },
+    song:   { label: "components/song", color: "#f59e0b" },
+    page:   { label: "SongPage", color: "#e879f9" },
+    ui:     { label: "components/ui 等", color: "#a78bfa" },
+    hooks:  { label: "hooks", color: "#34d399" },
+    utils:  { label: "utils", color: "#60a5fa" },
+    types:  { label: "types", color: "#94a3b8" },
+    config: { label: "config/api", color: "#fb7185" },
+    i18n:   { label: "i18n / locales", color: "#fbbf24" },
+    other:  { label: "其它", color: "#64748b" },
+  };
+  const ORDER = ["engine", "song", "page", "hooks", "utils", "types", "config", "ui", "i18n", "other"];
+
+  function clusterOf(id) {
+    if (id.startsWith("majview/")) return "engine";
+    if (id.startsWith("components/song/")) return "song";
+    if (id === "pages/SongPage.tsx") return "page";
+    if (id.startsWith("hooks/")) return "hooks";
+    if (id.startsWith("utils/")) return "utils";
+    if (id.startsWith("types/")) return "types";
+    if (id === "config/api.ts" || id.startsWith("config/")) return "config";
+    if (id.startsWith("i18n/") || id.startsWith("locales/")) return "i18n";
+    if (id.startsWith("components/")) return "ui";
+    return "other";
+  }
+
+  // ---------- 建图 ----------
+  const nodes = [];
+  const byId = new Map();
+  for (const n of DATA.nodes) {
+    const node = { id: n.id, label: n.id.split("/").pop(), lines: n.lines, cluster: clusterOf(n.id), x: 0, y: 0, vx: 0, vy: 0, deg: 0 };
+    nodes.push(node); byId.set(node.id, node);
+  }
+  // 边指向的 data/样式文件也画出来（generated/paths.json 之类）
+  const edges = [];
+  for (const e of DATA.edges) {
+    if (!byId.has(e.to)) {
+      const synthetic = { id: e.to, label: e.to.split("/").pop(), lines: 0, cluster: "other", x: 0, y: 0, vx: 0, vy: 0, deg: 0, asset: true };
+      nodes.push(synthetic); byId.set(synthetic.id, synthetic);
+    }
+    if (!byId.has(e.from)) continue;
+    const a = byId.get(e.from), b = byId.get(e.to);
+    a.deg++; b.deg++;
+    edges.push({ a, b, kind: e.kind || "static", cross: a.cluster !== b.cluster });
+  }
+
+  // ---------- 初始布局：按聚类摆成一圈 ----------
+  const R = 380;
+  const anchors = new Map(ORDER.map((c, i) => {
+    const ang = (i / ORDER.length) * Math.PI * 2 - Math.PI / 2;
+    return [c, { x: Math.cos(ang) * R * 1.18, y: Math.sin(ang) * R * 0.74 }];
+  }));
+  for (const n of nodes) {
+    const a = anchors.get(n.cluster) || { x: 0, y: 0 };
+    n.x = a.x + (Math.random() - 0.5) * 130;
+    n.y = a.y + (Math.random() - 0.5) * 130;
+  }
+
+  const REP = 7200, SPRING = 0.006, CLUSTER_PULL = 0.034, DAMP = 0.84;
+  function simulate(steps) {
+    for (let s = 0; s < steps; s++) {
+      const alpha = 1 - s / steps;
+      // 斥力
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          let dx = b.x - a.x, dy = b.y - a.y;
+          let d2 = dx * dx + dy * dy;
+          if (d2 < 1) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; d2 = 1; }
+          if (d2 > 90000) continue;
+          const f = REP / d2;
+          const d = Math.sqrt(d2);
+          const ux = dx / d, uy = dy / d;
+          a.vx -= ux * f; a.vy -= uy * f;
+          b.vx += ux * f; b.vy += uy * f;
+        }
+      }
+      // 弹簧
+      for (const e of edges) {
+        const dx = e.b.x - e.a.x, dy = e.b.y - e.a.y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 1;
+        const rest = e.kind === "dynamic" ? 250 : 78;
+        const f = (d - rest) * SPRING;
+        const ux = dx / d, uy = dy / d;
+        e.a.vx += ux * f; e.a.vy += uy * f;
+        e.b.vx -= ux * f; e.b.vy -= uy * f;
+      }
+      // 聚类向心 + 阻尼
+      for (const n of nodes) {
+        const a = anchors.get(n.cluster);
+        if (a) { n.vx += (a.x - n.x) * CLUSTER_PULL; n.vy += (a.y - n.y) * CLUSTER_PULL; }
+        n.vx *= DAMP; n.vy *= DAMP;
+        n.x += n.vx * alpha; n.y += n.vy * alpha;
+      }
+    }
+  }
+  simulate(520);
+
+  // ---------- 视图状态 ----------
+  const view = { x: 0, y: 0, k: 1 };
+  let hover = null, selected = null, dragging = null, panning = null, mode = "all", query = "", offClusters = new Set();
+  const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
+
+  function resize() {
+    const dpr = DPR();
+    canvas.width = Math.round(innerWidth * dpr);
+    canvas.height = Math.round(innerHeight * dpr);
+    draw();
+  }
+  addEventListener("resize", resize);
+
+  function fit(ids) {
+    const list = ids && ids.length ? ids.map((i) => byId.get(i)).filter(Boolean) : nodes;
+    if (!list.length) return;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const n of list) { x0 = Math.min(x0, n.x); y0 = Math.min(y0, n.y); x1 = Math.max(x1, n.x); y1 = Math.max(y1, n.y); }
+    const w = Math.max(x1 - x0, 60), h = Math.max(y1 - y0, 60);
+    const k = Math.min((innerWidth - panelW() - 90) / (w + 160), (innerHeight - 140) / (h + 160), 1.6);
+    view.k = Math.max(k, 0.15);
+    view.x = (x0 + x1) / 2;
+    view.y = (y0 + y1) / 2;
+  }
+
+  const radiusOf = (n) => (n.asset ? 2.6 : Math.min(3 + Math.sqrt(n.lines) * 0.7 + Math.min(n.deg, 24) * 0.26, 20));
+
+  function visible(n) {
+    if (offClusters.has(n.cluster)) return false;
+    if (mode === "focus" && n.cluster !== "engine" && n.cluster !== "song" && n.cluster !== "page") return false;
+    if (query && !n.id.toLowerCase().includes(query)) return false;
+    return true;
+  }
+  function edgeVisible(e) {
+    if (!visible(e.a) || !visible(e.b)) return false;
+    if (mode === "cross" && !e.cross) return false;
+    return true;
+  }
+
+  // ---------- 绘制 ----------
+  const panelW = () => (innerWidth > 880 ? 356 : 0);
+  const centerX = () => (innerWidth - panelW()) / 2 + 6;
+
+  function draw() {
+    const dpr = DPR();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    ctx.save();
+    ctx.translate(centerX(), innerHeight / 2);
+    ctx.scale(view.k, view.k);
+    ctx.translate(-view.x, -view.y);
+
+    const focusNode = selected || hover;
+    const nbr = new Set();
+    if (focusNode) {
+      for (const e of edges) {
+        if (e.a === focusNode) nbr.add(e.b);
+        if (e.b === focusNode) nbr.add(e.a);
+      }
+    }
+
+    // 边
+    for (const e of edges) {
+      if (!edgeVisible(e)) continue;
+      const active = focusNode && (e.a === focusNode || e.b === focusNode);
+      let alpha = e.cross ? 0.3 : 0.065;
+      let color = e.cross ? "rgba(160,190,220,0.95)" : "rgba(120,145,175,0.9)";
+      if (e.kind === "dynamic") { color = "rgba(251,191,36,0.95)"; alpha = 0.75; }
+      if (focusNode) {
+        if (active) { alpha = e.a === focusNode ? 0.95 : 0.8; color = e.a === focusNode ? "#22d3ee" : "#e879f9"; }
+        else alpha = 0.045;
+      }
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = (active ? 1.5 : 0.7) / view.k;
+      if (e.kind === "dynamic") ctx.setLineDash([5 / view.k, 4 / view.k]);
+      else if (e.asset) ctx.setLineDash([1.5 / view.k, 3 / view.k]);
+      else ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(e.a.x, e.a.y);
+      ctx.lineTo(e.b.x, e.b.y);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+
+    // 聚类标签：画在每个色块的重心上方
+    const sums = new Map();
+    for (const n of nodes) {
+      if (!visible(n)) continue;
+      const s = sums.get(n.cluster) || { x: 0, y: 0, n: 0, top: Infinity };
+      s.x += n.x; s.y += n.y; s.n++; s.top = Math.min(s.top, n.y); sums.set(n.cluster, s);
+    }
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    for (const [c, s] of sums) {
+      if (s.n < 2) continue;
+      const label = CLUSTERS[c].label;
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = CLUSTERS[c].color;
+      ctx.font = `600 ${13 / view.k}px ui-sans-serif, system-ui, "Microsoft YaHei", sans-serif`;
+      ctx.fillText(label, s.x / s.n, s.top - 22 / view.k);
+    }
+    ctx.globalAlpha = 1;
+
+    // 节点
+    for (const n of nodes) {
+      if (!visible(n)) continue;
+      const r = radiusOf(n);
+      const c = CLUSTERS[n.cluster].color;
+      const isFocus = n === focusNode;
+      const isNbr = nbr.has(n);
+      const dim = focusNode && !isFocus && !isNbr;
+      ctx.globalAlpha = dim ? 0.18 : 1;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = c;
+      ctx.fill();
+      if (isFocus || (isNbr && view.k > 0.7)) {
+        ctx.strokeStyle = isFocus ? "#fff" : c;
+        ctx.lineWidth = (isFocus ? 2 : 1.2) / view.k;
+        ctx.stroke();
+      }
+      // 标签：放大 / 悬停 / 高亮时才画，避免糊成一片
+      const showLabel = isFocus || isNbr || view.k > 1.1 || n.deg >= 8
+        || (n.cluster === "engine" && view.k > 0.62);
+      if (showLabel && !n.asset) {
+        ctx.globalAlpha = dim ? 0.25 : 1;
+        const size = (isFocus ? 12 : 10) / view.k;
+        const label = n.label;
+        const lx = n.x + r + 5 / view.k;
+        ctx.font = `${size}px ui-monospace, Menlo, Consolas, monospace`;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        // 先描一圈深色底，压住背后的连线，标签才读得清
+        ctx.lineWidth = 3 / view.k;
+        ctx.strokeStyle = "rgba(8,11,16,0.92)";
+        ctx.strokeText(label, lx, n.y);
+        ctx.fillStyle = isFocus ? "#fff" : "rgba(214,228,242,0.92)";
+        ctx.fillText(label, lx, n.y);
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  // ---------- 命中测试 ----------
+  function pick(mx, my) {
+    let best = null, bestD = Infinity;
+    for (const n of nodes) {
+      if (!visible(n)) continue;
+      const sx = (n.x - view.x) * view.k + centerX();
+      const sy = (n.y - view.y) * view.k + innerHeight / 2;
+      const d = Math.hypot(sx - mx, sy - my);
+      const r = Math.max(radiusOf(n) * view.k, 7);
+      if (d < r && d < bestD) { best = n; bestD = d; }
+    }
+    return best;
+  }
+  const toWorld = (mx, my) => ({ x: (mx - centerX()) / view.k + view.x, y: (my - innerHeight / 2) / view.k + view.y });
+
+  // ---------- 交互 ----------
+  canvas.addEventListener("pointerdown", (ev) => {
+    canvas.setPointerCapture(ev.pointerId);
+    const hit = pick(ev.clientX, ev.clientY);
+    if (hit) { dragging = { node: hit, dx: hit.x - toWorld(ev.clientX, ev.clientY).x, dy: hit.y - toWorld(ev.clientX, ev.clientY).y }; }
+    else { panning = { sx: ev.clientX, sy: ev.clientY, vx: view.x, vy: view.y }; stage.classList.add("dragging"); }
+  });
+
+  canvas.addEventListener("pointermove", (ev) => {
+    if (dragging) {
+      const w = toWorld(ev.clientX, ev.clientY);
+      dragging.node.x = w.x + dragging.dx;
+      dragging.node.y = w.y + dragging.dy;
+      draw();
+      return;
+    }
+    if (panning) {
+      view.x = panning.vx - (ev.clientX - panning.sx) / view.k;
+      view.y = panning.vy - (ev.clientY - panning.sy) / view.k;
+      draw();
+      return;
+    }
+    const hit = pick(ev.clientX, ev.clientY);
+    if (hit !== hover) { hover = hit; canvas.style.cursor = hit ? "pointer" : "grab"; draw(); }
+    if (hit) {
+      tip.textContent = `${hit.id}  ·  ${hit.lines || "—"} 行  ·  ${hit.deg} 条连线`;
+      tip.style.opacity = "1";
+      tip.style.left = Math.min(ev.clientX + 14, innerWidth - tip.offsetWidth - 8) + "px";
+      tip.style.top = ev.clientY + 16 + "px";
+    } else tip.style.opacity = "0";
+  });
+
+  canvas.addEventListener("pointerup", (ev) => {
+    if (dragging && Math.abs(ev.clientX) > 0) select(dragging.node);
+    dragging = null;
+    panning = null;
+    stage.classList.remove("dragging");
+  });
+
+  canvas.addEventListener("pointerleave", () => { tip.style.opacity = "0"; hover = null; draw(); });
+
+  canvas.addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+    const w = toWorld(ev.clientX, ev.clientY);
+    const factor = Math.exp(-ev.deltaY * 0.0015);
+    view.k = Math.min(Math.max(view.k * factor, 0.12), 5);
+    const w2 = toWorld(ev.clientX, ev.clientY);
+    view.x += w.x - w2.x;
+    view.y += w.y - w2.y;
+    draw();
+  }, { passive: false });
+
+  // ---------- 面板 ----------
+  function select(n) {
+    selected = n;
+    draw();
+    if (!n) { detail.innerHTML = '<p class="hint">点击任意节点查看它的 import / 被 import。拖动节点可以挪开重叠，滚轮缩放，空白处拖动平移。</p>'; return; }
+    const outs = edges.filter((e) => e.a === n);
+    const ins = edges.filter((e) => e.b === n);
+    const c = CLUSTERS[n.cluster];
+    const li = (e, other, dir) => {
+      const t = (e.kind === "dynamic" ? " ⤳" : "") + (e.kind === "asset" ? " ◦" : "");
+      return `<li data-goto="${other.id}"><span class="k">${dir}</span> ${other.id}${t}</li>`;
+    };
+    detail.innerHTML = `
+      <h2>${n.label}</h2>
+      <div class="path">${n.id}</div>
+      <span class="tag" style="background:${c.color}22;color:${c.color}">${c.label}</span>
+      <span class="tag" style="background:rgba(255,255,255,.06);color:var(--muted)">${n.lines || "?"} 行 · 入 ${ins.length} / 出 ${outs.length}</span>
+      <h3>它 import 了（${outs.length}）</h3>
+      ${outs.length ? `<ul>${outs.map((e) => li(e, e.b, "→")).join("")}</ul>` : '<p class="empty">无本地依赖</p>'}
+      <h3>谁 import 它（${ins.length}）</h3>
+      ${ins.length ? `<ul>${ins.map((e) => li(e, e.a, "←")).join("")}</ul>` : '<p class="empty">没有本地消费者</p>'}
+    `;
+    detail.querySelectorAll("li[data-goto]").forEach((el) => {
+      el.addEventListener("click", () => { const t = byId.get(el.dataset.goto); if (t) { selected = t; select(t); fit([t.id]); draw(); } });
+    });
+  }
+
+  legendEl.innerHTML =
+    ORDER.map((c) => {
+      const n = nodes.filter((x) => x.cluster === c).length;
+      return `<div class="row" data-cluster="${c}"><span class="dot" style="background:${CLUSTERS[c].color}"></span>${CLUSTERS[c].label}<span class="n">${n}</span></div>`;
+    }).join("") +
+    `<hr /><div class="key"><span class="swatch" style="border-color:rgba(160,190,220,.9)"></span>跨层依赖</div>
+     <div class="key"><span class="swatch" style="border-color:rgba(120,145,175,.55)"></span>同层依赖</div>
+     <div class="key"><span class="swatch" style="border-color:#fbbf24;border-top-style:dashed"></span>动态 import()</div>`;
+  legendEl.querySelectorAll(".row").forEach((row) => {
+    row.addEventListener("click", () => {
+      const c = row.dataset.cluster;
+      if (offClusters.has(c)) offClusters.delete(c); else offClusters.add(c);
+      row.classList.toggle("off");
+      draw();
+    });
+  });
+
+  const engineN = nodes.filter((n) => n.cluster === "engine").length;
+  const real = edges.filter((e) => !e.a.asset && !e.b.asset);
+  const engineCa = real.filter((e) => e.b.cluster === "engine" && e.a.cluster !== "engine").length;
+  const engineCe = real.filter((e) => e.a.cluster === "engine" && e.b.cluster !== "engine").length;
+  metricsEl.innerHTML = `
+    <div class="metric"><div class="k">模块 / 边</div><div class="v">${nodes.length}<small> / ${real.length}</small></div></div>
+    <div class="metric"><div class="k">引擎文件</div><div class="v">${engineN}<small> 个</small></div></div>
+    <div class="metric"><div class="k">引擎被依赖</div><div class="v">${engineCa}<small> 条</small></div></div>
+    <div class="metric"><div class="k">引擎对外</div><div class="v">${engineCe}<small> 条</small></div></div>
+    <div class="metric"><div class="k">SongPage 出度</div><div class="v">${real.filter((e) => e.a.id === "pages/SongPage.tsx").length}<small> 条</small></div></div>
+    <div class="metric"><div class="k">MajView 出度</div><div class="v">${real.filter((e) => e.a.id === "components/song/MajView.tsx").length}<small> 条</small></div></div>
+  `;
+
+  document.querySelectorAll("button.chip[data-view]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const v = btn.dataset.view;
+      if (v === "reset") {
+        for (const n of nodes) n.x += (Math.random() - 0.5) * 2;
+        simulate(0);
+        view.k = 1; fit(); draw(); return;
+      }
+      mode = v;
+      document.querySelectorAll("button.chip[data-view]").forEach((b) => { if (b.dataset.view !== "reset") b.setAttribute("aria-pressed", String(b === btn)); });
+      if (v === "focus") fit(nodes.filter((n) => n.cluster === "engine" || n.cluster === "song" || n.cluster === "page").map((n) => n.id));
+      draw();
+    });
+  });
+
+  qEl.addEventListener("input", () => { query = qEl.value.trim().toLowerCase(); draw(); });
+  addEventListener("keydown", (ev) => {
+    if (ev.key === "/" && document.activeElement !== qEl) { ev.preventDefault(); qEl.focus(); }
+    if (ev.key === "Escape") { qEl.value = ""; query = ""; selected = null; qEl.blur(); select(null); }
+  });
+
+  // ---------- 启动 ----------
+  resize();
+  fit();
+  draw();
+  requestAnimationFrame(() => { fit(); draw(); });
+})();
+</script>
+</body>
+</html>

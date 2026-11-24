@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>谱面编辑器 · 布局草案 v2（对齐 MajdataEdit）</title>
+<style>
+  :root{
+    --bg:#0a0c0f; --chrome:#14181f; --chrome2:#101419; --line:rgba(255,255,255,.075);
+    --text:#e6edf5; --muted:#8b9bb0; --gold:#e8c98a;
+    --reuse:#34d399; --refactor:#fbbf24; --new:#f472b6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{background:var(--bg);color:var(--text);
+    font:13px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+
+  .app{display:grid;grid-template-rows:30px 1fr;height:100vh}
+
+  /* ── 菜单栏（对齐旧版：文件 编辑 设置 工具 Majnet GitHub 检查更新） ── */
+  .menubar{display:flex;align-items:center;gap:2px;padding:0 10px;background:var(--chrome);
+    border-bottom:1px solid var(--line);position:relative;z-index:20}
+  .menubar b{font-size:12px;font-weight:600;margin-right:12px;color:#cfe0f0}
+  .menubar .mi-top{font-size:12px;color:#b6c4d4;padding:3px 9px;border-radius:6px;cursor:default}
+  .menubar .mi-top:hover,.menubar .mi-top.on{background:rgba(255,255,255,.07)}
+  .menubar .spacer{flex:1}
+  .menubar .tag{font-size:11px;color:var(--muted);padding:2px 8px;border:1px solid var(--line);border-radius:999px}
+
+  .menu-wrap{position:relative}
+  .dropdown{position:absolute;top:calc(100% + 5px);left:0;min-width:214px;padding:5px;
+    background:#171c24;border:1px solid rgba(255,255,255,.12);border-radius:9px;
+    box-shadow:0 18px 40px -12px #000;z-index:30}
+  .dropdown .item{display:flex;align-items:center;gap:10px;padding:6px 9px;border-radius:6px;
+    font-size:12px;color:#cddaea;white-space:nowrap}
+  .dropdown .item:hover{background:rgba(34,211,238,.14);color:#fff}
+  .dropdown .item .ic{width:14px;height:14px;flex:none;fill:currentColor;opacity:.75}
+  .dropdown .item kbd{margin-left:auto;font:inherit;font-size:10.5px;color:var(--muted)}
+  .dropdown .sep{height:1px;margin:4px 6px;background:rgba(255,255,255,.09)}
+
+  /* 数值步进框（对齐 MajdataEdit 的 NumericUpDown） */
+  .num{display:flex;align-items:stretch;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .num .v{flex:1;padding:3px 7px;font-size:11.5px;font-variant-numeric:tabular-nums;color:#dbe6f2}
+  .num .st{display:grid;grid-template-rows:1fr 1fr;border-left:1px solid var(--line)}
+  .num .st i{display:grid;place-items:center;width:17px;height:10px;font-size:6px;color:#9fb0c2;font-style:normal}
+  .num .st i:first-child{border-bottom:1px solid var(--line)}
+
+  /* 浮动窗：居中、可拖动、无遮罩（不阻塞编辑器） */
+  .win{position:fixed;z-index:50;width:212px;border-radius:12px;
+    background:rgba(15,20,27,.97);border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 34px 90px -26px #000;backdrop-filter:blur(16px)}
+  .win-head{display:flex;align-items:center;gap:7px;padding:7px 8px 7px 10px;
+    border-bottom:1px solid rgba(255,255,255,.08);border-radius:11px 11px 0 0;
+    cursor:move;user-select:none}
+  .win-head .grip{color:#55677a;font-size:10px;letter-spacing:-1px}
+  .win-title{font-size:11.5px;color:#c3d0de}
+  .win-head .x{margin-left:auto;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;
+    color:#b9c6d4;font-size:12px;background:rgba(255,255,255,.05)}
+  .win-body{padding:10px}
+  .win-body .tap{display:grid;place-items:center;width:100%;height:126px;border-radius:9px;
+    font:inherit;font-size:30px;font-weight:600;color:#a5f3fc;cursor:default;
+    background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.32)}
+  .win-body .reset{width:100%;margin-top:9px;padding:8px;border-radius:8px;font:inherit;font-size:12px;
+    color:rgba(255,255,255,.78);background:rgba(255,255,255,.05);border:1px solid var(--line)}
+  .win-foot{padding:0 10px 9px;font-size:10px;color:var(--muted);letter-spacing:.2px}
+
+  main{display:grid;grid-template-columns:minmax(320px,46fr) 54fr;min-height:0;position:relative}
+
+  /* ── 左：MajdataView 判定盘 ── */
+  .stage{position:relative;min-width:0;min-height:0;display:grid;place-items:center;
+         background:radial-gradient(circle at 50% 45%,#15181d,#08090b 70%);overflow:hidden;border-right:1px solid var(--line)}
+  /* 判定盘：没在播放时用 MajdataView 的 Default_Background.png 当底图 */
+  .board{position:relative;width:min(74%,70vh);aspect-ratio:1;border-radius:50%;
+    background:url('majdataview-default-bg.png') center/cover no-repeat;
+    box-shadow:0 0 0 1px rgba(255,255,255,.14),0 40px 90px -30px #000}
+  .board::after{content:'';position:absolute;inset:0;border-radius:50%;
+    box-shadow:0 0 60px -10px rgba(0,0,0,.85) inset}
+  .stage-actions{position:absolute;right:12px;top:10px;display:flex;gap:6px}
+  .stage-actions i{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;
+    background:rgba(255,255,255,.07);border:1px solid var(--line);color:#cfd8e5;font-size:12px;font-style:normal}
+  .timecode{position:absolute;right:14px;bottom:10px;text-align:right;line-height:1.15}
+  .timecode b{display:block;font-size:clamp(16px,2.6vh,26px);font-weight:600;color:var(--gold);
+    font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  .timecode span{font-size:10.5px;color:rgba(255,255,255,.35);letter-spacing:.4px}
+
+  /* 物量：直接对齐 majview.css 的 .majview-counter —— 左上 / 左下两个角，两列（名称左、数值右） */
+  .counter{position:absolute;left:8px;z-index:1;display:grid;grid-template-columns:auto auto;
+    column-gap:8px;color:rgba(255,255,255,.55);font-size:12.5px;line-height:1.32;
+    pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  .counter.top{top:8px}
+  .counter.bottom{bottom:8px}
+  .counter strong{color:rgba(255,255,255,.9);font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+
+  /* ── 右：控制列 + 编辑器 + 时间轴 ── */
+  .side{display:grid;grid-template-columns:152px 1fr;grid-template-rows:auto 1fr 112px;min-width:0;min-height:0}
+
+  /* 顶部难度选项卡：七个档位常驻，没有内容的档位也在 */
+  .dtabs{grid-row:1;grid-column:1/-1;display:flex;gap:2px;padding:0 10px;flex:none;
+    background:var(--chrome2);border-bottom:1px solid var(--line);overflow-x:auto}
+  .dtab{padding:7px 13px;font-size:11.5px;letter-spacing:.3px;color:var(--muted);
+    border-bottom:2px solid transparent;white-space:nowrap}
+  .dtab:hover{color:#cfe0f0}
+  .dtab.on{color:#fff;border-bottom-color:#22d3ee}
+  /* 该难度有未保存改动 */
+  .dtab .dirty{color:#fbbf24;margin-left:3px;font-weight:700}
+
+  .controls{grid-row:2;grid-column:1;border-right:1px solid var(--line);background:var(--chrome2);
+    padding:10px 10px 24px;display:flex;flex-direction:column;gap:9px;overflow:auto}
+  .bigtime{font-size:26px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;color:#fff}
+  .bigtime small{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:4px}
+  .field{display:flex;flex-direction:column;gap:3px}
+  .field label{font-size:10.5px;color:var(--muted);letter-spacing:.3px}
+  .field .val{font-size:11.5px;color:#dbe6f2;background:rgba(255,255,255,.05);border:1px solid var(--line);
+    border-radius:5px;padding:3px 7px;font-variant-numeric:tabular-nums}
+  .toggle{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#c3d0de}
+  .toggle .box{width:13px;height:13px;border-radius:3px;border:1px solid rgba(255,255,255,.3)}
+  .toggle .box.on{background:#22d3ee;border-color:#22d3ee}
+
+  /* 设置面板：复用 MajViewSettings（.majview-settings），由菜单栏「设置」触发 */
+  /* 设置面板：复用 MajViewSettings（.majview-settings），由菜单栏「设置」触发。
+     选择器要比后面的 [data-reuse]{position:relative} 更具体，否则会被拉回文档流 */
+  main > .mset{position:absolute;right:14px;top:44px;width:300px;max-height:calc(100% - 84px);overflow:auto;
+    padding:12px 14px;border-radius:12px;z-index:12;
+    background:rgba(15,20,27,.97);border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 26px 64px -22px #000;backdrop-filter:blur(14px)}
+  /* 角标骑在面板上沿，不压标题 */
+  .mset[data-reuse]::after{right:auto;top:-11px;left:12px}
+  .mset-head{display:flex;align-items:center;margin-bottom:6px}
+  .mset-head h3{margin:0;font-size:14px;font-weight:600}
+  .mset-head .x{margin-left:auto;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;
+    color:#b9c6d4;font-size:13px;background:rgba(255,255,255,.05)}
+  /* 面板内部有滚动条，徽标放外面会被裁，所以做成行内徽标 */
+  .rbadge{font-size:9.5px;letter-spacing:.3px;padding:1px 6px;border-radius:999px;margin-left:8px;
+    white-space:nowrap;background:rgba(52,211,153,.16);color:#6ee7b7;border:1px solid rgba(52,211,153,.35)}
+  .mset-row{display:grid;grid-template-columns:1fr auto;gap:1px 8px;padding:4px 0}
+  .mset-row label{font-size:11.5px;color:rgba(255,255,255,.75)}
+  .mset-row output{font-size:11.5px;color:#dbe6f2;font-variant-numeric:tabular-nums;text-align:right}
+  .mset-row input[type=range]{grid-column:1/-1;width:100%;height:13px;accent-color:#7dd3fc;margin:1px 0 0}
+  .mset-sep{height:1px;background:rgba(255,255,255,.1);margin:7px 0}
+  .mset-check{display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:11.5px;color:rgba(255,255,255,.75)}
+  .mset-check .box{width:14px;height:14px;border-radius:3px;border:1px solid rgba(255,255,255,.3);flex:none}
+  .mset-check .box.on{background:#7dd3fc;border-color:#7dd3fc}
+  .mset h4{margin:4px 0 2px;font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;
+    color:rgba(255,255,255,.45);font-weight:600}
+  .mset .more{display:flex;align-items:center;gap:5px;padding:4px 0;font-size:11.5px;color:rgba(255,255,255,.55)}
+  .mset .reset{margin-top:10px;width:100%;padding:7px;border-radius:8px;font:inherit;font-size:12px;
+    color:rgba(255,255,255,.75);background:transparent;border:1px solid rgba(255,255,255,.16)}
+  .transport-btns{display:flex;gap:6px;margin-top:auto}
+  .transport-btns button{flex:1;display:grid;place-items:center;height:28px;border-radius:6px;
+    border:1px solid var(--line);background:rgba(255,255,255,.06);color:#dbe6f2;font:inherit;font-size:11px}
+  .transport-btns .ico{width:14px;height:14px;fill:currentColor;display:block}
+
+  .editor{grid-row:2;grid-column:2;min-width:0;min-height:0;display:flex;flex-direction:column;background:#171c24}
+  .code{flex:1;min-height:0;overflow:auto;padding:10px 0;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.72}
+  .ln{display:flex}
+  .ln .n{width:40px;flex:none;text-align:right;padding-right:14px;color:#41505f;user-select:none}
+  .ln .t{white-space:pre;padding-right:14px;color:#dbe6f2}
+  .k-measure{color:#fcd34d}.k-slide{color:#fda4af}.k-hold{color:#93c5fd}.k-touch{color:#c4b5fd}
+  .k-mod{color:#fb923c}.k-delim{color:#546172}.k-bpm{color:#f0abfc}.k-cur{background:rgba(34,211,238,.16)}
+  .caret{display:inline-block;width:2px;height:15px;background:#22d3ee;vertical-align:-3px;animation:blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .errbar{flex:none;display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:11.5px;
+    background:rgba(251,191,36,.1);border-top:1px solid rgba(251,191,36,.28);color:#fde68a}
+
+  /* 时间轴（对齐旧版底部：缩放 + 波形 + 音符 + 播放头） */
+  .timeline{grid-row:3;grid-column:1/-1;border-top:1px solid var(--line);background:#06080a;
+    display:grid;grid-template-columns:34px 1fr;min-height:0;position:relative;overflow:hidden}
+  .zoom{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 5px;border-right:1px solid var(--line)}
+  .zoom button{height:20px;border-radius:4px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#9fb0c2;font-size:11px}
+  .track{position:relative;min-width:0;overflow:hidden}
+  #wave{position:absolute;inset:0;width:100%;height:100%}
+  .ticks{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 1px,transparent 1px 74px)}
+  .notes{position:absolute;left:0;right:0;top:12px;height:26px}
+  .notes i{position:absolute;width:6px;height:6px;border-radius:50%;transform:translateX(-50%)}
+  .notes i.slide{width:0;height:0;border-radius:0;border-left:3.5px solid transparent;border-right:3.5px solid transparent;border-bottom:7px solid #fda4af}
+  .notes i.hold{width:5px;height:11px;border-radius:2px;background:#93c5fd}
+  .notes i.touch{width:7px;height:7px;border-radius:2px;transform:translateX(-50%) rotate(45deg);background:#c4b5fd}
+  .notes i.tap{background:#e5e7eb}
+  .notes i.brk{background:#fb923c}
+  .playhead{position:absolute;top:0;bottom:0;left:34%;width:2px;background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,.8)}
+  .playhead::before{content:'';position:absolute;top:0;left:-4px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #ef4444}
+
+  /* 保存状态：常驻菜单栏右侧，取代原来的「本地文件夹」提示 */
+  .save{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:2px 10px;
+    border-radius:999px;border:1px solid transparent;white-space:nowrap}
+  .save i{width:6px;height:6px;border-radius:50%;display:block}
+  .save.saved{color:#86efac;background:rgba(52,211,153,.10);border-color:rgba(52,211,153,.30)}
+  .save.saved i{background:#34d399}
+  .save.unsaved{color:#fcd34d;background:rgba(251,191,36,.10);border-color:rgba(251,191,36,.30)}
+  .save.unsaved i{background:#fbbf24;box-shadow:0 0 6px rgba(251,191,36,.8)}
+
+  /* 复用角标：默认右上，可按区域挪到别的角，避免压住内容 */
+  [data-reuse]{position:relative}
+  [data-reuse]::after{content:attr(data-reuse);position:absolute;right:6px;top:5px;z-index:5;pointer-events:none;
+    font-size:9.5px;letter-spacing:.3px;padding:1px 6px;border-radius:999px;white-space:nowrap;
+    background:rgba(52,211,153,.16);color:#6ee7b7;border:1px solid rgba(52,211,153,.35)}
+  [data-reuse].rb-bl::after{right:auto;left:8px;top:6px}
+  [data-reuse].rb-br::after{top:auto;bottom:5px}
+  [data-reuse].rb-b2::after{top:auto;bottom:34px}
+  /* 设置面板打开时会盖住右半边，编辑器的角标改挂左下 */
+  [data-reuse].rb-b2l::after{top:auto;bottom:34px;right:auto;left:12px}
+  [data-reuse].rb-bc::after{top:auto;bottom:5px;right:auto;left:50%;transform:translateX(-50%)}
+  [data-reuse^="小改"]::after{background:rgba(251,191,36,.14);color:#fcd34d;border-color:rgba(251,191,36,.32)}
+  [data-reuse^="新写"]::after{background:rgba(244,114,182,.14);color:#f9a8d4;border-color:rgba(244,114,182,.32)}
+
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="menubar">
+    <b>Majdata.Net</b>
+    <span class="mi-top">文件</span>
+    <div class="menu-wrap">
+      <span class="mi-top on">编辑</span>
+      <div class="dropdown">
+        <div class="item"><svg class="ic" viewBox="0 -960 960 960"><path d="M280-160 80-360l200-200 56 57-103 103h287v80H233l103 103-56 57Zm400-240-56-57 103-103H440v-80h287L624-743l56-57 200 200-200 200Z"/></svg>水平镜像<kbd>Ctrl+J</kbd></div>
+        <div class="item"><svg class="ic" viewBox="0 -960 960 960"><path d="M320-440v-287L217-624l-57-56 200-200 200 200-57 56-103-103v287h-80ZM600-80 400-280l57-56 103 103v-287h80v287l103-103 57 56L600-80Z"/></svg>垂直镜像<kbd>Ctrl+K</kbd></div>
+        <div class="item"><svg class="ic" viewBox="0 -960 960 960"><path d="M480-80 310-250l57-57 73 73v-206H235l73 72-58 58L80-480l169-169 57 57-72 72h206v-206l-73 73-57-57 170-170 170 170-57 57-73-73v206h205l-73-72 58-58 170 170-170 170-57-57 73-73H520v205l72-73 58 58L480-80Z"/></svg>180° 镜像<kbd>Ctrl+L</kbd></div>
+        <div class="item"><svg class="ic" viewBox="0 -960 960 960"><path d="M522-80v-82q34-5 66.5-18t61.5-34l56 58q-42 32-88 51.5T522-80Zm-80 0Q304-98 213-199.5T122-438q0-75 28.5-140.5t77-114q48.5-48.5 114-77T482-798h6l-62-62 56-58 160 160-160 160-56-56 64-64h-8q-117 0-198.5 81.5T202-438q0 104 68 182.5T442-162v82Zm322-134-58-56q21-29 34-61.5t18-66.5h82q-5 50-24.5 96T764-214Zm76-264h-82q-5-34-18-66.5T706-606l58-56q32 39 51 86t25 98Z"/></svg>旋转 +45°<kbd>Ctrl+U</kbd></div>
+        <div class="item"><svg class="ic" viewBox="0 -960 960 960"><path d="M440-80q-50-5-96-24.5T256-156l56-58q29 21 61.5 34t66.5 18v82Zm80 0v-82q104-15 172-93.5T760-438q0-117-81.5-198.5T480-718h-8l64 64-56 56-160-160 160-160 56 58-62 62h6q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-438q0 137-91 238.5T520-80ZM198-214q-32-42-51.5-88T122-398h82q5 34 18 66.5t34 61.5l-58 56Zm-76-264q6-51 25-98t51-86l58 56q-21 29-34 61.5T204-478h-82Z"/></svg>旋转 −45°<kbd>Ctrl+I</kbd></div>
+        <div class="sep"></div>
+        <div class="item">谱面信息…</div>
+        <div class="sep"></div>
+        <div class="item">查找替换<kbd>Ctrl+F</kbd></div>
+      </div>
+    </div>
+    <span class="mi-top">设置</span>
+    <span class="mi-top">工具</span>
+    <span class="mi-top">关于</span>
+    <span class="spacer"></span>
+    <span class="save unsaved"><i></i>未保存</span>
+  </div>
+
+  <main>
+    <!-- 左：判定盘 -->
+    <section class="stage rb-bc" data-reuse="小改 · MajView">
+      <div class="board" id="board"></div>
+      <div class="stage-actions"><i>⛶</i></div>
+      <!-- 物量：复用 MajView 的 .majview-counter，位置一致（左上总数 / 左下分类） -->
+      <div class="counter top">
+        <span>物量</span><strong>1022</strong>
+        <span>达成率</span><strong>99.21%</strong>
+        <span>最大</span><strong>100.50%</strong>
+      </div>
+      <div class="counter bottom">
+        <span>TAP</span><strong>210/210</strong>
+        <span>HOLD</span><strong>48/48</strong>
+        <span>SLIDE</span><strong>136/138</strong>
+        <span>TOUCH</span><strong>284/284</strong>
+        <span>BREAK</span><strong>42/42</strong>
+      </div>
+      <div class="timecode"><b>0:00.0000</b><span>MAJDATA VIEW</span></div>
+    </section>
+
+    <section class="side">
+      <!-- 顶部难度选项卡：七个档位常驻，没有内容的档位也显示 -->
+      <div class="dtabs">
+        <div class="dtab">EASY</div><div class="dtab">BASIC</div><div class="dtab">ADVANCED</div>
+        <div class="dtab">EXPERT</div><div class="dtab on">MASTER<span class="dirty">*</span></div>
+        <div class="dtab">RE:MASTER</div><div class="dtab">UTAGE</div>
+      </div>
+
+      <!-- 控制列：只留编辑器专属项；流速/偏移/亮度/音量等全部收进「设置」面板 -->
+      <div class="controls rb-bc" data-reuse="新写 · 谱面元信息">
+        <div class="bigtime">1:17</div>
+
+        <div class="field"><label>难度</label><div class="val">14+</div></div>
+        <div class="field"><label>制谱人</label><div class="val">sabi</div></div>
+        <!-- &first：谱面自己的 first；设置里的「First 偏移」是播放器侧另加的平移，两者独立 -->
+        <div class="field"><label>First</label>
+          <div class="num"><span class="v">0.00</span><span class="st"><i>▲</i><i>▼</i></span></div>
+        </div>
+
+        <div class="toggle"><span class="box on"></span>文本跟随</div>
+
+        <!-- 图标：停止 / 播放。播放中第一个保持停止，第二个换成暂停图标 -->
+        <div class="transport-btns">
+          <button aria-label="停止" title="停止">
+            <svg class="ico" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
+          </button>
+          <button aria-label="播放" title="播放">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M8 5.2v13.6L19 12z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 编辑器 -->
+      <div class="editor rb-b2l" data-reuse="复用 · Monaco + simai">
+        <div class="code">
+          <div class="ln"><span class="n">1</span><span class="t"><span class="k-delim">||</span> saki</span></div>
+          <div class="ln"><span class="n">2</span><span class="t"><span class="k-bpm">{16}</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span></span></div>
+          <div class="ln"><span class="n">3</span><span class="t"><span class="k-bpm">{16}</span><span class="k-tap">12</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-slide">1&lt;2</span><span class="k-delim">,</span><span class="k-tap">12</span><span class="k-delim">,,</span><span class="k-tap">34</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">34</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,,</span></span></div>
+          <div class="ln"><span class="n">4</span><span class="t"><span class="k-bpm">{16}</span><span class="k-hold">1h</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-hold">1h</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span></span></div>
+          <div class="ln"><span class="n">5</span><span class="t"><span class="k-bpm">{16}</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">2</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">3</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">4</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">5</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">6</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">7</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">8</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span><span class="k-tap">1</span><span class="k-delim">,</span></span></div>
+          <div class="ln"><span class="n">6</span><span class="t"> </span></div>
+          <div class="ln"><span class="n">7</span><span class="t"><span class="k-bpm">{32}</span><span class="k-slide">1-5b[8:1]</span><span class="k-delim">,</span><span class="k-tap">2</span><span class="k-delim">,</span><span class="k-tap">3</span><span class="k-delim">,</span><span class="k-tap">4</span><span class="k-delim">,</span><span class="k-tap">5</span><span class="k-delim">,</span><span class="k-tap">6</span><span class="k-delim">,</span><span class="k-tap">7</span><span class="k-delim">,</span><span class="k-tap">8</span><span class="k-delim">,</span></span></div>
+          <div class="ln"><span class="n">8</span><span class="t"><span class="k-bpm">{16}</span><span class="k-touch">5</span><span class="k-slide">/1b</span><span class="k-delim">,,,</span></span></div>
+          <div class="ln"><span class="n">9</span><span class="t"><span class="k-bpm">{32}</span><span class="k-slide">1-5b[8:1]</span><span class="k-delim">,</span><span class="k-tap">2</span><span class="k-delim">,</span><span class="k-tap">3</span><span class="k-delim">,</span><span class="k-tap">4</span><span class="k-delim">,</span><span class="k-tap">5</span><span class="k-delim">,</span><span class="k-tap">6</span><span class="k-delim">,</span><span class="k-tap">7</span><span class="k-delim">,</span><span class="k-tap">8</span><span class="k-delim">,</span></span></div>
+          <div class="ln"><span class="n">10</span><span class="t"><span class="k-bpm">{16}</span><span class="k-hold">2h[</span><span style="color:#fca5a5">…</span><span class="caret"></span></span></div>
+        </div>
+        <div class="errbar"><b>⚠</b>第 10 行：hold 时长没有闭合 · 预览停在最后一次成功的状态<span style="margin-left:auto;color:var(--muted)">解析错误不阻塞编辑</span></div>
+      </div>
+
+      <!-- 时间轴：SimaiVisualizerControl 的移植版（visualizer.js / MajViewVisualizer） -->
+      <div class="timeline rb-br" data-reuse="复用 · SimaiVisualizerControl">
+        <div class="zoom"><button>+</button><button>−</button></div>
+        <div class="track" id="track">
+          <canvas id="wave"></canvas>
+          <div class="ticks"></div>
+          <div class="notes" id="notes"></div>
+          <div class="playhead"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 浮动窗：居中、可拖动、无遮罩。设置 / 谱面信息 / 查找替换 共用这一套壳。
+       BPM Tap 的逻辑照抄 BpmTapWindow.axaml.cs：每两次点击算 60/Δt，
+       超过 20 个去极值取平均，结果直接显示在大按钮上 -->
+  <div class="win" id="bpmwin">
+    <div class="win-head"><span class="grip">⠿</span><span class="win-title">BPM Tap</span><span class="x">✕</span></div>
+    <div class="win-body">
+      <button class="tap">178.4</button>
+      <button class="reset">Reset</button>
+    </div>
+    <div class="win-foot">拖动标题栏可移动 · 编辑器仍可继续输入</div>
+  </div>
+</div>
+
+<script>
+// 时间轴波形：宽屏下用假数据画一版，和 visualizer.js 的 buildWaveform 观感一致
+(() => {
+  const canvas = document.getElementById('wave');
+  const track = document.getElementById('track');
+  const draw = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const w = track.clientWidth, h = track.clientHeight;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const mid = h * 0.62, maxH = h * 0.46;
+    const g = ctx.createLinearGradient(0, mid - maxH, 0, mid + maxH);
+    g.addColorStop(0, 'rgba(74,222,128,.85)');
+    g.addColorStop(1, 'rgba(22,101,52,.85)');
+    ctx.fillStyle = g;
+    let seed = 7;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let x = 0; x < w; x += 3) {
+      const env = 0.35 + 0.65 * Math.abs(Math.sin(x / 90) * Math.cos(x / 37));
+      const amp = maxH * env * (0.55 + 0.45 * rnd());
+      ctx.fillRect(x, mid - amp, 2, amp * 2);
+    }
+  };
+  draw();
+  addEventListener('resize', draw);
+})();
+
+// 音符：散布在时间轴上，形状对应 tap / slide / hold / touch / break
+(() => {
+  const host = document.getElementById('notes');
+  const kinds = ['tap', 'tap', 'slide', 'hold', 'touch', 'brk', 'tap', 'slide', 'tap', 'touch'];
+  const colors = { tap: '#e5e7eb', slide: '', hold: '', touch: '', brk: '#fb923c' };
+  let seed = 13;
+  const rnd = () => (seed = (seed * 48271) % 2147483647) / 2147483647;
+  for (let i = 0; i < 78; i++) {
+    const el = document.createElement('i');
+    const kind = kinds[Math.floor(rnd() * kinds.length)];
+    el.className = kind;
+    el.style.left = (rnd() * 100) + '%';
+    el.style.top = (rnd() * 18) + 'px';
+    host.appendChild(el);
+  }
+})();
+// 浮动窗：初始居中，拖标题栏可移动。没有遮罩层，所以编辑器始终能点、能输入
+(() => {
+  const win = document.getElementById('bpmwin');
+  if (!win) return;
+  const head = win.querySelector('.win-head');
+  win.style.left = Math.round((innerWidth - win.offsetWidth) / 2) + 'px';
+  win.style.top = Math.round((innerHeight - win.offsetHeight) / 2) + 'px';
+
+  let drag = null;
+  head.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.x')) return;
+    drag = { dx: e.clientX - win.offsetLeft, dy: e.clientY - win.offsetTop };
+    head.setPointerCapture(e.pointerId);
+  });
+  head.addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    win.style.left = (e.clientX - drag.dx) + 'px';
+    win.style.top = (e.clientY - drag.dy) + 'px';
+  });
+  const stop = (e) => {
+    if (!drag) return;
+    drag = null;
+    head.releasePointerCapture?.(e.pointerId);
+  };
+  head.addEventListener('pointerup', stop);
+  head.addEventListener('pointercancel', stop);
+})();
+</script>
+</body>
+</html>
