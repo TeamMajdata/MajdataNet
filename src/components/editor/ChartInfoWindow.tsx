@@ -16,19 +16,17 @@ import { getField, listFields, removeField, setField } from '@/utils/maidataEdit
 const FUUMEN_KEY = /^inote_\d+$/;
 const KEY_SHAPE = /^[\w-]+$/;
 /** 这些字段有自己的专门 UI（标题 / 曲师 / 谱师 / First / 难度），不在「其它字段」里重复出现 */
-const STRUCTURED_KEY = /^(title|artist|first|first_\d+|lv_\d+|des_\d+)$/;
+const STRUCTURED_KEY = /^(title|artist|des|first|first_\d+|lv_\d+|des_\d+)$/;
 
 type ErrorKey = '' | 'editor/ChartInfoWindow.InvalidKey' | 'editor/ChartInfoWindow.DuplicateKey';
 
 type Props = {
   maidata: string;
-  /** 当前难度：谱师取 &des_{level+1} */
-  level: number;
   onApply: (next: string) => void;
   onClose: () => void;
 };
 
-export default function ChartInfoWindow({ maidata, level, onApply, onClose }: Props) {
+export default function ChartInfoWindow({ maidata, onApply, onClose }: Props) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState(maidata);
   const [newKey, setNewKey] = useState('');
@@ -39,7 +37,6 @@ export default function ChartInfoWindow({ maidata, level, onApply, onClose }: Pr
   const commands = listFields(draft).filter(
     (field) => !FUUMEN_KEY.test(field.key) && !STRUCTURED_KEY.test(field.key),
   );
-  const designerKey = `des_${level + 1}`;
 
   const write = (key: string, value: string) => setDraft((prev) => setField(prev, key, value));
 
@@ -78,8 +75,8 @@ export default function ChartInfoWindow({ maidata, level, onApply, onClose }: Pr
         <label className="editor-info-row">
           <span className="editor-info-label">{t('editor/ChartInfoWindow.Designer')}</span>
           <input
-            value={getField(draft, designerKey) ?? ''}
-            onChange={(event) => write(designerKey, event.target.value)}
+            value={getField(draft, 'des') ?? ''}
+            onChange={(event) => write('des', event.target.value)}
           />
         </label>
 
