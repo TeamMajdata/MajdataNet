@@ -297,15 +297,16 @@ export class Visualizer {
       context.closePath();
       context.fill();
     }
-    // 红色三角：这一轮是从哪里开始播的（空格按第二下会跳回这里）
+    // 红色三角：这一轮是从哪里开始播的（空格按第二下会跳回这里）。
+    // 和顶部光标三角对称：底边贴在时间轴下沿，尖端朝上指向谱面
     const start = content.startMark;
     if (typeof start === 'number' && Number.isFinite(start) && start >= from && start <= to) {
       const startX = xOf(start);
       context.fillStyle = VISUALIZER_COLORS.startMark;
       context.beginPath();
-      context.moveTo(startX - 6, height - 10);
-      context.lineTo(startX + 6, height - 10);
-      context.lineTo(startX, height);
+      context.moveTo(startX - 6, height);
+      context.lineTo(startX + 6, height);
+      context.lineTo(startX, height - 8);
       context.closePath();
       context.fill();
     }
