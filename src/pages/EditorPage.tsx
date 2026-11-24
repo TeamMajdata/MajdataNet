@@ -449,8 +449,8 @@ export default function EditorPage() {
         ) : (
           <main className="editor-main">
             <section className="editor-stage">
-              {/* 文本还没就位时先不挂播放器，否则首帧会带着空谱面进错误态 */}
-              {maidata && (hasChart ? (
+              {/* 空难度也挂播放器：能听音乐、看视频、看波形（测 BPM 用） */}
+              {maidata && (
                 <MajView
                   key={folder.name}
                   chartText={maidata}
@@ -474,16 +474,13 @@ export default function EditorPage() {
                   onTimelineScrub={handleTimelineScrub}
                   onTimelineScrubEnd={focusEditor}
                   preloadVideo
+                  allowEmptyChart
                   onTextError={setChartError}
                 />
-              ) : (
-                <div
-                  className="editor-stage-idle"
-                  style={{ backgroundImage: `url('${cover}')` }}
-                >
-                  <span>{t('editor/EditorPage.EmptyDifficulty')}</span>
-                </div>
-              ))}
+              )}
+              {maidata && !hasChart && (
+                <p className="editor-stage-hint">{t('editor/EditorPage.EmptyDifficulty')}</p>
+              )}
             </section>
 
             <section className="editor-side">

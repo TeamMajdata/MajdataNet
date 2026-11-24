@@ -94,7 +94,20 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false, onTextError }: {
+/**
+ * 空难度也要能听音乐、看视频、看波形（测 BPM 用），所以给一个没有音符的空谱面。
+ * clockTimes / chartStart / chartDuration 都已经能处理空 notes。
+ */
+const EMPTY_CHART: Chart = { notes: [], warnings: [], firstBpm: 120, last: 0, commaTimings: [] };
+
+/** 允许空难度时，难度字段为空就直接用空谱面，不当成错误 */
+function compileForView(text: string, level: number, allowEmpty: boolean): Chart {
+  const fields = readMaidata(text) as Record<string, string>;
+  if (allowEmpty && !(fields[`inote_${level + 1}`] ?? '').trim()) return EMPTY_CHART;
+  return compileChart(fields, level);
+}
+
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false, onTextError, allowEmptyChart = false }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -151,6 +164,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   preloadVideo?: boolean;
   /** 文本编译不过时的原因（null 表示恢复正常）；给了就由页面自己显示 */
   onTextError?: (message: string | null) => void;
+  /** 难度为空时也给一个空谱面（编辑器要：空难度也要能放音乐、看波形） */
+  allowEmptyChart?: boolean;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -552,7 +567,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
         const text = chartTextRef.current ?? (chartUrl ? await loadChartText(chartUrl, signal) : '');
         if (signal.aborted) return;
         mark('majview:chart-response');
-        const compiled = compileChart(readMaidata(text), level);
+        const compiled = compileForView(text, level, allowEmptyChart);
         if (signal.aborted) return;
         mark('majview:chart-compiled');
         chartRef.current = compiled;
@@ -572,7 +587,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     }
     void load();
     return () => controller.abort();
-  }, [chartUrl, level, dropTransport, prepareTrack, scheduleTrack, reloadKey]);
+  }, [chartUrl, level, dropTransport, prepareTrack, scheduleTrack, reloadKey, allowEmptyChart]);
 
   /**
    * 编辑器里每敲一下都要更新画面：只重编译并热换谱面。
@@ -589,7 +604,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
      */
     if (!chartRef.current) {
       try {
-        compileChart(readMaidata(chartText), level);
+        compileForView(chartText, level, allowEmptyChart);
       } catch (err) {
         setTextError((err as Error).message);
         return; // 还是半句话，继续等下一次输入
@@ -600,7 +615,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     }
     let compiled: Chart;
     try {
-      compiled = compileChart(readMaidata(chartText), level);
+      compiled = compileForView(chartText, level, allowEmptyChart);
       setTextError(null);
     } catch (err) {
       // 画面保留上一版，但要让用户知道现在这份文本编译不过
@@ -611,7 +626,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     setChart(compiled);
     // 没有音频时总长由谱面决定；有音频时以 Transport 的时长为准，不要改小
     if (!transportRef.current) setDuration(chartDuration(compiled));
-  }, [chartText, level]);
+  }, [chartText, level, allowEmptyChart]);
 
   // 和渲染器里的 combo 计数用同一份时间表：第 n 个元素结束时 combo 变成 n
   const scores = useMemo(() => chart ? scoreTimeline(chart.notes) as { time: number }[] : [], [chart]);

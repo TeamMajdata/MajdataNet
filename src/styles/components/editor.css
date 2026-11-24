@@ -1,7 +1,7 @@
 /* 谱面编辑器：左侧预览 + 右侧（难度页签 / 元信息 / 编辑器） */
 
 .editor-app {
-  /* 站点给固定页头留了 body padding-top；编辑器要铺满整屏，所以直接脱离文档流 */
+/* 站点给固定页头留了 body padding-top；编辑器要铺满整屏，所以直接脱离文档流 */
   position: fixed;
   inset: 0;
   display: grid;
@@ -183,7 +183,7 @@
 
 .editor-spacer { flex: 1; }
 
-/* 保存状态 */
+/* 淇濆瓨鐘舵€?*/
 .editor-save {
   display: inline-flex;
   align-items: center;
@@ -254,24 +254,21 @@
 /* MajView 自己就是 flex 列（判定盘 + 控制条），撑满这一格 */
 .editor-stage > * { flex: 1; min-height: 0; }
 
-/* 空难度：显示默认底图，不报错 */
-.editor-stage-idle {
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background-color: #08090b;
-  background-position: center;
-  background-size: cover;
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 8%) inset;
-}
-
-.editor-stage-idle span {
-  padding: 6px 14px;
+/* 空难度：播放器照常挂着（能听歌看波形），只在底部给一条提示 */
+.editor-stage-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 2;
+  margin: 0;
+  padding: 5px 12px;
   border-radius: 999px;
   font-size: 12px;
   color: rgb(255 255 255 / 70%);
-  background: rgb(0 0 0 / 55%);
+  background: rgb(0 0 0 / 60%);
   border: 1px solid rgb(255 255 255 / 10%);
+  pointer-events: none;
 }
 
 .editor-side {
@@ -404,14 +401,14 @@
   min-width: 0;
   min-height: 0;
   display: flex;
-  /* 竖排：编辑器占满，错误提示贴在它下面 */
+/* 竖排：编辑器占满，错误提示贴在它下面 */
   flex-direction: column;
   background: #0e1218;
 }
 
 .editor-code { flex: 1; min-width: 0; min-height: 0; }
 
-/* simai 主题把光标设成了全透明（原本只读的谱面文件页签用），可编辑时补回来。
+/* simai 主题把光标设成了全透明（原本只读的谱面文件页签用），可编辑时补回来；
    visibility 也要强制：Monaco 在编辑器失焦时会把它设成 hidden，
    而拖动时间轴 / 点时间轴正好会让编辑器失焦，光标就看不见了 */
 .editor-code .monaco-editor { --vscode-editorCursor-foreground: #22d3ee; }
