@@ -214,6 +214,26 @@ export default function EditorPage() {
     return () => window.removeEventListener('pointerdown', close);
   }, [openMenu]);
 
+  /**
+   * Ctrl/Cmd+S 保存、Ctrl/Cmd+O 打开文件夹。
+   * 不绑在 Monaco 上是因为这两个是页面级动作，而且要拦掉浏览器的「保存网页」。
+   */
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      const key = event.key.toLowerCase();
+      if (key === 's') {
+        event.preventDefault();
+        void save();
+      } else if (key === 'o') {
+        event.preventDefault();
+        void open();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [save, open]);
+
   /** 新建：先有未保存改动就问一下；新建的谱面没有落地文件，保存会退化成下载 */
   const createNew = useCallback(() => {
     if (anyDirty && !window.confirm(t('editor/EditorPage.DiscardChanges'))) return;

@@ -1,6 +1,6 @@
 # 谱面编辑器 · 交互规格 v1
 
-> 状态：**决策已锁定，待实现**
+> 状态：**已实现**（实现状态与偏离见文末 §7）
 > 上游参照：[MajdataEdit-Neo](https://github.com/LingFeng-bbben/MajdataEdit-Neo)（`Views/` + `ViewModels/MainWindowViewModel.cs`）
 > 布局基准：[editor-layout-mockup.html](editor-layout-mockup.html)
 
@@ -220,3 +220,24 @@ dirty[i] / dirtyGlobal ──Ctrl+S──▶ 全部清零
 3. **Monaco model 生命周期**：7 个难度各一个 model，切换时 `setModel`；销毁要配平，否则内存与撤销栈会串。
 4. **File System Access 兼容性**：仅 Chromium；Safari/Firefox 只能退化成多选文件。
 5. **自动保存的判定**：草稿比文件新的比较依据（时间戳 or hash）需要定；建议存 hash。
+
+
+---
+
+## 7. 实现状态
+
+全部条目已实现，唯一有意偏离：
+
+| 条目 | 状态 |
+|---|---|
+| 菜单栏 / 文件（新建、打开文件夹、保存） | 已实现，另绑了 Ctrl+S / Ctrl+O |
+| 编辑（5 个变换、谱面信息、查找替换） | 已实现；变换只作用于选区；查找需单独注册 Monaco findController |
+| 设置 / BPM Tap / 谱面信息 | 已实现，居中可拖动浮窗，portal 复用播放器组件 |
+| 难度页签 + 脏标记 | 已实现 |
+| 中栏（时间 / 难度 / 制谱人 / First / 文本跟随） | 已实现 |
+| 编辑器实时预览、解析失败保留上一版 | 已实现 |
+| 光标 → 时间轴、时间轴 → 文本行 | 已实现；前者仅在「文本跟随」开启时生效（同上游） |
+| 播放状态机 / 停止键 | 已实现；编辑器里先暂停再回起点，song 页保持原行为 |
+| 时间轴缩放 | 已实现，0.1–10，默认 4 |
+| 自动保存（IndexedDB） | 已实现，5s debounce + 30s 兜底，不改变脏状态 |
+| 变换快捷键 Ctrl+J/K/L/U/I | **未绑定**：Ctrl+J 被 Chrome「下载」保留、页面收不到 keydown；其余与 Monaco 默认键位冲突。菜单入口可用 |
