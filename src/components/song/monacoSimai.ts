@@ -57,7 +57,7 @@ export function setupSimai() {
       { token: 'tap', foreground: 'FFB6C1' },
       { token: 'each', foreground: 'FFD700' },
       { token: 'modifier', foreground: 'A3A3A3' },
-      { token: 'delimiter', foreground: '4B5563' },
+      { token: 'delimiter', foreground: '8B98A8' },
     ],
     colors: {
       'editor.background': '#0e1218',

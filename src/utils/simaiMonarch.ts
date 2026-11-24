@@ -19,12 +19,19 @@ export const SIMAI_TOKEN_RULES: readonly (readonly [RegExp, string])[] = [
   [/E(?![0-9A-Za-z])/, 'end'],
   [/(?:C[1-8]?[hbfx]*|[ABDE][1-8][hbfx]*)/, 'touch'],
   [/[1-8][bx]*h[bx]*/, 'hold'],
+  // 带 b（break）的滑动：b 可能出现在起点（8b-5）、路径末尾（2bV47b）、
+  // 也可能在 [8:5] 这种括号之后（6p3[8:5]b），整段都算 break
+  [/[1-8]b[bxm]*(?:[<>^\-vpqszwV][qp]?[1-8]+b?)+/, 'break'],
+  [/[1-8][bxm]*(?:[<>^\-vpqszwV][qp]?[1-8]+)+b/, 'break'],
+  [/[1-8][bxm]*(?:[<>^\-vpqszwV][qp]?[1-8]+)+\[\d+:\d+\]b/, 'break'],
   [/[1-8][bxm]*(?:[<>^\-vpqszwV][qp]?[1-8]+)+/, 'slide'],
+  [/(?:[<>^\-vpqszwV][qp]?[1-8]+b)+/, 'break'],
   [/(?:[<>^\-vpqszwV][qp]?[1-8]+)+/, 'slide'],
   // 地雷 / break：时间轴上用 OrangeRed 画，这里单独成一个 token
   [/[1-8]{1,2}b[bxmf$]*/, 'break'],
   [/[1-8]{1,2}[bxmf$]*/, 'tap'],
-  [/[bxfm$]+/, 'modifier'],
+  [/b+/, 'break'],
+  [/[xfm$]+/, 'modifier'],
   [/\//, 'each'],
   [/[,`*]/, 'delimiter'],
 ];
