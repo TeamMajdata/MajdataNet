@@ -173,7 +173,7 @@ function ChartPreview({ song, chartLevel, active, jump, onMarkRange }: {
         <Suspense fallback={coverImage}>
           <MajView chartUrl={base + '/chart'} trackUrl={base + '/track'} videoUrl={base + '/video'}
             title={stripTmpTags(song.title) || song.title} artist={song.artist} level={chartLevel} cover={coverSrc} onCoverError={cover.onError}
-            active={active} jump={jump} onMarkRange={onMarkRange} command={command} />
+            active={active} jump={jump} onMarkRange={onMarkRange} command={command} gestures />
         </Suspense>
       )}
     </div>
