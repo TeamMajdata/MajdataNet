@@ -78,6 +78,8 @@ export default function EditorPage() {
   const [settingsHost, setSettingsHost] = useState<HTMLDivElement | null>(null);
   const [timelineHost, setTimelineHost] = useState<HTMLDivElement | null>(null);
   const [playing, setPlaying] = useState(false);
+  /** 当前文本编译不过的原因：显示在编辑器底部 */
+  const [chartError, setChartError] = useState<string | null>(null);
   const [command, setCommand] = useState<{ type: 'playPause' | 'stop'; key: number } | null>(null);
   const latestRef = useRef({ maidata: '', active: 4 });
   const lastSecondRef = useRef(-1);
@@ -472,6 +474,7 @@ export default function EditorPage() {
                   onTimelineScrub={handleTimelineScrub}
                   onTimelineScrubEnd={focusEditor}
                   preloadVideo
+                  onTextError={setChartError}
                 />
               ) : (
                 <div
@@ -568,6 +571,12 @@ export default function EditorPage() {
                   onCursorLineChange={handleCursorLine}
                   onCtrlClickLine={handleCtrlClickLine}
                 />
+                {/* 文本编译不过时的提示：贴在编辑器底部，不挡预览 */}
+                {chartError && (
+                  <p className="editor-chart-error" role="alert">
+                    {t('editor/EditorPage.ChartError')} {chartError}
+                  </p>
+                )}
               </div>
 
               {/* 波形时间轴挂在这里（MajView 用 portal 送过来） */}

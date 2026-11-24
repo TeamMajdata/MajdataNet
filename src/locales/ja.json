@@ -176,6 +176,7 @@
   },
   "editor/EditorPage": {
     "Cancel": "キャンセル",
+    "ChartError": "譜面に誤りがあります:",
     "ChartInfo": "譜面情報…",
     "Designer": "譜師",
     "DontSave": "保存しない",
@@ -502,6 +503,7 @@
     "Unavailable": "この難易度のレーダーデータはありません"
   },
   "song/MajView": {
+    "ChartInvalid": "譜面に誤りがあります:",
     "CloseSettings": "設定を閉じる",
     "EffectDetails": "打撃音を個別に調整",
     "Fullscreen": "全画面",

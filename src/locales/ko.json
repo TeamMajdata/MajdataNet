@@ -176,6 +176,7 @@
   },
   "editor/EditorPage": {
     "Cancel": "취소",
+    "ChartError": "채보 오류:",
     "ChartInfo": "악보 정보…",
     "Designer": "채보자",
     "DontSave": "저장 안 함",
@@ -502,6 +503,7 @@
     "Unavailable": "이 난이도의 레이더 데이터가 없습니다"
   },
   "song/MajView": {
+    "ChartInvalid": "채보 오류:",
     "CloseSettings": "설정 닫기",
     "EffectDetails": "타격음 개별 조정",
     "Fullscreen": "전체 화면",

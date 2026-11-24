@@ -18,6 +18,8 @@ type Span = {
   /** 值（去掉首尾空白）的区间 */
   start: number;
   end: number;
+  /** 等号右边紧接着的位置：值为空时从这里写，别写到下一行去 */
+  valueStart: number;
 };
 
 /** 扫出所有 `&key=` 字段的值区间；值一直延伸到下一个字段行之前 */
@@ -37,7 +39,7 @@ function scan(text: string): Span[] {
     let end = rawEnd;
     while (start < end && /\s/.test(text[start])) start++;
     while (end > start && /\s/.test(text[end - 1])) end--;
-    spans.push({ key: current.key, start, end });
+    spans.push({ key: current.key, start, end, valueStart: current.valueStart });
   }
   return spans;
 }
@@ -64,7 +66,13 @@ function lineEnding(text: string): string {
  */
 export function setField(text: string, key: string, value: string): string {
   const span = scan(text).find((item) => item.key === key);
-  if (span) return text.slice(0, span.start) + value + text.slice(span.end);
+  if (span) {
+    // 值为空时 start 会被 trim 到下一行的字段开头，这时要写回等号后面
+    if (span.start === span.end) {
+      return text.slice(0, span.valueStart) + value + text.slice(span.valueStart);
+    }
+    return text.slice(0, span.start) + value + text.slice(span.end);
+  }
   const eol = lineEnding(text);
   const suffix = text.endsWith(eol) || text.endsWith('\n') || text.endsWith('\r') ? '' : eol;
   return `${text}${suffix}&${key}=${value}${eol}`;

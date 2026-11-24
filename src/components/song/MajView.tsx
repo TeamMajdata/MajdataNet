@@ -94,7 +94,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false, onTextError }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -149,6 +149,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   onTimelineScrubEnd?: () => void;
   /** 谱面一载入就开始下载背景 PV（编辑器要；song 页仍然点播放才拉） */
   preloadVideo?: boolean;
+  /** 文本编译不过时的原因（null 表示恢复正常）；给了就由页面自己显示 */
+  onTextError?: (message: string | null) => void;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -247,6 +249,17 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   const [status, setStatus] = useState<Status>('loading');
   // 错误只记原因，文案在渲染时翻译
   const [error, setError] = useState<{ track?: boolean; detail?: string }>({});
+  /** 加一就会重新走一遍完整加载：首次编译失败后靠它把状态救回来 */
+  const [reloadKey, setReloadKey] = useState(0);
+  /** 编辑时文本编译不过：画面继续显示上一版，但要把错误提示出来 */
+  const [textError, setTextError] = useState<string | null>(null);
+
+  // 把「当前文本编译不过的原因」报给页面（编辑器把它显示在编辑器底部）
+  const onTextErrorRef = useRef(onTextError);
+  onTextErrorRef.current = onTextError;
+  useEffect(() => {
+    onTextErrorRef.current?.(textError);
+  }, [textError]);
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   // 波形包络：音乐解码好之后算一次，进度条上方的时间轴拿它当背景
@@ -531,6 +544,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     setRate(1);
     setStatus('loading');
     setError({});
+    setTextError(null);
 
     async function load() {
       try {
@@ -552,12 +566,13 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
       } catch (err) {
         if (signal.aborted) return;
         setError({ detail: (err as Error).message });
+        setTextError((err as Error).message);
         setStatus('error');
       }
     }
     void load();
     return () => controller.abort();
-  }, [chartUrl, level, dropTransport, prepareTrack, scheduleTrack]);
+  }, [chartUrl, level, dropTransport, prepareTrack, scheduleTrack, reloadKey]);
 
   /**
    * 编辑器里每敲一下都要更新画面：只重编译并热换谱面。
@@ -567,12 +582,29 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   useEffect(() => {
     if (chartText === undefined || hotChartRef.current === chartText) return;
     hotChartRef.current = chartText;
-    // 首次加载由上面的 load() 负责，这里只管"已经有一版在画"之后的更新
-    if (!chartRef.current) return;
+    /**
+     * 还没有成功编译过一版（第一版就编译失败，比如编辑器里刚敲了半句话）：
+     * 这里必须能把状态救回来，否则 chartRef 一直是 null，
+     * 后面再怎么改文本都会被下面的 return 挡住、永远停在错误态。
+     */
+    if (!chartRef.current) {
+      try {
+        compileChart(readMaidata(chartText), level);
+      } catch (err) {
+        setTextError((err as Error).message);
+        return; // 还是半句话，继续等下一次输入
+      }
+      setTextError(null);
+      setReloadKey((value) => value + 1);
+      return;
+    }
     let compiled: Chart;
     try {
       compiled = compileChart(readMaidata(chartText), level);
-    } catch {
+      setTextError(null);
+    } catch (err) {
+      // 画面保留上一版，但要让用户知道现在这份文本编译不过
+      setTextError((err as Error).message);
       return;
     }
     chartRef.current = compiled;
@@ -1417,6 +1449,12 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
             {error.track ? t('song/MajView.TrackFailed') : status === 'error'
               ? `${t('song/MajView.LoadFailed')} ${error.detail ?? ''}`
               : status === 'buffering' ? t('song/MajView.LoadingTrack') : t('song/MajView.Loading')}
+          </div>
+        )}
+        {/* 编辑器里文本编译不过：画面还是上一版。页面给 onTextError 就交给页面显示 */}
+        {textError && status === 'ready' && !onTextError && (
+          <div className="majview-text-error" role="alert">
+            {t('song/MajView.ChartInvalid')} {textError}
           </div>
         )}
         {/* 音量 / 亮度拖动时压在判定盘正中间；进度看时间读数右边的 ±，倍速看控制条 */}

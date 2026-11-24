@@ -179,6 +179,7 @@
   },
   "editor/EditorPage": {
     "Cancel": "Cancel",
+    "ChartError": "Chart error:",
     "ChartInfo": "Chart info…",
     "Designer": "Charter",
     "DontSave": "Don't save",
@@ -510,6 +511,7 @@
     "Unavailable": "Radar data is not available for this difficulty"
   },
   "song/MajView": {
+    "ChartInvalid": "Chart error:",
     "CloseSettings": "Close settings",
     "EffectDetails": "Adjust each hit sound",
     "Fullscreen": "Full screen",

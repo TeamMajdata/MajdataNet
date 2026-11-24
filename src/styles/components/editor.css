@@ -404,6 +404,8 @@
   min-width: 0;
   min-height: 0;
   display: flex;
+  /* 竖排：编辑器占满，错误提示贴在它下面 */
+  flex-direction: column;
   background: #0e1218;
 }
 
@@ -562,3 +564,14 @@
 
 .editor-confirm-actions button:hover { background: rgb(255 255 255 / 12%); color: #fff; }
 .editor-confirm-actions button.is-primary { border-color: rgb(34 211 238 / 45%); background: rgb(34 211 238 / 14%); color: #a5f3fc; }
+/* 编辑器底部的谱面错误提示 */
+.editor-chart-error {
+  margin: 0;
+  padding: 6px 12px;
+  border-top: 1px solid rgb(248 113 113 / 35%);
+  background: rgb(60 12 12 / 70%);
+  color: #fecaca;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}

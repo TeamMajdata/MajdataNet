@@ -176,6 +176,7 @@
   },
   "editor/EditorPage": {
     "Cancel": "取消",
+    "ChartError": "谱面有误：",
     "ChartInfo": "谱面信息…",
     "Designer": "制谱人",
     "DontSave": "不保存",
@@ -502,6 +503,7 @@
     "Unavailable": "该难度暂无雷达数据"
   },
   "song/MajView": {
+    "ChartInvalid": "谱面有误：",
     "CloseSettings": "关闭设置",
     "EffectDetails": "分别调节各类打击音",
     "Fullscreen": "全屏",

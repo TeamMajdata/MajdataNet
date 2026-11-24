@@ -381,3 +381,22 @@
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* 编辑器里文本编译不过时的提示：压在判定盘上方，不挡住画面 */
+.majview-text-error {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: min(92%, 520px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgb(248 113 113 / 45%);
+  background: rgb(60 12 12 / 88%);
+  color: #fecaca;
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
+  overflow-wrap: anywhere;
+}

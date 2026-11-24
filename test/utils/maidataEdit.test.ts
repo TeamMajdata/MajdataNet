@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  blankMaidata,
   filledDifficulties,
   getDesigner,
   getDifficultyText,
@@ -101,5 +102,31 @@ describe('maidataEdit 写入', () => {
   it('setField 保留字段前的空行', () => {
     const text = '&title=A\n\n&artist=B\n';
     expect(setField(text, 'artist', 'C')).toBe('&title=A\n\n&artist=C\n');
+  });
+
+  it('给空值字段写入时，写在等号后面而不是下一行', () => {
+    const text = '&inote_5=\n&inote_6=\n';
+    expect(setField(text, 'inote_5', '1,2,3,4,')).toBe('&inote_5=1,2,3,4,\n&inote_6=\n');
+    // 关键：不能把下一个字段吞进值里
+    expect(getField(setField(text, 'inote_5', '1,2,3,4,'), 'inote_5')).toBe('1,2,3,4,');
+    expect(getField(setField(text, 'inote_5', '1,2,3,4,'), 'inote_6')).toBe('');
+  });
+
+  it('新建的空模板写入难度后能原样读回', () => {
+    const blank = blankMaidata();
+    const typed = setDifficultyText(blank, 4, '(180){4},1,2,3,4,');
+    expect(getDifficultyText(typed, 4)).toBe('(180){4},1,2,3,4,');
+    // 相邻难度必须还是空的
+    expect(getDifficultyText(typed, 5)).toBe('');
+    expect(getDifficultyText(typed, 3)).toBe('');
+  });
+
+  it('清空难度再写回也没问题', () => {
+    const typed = setDifficultyText(blankMaidata(), 0, '1,2,');
+    const cleared = setDifficultyText(typed, 0, '');
+    expect(getDifficultyText(cleared, 0)).toBe('');
+    const again = setDifficultyText(cleared, 0, '3,4,');
+    expect(getDifficultyText(again, 0)).toBe('3,4,');
+    expect(getDifficultyText(again, 1)).toBe('');
   });
 });
