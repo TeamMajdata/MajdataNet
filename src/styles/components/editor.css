@@ -615,13 +615,16 @@
   }
 
   .editor-menubar {
-    padding: 0 6px;
+    padding: 3px 6px;
     gap: 0;
-    overflow-x: auto;
-    white-space: nowrap;
+    /* 不能加 overflow：菜单栏只有一行高，会把下拉菜单整个裁掉（看起来像点击没反应）。
+       宽度不够时让它换行，grid 的第一行是 auto，会自动变高 */
+    flex-wrap: wrap;
+    row-gap: 2px;
   }
-  .editor-brand { margin-right: 6px; }
-  .editor-top-item { padding: 0 6px; }
+  .editor-brand { margin-right: 6px; font-size: 12.5px; }
+  .editor-top-item { padding: 2px 6px; font-size: 11.5px; }
+  .editor-save { padding: 3px 8px; }
 
   .editor-main {
     grid-template-columns: 1fr;
