@@ -44,6 +44,8 @@ import '@/styles/components/editor.css';
 const DEFAULT_COVER = '/majview/skin/Default_Background.png';
 
 const LEVEL_COUNT = 7;
+/** 播放器的倍速档位（和 MajView 控制条里的一致） */
+const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 /** 编辑菜单里的变换；顺序和快捷键沿用 MajdataEdit-Neo。labelKey 保持字面量类型，t() 才认。 */
 const TRANSFORMS = [
@@ -75,6 +77,9 @@ export default function EditorPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [chartInfoOpen, setChartInfoOpen] = useState(false);
   const [followCursor, setFollowCursor] = useState(false);
+  const [judgeArea, setJudgeArea] = useState(false);
+  const [hideNotes, setHideNotes] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const [settingsHost, setSettingsHost] = useState<HTMLDivElement | null>(null);
   const [timelineHost, setTimelineHost] = useState<HTMLDivElement | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -475,6 +480,9 @@ export default function EditorPage() {
                   onTimelineScrubEnd={focusEditor}
                   preloadVideo
                   allowEmptyChart
+                  judgeArea={judgeArea}
+                  hideNotes={hideNotes}
+                  rate={speed}
                   onTextError={setChartError}
                 />
               )}
@@ -536,6 +544,36 @@ export default function EditorPage() {
                   {t('editor/EditorPage.FollowCursor')}
                 </label>
 
+                <label className="editor-toggle">
+                  <input
+                    type="checkbox"
+                    checked={judgeArea}
+                    onChange={(event) => setJudgeArea(event.target.checked)}
+                  />
+                  {t('editor/EditorPage.ShowJudgeArea')}
+                </label>
+
+                <label className="editor-toggle">
+                  <input
+                    type="checkbox"
+                    checked={hideNotes}
+                    onChange={(event) => setHideNotes(event.target.checked)}
+                  />
+                  {t('editor/EditorPage.HideNotes')}
+                </label>
+
+                <label className="editor-field">
+                  <span>{t('editor/EditorPage.PlaybackRate')}</span>
+                  <select
+                    value={speed}
+                    onChange={(event) => setSpeed(Number(event.target.value))}
+                  >
+                    {PLAYBACK_RATES.map((value) => (
+                      <option key={value} value={value}>{`${value}×`}</option>
+                    ))}
+                  </select>
+                </label>
+
                 {/* 只有原版两个播放控制键：■ 停止、▶/⏸ 播放暂停 */}
                 <div className="editor-playback">
                   <button
@@ -567,6 +605,7 @@ export default function EditorPage() {
                   onSelectionChange={setHasSelection}
                   onCursorLineChange={handleCursorLine}
                   onCtrlClickLine={handleCtrlClickLine}
+                  onCtrlArrow={handleCtrlClickLine}
                 />
                 {/* 文本编译不过时的提示：贴在编辑器底部，不挡预览 */}
                 {chartError && (

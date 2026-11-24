@@ -22,6 +22,8 @@ export const VISUALIZER_COLORS = {
   comma: '#ffffff',
   playhead: 'rgba(200, 0, 0, .78)',
   caret: '#ffa500',
+  // 本轮播放的起点（空格第二下跳回这里）
+  startMark: '#ff2d2d',
   note: '#ffb6c1', // LightPink
   each: '#ffd700', // Gold
   break: '#ff4500', // OrangeRed
@@ -222,7 +224,7 @@ export class Visualizer {
 
   /**
    * @param {{ chart: object, waveform: Float32Array | null, waveformDuration: number,
-   *   offset: number, zoom: number, caretTime?: number | null } | null} content
+   *   offset: number, zoom: number, caretTime?: number | null, startMark?: number | null } | null} content
    */
   setContent(content) {
     this.content = content;
@@ -292,6 +294,18 @@ export class Visualizer {
       context.moveTo(caretX - 5, 0);
       context.lineTo(caretX + 5, 0);
       context.lineTo(caretX, 8);
+      context.closePath();
+      context.fill();
+    }
+    // 红色三角：这一轮是从哪里开始播的（空格按第二下会跳回这里）
+    const start = content.startMark;
+    if (typeof start === 'number' && Number.isFinite(start) && start >= from && start <= to) {
+      const startX = xOf(start);
+      context.fillStyle = VISUALIZER_COLORS.startMark;
+      context.beginPath();
+      context.moveTo(startX - 6, height - 10);
+      context.lineTo(startX + 6, height - 10);
+      context.lineTo(startX, height);
       context.closePath();
       context.fill();
     }

@@ -231,6 +231,8 @@ export class Board {
     });
     this.resize.observe(host);
     host.dataset.renderer = app.renderer.name;
+    /** 隐藏所有音符（编辑器里的开关 / 按住 Alt） */
+    this.hideNotes = false;
   }
   setChart(chart, settings) {
     this.chart = chart;
@@ -256,10 +258,13 @@ export class Board {
       const slots = new Map();
       const visible = this.visible;
       visible.length = 0;
-      for (let i = lowerBound(this.index, time, (e) => e.latest); i < this.index.length; i++) {
-        const e = this.index[i];
-        if (e.from > time) break;
-        if (e.to >= time) visible.push(e);
+      // 隐藏音符：只跳过绘制，连击数/物量照常更新
+      if (!this.hideNotes) {
+        for (let i = lowerBound(this.index, time, (e) => e.latest); i < this.index.length; i++) {
+          const e = this.index[i];
+          if (e.from > time) break;
+          if (e.to >= time) visible.push(e);
+        }
       }
       visibleNotes = visible.length;
       // Play 里同一层先出现的 note 在前面（SortOrder 递减），所以从后出现的开始画。

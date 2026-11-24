@@ -29,6 +29,8 @@ type Content = {
   analysis: SpectrumAnalysis | null;
   /** 文本光标所在的时间：时间轴顶部的小三角跟着它走 */
   caretTime: number | null;
+  /** 本轮播放的起点：时间轴底部的红色三角 */
+  startMark: number | null;
 };
 
 type Props = {
@@ -44,6 +46,8 @@ type Props = {
   zoom?: number;
   /** 文本光标时间（秒）；null 时不画三角 */
   caretTime?: number | null;
+  /** 本轮播放起点（秒）；null 时不画红色三角 */
+  startMark?: number | null;
   ref?: Ref<VisualizerHandle>;
 };
 
@@ -55,6 +59,7 @@ export default function MajViewVisualizer({
   offset,
   zoom = 3,
   caretTime = null,
+  startMark = null,
   ref,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -79,10 +84,10 @@ export default function MajViewVisualizer({
 
   // 谱面 / 波形 / 频谱 / 偏移 / 缩放变了才重建窗口模型
   useEffect(() => {
-    const content = chart ? { chart, waveform, waveformDuration, analysis, offset, zoom, caretTime } : null;
+    const content = chart ? { chart, waveform, waveformDuration, analysis, offset, zoom, caretTime, startMark } : null;
     contentRef.current = content;
     visualizerRef.current?.setContent(content);
-  }, [chart, waveform, waveformDuration, analysis, offset, zoom, caretTime]);
+  }, [chart, waveform, waveformDuration, analysis, offset, zoom, caretTime, startMark]);
 
   useImperativeHandle(ref, () => ({ render: (time: number) => visualizerRef.current?.render(time) }), []);
 

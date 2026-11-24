@@ -32,6 +32,8 @@ import MajViewSettings from './MajViewSettings';
 import '@/styles/components/majview.css';
 
 const SKIN_BASE = '/majview/skin/';
+/** MajdataView 的默认底图（带判定区文字），「显示判定区」时用它盖掉谱面自带的 bg/pv */
+const DEFAULT_BACKGROUND = `${SKIN_BASE}Default_Background.png`;
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 /** 加载各阶段的 performance 标记，便于在控制台/Performance 面板里核对耗时 */
@@ -107,7 +109,7 @@ function compileForView(text: string, level: number, allowEmpty: boolean): Chart
   return compileChart(fields, level);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false, onTextError, allowEmptyChart = false }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false, onTextError, allowEmptyChart = false, judgeArea = false, hideNotes = false, rate: rateProp }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -166,6 +168,12 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   onTextError?: (message: string | null) => void;
   /** 难度为空时也给一个空谱面（编辑器要：空难度也要能放音乐、看波形） */
   allowEmptyChart?: boolean;
+  /** 显示判定区：强制用带判定区文字的默认背景，并隐藏视频 */
+  judgeArea?: boolean;
+  /** 隐藏所有音符 */
+  hideNotes?: boolean;
+  /** 播放倍速（受控）；不传则由播放器自己的按钮管 */
+  rate?: number;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -268,6 +276,15 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   const [reloadKey, setReloadKey] = useState(0);
   /** 编辑时文本编译不过：画面继续显示上一版，但要把错误提示出来 */
   const [textError, setTextError] = useState<string | null>(null);
+  /** 本轮播放的起点（空格第二下跳回来） */
+  const [playStart, setPlayStart] = useState<number | null>(null);
+  const playStartRef = useRef<number | null>(null);
+  /** 按住 Ctrl 临时显示判定区、按住 Shift 临时隐藏音符 */
+  const [holdCtrl, setHoldCtrl] = useState(false);
+  const [holdShift, setHoldShift] = useState(false);
+  /** 判定区 / 隐藏音符：开关本身或按住修饰键时生效 */
+  const showJudge = judgeArea || holdCtrl;
+  const notesHidden = hideNotes || holdShift;
 
   // 把「当前文本编译不过的原因」报给页面（编辑器把它显示在编辑器底部）
   const onTextErrorRef = useRef(onTextError);
@@ -560,6 +577,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     setStatus('loading');
     setError({});
     setTextError(null);
+    playStartRef.current = null;
+    setPlayStart(null);
 
     async function load() {
       try {
@@ -874,6 +893,16 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     frame();
   };
 
+  // 编辑器里的倍速下拉框（受控）：外部传入的值变化时套用一次
+  const changeRateRef = useRef(changeRate);
+  changeRateRef.current = changeRate;
+  const appliedRateRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (rateProp == null || appliedRateRef.current === rateProp) return;
+    appliedRateRef.current = rateProp;
+    changeRateRef.current(rateProp);
+  }, [rateProp]);
+
   const changeSettings = (patch: Partial<ViewSettings>) => {
     const previous = settingsRef.current;
     const next = { ...previous, ...patch };
@@ -1047,9 +1076,27 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     showValueHint(t('song/MajView.SettingMaster'), next * 100, true);
   };
 
+  /**
+   * 空格的动作：没在播 → 从当前位置开始播，并记下这个起点；
+   * 正在播 → 不暂停，而是跳回起点并停下（时间轴底部用红三角标出起点）。
+   */
+  const playOrRewind = () => {
+    const transport = transportRef.current;
+    if (transport?.playing) {
+      transport.pause();
+      setPlaying(false);
+      const start = playStartRef.current;
+      if (start !== null) seek(start);
+      return;
+    }
+    playStartRef.current = transportRef.current?.time ?? previewTimeRef.current;
+    setPlayStart(playStartRef.current);
+    return togglePlay();
+  };
+
   // 键盘和定时器里用到的操作放到 ref，避免事件监听器每次渲染都重新绑定
-  const actionsRef = useRef({ togglePlay, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls });
-  actionsRef.current = { togglePlay, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls };
+  const actionsRef = useRef({ togglePlay, playOrRewind, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls });
+  actionsRef.current = { togglePlay, playOrRewind, seekBy, restoreSpeed, startFastForward, volumeStep, pokeControls };
 
   // 全屏时控制条自动隐藏：动一下鼠标 / 点一下画面就重新出现
   useEffect(() => {
@@ -1208,6 +1255,33 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   const handlePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, false);
   const handlePointerCancel = (e: ReactPointerEvent<HTMLDivElement>) => finishGesture(e, true);
 
+  // 按住 Ctrl 临时显示判定区、按住 Shift 临时隐藏音符；松手（或窗口失焦）恢复
+  useEffect(() => {
+    const down = (event: KeyboardEvent) => {
+      if (event.key === 'Control') setHoldCtrl(true);
+      else if (event.key === 'Shift') setHoldShift(true);
+    };
+    const up = (event: KeyboardEvent) => {
+      if (event.key === 'Control') setHoldCtrl(false);
+      else if (event.key === 'Shift') setHoldShift(false);
+    };
+    const reset = () => { setHoldCtrl(false); setHoldShift(false); };
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    window.addEventListener('blur', reset);
+    return () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', reset);
+    };
+  }, []);
+
+  // 隐藏音符：交给渲染器，它一帧内自己判断
+  useEffect(() => {
+    if (boardRef.current) boardRef.current.hideNotes = notesHidden;
+    frame();
+  }, [notesHidden, frame]);
+
   // 桌面快捷键：空格播放/暂停；左右键快进快退（暂停时按 0.01 秒步进）；长按右箭头 2 倍速
   useEffect(() => {
     if (!gesturesEnabled) return;
@@ -1215,15 +1289,23 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
       const node = target as HTMLElement | null;
       return !!node && (node.tagName === 'INPUT' || node.tagName === 'TEXTAREA' || node.tagName === 'SELECT' || node.isContentEditable === true);
     };
+    /** 事件来自代码编辑器：除了空格，其它键都让 Monaco 自己处理（否则 Ctrl+方向键会被逐帧步进吃掉） */
+    const fromEditor = (target: EventTarget | null) => {
+      const node = target as HTMLElement | null;
+      return !!node?.closest?.('.editor-code');
+    };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || isTyping(event.target)) return;
       const actions = actionsRef.current;
       actions.pokeControls();
       if (event.code === 'Space') {
+        // Shift+空格是正常输入空格，交给编辑器
+        if (event.shiftKey) return;
         event.preventDefault();
-        void actions.togglePlay();
+        void actions.playOrRewind();
         return;
       }
+      if (fromEditor(event.target)) return;
       // 上下键调总音量（0.1 一格）
       if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
         event.preventDefault();
@@ -1348,6 +1430,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
         offset={settings.FirstOffset / 1000}
         zoom={timelineZoom}
         caretTime={caretTime}
+        startMark={playStart}
       />
       {/* 时间轴缩放：数字是「中线两侧各显示多少秒」，所以 + 是缩小窗口（放大内容） */}
       <div className="majview-zoom">
@@ -1441,17 +1524,19 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
         onPointerCancel={handlePointerCancel}
       >
         <div className="majview-background">
-          <img src={cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
-          <video
-            ref={videoRef}
-            src={attachVideo ? videoUrl : undefined}
-            muted
-            playsInline
-            preload={preloadVideo ? 'auto' : 'none'}
-            className={videoVisible ? 'visible' : undefined}
-            onLoadedData={() => { setVideoVisible(true); syncVideo(true); }}
-            onError={() => setVideoVisible(false)}
-          />
+          <img src={showJudge ? DEFAULT_BACKGROUND : cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
+          {!showJudge && (
+            <video
+              ref={videoRef}
+              src={attachVideo ? videoUrl : undefined}
+              muted
+              playsInline
+              preload={preloadVideo ? 'auto' : 'none'}
+              className={videoVisible ? 'visible' : undefined}
+              onLoadedData={() => { setVideoVisible(true); syncVideo(true); }}
+              onError={() => setVideoVisible(false)}
+            />
+          )}
           <div ref={shadeRef} className="majview-shade" style={{ opacity: settings.BGCover / 10 }} />
         </div>
         <div ref={comboRef} className="majview-combo" hidden>
