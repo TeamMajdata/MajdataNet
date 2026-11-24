@@ -49,6 +49,11 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    watch: {
+      // 编辑器的「原子保存」会先写 .xxx.tmpdir/xxx.tmp 再改名；chokidar 去 watch 那种
+      // 正被占用的临时文件会抛 EBUSY 把整个 dev server 打挂，直接忽略掉。
+      ignored: ['**/*.tmpdir/**', '**/*.tmp'],
+    },
     proxy: {
       // 默认代理到线上；本地联调时设置 VITE_API_PROXY=http://127.0.0.1:34613，
       // 本地后端没有 /api3 前缀，需要去掉。

@@ -115,3 +115,14 @@ export function filledDifficulties(text: string): boolean[] {
     return span !== undefined && span.end > span.start;
   });
 }
+
+/** 新建谱面的空模板：标题 / 曲师 / First + 7 个空难度 */
+export function blankMaidata(): string {
+  return [
+    '&title=',
+    '&artist=',
+    '&first=0',
+    ...Array.from({ length: 7 }, (_, level) => `&inote_${fieldIndex(level)}=`),
+    '',
+  ].join('\n');
+}

@@ -94,7 +94,7 @@ function chartDuration(chart: Chart) {
   return chart.notes.reduce((end: number, n: { end: number; firework?: boolean }) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)), 0);
 }
 
-export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub }: {
+export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title, artist, level, cover, onCoverError, active = true, jump, onMarkRange, onTime, settingsOpen: settingsOpenProp, onSettingsOpenChange, controlsHost, settingsHost, seekTo, command, onPlayingChange, showControls = true, showTimeline = false, timelineHost, showAnalyzer = false, caretTime = null, onTimelineScrub, onTimelineScrubEnd, preloadVideo = false }: {
   /** maidata.txt 的地址。谱面页传接口地址，本地编辑器传 blob URL */
   chartUrl?: string;
   /**
@@ -145,6 +145,10 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   caretTime?: number | null;
   /** 拖动时间轴时上报目标时间，页面据此移动文本光标 */
   onTimelineScrub?: (seconds: number) => void;
+  /** 拖动结束（松开 / 取消），页面据此把焦点还给文本编辑器 */
+  onTimelineScrubEnd?: () => void;
+  /** 谱面一载入就开始下载背景 PV（编辑器要；song 页仍然点播放才拉） */
+  preloadVideo?: boolean;
 }) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -256,6 +260,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   const [videoVisible, setVideoVisible] = useState(false);
   // 背景 PV 在第一次点播放前不挂 src：否则打开页面就把整段视频下下来了
   const [videoArmed, setVideoArmed] = useState(false);
+  /** 编辑器里谱面一就绪就挂 src 预加载；song 页仍然点播放才拉 */
+  const attachVideo = videoArmed || preloadVideo;
   // 手势回调在两次渲染之间触发，读 ref 才能拿到当前总长和倍速
   const durationRef = useRef(0);
   const rateRef = useRef(1);
@@ -619,11 +625,13 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   // 否则 readyState 一直是 0，syncVideo() 永远等不到可播放的视频
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !videoArmed) return;
+    if (!video || !attachVideo) return;
     video.load();
+    // 预加载模式只下载、不试播（播放时 syncVideo 会接管）
+    if (preloadVideo) return;
     const started = video.play();
     if (started) started.catch(() => { /* 还没解码完也没关系，syncVideo 会接着播 */ });
-  }, [videoArmed, videoUrl]);
+  }, [attachVideo, videoUrl, preloadVideo]);
 
   // 谱面和渲染器都好了才画出来
   useEffect(() => {
@@ -1238,6 +1246,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   const scrubRef = useRef<{ startX: number; startTime: number; secondsPerPixel: number } | null>(null);
   const onScrubRef = useRef(onTimelineScrub);
   onScrubRef.current = onTimelineScrub;
+  const onScrubEndRef = useRef(onTimelineScrubEnd);
+  onScrubEndRef.current = onTimelineScrubEnd;
 
   const onTimelinePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     // 缩放按钮在时间轴里，别把它们当拖动
@@ -1269,6 +1279,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     if (!scrubRef.current) return;
     scrubRef.current = null;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
+    onScrubEndRef.current?.();
   };
 
   /** 波形时间轴：单独一块，可以挂到编辑器自己的格子里 */
@@ -1386,10 +1397,10 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
           <img src={cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
           <video
             ref={videoRef}
-            src={videoArmed ? videoUrl : undefined}
+            src={attachVideo ? videoUrl : undefined}
             muted
             playsInline
-            preload="none"
+            preload={preloadVideo ? 'auto' : 'none'}
             className={videoVisible ? 'visible' : undefined}
             onLoadedData={() => { setVideoVisible(true); syncVideo(true); }}
             onError={() => setVideoVisible(false)}

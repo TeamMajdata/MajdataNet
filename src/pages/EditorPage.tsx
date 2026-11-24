@@ -63,7 +63,7 @@ function formatClock(seconds: number) {
 
 export default function EditorPage() {
   const { t } = useTranslation();
-  const { folder, setFolder, error, busy, open, download } = useChartFolder();
+  const { folder, error, busy, open, createNew, download } = useChartFolder();
   const [maidata, setMaidata] = useState('');
   const [origin, setOrigin] = useState('');
   const [active, setActive] = useState(4);
@@ -82,6 +82,12 @@ export default function EditorPage() {
   const latestRef = useRef({ maidata: '', active: 4 });
   const lastSecondRef = useRef(-1);
   const editorRef = useRef<SimaiEditor | null>(null);
+  /** handleTime 在帧回调里跑，拿不到最新的 timeline / followCursor，只能走 ref */
+  const timelineRef = useRef<ReturnType<typeof buildTimeline>>(null);
+  const followCursorRef = useRef(false);
+  /** 上一次已经挪过光标的音符位置（行:列），用来去重 */
+  const followKeyRef = useRef<string | null>(null);
+  const [followPos, setFollowPos] = useState<{ line: number; column: number } | null>(null);
 
   // 打开文件夹：整份文本作为新的真源，并跳到第一个有内容的难度
   useEffect(() => {
@@ -140,16 +146,28 @@ export default function EditorPage() {
     return { perLevel, global: globalChanged };
   }, [maidata, origin]);
   const anyDirty = dirty.perLevel.some(Boolean) || dirty.global;
+  /** 哪些难度的页签是空的（文字压暗）；跟着编辑内容实时变 */
+  const emptyLevels = useMemo(() => filledDifficulties(maidata).map((value) => !value), [maidata]);
 
   const handleEditorChange = useCallback((level: number, text: string) => {
     setMaidata((prev) => setDifficultyText(prev, level, text));
   }, []);
 
   const handleTime = useCallback((value: number) => {
+    // 时钟只按整秒刷新，避免每帧重渲染整页
     const second = Math.floor(value);
-    if (second === lastSecondRef.current) return;
-    lastSecondRef.current = second;
-    setTime(value);
+    if (second !== lastSecondRef.current) {
+      lastSecondRef.current = second;
+      setTime(value);
+    }
+    // 跟随光标不能按秒走：每个音符变化就更新一次，否则会明显滞后
+    if (!followCursorRef.current) return;
+    const position = positionAt(timelineRef.current, value);
+    if (!position) return;
+    const key = `${position.line}:${position.column}`;
+    if (key === followKeyRef.current) return;
+    followKeyRef.current = key;
+    setFollowPos(position);
   }, []);
 
   /** 播放时间 → 文本行；谱面一改就得重算 */
@@ -157,6 +175,12 @@ export default function EditorPage() {
     () => buildTimeline(getDifficultyText(maidata, active), getFirst(maidata)),
     [maidata, active],
   );
+
+  useEffect(() => { timelineRef.current = timeline; }, [timeline]);
+  useEffect(() => {
+    followCursorRef.current = followCursor;
+    followKeyRef.current = null;
+  }, [followCursor]);
 
   /** 把文本光标精确放到某个音符的位置上（行 + 列），并滚过去 */
   const moveCaret = useCallback((editor: SimaiEditor, line: number, column: number) => {
@@ -174,15 +198,13 @@ export default function EditorPage() {
     editor.revealLineInCenterIfOutsideViewport(safeLine);
   }, []);
 
-  // 文本跟随只做一件事：播放时把文本光标挪到当前时间那个音符上
+  // 文本跟随只做一件事：播放时把文本光标挪到当前音符上（跟着音符走，不是跟着秒走）
   useEffect(() => {
-    if (!followCursor || !playing) return;
+    if (!followCursor || !playing || !followPos) return;
     const editor = editorRef.current;
     if (!editor) return;
-    const position = positionAt(timeline, time);
-    if (!position) return;
-    moveCaret(editor, position.line, position.column);
-  }, [time, followCursor, playing, timeline, moveCaret]);
+    moveCaret(editor, followPos.line, followPos.column);
+  }, [followPos, followCursor, playing, moveCaret]);
 
   const [seekTo, setSeekTo] = useState<{ seconds: number; key: number } | null>(null);
   /** 文本光标的位置：时间轴顶部的小三角跟着它走 */
@@ -203,6 +225,11 @@ export default function EditorPage() {
     if (seconds === null) return;
     setSeekTo({ seconds, key: Date.now() });
   }, [timeline]);
+
+  /** 拖动时间轴结束后把焦点还给文本编辑器 */
+  const focusEditor = useCallback(() => {
+    editorRef.current?.focus();
+  }, []);
 
   /** 拖动时间轴：把文本光标挪到对应音符上 */
   const handleTimelineScrub = useCallback((seconds: number) => {
@@ -228,6 +255,21 @@ export default function EditorPage() {
     }]);
     editor.focus();
   }, []);
+
+  /**
+   * 还有没保存的改动时，关标签页 / 刷新前先拦一下。
+   * 浏览器只允许弹出它自己的通用文案，不能自定义。
+   */
+  useEffect(() => {
+    if (!anyDirty) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      // 旧版浏览器要靠 returnValue 才会弹确认框
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [anyDirty]);
 
   const save = useCallback(async () => {
     if (!folder) return;
@@ -255,6 +297,19 @@ export default function EditorPage() {
    * Ctrl/Cmd+S 保存、Ctrl/Cmd+O 打开文件夹。
    * 不绑在 Monaco 上是因为这两个是页面级动作，而且要拦掉浏览器的「保存网页」。
    */
+  /** 打开 / 新建前先确认未保存的改动 */
+  const confirmDiscard = useCallback(() => !anyDirty || window.confirm(t('editor/EditorPage.DiscardChanges')), [anyDirty, t]);
+
+  const handleOpen = useCallback(() => {
+    if (!confirmDiscard()) return;
+    void open();
+  }, [confirmDiscard, open]);
+
+  const handleCreateNew = useCallback(() => {
+    if (!confirmDiscard()) return;
+    void createNew();
+  }, [confirmDiscard, createNew]);
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
@@ -264,30 +319,12 @@ export default function EditorPage() {
         void save();
       } else if (key === 'o') {
         event.preventDefault();
-        void open();
+        handleOpen();
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [save, open]);
-
-  /** 新建：先有未保存改动就问一下；新建的谱面没有落地文件，保存会退化成下载 */
-  const createNew = useCallback(() => {
-    if (anyDirty && !window.confirm(t('editor/EditorPage.DiscardChanges'))) return;
-    const blank = [
-      '&title=',
-      '&artist=',
-      '&first=0',
-      ...Array.from({ length: LEVEL_COUNT }, (_, level) => `&inote_${level + 1}=`),
-      '',
-    ].join('\n');
-    setFolder({
-      name: t('editor/EditorPage.Untitled'),
-      maidata: blank,
-      modifiedAt: Date.now(),
-      save: null,
-    });
-  }, [anyDirty, setFolder, t]);
+  }, [save, handleOpen]);
 
   const openFindReplace = useCallback(() => {
     editorRef.current?.getAction('actions.find')?.run();
@@ -326,10 +363,10 @@ export default function EditorPage() {
             </button>
             {openMenu === 'file' && (
               <div className="editor-menu" onPointerDown={(event) => event.stopPropagation()}>
-                <button type="button" onClick={() => { setOpenMenu(null); createNew(); }} disabled={busy}>
+                <button type="button" onClick={() => { setOpenMenu(null); handleCreateNew(); }} disabled={busy}>
                   <LuFilePlus aria-hidden="true" />{t('editor/EditorPage.New')}
                 </button>
-                <button type="button" onClick={() => { setOpenMenu(null); void open(); }} disabled={busy}>
+                <button type="button" onClick={() => { setOpenMenu(null); handleOpen(); }} disabled={busy}>
                   <LuFolderOpen aria-hidden="true" />{t('editor/EditorPage.OpenFolder')}
                 </button>
                 <button type="button" onClick={() => { setOpenMenu(null); void save(); }} disabled={!folder || saving}>
@@ -376,7 +413,12 @@ export default function EditorPage() {
             )}
           </div>
 
-          <button type="button" className="editor-top-item" onClick={() => setSettingsOpen(true)}>{t('editor/EditorPage.MenuSettings')}</button>
+          <button
+            type="button"
+            className="editor-top-item"
+            onClick={() => setSettingsOpen(true)}
+            disabled={!folder}
+          >{t('editor/EditorPage.MenuSettings')}</button>
           <button type="button" className="editor-top-item" onClick={() => setBpmOpen(true)}>{t('editor/EditorPage.MenuBpmTap')}</button>
 
           <span className="editor-spacer" />
@@ -393,7 +435,7 @@ export default function EditorPage() {
           <div className="editor-empty">
             <h1>{t('editor/EditorPage.Title')}</h1>
             <p>{t('editor/EditorPage.EmptyHint')}</p>
-            <button type="button" className="editor-open-button" onClick={() => void open()} disabled={busy}>
+            <button type="button" className="editor-open-button" onClick={handleOpen} disabled={busy}>
               <LuFolderOpen aria-hidden="true" />
               {busy ? t('editor/EditorPage.Opening') : t('editor/EditorPage.OpenFolderButton')}
             </button>
@@ -425,6 +467,8 @@ export default function EditorPage() {
                   timelineHost={timelineHost}
                   caretTime={caretTime}
                   onTimelineScrub={handleTimelineScrub}
+                  onTimelineScrubEnd={focusEditor}
+                  preloadVideo
                 />
               ) : (
                 <div
@@ -437,7 +481,12 @@ export default function EditorPage() {
             </section>
 
             <section className="editor-side">
-              <DifficultyTabs active={active} dirty={dirty.perLevel} onSelect={setActive} />
+              <DifficultyTabs
+                active={active}
+                dirty={dirty.perLevel}
+                empty={emptyLevels}
+                onSelect={setActive}
+              />
 
               <div className="editor-controls">
                 <div className="editor-clock">
@@ -450,7 +499,6 @@ export default function EditorPage() {
                   <input
                     value={getLevel(maidata, active)}
                     onChange={(event) => setMaidata((prev) => setLevel(prev, active, event.target.value))}
-                    placeholder="14+"
                   />
                 </label>
 
@@ -459,7 +507,6 @@ export default function EditorPage() {
                   <input
                     value={getDesigner(maidata, active)}
                     onChange={(event) => setMaidata((prev) => setDesigner(prev, active, event.target.value))}
-                    placeholder="designer"
                   />
                 </label>
 

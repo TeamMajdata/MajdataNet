@@ -212,7 +212,9 @@
     "Close": "Close"
   },
   "editor/useChartFolder": {
-    "MissingMaidata": "This folder has no maidata.txt"
+    "MaidataExists": "This folder already has a maidata.txt. Use Open folder to load it instead.",
+    "MissingMaidata": "This folder has no maidata.txt",
+    "MissingTrack": "No track.ogg / track.mp3 in this folder. Please pick another folder."
   },
   "eventTag/EventTagPage": {
     "OriginalSongs": "Original Songs",

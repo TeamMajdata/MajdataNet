@@ -48,6 +48,8 @@
   background: rgb(255 255 255 / 7%);
   color: #fff;
 }
+.editor-top-item:disabled { opacity: .35; cursor: default; }
+.editor-top-item:disabled:hover { background: transparent; color: #b6c4d4; }
 
 .editor-menu-wrap { position: relative; }
 
@@ -319,6 +321,11 @@
 
 .editor-tab:hover { color: #cfe0f0; }
 .editor-tab.is-active { color: #fff; border-bottom-color: #22d3ee; }
+
+/* 还没有任何内容的难度：页签文字压暗（放在 hover / active 之后才能盖住它们） */
+.editor-tab.is-empty { color: rgb(255 255 255 / 26%); }
+.editor-tab.is-empty:hover { color: rgb(255 255 255 / 46%); }
+.editor-tab.is-empty.is-active { color: rgb(255 255 255 / 60%); border-bottom-color: rgb(34 211 238 / 55%); }
 .editor-tab-dirty { color: #fbbf24; margin-left: 3px; font-weight: 700; }
 
 /* ── 元信息列 ── */

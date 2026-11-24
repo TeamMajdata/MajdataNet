@@ -51,3 +51,20 @@ it('当前档位有选中态，点击回调难度下标', async () => {
     await unmount();
   }
 });
+
+it('没有内容的档位加上 is-empty（文字压暗）', async () => {
+  const empty = [false, true, true, true, false, true, true];
+  const { container, unmount } = await mount(
+    <DifficultyTabs active={4} dirty={[]} empty={empty} onSelect={() => {}} />,
+  );
+  try {
+    const tabs = [...container.querySelectorAll('[role="tab"]')];
+    expect(tabs[0].classList.contains('is-empty')).toBe(false);
+    expect(tabs[1].classList.contains('is-empty')).toBe(true);
+    // 当前档位即使有内容也不能被压暗
+    expect(tabs[4].classList.contains('is-empty')).toBe(false);
+    expect(container.querySelectorAll('.editor-tab.is-empty')).toHaveLength(5);
+  } finally {
+    await unmount();
+  }
+});

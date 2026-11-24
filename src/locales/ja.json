@@ -192,7 +192,7 @@
     "MirrorHorizontal": "左右反転",
     "MirrorVertical": "上下反転",
     "New": "新規作成",
-    "OpenFolder": "フォルダーを開く…",
+    "OpenFolder": "フォルダを開く…",
     "OpenFolderButton": "フォルダーを開く",
     "Opening": "読み込み中…",
     "RestoreDraft": "ファイルより新しい下書きがあります。復元しますか？",
@@ -209,7 +209,9 @@
     "Close": "閉じる"
   },
   "editor/useChartFolder": {
-    "MissingMaidata": "このフォルダーに maidata.txt がありません"
+    "MaidataExists": "このフォルダには既に maidata.txt があります。「フォルダを開く」で読み込んでください。",
+    "MissingMaidata": "このフォルダーに maidata.txt がありません",
+    "MissingTrack": "このフォルダに track.ogg / track.mp3 がありません。別のフォルダを選んでください。"
   },
   "eventTag/EventTagPage": {
     "OriginalSongs": "オリジナル楽曲",

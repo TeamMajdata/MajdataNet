@@ -9,10 +9,12 @@ export const DIFFICULTY_NAMES = ['EASY', 'BASIC', 'ADVANCED', 'EXPERT', 'MASTER'
 type Props = {
   active: number;
   dirty: boolean[];
+  /** 这个难度还没有任何内容：页签文字压暗 */
+  empty?: boolean[];
   onSelect: (level: number) => void;
 };
 
-export default function DifficultyTabs({ active, dirty, onSelect }: Props) {
+export default function DifficultyTabs({ active, dirty, empty, onSelect }: Props) {
   const { t } = useTranslation();
 
   return (
@@ -23,7 +25,7 @@ export default function DifficultyTabs({ active, dirty, onSelect }: Props) {
           type="button"
           role="tab"
           aria-selected={level === active}
-          className={`editor-tab${level === active ? ' is-active' : ''}`}
+          className={`editor-tab${level === active ? ' is-active' : ''}${empty?.[level] ? ' is-empty' : ''}`}
           onClick={() => onSelect(level)}
         >
           {name}
