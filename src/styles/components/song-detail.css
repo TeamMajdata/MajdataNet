@@ -121,5 +121,9 @@
   /* 手机上播放器不再是正方形：判定盘占满整个宽度，控制条接在下面，不然判定盘两边各空出半个控制条高 */
   .song-stage:has(.majview) { aspect-ratio: auto; }
   .song-stage .majview { height: auto; }
-  .song-stage .majview-scene { flex: none; width: 100%; }
+  /* 宽度撑满、高度按正方形算：桌面端判定盘用 min(100cqw, 100cqh) 取容器短边，
+     但容器在这里是 auto 高度 —— 而 container-type: size 带 size containment，
+     高度不会由内容撑开，结果判定盘塌成 0。这里改成让宽度决定高度 */
+  .song-stage .majview-stage { container-type: normal; }
+  .song-stage .majview-scene { flex: none; width: 100%; height: auto; aspect-ratio: 1; }
 }
