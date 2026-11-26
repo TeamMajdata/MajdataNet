@@ -176,6 +176,7 @@
     "Label": "難易度"
   },
   "editor/EditorPage": {
+    "BackToSong": "譜面ページに戻る",
     "Cancel": "キャンセル",
     "ChartError": "譜面に誤りがあります:",
     "ChartInfo": "譜面情報…",
@@ -197,9 +198,11 @@
     "MirrorHorizontal": "左右反転",
     "MirrorVertical": "上下反転",
     "New": "新規作成",
+    "OnlineReadOnly": "オンライン譜面 · 読み取り専用",
     "OpenFolder": "フォルダを開く…",
     "OpenFolderButton": "フォルダーを開く",
     "Opening": "読み込み中…",
+    "OpeningOnline": "オンライン譜面を読み込み中…",
     "PlaybackRate": "再生速度",
     "RestoreDraft": "ファイルより新しい下書きがあります。復元しますか？",
     "RotateCcw": "−45° 回転",
@@ -492,15 +495,6 @@
     "OperationFailed": "操作に失敗しました",
     "UnfavoriteSuccess": "お気に入りから削除しました"
   },
-  "song/ChartFile": {
-    "Copied": "クリップボードにコピーしました",
-    "Copy": "コピー",
-    "CopyFailed": "コピーに失敗しました",
-    "EmptyLevel": "この難易度には譜面がありません",
-    "LoadFailed": "譜面ファイルの読み込みに失敗しました",
-    "Retry": "再試行",
-    "Title": "譜面ファイル"
-  },
   "song/ChartRadar": {
     "AnalysisFailed": "この難易度を解析できませんでした",
     "AxisJack": "縦連",
@@ -648,6 +642,7 @@
     "Duration": "長さ",
     "ManageTags": "タグを管理",
     "NoTags": "タグがありません",
+    "OpenInEditor": "Edit で開く",
     "Overview": "概要",
     "Preview": "譜面プレビュー",
     "SearchForArtist": "アーティストを検索",

@@ -176,6 +176,7 @@
     "Label": "난이도"
   },
   "editor/EditorPage": {
+    "BackToSong": "채보 페이지로 돌아가기",
     "Cancel": "취소",
     "ChartError": "채보 오류:",
     "ChartInfo": "악보 정보…",
@@ -197,9 +198,11 @@
     "MirrorHorizontal": "좌우 반전",
     "MirrorVertical": "상하 반전",
     "New": "새로 만들기",
+    "OnlineReadOnly": "온라인 채보 · 읽기 전용",
     "OpenFolder": "폴더 열기…",
     "OpenFolderButton": "폴더 열기",
     "Opening": "여는 중…",
+    "OpeningOnline": "온라인 채보 불러오는 중…",
     "PlaybackRate": "재생 속도",
     "RestoreDraft": "파일보다 최신 임시 저장본이 있습니다. 복원할까요?",
     "RotateCcw": "−45° 회전",
@@ -492,15 +495,6 @@
     "OperationFailed": "작업에 실패했습니다",
     "UnfavoriteSuccess": "즐겨찾기에서 삭제했습니다"
   },
-  "song/ChartFile": {
-    "Copied": "클립보드에 복사했습니다",
-    "Copy": "복사",
-    "CopyFailed": "복사하지 못했습니다",
-    "EmptyLevel": "이 난이도에는 채보가 없습니다",
-    "LoadFailed": "채보 파일을 불러오지 못했습니다",
-    "Retry": "다시 시도",
-    "Title": "채보 파일"
-  },
   "song/ChartRadar": {
     "AnalysisFailed": "이 난이도를 분석할 수 없습니다",
     "AxisJack": "연타",
@@ -648,6 +642,7 @@
     "Duration": "길이",
     "ManageTags": "태그 관리",
     "NoTags": "태그 없음",
+    "OpenInEditor": "Edit에서 열기",
     "Overview": "개요",
     "Preview": "채보 미리보기",
     "SearchForArtist": "작곡가 검색",

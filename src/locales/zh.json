@@ -176,6 +176,7 @@
     "Label": "难度"
   },
   "editor/EditorPage": {
+    "BackToSong": "返回谱面页",
     "Cancel": "取消",
     "ChartError": "谱面有误：",
     "ChartInfo": "谱面信息…",
@@ -197,9 +198,11 @@
     "MirrorHorizontal": "水平镜像",
     "MirrorVertical": "垂直镜像",
     "New": "新建",
+    "OnlineReadOnly": "在线谱面 · 只读",
     "OpenFolder": "打开文件夹…",
     "OpenFolderButton": "打开文件夹",
     "Opening": "打开中…",
+    "OpeningOnline": "正在载入在线谱面…",
     "PlaybackRate": "播放速度",
     "RestoreDraft": "发现比文件更新的本地草稿，恢复上次编辑？",
     "RotateCcw": "旋转 −45°",
@@ -492,15 +495,6 @@
     "OperationFailed": "操作失败",
     "UnfavoriteSuccess": "已取消收藏"
   },
-  "song/ChartFile": {
-    "Copied": "已复制到剪贴板",
-    "Copy": "复制",
-    "CopyFailed": "复制失败",
-    "EmptyLevel": "该难度暂无谱面",
-    "LoadFailed": "谱面文件加载失败",
-    "Retry": "重试",
-    "Title": "谱面文件"
-  },
   "song/ChartRadar": {
     "AnalysisFailed": "该难度暂时无法分析",
     "AxisJack": "纵连",
@@ -648,6 +642,7 @@
     "Duration": "时长",
     "ManageTags": "管理标签",
     "NoTags": "暂无标签",
+    "OpenInEditor": "在 Edit 中打开",
     "Overview": "概览",
     "Preview": "谱面预览",
     "SearchForArtist": "搜索该艺术家",

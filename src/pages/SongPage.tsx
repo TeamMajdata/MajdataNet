@@ -23,8 +23,7 @@ import ChartRadar from '@/components/song/ChartRadar';
 import { ChartMarkContext, type ChartMark, type ChartMarkTarget } from '@/components/song/chartMarks';
 import UserAvatar from '@/components/user/UserAvatar';
 import UnderlineTabs from '@/components/ui/UnderlineTabs';
-import SectionLoading from '@/components/ui/SectionLoading';
-import { LuFileCode, LuInfo, LuMessageSquare, LuPlay, LuTrophy } from 'react-icons/lu';
+import { LuInfo, LuMessageSquare, LuPlay, LuTrophy, LuSquarePen } from 'react-icons/lu';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import { PiBookmarkSimple, PiCopySimple, PiDownloadSimple, PiLinkSimple, PiTagSimple } from 'react-icons/pi';
@@ -43,7 +42,6 @@ import { preloadMajView } from '@/components/song/preloadMajView';
 // 网页版谱面预览带着 PixiJS，只在点开预览时加载
 const MajView = lazy(() => import('@/components/song/MajView'));
 // 谱面文件页签带着 Monaco（约 700 KB gzip），同样只在打开页签时加载
-const ChartFile = lazy(() => import('@/components/song/ChartFile'));
 
 export default function SongPage() {
   const { t } = useTranslation();
@@ -125,11 +123,10 @@ const MOBILE_QUERY = '(max-width: 48rem)';
 const PREVIEW_TAB = { id: 'preview', label: 'song/SongPage.Preview', icon: LuPlay } as const;
 const OVERVIEW_TAB = { id: 'overview', label: 'song/SongPage.Overview', icon: LuInfo } as const;
 const COMMENTS_TAB = { id: 'comments', label: 'song/SongComments.Comments', icon: LuMessageSquare } as const;
-const CHART_TAB = { id: 'chart', label: 'song/ChartFile.Title', icon: LuFileCode } as const;
 const SCORES_TAB = { id: 'scores', label: 'song/ScoreRanking.RankingList', icon: LuTrophy } as const;
-const desktopTabs = [PREVIEW_TAB, SCORES_TAB, CHART_TAB];
-const mobileTabs = [OVERVIEW_TAB, COMMENTS_TAB, SCORES_TAB, CHART_TAB];
-type SongTab = typeof PREVIEW_TAB['id'] | typeof OVERVIEW_TAB['id'] | typeof COMMENTS_TAB['id'] | typeof CHART_TAB['id'] | typeof SCORES_TAB['id'];
+const desktopTabs = [PREVIEW_TAB, SCORES_TAB];
+const mobileTabs = [OVERVIEW_TAB, COMMENTS_TAB, SCORES_TAB];
+type SongTab = typeof PREVIEW_TAB['id'] | typeof OVERVIEW_TAB['id'] | typeof COMMENTS_TAB['id'] | typeof SCORES_TAB['id'];
 
 // 打开页面就显示播放器（停在开头）；没有可预览的难度时只显示封面
 type MarkRange = { length: number; maxCombo: number } | null;
@@ -247,6 +244,12 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
           <Icon aria-hidden="true" className="w-4 h-4 shrink-0" />{label}
         </button>
       ))}
+      {/* 只读在线谱面：放在最后一个按钮，跳到编辑器看全部难度、听音乐和 PV，但不能改 */}
+      {chartLevel !== undefined && (
+        <Link to={`/editor?id=${encodeURIComponent(song.id)}&level=${chartLevel}`} className={ACTION_BUTTON_CLASS}>
+          <LuSquarePen aria-hidden="true" className="w-4 h-4 shrink-0" />{t('song/SongPage.OpenInEditor')}
+        </Link>
+      )}
     </div>
   );
 
@@ -305,14 +308,6 @@ function SongInfo({ data: song, focusId }: { data: SongSummary; focusId?: string
             <ChartPreview song={song} chartLevel={chartLevel} active={isMobile || activeTab === 'preview'} jump={jump} onMarkRange={setMarkRange} />
             {/* 电脑上点赞点踩和操作按钮在播放器正下方 */}
             {!isMobile && <div className="song-player-actions">{actions}{tags}</div>}
-          </section>
-          <section id="song-panel-chart" role="tabpanel" aria-labelledby="song-tab-chart" hidden={activeTab !== 'chart'}>
-            {/* 只读查看器不需要后台保活：切走就卸载，回来时从缓存的谱面文本重建 */}
-            {activeTab === 'chart' && (
-              <Suspense fallback={<SectionLoading />}>
-                <ChartFile songId={song.id} level={chartLevel} />
-              </Suspense>
-            )}
           </section>
           <section id="song-panel-scores" role="tabpanel" aria-labelledby="song-tab-scores" hidden={activeTab !== 'scores'}>
             <Activity mode={activeTab === 'scores' ? 'visible' : 'hidden'}><ScoreRanking songid={song.id} chartLevel={chartLevel} /></Activity>

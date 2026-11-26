@@ -7,6 +7,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { blankMaidata } from '@/utils/maidataEdit';
+import { endpoints } from '@/config/api';
+import { loadChartText } from '@/majview/chartCache';
 
 export type ChartFolder = {
   /** 文件夹名，用来显示 */
@@ -279,6 +281,34 @@ export function useChartFolder() {
     }
   }, [apply, readDirectory, t]);
 
+  /**
+   * 打开站内的在线谱面（只读）：只下载谱面文本，音轨 / 视频 / 封面直接用接口地址。
+   * 没有 `save`，编辑器据此进入只读模式。
+   */
+  const openOnline = useCallback(async (id: string) => {
+    setBusy(true);
+    setError(null);
+    try {
+      const base = endpoints.maichart.prefix(id);
+      const maidata = await loadChartText(`${base}/chart`);
+      releaseUrls();
+      setFolder({
+        name: id,
+        maidata,
+        modifiedAt: Date.now(),
+        trackUrl: `${base}/track`,
+        coverUrl: endpoints.maichart.fullImage(id),
+        videoUrl: `${base}/video`,
+        save: null,
+      });
+    } catch (err) {
+      console.error('[editor] open online chart failed', err);
+      setError(t('editor/useChartFolder.OpenFailed', { message: (err as Error).message }));
+    } finally {
+      setBusy(false);
+    }
+  }, [releaseUrls, t]);
+
   /** 不支持原地写时，退化成下载 */
   const download = useCallback((content: string, name = 'maidata.txt') => {
     const url = URL.createObjectURL(new Blob([content], { type: 'text/plain;charset=utf-8' }));
@@ -291,5 +321,5 @@ export function useChartFolder() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }, []);
 
-  return { folder, setFolder, error, busy, open, createNew, download };
+  return { folder, setFolder, error, busy, open, createNew, openOnline, download };
 }
