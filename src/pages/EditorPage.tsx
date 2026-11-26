@@ -81,6 +81,9 @@ export default function EditorPage() {
   const { folder, error, busy, open, createNew, download } = useChartFolder();
   const [maidata, setMaidata] = useState('');
   const [origin, setOrigin] = useState('');
+  /** First 输入框正在输入中的文本：null 时直接显示文件里的 `&first` */
+  const [firstDraft, setFirstDraft] = useState<string | null>(null);
+  const firstValue = getFirst(maidata);
   const [active, setActive] = useState(4);
   const [openMenu, setOpenMenu] = useState<MenuId>(null);
   const [bpmOpen, setBpmOpen] = useState(false);
@@ -130,6 +133,9 @@ export default function EditorPage() {
     () => Array.from({ length: LEVEL_COUNT }, (_, level) => getDifficultyText(folder?.maidata ?? '', level)),
     [folder],
   );
+
+  /** 打开别的谱面 / 切换难度后丢掉输入草稿，First 框重新跟随文件里的值 */
+  useEffect(() => { setFirstDraft(null); }, [folder, active]);
 
   /** 打开文件夹后：如果本地草稿比文件新，问一下要不要恢复 */
   useEffect(() => {
@@ -618,19 +624,21 @@ export default function EditorPage() {
                 <label className="editor-field">
                   <span>{t('editor/EditorPage.First')}</span>
                   <input
-                    key={`${folder.name}-${active}`}
                     type="number"
                     step="0.01"
-                    defaultValue={getFirst(maidata)}
-                    // 滚轮/输入都要立刻生效，不能等失焦
+                    // 受控：打开谱面 / 切难度后要显示文件里的真实值，不能停在挂载时的旧值
+                    value={firstDraft ?? String(firstValue)}
+                    // 滚轮/输入都要立刻生效，不能等失焦；但清空输入框时不要当成 0 写回去
                     onChange={(event) => {
-                      const value = Number(event.target.value);
-                      if (Number.isFinite(value)) setMaidata((prev) => setFirst(prev, value));
+                      const text = event.target.value;
+                      setFirstDraft(text);
+                      const value = Number(text);
+                      if (text.trim() !== '' && Number.isFinite(value)) {
+                        setMaidata((prev) => setFirst(prev, value));
+                      }
                     }}
-                    onBlur={(event) => {
-                      const value = Number(event.target.value);
-                      if (Number.isFinite(value)) setMaidata((prev) => setFirst(prev, value));
-                    }}
+                    // 失焦就交回真值：非法或空输入直接恢复成文件里的 First
+                    onBlur={() => setFirstDraft(null)}
                   />
                 </label>
 
