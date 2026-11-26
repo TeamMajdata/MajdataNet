@@ -1373,6 +1373,8 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   /** 时间轴拖动：左右拖动改播放位置，同时把时间报给页面去挪文本光标 */
   const timelineBoxRef = useRef<HTMLDivElement>(null);
   const scrubRef = useRef<{ startX: number; startTime: number; secondsPerPixel: number } | null>(null);
+  /** 上一次搓碟的位置/时刻：用来把手速换算成播放速率（拖快一点声音就高一点） */
+  const scratchRef = useRef<{ time: number; at: number } | null>(null);
   const onScrubRef = useRef(onTimelineScrub);
   onScrubRef.current = onTimelineScrub;
   const onScrubEndRef = useRef(onTimelineScrubEnd);
@@ -1390,8 +1392,11 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
       // 中线两侧各 timelineZoom 秒，整条宽度就是 2×timelineZoom 秒
       secondsPerPixel: (2 * timelineZoom) / width,
     };
+    scratchRef.current = { time: scrubRef.current.startTime, at: performance.now() };
     transportRef.current?.pause();
     setPlaying(false);
+    // 拖动里要出搓碟声：AudioContext 可能还挂在 suspended，这里借用户的这次按下恢复
+    void contextRef.current?.resume().catch(() => {});
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
@@ -1401,12 +1406,20 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     const target = scrub.startTime - (event.clientX - scrub.startX) * scrub.secondsPerPixel;
     const seconds = Math.max(beginRef.current, Math.min(target, durationRef.current || target));
     seek(seconds);
+    // DJ 搓碟：按拖动位置播一小段音乐，速率跟手速走
+    const now = performance.now();
+    const last = scratchRef.current;
+    const speed = last ? Math.abs(seconds - last.time) / Math.max(0.008, (now - last.at) / 1000) : 1;
+    scratchRef.current = { time: seconds, at: now };
+    transportRef.current?.scratch(seconds, speed);
     onScrubRef.current?.(seconds);
   };
 
   const onTimelinePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!scrubRef.current) return;
     scrubRef.current = null;
+    scratchRef.current = null;
+    transportRef.current?.stopScratch();
     event.currentTarget.releasePointerCapture?.(event.pointerId);
     onScrubEndRef.current?.();
   };
