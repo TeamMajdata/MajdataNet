@@ -30,7 +30,7 @@ export type Channel = Exclude<VolumeKey, 'Effects' | 'Master'> | 'Clock';
 
 // 开发中用过百分比格式的 MajViewSettings，换个名字不读它
 const STORAGE_KEY = 'MajViewSettingsV2';
-// 旧版 Unity 播放器的设置（逗号分隔，音量是分贝），只取非音量的几项
+// 旧版 Unity 播放器的设置（逗号分隔），格式见 migrateLegacySettings
 const LEGACY_KEY = 'MajdataSettings';
 
 const clamp = (value: unknown, min: number, max: number, fallback: number) =>
@@ -40,16 +40,45 @@ export function defaultSettings(): ViewSettings {
   return parseSettings({});
 }
 
+/**
+ * 旧版 Unity 播放器（MajdataView_web）的 `MajdataSettings` 是一行逗号分隔的值，顺序来自
+ * `Assets/Scripts/SettingsManager.cs` 的 `GetSliderValues()`：
+ *
+ *   sliders  = Offset, NoteSpeed, TouchSpeed, BGCover          （更早的 build 前面还有 TargetFPS）
+ *   channels = BGM, Answer, Judge, Slide, Break, EX, Touch, Hanabi, Others   （单位 dB）
+ *   combo    = 1 / 0
+ *
+ * 只迁移流速、背景暗度和连击数：
+ * - 偏移不迁移。旧版的 Offset 是给 Unity 播放器校准的，新版还有谱面自带的 `&first` 和独立的
+ *   First 偏移，直接搬会让整张谱面莫名其妙地挪一段，所以一律从 0 开始；
+ * - 音量不迁移。旧版是 dB（拿不到混音器的基准音量），新版是线性倍数，换算不可靠。
+ *
+ * 字段数对不上（旧版本增减过项目）时整份跳过，回退到默认值，不要凭空猜。
+ */
+export function migrateLegacySettings(raw: string | null): Record<string, unknown> | null {
+  if (!raw) return null;
+  const values = raw.split(',').map((value) => value.trim());
+  // 4 个滑条 + 9 个声道 + 连击 = 14；早期 build 多一个 TargetFPS = 15
+  if (values.length !== 14 && values.length !== 15) return null;
+  const combo = values.at(-1);
+  if (combo !== '0' && combo !== '1') return null;
+  const base = values.length === 15 ? 1 : 0;
+  const numbers = values.slice(0, -1).map(Number);
+  if (numbers.some((value) => !Number.isFinite(value))) return null;
+  return {
+    NoteSpeed: numbers[base + 1],
+    TouchSpeed: numbers[base + 2],
+    BGCover: numbers[base + 3],
+    Combo: combo === '1',
+  };
+}
+
 export function loadSettings(): ViewSettings {
   let saved: Record<string, unknown> = {};
   try {
     const json = localStorage.getItem(STORAGE_KEY);
     if (json) saved = JSON.parse(json);
-    else {
-      const legacy = localStorage.getItem(LEGACY_KEY)?.split(',') ?? [];
-      VIEW_FIELDS.forEach(({ key }, i) => { if (legacy[i] !== undefined) saved[key] = Number(legacy[i]); });
-      if (legacy[13] !== undefined) saved.Combo = legacy[13] === '1';
-    }
+    else saved = migrateLegacySettings(localStorage.getItem(LEGACY_KEY)) ?? {};
   } catch { /* 无痕模式或数据损坏时用默认值 */ }
   return parseSettings(saved);
 }
