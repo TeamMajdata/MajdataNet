@@ -304,6 +304,11 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
   const beginRef = useRef(0);
   const [rate, setRate] = useState(1);
   const [videoVisible, setVideoVisible] = useState(false);
+  /**
+   * 背景 PV 出过错之后的第几次尝试。拖到音频/视频范围之外时浏览器偶尔会给视频抛媒体错误，
+   * 一旦抛过，这个 `<video>` 就再也放不出画面了；重挂一次元素就能恢复，不能直接永久隐藏。
+   */
+  const [videoAttempt, setVideoAttempt] = useState(0);
   // 背景 PV 在第一次点播放前不挂 src：否则打开页面就把整段视频下下来了
   const [videoArmed, setVideoArmed] = useState(false);
   /** 编辑器里谱面一就绪就挂 src 预加载；song 页仍然点播放才拉 */
@@ -323,11 +328,14 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
    */
   const syncVideo = useCallback((force = false) => {
     const video = videoRef.current;
-    if (!video || video.readyState < 1 || !Number.isFinite(video.duration)) return;
+    // 出过错的元素别再碰：等重挂一次（见 onError）
+    if (!video || video.error || video.readyState < 1 || !Number.isFinite(video.duration)) return;
     const transport = transportRef.current;
     const time = transport?.time ?? previewTimeRef.current;
     const rate = transport?.rate ?? 1;
-    const target = Math.max(0, Math.min(time, video.duration));
+    // 不要正好 seek 到 duration：Chrome 会把它当成播完，之后再 play() 不一定回得来
+    const limit = Math.max(0, video.duration - 0.06);
+    const target = Math.max(0, Math.min(time, limit));
     const drift = video.currentTime - target; // 正数：视频跑在谱面之前
     const abs = Math.abs(drift);
     if ((force && abs > 0.015) || abs > 0.15) {
@@ -339,7 +347,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     } else if (video.playbackRate !== rate) {
       video.playbackRate = rate;
     }
-    if (transport?.playing && time >= 0 && time < video.duration) {
+    if (transport?.playing && time >= 0 && time < limit) {
       if (video.paused) video.play().catch(() => {});
     } else if (!video.paused) video.pause();
   }, []);
@@ -644,9 +652,22 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     }
     chartRef.current = compiled;
     setChart(compiled);
-    // 没有音频时总长由谱面决定；有音频时以 Transport 的时长为准，不要改小
-    if (!transportRef.current) setDuration(chartDuration(compiled));
-  }, [chartText, level, allowEmptyChart]);
+    const transport = transportRef.current;
+    if (transport) {
+      // 音效时间表也换掉：改了 &first / BPM 之后，打击音要跟着音符走，不能还用旧时间表
+      transport.setChart(compiled);
+      // 谱面末尾决定了总长（音频更短时由谱面兜底）
+      setDuration(transport.duration);
+      // 重新排音时 Transport 会先 pause 再 start：背景 PV 和画面要立刻跟上，
+      // 否则暂停期间会被 syncVideo 停住，看起来就是「改了 First 之后视频没了」
+      if (playing && !transport.playing) setPlaying(false);
+      syncVideo(true);
+      frame();
+    } else {
+      // 还没有音频：总长先由谱面决定
+      setDuration(chartDuration(compiled));
+    }
+  }, [chartText, level, allowEmptyChart, playing, syncVideo, frame]);
 
   // 和渲染器里的 combo 计数用同一份时间表：第 n 个元素结束时 combo 变成 n
   const scores = useMemo(() => chart ? scoreTimeline(chart.notes) as { time: number }[] : [], [chart]);
@@ -1506,14 +1527,24 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
           <img src={showJudge ? DEFAULT_BACKGROUND : cover} alt="" crossOrigin="anonymous" onError={onCoverError} />
           {!showJudge && (
             <video
+              key={videoAttempt}
               ref={videoRef}
               src={attachVideo ? videoUrl : undefined}
               muted
               playsInline
               preload={preloadVideo ? 'auto' : 'none'}
               className={videoVisible ? 'visible' : undefined}
-              onLoadedData={() => { setVideoVisible(true); syncVideo(true); }}
-              onError={() => setVideoVisible(false)}
+              onLoadedData={() => {
+                setVideoVisible(true);
+                // 这次加载成功了：重置重试计数，以后再出错还能再救一次
+                setVideoAttempt(0);
+                syncVideo(true);
+              }}
+              onError={() => {
+                // 先重挂一次；还是不行才藏起来（坏文件 / 不支持的编码）
+                if (videoAttempt === 0) setVideoAttempt(1);
+                else setVideoVisible(false);
+              }}
             />
           )}
           <div ref={shadeRef} className="majview-shade" style={{ opacity: settings.BGCover / 10 }} />

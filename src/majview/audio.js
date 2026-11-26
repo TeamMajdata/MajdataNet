@@ -1,5 +1,5 @@
 import { channelGains } from './settings';
-import { channels, chartStart, lowerBound, soundEvents } from './timeline.js';
+import { channels, chartStart, lowerBound, sameEvents, soundEvents } from './timeline.js';
 
 // 解码好的音频按 AudioContext 缓存：切换难度时音乐和音效不用重新下载、解码
 const decoded = new WeakMap();
@@ -166,6 +166,28 @@ export class Transport {
     const resume = this.playing;
     if (resume) this.pause();
     this.firstOffset = seconds;
+    this.offset = Math.max(this.begin, Math.min(this.duration, at));
+    if (resume && this.offset < this.duration) this.start();
+  }
+  /**
+   * 谱面改过（编辑器实时预览、或换了一份谱面）：音效时间表要跟着换。
+   * 已经排进音频线程的音效是按旧时间表排的，所以事件或范围变了就按当前位置重新起播一次；
+   * 只有文本变了、时间表没变（比如改注释）时什么都不做，避免按键时把音乐掐断。
+   */
+  setChart(chart) {
+    const events = soundEvents(chart);
+    const duration = chart.notes.reduce(
+      (end, n) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)),
+      this.song.duration,
+    );
+    const begin = chartStart(chart);
+    if (begin === this.begin && duration === this.duration && sameEvents(events, this.events)) return;
+    const at = this.time;
+    const resume = this.playing;
+    if (resume) this.pause();
+    this.events = events;
+    this.duration = duration;
+    this.begin = begin;
     this.offset = Math.max(this.begin, Math.min(this.duration, at));
     if (resume && this.offset < this.duration) this.start();
   }
