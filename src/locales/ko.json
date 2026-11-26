@@ -229,7 +229,8 @@
   "editor/useChartFolder": {
     "MaidataExists": "이 폴더에 이미 maidata.txt가 있습니다. '폴더 열기'로 불러오세요.",
     "MissingMaidata": "이 폴더에 maidata.txt가 없습니다",
-    "MissingTrack": "이 폴더에 track.ogg / track.mp3가 없습니다. 다른 폴더를 선택하세요."
+    "MissingTrack": "이 폴더에 track.ogg / track.mp3가 없습니다. 다른 폴더를 선택하세요.",
+    "OpenFailed": "폴더를 열지 못했습니다: {{message}}"
   },
   "eventTag/EventTagPage": {
     "OriginalSongs": "오리지널 곡",

@@ -271,6 +271,25 @@
   pointer-events: none;
 }
 
+/* 打开文件夹失败（浏览器拒绝、句柄失效等）：浮在判定盘上方，别让失败静默 */
+.editor-error-overlay {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  z-index: 5;
+  margin: 0;
+  padding: 6px 12px;
+  max-width: min(70ch, calc(100% - 24px));
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #fecaca;
+  background: rgb(69 10 10 / 92%);
+  border: 1px solid rgb(248 113 113 / 40%);
+  pointer-events: none;
+}
+
 .editor-side {
   display: grid;
   grid-template-columns: 152px 1fr;

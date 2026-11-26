@@ -232,7 +232,8 @@
   "editor/useChartFolder": {
     "MaidataExists": "This folder already has a maidata.txt. Use Open folder to load it instead.",
     "MissingMaidata": "This folder has no maidata.txt",
-    "MissingTrack": "No track.ogg / track.mp3 in this folder. Please pick another folder."
+    "MissingTrack": "No track.ogg / track.mp3 in this folder. Please pick another folder.",
+    "OpenFailed": "Could not open the folder: {{message}}"
   },
   "eventTag/EventTagPage": {
     "OriginalSongs": "Original Songs",

@@ -589,6 +589,8 @@ export default function EditorPage() {
               {maidata && !hasChart && (
                 <p className="editor-stage-hint">{t('editor/EditorPage.EmptyDifficulty')}</p>
               )}
+              {/* 已经打开着谱面时再打开别的会失败在空状态外面，这里补一条浮在判定盘上的提示 */}
+              {error && <p className="editor-error editor-error-overlay" role="alert">{error}</p>}
             </section>
 
             <section className="editor-side">

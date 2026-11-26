@@ -229,7 +229,8 @@
   "editor/useChartFolder": {
     "MaidataExists": "这个文件夹里已经有 maidata.txt 了，请用「打开文件夹」加载它。",
     "MissingMaidata": "这个文件夹里没有 maidata.txt",
-    "MissingTrack": "这个文件夹里没有 track.ogg / track.mp3，请重新选择文件夹。"
+    "MissingTrack": "这个文件夹里没有 track.ogg / track.mp3，请重新选择文件夹。",
+    "OpenFailed": "打开文件夹失败：{{message}}"
   },
   "eventTag/EventTagPage": {
     "OriginalSongs": "原创曲",

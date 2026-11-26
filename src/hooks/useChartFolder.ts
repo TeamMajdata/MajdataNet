@@ -63,7 +63,10 @@ function supportsDirectoryPicker(): boolean {
   return typeof (window as unknown as { showDirectoryPicker?: unknown }).showDirectoryPicker === 'function';
 }
 
-/** 让用户选一个文件夹；取消返回 null */
+/**
+ * 让用户选一个文件夹；主动取消返回 null，其他失败（权限被拒、被策略禁用等）抛出去。
+ * 以前这里把两类都吞成 null，浏览器拒绝授权时页面看起来就像「点了没反应」。
+ */
 async function pickDirectory(): Promise<PickedDir | null> {
   const picker = (window as unknown as {
     showDirectoryPicker?: (options?: unknown) => Promise<DirHandle>;
@@ -72,8 +75,10 @@ async function pickDirectory(): Promise<PickedDir | null> {
   try {
     const handle = await picker({ mode: 'readwrite' });
     return { name: handle.name, handle };
-  } catch {
-    return null;
+  } catch (err) {
+    // 按 Esc 或点右上角关闭：用户自己取消，不算错误
+    if (err instanceof DOMException && err.name === 'AbortError') return null;
+    throw err;
   }
 }
 
@@ -202,7 +207,9 @@ export function useChartFolder() {
       }
       apply({ name: dir.name, files, maidataHandle, maidataText: await maidata.file.text() });
     } catch (err) {
-      setError((err as Error).message);
+      // 浏览器拒绝、句柄失效等：把原因带出来，不要静默失败
+      console.error('[editor] open folder failed', err);
+      setError(t('editor/useChartFolder.OpenFailed', { message: (err as Error).message }));
     } finally {
       setBusy(false);
     }
