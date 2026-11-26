@@ -52,8 +52,8 @@ const LATE_SKIP_SEC = 0.05;
 // 调度间隔突然变得很长（GC、布局、切标签页把定时器拖慢）：说明积压了一批过期事件，
 // 直接把游标推到当前时间，而不是一次性补发一串错位的音效。
 const STALL_RESYNC_SEC = 0.4;
-// 拖动时间轴时的“搓碟”片段长度：太短听不出音高，太长会糊成一片
-const SCRATCH_SEC = 0.12;
+// 拖动时间轴时的“搓碟”片段长度：太长会糊成一片，太短听不出音高
+const SCRATCH_SEC = 0.03;
 
 // DSP 时钟一次音频回调才前进一次（缓冲区大小决定，通常 10ms 级），
 // 画面不能直接用：用 performance.now() 外推、再用 DSP 纠偏。
@@ -204,21 +204,27 @@ export class Transport {
     if (!this.song) return;
     if (this.context.state === 'suspended') void this.context.resume();
     const now = this.context.currentTime;
-    const length = Math.min(SCRATCH_SEC, Math.max(0, this.song.duration - time));
-    if (length <= 0.01) return;
+    const speed = Math.max(0.5, Math.min(2.5, rate));
     const offset = Math.max(0, Math.min(time, Math.max(0, this.song.duration - 0.02)));
-    this.stopScratch(0.005);
+    // 播放速率会缩放实际时长，所以按速率换算出要取多长的音频：听起来总是 SCRATCH_SEC
+    const bufferLength = Math.min(SCRATCH_SEC * speed, this.song.duration - offset);
+    if (bufferLength <= 0.004) return;
+    const wall = bufferLength / speed;
+    this.stopScratch(0.004);
     const source = this.context.createBufferSource();
     source.buffer = this.song;
-    source.playbackRate.value = Math.max(0.5, Math.min(2.5, rate));
+    source.playbackRate.value = speed;
     const fade = this.context.createGain();
+    // 片段很短，淡入淡出按比例缩：2ms 淡入 + 最多 8ms 淡出
+    const fadeIn = Math.min(0.002, wall * 0.2);
+    const fadeOut = Math.min(0.008, wall * 0.3);
     fade.gain.setValueAtTime(0, now);
-    fade.gain.linearRampToValueAtTime(1, now + 0.004);
-    fade.gain.setValueAtTime(1, now + Math.max(0.005, length - 0.012));
-    fade.gain.linearRampToValueAtTime(0, now + length);
+    fade.gain.linearRampToValueAtTime(1, now + fadeIn);
+    fade.gain.setValueAtTime(1, now + Math.max(fadeIn, wall - fadeOut));
+    fade.gain.linearRampToValueAtTime(0, now + wall);
     source.connect(fade);
     fade.connect(this.gains.BGM);
-    source.start(now, offset, length);
+    source.start(now, offset, bufferLength);
     source.onended = () => {
       source.disconnect();
       fade.disconnect();
