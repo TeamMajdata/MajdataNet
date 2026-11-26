@@ -201,6 +201,17 @@
 .editor-save.is-dirty { color: #fcd34d; background: rgb(251 191 36 / 10%); border-color: rgb(251 191 36 / 30%); }
 .editor-save.is-dirty i { background: #fbbf24; box-shadow: 0 0 6px rgb(251 191 36 / 80%); }
 
+/* 在线谱面：右上角的只读标记（跟“已保存”一样的位置和形状，颜色区分开） */
+.editor-readonly-badge {
+  font-size: 11.5px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  color: #93c5fd;
+  background: rgb(96 165 250 / 10%);
+  border: 1px solid rgb(96 165 250 / 30%);
+  white-space: nowrap;
+}
+
 /* ── 空状态 ── */
 .editor-empty {
   display: flex;
@@ -268,6 +279,25 @@
   color: rgb(255 255 255 / 70%);
   background: rgb(0 0 0 / 60%);
   border: 1px solid rgb(255 255 255 / 10%);
+  pointer-events: none;
+}
+
+/* 打开文件夹失败（浏览器拒绝、句柄失效等）：浮在判定盘上方，别让失败静默 */
+.editor-error-overlay {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  z-index: 5;
+  margin: 0;
+  padding: 6px 12px;
+  max-width: min(70ch, calc(100% - 24px));
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #fecaca;
+  background: rgb(69 10 10 / 92%);
+  border: 1px solid rgb(248 113 113 / 40%);
   pointer-events: none;
 }
 

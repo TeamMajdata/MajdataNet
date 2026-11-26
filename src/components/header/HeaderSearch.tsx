@@ -47,9 +47,10 @@ export default function HeaderSearch({ inline = false }: { inline?: boolean }) {
     navigate(value ? '/search?search=' + encodeURIComponent(value) : '/search');
   };
   if (inline) {
-    // 和顶栏按钮一样高（36px）；宽度随窗口变
+    // 和顶栏按钮一样高（36px）；宽度随窗口变，但顶栏容器最宽 80rem，
+    // 再宽就会在 en/ja 下挤掉导航（见 docs/changelog/2026-11-26-header-locale-overflow.md）
     return (
-      <div className="w-56 lg:w-64 xl:w-72 [&_input]:h-9">
+      <div className="w-56 xl:w-60 [&_input]:h-9">
         <SearchBox value="" onSubmit={submit} />
       </div>
     );

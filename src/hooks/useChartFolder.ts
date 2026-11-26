@@ -7,6 +7,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { blankMaidata } from '@/utils/maidataEdit';
+import { endpoints } from '@/config/api';
+import { loadChartText } from '@/majview/chartCache';
 
 export type ChartFolder = {
   /** 文件夹名，用来显示 */
@@ -63,7 +65,10 @@ function supportsDirectoryPicker(): boolean {
   return typeof (window as unknown as { showDirectoryPicker?: unknown }).showDirectoryPicker === 'function';
 }
 
-/** 让用户选一个文件夹；取消返回 null */
+/**
+ * 让用户选一个文件夹；主动取消返回 null，其他失败（权限被拒、被策略禁用等）抛出去。
+ * 以前这里把两类都吞成 null，浏览器拒绝授权时页面看起来就像「点了没反应」。
+ */
 async function pickDirectory(): Promise<PickedDir | null> {
   const picker = (window as unknown as {
     showDirectoryPicker?: (options?: unknown) => Promise<DirHandle>;
@@ -72,8 +77,10 @@ async function pickDirectory(): Promise<PickedDir | null> {
   try {
     const handle = await picker({ mode: 'readwrite' });
     return { name: handle.name, handle };
-  } catch {
-    return null;
+  } catch (err) {
+    // 按 Esc 或点右上角关闭：用户自己取消，不算错误
+    if (err instanceof DOMException && err.name === 'AbortError') return null;
+    throw err;
   }
 }
 
@@ -202,7 +209,9 @@ export function useChartFolder() {
       }
       apply({ name: dir.name, files, maidataHandle, maidataText: await maidata.file.text() });
     } catch (err) {
-      setError((err as Error).message);
+      // 浏览器拒绝、句柄失效等：把原因带出来，不要静默失败
+      console.error('[editor] open folder failed', err);
+      setError(t('editor/useChartFolder.OpenFailed', { message: (err as Error).message }));
     } finally {
       setBusy(false);
     }
@@ -272,6 +281,34 @@ export function useChartFolder() {
     }
   }, [apply, readDirectory, t]);
 
+  /**
+   * 打开站内的在线谱面（只读）：只下载谱面文本，音轨 / 视频 / 封面直接用接口地址。
+   * 没有 `save`，编辑器据此进入只读模式。
+   */
+  const openOnline = useCallback(async (id: string) => {
+    setBusy(true);
+    setError(null);
+    try {
+      const base = endpoints.maichart.prefix(id);
+      const maidata = await loadChartText(`${base}/chart`);
+      releaseUrls();
+      setFolder({
+        name: id,
+        maidata,
+        modifiedAt: Date.now(),
+        trackUrl: `${base}/track`,
+        coverUrl: endpoints.maichart.fullImage(id),
+        videoUrl: `${base}/video`,
+        save: null,
+      });
+    } catch (err) {
+      console.error('[editor] open online chart failed', err);
+      setError(t('editor/useChartFolder.OpenFailed', { message: (err as Error).message }));
+    } finally {
+      setBusy(false);
+    }
+  }, [releaseUrls, t]);
+
   /** 不支持原地写时，退化成下载 */
   const download = useCallback((content: string, name = 'maidata.txt') => {
     const url = URL.createObjectURL(new Blob([content], { type: 'text/plain;charset=utf-8' }));
@@ -284,5 +321,5 @@ export function useChartFolder() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }, []);
 
-  return { folder, setFolder, error, busy, open, createNew, download };
+  return { folder, setFolder, error, busy, open, createNew, openOnline, download };
 }

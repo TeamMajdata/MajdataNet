@@ -33,7 +33,7 @@
   grid-template-columns: clamp(3.5rem, 7vw, 5rem) minmax(0, 1fr) auto;
   gap: .4rem 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--rule);
 }
-.song-header-actions { display: flex; gap: .5rem; align-self: center; }
+.song-header-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-self: center; }
 /* 电脑上：点赞点踩和操作按钮在播放器正下方 */
 .song-player-actions { display: grid; gap: .75rem; margin-top: .75rem; }
 .song-workspace { grid-area: workspace; min-width: 0; }
@@ -105,16 +105,15 @@
   /* 手机页头：标题 → 点赞点踩和操作按钮 → 标签 → 难度（行号写死，免得自动排版把它们塞进前面空出来的格子） */
   .song-tags { grid-column: 1 / -1; grid-row: 4; }
   .song-header .song-levels { grid-row: 5; }
-  /* 按钮平分一行；屏幕窄到放不下（点赞点踩 + 三个按钮）时这一行自己横向滑，不能把整页撑宽
-     （撑宽后手机浏览器会缩小整页，左边被切、右边按钮出屏） */
-  .song-header-actions { min-width: 0; overflow-x: auto; scrollbar-width: none; }
-  .song-header-actions::-webkit-scrollbar { display: none; }
+  /* 按钮平分一行，放不下就换行（手机上一排最多四个，剩下的第二行继续平分），
+     不能把整页撑宽（撑宽后手机浏览器会缩小整页，左边被切、右边按钮出屏） */
+  .song-header-actions { min-width: 0; flex-wrap: wrap; }
   .song-header-actions > * { flex: 1 0 auto; }
   /* 点赞点踩不跟着拉宽：外框变宽而里面两个按钮不变，“踩”的高亮底色右边会空出一截 */
   .song-header-actions > [role="group"] { flex: none; }
-  /* 手机上按钮左右内边距和间距收一点：常见的 375px 宽屏上一行放得下，不用滑 */
+  /* 手机上按钮左右内边距和间距收一点：常见的 375px 宽屏上一排放得下四个，多出来的换行 */
   .song-header-actions { gap: .375rem; }
-  .song-header-actions > button { padding-inline: .625rem; }
+  .song-header-actions > button, .song-header-actions > a { padding-inline: .625rem; }
   /* 侧栏是“概览”页签，紧接在页签下面，不用再画分隔线 */
   .song-sidebar { border-left: 0; padding: 0; }
   .song-sidebar[hidden] { display: none; }

@@ -22,7 +22,7 @@ export type NavigationGroup = {
 export type NavigationItem = NavigationLink | NavigationGroup;
 
 export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
-  // 站内页面在前，跳到外部网站的（工具、文档）放在最后
+  // 站内页面在前，跳到外部网站的（工具）放在最后
   // 推荐榜已经做成首页的“七日人气榜”，榜单只剩肝帝榜，直接放一个链接
   { kind: 'link', id: 'user-ranking', labelKey: 'shared/Navigation.UserRankingTitle', to: '/ranking/user' },
   {
@@ -52,14 +52,9 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
       // 站内自己的编辑器页面（原来是跳到 MajdataX 文档）
       { kind: 'link', id: 'chart-editor', labelKey: 'shared/Navigation.ChartEditor', to: '/editor' },
       { kind: 'link', id: 'chart-player', labelKey: 'shared/Navigation.ChartPlayer', to: 'https://docs.majdata.net/majdataplay/', external: true },
+      // 文档站点也收进「工具」：顶栏在 en/ja 下一行放不下第六项（见 docs/changelog）
+      { kind: 'link', id: 'documentation', labelKey: 'shared/Navigation.Documentation', to: 'https://docs.majdata.net', external: true },
     ],
-  },
-  {
-    kind: 'link',
-    id: 'documentation',
-    labelKey: 'shared/Navigation.Documentation',
-    to: 'https://docs.majdata.net',
-    external: true,
   },
 ];
 

@@ -23,10 +23,12 @@ type Props = {
   onCursorLineChange?: (line: number, column: number) => void;
   /** Ctrl / Cmd + 点击文本：跳到光标所在的那一行 */
   onCtrlClickLine?: (line: number, column: number) => void;
+  /** 只读（在线谱面预览）：不能改文本，但仍可滚动、跳转、查找 */
+  readOnly?: boolean;
 };
 
 export default function SimaiCodeEditor({
-  initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange, onCtrlClickLine,
+  initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange, onCtrlClickLine, readOnly = false,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -41,6 +43,7 @@ export default function SimaiCodeEditor({
   const onSelectionChangeRef = useRef(onSelectionChange);
   const onCursorLineChangeRef = useRef(onCursorLineChange);
   const onCtrlClickLineRef = useRef(onCtrlClickLine);
+  const readOnlyRef = useRef(readOnly);
 
   useEffect(() => { activeRef.current = active; }, [active]);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
@@ -78,6 +81,7 @@ export default function SimaiCodeEditor({
       padding: { top: 12, bottom: 12 },
       // Ctrl+点击留给我们自己做「跳到那一刻」，不要变成多光标
       multiCursorModifier: 'alt',
+      readOnly: readOnlyRef.current,
     });
     editorRef.current = editor;
 
@@ -115,6 +119,12 @@ export default function SimaiCodeEditor({
     // 换 model 之后选区一定是空的
     onSelectionChangeRef.current?.(false);
   }, [active]);
+
+  // 只读 / 可编辑切换（在线谱面预览用）
+  useEffect(() => {
+    readOnlyRef.current = readOnly;
+    editorRef.current?.updateOptions({ readOnly });
+  }, [readOnly]);
 
   return (
     <div

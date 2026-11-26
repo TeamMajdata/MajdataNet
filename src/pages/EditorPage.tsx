@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   LuFilePlus, LuFlipHorizontal, LuFlipVertical, LuFolderOpen, LuInfo, LuPause, LuPlay,
   LuRefreshCw, LuRotateCcw, LuRotateCw, LuSave, LuSearch, LuSquare,
@@ -78,9 +78,19 @@ function formatClock(seconds: number) {
 
 export default function EditorPage() {
   const { t } = useTranslation();
-  const { folder, error, busy, open, createNew, download } = useChartFolder();
+  const { folder, error, busy, open, createNew, openOnline, download } = useChartFolder();
+  /** `?id=` 是站内谱面 Id：从谱面页「在 Edit 中打开」过来，进入只读预览 */
+  const [params] = useSearchParams();
+  const onlineId = params.get('id');
+  const readOnly = Boolean(onlineId);
+  const levelParam = params.get('level');
+  /** 目标难度（0-based）；URL 里没有就是 null，不要当成 0（EASY） */
+  const requestedLevel = levelParam === null ? null : Number(levelParam);
   const [maidata, setMaidata] = useState('');
   const [origin, setOrigin] = useState('');
+  /** First 输入框正在输入中的文本：null 时直接显示文件里的 `&first` */
+  const [firstDraft, setFirstDraft] = useState<string | null>(null);
+  const firstValue = getFirst(maidata);
   const [active, setActive] = useState(4);
   const [openMenu, setOpenMenu] = useState<MenuId>(null);
   const [bpmOpen, setBpmOpen] = useState(false);
@@ -113,17 +123,27 @@ export default function EditorPage() {
   const followKeyRef = useRef<string | null>(null);
   const [followPos, setFollowPos] = useState<{ line: number; column: number } | null>(null);
 
-  // 打开文件夹：整份文本作为新的真源，并跳到第一个有内容的难度
+  // 打开文件夹 / 在线谱面：整份文本作为新的真源，并跳到有内容的难度
   useEffect(() => {
     if (!folder) return;
     setMaidata(folder.maidata);
     setOrigin(folder.maidata);
     const filled = filledDifficulties(folder.maidata);
     const first = filled.findIndex(Boolean);
-    setActive(first === -1 ? 4 : first);
+    // 从谱面页带过来的难度优先（那页已经选好了难度）
+    const wanted = requestedLevel !== null && Number.isInteger(requestedLevel) && requestedLevel >= 0 && requestedLevel < LEVEL_COUNT && filled[requestedLevel]
+      ? requestedLevel
+      : null;
+    setActive(wanted ?? (first === -1 ? 4 : first));
     lastSecondRef.current = -1;
     setTime(0);
-  }, [folder]);
+  }, [folder, requestedLevel]);
+
+  /** 带 `?id=` 进来：拉线上谱面文本，只读预览 */
+  useEffect(() => {
+    if (!onlineId) return;
+    void openOnline(onlineId);
+  }, [onlineId, openOnline]);
 
   // 编辑器只在挂载时取一次初值，之后自己持有每个难度的 model
   const initialTexts = useMemo(
@@ -131,9 +151,12 @@ export default function EditorPage() {
     [folder],
   );
 
-  /** 打开文件夹后：如果本地草稿比文件新，问一下要不要恢复 */
+  /** 打开别的谱面 / 切换难度后丢掉输入草稿，First 框重新跟随文件里的值 */
+  useEffect(() => { setFirstDraft(null); }, [folder, active]);
+
+  /** 打开文件夹后：如果本地草稿比文件新，问一下要不要恢复（在线只读谱面没有草稿） */
   useEffect(() => {
-    if (!folder) return;
+    if (!folder || readOnly) return;
     let cancelled = false;
     void readDraft(folder.name).then((draft) => {
       if (cancelled || !shouldOfferRestore(draft, folder)) return;
@@ -143,22 +166,22 @@ export default function EditorPage() {
       }
     });
     return () => { cancelled = true; };
-  }, [folder, t]);
+  }, [folder, readOnly, t]);
 
-  // 自动保存：停止编辑 5s 后落一次，另外每 30s 兜底；都不改变「已保存/未保存」
+  // 自动保存：停止编辑 5s 后落一次，另外每 30s 兜底；都不改变「已保存/未保存」。只读时不写
   useEffect(() => { latestRef.current = { maidata, active }; }, [maidata, active]);
   useEffect(() => {
-    if (!folder) return;
+    if (!folder || readOnly) return;
     const debounce = setTimeout(() => { void writeDraft(folder.name, maidata, active); }, 5000);
     return () => clearTimeout(debounce);
-  }, [folder, maidata, active]);
+  }, [folder, maidata, active, readOnly]);
   useEffect(() => {
-    if (!folder) return;
+    if (!folder || readOnly) return;
     const timer = setInterval(() => {
       void writeDraft(folder.name, latestRef.current.maidata, latestRef.current.active);
     }, 30000);
     return () => clearInterval(timer);
-  }, [folder]);
+  }, [folder, readOnly]);
 
   const dirty = useMemo(() => {
     const perLevel = Array.from({ length: LEVEL_COUNT }, (_, level) =>
@@ -317,7 +340,7 @@ export default function EditorPage() {
   }, [anyDirty]);
 
   const save = useCallback(async () => {
-    if (!folder) return;
+    if (!folder || readOnly) return;
     setSaving(true);
     try {
       if (folder.save) await folder.save(maidata);
@@ -328,7 +351,7 @@ export default function EditorPage() {
     } finally {
       setSaving(false);
     }
-  }, [folder, maidata, download]);
+  }, [folder, maidata, download, readOnly]);
 
   // 点菜单外面收起
   useEffect(() => {
@@ -416,6 +439,8 @@ export default function EditorPage() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      // 只在可编辑时响应：在线谱面是只读的，Ctrl+S / Ctrl+O 都不该有动作
+      if (readOnly) return;
       const key = event.key.toLowerCase();
       if (key === 's') {
         event.preventDefault();
@@ -427,7 +452,7 @@ export default function EditorPage() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [save, handleOpen]);
+  }, [save, handleOpen, readOnly]);
 
   const openFindReplace = useCallback(() => {
     editorRef.current?.getAction('actions.find')?.run();
@@ -460,6 +485,16 @@ export default function EditorPage() {
         <header className="editor-menubar">
           <Link to="/" className="editor-brand">Majdata Edit</Link>
 
+          {readOnly ? (
+            <>
+              <Link to={`/song?id=${encodeURIComponent(onlineId ?? '')}`} className="editor-top-item">
+                ← {t('editor/EditorPage.BackToSong')}
+              </Link>
+              <button type="button" className="editor-top-item" onClick={() => setBpmOpen(true)}>{t('editor/EditorPage.MenuBpmTap')}</button>
+              <button type="button" className="editor-top-item" onClick={() => setShortcutsOpen(true)}>{t('editor/EditorPage.MenuShortcuts')}</button>
+            </>
+          ) : (
+            <>
           <div className="editor-menu-wrap">
             <button type="button" className={`editor-top-item${openMenu === 'file' ? ' is-open' : ''}`} onClick={toggleMenu('file')}>
               {t('editor/EditorPage.MenuFile')}
@@ -524,10 +559,14 @@ export default function EditorPage() {
           >{t('editor/EditorPage.MenuSettings')}</button>
           <button type="button" className="editor-top-item" onClick={() => setBpmOpen(true)}>{t('editor/EditorPage.MenuBpmTap')}</button>
           <button type="button" className="editor-top-item" onClick={() => setShortcutsOpen(true)}>{t('editor/EditorPage.MenuShortcuts')}</button>
+            </>
+          )}
 
           <span className="editor-spacer" />
 
-          {folder && (
+          {readOnly ? (
+            <span className="editor-readonly-badge">{t('editor/EditorPage.OnlineReadOnly')}</span>
+          ) : folder && (
             <span className={`editor-save${anyDirty ? ' is-dirty' : ' is-saved'}`}>
               <i aria-hidden="true" />
               {anyDirty ? t('editor/EditorPage.Unsaved') : t('editor/EditorPage.Saved')}
@@ -538,12 +577,24 @@ export default function EditorPage() {
         {!folder ? (
           <div className="editor-empty">
             <h1>{t('editor/EditorPage.Title')}</h1>
-            <p>{t('editor/EditorPage.EmptyHint')}</p>
-            <button type="button" className="editor-open-button" onClick={handleOpen} disabled={busy}>
-              <LuFolderOpen aria-hidden="true" />
-              {busy ? t('editor/EditorPage.Opening') : t('editor/EditorPage.OpenFolderButton')}
-            </button>
-            {error && <p className="editor-error" role="alert">{error}</p>}
+            {readOnly ? (
+              <>
+                <p>{busy ? t('editor/EditorPage.OpeningOnline') : t('editor/EditorPage.OnlineReadOnly')}</p>
+                {error && <p className="editor-error" role="alert">{error}</p>}
+                <Link to={`/song?id=${encodeURIComponent(onlineId ?? '')}`} className="editor-open-button">
+                  ← {t('editor/EditorPage.BackToSong')}
+                </Link>
+              </>
+            ) : (
+              <>
+                <p>{t('editor/EditorPage.EmptyHint')}</p>
+                <button type="button" className="editor-open-button" onClick={handleOpen} disabled={busy}>
+                  <LuFolderOpen aria-hidden="true" />
+                  {busy ? t('editor/EditorPage.Opening') : t('editor/EditorPage.OpenFolderButton')}
+                </button>
+                {error && <p className="editor-error" role="alert">{error}</p>}
+              </>
+            )}
           </div>
         ) : (
           <main className="editor-main">
@@ -583,6 +634,8 @@ export default function EditorPage() {
               {maidata && !hasChart && (
                 <p className="editor-stage-hint">{t('editor/EditorPage.EmptyDifficulty')}</p>
               )}
+              {/* 已经打开着谱面时再打开别的会失败在空状态外面，这里补一条浮在判定盘上的提示 */}
+              {error && <p className="editor-error editor-error-overlay" role="alert">{error}</p>}
             </section>
 
             <section className="editor-side">
@@ -602,6 +655,7 @@ export default function EditorPage() {
                 <label className="editor-field">
                   <span>{t('editor/EditorPage.Level')}</span>
                   <input
+                    disabled={readOnly}
                     value={getLevel(maidata, active)}
                     onChange={(event) => setMaidata((prev) => setLevel(prev, active, event.target.value))}
                   />
@@ -610,6 +664,7 @@ export default function EditorPage() {
                 <label className="editor-field">
                   <span>{t('editor/EditorPage.Designer')}</span>
                   <input
+                    disabled={readOnly}
                     value={getDesigner(maidata, active)}
                     onChange={(event) => setMaidata((prev) => setDesigner(prev, active, event.target.value))}
                   />
@@ -618,19 +673,22 @@ export default function EditorPage() {
                 <label className="editor-field">
                   <span>{t('editor/EditorPage.First')}</span>
                   <input
-                    key={`${folder.name}-${active}`}
+                    disabled={readOnly}
                     type="number"
                     step="0.01"
-                    defaultValue={getFirst(maidata)}
-                    // 滚轮/输入都要立刻生效，不能等失焦
+                    // 受控：打开谱面 / 切难度后要显示文件里的真实值，不能停在挂载时的旧值
+                    value={firstDraft ?? String(firstValue)}
+                    // 滚轮/输入都要立刻生效，不能等失焦；但清空输入框时不要当成 0 写回去
                     onChange={(event) => {
-                      const value = Number(event.target.value);
-                      if (Number.isFinite(value)) setMaidata((prev) => setFirst(prev, value));
+                      const text = event.target.value;
+                      setFirstDraft(text);
+                      const value = Number(text);
+                      if (text.trim() !== '' && Number.isFinite(value)) {
+                        setMaidata((prev) => setFirst(prev, value));
+                      }
                     }}
-                    onBlur={(event) => {
-                      const value = Number(event.target.value);
-                      if (Number.isFinite(value)) setMaidata((prev) => setFirst(prev, value));
-                    }}
+                    // 失焦就交回真值：非法或空输入直接恢复成文件里的 First
+                    onBlur={() => setFirstDraft(null)}
                   />
                 </label>
 
@@ -700,6 +758,7 @@ export default function EditorPage() {
                   key={folder.name}
                   initialTexts={initialTexts}
                   active={active}
+                  readOnly={readOnly}
                   onChange={handleEditorChange}
                   onReady={(editor) => { editorRef.current = editor; }}
                   onSelectionChange={setHasSelection}

@@ -13,7 +13,7 @@ import type {
   NavigationLink,
 } from './navigationItems';
 
-const TOP_LEVEL_ITEM = 'relative flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-4 text-sm font-medium tracking-[0.01em] no-underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090b11] xl:min-h-0 xl:h-9 xl:w-auto xl:justify-center xl:gap-1.5 xl:rounded-lg xl:px-3';
+const TOP_LEVEL_ITEM = 'relative flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-4 text-sm font-medium tracking-[0.01em] no-underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090b11] xl:min-h-0 xl:h-9 xl:w-auto xl:min-w-0 xl:justify-center xl:gap-1.5 xl:rounded-lg xl:px-2.5';
 const TOP_LEVEL_IDLE = 'text-white/65 hover:bg-white/[0.06] hover:text-white';
 const TOP_LEVEL_ACTIVE = 'bg-white/[0.07] text-white';
 const CHILD_ITEM = 'group flex min-h-11 items-center gap-3 rounded-lg px-4 pl-7 text-[0.8125rem] font-medium no-underline transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 xl:min-h-10 xl:px-3.5 xl:text-sm';
@@ -62,7 +62,7 @@ function NavigationLinkView({
   const content = (
     <>
       {nested && <ActiveMarker active={active} nested />}
-      <span className="min-w-0 flex-1 text-left xl:flex-none xl:whitespace-nowrap">
+      <span className="min-w-0 flex-1 text-left xl:whitespace-nowrap xl:truncate">
         {t(item.labelKey)}
       </span>
       {!nested && <ActiveMarker active={active} />}
@@ -131,7 +131,7 @@ function NavigationGroupView({
   const active = isNavigationItemActive(item, pathname, search);
 
   return (
-    <li className="relative" onPointerEnter={onHoverStart} onPointerLeave={onHoverEnd}>
+    <li className="relative min-w-0" onPointerEnter={onHoverStart} onPointerLeave={onHoverEnd}>
       <button
         ref={triggerRef}
         type="button"
@@ -142,7 +142,7 @@ function NavigationGroupView({
         onClick={onToggle}
         data-navigation-group={item.id}
       >
-        <span className="min-w-0 flex-1 text-left xl:flex-none xl:whitespace-nowrap">
+        <span className="min-w-0 flex-1 text-left xl:whitespace-nowrap xl:truncate">
           {t(item.labelKey)}
         </span>
         <svg
@@ -271,7 +271,7 @@ function NavigationContent() {
   };
 
   return (
-    <nav ref={navigationRef} className="relative" aria-label={t("shared/Navigation.NavigationMenu")}>
+    <nav ref={navigationRef} className="relative min-w-0" aria-label={t("shared/Navigation.NavigationMenu")}>
       <button
         ref={menuButtonRef}
         type="button"
@@ -292,7 +292,7 @@ function NavigationContent() {
 
       <ul
         id={`primary-navigation-${navigationId}`}
-        className={`${isMobileMenuOpen ? 'flex' : 'hidden'} absolute left-0 top-[calc(100%+0.65rem)] z-1001 m-0 w-[min(20rem,calc(100vw-1.5rem))] list-none flex-col gap-0.5 rounded-2xl border border-white/10 bg-[rgb(10_13_20/97%)] p-2 shadow-[0_22px_60px_rgb(0_0_0/48%),0_1px_0_rgb(255_255_255/7%)_inset] backdrop-blur-2xl xl:static xl:flex xl:w-auto xl:flex-row xl:items-center xl:gap-0.5 xl:rounded-none xl:border-0 xl:bg-transparent xl:p-0 xl:shadow-none xl:backdrop-blur-none`}
+        className={`${isMobileMenuOpen ? 'flex' : 'hidden'} absolute left-0 top-[calc(100%+0.65rem)] z-1001 m-0 w-[min(20rem,calc(100vw-1.5rem))] list-none flex-col gap-0.5 rounded-2xl border border-white/10 bg-[rgb(10_13_20/97%)] p-2 shadow-[0_22px_60px_rgb(0_0_0/48%),0_1px_0_rgb(255_255_255/7%)_inset] backdrop-blur-2xl xl:static xl:flex xl:w-auto xl:min-w-0 xl:flex-row xl:items-center xl:gap-0.5 xl:rounded-none xl:border-0 xl:bg-transparent xl:p-0 xl:shadow-none xl:backdrop-blur-none`}
       >
         {NAVIGATION_ITEMS.map((item) => {
           if (item.kind === 'group') {
@@ -317,7 +317,7 @@ function NavigationContent() {
           }
 
           return (
-            <li key={item.id}>
+            <li key={item.id} className="xl:min-w-0">
               <NavigationLinkView
                 item={item}
                 pathname={location.pathname}

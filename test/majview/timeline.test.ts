@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chartStart, displayIndex, holdSpan, soundEvents } from '@/majview/timeline.js';
+import { chartStart, displayIndex, holdSpan, sameEvents, soundEvents } from '@/majview/timeline.js';
 
 type Note = { kind: string; time: number; end: number; travel?: number; mine?: boolean; brk?: boolean; ex?: boolean; firework?: boolean };
 const tap = (time: number, extra: Partial<Note> = {}): Note => ({ kind: 'tap', time, end: time, ...extra });
@@ -123,4 +123,24 @@ describe('MajView clocks (aligned with MajdataPlay AnswerSoundSchedule)', () => 
   });
 });
 
+describe('sameEvents', () => {
+  const chart = (first: number) => ({
+    notes: [
+      { kind: 'tap', time: first, end: first },
+      { kind: 'hold', time: first + 1, end: first + 2 },
+    ],
+  });
 
+  it('treats the same schedule as unchanged', () => {
+    expect(sameEvents(soundEvents(chart(4.11)), soundEvents(chart(4.11)))).toBe(true);
+  });
+
+  it('notices a chart shift such as a new &first', () => {
+    // 改了 First 之后音效要重新排：这就是「音频还在按旧 first 播」的回归点
+    expect(sameEvents(soundEvents(chart(4.11)), soundEvents(chart(6.11)))).toBe(false);
+  });
+
+  it('notices a different event list', () => {
+    expect(sameEvents(soundEvents(chart(0)), soundEvents({ notes: [{ kind: 'tap', time: 0, end: 0 }] }))).toBe(false);
+  });
+});

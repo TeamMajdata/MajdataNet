@@ -85,6 +85,19 @@ export function soundEvents(chart) {
   return events;
 }
 
+/**
+ * 两份音效时间表是不是一样。编辑器里每敲一下都会重编译谱面，Transport 拿这个判断
+ * 需不需要按新时间表重新排音（只有真的变了才重启，避免每次按键都掐断正在放的声音）。
+ */
+export function sameEvents(a, b) {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].time !== b[i].time || a[i].name !== b[i].name || a[i].length !== b[i].length) return false;
+  }
+  return true;
+}
+
 export function lowerBound(items, value, key) {
   let lo = 0,
     hi = items.length;

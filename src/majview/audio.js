@@ -1,5 +1,5 @@
 import { channelGains } from './settings';
-import { channels, chartStart, lowerBound, soundEvents } from './timeline.js';
+import { channels, chartStart, lowerBound, sameEvents, soundEvents } from './timeline.js';
 
 // 解码好的音频按 AudioContext 缓存：切换难度时音乐和音效不用重新下载、解码
 const decoded = new WeakMap();
@@ -52,6 +52,8 @@ const LATE_SKIP_SEC = 0.05;
 // 调度间隔突然变得很长（GC、布局、切标签页把定时器拖慢）：说明积压了一批过期事件，
 // 直接把游标推到当前时间，而不是一次性补发一串错位的音效。
 const STALL_RESYNC_SEC = 0.4;
+// 拖动时间轴时的“搓碟”片段长度：太长会糊成一片，太短听不出音高
+const SCRATCH_SEC = 0.03;
 
 // DSP 时钟一次音频回调才前进一次（缓冲区大小决定，通常 10ms 级），
 // 画面不能直接用：用 performance.now() 外推、再用 DSP 纠偏。
@@ -83,6 +85,8 @@ export class Transport {
     // 调度诊断：late＝晚了但在容忍范围内补发，dropped＝过期丢弃，resync＝卡顿后重新定位
     this.stats = { late: 0, dropped: 0, resync: 0 };
     this.voices = new Set();
+    /** 拖时间轴时正在响的那一小段音乐（搓碟） */
+    this.scratchVoice = null;
     // 每种音效只有一个声道（同 Play 的 PlayOneShot：同一条流跳回开头重播），新的一响会打断上一响
     this.lastVoice = new Map();
     this.gains = {};
@@ -169,6 +173,79 @@ export class Transport {
     this.offset = Math.max(this.begin, Math.min(this.duration, at));
     if (resume && this.offset < this.duration) this.start();
   }
+  /**
+   * 谱面改过（编辑器实时预览、或换了一份谱面）：音效时间表要跟着换。
+   * 已经排进音频线程的音效是按旧时间表排的，所以事件或范围变了就按当前位置重新起播一次；
+   * 只有文本变了、时间表没变（比如改注释）时什么都不做，避免按键时把音乐掐断。
+   */
+  setChart(chart) {
+    const events = soundEvents(chart);
+    const duration = chart.notes.reduce(
+      (end, n) => Math.max(end, n.end + (n.firework ? 1.4 : 0.76)),
+      this.song.duration,
+    );
+    const begin = chartStart(chart);
+    if (begin === this.begin && duration === this.duration && sameEvents(events, this.events)) return;
+    const at = this.time;
+    const resume = this.playing;
+    if (resume) this.pause();
+    this.events = events;
+    this.duration = duration;
+    this.begin = begin;
+    this.offset = Math.max(this.begin, Math.min(this.duration, at));
+    if (resume && this.offset < this.duration) this.start();
+  }
+  /**
+   * DJ 搓碟：拖动时间轴时按拖动位置播一小段音乐，让用户边拖边听到自己在哪个位置。
+   * 每次拖动都掐掉上一段（几毫秒淡出，不会爆音），速率跟手速走（拖快一点声音就高一点）。
+   * 走的是 BGM 的增益节点，所以音量设置照样生效。
+   */
+  scratch(time, rate = 1) {
+    if (!this.song) return;
+    if (this.context.state === 'suspended') void this.context.resume();
+    const now = this.context.currentTime;
+    const speed = Math.max(0.5, Math.min(2.5, rate));
+    const offset = Math.max(0, Math.min(time, Math.max(0, this.song.duration - 0.02)));
+    // 播放速率会缩放实际时长，所以按速率换算出要取多长的音频：听起来总是 SCRATCH_SEC
+    const bufferLength = Math.min(SCRATCH_SEC * speed, this.song.duration - offset);
+    if (bufferLength <= 0.004) return;
+    const wall = bufferLength / speed;
+    this.stopScratch(0.004);
+    const source = this.context.createBufferSource();
+    source.buffer = this.song;
+    source.playbackRate.value = speed;
+    const fade = this.context.createGain();
+    // 片段很短，淡入淡出按比例缩：2ms 淡入 + 最多 8ms 淡出
+    const fadeIn = Math.min(0.002, wall * 0.2);
+    const fadeOut = Math.min(0.008, wall * 0.3);
+    fade.gain.setValueAtTime(0, now);
+    fade.gain.linearRampToValueAtTime(1, now + fadeIn);
+    fade.gain.setValueAtTime(1, now + Math.max(fadeIn, wall - fadeOut));
+    fade.gain.linearRampToValueAtTime(0, now + wall);
+    source.connect(fade);
+    fade.connect(this.gains.BGM);
+    source.start(now, offset, bufferLength);
+    source.onended = () => {
+      source.disconnect();
+      fade.disconnect();
+    };
+    this.scratchVoice = { source, fade };
+  }
+  /** 松开时间轴 / 开始正常播放时收掉搓碟声；fadeOut 是淡出时间（秒） */
+  stopScratch(fadeOut = 0.01) {
+    const scratch = this.scratchVoice;
+    if (!scratch) return;
+    this.scratchVoice = null;
+    const now = this.context.currentTime;
+    try {
+      scratch.fade.gain.cancelScheduledValues(now);
+      scratch.fade.gain.setValueAtTime(scratch.fade.gain.value, now);
+      scratch.fade.gain.linearRampToValueAtTime(0, now + fadeOut);
+      scratch.source.stop(now + fadeOut);
+    } catch {
+      /* 已经停了 */
+    }
+  }
   voice(buffer, channel, when, offset = 0, length = 0, music = false, name = '') {
     if (!buffer || offset >= buffer.duration) return;
     const source = this.context.createBufferSource();
@@ -210,6 +287,8 @@ export class Transport {
   }
   start() {
     if (this.playing) return;
+    // 正常播放开始，拖时间轴时的搓碟声要收掉
+    this.stopScratch(0.005);
     if (this.offset >= this.duration) this.offset = this.begin;
     this.started = this.context.currentTime;
     this.playing = true;
@@ -289,6 +368,7 @@ export class Transport {
     if (resume && this.offset < this.duration) this.start();
   }
   dispose() {
+    this.stopScratch(0);
     this.pause();
     Object.values(this.gains).forEach((g) => g.disconnect());
   }

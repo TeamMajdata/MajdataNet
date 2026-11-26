@@ -179,6 +179,7 @@
     "Label": "Difficulty"
   },
   "editor/EditorPage": {
+    "BackToSong": "Back to chart page",
     "Cancel": "Cancel",
     "ChartError": "Chart error:",
     "ChartInfo": "Chart info…",
@@ -200,9 +201,11 @@
     "MirrorHorizontal": "Mirror horizontally",
     "MirrorVertical": "Mirror vertically",
     "New": "New",
+    "OnlineReadOnly": "Online chart · read-only",
     "OpenFolder": "Open folder…",
     "OpenFolderButton": "Open folder",
     "Opening": "Opening…",
+    "OpeningOnline": "Loading the online chart…",
     "PlaybackRate": "Speed",
     "RestoreDraft": "A local draft is newer than the file. Restore it?",
     "RotateCcw": "Rotate −45°",
@@ -232,7 +235,8 @@
   "editor/useChartFolder": {
     "MaidataExists": "This folder already has a maidata.txt. Use Open folder to load it instead.",
     "MissingMaidata": "This folder has no maidata.txt",
-    "MissingTrack": "No track.ogg / track.mp3 in this folder. Please pick another folder."
+    "MissingTrack": "No track.ogg / track.mp3 in this folder. Please pick another folder.",
+    "OpenFailed": "Could not open the folder: {{message}}"
   },
   "eventTag/EventTagPage": {
     "OriginalSongs": "Original Songs",
@@ -499,15 +503,6 @@
     "OperationFailed": "Operation failed",
     "UnfavoriteSuccess": "Removed from favorites"
   },
-  "song/ChartFile": {
-    "Copied": "Copied to clipboard",
-    "Copy": "Copy",
-    "CopyFailed": "Copy failed",
-    "EmptyLevel": "This difficulty has no chart",
-    "LoadFailed": "Failed to load the chart file",
-    "Retry": "Retry",
-    "Title": "Chart file"
-  },
   "song/ChartRadar": {
     "AnalysisFailed": "This difficulty could not be analyzed",
     "AxisJack": "Jack",
@@ -658,6 +653,7 @@
     "Duration": "Length",
     "ManageTags": "Manage tags",
     "NoTags": "No tags",
+    "OpenInEditor": "Open in Edit",
     "Overview": "Overview",
     "Preview": "Chart preview",
     "SearchForArtist": "Search for artist",
