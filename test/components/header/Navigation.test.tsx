@@ -29,7 +29,7 @@ function createMediaQueryList(query: string): MediaQueryList {
 }
 
 describe('navigation item matching', () => {
-  // 只有外部链接的“工具”组不会被当前路由点亮，这里用一个站内的组来测
+  // 站内的组（“工具”现在就属于这种：谱面编辑在站内、谱面游玩和文档是外链）
   const rankings: NavigationGroup = {
     kind: 'group',
     id: 'rankings',
@@ -37,7 +37,15 @@ describe('navigation item matching', () => {
     children: [{ kind: 'link', id: 'user-ranking', labelKey: 'shared/Navigation.UserRankingTitle', to: '/ranking/user' }],
   };
   const originalSongs = NAVIGATION_ITEMS.find((item) => item.id === 'original-songs') as NavigationLink;
-  const documentation = NAVIGATION_ITEMS.find((item) => item.id === 'documentation') as NavigationLink;
+  const tools = NAVIGATION_ITEMS.find((item) => item.id === 'tools') as NavigationGroup;
+  const documentation = tools.children.find((child) => child.id === 'documentation') as NavigationLink;
+
+  it('keeps five top-level entries: the documentation link lives in the tools menu', () => {
+    // en/ja 在 1280px 的顶栏里放不下六项（见 docs/changelog/2026-11-26-header-locale-overflow.md）
+    expect(NAVIGATION_ITEMS).toHaveLength(5);
+    expect(NAVIGATION_ITEMS.map((item) => item.id)).not.toContain('documentation');
+    expect(documentation.to).toBe('https://docs.majdata.net');
+  });
 
   it('marks a group active when one of its children matches', () => {
     expect(isNavigationItemActive(rankings, '/ranking/user', '')).toBe(true);

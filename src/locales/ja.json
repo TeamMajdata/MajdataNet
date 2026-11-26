@@ -415,13 +415,13 @@
   "shared/Navigation": {
     "ChartEditor": "譜面エディター",
     "ChartPlayer": "譜面プレイヤー",
-    "CollectionHiroba": "コレクション広場",
+    "CollectionHiroba": "コレクション",
     "Contest": "イベント",
     "Documentation": "ドキュメント",
     "NavigationMenu": "メインナビゲーション",
     "OriginalSongs": "オリジナル楽曲",
     "Tools": "ツール",
-    "UserRankingTitle": "ヘビープレイヤーランキング"
+    "UserRankingTitle": "ヘビープレイヤー"
   },
   "shared/PageLayout": {
     "FooterCommunity": "譜面作成者の皆様に感謝",
