@@ -108,7 +108,21 @@ public/               # 公共资源
 ├── icons/           # 图标
 ├── majview/         # 网页预览播放器的皮肤和音效
 └── MiniGame/        # 小游戏资源
+
+docs/
+├── design/          # View / Edit 的设计、交互与控件绑定
+├── analysis/        # 早期分析、交互规格、布局截图
+└── changelog/       # 按日期记录的修复背景与验证
 ```
+
+## 设计文档
+
+- [设计文档索引](docs/design/README.md)：View / Edit 的边界、共同约定和阅读顺序
+- [谱面预览（View）](docs/design/view.md)：架构、播放状态机、控件/手势/媒体键绑定、设置、异常与降级
+- [谱面编辑器（Edit）](docs/design/edit.md)：maidata 数据模型、脏状态与自动保存、快捷键/指针绑定、与预览的契约
+
+早期的交互规格与决策记录在 [docs/analysis/editor-interaction-spec.md](docs/analysis/editor-interaction-spec.md)，
+按日期记录的修复背景在 [docs/changelog](docs/changelog/)。
 
 ## 谱面解析
 
@@ -121,7 +135,7 @@ public/               # 公共资源
 - `/` - 首页
 - `/login` - 登录页
 - `/register` - 注册页
-- `/edit` - 谱面编辑页
+- `/editor` - 谱面编辑页
 - `/song` - 谱面详情页
 - `/events` - 活动列表页
 - `/eventTag` - 活动标签页

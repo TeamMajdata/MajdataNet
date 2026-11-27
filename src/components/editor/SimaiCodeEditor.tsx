@@ -10,6 +10,7 @@ import 'monaco-editor/editor/contrib/find/browser/findController.js';
 // 否则那些按钮会显示成空白方块（glyph 规则是 Monaco 运行时注入的，不受影响）
 import 'monaco-codicon/codicon.css';
 import { monaco, setupSimai, type SimaiEditor } from '@/components/song/monacoSimai';
+import { editorLog } from '@/utils/editorLog';
 
 type Props = {
   /** 七个难度在挂载时的文本；之后由编辑器自己持有 */
@@ -25,10 +26,17 @@ type Props = {
   onCtrlClickLine?: (line: number, column: number) => void;
   /** 只读（在线谱面预览）：不能改文本，但仍可滚动、跳转、查找 */
   readOnly?: boolean;
+  /** 右键：页面要弹自己的菜单（屏幕坐标） */
+  onContextMenuRequest?: (x: number, y: number) => void;
+  /** 按 `=`：页面在光标位置弹同一个菜单 */
+  onMenuShortcut?: () => void;
+  /** Ctrl + 方向键：左右按逗号格子跳，上下按行跳 */
+  onCellJump?: (direction: 'prev' | 'next' | 'up' | 'down') => void;
 };
 
 export default function SimaiCodeEditor({
   initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange, onCtrlClickLine, readOnly = false,
+  onContextMenuRequest, onMenuShortcut, onCellJump,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -44,6 +52,9 @@ export default function SimaiCodeEditor({
   const onCursorLineChangeRef = useRef(onCursorLineChange);
   const onCtrlClickLineRef = useRef(onCtrlClickLine);
   const readOnlyRef = useRef(readOnly);
+  const onContextMenuRequestRef = useRef(onContextMenuRequest);
+  const onMenuShortcutRef = useRef(onMenuShortcut);
+  const onCellJumpRef = useRef(onCellJump);
 
   useEffect(() => { activeRef.current = active; }, [active]);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
@@ -51,6 +62,9 @@ export default function SimaiCodeEditor({
   useEffect(() => { onSelectionChangeRef.current = onSelectionChange; }, [onSelectionChange]);
   useEffect(() => { onCursorLineChangeRef.current = onCursorLineChange; }, [onCursorLineChange]);
   useEffect(() => { onCtrlClickLineRef.current = onCtrlClickLine; }, [onCtrlClickLine]);
+  useEffect(() => { onContextMenuRequestRef.current = onContextMenuRequest; }, [onContextMenuRequest]);
+  useEffect(() => { onMenuShortcutRef.current = onMenuShortcut; }, [onMenuShortcut]);
+  useEffect(() => { onCellJumpRef.current = onCellJump; }, [onCellJump]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -82,16 +96,33 @@ export default function SimaiCodeEditor({
       // Ctrl+点击留给我们自己做「跳到那一刻」，不要变成多光标
       multiCursorModifier: 'alt',
       readOnly: readOnlyRef.current,
+      // 右键菜单由页面自己做（撤销/重做 + 镜像）
+      contextmenu: false,
     });
     editorRef.current = editor;
+    // `=` 在 simai 里没有含义：按下就弹页面自己的菜单，不插入字符
+    editor.addCommand(monaco.KeyCode.Equal, () => onMenuShortcutRef.current?.());
+    // Ctrl + 方向键要盖掉 Monaco 自带的「Ctrl+上下 = 滚动」：在编辑器里注册命令，
+    // 焦点在编辑器时也能按格跳（页面级的 keydown 只兜住焦点在编辑器外面的情况）
+    const ctrl = monaco.KeyMod.CtrlCmd;
+    editor.addCommand(ctrl | monaco.KeyCode.RightArrow, () => onCellJumpRef.current?.('next'));
+    editor.addCommand(ctrl | monaco.KeyCode.DownArrow, () => onCellJumpRef.current?.('down'));
+    editor.addCommand(ctrl | monaco.KeyCode.LeftArrow, () => onCellJumpRef.current?.('prev'));
+    editor.addCommand(ctrl | monaco.KeyCode.UpArrow, () => onCellJumpRef.current?.('up'));
+    editorLog('editor', 'Monaco 编辑器已创建', { instance: Math.random().toString(36).slice(2, 7) });
 
     const subscription = editor.onDidChangeModelContent(() => {
       onChangeRef.current(activeRef.current, editor.getValue());
     });
-    const selectionSubscription = editor.onDidChangeCursorSelection(() => {
+    const selectionSubscription = editor.onDidChangeCursorSelection((event) => {
       const selection = editor.getSelection();
       onSelectionChangeRef.current?.(Boolean(selection && !selection.isEmpty()));
       const position = editor.getPosition();
+      editorLog('editor', 'Monaco 选区变化', {
+        line: position?.lineNumber ?? null,
+        column: position?.column ?? null,
+        source: event.source,
+      });
       if (position) onCursorLineChangeRef.current?.(position.lineNumber, position.column);
     });
     onReadyRef.current?.(editor);
@@ -130,6 +161,10 @@ export default function SimaiCodeEditor({
     <div
       ref={hostRef}
       className="editor-code"
+      onContextMenu={(event) => {
+        event.preventDefault();
+        onContextMenuRequestRef.current?.(event.clientX, event.clientY);
+      }}
       // Ctrl/Cmd + 点击：等 Monaco 把光标挪到点击处之后再读行号
       onMouseDownCapture={(event) => {
         if (!(event.ctrlKey || event.metaKey)) return;

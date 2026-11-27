@@ -25,6 +25,7 @@ import { DOUBLE_TAP_MS, DOUBLE_TAP_SLOP_PX, ARROW_SEEK_SEC, ARROW_STEP_SEC, BRIG
 import { createPerf, perfForced } from '@/majview/perf.js';
 import { loadChartText } from '@/majview/chartCache';
 import { clamp } from '@/majview/geometry.js';
+import { editorError, editorLog } from '@/utils/editorLog';
 import type { ChartMark } from './chartMarks';
 import { loadSettings, saveSettings, type ViewSettings } from '@/majview/settings';
 import SortMenu from '@/components/ui/SortMenu';
@@ -531,6 +532,14 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
         transport.setFirstOffset(firstOffsetRef.current);
         transport.move(previewTimeRef.current);
         transportRef.current = transport;
+        const missingSamples = Object.entries(transport.samples ?? {}).filter(([, buffer]) => !buffer).map(([name]) => name);
+        editorLog('audio', '音轨就绪', {
+          samples: Object.keys(transport.samples ?? {}).length,
+          missingSamples,
+          events: transport.events.length,
+          duration: transport.duration,
+          begin: transport.begin,
+        });
         setDuration(transport.duration);
         // 波形只要音乐的包络，和播放状态无关：解码完就在主线程空闲前算好（约 10–20ms）
         // 波形包络和频谱颜色都是给时间轴用的；不显示分析就不必算
@@ -647,6 +656,7 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
       setTextError(null);
     } catch (err) {
       // 画面保留上一版，但要让用户知道现在这份文本编译不过
+      editorError('majview', '谱面编译失败，保留上一版', err, { length: chartText.length, level });
       setTextError((err as Error).message);
       return;
     }
@@ -656,6 +666,13 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
     if (transport) {
       // 音效时间表也换掉：改了 &first / BPM 之后，打击音要跟着音符走，不能还用旧时间表
       transport.setChart(compiled);
+      editorLog('audio', '音效表已更新', {
+        notes: compiled.notes.length,
+        events: transport.events.length,
+        begin: transport.begin,
+        duration: transport.duration,
+        playing: transport.playing,
+      });
       // 谱面末尾决定了总长（音频更短时由谱面兜底）
       setDuration(transport.duration);
       // 重新排音时 Transport 会先 pause 再 start：背景 PV 和画面要立刻跟上，
@@ -1548,12 +1565,19 @@ export default function MajView({ chartUrl, chartText, trackUrl, videoUrl, title
               preload={preloadVideo ? 'auto' : 'none'}
               className={videoVisible ? 'visible' : undefined}
               onLoadedData={() => {
+                editorLog('majview', 'PV 就绪', { duration: videoRef.current?.duration ?? null, attempt: videoAttempt });
                 setVideoVisible(true);
                 // 这次加载成功了：重置重试计数，以后再出错还能再救一次
                 setVideoAttempt(0);
                 syncVideo(true);
               }}
               onError={() => {
+                const video = videoRef.current;
+                editorError('majview', 'PV 播放出错', video?.error ? { code: video.error.code, message: video.error.message } : null, {
+                  attempt: videoAttempt,
+                  currentTime: video?.currentTime ?? null,
+                  duration: video?.duration ?? null,
+                });
                 // 先重挂一次；还是不行才藏起来（坏文件 / 不支持的编码）
                 if (videoAttempt === 0) setVideoAttempt(1);
                 else setVideoVisible(false);

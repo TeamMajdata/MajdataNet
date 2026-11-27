@@ -4,7 +4,7 @@
  * 左侧是 MajView 预览（直接吃内存里的谱面文本，边改边看），右侧是难度页签 + 谱面元信息 + Monaco。
  * 谱面文本只有一个真源 `maidata`：编辑器改的是当前难度的 `&inote_N`，保存时整份写回。
  *
- * 设计依据见 docs/analysis/editor-interaction-spec.md。
+ * 设计依据见 docs/design/edit.md（早期规格见 docs/analysis/editor-interaction-spec.md）。
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -21,7 +21,9 @@ import SimaiCodeEditor from '@/components/editor/SimaiCodeEditor';
 import BpmTapWindow from '@/components/editor/BpmTapWindow';
 import ChartInfoWindow from '@/components/editor/ChartInfoWindow';
 import EditorWindow from '@/components/editor/EditorWindow';
-import { useChartFolder } from '@/hooks/useChartFolder';
+import EditorContextMenu from '@/components/editor/EditorContextMenu';
+import { useChartFolder, type PickedDir } from '@/hooks/useChartFolder';
+import { editorLog, editorWarn } from '@/utils/editorLog';
 import type { SimaiEditor } from '@/components/song/monacoSimai';
 import { clearDraft, readDraft, shouldOfferRestore, writeDraft } from '@/utils/autosave';
 import { buildTimeline, positionAt, timeAtPosition } from '@/utils/simaiTimeline';
@@ -53,7 +55,10 @@ const SHORTCUTS = [
   { keys: 'Ctrl + Space', labelKey: 'editor/EditorPage.ShortcutToggle' },
   { keys: 'Shift + Space', labelKey: 'editor/EditorPage.ShortcutTypeSpace' },
   { keys: 'Ctrl + ← / →', labelKey: 'editor/EditorPage.ShortcutNote' },
+  { keys: 'Ctrl + ↑ / ↓', labelKey: 'editor/EditorPage.ShortcutLine' },
   { keys: 'Ctrl + Click', labelKey: 'editor/EditorPage.ShortcutClick' },
+  { keys: 'Shift + ← / →', labelKey: 'editor/EditorPage.ShortcutSelect' },
+  { keys: '=', labelKey: 'editor/EditorPage.ShortcutContextMenu' },
   { keys: 'Ctrl + S', labelKey: 'editor/EditorPage.ShortcutSave' },
   { keys: 'Ctrl + O', labelKey: 'editor/EditorPage.ShortcutOpen' },
   { keys: 'Ctrl（按住）', labelKey: 'editor/EditorPage.ShortcutHoldCtrl' },
@@ -78,7 +83,7 @@ function formatClock(seconds: number) {
 
 export default function EditorPage() {
   const { t } = useTranslation();
-  const { folder, error, busy, open, createNew, openOnline, download } = useChartFolder();
+  const { folder, error, busy, pickerSlow, cancelPicker, chooseFolder, open, createNew, openOnline, download } = useChartFolder();
   /** `?id=` 是站内谱面 Id：从谱面页「在 Edit 中打开」过来，进入只读预览 */
   const [params] = useSearchParams();
   const onlineId = params.get('id');
@@ -93,6 +98,8 @@ export default function EditorPage() {
   const firstValue = getFirst(maidata);
   const [active, setActive] = useState(4);
   const [openMenu, setOpenMenu] = useState<MenuId>(null);
+  /** 谱面编辑框的右键菜单（撤销/重做 + 镜像），`=` 也在光标处打开它 */
+  const [textMenu, setTextMenu] = useState<{ x: number; y: number } | null>(null);
   const [bpmOpen, setBpmOpen] = useState(false);
   const [time, setTime] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -135,9 +142,17 @@ export default function EditorPage() {
       ? requestedLevel
       : null;
     setActive(wanted ?? (first === -1 ? 4 : first));
+    editorLog('editor', '谱面已载入', {
+      name: folder.name,
+      maidataLength: folder.maidata.length,
+      filled: filled.filter(Boolean).length,
+      active: wanted ?? (first === -1 ? 4 : first),
+      requestedLevel,
+      readOnly,
+    });
     lastSecondRef.current = -1;
     setTime(0);
-  }, [folder, requestedLevel]);
+  }, [folder, requestedLevel, readOnly]);
 
   /** 带 `?id=` 进来：拉线上谱面文本，只读预览 */
   useEffect(() => {
@@ -159,7 +174,11 @@ export default function EditorPage() {
     if (!folder || readOnly) return;
     let cancelled = false;
     void readDraft(folder.name).then((draft) => {
-      if (cancelled || !shouldOfferRestore(draft, folder)) return;
+      if (cancelled || !shouldOfferRestore(draft, folder)) {
+        editorLog('editor', '草稿：不使用', { hasDraft: Boolean(draft), savedAt: draft?.savedAt ?? null, fileModifiedAt: folder.modifiedAt });
+        return;
+      }
+      editorLog('editor', '草稿：询问是否恢复', { savedAt: draft?.savedAt ?? null });
       if (window.confirm(t('editor/EditorPage.RestoreDraft'))) {
         setMaidata(draft!.maidata);
         setActive(draft!.active);
@@ -283,7 +302,12 @@ export default function EditorPage() {
   );
 
   // 光标移动只记录位置，不自动 seek
+  useEffect(() => {
+    editorLog('editor', '光标时间', { caretTime, line: caretPos.line, column: caretPos.column });
+  }, [caretTime, caretPos]);
+
   const handleCursorLine = useCallback((line: number, column: number) => {
+    editorLog('editor', '光标移动', { line, column });
     setCaretPos({ line, column });
   }, []);
 
@@ -293,6 +317,39 @@ export default function EditorPage() {
     if (seconds === null) return;
     setSeekTo({ seconds, key: Date.now() });
   }, [timeline]);
+
+  /**
+   * Ctrl + 方向键：
+   * - 左右：相邻的逗号格子（按格跳）
+   * - 上下：上一行 / 下一行（保持列，超出就贴行尾），再跳到那一行对应的时间
+   */
+  const jumpCell = useCallback((direction: 'prev' | 'next' | 'up' | 'down') => {
+    const editor = editorRef.current;
+    const model = editor?.getModel();
+    if (!editor || !model) return;
+    const position = editor.getPosition();
+    const text = model.getValue();
+    let target: number;
+    if (direction === 'up' || direction === 'down') {
+      const current = position?.lineNumber ?? 1;
+      const nextLine = Math.min(Math.max(current + (direction === 'down' ? 1 : -1), 1), model.getLineCount());
+      const column = Math.min(position?.column ?? 1, model.getLineMaxColumn(nextLine));
+      target = model.getOffsetAt({ lineNumber: nextLine, column });
+    } else if (direction === 'next') {
+      const offset = position ? model.getOffsetAt(position) : 0;
+      const next = text.indexOf(',', offset);
+      target = next === -1 ? text.length : next + 1;
+    } else {
+      const offset = position ? model.getOffsetAt(position) : 0;
+      // 光标刚跳完时正停在逗号后面，要从更前面找，否则原地不动
+      const previous = offset >= 2 ? text.lastIndexOf(',', offset - 2) : -1;
+      target = previous === -1 ? 0 : previous + 1;
+    }
+    const nextPosition = model.getPositionAt(target);
+    editor.setPosition(nextPosition);
+    editor.revealPositionInCenterIfOutsideViewport(nextPosition);
+    handleCtrlClickLine(nextPosition.lineNumber, nextPosition.column);
+  }, [handleCtrlClickLine]);
 
   /** 拖动时间轴结束后把焦点还给文本编辑器 */
   const focusEditor = useCallback(() => {
@@ -324,6 +381,36 @@ export default function EditorPage() {
     editor.focus();
   }, []);
 
+  /** 弹菜单前重新读一次选区：`hasSelection` 是 Monaco 的事件推上来的，偶尔会比真实选区慢一拍 */
+  const openTextMenu = useCallback((x: number, y: number) => {
+    const editor = editorRef.current;
+    const selection = editor?.getSelection();
+    setHasSelection(Boolean(selection && !selection.isEmpty()));
+    setTextMenu({ x, y });
+  }, []);
+
+  const closeTextMenu = useCallback(() => {
+    // 菜单开着时按 Esc / 回车，焦点在菜单里：收起后把焦点还给编辑器
+    const active = document.activeElement as HTMLElement | null;
+    const fromMenu = Boolean(active?.closest('.editor-context-menu'));
+    setTextMenu(null);
+    if (fromMenu) requestAnimationFrame(() => editorRef.current?.focus());
+  }, []);
+
+  /** `=`：在文本光标的位置打开同一个菜单（坐标换算成屏幕坐标） */
+  const openTextMenuAtCaret = useCallback(() => {
+    const editor = editorRef.current;
+    const dom = editor?.getDomNode();
+    if (!editor || !dom) return;
+    const position = editor.getPosition();
+    const caret = position ? editor.getScrolledVisiblePosition(position) : null;
+    const rect = dom.getBoundingClientRect();
+    openTextMenu(rect.left + (caret?.left ?? 0), rect.top + (caret?.top ?? 0) + (caret?.height ?? 18));
+  }, [openTextMenu]);
+
+  const runUndo = useCallback(() => { editorRef.current?.trigger('context-menu', 'undo', null); }, []);
+  const runRedo = useCallback(() => { editorRef.current?.trigger('context-menu', 'redo', null); }, []);
+
   /**
    * 还有没保存的改动时，关标签页 / 刷新前先拦一下。
    * 浏览器只允许弹出它自己的通用文案，不能自定义。
@@ -340,11 +427,17 @@ export default function EditorPage() {
   }, [anyDirty]);
 
   const save = useCallback(async () => {
-    if (!folder || readOnly) return;
+    if (!folder || readOnly) {
+      editorWarn('editor', '保存被忽略', { hasFolder: Boolean(folder), readOnly });
+      return;
+    }
+    const started = performance.now();
+    editorLog('editor', '保存：开始', { name: folder.name, length: maidata.length, writable: Boolean(folder.save) });
     setSaving(true);
     try {
       if (folder.save) await folder.save(maidata);
       else download(maidata);
+      editorLog('editor', '保存：完成', { ms: Math.round(performance.now() - started) });
       setOrigin(maidata);
       // 已经落到文件了，草稿没有存在意义
       void clearDraft(folder.name);
@@ -393,38 +486,25 @@ export default function EditorPage() {
         return;
       }
 
-      if ((event.ctrlKey || event.metaKey) && !event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-        const editor = editorRef.current;
-        const model = editor?.getModel();
-        if (!editor || !model) return;
+      // Ctrl + 方向键：按逗号格子移动光标（←/↑ 上一格，→/↓ 下一格）并跳到那一刻。
+      // 焦点在编辑器里时由 Monaco 的命令（onCellJump）处理，那边会 preventDefault，
+      // 这里只兜住焦点在编辑器外面的情况，避免同一个按键跳两次。
+      const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+      const horizontal = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && (vertical || horizontal) && !event.defaultPrevented) {
         event.preventDefault();
-        const position = editor.getPosition();
-        const offset = position ? model.getOffsetAt(position) : 0;
-        const text = model.getValue();
-        let target: number;
-        if (event.key === 'ArrowRight') {
-          const next = text.indexOf(',', offset);
-          target = next === -1 ? text.length : next + 1;
-        } else {
-          // 光标刚跳完时正停在逗号后面，要从更前面找，否则原地不动
-          const previous = offset >= 2 ? text.lastIndexOf(',', offset - 2) : -1;
-          target = previous === -1 ? 0 : previous + 1;
-        }
-        const nextPosition = model.getPositionAt(target);
-        editor.setPosition(nextPosition);
-        editor.revealPositionInCenterIfOutsideViewport(nextPosition);
-        handleCtrlClickLine(nextPosition.lineNumber, nextPosition.column);
+        jumpCell(event.key === 'ArrowUp' ? 'up' : event.key === 'ArrowDown' ? 'down' : event.key === 'ArrowRight' ? 'next' : 'prev');
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleCtrlClickLine]);
+  }, [jumpCell]);
 
   /** 打开 / 新建前先确认未保存的改动 */
   /** 有未保存改动时先弹「保存 / 不保存 / 取消」，选完再执行动作 */
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [pendingAction, setPendingAction] = useState<((dir?: PickedDir) => void) | null>(null);
 
-  const requestAction = useCallback((action: () => void) => {
+  const requestAction = useCallback((action: (dir?: PickedDir) => void) => {
     if (!anyDirty) {
       action();
       return;
@@ -432,9 +512,9 @@ export default function EditorPage() {
     setPendingAction(() => action);
   }, [anyDirty]);
 
-  const handleOpen = useCallback(() => requestAction(() => { void open(); }), [requestAction, open]);
+  const handleOpen = useCallback(() => requestAction((dir) => { void open(dir); }), [requestAction, open]);
 
-  const handleCreateNew = useCallback(() => requestAction(() => { void createNew(); }), [requestAction, createNew]);
+  const handleCreateNew = useCallback(() => requestAction((dir) => { void createNew(dir); }), [requestAction, createNew]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -592,6 +672,14 @@ export default function EditorPage() {
                   <LuFolderOpen aria-hidden="true" />
                   {busy ? t('editor/EditorPage.Opening') : t('editor/EditorPage.OpenFolderButton')}
                 </button>
+                {busy && pickerSlow && (
+                  <p className="editor-hint" role="status">
+                    {t('editor/EditorPage.PickerSlow')}
+                    <button type="button" className="editor-hint-action" onClick={cancelPicker}>
+                      {t('editor/EditorPage.Cancel')}
+                    </button>
+                  </p>
+                )}
                 {error && <p className="editor-error" role="alert">{error}</p>}
               </>
             )}
@@ -636,6 +724,12 @@ export default function EditorPage() {
               )}
               {/* 已经打开着谱面时再打开别的会失败在空状态外面，这里补一条浮在判定盘上的提示 */}
               {error && <p className="editor-error editor-error-overlay" role="alert">{error}</p>}
+              {busy && pickerSlow && (
+                <div className="editor-picker-hint" role="status">
+                  <span>{t('editor/EditorPage.PickerSlow')}</span>
+                  <button type="button" onClick={cancelPicker}>{t('editor/EditorPage.Cancel')}</button>
+                </div>
+              )}
             </section>
 
             <section className="editor-side">
@@ -764,6 +858,9 @@ export default function EditorPage() {
                   onSelectionChange={setHasSelection}
                   onCursorLineChange={handleCursorLine}
                   onCtrlClickLine={handleCtrlClickLine}
+                  onContextMenuRequest={openTextMenu}
+                  onMenuShortcut={openTextMenuAtCaret}
+                  onCellJump={jumpCell}
                 />
                 {/* 文本编译不过时的提示：贴在编辑器底部，不挡预览 */}
                 {chartError && (
@@ -788,7 +885,7 @@ export default function EditorPage() {
           >
             <div className="editor-shortcuts">
               {SHORTCUTS.map(({ keys, labelKey }) => (
-                <div key={labelKey} className="editor-shortcut-row">
+                <div key={keys} className="editor-shortcut-row">
                   <kbd>{keys}</kbd>
                   <span>{t(labelKey)}</span>
                 </div>
@@ -810,6 +907,18 @@ export default function EditorPage() {
           <ChartInfoWindow maidata={maidata} onApply={setMaidata} onClose={() => setChartInfoOpen(false)} />
         )}
 
+        {textMenu && (
+          <EditorContextMenu
+            x={textMenu.x}
+            y={textMenu.y}
+            hasSelection={hasSelection}
+            onUndo={runUndo}
+            onRedo={runRedo}
+            onTransform={applyTransform}
+            onClose={closeTextMenu}
+          />
+        )}
+
         {pendingAction && (
           <div
             className="editor-confirm"
@@ -827,8 +936,12 @@ export default function EditorPage() {
                   onClick={async () => {
                     const action = pendingAction;
                     setPendingAction(null);
+                    // 保存可能耗时（写文件、弹权限），用户手势会过期、Chrome 就不再弹目录选择器；
+                    // 所以先把目录选出来（这一步在手势里），保存完再直接用它
+                    const dir = await chooseFolder();
+                    if (dir === null) return; // 用户取消
                     await save();
-                    action();
+                    action(dir);
                   }}
                 >
                   {t('editor/EditorPage.Save')}
