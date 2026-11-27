@@ -1,6 +1,7 @@
 # 谱面编辑器 · 交互规格 v1
 
 > 状态：**已实现**（实现状态与偏离见文末 §7）
+> 现行实现说明与控件绑定总表见 [../design/edit.md](../design/edit.md)；本文保留为交互规格、决策依据和早期差异记录。
 > 上游参照：[MajdataEdit-Neo](https://github.com/LingFeng-bbben/MajdataEdit-Neo)（`Views/` + `ViewModels/MainWindowViewModel.cs`）
 > 布局基准：[editor-layout-mockup.html](editor-layout-mockup.html)
 
