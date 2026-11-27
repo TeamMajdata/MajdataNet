@@ -1,5 +1,17 @@
 [
   {
+    "id": "mrfc",
+    "type": "space",
+    "asset": "MRFC",
+    "src": "/events/mrfc.png",
+    "alt": "REMASTER 同人谱面大赛",
+    "title": "REMASTER 同人谱面大赛",
+    "category": 3,
+    "createDate": "2026-11-30T00:00:00+08:00",
+    "endDate": "2027-01-27T23:59:59.999+08:00",
+    "description": ""
+  },
+  {
     "id": "mpl2nd",
     "type": "outerLink",
     "asset": "https://mpl.asia/charts.html",
