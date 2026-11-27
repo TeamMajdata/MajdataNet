@@ -55,7 +55,7 @@ const SHORTCUTS = [
   { keys: 'Ctrl + Space', labelKey: 'editor/EditorPage.ShortcutToggle' },
   { keys: 'Shift + Space', labelKey: 'editor/EditorPage.ShortcutTypeSpace' },
   { keys: 'Ctrl + ← / →', labelKey: 'editor/EditorPage.ShortcutNote' },
-  { keys: 'Ctrl + ↑ / ↓', labelKey: 'editor/EditorPage.ShortcutNote' },
+  { keys: 'Ctrl + ↑ / ↓', labelKey: 'editor/EditorPage.ShortcutLine' },
   { keys: 'Ctrl + Click', labelKey: 'editor/EditorPage.ShortcutClick' },
   { keys: 'Shift + ← / →', labelKey: 'editor/EditorPage.ShortcutSelect' },
   { keys: '=', labelKey: 'editor/EditorPage.ShortcutContextMenu' },
@@ -318,19 +318,29 @@ export default function EditorPage() {
     setSeekTo({ seconds, key: Date.now() });
   }, [timeline]);
 
-  /** Ctrl + 方向键：把光标挪到相邻的逗号格子，并跳到那一格的时间 */
-  const jumpCell = useCallback((direction: 'prev' | 'next') => {
+  /**
+   * Ctrl + 方向键：
+   * - 左右：相邻的逗号格子（按格跳）
+   * - 上下：上一行 / 下一行（保持列，超出就贴行尾），再跳到那一行对应的时间
+   */
+  const jumpCell = useCallback((direction: 'prev' | 'next' | 'up' | 'down') => {
     const editor = editorRef.current;
     const model = editor?.getModel();
     if (!editor || !model) return;
     const position = editor.getPosition();
-    const offset = position ? model.getOffsetAt(position) : 0;
     const text = model.getValue();
     let target: number;
-    if (direction === 'next') {
+    if (direction === 'up' || direction === 'down') {
+      const current = position?.lineNumber ?? 1;
+      const nextLine = Math.min(Math.max(current + (direction === 'down' ? 1 : -1), 1), model.getLineCount());
+      const column = Math.min(position?.column ?? 1, model.getLineMaxColumn(nextLine));
+      target = model.getOffsetAt({ lineNumber: nextLine, column });
+    } else if (direction === 'next') {
+      const offset = position ? model.getOffsetAt(position) : 0;
       const next = text.indexOf(',', offset);
       target = next === -1 ? text.length : next + 1;
     } else {
+      const offset = position ? model.getOffsetAt(position) : 0;
       // 光标刚跳完时正停在逗号后面，要从更前面找，否则原地不动
       const previous = offset >= 2 ? text.lastIndexOf(',', offset - 2) : -1;
       target = previous === -1 ? 0 : previous + 1;
@@ -479,11 +489,11 @@ export default function EditorPage() {
       // Ctrl + 方向键：按逗号格子移动光标（←/↑ 上一格，→/↓ 下一格）并跳到那一刻。
       // 焦点在编辑器里时由 Monaco 的命令（onCellJump）处理，那边会 preventDefault，
       // 这里只兜住焦点在编辑器外面的情况，避免同一个按键跳两次。
-      const nextCell = event.key === 'ArrowRight' || event.key === 'ArrowDown';
-      const previousCell = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
-      if ((event.ctrlKey || event.metaKey) && !event.altKey && (nextCell || previousCell) && !event.defaultPrevented) {
+      const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+      const horizontal = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && (vertical || horizontal) && !event.defaultPrevented) {
         event.preventDefault();
-        jumpCell(nextCell ? 'next' : 'prev');
+        jumpCell(event.key === 'ArrowUp' ? 'up' : event.key === 'ArrowDown' ? 'down' : event.key === 'ArrowRight' ? 'next' : 'prev');
       }
     };
     window.addEventListener('keydown', onKeyDown);

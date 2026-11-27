@@ -30,8 +30,8 @@ type Props = {
   onContextMenuRequest?: (x: number, y: number) => void;
   /** 按 `=`：页面在光标位置弹同一个菜单 */
   onMenuShortcut?: () => void;
-  /** Ctrl + 方向键：按逗号格子跳（prev / next） */
-  onCellJump?: (direction: 'prev' | 'next') => void;
+  /** Ctrl + 方向键：左右按逗号格子跳，上下按行跳 */
+  onCellJump?: (direction: 'prev' | 'next' | 'up' | 'down') => void;
 };
 
 export default function SimaiCodeEditor({
@@ -106,9 +106,9 @@ export default function SimaiCodeEditor({
     // 焦点在编辑器时也能按格跳（页面级的 keydown 只兜住焦点在编辑器外面的情况）
     const ctrl = monaco.KeyMod.CtrlCmd;
     editor.addCommand(ctrl | monaco.KeyCode.RightArrow, () => onCellJumpRef.current?.('next'));
-    editor.addCommand(ctrl | monaco.KeyCode.DownArrow, () => onCellJumpRef.current?.('next'));
+    editor.addCommand(ctrl | monaco.KeyCode.DownArrow, () => onCellJumpRef.current?.('down'));
     editor.addCommand(ctrl | monaco.KeyCode.LeftArrow, () => onCellJumpRef.current?.('prev'));
-    editor.addCommand(ctrl | monaco.KeyCode.UpArrow, () => onCellJumpRef.current?.('prev'));
+    editor.addCommand(ctrl | monaco.KeyCode.UpArrow, () => onCellJumpRef.current?.('up'));
     editorLog('editor', 'Monaco 编辑器已创建', { instance: Math.random().toString(36).slice(2, 7) });
 
     const subscription = editor.onDidChangeModelContent(() => {

@@ -216,6 +216,7 @@
     "ShortcutContextMenu": "메뉴 열기: 미러 / 실행 취소 / 다시 실행",
     "ShortcutHoldCtrl": "누르는 동안: 판정 영역 표시",
     "ShortcutHoldShift": "누르는 동안: 모든 노트 숨기기",
+    "ShortcutLine": "이전 줄 / 다음 줄로 이동(같은 열 유지, 그 줄의 시점으로 이동)",
     "ShortcutNote": "쉼표 칸 단위로 커서를 옮기고 그 시점으로 이동",
     "ShortcutOpen": "폴더 열기",
     "ShortcutPlay": "재생 / 시작 지점으로",

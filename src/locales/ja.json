@@ -216,6 +216,7 @@
     "ShortcutContextMenu": "メニューを開く：ミラー / 元に戻す / やり直し",
     "ShortcutHoldCtrl": "押している間: 判定エリア表示",
     "ShortcutHoldShift": "押している間: ノーツを隠す",
+    "ShortcutLine": "前の行 / 次の行へ（同じ桁を保ち、その行の時刻へジャンプ）",
     "ShortcutNote": "カンマのマス単位でカーソルを移動し、その時刻へジャンプ",
     "ShortcutOpen": "フォルダを開く",
     "ShortcutPlay": "再生 / 開始位置に戻る",

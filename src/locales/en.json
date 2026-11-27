@@ -219,6 +219,7 @@
     "ShortcutContextMenu": "Open the menu: mirrors / undo / redo",
     "ShortcutHoldCtrl": "Hold: show judge area",
     "ShortcutHoldShift": "Hold: hide all notes",
+    "ShortcutLine": "Jump to the previous / next line (same column, and jump to that line’s time)",
     "ShortcutNote": "Move the cursor by comma cell and jump to that moment",
     "ShortcutOpen": "Open folder",
     "ShortcutPlay": "Play / back to the start point",

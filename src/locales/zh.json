@@ -216,6 +216,7 @@
     "ShortcutContextMenu": "打开菜单：镜像 / 撤销 / 重做",
     "ShortcutHoldCtrl": "按住：显示判定区",
     "ShortcutHoldShift": "按住：隐藏所有 note",
+    "ShortcutLine": "跳到上一行 / 下一行（保持列，并跳到那一行的时间）",
     "ShortcutNote": "按逗号格子移动光标并跳到那一刻",
     "ShortcutOpen": "打开文件夹",
     "ShortcutPlay": "播放 / 回到起点",
