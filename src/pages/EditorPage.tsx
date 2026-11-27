@@ -21,7 +21,8 @@ import SimaiCodeEditor from '@/components/editor/SimaiCodeEditor';
 import BpmTapWindow from '@/components/editor/BpmTapWindow';
 import ChartInfoWindow from '@/components/editor/ChartInfoWindow';
 import EditorWindow from '@/components/editor/EditorWindow';
-import { useChartFolder } from '@/hooks/useChartFolder';
+import { useChartFolder, type PickedDir } from '@/hooks/useChartFolder';
+import { editorLog, editorWarn } from '@/utils/editorLog';
 import type { SimaiEditor } from '@/components/song/monacoSimai';
 import { clearDraft, readDraft, shouldOfferRestore, writeDraft } from '@/utils/autosave';
 import { buildTimeline, positionAt, timeAtPosition } from '@/utils/simaiTimeline';
@@ -78,7 +79,7 @@ function formatClock(seconds: number) {
 
 export default function EditorPage() {
   const { t } = useTranslation();
-  const { folder, error, busy, open, createNew, openOnline, download } = useChartFolder();
+  const { folder, error, busy, pickerSlow, cancelPicker, chooseFolder, open, createNew, openOnline, download } = useChartFolder();
   /** `?id=` 是站内谱面 Id：从谱面页「在 Edit 中打开」过来，进入只读预览 */
   const [params] = useSearchParams();
   const onlineId = params.get('id');
@@ -135,9 +136,17 @@ export default function EditorPage() {
       ? requestedLevel
       : null;
     setActive(wanted ?? (first === -1 ? 4 : first));
+    editorLog('editor', '谱面已载入', {
+      name: folder.name,
+      maidataLength: folder.maidata.length,
+      filled: filled.filter(Boolean).length,
+      active: wanted ?? (first === -1 ? 4 : first),
+      requestedLevel,
+      readOnly,
+    });
     lastSecondRef.current = -1;
     setTime(0);
-  }, [folder, requestedLevel]);
+  }, [folder, requestedLevel, readOnly]);
 
   /** 带 `?id=` 进来：拉线上谱面文本，只读预览 */
   useEffect(() => {
@@ -159,7 +168,11 @@ export default function EditorPage() {
     if (!folder || readOnly) return;
     let cancelled = false;
     void readDraft(folder.name).then((draft) => {
-      if (cancelled || !shouldOfferRestore(draft, folder)) return;
+      if (cancelled || !shouldOfferRestore(draft, folder)) {
+        editorLog('editor', '草稿：不使用', { hasDraft: Boolean(draft), savedAt: draft?.savedAt ?? null, fileModifiedAt: folder.modifiedAt });
+        return;
+      }
+      editorLog('editor', '草稿：询问是否恢复', { savedAt: draft?.savedAt ?? null });
       if (window.confirm(t('editor/EditorPage.RestoreDraft'))) {
         setMaidata(draft!.maidata);
         setActive(draft!.active);
@@ -340,11 +353,17 @@ export default function EditorPage() {
   }, [anyDirty]);
 
   const save = useCallback(async () => {
-    if (!folder || readOnly) return;
+    if (!folder || readOnly) {
+      editorWarn('editor', '保存被忽略', { hasFolder: Boolean(folder), readOnly });
+      return;
+    }
+    const started = performance.now();
+    editorLog('editor', '保存：开始', { name: folder.name, length: maidata.length, writable: Boolean(folder.save) });
     setSaving(true);
     try {
       if (folder.save) await folder.save(maidata);
       else download(maidata);
+      editorLog('editor', '保存：完成', { ms: Math.round(performance.now() - started) });
       setOrigin(maidata);
       // 已经落到文件了，草稿没有存在意义
       void clearDraft(folder.name);
@@ -422,9 +441,9 @@ export default function EditorPage() {
 
   /** 打开 / 新建前先确认未保存的改动 */
   /** 有未保存改动时先弹「保存 / 不保存 / 取消」，选完再执行动作 */
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [pendingAction, setPendingAction] = useState<((dir?: PickedDir) => void) | null>(null);
 
-  const requestAction = useCallback((action: () => void) => {
+  const requestAction = useCallback((action: (dir?: PickedDir) => void) => {
     if (!anyDirty) {
       action();
       return;
@@ -432,9 +451,9 @@ export default function EditorPage() {
     setPendingAction(() => action);
   }, [anyDirty]);
 
-  const handleOpen = useCallback(() => requestAction(() => { void open(); }), [requestAction, open]);
+  const handleOpen = useCallback(() => requestAction((dir) => { void open(dir); }), [requestAction, open]);
 
-  const handleCreateNew = useCallback(() => requestAction(() => { void createNew(); }), [requestAction, createNew]);
+  const handleCreateNew = useCallback(() => requestAction((dir) => { void createNew(dir); }), [requestAction, createNew]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -592,6 +611,14 @@ export default function EditorPage() {
                   <LuFolderOpen aria-hidden="true" />
                   {busy ? t('editor/EditorPage.Opening') : t('editor/EditorPage.OpenFolderButton')}
                 </button>
+                {busy && pickerSlow && (
+                  <p className="editor-hint" role="status">
+                    {t('editor/EditorPage.PickerSlow')}
+                    <button type="button" className="editor-hint-action" onClick={cancelPicker}>
+                      {t('editor/EditorPage.Cancel')}
+                    </button>
+                  </p>
+                )}
                 {error && <p className="editor-error" role="alert">{error}</p>}
               </>
             )}
@@ -636,6 +663,12 @@ export default function EditorPage() {
               )}
               {/* 已经打开着谱面时再打开别的会失败在空状态外面，这里补一条浮在判定盘上的提示 */}
               {error && <p className="editor-error editor-error-overlay" role="alert">{error}</p>}
+              {busy && pickerSlow && (
+                <div className="editor-picker-hint" role="status">
+                  <span>{t('editor/EditorPage.PickerSlow')}</span>
+                  <button type="button" onClick={cancelPicker}>{t('editor/EditorPage.Cancel')}</button>
+                </div>
+              )}
             </section>
 
             <section className="editor-side">
@@ -827,8 +860,12 @@ export default function EditorPage() {
                   onClick={async () => {
                     const action = pendingAction;
                     setPendingAction(null);
+                    // 保存可能耗时（写文件、弹权限），用户手势会过期、Chrome 就不再弹目录选择器；
+                    // 所以先把目录选出来（这一步在手势里），保存完再直接用它
+                    const dir = await chooseFolder();
+                    if (dir === null) return; // 用户取消
                     await save();
-                    action();
+                    action(dir);
                   }}
                 >
                   {t('editor/EditorPage.Save')}

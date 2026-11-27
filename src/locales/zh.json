@@ -203,6 +203,7 @@
     "OpenFolderButton": "打开文件夹",
     "Opening": "打开中…",
     "OpeningOnline": "正在载入在线谱面…",
+    "PickerSlow": "选择框还没出现？它可能被其他窗口挡住了（按 Alt+Tab 找一下），也可以点「取消」重试。",
     "PlaybackRate": "播放速度",
     "RestoreDraft": "发现比文件更新的本地草稿，恢复上次编辑？",
     "RotateCcw": "旋转 −45°",
@@ -233,6 +234,7 @@
     "MaidataExists": "这个文件夹里已经有 maidata.txt 了，请用「打开文件夹」加载它。",
     "MissingMaidata": "这个文件夹里没有 maidata.txt",
     "MissingTrack": "这个文件夹里没有 track.ogg / track.mp3，请重新选择文件夹。",
+    "NeedGesture": "浏览器这次没有允许打开文件夹选择框（需要在点击按钮后立刻打开）。请再点一次「打开文件夹」。",
     "OpenFailed": "打开文件夹失败：{{message}}"
   },
   "eventTag/EventTagPage": {

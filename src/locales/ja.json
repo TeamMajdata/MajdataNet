@@ -203,6 +203,7 @@
     "OpenFolderButton": "フォルダーを開く",
     "Opening": "読み込み中…",
     "OpeningOnline": "オンライン譜面を読み込み中…",
+    "PickerSlow": "ダイアログが見当たりませんか？他のウィンドウの後ろに隠れている可能性があります（Alt+Tab）。「キャンセル」でやり直せます。",
     "PlaybackRate": "再生速度",
     "RestoreDraft": "ファイルより新しい下書きがあります。復元しますか？",
     "RotateCcw": "−45° 回転",
@@ -233,6 +234,7 @@
     "MaidataExists": "このフォルダには既に maidata.txt があります。「フォルダを開く」で読み込んでください。",
     "MissingMaidata": "このフォルダーに maidata.txt がありません",
     "MissingTrack": "このフォルダに track.ogg / track.mp3 がありません。別のフォルダを選んでください。",
+    "NeedGesture": "今回はブラウザがフォルダー選択ダイアログを開きませんでした（クリック直後に開く必要があります）。もう一度「フォルダを開く」を押してください。",
     "OpenFailed": "フォルダを開けませんでした：{{message}}"
   },
   "eventTag/EventTagPage": {

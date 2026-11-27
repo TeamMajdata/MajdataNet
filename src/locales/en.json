@@ -206,6 +206,7 @@
     "OpenFolderButton": "Open folder",
     "Opening": "Opening…",
     "OpeningOnline": "Loading the online chart…",
+    "PickerSlow": "No picker yet? It may be hidden behind another window (try Alt+Tab), or press Cancel and try again.",
     "PlaybackRate": "Speed",
     "RestoreDraft": "A local draft is newer than the file. Restore it?",
     "RotateCcw": "Rotate −45°",
@@ -236,6 +237,7 @@
     "MaidataExists": "This folder already has a maidata.txt. Use Open folder to load it instead.",
     "MissingMaidata": "This folder has no maidata.txt",
     "MissingTrack": "No track.ogg / track.mp3 in this folder. Please pick another folder.",
+    "NeedGesture": "The browser would not open the folder picker this time (it has to be opened directly from the click). Please choose Open folder again.",
     "OpenFailed": "Could not open the folder: {{message}}"
   },
   "eventTag/EventTagPage": {

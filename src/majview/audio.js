@@ -97,7 +97,9 @@ export class Transport {
     this.setSettings(settings);
   }
   static async load(context, songUrl, chart, settings, signal, sampleBase) {
-    const names = new Set(soundEvents(chart).map((e) => e.name));
+    // 所有音效样本都加载，而不是只加载当前谱面用到的：编辑器里空难度 / 新建空白谱面一开始
+    // 没有 note，按需加载会导致之后敲进来的 note 没声音（samples 表里没有对应名字）。
+    const names = new Set(Object.keys(channels));
     const [song, entries] = await Promise.all([
       audioBuffer(context, songUrl, signal),
       Promise.all(

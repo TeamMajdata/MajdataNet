@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { blankMaidata } from '@/utils/maidataEdit';
 import { endpoints } from '@/config/api';
 import { loadChartText } from '@/majview/chartCache';
+import { activationSnapshot, editorError, editorLog, editorWarn } from '@/utils/editorLog';
 
 export type ChartFolder = {
   /** 文件夹名，用来显示 */
@@ -47,7 +48,7 @@ type DirHandle = {
   getFileHandle: (name: string, options?: { create?: boolean }) => Promise<FileHandleLike>;
 };
 
-type PickedDir = { name: string; handle: DirHandle };
+export type PickedDir = { name: string; handle: DirHandle };
 
 function pickFirst(files: PickedFile[], names: string[]) {
   for (const name of names) {
@@ -73,13 +74,23 @@ async function pickDirectory(): Promise<PickedDir | null> {
   const picker = (window as unknown as {
     showDirectoryPicker?: (options?: unknown) => Promise<DirHandle>;
   }).showDirectoryPicker;
-  if (!picker) return null;
+  if (!picker) {
+    editorWarn('picker', 'showDirectoryPicker 不存在，改用 input fallback');
+    return null;
+  }
+  const started = performance.now();
+  editorLog('picker', 'showDirectoryPicker 调用', { options: { mode: 'readwrite' }, ...activationSnapshot() });
   try {
     const handle = await picker({ mode: 'readwrite' });
+    editorLog('picker', 'showDirectoryPicker 返回', { name: handle.name, ms: Math.round(performance.now() - started) });
     return { name: handle.name, handle };
   } catch (err) {
     // 按 Esc 或点右上角关闭：用户自己取消，不算错误
-    if (err instanceof DOMException && err.name === 'AbortError') return null;
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      editorLog('picker', '用户取消', { ms: Math.round(performance.now() - started) });
+      return null;
+    }
+    editorError('picker', 'showDirectoryPicker 抛错', err, { ms: Math.round(performance.now() - started), ...activationSnapshot() });
     throw err;
   }
 }
@@ -114,9 +125,19 @@ function pickViaInput(): Promise<{ name: string; files: File[] } | null> {
 
 export function useChartFolder() {
   const { t } = useTranslation();
+
+  /** 选择器报错：Chrome 在没有用户手势时会抛 SecurityError（对话框根本不出现），单独给一句提示 */
+  const pickerErrorMessage = useCallback((err: unknown) => {
+    if (err instanceof DOMException && err.name === 'SecurityError') return t('editor/useChartFolder.NeedGesture');
+    return t('editor/useChartFolder.OpenFailed', { message: (err as Error).message });
+  }, [t]);
   const [folder, setFolder] = useState<ChartFolder | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** 目录选择器弹出来很久还没结果：提示用户它可能被别的窗口挡住了 */
+  const [pickerSlow, setPickerSlow] = useState(false);
+  /** 用户点了「取消」：放弃这次等待，选择器之后真返回了也不理它 */
+  const abandonRef = useRef(false);
   /** 上一个文件夹创建的 blob URL，换文件夹时统一释放 */
   const urlsRef = useRef<string[]>([]);
 
@@ -145,6 +166,14 @@ export function useChartFolder() {
     urlsRef.current = [trackUrl, coverUrl, videoUrl].filter((url): url is string => Boolean(url));
 
     const handle = maidataHandle;
+    editorLog('editor', '装入文件夹', {
+      name,
+      maidataLength: maidataText.length,
+      track: Boolean(trackUrl),
+      cover: Boolean(coverUrl),
+      video: Boolean(videoUrl),
+      writable: Boolean(handle),
+    });
     setFolder({
       name,
       maidata: maidataText,
@@ -176,13 +205,53 @@ export function useChartFolder() {
         /* 这个文件不存在，跳过 */
       }
     }
+    editorLog('picker', '读取目录', { dir: dir.name, found: files.map((file) => file.name), hasMaidata: Boolean(maidataHandle) });
     return { files, maidataHandle };
   }, []);
 
-  /** 打开文件夹：读不到 maidata.txt 就报错 */
-  const open = useCallback(async () => {
+  /**
+   * 带“卡住提示”的选择器：Chrome 偶尔会把对话框弹到别的窗口后面，promise 就一直不 settle，
+   * 界面会一直停在「打开中…」。这里超过 8 秒就把提示打开，用户可以按 Alt+Tab 找一下。
+   */
+  const pickWithHint = useCallback(async () => {
+    abandonRef.current = false;
+    setPickerSlow(false);
+    const timer = setTimeout(() => {
+      editorWarn('picker', '选择器 8 秒没有结果，可能被其他窗口挡住了', activationSnapshot());
+      setPickerSlow(true);
+    }, 8000);
+    try {
+      const handle = await pickDirectory();
+      return abandonRef.current ? null : handle;
+    } finally {
+      clearTimeout(timer);
+      setPickerSlow(false);
+    }
+  }, []);
+
+  /** 选择器一直不出现时让用户自己脱身：放弃等待、恢复按钮 */
+  const cancelPicker = useCallback(() => {
+    editorLog('picker', '用户放弃等待选择器');
+    abandonRef.current = true;
+    setBusy(false);
+    setPickerSlow(false);
+  }, []);
+
+  /**
+   * 先把目录选出来（必须在用户手势里同步调用）。
+   * 返回 undefined 表示这个浏览器没有目录选择器（走 webkitdirectory 回退），
+   * 返回 null 表示用户取消。
+   */
+  const chooseFolder = useCallback(async (): Promise<PickedDir | null | undefined> => {
+    if (!supportsDirectoryPicker()) return undefined;
+    return pickWithHint();
+  }, [pickWithHint]);
+
+  /** 打开文件夹：读不到 maidata.txt 就报错。dir 已经选好时不再弹选择器 */
+  const open = useCallback(async (preselected?: PickedDir) => {
     setBusy(true);
     setError(null);
+    editorLog('editor', '打开文件夹：开始', { preselected: Boolean(preselected), supportsPicker: supportsDirectoryPicker() });
     try {
       if (!supportsDirectoryPicker()) {
         // 没有目录选择器：退回 <input webkitdirectory>（只读）
@@ -198,7 +267,7 @@ export function useChartFolder() {
         return;
       }
 
-      const dir = await pickDirectory();
+      const dir = preselected ?? await pickWithHint();
       if (!dir) return; // 用户取消
 
       const { files, maidataHandle } = await readDirectory(dir);
@@ -211,19 +280,22 @@ export function useChartFolder() {
     } catch (err) {
       // 浏览器拒绝、句柄失效等：把原因带出来，不要静默失败
       console.error('[editor] open folder failed', err);
-      setError(t('editor/useChartFolder.OpenFailed', { message: (err as Error).message }));
+      setError(pickerErrorMessage(err));
     } finally {
       setBusy(false);
     }
-  }, [apply, readDirectory, t]);
+  }, [apply, pickWithHint, readDirectory, pickerErrorMessage, t]);
 
   /**
-   * 新建：选文件夹 → 立刻检查里面有没有 track，没有就报错让用户重选 →
+   * 新建：选文件夹 → 立刻检查里面有没有 track，没有就报错 →
    * 在该文件夹里建一份空 maidata.txt。
+   * 没有 track 时不再自己重新弹选择器：连续弹选择器会丢掉用户手势（Chrome 直接不出对话框），
+   * 让用户看完提示重新点「新建」即可。dir 已经选好时不再弹选择器。
    */
-  const createNew = useCallback(async () => {
+  const createNew = useCallback(async (preselected?: PickedDir) => {
     setBusy(true);
     setError(null);
+    editorLog('editor', '新建谱面：开始', { preselected: Boolean(preselected), supportsPicker: supportsDirectoryPicker() });
     try {
       if (!supportsDirectoryPicker()) {
         setFolder({
@@ -235,34 +307,27 @@ export function useChartFolder() {
         return;
       }
 
-      let dir = await pickDirectory();
-      // 没有 track 就让用户重新选，直到选到带 track 的文件夹或取消
-      while (dir) {
-        let hasTrack = false;
-        for (const name of TRACK_NAMES) {
-          try {
-            await dir.handle.getFileHandle(name);
-            hasTrack = true;
-            break;
-          } catch {
-            /* 继续找下一个 */
-          }
-        }
-        if (hasTrack) break;
-        window.alert(t('editor/useChartFolder.MissingTrack'));
-        setError(t('editor/useChartFolder.MissingTrack'));
-        dir = await pickDirectory();
-      }
+      const dir = preselected ?? await pickWithHint();
       if (!dir) return;
-      // 选到带 track 的文件夹了，把之前「没有 track」的报错清掉
-      setError(null);
 
+      let hasTrack = false;
+      for (const name of TRACK_NAMES) {
+        try {
+          await dir.handle.getFileHandle(name);
+          hasTrack = true;
+          break;
+        } catch {
+          /* 继续找下一个 */
+        }
+      }
+      if (!hasTrack) {
+        setError(t('editor/useChartFolder.MissingTrack'));
+        return;
+      }
       // 已经有 maidata.txt 就不再新建，提示用户直接打开它
       const existing = await dir.handle.getFileHandle(MAIDATA_NAME).catch(() => null);
       if (existing) {
-        const message = t('editor/useChartFolder.MaidataExists');
-        window.alert(message);
-        setError(message);
+        setError(t('editor/useChartFolder.MaidataExists'));
         return;
       }
 
@@ -275,11 +340,12 @@ export function useChartFolder() {
       const { files } = await readDirectory(dir);
       apply({ name: dir.name, files, maidataHandle, maidataText: blank });
     } catch (err) {
-      setError((err as Error).message);
+      console.error('[editor] create new chart failed', err);
+      setError(pickerErrorMessage(err));
     } finally {
       setBusy(false);
     }
-  }, [apply, readDirectory, t]);
+  }, [apply, pickWithHint, readDirectory, pickerErrorMessage, t]);
 
   /**
    * 打开站内的在线谱面（只读）：只下载谱面文本，音轨 / 视频 / 封面直接用接口地址。
@@ -288,6 +354,7 @@ export function useChartFolder() {
   const openOnline = useCallback(async (id: string) => {
     setBusy(true);
     setError(null);
+    editorLog('editor', '在线谱面：开始', { id });
     try {
       const base = endpoints.maichart.prefix(id);
       const maidata = await loadChartText(`${base}/chart`);
@@ -301,6 +368,7 @@ export function useChartFolder() {
         videoUrl: `${base}/video`,
         save: null,
       });
+      editorLog('editor', '在线谱面：就绪', { id, maidataLength: maidata.length });
     } catch (err) {
       console.error('[editor] open online chart failed', err);
       setError(t('editor/useChartFolder.OpenFailed', { message: (err as Error).message }));
@@ -321,5 +389,5 @@ export function useChartFolder() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }, []);
 
-  return { folder, setFolder, error, busy, open, createNew, openOnline, download };
+  return { folder, setFolder, error, busy, pickerSlow, cancelPicker, chooseFolder, open, createNew, openOnline, download };
 }
