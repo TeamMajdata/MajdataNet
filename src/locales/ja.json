@@ -713,7 +713,7 @@
   },
   "user/ChartUploader": {
     "ChooseFile": "選択",
-    "InvalidFileName": "ファイル名が正しくありません（大文字と小文字を区別）。正しい名前：",
+    "InvalidFileFormat": "ファイル形式が対応していません。{{formats}} ファイルを選択してください",
     "MaidataAlreadyExists": "この譜面はすでにサイト上に存在します",
     "MaidataAlreadyExistsWithTitle": "この譜面はすでにサイト上に存在します：{{title}}",
     "MaidataHashChecking": "この譜面が既に存在するか確認しています...",

@@ -7,7 +7,13 @@ import { endpoints } from '@/config/api';
 import { useUserContext } from '@/hooks';
 import { getDisplayMessage, sleep } from '@/utils';
 import { getFileKey, hashCandidatesFromBytes } from '@/utils/maidataHash';
-import { getExpectedChartUploadFileNames, isValidChartUploadFileName } from '@/utils/chartUploadValidation';
+import {
+  buildChartUploadFormData,
+  CHART_UPLOAD_FILE_RULES,
+  getChartUploadAccept,
+  getChartUploadFormatHint,
+  isChartUploadFileFormatAccepted,
+} from '@/utils/chartUploadValidation';
 import { LuFileAudio, LuFileText, LuFileVideo, LuImage, LuUpload } from 'react-icons/lu';
 import { LoadingSpinner } from '@/components';
 import type { Song } from '@/types';
@@ -36,7 +42,7 @@ export default function ChartUploader() {
   const [hashLookup, setHashLookup] = useState<HashLookupState>({ status: 'idle' });
   const hashLookupSeq = useRef(0);
   const hashLookupAbort = useRef<AbortController | null>(null);
-  /** 每个槽位当前选中的文件（只用于显示；提交时仍从表单里的 input 读取） */
+  /** 每个槽位当前选中的文件；提交时按槽位顺序改写文件名后放进 FormData */
   const [picked, setPicked] = useState<(File | null)[]>([null, null, null, null]);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const setPickedAt = (index: number, file: File | null) => setPicked((prev) => prev.map((value, i) => (i === index ? file : value)));
@@ -151,10 +157,9 @@ export default function ChartUploader() {
       return;
     }
 
-    if (!isValidChartUploadFileName(index, file.name)) {
+    if (!isChartUploadFileFormatAccepted(index, file.name)) {
       toast.error(
-        t("user/ChartUploader.InvalidFileName")
-        + getExpectedChartUploadFileNames(index),
+        t("user/ChartUploader.InvalidFileFormat", { formats: getChartUploadFormatHint(index) }),
       );
       event.currentTarget.value = '';
       if (index === 0) {
@@ -172,23 +177,10 @@ export default function ChartUploader() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget);
-    const filesNecessary = formData.getAll('formfiles');
-
-    const fileChecks = [
-      { file: filesNecessary[0], name: 'maidata.txt' },
-      { file: filesNecessary[1], name: 'bg.png/bg.jpg' },
-      { file: filesNecessary[2], name: 'track' },
-    ];
-
-    const missedFiles: string[] = [];
-
-    for (const { file, name } of fileChecks) {
-      const fileObj = file as File;
-      if (!fileObj || fileObj.name === '' || fileObj.size === 0) {
-        missedFiles.push(name);
-      }
-    }
+    const isMissing = (file: File | null) => !file || file.size === 0;
+    const missedFiles = CHART_UPLOAD_FILE_RULES
+      .filter((rule, index) => rule.required && isMissing(picked[index]))
+      .map((rule) => rule.label);
 
     if (missedFiles.length > 0) {
       for (const file of missedFiles) {
@@ -197,21 +189,19 @@ export default function ChartUploader() {
       return;
     }
 
-    for (let index = 0; index < filesNecessary.length; index += 1) {
-      const file = filesNecessary[index] as File;
-      // The fourth file is optional; an empty file input can appear as an empty File.
-      if (!file || file.name === '' || file.size === 0) {
-        continue;
-      }
+    for (const [index, file] of picked.entries()) {
+      if (!file || isMissing(file)) continue;
 
-      if (!isValidChartUploadFileName(index, file.name)) {
+      if (!isChartUploadFileFormatAccepted(index, file.name)) {
         toast.error(
-          t("user/ChartUploader.InvalidFileName")
-          + getExpectedChartUploadFileNames(index),
+          t("user/ChartUploader.InvalidFileFormat", { formats: getChartUploadFormatHint(index) }),
         );
         return;
       }
     }
+
+    // 用户文件名不参与上传：这里统一改写成接口约定的标准文件名
+    const formData = buildChartUploadFormData(picked);
 
     if (hashLookup.status === 'exists') {
       toast.error(t("user/ChartUploader.MaidataAlreadyExists"), { autoClose: false });
@@ -254,12 +244,13 @@ export default function ChartUploader() {
     }
   }
 
-  const uploadFields = [
-    { label: 'maidata.txt', Icon: LuFileText, accept: '.txt' },
-    { label: 'bg.png / bg.jpg', Icon: LuImage, accept: 'image/png,image/jpeg' },
-    { label: 'track.mp3', Icon: LuFileAudio, accept: 'audio/mpeg,.mp3' },
-    { label: 'bg.mp4 / pv.mp4', Icon: LuFileVideo, accept: 'video/mp4', hint: t("user/ChartUploader.VideoHint") },
-  ];
+  const uploadFieldIcons = [LuFileText, LuImage, LuFileAudio, LuFileVideo];
+  const uploadFields = CHART_UPLOAD_FILE_RULES.map((rule, index) => ({
+    label: rule.label,
+    Icon: uploadFieldIcons[index],
+    accept: getChartUploadAccept(index),
+    hint: index === 3 ? t("user/ChartUploader.VideoHint") : undefined,
+  }));
   const hashLookupStatusText: Record<HashLookupStatus, string> = {
     idle: '',
     checking: t("user/ChartUploader.MaidataHashChecking"),

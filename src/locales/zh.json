@@ -713,7 +713,7 @@
   },
   "user/ChartUploader": {
     "ChooseFile": "选择",
-    "InvalidFileName": "文件名不正确（区分大小写），应为：",
+    "InvalidFileFormat": "文件格式不正确，请选择 {{formats}} 文件",
     "MaidataAlreadyExists": "这个谱面已经存在于网站上",
     "MaidataAlreadyExistsWithTitle": "这个谱面已经存在于网站上：{{title}}",
     "MaidataHashChecking": "正在查询这个谱面是否已存在...",

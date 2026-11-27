@@ -725,7 +725,7 @@
   },
   "user/ChartUploader": {
     "ChooseFile": "Choose",
-    "InvalidFileName": "Invalid file name (case-sensitive). Expected: ",
+    "InvalidFileFormat": "Unsupported file format. Choose a {{formats}} file.",
     "MaidataAlreadyExists": "This chart already exists on the site",
     "MaidataAlreadyExistsWithTitle": "This chart already exists on the site: {{title}}",
     "MaidataHashChecking": "Checking whether this chart already exists…",
