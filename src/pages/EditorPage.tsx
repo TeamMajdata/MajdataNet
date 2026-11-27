@@ -21,6 +21,7 @@ import SimaiCodeEditor from '@/components/editor/SimaiCodeEditor';
 import BpmTapWindow from '@/components/editor/BpmTapWindow';
 import ChartInfoWindow from '@/components/editor/ChartInfoWindow';
 import EditorWindow from '@/components/editor/EditorWindow';
+import EditorContextMenu from '@/components/editor/EditorContextMenu';
 import { useChartFolder, type PickedDir } from '@/hooks/useChartFolder';
 import { editorLog, editorWarn } from '@/utils/editorLog';
 import type { SimaiEditor } from '@/components/song/monacoSimai';
@@ -94,6 +95,8 @@ export default function EditorPage() {
   const firstValue = getFirst(maidata);
   const [active, setActive] = useState(4);
   const [openMenu, setOpenMenu] = useState<MenuId>(null);
+  /** 谱面编辑框的右键菜单（撤销/重做 + 镜像），`=` 也在光标处打开它 */
+  const [textMenu, setTextMenu] = useState<{ x: number; y: number } | null>(null);
   const [bpmOpen, setBpmOpen] = useState(false);
   const [time, setTime] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -341,6 +344,36 @@ export default function EditorPage() {
     }]);
     editor.focus();
   }, []);
+
+  /** 弹菜单前重新读一次选区：`hasSelection` 是 Monaco 的事件推上来的，偶尔会比真实选区慢一拍 */
+  const openTextMenu = useCallback((x: number, y: number) => {
+    const editor = editorRef.current;
+    const selection = editor?.getSelection();
+    setHasSelection(Boolean(selection && !selection.isEmpty()));
+    setTextMenu({ x, y });
+  }, []);
+
+  const closeTextMenu = useCallback(() => {
+    // 菜单开着时按 Esc / 回车，焦点在菜单里：收起后把焦点还给编辑器
+    const active = document.activeElement as HTMLElement | null;
+    const fromMenu = Boolean(active?.closest('.editor-context-menu'));
+    setTextMenu(null);
+    if (fromMenu) requestAnimationFrame(() => editorRef.current?.focus());
+  }, []);
+
+  /** `=`：在文本光标的位置打开同一个菜单（坐标换算成屏幕坐标） */
+  const openTextMenuAtCaret = useCallback(() => {
+    const editor = editorRef.current;
+    const dom = editor?.getDomNode();
+    if (!editor || !dom) return;
+    const position = editor.getPosition();
+    const caret = position ? editor.getScrolledVisiblePosition(position) : null;
+    const rect = dom.getBoundingClientRect();
+    openTextMenu(rect.left + (caret?.left ?? 0), rect.top + (caret?.top ?? 0) + (caret?.height ?? 18));
+  }, [openTextMenu]);
+
+  const runUndo = useCallback(() => { editorRef.current?.trigger('context-menu', 'undo', null); }, []);
+  const runRedo = useCallback(() => { editorRef.current?.trigger('context-menu', 'redo', null); }, []);
 
   /**
    * 还有没保存的改动时，关标签页 / 刷新前先拦一下。
@@ -802,6 +835,8 @@ export default function EditorPage() {
                   onSelectionChange={setHasSelection}
                   onCursorLineChange={handleCursorLine}
                   onCtrlClickLine={handleCtrlClickLine}
+                  onContextMenuRequest={openTextMenu}
+                  onMenuShortcut={openTextMenuAtCaret}
                 />
                 {/* 文本编译不过时的提示：贴在编辑器底部，不挡预览 */}
                 {chartError && (
@@ -846,6 +881,18 @@ export default function EditorPage() {
         )}
         {chartInfoOpen && folder && (
           <ChartInfoWindow maidata={maidata} onApply={setMaidata} onClose={() => setChartInfoOpen(false)} />
+        )}
+
+        {textMenu && (
+          <EditorContextMenu
+            x={textMenu.x}
+            y={textMenu.y}
+            hasSelection={hasSelection}
+            onUndo={runUndo}
+            onRedo={runRedo}
+            onTransform={applyTransform}
+            onClose={closeTextMenu}
+          />
         )}
 
         {pendingAction && (

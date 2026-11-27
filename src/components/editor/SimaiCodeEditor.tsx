@@ -26,10 +26,15 @@ type Props = {
   onCtrlClickLine?: (line: number, column: number) => void;
   /** 只读（在线谱面预览）：不能改文本，但仍可滚动、跳转、查找 */
   readOnly?: boolean;
+  /** 右键：页面要弹自己的菜单（屏幕坐标） */
+  onContextMenuRequest?: (x: number, y: number) => void;
+  /** 按 `=`：页面在光标位置弹同一个菜单 */
+  onMenuShortcut?: () => void;
 };
 
 export default function SimaiCodeEditor({
   initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange, onCtrlClickLine, readOnly = false,
+  onContextMenuRequest, onMenuShortcut,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -45,6 +50,8 @@ export default function SimaiCodeEditor({
   const onCursorLineChangeRef = useRef(onCursorLineChange);
   const onCtrlClickLineRef = useRef(onCtrlClickLine);
   const readOnlyRef = useRef(readOnly);
+  const onContextMenuRequestRef = useRef(onContextMenuRequest);
+  const onMenuShortcutRef = useRef(onMenuShortcut);
 
   useEffect(() => { activeRef.current = active; }, [active]);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
@@ -52,6 +59,8 @@ export default function SimaiCodeEditor({
   useEffect(() => { onSelectionChangeRef.current = onSelectionChange; }, [onSelectionChange]);
   useEffect(() => { onCursorLineChangeRef.current = onCursorLineChange; }, [onCursorLineChange]);
   useEffect(() => { onCtrlClickLineRef.current = onCtrlClickLine; }, [onCtrlClickLine]);
+  useEffect(() => { onContextMenuRequestRef.current = onContextMenuRequest; }, [onContextMenuRequest]);
+  useEffect(() => { onMenuShortcutRef.current = onMenuShortcut; }, [onMenuShortcut]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -83,8 +92,12 @@ export default function SimaiCodeEditor({
       // Ctrl+点击留给我们自己做「跳到那一刻」，不要变成多光标
       multiCursorModifier: 'alt',
       readOnly: readOnlyRef.current,
+      // 右键菜单由页面自己做（撤销/重做 + 镜像）
+      contextmenu: false,
     });
     editorRef.current = editor;
+    // `=` 在 simai 里没有含义：按下就弹页面自己的菜单，不插入字符
+    editor.addCommand(monaco.KeyCode.Equal, () => onMenuShortcutRef.current?.());
     editorLog('editor', 'Monaco 编辑器已创建', { instance: Math.random().toString(36).slice(2, 7) });
 
     const subscription = editor.onDidChangeModelContent(() => {
@@ -101,9 +114,37 @@ export default function SimaiCodeEditor({
       });
       if (position) onCursorLineChangeRef.current?.(position.lineNumber, position.column);
     });
+    /**
+     * 谱面只接受 ASCII：输入法组词会把中文/日文插进谱面，还会吞掉按键。
+     * Chrome 在输入元素失焦时会取消这次组词，所以 compositionstart 时先失焦再聚焦；
+     * beforeinput 里再兜一层（组词产生的输入一律拒掉）。
+     */
+    let cancellingComposition = false;
+    const cancelComposition = (event: Event) => {
+      event.stopPropagation();
+      if (cancellingComposition) return;
+      cancellingComposition = true;
+      editorLog('editor', '拦下输入法组词');
+      const active = document.activeElement as HTMLElement | null;
+      active?.blur();
+      editor.focus();
+      setTimeout(() => { cancellingComposition = false; }, 150);
+    };
+    const blockCompositionInput = (event: Event) => {
+      const inputEvent = event as InputEvent;
+      if (typeof inputEvent.inputType === 'string' && inputEvent.inputType.includes('Composition')) {
+        inputEvent.preventDefault();
+        event.stopPropagation();
+      }
+    };
+    host.addEventListener('compositionstart', cancelComposition, true);
+    host.addEventListener('beforeinput', blockCompositionInput, true);
+
     onReadyRef.current?.(editor);
 
     return () => {
+      host.removeEventListener('compositionstart', cancelComposition, true);
+      host.removeEventListener('beforeinput', blockCompositionInput, true);
       subscription.dispose();
       selectionSubscription.dispose();
       editor.dispose();
@@ -137,6 +178,10 @@ export default function SimaiCodeEditor({
     <div
       ref={hostRef}
       className="editor-code"
+      onContextMenu={(event) => {
+        event.preventDefault();
+        onContextMenuRequestRef.current?.(event.clientX, event.clientY);
+      }}
       // Ctrl/Cmd + 点击：等 Monaco 把光标挪到点击处之后再读行号
       onMouseDownCapture={(event) => {
         if (!(event.ctrlKey || event.metaKey)) return;
