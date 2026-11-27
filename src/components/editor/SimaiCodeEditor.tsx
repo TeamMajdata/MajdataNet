@@ -114,37 +114,9 @@ export default function SimaiCodeEditor({
       });
       if (position) onCursorLineChangeRef.current?.(position.lineNumber, position.column);
     });
-    /**
-     * 谱面只接受 ASCII：输入法组词会把中文/日文插进谱面，还会吞掉按键。
-     * Chrome 在输入元素失焦时会取消这次组词，所以 compositionstart 时先失焦再聚焦；
-     * beforeinput 里再兜一层（组词产生的输入一律拒掉）。
-     */
-    let cancellingComposition = false;
-    const cancelComposition = (event: Event) => {
-      event.stopPropagation();
-      if (cancellingComposition) return;
-      cancellingComposition = true;
-      editorLog('editor', '拦下输入法组词');
-      const active = document.activeElement as HTMLElement | null;
-      active?.blur();
-      editor.focus();
-      setTimeout(() => { cancellingComposition = false; }, 150);
-    };
-    const blockCompositionInput = (event: Event) => {
-      const inputEvent = event as InputEvent;
-      if (typeof inputEvent.inputType === 'string' && inputEvent.inputType.includes('Composition')) {
-        inputEvent.preventDefault();
-        event.stopPropagation();
-      }
-    };
-    host.addEventListener('compositionstart', cancelComposition, true);
-    host.addEventListener('beforeinput', blockCompositionInput, true);
-
     onReadyRef.current?.(editor);
 
     return () => {
-      host.removeEventListener('compositionstart', cancelComposition, true);
-      host.removeEventListener('beforeinput', blockCompositionInput, true);
       subscription.dispose();
       selectionSubscription.dispose();
       editor.dispose();

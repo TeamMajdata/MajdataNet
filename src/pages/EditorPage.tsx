@@ -4,7 +4,7 @@
  * 左侧是 MajView 预览（直接吃内存里的谱面文本，边改边看），右侧是难度页签 + 谱面元信息 + Monaco。
  * 谱面文本只有一个真源 `maidata`：编辑器改的是当前难度的 `&inote_N`，保存时整份写回。
  *
- * 设计依据见 docs/analysis/editor-interaction-spec.md。
+ * 设计依据见 docs/design/edit.md（早期规格见 docs/analysis/editor-interaction-spec.md）。
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -55,7 +55,10 @@ const SHORTCUTS = [
   { keys: 'Ctrl + Space', labelKey: 'editor/EditorPage.ShortcutToggle' },
   { keys: 'Shift + Space', labelKey: 'editor/EditorPage.ShortcutTypeSpace' },
   { keys: 'Ctrl + ← / →', labelKey: 'editor/EditorPage.ShortcutNote' },
+  { keys: 'Ctrl + ↑ / ↓', labelKey: 'editor/EditorPage.ShortcutNote' },
   { keys: 'Ctrl + Click', labelKey: 'editor/EditorPage.ShortcutClick' },
+  { keys: 'Shift + ← / →', labelKey: 'editor/EditorPage.ShortcutSelect' },
+  { keys: '=', labelKey: 'editor/EditorPage.ShortcutContextMenu' },
   { keys: 'Ctrl + S', labelKey: 'editor/EditorPage.ShortcutSave' },
   { keys: 'Ctrl + O', labelKey: 'editor/EditorPage.ShortcutOpen' },
   { keys: 'Ctrl（按住）', labelKey: 'editor/EditorPage.ShortcutHoldCtrl' },
@@ -450,7 +453,10 @@ export default function EditorPage() {
         return;
       }
 
-      if ((event.ctrlKey || event.metaKey) && !event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      // Ctrl + 方向键：按逗号格子移动光标（←/↑ 上一格，→/↓ 下一格）并跳到那一刻
+      const nextCell = event.key === 'ArrowRight' || event.key === 'ArrowDown';
+      const previousCell = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && (nextCell || previousCell)) {
         const editor = editorRef.current;
         const model = editor?.getModel();
         if (!editor || !model) return;
@@ -459,7 +465,7 @@ export default function EditorPage() {
         const offset = position ? model.getOffsetAt(position) : 0;
         const text = model.getValue();
         let target: number;
-        if (event.key === 'ArrowRight') {
+        if (nextCell) {
           const next = text.indexOf(',', offset);
           target = next === -1 ? text.length : next + 1;
         } else {
@@ -861,7 +867,7 @@ export default function EditorPage() {
           >
             <div className="editor-shortcuts">
               {SHORTCUTS.map(({ keys, labelKey }) => (
-                <div key={labelKey} className="editor-shortcut-row">
+                <div key={keys} className="editor-shortcut-row">
                   <kbd>{keys}</kbd>
                   <span>{t(labelKey)}</span>
                 </div>
