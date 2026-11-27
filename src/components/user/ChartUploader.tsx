@@ -320,7 +320,7 @@ export default function ChartUploader() {
 
       {hashLookup.status !== 'idle' && (
         <div className={`flex items-center gap-2 bg-white/[0.03] px-3 py-2 rounded-lg text-xs ${hashLookupStatusClass[hashLookup.status]}`}>
-          {hashLookup.status === 'checking' && <LoadingSpinner className="w-4 h-4" />}
+          {hashLookup.status === 'checking' && <LoadingSpinner size={16} />}
           <span className="min-w-0">{hashLookupStatusText[hashLookup.status]}</span>
           {hashLookup.status === 'exists' && hashLookup.chart && (
             <Link
@@ -340,7 +340,7 @@ export default function ChartUploader() {
       >
         {isUploading ? (
           <>
-            <LoadingSpinner className="w-4 h-4" />
+            <LoadingSpinner size={16} />
             {t("user/ChartUploader.UploadingPlzWait")}
           </>
         ) : (

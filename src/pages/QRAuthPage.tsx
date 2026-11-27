@@ -164,7 +164,7 @@ function PermitLogin({ authId }: { authId: string | null }) {
         disabled={submitting}
         className="inline-flex justify-center items-center gap-2 bg-blue-500 hover:bg-blue-400 disabled:opacity-60 mt-6 border-none rounded-xl w-full h-11 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
       >
-        {submitting && <LoadingSpinner className="w-4 h-4" size={16} />}
+        {submitting && <LoadingSpinner size={16} />}
         {t('qrauth/QRAuthPage.Confirm')}
       </button>
     </form>

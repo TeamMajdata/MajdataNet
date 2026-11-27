@@ -56,7 +56,7 @@ export default function ConfirmDialog({ open, title, message, confirmLabel, dang
           disabled={busy}
           className={`inline-flex items-center gap-2 disabled:opacity-60 px-4 border-none rounded-xl h-10 font-semibold text-white text-sm transition-colors cursor-pointer disabled:cursor-not-allowed ${danger ? 'bg-red-500 hover:bg-red-400' : 'bg-blue-500 hover:bg-blue-400'}`}
         >
-          {busy && <LoadingSpinner className="w-4 h-4" />}
+          {busy && <LoadingSpinner size={16} />}
           {confirmLabel}
         </button>
       </div>
