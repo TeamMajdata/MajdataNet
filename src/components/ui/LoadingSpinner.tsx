@@ -1,8 +1,10 @@
 import { useState } from 'react';
 
 interface LoadingSpinnerProps {
-  className?: string; // Additional classes for the spinner container
-  size?: number | string; // Size of the spinner (e.g. 24 or "1.5rem")
+  /** 只放颜色、动画之类的附加类；尺寸请用 `size`（宽高是内联样式，会盖过 w-/h- 工具类） */
+  className?: string;
+  /** 转圈的直径，数字按 px 处理（例如 16 或 "1.5rem"） */
+  size?: number | string;
 }
 
 /** 转一圈的时长 */

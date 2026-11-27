@@ -713,7 +713,7 @@
   },
   "user/ChartUploader": {
     "ChooseFile": "선택",
-    "InvalidFileName": "파일 이름이 올바르지 않습니다(대소문자 구분). 올바른 이름: ",
+    "InvalidFileFormat": "지원하지 않는 파일 형식입니다. {{formats}} 파일을 선택하세요",
     "MaidataAlreadyExists": "이 채보는 이미 사이트에 존재합니다",
     "MaidataAlreadyExistsWithTitle": "이 채보는 이미 사이트에 존재합니다: {{title}}",
     "MaidataHashChecking": "이 채보가 이미 존재하는지 확인하는 중...",
