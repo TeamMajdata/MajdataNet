@@ -10,6 +10,7 @@ import 'monaco-editor/editor/contrib/find/browser/findController.js';
 // 否则那些按钮会显示成空白方块（glyph 规则是 Monaco 运行时注入的，不受影响）
 import 'monaco-codicon/codicon.css';
 import { monaco, setupSimai, type SimaiEditor } from '@/components/song/monacoSimai';
+import { editorLog } from '@/utils/editorLog';
 
 type Props = {
   /** 七个难度在挂载时的文本；之后由编辑器自己持有 */
@@ -84,14 +85,20 @@ export default function SimaiCodeEditor({
       readOnly: readOnlyRef.current,
     });
     editorRef.current = editor;
+    editorLog('editor', 'Monaco 编辑器已创建', { instance: Math.random().toString(36).slice(2, 7) });
 
     const subscription = editor.onDidChangeModelContent(() => {
       onChangeRef.current(activeRef.current, editor.getValue());
     });
-    const selectionSubscription = editor.onDidChangeCursorSelection(() => {
+    const selectionSubscription = editor.onDidChangeCursorSelection((event) => {
       const selection = editor.getSelection();
       onSelectionChangeRef.current?.(Boolean(selection && !selection.isEmpty()));
       const position = editor.getPosition();
+      editorLog('editor', 'Monaco 选区变化', {
+        line: position?.lineNumber ?? null,
+        column: position?.column ?? null,
+        source: event.source,
+      });
       if (position) onCursorLineChangeRef.current?.(position.lineNumber, position.column);
     });
     onReadyRef.current?.(editor);

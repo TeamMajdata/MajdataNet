@@ -296,7 +296,12 @@ export default function EditorPage() {
   );
 
   // 光标移动只记录位置，不自动 seek
+  useEffect(() => {
+    editorLog('editor', '光标时间', { caretTime, line: caretPos.line, column: caretPos.column });
+  }, [caretTime, caretPos]);
+
   const handleCursorLine = useCallback((line: number, column: number) => {
+    editorLog('editor', '光标移动', { line, column });
     setCaretPos({ line, column });
   }, []);
 

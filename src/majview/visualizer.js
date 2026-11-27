@@ -286,16 +286,27 @@ export class Visualizer {
 
     // 顶部的黄色小三角标记的是「文本光标」所在的时间，不是播放位置；
     // 红线才是播放头，固定在中间。
+    //
+    // 光标的时间常常落在窗口外面（比如播放头停在 0:00，而光标在谱面第 100 行）：
+    // 以前越界就不画，用户移动光标时看不到任何变化。现在越界时把三角钉在对应那一侧的
+    // 边缘，并在最边上加一条竖线表示「光标在视野外的那一边」。
     const caret = content.caretTime;
-    if (typeof caret === 'number' && Number.isFinite(caret) && caret >= from && caret <= to) {
+    if (typeof caret === 'number' && Number.isFinite(caret)) {
       const caretX = xOf(caret);
+      const pinnedLeft = caret < from;
+      const pinnedRight = caret > to;
+      const x = Math.min(Math.max(caretX, 8), width - 8);
       context.fillStyle = VISUALIZER_COLORS.caret;
       context.beginPath();
-      context.moveTo(caretX - 5, 0);
-      context.lineTo(caretX + 5, 0);
-      context.lineTo(caretX, 8);
+      context.moveTo(x - 5, 0);
+      context.lineTo(x + 5, 0);
+      context.lineTo(x, 8);
       context.closePath();
       context.fill();
+      if (pinnedLeft || pinnedRight) {
+        // 越界提示：贴着窗口边缘的一小段竖线，指向光标所在的方向
+        context.fillRect(pinnedLeft ? 0 : width - 2, 0, 2, 8);
+      }
     }
     // 红色三角：这一轮是从哪里开始播的（空格按第二下会跳回这里）。
     // 和顶部光标三角对称：底边贴在时间轴下沿，尖端朝上指向谱面
