@@ -318,6 +318,29 @@ export default function EditorPage() {
     setSeekTo({ seconds, key: Date.now() });
   }, [timeline]);
 
+  /** Ctrl + 方向键：把光标挪到相邻的逗号格子，并跳到那一格的时间 */
+  const jumpCell = useCallback((direction: 'prev' | 'next') => {
+    const editor = editorRef.current;
+    const model = editor?.getModel();
+    if (!editor || !model) return;
+    const position = editor.getPosition();
+    const offset = position ? model.getOffsetAt(position) : 0;
+    const text = model.getValue();
+    let target: number;
+    if (direction === 'next') {
+      const next = text.indexOf(',', offset);
+      target = next === -1 ? text.length : next + 1;
+    } else {
+      // 光标刚跳完时正停在逗号后面，要从更前面找，否则原地不动
+      const previous = offset >= 2 ? text.lastIndexOf(',', offset - 2) : -1;
+      target = previous === -1 ? 0 : previous + 1;
+    }
+    const nextPosition = model.getPositionAt(target);
+    editor.setPosition(nextPosition);
+    editor.revealPositionInCenterIfOutsideViewport(nextPosition);
+    handleCtrlClickLine(nextPosition.lineNumber, nextPosition.column);
+  }, [handleCtrlClickLine]);
+
   /** 拖动时间轴结束后把焦点还给文本编辑器 */
   const focusEditor = useCallback(() => {
     editorRef.current?.focus();
@@ -453,35 +476,19 @@ export default function EditorPage() {
         return;
       }
 
-      // Ctrl + 方向键：按逗号格子移动光标（←/↑ 上一格，→/↓ 下一格）并跳到那一刻
+      // Ctrl + 方向键：按逗号格子移动光标（←/↑ 上一格，→/↓ 下一格）并跳到那一刻。
+      // 焦点在编辑器里时由 Monaco 的命令（onCellJump）处理，那边会 preventDefault，
+      // 这里只兜住焦点在编辑器外面的情况，避免同一个按键跳两次。
       const nextCell = event.key === 'ArrowRight' || event.key === 'ArrowDown';
       const previousCell = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
-      if ((event.ctrlKey || event.metaKey) && !event.altKey && (nextCell || previousCell)) {
-        const editor = editorRef.current;
-        const model = editor?.getModel();
-        if (!editor || !model) return;
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && (nextCell || previousCell) && !event.defaultPrevented) {
         event.preventDefault();
-        const position = editor.getPosition();
-        const offset = position ? model.getOffsetAt(position) : 0;
-        const text = model.getValue();
-        let target: number;
-        if (nextCell) {
-          const next = text.indexOf(',', offset);
-          target = next === -1 ? text.length : next + 1;
-        } else {
-          // 光标刚跳完时正停在逗号后面，要从更前面找，否则原地不动
-          const previous = offset >= 2 ? text.lastIndexOf(',', offset - 2) : -1;
-          target = previous === -1 ? 0 : previous + 1;
-        }
-        const nextPosition = model.getPositionAt(target);
-        editor.setPosition(nextPosition);
-        editor.revealPositionInCenterIfOutsideViewport(nextPosition);
-        handleCtrlClickLine(nextPosition.lineNumber, nextPosition.column);
+        jumpCell(nextCell ? 'next' : 'prev');
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleCtrlClickLine]);
+  }, [jumpCell]);
 
   /** 打开 / 新建前先确认未保存的改动 */
   /** 有未保存改动时先弹「保存 / 不保存 / 取消」，选完再执行动作 */
@@ -843,6 +850,7 @@ export default function EditorPage() {
                   onCtrlClickLine={handleCtrlClickLine}
                   onContextMenuRequest={openTextMenu}
                   onMenuShortcut={openTextMenuAtCaret}
+                  onCellJump={jumpCell}
                 />
                 {/* 文本编译不过时的提示：贴在编辑器底部，不挡预览 */}
                 {chartError && (

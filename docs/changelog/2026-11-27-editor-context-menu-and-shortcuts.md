@@ -17,8 +17,8 @@
 | 位置 | 改动 |
 | --- | --- |
 | `src/components/editor/EditorContextMenu.tsx` | 顺序改为 **镜像 5 项 → 撤销 / 重做**；打开时自己拿焦点，`↑` / `↓` 移动（跳过不可用项）、`Enter` / `空格` 执行、`Esc` 收起；鼠标悬停同步高亮；默认落在第一个可用项 |
-| `src/components/editor/SimaiCodeEditor.tsx` | 移除 `compositionstart` / `beforeinput` 的输入法拦截和对应日志（保留右键上报、`=` 的 keybinding） |
-| `src/pages/EditorPage.tsx` | `Ctrl + ↑ / ↓` 与 `Ctrl + ← / →` 等价（←/↑ 上一格，→/↓ 下一格，并跳到那一刻）；快捷键列表新增 `Ctrl + ↑ / ↓`、`Shift + ← / →`、`=` 三行；弹菜单前重读一次选区，收起后把焦点还给编辑器 |
+| `src/components/editor/SimaiCodeEditor.tsx` | 移除 `compositionstart` / `beforeinput` 的输入法拦截和对应日志（保留右键上报、`=` 的 keybinding）；`Ctrl + ←/→/↑/↓` 改用 `editor.addCommand` 注册，盖掉 Monaco 自带的「Ctrl+上下 = 滚动」「Ctrl+左右 = 按词移动」 |
+| `src/pages/EditorPage.tsx` | `Ctrl + ↑ / ↓` 与 `Ctrl + ← / →` 等价（←/↑ 上一格，→/↓ 下一格，并跳到那一刻）；跳格逻辑抽成 `jumpCell`，页面级 keydown 只兜住焦点在编辑器外面的情况（`defaultPrevented` 时跳过，避免跳两次）；快捷键列表新增 `Ctrl + ↑ / ↓`、`Shift + ← / →`、`=` 三行；弹菜单前重读一次选区，收起后把焦点还给编辑器 |
 | `src/locales/{zh,en,ja,ko}.json` | 新增 `ShortcutSelect`、`ShortcutContextMenu`；`ShortcutNote` 改为「按逗号格子移动光标并跳到那一刻」 |
 
 ## 快捷键窗里现在写着
@@ -36,6 +36,9 @@
 - 快捷键窗共 12 行，顺序与文案正确（含 `=`、`Shift + ← / →`、`Ctrl + ↑ / ↓`）；
 - `Ctrl + ↑`：光标从第 1 格跳到第 2 格（时钟 `0:00 → 0:04`，光标左移 `0 → 56px`）；
   `Ctrl + ↑` 再跳回第 1 格（`56 → 0px`）；
+- **焦点在编辑器里**（真实用法）再测一遍：`Ctrl+↓` 同样从第 1 格跳到第 2 格（`0:00 → 0:04`，
+  光标 `0 → 56px`，编辑器 `scrollTop` 保持 0 —— 不再被 Monaco 解释成滚动）；`Ctrl+↑` 回退、
+  `Ctrl+→` 前进都正常，单次按键只跳一格（没有页面级与 Monaco 重复触发）；
 - 右键菜单：顺序为镜像 5 项 + 撤销/重做，`↑/↓` 在可用项之间移动，`Enter` 执行撤销并关闭、
   焦点回到编辑器，`Esc` 同样收起并回焦；没有选区时镜像灰、有选区时变亮并可执行；
 - 输入法：拦截代码已删干净（`grep composition` 无结果），组词不再被页面干预。

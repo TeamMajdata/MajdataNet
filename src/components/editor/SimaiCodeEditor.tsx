@@ -30,11 +30,13 @@ type Props = {
   onContextMenuRequest?: (x: number, y: number) => void;
   /** 按 `=`：页面在光标位置弹同一个菜单 */
   onMenuShortcut?: () => void;
+  /** Ctrl + 方向键：按逗号格子跳（prev / next） */
+  onCellJump?: (direction: 'prev' | 'next') => void;
 };
 
 export default function SimaiCodeEditor({
   initialTexts, active, onChange, onReady, onSelectionChange, onCursorLineChange, onCtrlClickLine, readOnly = false,
-  onContextMenuRequest, onMenuShortcut,
+  onContextMenuRequest, onMenuShortcut, onCellJump,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<SimaiEditor | null>(null);
@@ -52,6 +54,7 @@ export default function SimaiCodeEditor({
   const readOnlyRef = useRef(readOnly);
   const onContextMenuRequestRef = useRef(onContextMenuRequest);
   const onMenuShortcutRef = useRef(onMenuShortcut);
+  const onCellJumpRef = useRef(onCellJump);
 
   useEffect(() => { activeRef.current = active; }, [active]);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
@@ -61,6 +64,7 @@ export default function SimaiCodeEditor({
   useEffect(() => { onCtrlClickLineRef.current = onCtrlClickLine; }, [onCtrlClickLine]);
   useEffect(() => { onContextMenuRequestRef.current = onContextMenuRequest; }, [onContextMenuRequest]);
   useEffect(() => { onMenuShortcutRef.current = onMenuShortcut; }, [onMenuShortcut]);
+  useEffect(() => { onCellJumpRef.current = onCellJump; }, [onCellJump]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -98,6 +102,13 @@ export default function SimaiCodeEditor({
     editorRef.current = editor;
     // `=` 在 simai 里没有含义：按下就弹页面自己的菜单，不插入字符
     editor.addCommand(monaco.KeyCode.Equal, () => onMenuShortcutRef.current?.());
+    // Ctrl + 方向键要盖掉 Monaco 自带的「Ctrl+上下 = 滚动」：在编辑器里注册命令，
+    // 焦点在编辑器时也能按格跳（页面级的 keydown 只兜住焦点在编辑器外面的情况）
+    const ctrl = monaco.KeyMod.CtrlCmd;
+    editor.addCommand(ctrl | monaco.KeyCode.RightArrow, () => onCellJumpRef.current?.('next'));
+    editor.addCommand(ctrl | monaco.KeyCode.DownArrow, () => onCellJumpRef.current?.('next'));
+    editor.addCommand(ctrl | monaco.KeyCode.LeftArrow, () => onCellJumpRef.current?.('prev'));
+    editor.addCommand(ctrl | monaco.KeyCode.UpArrow, () => onCellJumpRef.current?.('prev'));
     editorLog('editor', 'Monaco 编辑器已创建', { instance: Math.random().toString(36).slice(2, 7) });
 
     const subscription = editor.onDidChangeModelContent(() => {
